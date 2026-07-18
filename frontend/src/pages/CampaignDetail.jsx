@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight, Send, Check, RotateCw, Star, DollarSign, MessageSquare, Upload } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Send, Check, RotateCw, Star, DollarSign, MessageSquare, Upload, Sparkles, Loader2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
@@ -19,6 +19,11 @@ export default function CampaignDetail() {
   const [apps, setApps] = useState([]);
   const [delivs, setDelivs] = useState([]);
   const [delivForm, setDelivForm] = useState({ url: "", caption: "", kind: "post" });
+  const [topMatches, setTopMatches] = useState(null);
+  const [matchesBusy, setMatchesBusy] = useState(false);
+  const [inviteForCreator, setInviteForCreator] = useState(null);
+  const [inviteOffer, setInviteOffer] = useState("");
+  const [inviteMsg, setInviteMsg] = useState("");
 
   const load = async () => {
     try {
@@ -73,6 +78,26 @@ export default function CampaignDetail() {
       const { data } = await api.post("/conversations/open", null, { params: { campaign_id: id, creator_id } });
       nav(`/messages?id=${data.id}`);
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
+  };
+  const loadTopMatches = async () => {
+    setMatchesBusy(true);
+    try {
+      const { data } = await api.get(`/campaigns/${id}/top-matches?limit=5`);
+      setTopMatches(data);
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "AI ranking failed");
+    } finally { setMatchesBusy(false); }
+  };
+  const sendInviteQuick = async () => {
+    if (!inviteForCreator) return;
+    try {
+      await api.post("/invitations", {
+        creator_id: inviteForCreator.id, campaign_id: id,
+        offer: Number(inviteOffer) || c.budget, message: inviteMsg || `We'd love you on ${c.title}.`,
+      });
+      toast.success("Invitation sent.");
+      setInviteForCreator(null); setInviteOffer(""); setInviteMsg("");
+    } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || "Failed"); }
   };
 
   if (c === false) return <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-editorial italic text-5xl">Brief not on file.</h1></div>;
@@ -167,6 +192,92 @@ export default function CampaignDetail() {
                 )}
               </div>
             )}
+
+            {/* Owner: AI-ranked top 5 creators */}
+            {isOwner && c.status === "open" && (
+              <div className="mt-14" data-testid="top-matches-section">
+                <div className="hairline-b pb-3 flex items-baseline justify-between">
+                  <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI-ranked top matches</h3>
+                  {!topMatches ? (
+                    <button onClick={loadTopMatches} disabled={matchesBusy} data-testid="load-top-matches" className="btn-pill text-[10px]">
+                      {matchesBusy ? <><Loader2 className="w-3 h-3 animate-spin" /> Scoring…</> : <><Sparkles className="w-3 h-3" /> Reveal top 5</>}
+                    </button>
+                  ) : (
+                    <button onClick={loadTopMatches} disabled={matchesBusy} className="font-mono text-[10px] tracking-[0.28em] uppercase kinetic-underline opacity-70">
+                      {matchesBusy ? "Scoring…" : "Re-score"}
+                    </button>
+                  )}
+                </div>
+                {topMatches && (
+                  <div className="mt-6 space-y-3">
+                    {topMatches.length === 0 && (
+                      <p className="opacity-60 italic">No matches surfaced. Try broader niches.</p>
+                    )}
+                    {topMatches.map((m, idx) => (
+                      <motion.div key={m.id}
+                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: idx * 0.06 }}
+                        className="hairline-t hairline-b hairline-l hairline-r p-4 grid grid-cols-12 gap-4 items-center"
+                        data-testid={`match-${m.id}`}
+                      >
+                        <div className="col-span-1 font-editorial italic text-4xl text-[#FF3B30]">#{idx + 1}</div>
+                        <div className="col-span-1">
+                          {m.avatar ? (
+                            <img src={m.avatar} alt="" className="w-14 h-14 object-cover" />
+                          ) : (
+                            <div className="w-14 h-14 bg-white/5 flex items-center justify-center font-editorial text-2xl italic">{m.name?.[0]}</div>
+                          )}
+                        </div>
+                        <div className="col-span-4">
+                          <Link to={`/creators/${m.id}`} className="font-editorial text-2xl kinetic-underline">{m.name}</Link>
+                          <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{m.handle} · {(m.niches || []).join(" · ")}</div>
+                          <p className="text-xs italic opacity-80 mt-1 line-clamp-2">"{m.verdict}"</p>
+                        </div>
+                        <div className="col-span-2 font-editorial italic text-4xl text-[#FF3B30]">{m.score}%</div>
+                        <div className="col-span-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">
+                          {m.followers ? `${Math.round(m.followers / 1000)}K` : "—"}<br/>
+                          <span className="opacity-70">{m.estimated_reach}</span>
+                        </div>
+                        <div className="col-span-2 flex flex-col gap-1 items-end">
+                          <button onClick={() => setInviteForCreator(m)} data-testid={`invite-match-${m.id}`} className="btn-solid text-[10px]">
+                            <Send className="w-3 h-3" /> Invite
+                          </button>
+                          <button onClick={() => openChat(m.id)} data-testid={`chat-match-${m.id}`} className="btn-pill text-[10px]">
+                            <MessageSquare className="w-3 h-3" /> Msg
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+                <AnimatePresence>
+                  {inviteForCreator && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="mt-4 hairline-t hairline-b hairline-l hairline-r p-6"
+                      data-testid="quick-invite-panel"
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="font-editorial text-2xl italic">Invite {inviteForCreator.name}</h4>
+                        <button onClick={() => setInviteForCreator(null)} className="opacity-60 hover:opacity-100">×</button>
+                      </div>
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Offer (USD)</label>
+                      <input type="number" data-testid="quick-invite-offer" value={inviteOffer} onChange={e=>setInviteOffer(e.target.value)}
+                        placeholder={`${c.budget}`}
+                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Note</label>
+                      <textarea rows={3} data-testid="quick-invite-msg" value={inviteMsg} onChange={e=>setInviteMsg(e.target.value)}
+                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none"
+                        placeholder="Why this creator, why this brief." />
+                      <button onClick={sendInviteQuick} data-testid="quick-invite-send" className="btn-solid mt-6 w-full justify-center">
+                        <Send className="w-4 h-4" /> Send invitation
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
 
             {/* Accepted creator: submit deliverable */}
             {isAcceptedCreator && (

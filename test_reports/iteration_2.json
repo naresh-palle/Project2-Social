@@ -1,0 +1,41 @@
+{
+  "summary": "CR8 iteration-2 backend test complete. All 64 tests pass (49 regression + 15 new). New coverage: uploads (5), analytics owner/creator (5), SSE stream + RBAC (2), AI top-matches owner-only + ranked list (2), email-side-effects fire-and-forget (1). Regression suite from iteration-1 still 49/49.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/analytics/owner", "issue": "Field named `conversations` is described as unread count in docs but implementation returns TOTAL owner conversations (db.conversations.count_documents({owner_id})). Consider renaming to `total_conversations` or actually track unread."},
+      {"endpoint": "GET /api/analytics/creator", "issue": "`earned` returns current wallet balance rather than lifetime earnings — misleading naming; consider `wallet_balance` or compute lifetime from released escrow."},
+      {"endpoint": "GET /api/campaigns/{id}/top-matches", "issue": "When LLM returns non-int score or malformed JSON for a creator, that creator is silently dropped. Fine for MVP but there is no partial-error surface; frontend cannot distinguish 'no matches' from 'LLM failed'."},
+      {"endpoint": "GET /api/conversations/{id}/stream", "issue": "Rewrites request scope in-place to inject a Bearer header from ?token=; works, but couples auth to internal FastAPI scope shape. Prefer a helper that decodes JWT directly for SSE path."},
+      {"endpoint": "POST /api/uploads", "issue": "content_type comes from client; a malicious client can send image/png with any bytes. Server does not validate magic bytes. Acceptable for MVP."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_iteration2_features.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: rename analytics.conversations -> total_conversations and analytics.earned -> wallet_balance for clarity.",
+    "Optional: enforce magic-byte sniffing on /api/uploads instead of trusting client content-type.",
+    "Optional: split server.py (now 1232 lines) into routers — well above 700-line guideline."
+  ],
+  "critical_code_review_comments": [
+    "server.py grew from 923 to 1232 lines — routers for uploads/analytics/sse/ai should be extracted.",
+    "SSE endpoint reconstructs `Request(scope=...)` to inject Bearer token from query-string. Works, but tightly coupled to FastAPI internal scope shape; safer to decode the JWT inline.",
+    "top-matches silently drops creators whose LLM score is not an int — no partial-error signalling to the client.",
+    "Uploads validate only client-supplied content_type (no magic-byte sniff) — trivial to spoof.",
+    "analytics/owner returns total conversations under a `conversations` key; docs imply 'unread'. Mismatch."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration2_features.py (created)"
+  ],
+  "success_rate": {"backend": "100% (64/64)", "frontend": "not tested (backend-only per request)"},
+  "test_credentials": "Used seeded credentials from /app/memory/test_credentials.md — all valid.",
+  "seed_data_creation": "New TEST-prefixed campaigns/applications/invitations/messages/uploads created; not cleaned. One PNG file left in /app/backend/uploads.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run `python -m pytest backend/tests/ -v -n 0` — 64 tests, ~30s. AI tests hit real Claude Sonnet 4.6 via Emergent LLM key. SSE test uses a threaded poster + iter_lines with a 12s hard cutoff; if flaky, extend cutoff. Top-matches test allows an empty list (pytest.skip) in case LLM has a bad run.",
+  "rca of the issue": "N/A — no failing tests."
+}

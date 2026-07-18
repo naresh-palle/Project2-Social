@@ -32,9 +32,22 @@ export default function Messages() {
 
   useEffect(() => {
     if (!active) return;
+    // Initial load
     api.get(`/conversations/${active.id}/messages`).then(r => setMsgs(r.data));
-    const t = setInterval(() => api.get(`/conversations/${active.id}/messages`).then(r => setMsgs(r.data)), 5000);
-    return () => clearInterval(t);
+    // Real-time SSE stream — token in querystring since EventSource can't set headers
+    const token = localStorage.getItem("cr8_token");
+    const base = process.env.REACT_APP_BACKEND_URL;
+    const es = new EventSource(
+      `${base}/api/conversations/${active.id}/stream?token=${encodeURIComponent(token || "")}`
+    );
+    es.addEventListener("message", (evt) => {
+      try {
+        const data = JSON.parse(evt.data);
+        setMsgs((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, data]));
+      } catch {}
+    });
+    es.onerror = () => { /* auto-retries */ };
+    return () => es.close();
   }, [active]);
 
   useEffect(() => {

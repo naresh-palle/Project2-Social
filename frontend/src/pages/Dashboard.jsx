@@ -63,12 +63,40 @@ export default function Dashboard() {
 
 function OwnerPanel() {
   const [items, setItems] = useState([]);
+  const [stats, setStats] = useState(null);
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(r.data)).catch(() => {});
+    api.get("/analytics/owner").then((r) => setStats(r.data)).catch(() => {});
   }, []);
+
+  const tiles = stats ? [
+    { k: "Live briefs", v: stats.open_campaigns, tail: `of ${stats.total_campaigns} total` },
+    { k: "In progress", v: stats.in_progress, tail: "shipping now" },
+    { k: "Applications", v: stats.applications_total, tail: "on file" },
+    { k: "Escrow held", v: `$${stats.escrow_held.toLocaleString()}`, tail: "in the vault" },
+    { k: "Paid to creators", v: `$${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
+    { k: "Conversations", v: stats.conversations, tail: "in the studio" },
+  ] : [];
 
   return (
     <div>
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="owner-analytics">
+          {tiles.map((t, i) => (
+            <motion.div
+              key={t.k}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.05 }}
+              className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            >
+              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
+              <div className="font-editorial italic text-4xl md:text-5xl leading-none mt-2">{t.v}</div>
+              <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
+            </motion.div>
+          ))}
+        </div>
+      )}
       <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
         Your live briefs · {items.length}
       </h2>
@@ -87,11 +115,39 @@ function OwnerPanel() {
 
 function InfluencerPanel() {
   const [apps, setApps] = useState([]);
+  const [stats, setStats] = useState(null);
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(r.data)).catch(() => {});
+    api.get("/analytics/creator").then((r) => setStats(r.data)).catch(() => {});
   }, []);
+  const tiles = stats ? [
+    { k: "Applications", v: stats.applications, tail: "pitched" },
+    { k: "Accepted", v: stats.acceptances, tail: "signed" },
+    { k: "Invitations", v: stats.invitations, tail: "extended to you" },
+    { k: "Deliverables", v: `${stats.approved}/${stats.deliverables}`, tail: "approved / total" },
+    { k: "Rating", v: stats.reviews_count ? stats.avg_rating : "—", tail: `${stats.reviews_count} reviews` },
+    { k: "Wallet", v: `$${stats.earned.toLocaleString()}`, tail: "on the books" },
+  ] : [];
+
   return (
     <div>
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="creator-analytics">
+          {tiles.map((t, i) => (
+            <motion.div
+              key={t.k}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.05 }}
+              className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            >
+              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
+              <div className="font-editorial italic text-4xl md:text-5xl leading-none mt-2">{t.v}</div>
+              <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
+            </motion.div>
+          ))}
+        </div>
+      )}
       <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
         Your applications · {apps.length}
       </h2>

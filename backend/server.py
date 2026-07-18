@@ -7,13 +7,19 @@ load_dotenv(ROOT_DIR / '.env')
 import os
 import uuid
 import json
+import asyncio
 import logging
+import mimetypes
+from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
 
 import bcrypt
 import jwt
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query
+import httpx
+import aiofiles
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, UploadFile, File
+from fastapi.responses import StreamingResponse, FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
@@ -28,12 +34,27 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60 * 24 * 7
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
+EMERGENT_EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
+EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
+EMAIL_BASE_URL = "https://integrations.emergentagent.com"
+UPLOAD_DIR = PathLib(os.environ.get("UPLOAD_DIR", "/app/backend/uploads"))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="CR8 API")
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("cr8")
+
+# in-memory pub/sub queues for SSE, keyed by conversation_id
+_sse_channels: Dict[str, List[asyncio.Queue]] = {}
+
+async def sse_publish(conversation_id: str, event: dict):
+    for q in list(_sse_channels.get(conversation_id, [])):
+        try:
+            q.put_nowait(event)
+        except Exception:
+            pass
 
 
 # ---------- Helpers ----------
@@ -50,6 +71,50 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+async def send_email(to: str, subject: str, html: str) -> None:
+    """Fire-and-forget email via Emergent-managed Resend proxy. Failures are logged, never raised."""
+    if not EMERGENT_EMAIL_KEY:
+        logger.info("Skipping email (no key): %s -> %s", subject, to)
+        return
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.post(
+                f"{EMAIL_BASE_URL}/api/v1/email/send",
+                headers={"X-Email-Key": EMERGENT_EMAIL_KEY},
+                json={"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME},
+            )
+            if r.status_code >= 400:
+                logger.warning("Email send failed %s: %s", r.status_code, r.text[:200])
+    except Exception as e:
+        logger.warning("Email exception: %s", e)
+
+
+def email_template(headline: str, body_html: str, cta_url: Optional[str] = None, cta_label: Optional[str] = None) -> str:
+    cta = ""
+    if cta_url and cta_label:
+        cta = (
+            f'<p style="margin:32px 0"><a href="{cta_url}" '
+            f'style="display:inline-block;padding:14px 22px;background:#FF3B30;color:#F4F4F0;'
+            f'text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:11px;'
+            f'letter-spacing:0.24em;text-transform:uppercase">{cta_label}</a></p>'
+        )
+    return (
+        '<div style="background:#0A0A0A;padding:48px 24px;font-family:Georgia,serif;color:#F4F4F0">'
+        '<table style="max-width:560px;margin:0 auto" cellpadding="0" cellspacing="0" width="560">'
+        '<tr><td>'
+        '<p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.3em;'
+        'text-transform:uppercase;color:#F4F4F0;opacity:0.6;margin:0 0 16px">§ CR8 STUDIO</p>'
+        f'<h1 style="font-family:Georgia,serif;font-size:42px;line-height:1.05;margin:0 0 12px;'
+        f'font-weight:400;letter-spacing:-0.02em;color:#F4F4F0">{headline}</h1>'
+        f'<div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;'
+        f'color:#F4F4F0;opacity:0.9">{body_html}</div>'
+        f'{cta}'
+        '<p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.24em;'
+        'text-transform:uppercase;color:#F4F4F0;opacity:0.4;margin-top:48px">— CR8 Editorial</p>'
+        '</td></tr></table></div>'
+    )
 
 
 def create_access_token(user_id: str, email: str, role: str) -> str:
@@ -334,6 +399,22 @@ async def apply(campaign_id: str, inp: ApplicationCreate, current: dict = Depend
     }
     await db.applications.insert_one(doc)
     await db.campaigns.update_one({"id": campaign_id}, {"$inc": {"applications_count": 1}})
+    # Notify owner
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if camp:
+        owner = await db.users.find_one({"id": camp["owner_id"]}, {"email": 1, "name": 1})
+        if owner and owner.get("email"):
+            asyncio.create_task(send_email(
+                owner["email"],
+                f"New pitch on {camp['title']}",
+                email_template(
+                    "A new pitch has landed.",
+                    f"<p><em>{current['name']}</em> ({current.get('handle','')}) has pitched <strong>{camp['title']}</strong>.</p>"
+                    f'<p style="font-style:italic;opacity:0.8;border-left:2px solid #FF3B30;padding-left:14px">"{inp.pitch}"</p>'
+                    f"<p><strong>Rate:</strong> ${inp.rate}</p>",
+                    cta_label="Review pitch",
+                ),
+            ))
     doc.pop("_id", None)
     return doc
 
@@ -376,6 +457,19 @@ async def accept_application(application_id: str, current: dict = Depends(get_cu
         {"id": camp["id"]},
         {"$set": {"status": "in_progress", "accepted_creator_id": app_doc["influencer_id"]}},
     )
+    # Notify creator
+    creator = await db.users.find_one({"id": app_doc["influencer_id"]}, {"email": 1, "name": 1})
+    if creator and creator.get("email"):
+        asyncio.create_task(send_email(
+            creator["email"],
+            f"You're in — {camp['title']}",
+            email_template(
+                "You've been chosen.",
+                f"<p>{camp['brand']} accepted your pitch for <strong>{camp['title']}</strong>.</p>"
+                f"<p>Head over to the studio to open a conversation and get started.</p>",
+                cta_label="Open the brief",
+            ),
+        ))
     return {"ok": True}
 
 
@@ -396,6 +490,20 @@ async def create_invitation(inp: InvitationCreate, current: dict = Depends(get_c
         "status": "pending", "counter_offer": None, "note": None, "created_at": now_iso(),
     }
     await db.invitations.insert_one(doc)
+    # Notify creator
+    creator = await db.users.find_one({"id": inp.creator_id}, {"email": 1, "name": 1})
+    if creator and creator.get("email"):
+        asyncio.create_task(send_email(
+            creator["email"],
+            f"You've been invited — {camp['title']}",
+            email_template(
+                "An invitation, extended.",
+                f"<p>{camp['brand']} would like you on <strong>{camp['title']}</strong>.</p>"
+                f'<p style="font-style:italic;opacity:0.8;border-left:2px solid #FF3B30;padding-left:14px">"{inp.message}"</p>'
+                f"<p><strong>Offer:</strong> ${inp.offer}</p>",
+                cta_label="Review invitation",
+            ),
+        ))
     doc.pop("_id", None)
     return doc
 
@@ -439,6 +547,17 @@ async def act_on_invitation(invitation_id: str, action: str, inp: InvitationActi
         update["counter_offer"] = inp.counter_offer
         update["note"] = inp.note
     await db.invitations.update_one({"id": invitation_id}, {"$set": update})
+    # Notify owner of the response
+    owner = await db.users.find_one({"id": inv["owner_id"]}, {"email": 1, "name": 1})
+    camp = await db.campaigns.find_one({"id": inv["campaign_id"]}, {"title": 1, "brand": 1})
+    if owner and owner.get("email") and camp:
+        headline = {"accept": "Invitation accepted.", "reject": "Invitation declined.", "counter": "A counter offer, extended."}[action]
+        body = f"<p><strong>{current['name']}</strong> {action}ed your invitation to <strong>{camp['title']}</strong>.</p>"
+        if action == "counter":
+            body += f"<p><strong>Counter offer:</strong> ${inp.counter_offer}</p>"
+            if inp.note:
+                body += f'<p style="font-style:italic;opacity:0.8;border-left:2px solid #FF3B30;padding-left:14px">"{inp.note}"</p>'
+        asyncio.create_task(send_email(owner["email"], f"{camp['title']} — {action}", email_template(headline, body, cta_label="Open the studio")))
     return {"ok": True}
 
 
@@ -524,7 +643,45 @@ async def send_message(conversation_id: str, inp: MessageCreate, current: dict =
     await db.messages.insert_one(doc)
     await db.conversations.update_one({"id": conversation_id}, {"$set": {"last_at": now_iso()}})
     doc.pop("_id", None)
+    await sse_publish(conversation_id, {"type": "message", "data": doc})
     return doc
+
+
+@api_router.get("/conversations/{conversation_id}/stream")
+async def stream_conversation(conversation_id: str, request: Request, token: Optional[str] = None):
+    # Allow query-string token because EventSource can't send Authorization headers.
+    if token:
+        request = Request(scope={**request.scope, "headers": [(b"authorization", f"Bearer {token}".encode())]})
+    current = await get_current_user(request)
+    convo = await db.conversations.find_one({"id": conversation_id})
+    if not convo:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    if current["id"] not in (convo["owner_id"], convo["creator_id"]):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    queue: asyncio.Queue = asyncio.Queue()
+    _sse_channels.setdefault(conversation_id, []).append(queue)
+
+    async def gen():
+        try:
+            yield "retry: 3000\n\n"
+            while True:
+                try:
+                    event = await asyncio.wait_for(queue.get(), timeout=25)
+                    yield f"event: {event['type']}\ndata: {json.dumps(event['data'])}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"  # keep-alive
+        finally:
+            try:
+                _sse_channels.get(conversation_id, []).remove(queue)
+            except ValueError:
+                pass
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
+    })
 
 
 # ---------- Deliverables ----------
@@ -802,6 +959,159 @@ async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_
     )
     text = await call_llm(system, prompt)
     return parse_json(text)
+
+
+
+# ---------- Uploads ----------
+ALLOWED_IMAGE = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # 8 MB
+
+
+@api_router.post("/uploads")
+async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_current_user)):
+    if file.content_type not in ALLOWED_IMAGE:
+        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif allowed")
+    ext = mimetypes.guess_extension(file.content_type) or ".bin"
+    fid = f"{uuid.uuid4().hex}{ext}"
+    dest = UPLOAD_DIR / fid
+    size = 0
+    async with aiofiles.open(dest, "wb") as f:
+        while chunk := await file.read(1024 * 64):
+            size += len(chunk)
+            if size > MAX_UPLOAD_BYTES:
+                await f.close()
+                dest.unlink(missing_ok=True)
+                raise HTTPException(status_code=413, detail="File too large (max 8MB)")
+            await f.write(chunk)
+    return {"id": fid, "url": f"/api/uploads/{fid}"}
+
+
+@api_router.get("/uploads/{file_id}")
+async def get_upload(file_id: str):
+    safe = PathLib(file_id).name  # prevent traversal
+    p = UPLOAD_DIR / safe
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(p, media_type=mimetypes.guess_type(str(p))[0] or "application/octet-stream")
+
+
+# ---------- Analytics ----------
+@api_router.get("/analytics/owner")
+async def analytics_owner(current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner"])
+    total_campaigns = await db.campaigns.count_documents({"owner_id": current["id"]})
+    open_campaigns = await db.campaigns.count_documents({"owner_id": current["id"], "status": "open"})
+    in_progress = await db.campaigns.count_documents({"owner_id": current["id"], "status": "in_progress"})
+    completed = await db.campaigns.count_documents({"owner_id": current["id"], "status": "completed"})
+    my_camps = await db.campaigns.find({"owner_id": current["id"]}, {"_id": 0, "id": 1, "budget": 1,
+                                                                     "escrow_funded": 1, "escrow_released": 1,
+                                                                     "applications_count": 1}).to_list(500)
+    ids = [c["id"] for c in my_camps]
+    apps_total = await db.applications.count_documents({"campaign_id": {"$in": ids}}) if ids else 0
+    escrow_held = sum((c.get("escrow_funded") or 0) - (c.get("escrow_released") or 0) for c in my_camps)
+    paid = sum(c.get("escrow_released") or 0 for c in my_camps)
+    total_budget = sum(c.get("budget") or 0 for c in my_camps)
+    unread_convos = await db.conversations.count_documents({"owner_id": current["id"]})
+    return {
+        "total_campaigns": total_campaigns,
+        "open_campaigns": open_campaigns,
+        "in_progress": in_progress,
+        "completed": completed,
+        "applications_total": apps_total,
+        "escrow_held": escrow_held,
+        "paid_to_creators": paid,
+        "total_budget": total_budget,
+        "conversations": unread_convos,
+    }
+
+
+@api_router.get("/analytics/creator")
+async def analytics_creator(current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    applied = await db.applications.count_documents({"influencer_id": current["id"]})
+    accepted = await db.applications.count_documents({"influencer_id": current["id"], "status": "accepted"})
+    invited = await db.invitations.count_documents({"creator_id": current["id"]})
+    delivs = await db.deliverables.count_documents({"creator_id": current["id"]})
+    approved = await db.deliverables.count_documents({"creator_id": current["id"], "status": "approved"})
+    my_apps = await db.applications.find({"influencer_id": current["id"], "status": "accepted"},
+                                         {"_id": 0, "rate": 1}).to_list(200)
+    reviews = await db.reviews.find({"target_id": current["id"]}, {"_id": 0, "rating": 1}).to_list(500)
+    avg_rating = (sum(r["rating"] for r in reviews) / len(reviews)) if reviews else 0
+    earned = current.get("wallet", 0)
+    contracted = sum(a.get("rate") or 0 for a in my_apps)
+    return {
+        "applications": applied,
+        "acceptances": accepted,
+        "invitations": invited,
+        "deliverables": delivs,
+        "approved": approved,
+        "avg_rating": round(avg_rating, 1),
+        "reviews_count": len(reviews),
+        "earned": earned,
+        "contracted": contracted,
+    }
+
+
+# ---------- Top-N AI Match ----------
+async def _score_one(camp: dict, creator: dict) -> Optional[dict]:
+    system = ("You are the CR8 AI Match Engine — candid, editorial, concise. "
+              "Always return VALID JSON with keys: score (0-100), verdict (one line), "
+              "estimated_reach (string).")
+    prompt = (
+        f"CAMPAIGN: {camp.get('brand')} — {camp.get('title')}. Niches: {camp.get('niches')}. "
+        f"Platforms: {camp.get('platforms')}. Budget: ${camp.get('budget')}.\n"
+        f"CREATOR: {creator.get('name')} ({creator.get('handle')}). "
+        f"Niches: {creator.get('niches')}. Platforms: {creator.get('platforms')}. "
+        f"Followers: {creator.get('followers')}. Bio: {creator.get('bio')}\n"
+        'Return ONLY JSON: {"score": int, "verdict": string, "estimated_reach": string}'
+    )
+    try:
+        text = await call_llm(system, prompt)
+        d = parse_json(text)
+        if isinstance(d, dict) and isinstance(d.get("score"), int):
+            return d
+    except Exception as e:
+        logger.warning("match score failure for %s: %s", creator.get("id"), e)
+    return None
+
+
+@api_router.get("/campaigns/{campaign_id}/top-matches")
+async def top_matches(campaign_id: str, limit: int = 5, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id}, {"_id": 0})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    # Only the owner or an admin can request AI ranking
+    if camp["owner_id"] != current["id"] and current["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    # Pre-filter creators by any niche/platform overlap; fall back to a broader pool if none.
+    niches = camp.get("niches") or []
+    platforms = camp.get("platforms") or []
+    filt: Dict[str, Any] = {"role": "influencer"}
+    if niches:
+        filt["niches"] = {"$in": niches}
+    creators = await db.users.find(filt, {"_id": 0, "password_hash": 0}).limit(20).to_list(20)
+    if len(creators) < 3:  # broaden
+        creators = await db.users.find({"role": "influencer"}, {"_id": 0, "password_hash": 0}).limit(20).to_list(20)
+
+    # Score in parallel (cap at 12 to control latency/cost)
+    creators = creators[:12]
+    tasks = [_score_one(camp, c) for c in creators]
+    scores = await asyncio.gather(*tasks, return_exceptions=False)
+    results = []
+    for c, s in zip(creators, scores):
+        if not s:
+            continue
+        results.append({
+            "id": c["id"], "name": c["name"], "handle": c.get("handle"),
+            "avatar": c.get("avatar"), "followers": c.get("followers"),
+            "niches": c.get("niches", []), "platforms": c.get("platforms", []),
+            "score": s.get("score"), "verdict": s.get("verdict"),
+            "estimated_reach": s.get("estimated_reach"),
+        })
+    results.sort(key=lambda r: r.get("score") or 0, reverse=True)
+    return results[:limit]
+
 
 
 # ---------- Startup ----------

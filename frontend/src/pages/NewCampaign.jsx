@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2, Upload } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
+import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
@@ -22,8 +23,14 @@ export default function NewCampaign() {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiGoal, setAiGoal] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
+  const coverRef = useRef(null);
   const change = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
+  const onCoverPick = async (e) => {
+    const url = await uploadImage(e.target.files?.[0]);
+    if (url) { setF({ ...f, cover: url }); toast.success("Cover uploaded."); }
+    e.target.value = "";
+  };
 
   const runAI = async () => {
     if (!aiGoal.trim()) return;
@@ -109,7 +116,16 @@ export default function NewCampaign() {
           <Row label="Description"><textarea required data-testid="cf-desc" value={f.description} onChange={change("description")} rows={5} className="inp resize-none" /></Row>
           <Row label="Deliverables"><input required data-testid="cf-deliv" value={f.deliverables} onChange={change("deliverables")} className="inp" /></Row>
           <Row label="Budget (USD)"><input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" /></Row>
-          <Row label="Cover image URL"><input data-testid="cf-cover" value={f.cover} onChange={change("cover")} className="inp" /></Row>
+          <Row label="Cover image">
+            <div className="flex items-center gap-4 mt-2">
+              {f.cover && <img src={f.cover} alt="" className="w-16 h-20 object-cover" />}
+              <input data-testid="cf-cover" value={f.cover} onChange={change("cover")} className="inp flex-1" placeholder="Paste URL or upload" />
+              <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} data-testid="cf-cover-file" />
+              <button type="button" onClick={() => coverRef.current?.click()} className="btn-pill text-[10px]" data-testid="cf-cover-upload">
+                <Upload className="w-3 h-3" /> Upload
+              </button>
+            </div>
+          </Row>
           <Row label="Niches">
             <div className="flex flex-wrap gap-2 mt-2">
               {NICHES.map(n => (

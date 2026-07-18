@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Save, Plus, X } from "lucide-react";
+import { Save, Plus, X, Upload } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
+import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
@@ -16,6 +17,8 @@ export default function ProfileEdit() {
   const nav = useNavigate();
   const [f, setF] = useState(null);
   const [busy, setBusy] = useState(false);
+  const avatarRef = useRef(null);
+  const portfolioRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -47,6 +50,22 @@ export default function ProfileEdit() {
   const addPortfolio = () => setF({ ...f, portfolio: [...f.portfolio, ""] });
   const setPortfolio = (i, v) => setF({ ...f, portfolio: f.portfolio.map((p, j) => j === i ? v : p) });
   const removePortfolio = (i) => setF({ ...f, portfolio: f.portfolio.filter((_, j) => j !== i) });
+
+  const onAvatarPick = async (e) => {
+    const url = await uploadImage(e.target.files?.[0]);
+    if (url) { setF({ ...f, avatar: url }); toast.success("Avatar uploaded."); }
+    e.target.value = "";
+  };
+  const onPortfolioPick = async (e) => {
+    const files = Array.from(e.target.files || []);
+    const urls = [];
+    for (const file of files) {
+      const url = await uploadImage(file);
+      if (url) urls.push(url);
+    }
+    if (urls.length) { setF({ ...f, portfolio: [...f.portfolio, ...urls] }); toast.success(`${urls.length} image(s) added.`); }
+    e.target.value = "";
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -89,7 +108,16 @@ export default function ProfileEdit() {
             </>
           )}
           <F label="Bio"><textarea data-testid="pf-bio" rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} placeholder="Say something worth reading." /></F>
-          <F label="Avatar URL"><input data-testid="pf-avatar" className="inp" value={f.avatar} onChange={e=>setF({...f,avatar:e.target.value})} /></F>
+          <F label="Avatar">
+            <div className="flex items-center gap-4 mt-2">
+              {f.avatar && <img src={f.avatar} alt="" className="w-16 h-16 object-cover hairline-t hairline-b hairline-l hairline-r" />}
+              <input data-testid="pf-avatar" className="inp flex-1" value={f.avatar} onChange={e=>setF({...f,avatar:e.target.value})} placeholder="Paste URL or upload" />
+              <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} data-testid="pf-avatar-file" />
+              <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-pill text-[10px]">
+                <Upload className="w-3 h-3" /> Upload
+              </button>
+            </div>
+          </F>
           <F label="Location"><input data-testid="pf-location" className="inp" value={f.location} onChange={e=>setF({...f,location:e.target.value})} placeholder="City, Country" /></F>
 
           {isCreator && (
@@ -117,17 +145,24 @@ export default function ProfileEdit() {
                   ))}
                 </div>
               </F>
-              <F label="Portfolio image URLs">
+              <F label="Portfolio images">
                 <div className="space-y-2 mt-2">
                   {f.portfolio.map((p, i) => (
-                    <div key={i} className="flex gap-2">
+                    <div key={i} className="flex gap-2 items-center">
+                      {p && <img src={p} alt="" className="w-14 h-14 object-cover" />}
                       <input data-testid={`pf-portfolio-${i}`} className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} placeholder="https://..." />
                       <button type="button" onClick={()=>removePortfolio(i)} className="p-2 opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
                     </div>
                   ))}
-                  <button type="button" onClick={addPortfolio} className="btn-pill mt-2" data-testid="pf-add-portfolio">
-                    <Plus className="w-4 h-4" /> Add image
-                  </button>
+                  <div className="flex gap-2 mt-2">
+                    <button type="button" onClick={addPortfolio} className="btn-pill" data-testid="pf-add-portfolio">
+                      <Plus className="w-4 h-4" /> Add URL
+                    </button>
+                    <input ref={portfolioRef} type="file" accept="image/*" multiple hidden onChange={onPortfolioPick} data-testid="pf-portfolio-file" />
+                    <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-pill" data-testid="pf-upload-portfolio">
+                      <Upload className="w-4 h-4" /> Upload files
+                    </button>
+                  </div>
                 </div>
               </F>
               <F label="Rate card (USD)">
