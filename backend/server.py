@@ -1,72 +1,916 @@
-from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
-
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+import os
+import uuid
+import json
+import logging
+from datetime import datetime, timezone, timedelta
+from typing import List, Optional, Literal, Dict, Any
+
+import bcrypt
+import jwt
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
+
+
+# ---------- Setup ----------
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+JWT_SECRET = os.environ['JWT_SECRET']
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_MINUTES = 60 * 24 * 7
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 
-# Create a router with the /api prefix
+app = FastAPI(title="CR8 API")
 api_router = APIRouter(prefix="/api")
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("cr8")
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+# ---------- Helpers ----------
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-# Add your routes to the router instead of directly to app
+
+def verify_password(plain: str, hashed: str) -> bool:
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        return False
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def create_access_token(user_id: str, email: str, role: str) -> str:
+    payload = {
+        "sub": user_id, "email": email, "role": role,
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_MINUTES),
+        "type": "access",
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def clean(doc: Optional[dict]) -> Optional[dict]:
+    if not doc:
+        return doc
+    doc.pop("_id", None)
+    doc.pop("password_hash", None)
+    return doc
+
+
+async def get_current_user(request: Request) -> dict:
+    auth = request.headers.get("Authorization", "")
+    token = auth[7:] if auth.startswith("Bearer ") else None
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+
+async def require_role(current: dict, roles: list) -> dict:
+    if current.get("role") not in roles:
+        raise HTTPException(status_code=403, detail=f"Requires role: {','.join(roles)}")
+    return current
+
+
+# ---------- Models ----------
+UserRole = Literal["owner", "influencer", "admin"]
+
+
+class RegisterInput(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    name: str = Field(min_length=1, max_length=80)
+    role: UserRole
+    handle: Optional[str] = None
+    company: Optional[str] = None
+
+
+class LoginInput(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar: Optional[str] = None
+    handle: Optional[str] = None
+    company: Optional[str] = None
+    industry: Optional[str] = None
+    website: Optional[str] = None
+    niches: Optional[List[str]] = None
+    followers: Optional[int] = None
+    platforms: Optional[List[str]] = None
+    location: Optional[str] = None
+    portfolio: Optional[List[str]] = None
+    rate_card: Optional[Dict[str, int]] = None
+
+
+class CampaignCreate(BaseModel):
+    title: str
+    brand: str
+    description: str
+    budget: int
+    niches: List[str] = []
+    platforms: List[str] = []
+    deliverables: str
+    deadline: Optional[str] = None
+    cover: Optional[str] = None
+
+
+class ApplicationCreate(BaseModel):
+    pitch: str
+    rate: int
+
+
+class InvitationCreate(BaseModel):
+    creator_id: str
+    campaign_id: str
+    offer: int
+    message: str
+
+
+class InvitationAction(BaseModel):
+    counter_offer: Optional[int] = None
+    note: Optional[str] = None
+
+
+class MessageCreate(BaseModel):
+    content: str
+
+
+class DeliverableCreate(BaseModel):
+    campaign_id: str
+    kind: Literal["reel", "story", "post", "video", "other"] = "post"
+    url: str
+    caption: Optional[str] = None
+
+
+class DeliverableReview(BaseModel):
+    status: Literal["approved", "revision", "rejected"]
+    notes: Optional[str] = None
+
+
+class ReviewCreate(BaseModel):
+    target_id: str  # user id being reviewed
+    campaign_id: str
+    rating: int = Field(ge=1, le=5)
+    text: Optional[str] = None
+
+
+class WalletTx(BaseModel):
+    amount: int
+    note: Optional[str] = None
+
+
+class AIBuilderInput(BaseModel):
+    goal: str
+
+
+class AIMatchInput(BaseModel):
+    campaign_id: str
+    creator_id: str
+
+
+# ---------- Auth Endpoints ----------
+@api_router.post("/auth/register")
+async def register(inp: RegisterInput):
+    email = inp.email.lower().strip()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="Email already registered")
+    if inp.role == "admin":
+        raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+    user_id = str(uuid.uuid4())
+    doc = {
+        "id": user_id, "email": email, "password_hash": hash_password(inp.password),
+        "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
+        "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": [],
+        "location": None, "industry": None, "website": None,
+        "portfolio": [], "rate_card": {}, "verified": False, "wallet": 0,
+        "created_at": now_iso(),
+    }
+    await db.users.insert_one(doc)
+    token = create_access_token(user_id, email, inp.role)
+    return {"token": token, "user": clean(dict(doc))}
+
+
+@api_router.post("/auth/login")
+async def login(inp: LoginInput):
+    email = inp.email.lower().strip()
+    user = await db.users.find_one({"email": email})
+    if not user or not verify_password(inp.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    token = create_access_token(user["id"], user["email"], user["role"])
+    return {"token": token, "user": clean(dict(user))}
+
+
+@api_router.get("/auth/me")
+async def me(current: dict = Depends(get_current_user)):
+    return current
+
+
+@api_router.patch("/auth/me")
+async def update_me(patch: UserUpdate, current: dict = Depends(get_current_user)):
+    update = {k: v for k, v in patch.model_dump(exclude_none=True).items()}
+    if update:
+        await db.users.update_one({"id": current["id"]}, {"$set": update})
+    user = await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+    return user
+
+
+# ---------- Creators ----------
+@api_router.get("/creators")
+async def list_creators(niche: Optional[str] = None, platform: Optional[str] = None,
+                        q: Optional[str] = None, limit: int = Query(default=60, le=100)):
+    filt: Dict[str, Any] = {"role": "influencer"}
+    if niche:
+        filt["niches"] = niche
+    if platform:
+        filt["platforms"] = platform
+    if q:
+        filt["$or"] = [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"handle": {"$regex": q, "$options": "i"}},
+            {"bio": {"$regex": q, "$options": "i"}},
+        ]
+    cursor = db.users.find(filt, {"_id": 0, "password_hash": 0}).limit(limit)
+    return await cursor.to_list(length=limit)
+
+
+@api_router.get("/creators/{creator_id}")
+async def get_creator(creator_id: str):
+    creator = await db.users.find_one({"id": creator_id, "role": "influencer"},
+                                      {"_id": 0, "password_hash": 0})
+    if not creator:
+        raise HTTPException(status_code=404, detail="Creator not found")
+    # avg rating
+    revs = await db.reviews.find({"target_id": creator_id}, {"_id": 0}).to_list(length=200)
+    if revs:
+        creator["rating"] = round(sum(r["rating"] for r in revs) / len(revs), 1)
+        creator["reviews_count"] = len(revs)
+    else:
+        creator["rating"] = None
+        creator["reviews_count"] = 0
+    return creator
+
+
+# ---------- Campaigns ----------
+@api_router.post("/campaigns")
+async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner"])
+    cid = str(uuid.uuid4())
+    doc = {
+        "id": cid, "owner_id": current["id"], "title": inp.title, "brand": inp.brand,
+        "description": inp.description, "budget": inp.budget, "niches": inp.niches,
+        "platforms": inp.platforms, "deliverables": inp.deliverables, "deadline": inp.deadline,
+        "cover": inp.cover, "status": "open", "escrow_funded": 0, "escrow_released": 0,
+        "accepted_creator_id": None, "created_at": now_iso(), "applications_count": 0,
+    }
+    await db.campaigns.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/campaigns")
+async def list_campaigns(niche: Optional[str] = None, platform: Optional[str] = None,
+                         q: Optional[str] = None, mine: bool = False, request: Request = None):
+    filt: Dict[str, Any] = {}
+    if niche:
+        filt["niches"] = niche
+    if platform:
+        filt["platforms"] = platform
+    if q:
+        filt["$or"] = [{"title": {"$regex": q, "$options": "i"}},
+                       {"brand": {"$regex": q, "$options": "i"}},
+                       {"description": {"$regex": q, "$options": "i"}}]
+    if mine:
+        current = await get_current_user(request)
+        filt["owner_id"] = current["id"]
+    cursor = db.campaigns.find(filt, {"_id": 0}).sort("created_at", -1).limit(100)
+    return await cursor.to_list(length=100)
+
+
+@api_router.get("/campaigns/{campaign_id}")
+async def get_campaign(campaign_id: str):
+    camp = await db.campaigns.find_one({"id": campaign_id}, {"_id": 0})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return camp
+
+
+# ---------- Applications ----------
+@api_router.post("/campaigns/{campaign_id}/apply")
+async def apply(campaign_id: str, inp: ApplicationCreate, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    if not await db.campaigns.find_one({"id": campaign_id}):
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if await db.applications.find_one({"campaign_id": campaign_id, "influencer_id": current["id"]}):
+        raise HTTPException(status_code=400, detail="Already applied")
+    doc = {
+        "id": str(uuid.uuid4()), "campaign_id": campaign_id, "influencer_id": current["id"],
+        "influencer_name": current["name"], "influencer_handle": current.get("handle"),
+        "influencer_avatar": current.get("avatar"), "pitch": inp.pitch, "rate": inp.rate,
+        "status": "pending", "created_at": now_iso(),
+    }
+    await db.applications.insert_one(doc)
+    await db.campaigns.update_one({"id": campaign_id}, {"$inc": {"applications_count": 1}})
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/campaigns/{campaign_id}/applications")
+async def list_apps(campaign_id: str, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if camp["owner_id"] != current["id"] and current["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return await db.applications.find({"campaign_id": campaign_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+@api_router.get("/applications/mine")
+async def my_apps(current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    apps = await db.applications.find({"influencer_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    for a in apps:
+        camp = await db.campaigns.find_one({"id": a["campaign_id"]}, {"_id": 0, "title": 1, "brand": 1})
+        a["campaign_title"] = camp.get("title") if camp else None
+        a["campaign_brand"] = camp.get("brand") if camp else None
+    return apps
+
+
+@api_router.post("/applications/{application_id}/accept")
+async def accept_application(application_id: str, current: dict = Depends(get_current_user)):
+    app_doc = await db.applications.find_one({"id": application_id})
+    if not app_doc:
+        raise HTTPException(status_code=404, detail="Application not found")
+    camp = await db.campaigns.find_one({"id": app_doc["campaign_id"]})
+    if not camp or camp["owner_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await db.applications.update_one({"id": application_id}, {"$set": {"status": "accepted"}})
+    await db.applications.update_many(
+        {"campaign_id": camp["id"], "id": {"$ne": application_id}, "status": "pending"},
+        {"$set": {"status": "declined"}},
+    )
+    await db.campaigns.update_one(
+        {"id": camp["id"]},
+        {"$set": {"status": "in_progress", "accepted_creator_id": app_doc["influencer_id"]}},
+    )
+    return {"ok": True}
+
+
+# ---------- Invitations ----------
+@api_router.post("/invitations")
+async def create_invitation(inp: InvitationCreate, current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner"])
+    camp = await db.campaigns.find_one({"id": inp.campaign_id})
+    if not camp or camp["owner_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Not your campaign")
+    if not await db.users.find_one({"id": inp.creator_id, "role": "influencer"}):
+        raise HTTPException(status_code=404, detail="Creator not found")
+    if await db.invitations.find_one({"campaign_id": inp.campaign_id, "creator_id": inp.creator_id}):
+        raise HTTPException(status_code=400, detail="Already invited")
+    doc = {
+        "id": str(uuid.uuid4()), "campaign_id": inp.campaign_id, "creator_id": inp.creator_id,
+        "owner_id": current["id"], "offer": inp.offer, "message": inp.message,
+        "status": "pending", "counter_offer": None, "note": None, "created_at": now_iso(),
+    }
+    await db.invitations.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/invitations/mine")
+async def my_invitations(current: dict = Depends(get_current_user)):
+    if current["role"] == "influencer":
+        invs = await db.invitations.find({"creator_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    elif current["role"] == "owner":
+        invs = await db.invitations.find({"owner_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    else:
+        invs = []
+    # enrich
+    for i in invs:
+        camp = await db.campaigns.find_one({"id": i["campaign_id"]}, {"_id": 0, "title": 1, "brand": 1})
+        if camp:
+            i["campaign_title"] = camp["title"]
+            i["campaign_brand"] = camp["brand"]
+        creator = await db.users.find_one({"id": i["creator_id"]}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1})
+        if creator:
+            i["creator_name"] = creator["name"]
+            i["creator_handle"] = creator.get("handle")
+            i["creator_avatar"] = creator.get("avatar")
+    return invs
+
+
+@api_router.post("/invitations/{invitation_id}/action/{action}")
+async def act_on_invitation(invitation_id: str, action: str, inp: InvitationAction,
+                            current: dict = Depends(get_current_user)):
+    inv = await db.invitations.find_one({"id": invitation_id})
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invitation not found")
+    if inv["creator_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if action not in {"accept", "reject", "counter"}:
+        raise HTTPException(status_code=400, detail="Invalid action")
+    update: Dict[str, Any] = {"status": action + ("ed" if action != "counter" else "ed")}
+    if action == "counter":
+        if inp.counter_offer is None:
+            raise HTTPException(status_code=400, detail="counter_offer required")
+        update["counter_offer"] = inp.counter_offer
+        update["note"] = inp.note
+    await db.invitations.update_one({"id": invitation_id}, {"$set": update})
+    return {"ok": True}
+
+
+# ---------- Messaging ----------
+async def ensure_conversation(campaign_id: str, owner_id: str, creator_id: str) -> str:
+    convo = await db.conversations.find_one({"campaign_id": campaign_id, "owner_id": owner_id, "creator_id": creator_id})
+    if convo:
+        return convo["id"]
+    cid = str(uuid.uuid4())
+    await db.conversations.insert_one({
+        "id": cid, "campaign_id": campaign_id, "owner_id": owner_id, "creator_id": creator_id,
+        "created_at": now_iso(), "last_at": now_iso(),
+    })
+    return cid
+
+
+@api_router.post("/conversations/open")
+async def open_conversation(campaign_id: str, creator_id: str, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    # owner opening or the invited/applied creator
+    if current["role"] == "owner":
+        if camp["owner_id"] != current["id"]:
+            raise HTTPException(status_code=403, detail="Not your campaign")
+        cid = await ensure_conversation(campaign_id, current["id"], creator_id)
+    elif current["role"] == "influencer":
+        if current["id"] != creator_id:
+            raise HTTPException(status_code=403, detail="Only your conversations")
+        cid = await ensure_conversation(campaign_id, camp["owner_id"], current["id"])
+    else:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return {"id": cid}
+
+
+@api_router.get("/conversations")
+async def list_conversations(current: dict = Depends(get_current_user)):
+    if current["role"] == "owner":
+        q = {"owner_id": current["id"]}
+    elif current["role"] == "influencer":
+        q = {"creator_id": current["id"]}
+    else:
+        q = {}
+    convos = await db.conversations.find(q, {"_id": 0}).sort("last_at", -1).to_list(200)
+    for c in convos:
+        camp = await db.campaigns.find_one({"id": c["campaign_id"]}, {"_id": 0, "title": 1, "brand": 1})
+        if camp:
+            c["campaign_title"] = camp["title"]
+            c["campaign_brand"] = camp["brand"]
+        other_id = c["creator_id"] if current["role"] == "owner" else c["owner_id"]
+        other = await db.users.find_one({"id": other_id}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1, "company": 1})
+        if other:
+            c["other_name"] = other.get("name")
+            c["other_handle"] = other.get("handle") or other.get("company")
+            c["other_avatar"] = other.get("avatar")
+        last = await db.messages.find({"conversation_id": c["id"]}, {"_id": 0}).sort("created_at", -1).limit(1).to_list(1)
+        c["last_message"] = last[0]["content"] if last else None
+    return convos
+
+
+@api_router.get("/conversations/{conversation_id}/messages")
+async def list_messages(conversation_id: str, current: dict = Depends(get_current_user)):
+    convo = await db.conversations.find_one({"id": conversation_id})
+    if not convo:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    if current["id"] not in (convo["owner_id"], convo["creator_id"]):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("created_at", 1).to_list(500)
+
+
+@api_router.post("/conversations/{conversation_id}/messages")
+async def send_message(conversation_id: str, inp: MessageCreate, current: dict = Depends(get_current_user)):
+    convo = await db.conversations.find_one({"id": conversation_id})
+    if not convo:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    if current["id"] not in (convo["owner_id"], convo["creator_id"]):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    doc = {
+        "id": str(uuid.uuid4()), "conversation_id": conversation_id, "sender_id": current["id"],
+        "sender_name": current["name"], "sender_role": current["role"],
+        "content": inp.content, "created_at": now_iso(),
+    }
+    await db.messages.insert_one(doc)
+    await db.conversations.update_one({"id": conversation_id}, {"$set": {"last_at": now_iso()}})
+    doc.pop("_id", None)
+    return doc
+
+
+# ---------- Deliverables ----------
+@api_router.post("/deliverables")
+async def submit_deliverable(inp: DeliverableCreate, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    camp = await db.campaigns.find_one({"id": inp.campaign_id})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if camp.get("accepted_creator_id") != current["id"]:
+        raise HTTPException(status_code=403, detail="You are not the accepted creator")
+    doc = {
+        "id": str(uuid.uuid4()), "campaign_id": inp.campaign_id, "creator_id": current["id"],
+        "creator_name": current["name"], "kind": inp.kind, "url": inp.url, "caption": inp.caption,
+        "status": "pending", "notes": None, "revisions": 0, "created_at": now_iso(),
+    }
+    await db.deliverables.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/campaigns/{campaign_id}/deliverables")
+async def list_deliverables(campaign_id: str, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    allowed = (camp["owner_id"] == current["id"] or camp.get("accepted_creator_id") == current["id"]
+               or current["role"] == "admin")
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return await db.deliverables.find({"campaign_id": campaign_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+@api_router.post("/deliverables/{deliverable_id}/review")
+async def review_deliverable(deliverable_id: str, inp: DeliverableReview,
+                             current: dict = Depends(get_current_user)):
+    d = await db.deliverables.find_one({"id": deliverable_id})
+    if not d:
+        raise HTTPException(status_code=404, detail="Deliverable not found")
+    camp = await db.campaigns.find_one({"id": d["campaign_id"]})
+    if not camp or camp["owner_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    update = {"status": inp.status, "notes": inp.notes}
+    if inp.status == "revision":
+        update["revisions"] = d.get("revisions", 0) + 1
+    await db.deliverables.update_one({"id": deliverable_id}, {"$set": update})
+    if inp.status == "approved":
+        # mark campaign complete if all pending deliverables approved
+        pending = await db.deliverables.count_documents({"campaign_id": camp["id"], "status": {"$in": ["pending", "revision"]}})
+        if pending == 0:
+            await db.campaigns.update_one({"id": camp["id"]}, {"$set": {"status": "completed"}})
+    return {"ok": True}
+
+
+# ---------- Reviews ----------
+@api_router.post("/reviews")
+async def create_review(inp: ReviewCreate, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": inp.campaign_id})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if current["id"] not in (camp["owner_id"], camp.get("accepted_creator_id")):
+        raise HTTPException(status_code=403, detail="Only campaign parties may review")
+    doc = {
+        "id": str(uuid.uuid4()), "author_id": current["id"], "author_name": current["name"],
+        "author_role": current["role"], "target_id": inp.target_id,
+        "campaign_id": inp.campaign_id, "rating": inp.rating, "text": inp.text,
+        "created_at": now_iso(),
+    }
+    await db.reviews.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/reviews")
+async def list_reviews(target_id: str):
+    return await db.reviews.find({"target_id": target_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+# ---------- Wallet (mocked) ----------
+@api_router.get("/wallet")
+async def get_wallet(current: dict = Depends(get_current_user)):
+    txs = await db.wallet_tx.find({"user_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"balance": current.get("wallet", 0), "transactions": txs}
+
+
+async def add_tx(user_id: str, kind: str, amount: int, note: str):
+    await db.wallet_tx.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user_id, "kind": kind, "amount": amount,
+        "note": note, "created_at": now_iso(),
+    })
+
+
+@api_router.post("/wallet/deposit")
+async def deposit(inp: WalletTx, current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner"])
+    await db.users.update_one({"id": current["id"]}, {"$inc": {"wallet": inp.amount}})
+    await add_tx(current["id"], "deposit", inp.amount, inp.note or "Deposit (mock)")
+    u = await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+    return {"balance": u["wallet"]}
+
+
+@api_router.post("/wallet/withdraw")
+async def withdraw(inp: WalletTx, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    if current.get("wallet", 0) < inp.amount:
+        raise HTTPException(status_code=400, detail="Insufficient balance")
+    await db.users.update_one({"id": current["id"]}, {"$inc": {"wallet": -inp.amount}})
+    await add_tx(current["id"], "withdraw", -inp.amount, inp.note or "Withdrawal (mock)")
+    u = await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+    return {"balance": u["wallet"]}
+
+
+@api_router.post("/campaigns/{campaign_id}/fund")
+async def fund_escrow(campaign_id: str, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if not camp or camp["owner_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if camp.get("escrow_funded", 0) >= camp["budget"]:
+        raise HTTPException(status_code=400, detail="Already funded")
+    if current.get("wallet", 0) < camp["budget"]:
+        raise HTTPException(status_code=400, detail="Insufficient wallet balance")
+    await db.users.update_one({"id": current["id"]}, {"$inc": {"wallet": -camp["budget"]}})
+    await db.campaigns.update_one({"id": campaign_id}, {"$set": {"escrow_funded": camp["budget"]}})
+    await add_tx(current["id"], "escrow_fund", -camp["budget"], f"Escrow · {camp['title']}")
+    return {"ok": True, "funded": camp["budget"]}
+
+
+@api_router.post("/campaigns/{campaign_id}/release")
+async def release_escrow(campaign_id: str, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": campaign_id})
+    if not camp or camp["owner_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if camp.get("status") != "completed":
+        raise HTTPException(status_code=400, detail="Campaign not completed")
+    if camp.get("escrow_released", 0) >= camp.get("escrow_funded", 0):
+        raise HTTPException(status_code=400, detail="Already released")
+    creator_id = camp.get("accepted_creator_id")
+    if not creator_id:
+        raise HTTPException(status_code=400, detail="No accepted creator")
+    amt = camp["escrow_funded"]
+    await db.users.update_one({"id": creator_id}, {"$inc": {"wallet": amt}})
+    await db.campaigns.update_one({"id": campaign_id}, {"$set": {"escrow_released": amt}})
+    await add_tx(creator_id, "payout", amt, f"Payout · {camp['title']}")
+    return {"ok": True, "released": amt}
+
+
+# ---------- Admin ----------
+@api_router.get("/admin/users")
+async def admin_users(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    return await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(500)
+
+
+@api_router.get("/admin/campaigns")
+async def admin_campaigns(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    return await db.campaigns.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+
+
+@api_router.post("/admin/users/{user_id}/verify")
+async def admin_verify(user_id: str, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    await db.users.update_one({"id": user_id}, {"$set": {"verified": True}})
+    return {"ok": True}
+
+
+@api_router.delete("/admin/campaigns/{campaign_id}")
+async def admin_delete_campaign(campaign_id: str, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    await db.campaigns.delete_one({"id": campaign_id})
+    return {"ok": True}
+
+
+# ---------- Stats ----------
+@api_router.get("/stats")
+async def stats():
+    return {
+        "creators": await db.users.count_documents({"role": "influencer"}),
+        "owners": await db.users.count_documents({"role": "owner"}),
+        "campaigns": await db.campaigns.count_documents({}),
+    }
+
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"name": "CR8 API", "status": "ok"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+# ---------- AI ----------
+async def call_llm(system: str, prompt: str) -> str:
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="LLM key missing")
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+    except ImportError:
+        raise HTTPException(status_code=500, detail="LLM library missing")
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY,
+        session_id=str(uuid.uuid4()),
+        system_message=system,
+    ).with_model("anthropic", "claude-sonnet-4-6")
+    resp = await chat.send_message(UserMessage(text=prompt))
+    return resp if isinstance(resp, str) else str(resp)
 
-# Include the router in the main app
+
+def parse_json(text: str) -> dict:
+    text = text.strip()
+    if "```" in text:
+        parts = text.split("```")
+        for p in parts:
+            p = p.strip()
+            if p.startswith("json"):
+                p = p[4:].strip()
+            if p.startswith("{"):
+                text = p
+                break
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1:
+        text = text[start:end + 1]
+    try:
+        return json.loads(text)
+    except Exception:
+        return {"raw": text}
+
+
+@api_router.post("/ai/campaign-builder")
+async def ai_campaign_builder(inp: AIBuilderInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner", "admin"])
+    system = (
+        "You are the CR8 AI Brand Copilot — an editorial, high-taste creative director for a "
+        "curated influencer studio. You draft brand briefs in a restrained, editorial voice. "
+        "Always return VALID JSON matching the schema requested, and nothing else."
+    )
+    prompt = (
+        f"Draft a campaign brief for: \"{inp.goal}\".\n"
+        "Return ONLY JSON with these exact keys:\n"
+        "{\"title\": string (max 8 words, editorial),"
+        " \"description\": string (2-3 sentences, editorial tone),"
+        " \"deliverables\": string (a concise list separated by ' + '),"
+        " \"budget\": integer (USD, whole number),"
+        " \"niches\": string[] (2-4 from: fashion, luxury, beauty, tech, design, wellness),"
+        " \"platforms\": string[] (2-3 from: instagram, tiktok, youtube, twitter)}"
+    )
+    text = await call_llm(system, prompt)
+    data = parse_json(text)
+    return data
+
+
+@api_router.post("/ai/match-score")
+async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_user)):
+    camp = await db.campaigns.find_one({"id": inp.campaign_id}, {"_id": 0})
+    creator = await db.users.find_one({"id": inp.creator_id, "role": "influencer"}, {"_id": 0, "password_hash": 0})
+    if not camp or not creator:
+        raise HTTPException(status_code=404, detail="Campaign or creator not found")
+    system = (
+        "You are the CR8 AI Match Engine. You evaluate the fit between a brand's campaign brief "
+        "and a creator's profile. You are candid, concise, and editorial. Always return VALID JSON."
+    )
+    prompt = (
+        "CAMPAIGN:\n"
+        f"- Brand: {camp['brand']}\n- Title: {camp['title']}\n- Description: {camp['description']}\n"
+        f"- Budget: ${camp['budget']}\n- Niches: {camp.get('niches')}\n- Platforms: {camp.get('platforms')}\n"
+        f"- Deliverables: {camp.get('deliverables')}\n\n"
+        "CREATOR:\n"
+        f"- Name: {creator['name']} ({creator.get('handle')})\n- Bio: {creator.get('bio')}\n"
+        f"- Niches: {creator.get('niches')}\n- Platforms: {creator.get('platforms')}\n"
+        f"- Followers: {creator.get('followers')}\n- Location: {creator.get('location')}\n\n"
+        "Return ONLY JSON:\n"
+        "{\"score\": integer 0-100,"
+        " \"verdict\": string (one line, editorial),"
+        " \"strengths\": string[] (2-3 short bullets),"
+        " \"risks\": string[] (1-2 short bullets),"
+        " \"estimated_reach\": string (e.g. '250K')}"
+    )
+    text = await call_llm(system, prompt)
+    return parse_json(text)
+
+
+# ---------- Startup ----------
+async def seed_admin():
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@cr8.studio").lower()
+    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    existing = await db.users.find_one({"email": admin_email})
+    if not existing:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()), "email": admin_email,
+            "password_hash": hash_password(admin_password), "name": "CR8 Admin",
+            "role": "admin", "handle": None, "company": None, "bio": None,
+            "avatar": None, "niches": [], "followers": None, "platforms": [],
+            "location": None, "industry": None, "website": None,
+            "portfolio": [], "rate_card": {}, "verified": True, "wallet": 0,
+            "created_at": now_iso(),
+        })
+    elif not verify_password(admin_password, existing["password_hash"]):
+        await db.users.update_one({"email": admin_email},
+                                  {"$set": {"password_hash": hash_password(admin_password)}})
+
+
+async def seed_demo():
+    if await db.users.count_documents({"role": "influencer"}) > 0:
+        return
+    demos = [
+        {"email": "lena@cr8.studio", "name": "Lena Ivory", "handle": "@lena.ivory",
+         "bio": "Editorial fashion + luxury lifestyle creator.",
+         "avatar": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
+         "niches": ["fashion", "luxury", "beauty"], "platforms": ["instagram", "tiktok"],
+         "followers": 214000, "location": "Milan, IT",
+         "portfolio": ["https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
+                       "https://images.pexels.com/photos/35458193/pexels-photo-35458193.jpeg"],
+         "rate_card": {"reel": 2500, "story": 400, "post": 1800}},
+        {"email": "kai@cr8.studio", "name": "Kai Monroe", "handle": "@kai.monroe",
+         "bio": "Minimalist tech + design storytelling.",
+         "avatar": "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
+         "niches": ["tech", "design"], "platforms": ["youtube", "instagram"],
+         "followers": 512000, "location": "Berlin, DE",
+         "portfolio": ["https://images.unsplash.com/photo-1739950839930-ef45c078f316"],
+         "rate_card": {"video": 6500, "post": 2400}},
+        {"email": "nova@cr8.studio", "name": "Nova Reyes", "handle": "@nova.reyes",
+         "bio": "Beauty rituals & fragrance director.",
+         "avatar": "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
+         "niches": ["beauty", "wellness"], "platforms": ["instagram", "tiktok"],
+         "followers": 128000, "location": "New York, US",
+         "portfolio": ["https://images.unsplash.com/photo-1655657874630-2da5679ef515"],
+         "rate_card": {"reel": 1800, "story": 300}},
+    ]
+    for c in demos:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()), "email": c["email"],
+            "password_hash": hash_password("demo1234"), "name": c["name"],
+            "role": "influencer", "handle": c["handle"], "company": None, "bio": c["bio"],
+            "avatar": c["avatar"], "niches": c["niches"], "followers": c["followers"],
+            "platforms": c["platforms"], "location": c["location"],
+            "industry": None, "website": None,
+            "portfolio": c["portfolio"], "rate_card": c["rate_card"],
+            "verified": True, "wallet": 0, "created_at": now_iso(),
+        })
+
+    owner_id = str(uuid.uuid4())
+    await db.users.insert_one({
+        "id": owner_id, "email": "studio@cr8.studio",
+        "password_hash": hash_password("demo1234"), "name": "Studio Noir",
+        "role": "owner", "handle": None, "company": "Studio Noir",
+        "bio": "House of quiet luxury.", "avatar": None, "niches": [], "followers": None,
+        "platforms": [], "location": "Paris", "industry": "Fashion",
+        "website": "https://studionoir.example", "portfolio": [], "rate_card": {},
+        "verified": True, "wallet": 25000, "created_at": now_iso(),
+    })
+    await db.campaigns.insert_one({
+        "id": str(uuid.uuid4()), "owner_id": owner_id,
+        "title": "Fall Edit — Silhouettes", "brand": "Studio Noir",
+        "description": "Long-form editorial content for our Fall silhouettes collection. Looking for creators with an editorial eye and a taste for restraint.",
+        "budget": 8500, "niches": ["fashion", "luxury"], "platforms": ["instagram", "tiktok"],
+        "deliverables": "1 Reel + 3 Stories + 1 grid post.", "deadline": None,
+        "cover": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
+        "status": "open", "escrow_funded": 0, "escrow_released": 0,
+        "accepted_creator_id": None,
+        "created_at": now_iso(), "applications_count": 0,
+    })
+
+
+@app.on_event("startup")
+async def on_startup():
+    await db.users.create_index("email", unique=True)
+    await db.users.create_index("id", unique=True)
+    await db.campaigns.create_index("id", unique=True)
+    await db.applications.create_index("id", unique=True)
+    await db.applications.create_index([("campaign_id", 1), ("influencer_id", 1)], unique=True)
+    await db.invitations.create_index("id", unique=True)
+    await db.invitations.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
+    await db.conversations.create_index("id", unique=True)
+    await db.messages.create_index("id", unique=True)
+    await db.messages.create_index("conversation_id")
+    await db.deliverables.create_index("id", unique=True)
+    await db.reviews.create_index("id", unique=True)
+    await db.wallet_tx.create_index("id", unique=True)
+    await seed_admin()
+    await seed_demo()
+    logger.info("CR8 API ready.")
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    client.close()
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -76,14 +920,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

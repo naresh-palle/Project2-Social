@@ -1,0 +1,503 @@
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Marquee from "react-fast-marquee";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
+import { useLenis } from "@/lib/useLenis";
+import { api } from "@/lib/api";
+
+// ————— Line reveal helper —————
+function MaskLine({ children, delay = 0, className = "" }) {
+  return (
+    <span className="mask-line">
+      <motion.span
+        initial={{ y: "115%" }}
+        animate={{ y: "0%" }}
+        transition={{ duration: 1.1, ease: [0.2, 0.8, 0.2, 1], delay }}
+        style={{ display: "block" }}
+        className={className}
+      >
+        {children}
+      </motion.span>
+    </span>
+  );
+}
+
+function FadeUp({ children, delay = 0, y = 30, className = "" }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 1, ease: [0.2, 0.8, 0.2, 1], delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ————— Hero —————
+function Hero() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
+  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const opacityWord = useTransform(scrollYProgress, [0, 0.6], [1, 0.15]);
+
+  return (
+    <section ref={ref} className="relative h-[100vh] min-h-[720px] overflow-hidden bg-[#0A0A0A]">
+      {/* clipped spotlight photograph on the right */}
+      <motion.div
+        style={{ y: yImg, scale: scaleImg }}
+        className="absolute right-0 top-0 h-full w-[52%] md:w-[42%] lg:w-[38%]"
+      >
+        <div className="relative h-full w-full">
+          <img
+            src="https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg"
+            alt="Creator portrait"
+            className="h-full w-full object-cover object-center spotlight-img"
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#0A0A0A]/10 to-[#0A0A0A]" />
+        </div>
+      </motion.div>
+
+      {/* Content */}
+      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-32 md:pt-40 pb-10 grid grid-cols-12 gap-6">
+        <div className="col-span-12 md:col-span-10 flex flex-col justify-between h-full">
+          {/* top meta */}
+          <div className="flex items-start justify-between font-mono text-[11px] tracking-[0.28em] uppercase text-[#F4F4F0]/60">
+            <MaskLine delay={0.1}>
+              <span>◎ Vol. 08 · Winter Edition</span>
+            </MaskLine>
+            <MaskLine delay={0.15}>
+              <span className="hidden md:inline">A studio for signal · not noise</span>
+            </MaskLine>
+          </div>
+
+          {/* kinetic wordmark */}
+          <div className="relative">
+            <motion.h1
+              style={{ opacity: opacityWord }}
+              className="font-editorial text-[#F4F4F0] leading-[0.82] tracking-tighter"
+            >
+              <MaskLine delay={0.2}>
+                <span className="block text-[16vw] md:text-[13vw] font-medium">The bridge</span>
+              </MaskLine>
+              <MaskLine delay={0.35}>
+                <span className="block text-[16vw] md:text-[13vw] italic font-normal">
+                  between owners
+                </span>
+              </MaskLine>
+              <MaskLine delay={0.5}>
+                <span className="block text-[16vw] md:text-[13vw] font-medium">
+                  &amp; influence<span className="tick">.</span>
+                </span>
+              </MaskLine>
+            </motion.h1>
+          </div>
+
+          {/* bottom row */}
+          <FadeUp delay={0.8}>
+            <div className="grid grid-cols-12 gap-6 items-end">
+              <div className="col-span-12 md:col-span-5">
+                <p className="text-[#F4F4F0]/80 max-w-md text-base md:text-lg leading-relaxed">
+                  CR8 is a curated studio pairing brand owners with creators who move culture —
+                  no vanity metrics, no template deals. Only work worth signing.
+                </p>
+              </div>
+              <div className="col-span-12 md:col-span-4 flex flex-wrap items-center gap-4">
+                <Link to="/register" data-testid="hero-cta-primary" className="btn-solid">
+                  Enter the studio <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  to="/marketplace"
+                  data-testid="hero-cta-secondary"
+                  className="btn-pill text-[#F4F4F0]"
+                >
+                  Browse Creators
+                </Link>
+              </div>
+              <div className="col-span-12 md:col-span-3 font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F0]/50 md:text-right">
+                <div>Scroll ↓</div>
+                <div className="mt-1">to open the file</div>
+              </div>
+            </div>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Marquee —————
+function EditorialMarquee() {
+  return (
+    <section className="paper bg-[#F4F4F0] text-[#0A0A0A] hairline-t hairline-b overflow-hidden">
+      <Marquee gradient={false} speed={45} className="py-8 md:py-10">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <span key={i} className="font-editorial italic text-5xl md:text-7xl px-8 flex items-center gap-8">
+            The Owners <span className="tick text-3xl">✦</span> The Influencers
+            <span className="tick text-3xl">✦</span>
+          </span>
+        ))}
+      </Marquee>
+    </section>
+  );
+}
+
+// ————— Manifesto —————
+const CHAPTERS = [
+  {
+    n: "01",
+    title: "A studio, not a marketplace.",
+    body:
+      "CR8 is curated. Every owner is briefed, every creator is credentialed. No open bidding wars, no race to the bottom — only introductions that make sense.",
+  },
+  {
+    n: "02",
+    title: "Signal beats scale.",
+    body:
+      "We do not chase follower counts. A creator with 40,000 devoted readers can move more product than a stadium of tourists. We measure attention, not impressions.",
+  },
+  {
+    n: "03",
+    title: "Craft is contagious.",
+    body:
+      "When owners fund culture instead of clout, the work gets better on both sides. CR8 exists to keep both parties honest — and slightly obsessive.",
+  },
+  {
+    n: "04",
+    title: "One handshake, then work.",
+    body:
+      "Contracts, briefs, deliverables, timelines — all handled inside the studio. Meet once. Then get on with it.",
+  },
+];
+
+function Manifesto() {
+  return (
+    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-24 md:py-40">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="flex items-baseline justify-between hairline-b pb-6 mb-16">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § Manifesto
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              Four chapters
+            </span>
+          </div>
+        </FadeUp>
+
+        <div className="space-y-24 md:space-y-32">
+          {CHAPTERS.map((c, i) => {
+            const alignRight = i % 2 === 1;
+            return (
+              <div
+                key={c.n}
+                className="grid grid-cols-12 gap-6 md:gap-10 items-end"
+              >
+                <FadeUp
+                  className={`col-span-12 md:col-span-4 ${
+                    alignRight ? "md:col-start-9 md:order-2" : ""
+                  }`}
+                >
+                  <div className="chapter-num text-[24vw] md:text-[14vw] text-[#0A0A0A] leading-none">
+                    {c.n[0]}
+                    <span className="tick not-italic">{c.n[1]}</span>
+                  </div>
+                </FadeUp>
+                <FadeUp
+                  delay={0.15}
+                  className={`col-span-12 md:col-span-7 ${
+                    alignRight ? "md:col-start-1 md:order-1" : "md:col-start-6"
+                  }`}
+                >
+                  <h3 className="font-editorial text-4xl md:text-6xl leading-[1.02] tracking-tight">
+                    {c.title}
+                  </h3>
+                  <p className="mt-6 max-w-md text-base md:text-lg leading-relaxed text-[#0A0A0A]/75">
+                    {c.body}
+                  </p>
+                </FadeUp>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Split (Owners vs Influencers) —————
+function SplitView() {
+  const [hover, setHover] = useState(null); // 'owner' | 'influencer' | null
+  const ownBasis = hover === "owner" ? 62 : hover === "influencer" ? 38 : 50;
+  return (
+    <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0]">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-24 pb-6">
+        <FadeUp>
+          <div className="flex items-baseline justify-between hairline-b pb-6">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § How it works
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              Two doors · one studio
+            </span>
+          </div>
+        </FadeUp>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-24 pt-6 flex flex-col md:flex-row gap-1 min-h-[540px]">
+        <motion.div
+          onHoverStart={() => setHover("owner")}
+          onHoverEnd={() => setHover(null)}
+          animate={{ flexBasis: `${ownBasis}%` }}
+          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-12 flex flex-col justify-between overflow-hidden"
+          data-testid="split-owners"
+        >
+          <div>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              For the owners
+            </span>
+            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[0.95]">
+              Post your brief.
+              <br />
+              <span className="italic">Meet the mavericks.</span>
+            </h3>
+          </div>
+          <ul className="mt-10 font-mono text-[12px] tracking-[0.15em] uppercase space-y-3">
+            <li><span className="tick">01 —</span> Brief in under 3 minutes</li>
+            <li><span className="tick">02 —</span> Receive curated applications</li>
+            <li><span className="tick">03 —</span> Contract, deliver, ship</li>
+          </ul>
+          <Link
+            to="/register?role=owner"
+            data-testid="split-owner-cta"
+            className="btn-pill mt-10 self-start"
+          >
+            I&apos;m an owner <ArrowUpRight className="w-4 h-4" />
+          </Link>
+          <div
+            className="absolute -right-24 -bottom-24 h-[420px] w-[420px] rounded-full opacity-[0.06] blur-2xl"
+            style={{ background: "radial-gradient(circle, #FF3B30 0%, transparent 60%)" }}
+          />
+        </motion.div>
+
+        <motion.div
+          onHoverStart={() => setHover("influencer")}
+          onHoverEnd={() => setHover(null)}
+          animate={{ flexBasis: `${100 - ownBasis}%` }}
+          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+          className="relative bg-[#F4F4F0] text-[#0A0A0A] paper p-8 md:p-12 flex flex-col justify-between overflow-hidden hairline-b"
+          data-testid="split-influencers"
+        >
+          <div>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              For the influencers
+            </span>
+            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[0.95]">
+              Build a body of work
+              <br />
+              <span className="italic">worth signing.</span>
+            </h3>
+          </div>
+          <ul className="mt-10 font-mono text-[12px] tracking-[0.15em] uppercase space-y-3">
+            <li><span className="tick">01 —</span> Curated invites only</li>
+            <li><span className="tick">02 —</span> Pitch on your terms</li>
+            <li><span className="tick">03 —</span> Get paid, keep the credit</li>
+          </ul>
+          <Link
+            to="/register?role=influencer"
+            data-testid="split-influencer-cta"
+            className="btn-pill mt-10 self-start text-[#0A0A0A]"
+          >
+            I&apos;m a creator <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Featured Grid —————
+const FEATURED = [
+  {
+    span: "md:col-span-7",
+    img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
+    label: "Feature 01",
+    title: "Kai Monroe × Studio Noir",
+    meta: "Fashion Editorial · 512K",
+  },
+  {
+    span: "md:col-span-5",
+    img: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
+    label: "Feature 02",
+    title: "Bottle No.7 launch",
+    meta: "Luxury Product · 3-day sold out",
+  },
+  {
+    span: "md:col-span-4",
+    img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
+    label: "Feature 03",
+    title: "The Ritual Series",
+    meta: "Beauty · Long-form",
+  },
+  {
+    span: "md:col-span-8",
+    img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
+    label: "Feature 04",
+    title: "Nova Reyes × Fragrance Atlas",
+    meta: "Fragrance · Editorial",
+  },
+];
+
+function FeaturedGrid() {
+  return (
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-24 md:py-32">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="flex items-baseline justify-between hairline-b pb-6 mb-14">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § Selected work
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              2025 file
+            </span>
+          </div>
+        </FadeUp>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
+          {FEATURED.map((f, i) => (
+            <FadeUp key={i} delay={i * 0.06} className={f.span}>
+              <figure className="group relative overflow-hidden">
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <motion.img
+                    src={f.img}
+                    alt={f.title}
+                    className="h-full w-full object-cover"
+                    initial={{ scale: 1.06 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 1.4, ease: [0.2, 0.8, 0.2, 1] }}
+                  />
+                  <div className="absolute inset-0 bg-[#0A0A0A]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-70">
+                      {f.label}
+                    </span>
+                    <div className="font-editorial text-2xl md:text-3xl mt-1">{f.title}</div>
+                  </div>
+                </div>
+                <figcaption className="flex items-baseline justify-between mt-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
+                  <span>{f.title}</span>
+                  <span>{f.meta}</span>
+                </figcaption>
+              </figure>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Stats / Closing —————
+function Numbers() {
+  const [stats, setStats] = useState({ creators: 0, owners: 0, campaigns: 0 });
+  useEffect(() => {
+    api.get("/stats").then((r) => setStats(r.data)).catch(() => {});
+  }, []);
+  const rows = [
+    { k: "Creators on file", v: stats.creators ?? "—", tail: "credentialed" },
+    { k: "Brand owners", v: stats.owners ?? "—", tail: "invited only" },
+    { k: "Live briefs", v: stats.campaigns ?? "—", tail: "in the studio" },
+    { k: "Signal-to-noise", v: "94%", tail: "matched to intent" },
+  ];
+  return (
+    <section className="paper bg-[#F4F4F0] text-[#0A0A0A] py-24 hairline-t">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        {rows.map((r, i) => (
+          <FadeUp key={i} delay={i * 0.08}>
+            <div className="hairline-b py-6 md:py-8 grid grid-cols-12 items-baseline">
+              <div className="col-span-3 md:col-span-2 font-mono text-[11px] tracking-[0.28em] uppercase opacity-70">
+                0{i + 1}
+              </div>
+              <div className="col-span-6 md:col-span-6 font-editorial text-3xl md:text-5xl leading-none">
+                {r.k}
+              </div>
+              <div className="col-span-3 md:col-span-2 font-editorial text-4xl md:text-6xl italic text-right md:text-left">
+                {r.v}
+              </div>
+              <div className="hidden md:block md:col-span-2 text-right font-mono text-[11px] tracking-[0.22em] uppercase opacity-60">
+                {r.tail}
+              </div>
+            </div>
+          </FadeUp>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ClosingCTA() {
+  return (
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-32 md:py-40">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-12 gap-6">
+        <div className="col-span-12 md:col-span-10">
+          <FadeUp>
+            <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 mb-6">
+              § End of file
+            </p>
+          </FadeUp>
+          <MaskLine delay={0.1}>
+            <h2 className="font-editorial text-[13vw] md:text-[9vw] leading-[0.9]">
+              Bring the work.
+            </h2>
+          </MaskLine>
+          <MaskLine delay={0.22}>
+            <h2 className="font-editorial italic text-[13vw] md:text-[9vw] leading-[0.9]">
+              We&apos;ll bring the room<span className="tick">.</span>
+            </h2>
+          </MaskLine>
+          <FadeUp delay={0.5}>
+            <div className="mt-12 flex flex-wrap gap-4">
+              <Link to="/register" data-testid="closing-cta" className="btn-solid">
+                Enter the studio <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link to="/marketplace" className="btn-pill" data-testid="closing-cta-secondary">
+                Browse the file
+              </Link>
+            </div>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Landing —————
+export default function Landing() {
+  useLenis();
+  useEffect(() => {
+    document.body.style.background = "#0A0A0A";
+  }, []);
+
+  return (
+    <div className="App bg-[#0A0A0A] text-[#F4F4F0]" data-testid="landing-page">
+      <div className="grain" />
+      <Nav />
+      <Hero />
+      <EditorialMarquee />
+      <Manifesto />
+      <SplitView />
+      <FeaturedGrid />
+      <Numbers />
+      <ClosingCTA />
+      <Footer />
+    </div>
+  );
+}
