@@ -1,0 +1,158 @@
+{
+  "project_name": "CR8",
+  "theme": "Editorial Luxury / High-Contrast Swiss",
+  "typography": {
+    "headings": "Playfair Display",
+    "body": "Manrope",
+    "mono": "JetBrains Mono",
+    "rules": [
+      "Use Playfair Display for all major section headers and hero typography (tracking-tight).",
+      "Use Manrope for body text, dashboard UI, and smaller labels.",
+      "Never use Inter for headings.",
+      "For massive numbers in the manifesto, use Playfair Display italic or ultra-light."
+    ]
+  },
+  "colors": {
+    "background_primary": "#0A0A0A",
+    "text_primary": "#F4F4F0",
+    "background_secondary": "#F4F4F0",
+    "text_secondary": "#0A0A0A",
+    "accent": "#FF3B30",
+    "borders": "rgba(244, 244, 240, 0.15)",
+    "rules": [
+      "No full-screen standard gradients. Rely on pure high-contrast flat sections.",
+      "Use #FF3B30 (Vermilion) purely for kinetic triggers, active states, and small structural accents.",
+      "For light mode sections (like Manifesto), invert background to #F4F4F0 and text to #0A0A0A."
+    ]
+  },
+  "visual_enhancers": {
+    "textures": [
+      "Subtle film grain overlay across the entire app (pointer-events-none, mix-blend-overlay, opacity 30%)."
+    ],
+    "surface_strategies": [
+      "Crystal Glass for the sticky nav: backdrop-blur-xl bg-black/60 with a 1px border-white/10.",
+      "Grid Borders for dashboard and auth screens: 1px subtle borders (border-collapse look) instead of floating cards."
+    ]
+  },
+  "motion_and_interactions": {
+    "scroll": "Lenis for momentum scrolling. A must for the editorial feel.",
+    "animations": "Framer Motion. All sections must use scroll-triggered entry (fade up + slight scale).",
+    "hero_moment": "Masked line-by-line text reveal for the 'CR8' wordmark. Oversized text (text-[15vw] or clamp). Uses framer-motion 'initial={{ y: 100% }} animate={{ y: 0 }}' wrapped in an overflow-hidden mask.",
+    "hover_states": "Images in grids get a slight scale-up (scale-105) and a spotlight/color saturation bump on hover."
+  },
+  "layouts": {
+    "marketing_page": [
+      {
+        "section": "Hero",
+        "description": "Massive kinetic CR8 wordmark. Line-by-line reveal. Background uses a subtle dark film grain texture and a clipped spotlight image of a fashion model.",
+        "grid": "grid-cols-12, heavily asymmetrical."
+      },
+      {
+        "section": "Editorial Marquee",
+        "description": "Slow, smooth infinite scroll using react-fast-marquee. 'THE OWNERS ✦ THE INFLUENCERS ✦' repeated in a serif font.",
+        "styling": "py-10 bg-white text-black border-y border-black"
+      },
+      {
+        "section": "Numbered Manifesto",
+        "description": "Chapters 01, 02, 03 describing the bridge. Huge oversized numerals. Text-heavy editorial layout. Alternating left/right alignment.",
+        "spacing": "py-32 gap-16"
+      },
+      {
+        "section": "How It Works (Split View)",
+        "description": "50/50 vertical split. Left side 'For Owners', Right side 'For Influencers'. Hovering one side dynamically expands its flex basis using Framer Motion.",
+        "styling": "h-screen flex flex-col md:flex-row"
+      },
+      {
+        "section": "Featured Creators / Campaigns Grid",
+        "description": "Bento 'Tetris' Grid. Real photography treated deliberately with clipped frames and dark overlays that reveal on hover.",
+        "grid": "grid-cols-1 md:grid-cols-12 gap-8. Mix of col-span-4 and col-span-8."
+      }
+    ],
+    "dashboard_and_auth": [
+      {
+        "section": "Auth Pages",
+        "description": "Split screen layout. Left side editorial image, right side clean, high-density Swiss form for role selection.",
+        "styling": "Input fields use bottom border only, or strict 1px rectangles. No soft shadows."
+      },
+      {
+        "section": "Dashboard / App",
+        "description": "Cardless, dense data presentation. Strict grid hierarchy. 1px borders between widgets. Neutral/monochrome palette with accent color for status.",
+        "grid": "grid-cols-1 md:grid-cols-4 gap-6"
+      }
+    ]
+  },
+  "component_instructions": {
+    "shadcn": [
+      "Use Shadcn UI for standard interactions (Select, Dialog, Form, Tabs) but strip Vercel-look borders and shadows.",
+      "Make them strictly rectangular (rounded-none) or maximum rounded-sm to match the editorial aesthetic.",
+      "Do NOT use Shadcn Card component for marketing sections; use raw HTML/Tailwind for custom layouts."
+    ],
+    "toasts": "Use 'sonner' for toasts. Style them dark and minimal.",
+    "icons": "Use lucide-react for UI, or @phosphor-icons/react for thinner, editorial line weights."
+  },
+  "media_and_images": {
+    "creators_and_influencers": [
+      {
+        "url": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
+        "description": "Stylish portrait of a woman in a black dress with dramatic lighting.",
+        "category": "Hero or Featured Creator"
+      },
+      {
+        "url": "https://images.pexels.com/photos/35458193/pexels-photo-35458193.jpeg",
+        "description": "Silhouette in dramatic red light.",
+        "category": "Manifesto Abstract Visual"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
+        "description": "Woman in a brown coat holding a black purse.",
+        "category": "Creator Profile / Grid"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
+        "description": "Woman standing next to a chair wearing a skirt.",
+        "category": "Creator Profile / Grid"
+      }
+    ],
+    "brands_and_campaigns": [
+      {
+        "url": "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
+        "description": "Two black and white bottles.",
+        "category": "Minimalist luxury product campaign"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
+        "description": "Bottles of makeup on white table.",
+        "category": "Beauty campaign showcase"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1655657874630-2da5679ef515",
+        "description": "Plant in a vase, luxury lifestyle.",
+        "category": "Home/Lifestyle brand"
+      }
+    ],
+    "textures_and_backgrounds": [
+      {
+        "url": "https://images.pexels.com/photos/32909013/pexels-photo-32909013.jpeg",
+        "description": "Black and white film grain texture.",
+        "category": "Global app overlay / Dark section backgrounds"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1635776062764-e025521e3df3",
+        "description": "Blurry red and black background.",
+        "category": "Accent glowing background for hover states or 3D moments"
+      }
+    ]
+  },
+  "universal_guidelines_for_main_agent": [
+    "DO NOT output TSX. Use .js extensions for all files.",
+    "All interactive elements MUST include a 'data-testid' attribute in kebab-case format.",
+    "Do NOT use completely transparent backgrounds for the header or floating navs; use glassmorphism (backdrop-blur-xl bg-black/60) or solid colors.",
+    "Avoid the generic 'AI slop' aesthetic: no simplistic gradients, no generic centered layouts.",
+    "Create depth through layered design elements, absolute positioning, and typography scaling.",
+    "Never apply universal transitions (e.g., transition: all). Add specific transitions for interactive elements.",
+    "Do NOT center align the app container using .App { text-align: center; }.",
+    "Use generous padding (p-12, p-24, p-32) on marketing sections.",
+    "Ensure high contrast and readability on all text. Use APCA contrast principles.",
+    "Use Framer Motion for scroll-linked animations and page load reveals."
+  ]
+}
