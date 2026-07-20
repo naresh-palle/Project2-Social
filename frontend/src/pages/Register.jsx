@@ -47,8 +47,8 @@ export default function Register() {
     setFieldErrors({});
 
     let errs = {};
-    if (!form.firstName.trim()) errs.firstName = "Required";
-    if (!form.lastName.trim()) errs.lastName = "Required";
+    if (!form.firstName.trim() || /[^a-zA-Z\\s]/.test(form.firstName)) errs.firstName = "Letters only";
+    if (!form.lastName.trim() || /[^a-zA-Z\\s]/.test(form.lastName)) errs.lastName = "Letters only";
     if (!form.username.trim() || /[^a-zA-Z0-9_]/.test(form.username)) errs.username = "Alphanumeric and underscores only";
     if (!/^\\S+@\\S+\\.\\S+$/.test(form.email)) errs.email = "Invalid email";
     if (!/^\\d{10}$/.test(form.mobile)) errs.mobile = "Must be 10 digits";
@@ -129,7 +129,8 @@ export default function Register() {
                   key={r.k}
                   onClick={() => {
                     setRole(r.k);
-                    setForm((f) => ({ ...f, company: "" }));
+                    setForm({ email: "", username: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "", city: "", state: "" });
+                    setFieldErrors({});
                   }}
                   data-testid={`role-${r.k}`}
                   className={`text-left p-4 hairline-b hairline-t hairline-l hairline-r transition-colors duration-300 ${
@@ -198,7 +199,7 @@ export default function Register() {
               )}
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} placeholder="your_username" error={fieldErrors.username} required />
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@example.com" type="email" error={fieldErrors.email} required />
-              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" error={fieldErrors.mobile} required />
+              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" prefix="🇮🇳 +91" error={fieldErrors.mobile} required />
               <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" error={fieldErrors.pincode} required />
               
               <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" error={fieldErrors.city} required />
@@ -234,17 +235,20 @@ export default function Register() {
   );
 }
 
-function Field({ label, testid, error, ...props }) {
+function Field({ label, testid, error, prefix, ...props }) {
   return (
     <div>
       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
         {label}
       </label>
-      <input
-        data-testid={testid}
-        {...props}
-        className={`mt-2 w-full bg-transparent py-3 focus:outline-none text-lg transition-colors ${error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus:border-[#FF3B30]"}`}
-      />
+      <div className={`mt-2 flex items-center w-full bg-transparent transition-colors ${error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
+        {prefix && <span className="text-lg opacity-60 mr-2 flex-shrink-0">{prefix}</span>}
+        <input
+          data-testid={testid}
+          {...props}
+          className="w-full py-3 focus:outline-none text-lg bg-transparent"
+        />
+      </div>
       {error && <p className="text-[#FF3B30] text-[10px] mt-2 uppercase tracking-widest font-mono">{error}</p>}
     </div>
   );
