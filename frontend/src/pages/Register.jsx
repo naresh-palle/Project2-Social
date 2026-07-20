@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 
@@ -143,6 +145,40 @@ export default function Register() {
                   </div>
                 </button>
               ))}
+            </div>
+
+            <div className="mt-10 flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={credentialResponse => {
+                  try {
+                    const decoded = jwtDecode(credentialResponse.credential);
+                    setForm(f => ({
+                      ...f,
+                      firstName: decoded.given_name || "",
+                      lastName: decoded.family_name || "",
+                      email: decoded.email || ""
+                    }));
+                    setErr("");
+                    setFieldErrors(e => ({...e, firstName: "", lastName: "", email: ""}));
+                  } catch (e) {
+                    setErr("Failed to parse Google login");
+                  }
+                }}
+                onError={() => {
+                  setErr("Google Login Failed");
+                }}
+                theme="filled_black"
+                shape="rectangular"
+                text="continue_with"
+                size="large"
+                width="100%"
+              />
+            </div>
+
+            <div className="flex items-center gap-4 mt-8 opacity-60">
+              <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
+              <span className="font-mono text-[10px] tracking-widest uppercase">Or fill manually</span>
+              <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
             </div>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
