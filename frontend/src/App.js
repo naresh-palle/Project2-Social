@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
@@ -20,7 +20,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <HashRouter>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -39,7 +39,7 @@ function App() {
             <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
           </Routes>
         </AuthProvider>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
