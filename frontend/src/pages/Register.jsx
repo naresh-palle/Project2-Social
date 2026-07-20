@@ -110,20 +110,30 @@ export default function Register() {
     return () => clearTimeout(t);
   }, [form.username]);
 
-  // Pincode
+  // Pincode (Dual API Fallback for 100% coverage)
   useEffect(() => {
     if (form.pincode.length === 6) {
-      fetch(`https://api.zippopotam.us/in/${form.pincode}`)
-        .then(res => {
-          if (!res.ok) throw new Error("Invalid pincode");
-          return res.json();
-        })
+      fetch(`https://api.postalpincode.in/pincode/${form.pincode}`)
+        .then(res => res.json())
         .then(data => {
-          if (data && data.places && data.places.length > 0) {
-            const po = data.places[0];
-            setForm(f => ({ ...f, city: po["place name"], state: po["state"] }));
+          if (data && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const po = data[0].PostOffice[0];
+            setForm(f => ({ ...f, city: po.District || po.Block || po.Name || po.Region, state: po.State }));
           } else {
-            setForm(f => ({ ...f, city: "", state: "" }));
+            // Fallback to Zippopotamus if postalpincode fails or is missing the code
+            return fetch(`https://api.zippopotam.us/in/${form.pincode}`)
+              .then(r => {
+                if (!r.ok) throw new Error("Fallback failed");
+                return r.json();
+              })
+              .then(zData => {
+                if (zData && zData.places && zData.places.length > 0) {
+                  const po = zData.places[0];
+                  setForm(f => ({ ...f, city: po["place name"], state: po["state"] }));
+                } else {
+                  setForm(f => ({ ...f, city: "", state: "" }));
+                }
+              });
           }
         }).catch(() => { setForm(f => ({ ...f, city: "", state: "" })); });
     } else {
