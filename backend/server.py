@@ -37,7 +37,7 @@ EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 EMERGENT_EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
-UPLOAD_DIR = PathLib(os.environ.get("UPLOAD_DIR", "/app/backend/uploads"))
+UPLOAD_DIR = PathLib(os.environ.get("UPLOAD_DIR", ROOT_DIR / "uploads"))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="CR8 API")
