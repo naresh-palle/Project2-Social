@@ -325,28 +325,28 @@ function SplitView() {
 // ————— Featured Grid —————
 const FEATURED = [
   {
-    span: "md:col-span-7",
+    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
     label: "Feature 01",
     title: "Kai Monroe × Studio Noir",
     meta: "Fashion Editorial · 512K",
   },
   {
-    span: "md:col-span-5",
+    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
     label: "Feature 02",
     title: "Bottle No.7 launch",
     meta: "Luxury Product · 3-day sold out",
   },
   {
-    span: "md:col-span-4",
+    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
     label: "Feature 03",
     title: "The Ritual Series",
     meta: "Beauty · Long-form",
   },
   {
-    span: "md:col-span-8",
+    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
     label: "Feature 04",
     title: "Nova Reyes × Fragrance Atlas",
@@ -373,7 +373,7 @@ function FeaturedGrid() {
           {FEATURED.map((f, i) => (
             <FadeUp key={i} delay={i * 0.06} className={f.span}>
               <figure className="group relative overflow-hidden">
-                <div className="relative overflow-hidden aspect-[4/5] md:aspect-auto md:h-[600px]">
+                <div className="relative overflow-hidden aspect-[4/5]">
                   <motion.img
                     src={f.img}
                     alt={f.title}
