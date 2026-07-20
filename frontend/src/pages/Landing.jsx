@@ -373,7 +373,7 @@ function FeaturedGrid() {
           {FEATURED.map((f, i) => (
             <FadeUp key={i} delay={i * 0.06} className={f.span}>
               <figure className="group relative overflow-hidden">
-                <div className="relative aspect-[4/5] overflow-hidden">
+                <div className="relative overflow-hidden aspect-[4/5] md:aspect-auto md:h-[600px]">
                   <motion.img
                     src={f.img}
                     alt={f.title}
