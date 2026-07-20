@@ -31,17 +31,31 @@ export default function Dashboard() {
       <Toaster theme="dark" position="top-center" />
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
         <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-              § {user.role === "owner" ? "Owner desk" : "Creator desk"}
-            </p>
-            <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
-              {user.name}<span className="tick">.</span>
-            </h1>
-            <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-3">
-              {user.role === "owner" ? user.company || "Owner" : user.handle || "Creator"} ·{" "}
-              {user.email}
-            </p>
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border border-[#F4F4F0]/20">
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <div 
+                  className="w-full h-full flex items-center justify-center font-editorial italic text-3xl text-white"
+                  style={{ backgroundColor: `hsl(${user.name.length * 45}, 65%, 40%)` }}
+                >
+                  {user.name?.[0]}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                § {user.role === "owner" ? "Owner desk" : user.role === "agent" ? "Agent desk" : "Creator desk"}
+              </p>
+              <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
+                {user.name}<span className="tick">.</span>
+              </h1>
+              <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-3">
+                {user.role === "owner" ? user.company || "Owner" : user.role === "agent" ? "Agent" : user.handle || "Creator"} ·{" "}
+                {user.email}
+              </p>
+            </div>
           </div>
           {user.role === "owner" ? (
             <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid">
