@@ -60,11 +60,19 @@ export default function Onboarding() {
   }
 
   const addSocial = async () => {
-    if (!handle) return;
+    const cleanHandle = handle.trim();
+    if (!cleanHandle) return;
+
+    if (socials.some((s) => s.platform === platform)) {
+      setError(`You have already connected a ${platform} account.`);
+      return;
+    }
+
+    setError("");
     setFetching(true);
     try {
-      const { data } = await api.post("/social/fetch", { platform, handle });
-      setSocials([...socials, { platform, handle, ...data }]);
+      const { data } = await api.post("/social/fetch", { platform, handle: cleanHandle });
+      setSocials([...socials, { platform, handle: cleanHandle, ...data }]);
       setHandle("");
     } catch (e) {
       setError("Failed to fetch social stats.");
@@ -108,7 +116,7 @@ export default function Onboarding() {
           <div className="grid grid-cols-3 gap-4">
             <select 
               value={platform} 
-              onChange={e => setPlatform(e.target.value)}
+              onChange={e => { setPlatform(e.target.value); setError(""); }}
               className="col-span-1 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg font-mono"
             >
               {PLATFORMS.map(p => <option key={p} className="bg-black">{p}</option>)}
@@ -117,10 +125,11 @@ export default function Onboarding() {
               type="text" 
               placeholder="@handle or URL" 
               value={handle}
-              onChange={e => setHandle(e.target.value)}
+              onChange={e => { setHandle(e.target.value); setError(""); }}
               className="col-span-2 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
             />
           </div>
+          {error && <div className="text-[#FF3B30] font-mono text-xs tracking-widest uppercase">{error}</div>}
           <button 
             onClick={addSocial}
             disabled={fetching || !handle}
