@@ -180,6 +180,7 @@ class RegisterInput(BaseModel):
 class CheckInput(BaseModel):
     email: Optional[EmailStr] = None
     mobile: Optional[str] = None
+    username: Optional[str] = None
 
 class SendOTPInput(BaseModel):
     email: EmailStr
@@ -324,6 +325,9 @@ async def check_availability(inp: CheckInput):
     if inp.mobile:
         if await db.users.find_one({"mobile": inp.mobile.strip()}):
             return {"available": False, "field": "mobile"}
+    if inp.username:
+        if await db.users.find_one({"username": inp.username.lower().strip()}):
+            return {"available": False, "field": "username"}
     return {"available": True}
 
 @api_router.post("/auth/send-otp")

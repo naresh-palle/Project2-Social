@@ -30,6 +30,7 @@ export default function Register() {
 
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
+  const [usernameStatus, setUsernameStatus] = useState("typing");
 
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function Register() {
     setErr("");
     setEmailStatus("typing");
     setMobileStatus("typing");
+    setUsernameStatus("typing");
   }, [urlRole]);
 
   // Format label based on role
@@ -88,6 +90,26 @@ export default function Register() {
     return () => clearTimeout(to);
   }, [form.mobile]);
 
+  // Debounced Validation for Username
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) {
+        setUsernameStatus("typing");
+        return;
+      }
+      setUsernameStatus("checking");
+      try {
+        const res = await api.post("/auth/check", { username: form.username });
+        setUsernameStatus(res.data.available ? "available" : "taken");
+        if (!res.data.available) setFieldErrors(e => ({ ...e, username: "Username already taken" }));
+      } catch (e) {
+        setUsernameStatus("typing");
+      }
+    };
+    const t = setTimeout(checkUsername, 500);
+    return () => clearTimeout(t);
+  }, [form.username]);
+
   // Pincode
   useEffect(() => {
     if (form.pincode.length === 6) {
@@ -115,7 +137,9 @@ export default function Register() {
     let errs = {};
     if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
     if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
-    if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) errs.username = "Min. 3 chars, no spaces";
+    if (!form.username.trim()) errs.username = "Required";
+    else if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) errs.username = "Min. 3 chars, no spaces";
+    else if (usernameStatus === "taken") errs.username = "Username already taken";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) errs.email = "Invalid email";
     if (emailStatus === "taken") errs.email = "Email already registered";
     if (!/^[6-9]\d{9}$/.test(form.mobile)) errs.mobile = "Invalid Indian mobile number";
@@ -250,7 +274,11 @@ export default function Register() {
                 required 
               />
             )}
-            <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} placeholder="your_username" error={fieldErrors.username} required />
+            <div className="relative">
+              <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} placeholder="your_username" error={fieldErrors.username} required />
+              {usernameStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
+              {usernameStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
+            </div>
             
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@example.com" type="email" error={fieldErrors.email} required />
