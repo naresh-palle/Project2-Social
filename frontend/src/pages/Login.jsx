@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   const [identifier, setIdentifier] = useState("");
@@ -68,9 +70,42 @@ export default function Login() {
             </h1>
 
             <div className="mt-10 space-y-6">
+              <div className="flex justify-center w-full mb-8">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      setErr("");
+                      setLoading(true);
+                      const decoded = jwtDecode(credentialResponse.credential);
+                      const r = await googleLogin(decoded.email);
+                      setLoading(false);
+                      if (r.ok) nav(location.state?.from || "/dashboard");
+                      else setErr(r.error);
+                    } catch (e) {
+                      setLoading(false);
+                      setErr("Failed to parse Google login");
+                    }
+                  }}
+                  onError={() => {
+                    setErr("Google Login Failed");
+                  }}
+                  theme="filled_black"
+                  shape="rectangular"
+                  text="signin_with"
+                  size="large"
+                  width="100%"
+                />
+              </div>
+
+              <div className="flex items-center gap-4 opacity-60">
+                <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
+                <span className="font-mono text-[10px] tracking-widest uppercase">Or sign in manually</span>
+                <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
+              </div>
+
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                  Email, Username, or Mobile
+                  Email or Mobile
                 </label>
                 <input
                   data-testid="login-email"
@@ -79,7 +114,7 @@ export default function Login() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-                  placeholder="you@example.com, username, or phone"
+                  placeholder="you@example.com or mobile"
                 />
               </div>
               <div>

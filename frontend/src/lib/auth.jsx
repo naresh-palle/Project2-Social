@@ -40,6 +40,17 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const googleLogin = async (email) => {
+    try {
+      const { data } = await api.post("/auth/google-login", { email });
+      localStorage.setItem("cr8_token", data.token);
+      setUser(data.user);
+      return { ok: true, user: data.user };
+    } catch (e) {
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
+    }
+  };
+
   const register = async (payload) => {
     try {
       const { data } = await api.post("/auth/register", payload);
@@ -57,7 +68,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthCtx.Provider value={{ user, loading, login, register, logout, refresh }}>
+    <AuthCtx.Provider value={{ user, loading, login, googleLogin, register, logout, refresh }}>
       {children}
     </AuthCtx.Provider>
   );

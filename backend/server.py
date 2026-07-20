@@ -190,6 +190,9 @@ class LoginInput(BaseModel):
     identifier: str
     password: str
 
+class GoogleLoginInput(BaseModel):
+    email: str
+
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -398,12 +401,22 @@ async def register(inp: RegisterInput):
     await db.otps.delete_one({"email": email})
     return {"token": token, "user": clean(doc)}
 
+@api_router.post("/auth/google-login")
+async def google_login(inp: GoogleLoginInput):
+    email = inp.email.lower().strip()
+    user = await db.users.find_one({"email": email})
+    if not user:
+        raise HTTPException(400, "Google Account not registered with us.")
+    
+    token = create_access_token(str(user["_id"]), email, user.get("role", "influencer"))
+    return {"token": token, "user": clean(user)}
+
 
 @api_router.post("/auth/login")
 async def login(inp: LoginInput):
     identifier = inp.identifier.lower().strip()
     user = await db.users.find_one({
-        "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
+        "$or": [{"email": identifier}, {"mobile": identifier}]
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid login credentials")
