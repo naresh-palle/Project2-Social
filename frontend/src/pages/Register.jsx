@@ -31,6 +31,18 @@ export default function Register() {
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
 
+  // Prevent data leakage / "cache saving" when switching between categories
+  useEffect(() => {
+    setForm({ 
+      email: "", username: "", password: "", firstName: "", lastName: "", 
+      company: "", mobile: "", pincode: "", city: "", state: "", otp: "" 
+    });
+    setFieldErrors({});
+    setErr("");
+    setEmailStatus("typing");
+    setMobileStatus("typing");
+  }, [urlRole]);
+
   // Format label based on role
   const roleLabel = role === "owner" ? "an Owner" : role === "agent" ? "an Agent" : "a Creator";
 
@@ -174,6 +186,7 @@ export default function Register() {
           onSubmit={handleInitialSubmit}
           className="w-full max-w-2xl bg-[#0A0A0A] border border-[#F4F4F0]/10 p-8 md:p-14"
           data-testid={`register-form-${role}`}
+          autoComplete="off"
         >
           <div className="flex items-center justify-between mb-8">
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">

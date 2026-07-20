@@ -61,6 +61,7 @@ export default function Login() {
             onSubmit={submit}
             className="w-full max-w-md"
             data-testid="login-form"
+            autoComplete="off"
           >
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Sign in
