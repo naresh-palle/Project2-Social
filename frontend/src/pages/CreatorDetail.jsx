@@ -88,7 +88,7 @@ export default function CreatorDetail() {
           </motion.div>
           <div className="col-span-12 md:col-span-6">
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Creator on file</p>
-            <h1 className="font-editorial text-6xl md:text-8xl leading-[0.9] mt-2">{c.name}</h1>
+            <h1 className="font-editorial text-6xl md:text-8xl leading-[1.15] mt-2">{c.name}</h1>
             <p className="font-mono text-[11px] tracking-[0.24em] uppercase opacity-70 mt-3">{c.handle} · {c.location}</p>
             {c.rating && (
               <div className="mt-3 flex items-center gap-2">

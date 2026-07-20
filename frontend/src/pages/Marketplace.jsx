@@ -41,7 +41,7 @@ export default function Marketplace() {
       <div className="pt-28 pb-8 max-w-[1600px] mx-auto px-6 md:px-10">
         <div className="hairline-b pb-8">
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
-          <h1 className="font-editorial text-6xl md:text-8xl leading-[0.9] mt-2">
+          <h1 className="font-editorial text-6xl md:text-8xl leading-[1.15] mt-2">
             The <span className="italic">file</span> on record<span className="tick">.</span>
           </h1>
         </div>

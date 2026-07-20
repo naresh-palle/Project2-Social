@@ -54,7 +54,7 @@ export default function Admin() {
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
         <div className="hairline-b pb-6">
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Admin console</p>
-          <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
+          <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
             The <span className="italic">register</span><span className="tick">.</span>
           </h1>
         </div>
@@ -85,7 +85,7 @@ export default function Admin() {
                     <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-mono text-[10px] opacity-70">{u.name.charAt(0)}</div>
                   )}
                   <div>
-                    <div className="font-editorial text-2xl leading-none">{u.name}</div>
+                    <div className="font-editorial text-2xl leading-[1.15]">{u.name}</div>
                     <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 mt-1">
                       {u.handle || u.company}
                     </div>

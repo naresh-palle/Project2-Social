@@ -63,7 +63,7 @@ export default function Login() {
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Sign in
             </p>
-            <h1 className="font-editorial text-6xl mt-3 leading-none">
+            <h1 className="font-editorial text-6xl mt-3 leading-[1.15]">
               Return to <span className="italic">the studio.</span>
             </h1>
 

@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="hairline-t bg-[#0A0A0A] text-[#F4F4F0] px-6 md:px-10 py-16">
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
         <div className="md:col-span-4">
-          <div className="font-editorial text-[14vw] md:text-[9vw] leading-[0.85] italic">
+          <div className="font-editorial text-[14vw] md:text-[9vw] leading-[1.15] italic">
             CR<span className="not-italic">8</span><span className="tick">.</span>
           </div>
           <p className="mt-6 max-w-md font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 leading-relaxed">

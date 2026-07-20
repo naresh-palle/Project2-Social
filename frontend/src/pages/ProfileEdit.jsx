@@ -91,7 +91,7 @@ export default function ProfileEdit() {
       <Toaster theme="dark" position="top-center" />
       <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>
-        <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
+        <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
           Your <span className="italic">file</span><span className="tick">.</span>
         </h1>
 

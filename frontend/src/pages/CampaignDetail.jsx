@@ -125,7 +125,7 @@ export default function CampaignDetail() {
           <div className="col-span-12 md:col-span-7">
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
               className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {c.brand}</motion.p>
-            <h1 className="font-editorial text-5xl md:text-7xl leading-[0.95] mt-3">{c.title}</h1>
+            <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-3">{c.title}</h1>
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
               <Meta label="Budget" value={`$${c.budget}`} accent />
               <Meta label="Niches" value={(c.niches || []).join(" · ") || "—"} />

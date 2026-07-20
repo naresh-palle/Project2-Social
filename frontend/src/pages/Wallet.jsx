@@ -42,7 +42,7 @@ export default function Wallet() {
         <div className="hairline-b pb-6 flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Ledger</p>
-            <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">Wallet<span className="tick">.</span></h1>
+            <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">Wallet<span className="tick">.</span></h1>
           </div>
           <Link to="/dashboard" className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline">← Dashboard</Link>
         </div>
@@ -52,7 +52,7 @@ export default function Wallet() {
           className="mt-10 grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-7 hairline-t hairline-b hairline-l hairline-r p-10">
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Available balance</div>
-            <div className="font-editorial text-[10rem] leading-[0.9] mt-2 italic">
+            <div className="font-editorial text-[10rem] leading-[1.15] mt-2 italic">
               ${w.balance.toLocaleString()}
               <span className="tick">.</span>
             </div>

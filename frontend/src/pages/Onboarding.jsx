@@ -325,7 +325,7 @@ function Layout({ step, title, subtitle, children }) {
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#FF3B30]">
             {subtitle}
           </div>
-          <h1 className="font-editorial text-5xl md:text-6xl mb-12 leading-none italic">
+          <h1 className="font-editorial text-5xl md:text-6xl mb-12 leading-[1.15] italic">
             {title}
           </h1>
           {children}

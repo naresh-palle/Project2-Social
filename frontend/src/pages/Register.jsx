@@ -181,7 +181,7 @@ export default function Register() {
             </Link>
           </div>
 
-          <h1 className="font-editorial text-4xl md:text-5xl leading-none">
+          <h1 className="font-editorial text-4xl md:text-5xl leading-[1.15]">
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 

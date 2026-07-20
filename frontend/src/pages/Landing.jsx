@@ -203,7 +203,7 @@ function Manifesto() {
                     alignRight ? "md:col-start-9 md:order-2" : ""
                   }`}
                 >
-                  <div className="chapter-num text-[24vw] md:text-[14vw] text-[#0A0A0A] leading-none">
+                  <div className="chapter-num text-[24vw] md:text-[14vw] text-[#0A0A0A] leading-[1.15]">
                     {c.n[0]}
                     <span className="tick not-italic">{c.n[1]}</span>
                   </div>

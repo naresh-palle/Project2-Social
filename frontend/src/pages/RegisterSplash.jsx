@@ -25,7 +25,7 @@ export default function RegisterSplash() {
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-70">
               Vol. 08 · Winter Edition
             </p>
-            <h2 className="font-editorial text-5xl italic mt-4 leading-none">
+            <h2 className="font-editorial text-5xl italic mt-4 leading-[1.15]">
               Two doors.<br />
               One studio.
             </h2>
@@ -42,7 +42,7 @@ export default function RegisterSplash() {
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Enter the studio
             </p>
-            <h1 className="font-editorial text-5xl md:text-6xl mt-3 leading-none">
+            <h1 className="font-editorial text-5xl md:text-6xl mt-3 leading-[1.15]">
               Choose your <span className="italic">door.</span>
             </h1>
 

@@ -83,7 +83,7 @@ export default function NewCampaign() {
         <div className="flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ New brief</p>
-            <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
+            <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
               Write the <span className="italic">brief</span><span className="tick">.</span>
             </h1>
           </div>

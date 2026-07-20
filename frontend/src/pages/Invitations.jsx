@@ -38,7 +38,7 @@ export default function Invitations() {
         <div className="hairline-b pb-6 flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Invitations</p>
-            <h1 className="font-editorial text-5xl md:text-7xl leading-none mt-2">
+            <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
               {user?.role === "owner" ? "You extended…" : "You were named…"}<span className="tick">.</span>
             </h1>
           </div>

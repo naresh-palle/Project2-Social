@@ -48,7 +48,7 @@ export default function Dashboard() {
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
                 § {user.role === "owner" ? "Owner desk" : user.role === "agent" ? "Agent desk" : "Creator desk"}
               </p>
-              <h1 className="font-editorial text-6xl md:text-7xl leading-none mt-2">
+              <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
                 {user.name}<span className="tick">.</span>
               </h1>
               <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-3">
@@ -107,7 +107,7 @@ function OwnerPanel() {
               className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
             >
               <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
-              <div className="font-editorial italic text-4xl md:text-5xl leading-none mt-2">{t.v}</div>
+              <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
               <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
             </motion.div>
           ))}
@@ -186,7 +186,7 @@ function InfluencerPanel() {
               className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
             >
               <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
-              <div className="font-editorial italic text-4xl md:text-5xl leading-none mt-2">{t.v}</div>
+              <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
               <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
             </motion.div>
           ))}
