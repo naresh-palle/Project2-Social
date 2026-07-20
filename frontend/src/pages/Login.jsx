@@ -105,7 +105,7 @@ export default function Login() {
 
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                  Email or Mobile
+                  Email, Username, or Mobile
                 </label>
                 <input
                   data-testid="login-email"
@@ -114,7 +114,7 @@ export default function Login() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-                  placeholder="you@example.com or mobile"
+                  placeholder=""
                 />
               </div>
               <div>
@@ -128,7 +128,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-                  placeholder="••••••••"
+                  placeholder=""
                 />
               </div>
               {err && (

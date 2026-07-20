@@ -416,7 +416,7 @@ async def google_login(inp: GoogleLoginInput):
 async def login(inp: LoginInput):
     identifier = inp.identifier.lower().strip()
     user = await db.users.find_one({
-        "$or": [{"email": identifier}, {"mobile": identifier}]
+        "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid login credentials")
