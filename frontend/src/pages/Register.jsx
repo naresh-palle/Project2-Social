@@ -70,7 +70,7 @@ export default function Register() {
   // Debounced Validation for Mobile
   useEffect(() => {
     const checkMobile = async () => {
-      if (!/^\\d{10}$/.test(form.mobile)) {
+      if (!/^[6-9]\d{9}$/.test(form.mobile)) {
         setMobileStatus("typing");
         return;
       }
@@ -113,14 +113,14 @@ export default function Register() {
 
   const validateForm = () => {
     let errs = {};
-    if (!form.firstName.trim() || /[^a-zA-Z\\s]/.test(form.firstName)) errs.firstName = "Letters only";
-    if (!form.lastName.trim() || /[^a-zA-Z\\s]/.test(form.lastName)) errs.lastName = "Letters only";
-    if (!form.username.trim() || /[^a-zA-Z0-9_]/.test(form.username)) errs.username = "Alphanumeric and underscores only";
-    if (!/^\\S+@\\S+\\.\\S+$/.test(form.email)) errs.email = "Invalid email";
+    if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
+    if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
+    if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) errs.username = "Min. 3 chars, no spaces";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) errs.email = "Invalid email";
     if (emailStatus === "taken") errs.email = "Email already registered";
-    if (!/^\\d{10}$/.test(form.mobile)) errs.mobile = "Must be 10 digits";
+    if (!/^[6-9]\d{9}$/.test(form.mobile)) errs.mobile = "Invalid Indian mobile number";
     if (mobileStatus === "taken") errs.mobile = "Mobile already registered";
-    if (!/^\\d{6}$/.test(form.pincode)) errs.pincode = "Must be 6 digits";
+    if (!/^\d{6}$/.test(form.pincode)) errs.pincode = "Must be 6 digits";
     if (form.pincode.length === 6 && !form.city) errs.pincode = "Invalid Pincode";
     if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) errs.password = "Min. 8 chars, alphanumeric";
     if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Required";
@@ -259,7 +259,7 @@ export default function Register() {
             </div>
 
             <div className="relative">
-              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="" prefix="🇮🇳 +91" error={fieldErrors.mobile} required />
+              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="" prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
               {mobileStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
               {mobileStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
             </div>
