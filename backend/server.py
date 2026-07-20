@@ -1214,8 +1214,13 @@ async def call_llm(system: str, prompt: str) -> str:
         text = await loop.run_in_executor(None, generate)
         return text
     except Exception as e:
+        available_models = []
+        try:
+            available_models = [m.name for m in genai.list_models()]
+        except Exception:
+            pass
         logger.warning(f"Gemini API error: {e}")
-        raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}")
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}. Available: {available_models}")
 
 
 def parse_json(text: str) -> dict:
