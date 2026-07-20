@@ -1723,25 +1723,23 @@ class ProfileSuggestInput(BaseModel):
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
     system = "You are a creative director for high-end influencers."
-    prompt = f"""
-    The influencer's niches are: {', '.join(inp.niches) if inp.niches else 'general lifestyle'}.
-    The handle is {inp.handle or 'unknown'}.
+    
+    niches_str = ", ".join(inp.niches) if inp.niches else "general lifestyle"
+    handle_str = inp.handle if inp.handle else "unknown"
+    
+    prompt = "The influencer's niches are: " + niches_str + ".\n"
+    prompt += "The handle is " + handle_str + ".\n\n"
+    prompt += "Suggest a punchy, luxurious bio (1-2 sentences max).\n"
+    prompt += "Also, suggest exactly 4 high-quality image URLs for their portfolio that match these niches.\n"
+    prompt += "(Use actual real unsplash source URLs like https://images.unsplash.com/photo-...)\n\n"
+    prompt += "Return ONLY JSON with this structure:\n"
+    prompt += "{\n  \"bio\": \"...\",\n  \"portfolio\": [\"url1\", \"url2\", \"url3\", \"url4\"]\n}\n"
 
-    Suggest a punchy, luxurious bio (1-2 sentences max).
-    Also, suggest exactly 4 high-quality image URLs for their portfolio that match these niches.
-    (Use actual real unsplash source URLs like https://images.unsplash.com/photo-...)
-
-    Return ONLY JSON with this structure:
-    {{
-      "bio": "...",
-      "portfolio": ["url1", "url2", "url3", "url4"]
-    }}
-    """
     try:
         text = await call_llm(system, prompt)
         return parse_json(text)
     except Exception as e:
-        logger.warning("AI profile suggestion failed: %s", e)
+        logger.warning("AI profile suggestion failed: %s", repr(e))
         raise HTTPException(status_code=500, detail="AI generation failed")
 
 # ---------- Startup ----------
