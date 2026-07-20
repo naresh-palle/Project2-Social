@@ -116,7 +116,7 @@ export default function Register() {
       fetch(`https://api.postalpincode.in/pincode/${form.pincode}`)
         .then(res => res.json())
         .then(data => {
-          if (data && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+          if (data && data.length > 0 && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
             const po = data[0].PostOffice[0];
             setForm(f => ({ ...f, city: po.District || po.Block || po.Name || po.Region, state: po.State }));
           } else {
