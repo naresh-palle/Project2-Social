@@ -10,7 +10,7 @@ export default function Register() {
   const nav = useNavigate();
   const [sp] = useSearchParams();
   const [role, setRole] = useState(sp.get("role") === "owner" ? "owner" : "influencer");
-  const [form, setForm] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "", city: "", state: "" });
+  const [form, setForm] = useState({ email: "", username: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "", city: "", state: "" });
   const [err, setErr] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -47,6 +47,7 @@ export default function Register() {
     let errs = {};
     if (!form.firstName.trim()) errs.firstName = "Required";
     if (!form.lastName.trim()) errs.lastName = "Required";
+    if (!form.username.trim() || /[^a-zA-Z0-9_]/.test(form.username)) errs.username = "Alphanumeric and underscores only";
     if (!/^\\S+@\\S+\\.\\S+$/.test(form.email)) errs.email = "Invalid email";
     if (!/^\\d{10}$/.test(form.mobile)) errs.mobile = "Must be 10 digits";
     if (!/^\\d{6}$/.test(form.pincode)) errs.pincode = "Must be 6 digits";
@@ -159,12 +160,13 @@ export default function Register() {
                   required 
                 />
               )}
-              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" error={fieldErrors.email} required />
+              <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} placeholder="your_username" error={fieldErrors.username} required />
+              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@example.com" type="email" error={fieldErrors.email} required />
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" error={fieldErrors.mobile} required />
               <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" error={fieldErrors.pincode} required />
               
-              <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" disabled={!!form.city} required />
-              <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} placeholder="Auto-filled from Pincode" disabled={!!form.state} required />
+              <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" error={fieldErrors.city} required />
+              <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} placeholder="Auto-filled from Pincode" error={fieldErrors.state} required />
 
               <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 8 chars, alphanumeric" type="password" error={fieldErrors.password} required />
             </div>

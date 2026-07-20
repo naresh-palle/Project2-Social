@@ -29,9 +29,9 @@ export function AuthProvider({ children }) {
     refresh();
   }, [refresh]);
 
-  const login = async (email, password) => {
+  const login = async (identifier, password) => {
     try {
-      const { data } = await api.post("/auth/login", { email, password });
+      const { data } = await api.post("/auth/login", { identifier, password });
       localStorage.setItem("cr8_token", data.token);
       setUser(data.user);
       return { ok: true, user: data.user };

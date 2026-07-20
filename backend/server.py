@@ -165,6 +165,7 @@ UserRole = Literal["owner", "influencer", "admin", "agent"]
 
 class RegisterInput(BaseModel):
     email: EmailStr
+    username: str = Field(min_length=3, max_length=30)
     password: str = Field(min_length=8)
     name: str = Field(min_length=1, max_length=80)
     role: UserRole
@@ -176,7 +177,7 @@ class RegisterInput(BaseModel):
 
 
 class LoginInput(BaseModel):
-    email: EmailStr
+    identifier: str
     password: str
 
 
@@ -305,8 +306,11 @@ class EmailVerifyConfirm(BaseModel):
 @api_router.post("/auth/register")
 async def register(inp: RegisterInput):
     email = inp.email.lower().strip()
-    if await db.users.find_one({"email": email}):
-        raise HTTPException(status_code=400, detail="Email already registered")
+    username = inp.username.lower().strip()
+    mobile = inp.mobile.strip() if inp.mobile else None
+    
+    if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}]}):
+        raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
     
@@ -330,7 +334,10 @@ async def register(inp: RegisterInput):
         platforms.append(inp.platform)
 
     doc = {
-        "id": user_id, "email": email, "password_hash": hash_password(inp.password),
+        "id": user_id,
+        "email": email,
+        "username": username,
+        "password_hash": hash_password(inp.password),
         "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
         "mobile": inp.mobile, "pincode": inp.pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
@@ -347,10 +354,12 @@ async def register(inp: RegisterInput):
 
 @api_router.post("/auth/login")
 async def login(inp: LoginInput):
-    email = inp.email.lower().strip()
-    user = await db.users.find_one({"email": email})
+    identifier = inp.identifier.lower().strip()
+    user = await db.users.find_one({
+        "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
+    })
     if not user or not verify_password(inp.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid login credentials")
     token = create_access_token(user["id"], user["email"], user["role"])
     return {"token": token, "user": clean(dict(user))}
 

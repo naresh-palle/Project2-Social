@@ -9,7 +9,7 @@ export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function Login() {
     e.preventDefault();
     setErr("");
     setLoading(true);
-    const r = await login(email, password);
+    const r = await login(identifier, password);
     setLoading(false);
     if (r.ok) nav(location.state?.from || "/dashboard");
     else setErr(r.error);
@@ -70,16 +70,16 @@ export default function Login() {
             <div className="mt-10 space-y-6">
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                  Email
+                  Email, Username, or Mobile
                 </label>
                 <input
                   data-testid="login-email"
-                  type="email"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-                  placeholder="you@studio.com"
+                  placeholder="you@example.com, username, or phone"
                 />
               </div>
               <div>
