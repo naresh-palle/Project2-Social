@@ -34,7 +34,7 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60 * 24 * 7
-EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
+EMERGENT_LLM_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("EMERGENT_LLM_KEY")
 EMERGENT_EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
@@ -1188,18 +1188,31 @@ async def root():
 # ---------- AI ----------
 async def call_llm(system: str, prompt: str) -> str:
     if not EMERGENT_LLM_KEY:
-        raise HTTPException(status_code=500, detail="LLM key missing")
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY missing")
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        import google.generativeai as genai
     except ImportError:
-        raise HTTPException(status_code=500, detail="LLM library missing")
-    chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=str(uuid.uuid4()),
-        system_message=system,
-    ).with_model("anthropic", "claude-sonnet-4-6")
-    resp = await chat.send_message(UserMessage(text=prompt))
-    return resp if isinstance(resp, str) else str(resp)
+        raise HTTPException(status_code=500, detail="google-generativeai library missing")
+    
+    genai.configure(api_key=EMERGENT_LLM_KEY)
+    
+    # Use Gemini 1.5 Pro or Flash
+    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system)
+    
+    # We use await loop.run_in_executor since genai library might be sync
+    import asyncio
+    loop = asyncio.get_event_loop()
+    
+    def generate():
+        response = model.generate_content(prompt)
+        return response.text
+        
+    try:
+        text = await loop.run_in_executor(None, generate)
+        return text
+    except Exception as e:
+        logger.warning(f"Gemini API error: {e}")
+        raise HTTPException(status_code=500, detail="AI generation failed")
 
 
 def parse_json(text: str) -> dict:
