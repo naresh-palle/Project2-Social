@@ -214,7 +214,7 @@ function Manifesto() {
                     alignRight ? "md:col-start-1 md:order-1" : "md:col-start-6"
                   }`}
                 >
-                  <h3 className="font-editorial text-4xl md:text-6xl leading-[1.02] tracking-tight">
+                  <h3 className="font-editorial text-4xl md:text-6xl leading-[1.1] tracking-tight">
                     {c.title}
                   </h3>
                   <p className="mt-6 max-w-md text-base md:text-lg leading-relaxed text-[#0A0A0A]/75">
@@ -262,7 +262,7 @@ function SplitView() {
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               For the owners
             </span>
-            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[0.95]">
+            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.1]">
               Post your brief.
               <br />
               <span className="italic">Meet the mavericks.</span>
@@ -298,7 +298,7 @@ function SplitView() {
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               For the influencers
             </span>
-            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[0.95]">
+            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.1]">
               Build a body of work
               <br />
               <span className="italic">worth signing.</span>
@@ -465,7 +465,7 @@ function Numbers() {
               <div className="col-span-3 md:col-span-2 font-mono text-[11px] tracking-[0.28em] uppercase opacity-70">
                 0{i + 1}
               </div>
-              <div className="col-span-6 md:col-span-6 font-editorial text-3xl md:text-5xl leading-none">
+              <div className="col-span-6 md:col-span-6 font-editorial text-3xl md:text-5xl leading-[1.1]">
                 {r.k}
               </div>
               <div className="col-span-3 md:col-span-2 font-editorial text-4xl md:text-6xl italic text-right md:text-left">
@@ -492,13 +492,13 @@ function ClosingCTA() {
               § End of file
             </p>
           </FadeUp>
-          <MaskLine delay={0.1}>
-            <h2 className="font-editorial text-[13vw] md:text-[9vw] leading-[0.9]">
+          <MaskLine delay={0.1} className="py-3">
+            <h2 className="font-editorial text-[13vw] md:text-[9vw] leading-[1.1]">
               Bring the work.
             </h2>
           </MaskLine>
-          <MaskLine delay={0.22}>
-            <h2 className="font-editorial italic text-[13vw] md:text-[9vw] leading-[0.9]">
+          <MaskLine delay={0.22} className="py-3">
+            <h2 className="font-editorial italic text-[13vw] md:text-[9vw] leading-[1.1]">
               We&apos;ll bring the room<span className="tick">.</span>
             </h2>
           </MaskLine>
