@@ -1212,7 +1212,7 @@ async def call_llm(system: str, prompt: str) -> str:
         return text
     except Exception as e:
         logger.warning(f"Gemini API error: {e}")
-        raise HTTPException(status_code=500, detail="AI generation failed")
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}")
 
 
 def parse_json(text: str) -> dict:
@@ -1753,7 +1753,9 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
         return parse_json(text)
     except Exception as e:
         logger.warning("AI profile suggestion failed: %s", repr(e))
-        raise HTTPException(status_code=500, detail="AI generation failed")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}")
 
 # ---------- Startup ----------
 async def seed_admin():
