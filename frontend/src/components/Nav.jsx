@@ -45,11 +45,6 @@ export function Nav({ variant = "dark" }) {
           <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 ml-3">⌘ Studio</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8 font-mono text-[11px] tracking-[0.22em] uppercase">
-          <Link data-testid="nav-marketplace" to="/marketplace" className="kinetic-underline">Marketplace</Link>
-          <Link data-testid="nav-manifesto" to="/#manifesto" className="kinetic-underline">Manifesto</Link>
-          <Link data-testid="nav-work" to="/#work" className="kinetic-underline">The Work</Link>
-        </nav>
 
         <div className="flex items-center gap-3">
           {user ? (
