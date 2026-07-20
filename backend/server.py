@@ -309,12 +309,18 @@ async def register(inp: RegisterInput):
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
     user_id = str(uuid.uuid4())
+    city, state = None, None
+    if inp.pincode:
+        loc = await fetch_pincode_details(inp.pincode)
+        city = loc.get("city") if loc.get("city") != "Unknown" else None
+        state = loc.get("state") if loc.get("state") != "Unknown" else None
+
     doc = {
         "id": user_id, "email": email, "password_hash": hash_password(inp.password),
         "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
         "mobile": inp.mobile, "pincode": inp.pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": [],
-        "location": None, "city": None, "state": None, "industry": None, "website": None,
+        "location": None, "city": city, "state": state, "industry": None, "website": None,
         "portfolio": [], "rate_card": {}, "verified": False, "wallet": 0,
         "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
@@ -359,8 +365,7 @@ async def verify_otp(inp: OTPVerifyInput):
     raise HTTPException(status_code=400, detail="Invalid OTP")
 
 
-@api_router.get("/location/pincode/{pincode}")
-async def get_location(pincode: str):
+async def fetch_pincode_details(pincode: str):
     async with httpx.AsyncClient(timeout=10) as client:
         try:
             r = await client.get(f"https://api.postalpincode.in/pincode/{pincode}")
@@ -370,6 +375,10 @@ async def get_location(pincode: str):
         except Exception:
             pass
     return {"city": "Unknown", "state": "Unknown"}
+
+@api_router.get("/location/pincode/{pincode}")
+async def get_location(pincode: str):
+    return await fetch_pincode_details(pincode)
 
 
 class SocialFetchInput(BaseModel):

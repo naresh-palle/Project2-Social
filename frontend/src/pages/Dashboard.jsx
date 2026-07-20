@@ -120,11 +120,18 @@ function OwnerPanel() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {matches.slice(0, 4).map((c) => (
-            <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r p-6 flex flex-col justify-between hover:bg-white/5 transition">
-              <div>
-                <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
-                <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
-                <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+            <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
+              {c.avatar && (
+                <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
+                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+                </div>
+              )}
+              <div className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
+                  <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
+                  <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+                </div>
               </div>
             </Link>
           ))}
@@ -228,11 +235,18 @@ function AgentPanel() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {creators.map((c) => (
-          <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r p-6 flex flex-col justify-between hover:bg-white/5 transition">
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
-              <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
-              <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+          <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
+            {c.avatar && (
+              <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
+                <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+              </div>
+            )}
+            <div className="p-6 flex flex-col justify-between flex-1">
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
+                <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
+                <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+              </div>
             </div>
           </Link>
         ))}

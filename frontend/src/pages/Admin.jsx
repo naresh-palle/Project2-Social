@@ -78,10 +78,17 @@ export default function Admin() {
                 <div className="col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <div className="col-span-3">
-                  <div className="font-editorial text-2xl">{u.name}</div>
-                  <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">
-                    {u.handle || u.company}
+                <div className="col-span-3 flex items-center gap-3">
+                  {u.avatar ? (
+                    <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full object-cover filter grayscale" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-mono text-[10px] opacity-70">{u.name.charAt(0)}</div>
+                  )}
+                  <div>
+                    <div className="font-editorial text-2xl leading-none">{u.name}</div>
+                    <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 mt-1">
+                      {u.handle || u.company}
+                    </div>
                   </div>
                 </div>
                 <div className="col-span-3 font-mono text-[11px] opacity-70">{u.email}</div>
