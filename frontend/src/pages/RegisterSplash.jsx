@@ -21,7 +21,7 @@ export default function RegisterSplash() {
         <Nav />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-6 py-20 mt-[-80px]">
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-32 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
