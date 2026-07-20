@@ -81,18 +81,18 @@ function Hero() {
           <div className="relative">
             <motion.h1
               style={{ opacity: opacityWord }}
-              className="font-editorial text-[#F4F4F0] leading-[0.82] tracking-tighter"
+              className="font-editorial text-[#F4F4F0] leading-[1.05] md:leading-none tracking-tighter"
             >
-              <MaskLine delay={0.2}>
-                <span className="block text-[16vw] md:text-[13vw] font-medium">The bridge</span>
+              <MaskLine delay={0.2} className="py-2">
+                <span className="block text-[12vw] md:text-[10vw] font-medium">The bridge</span>
               </MaskLine>
-              <MaskLine delay={0.35}>
-                <span className="block text-[16vw] md:text-[13vw] italic font-normal">
+              <MaskLine delay={0.35} className="py-2">
+                <span className="block text-[12vw] md:text-[10vw] italic font-normal">
                   between owners
                 </span>
               </MaskLine>
-              <MaskLine delay={0.5}>
-                <span className="block text-[16vw] md:text-[13vw] font-medium">
+              <MaskLine delay={0.5} className="py-2">
+                <span className="block text-[12vw] md:text-[10vw] font-medium">
                   &amp; influence<span className="tick">.</span>
                 </span>
               </MaskLine>
