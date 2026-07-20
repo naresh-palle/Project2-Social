@@ -31,6 +31,7 @@ export default function Onboarding() {
   const [socials, setSocials] = useState([]);
   const [categories, setCategories] = useState([]);
   const [industry, setIndustry] = useState("");
+  const [currCat, setCurrCat] = useState(ALL_CATEGORIES[0]);
   
   // Social fetch state
   const [platform, setPlatform] = useState("Instagram");
@@ -85,6 +86,12 @@ export default function Onboarding() {
       setCategories(categories.filter((x) => x !== c));
     } else {
       setCategories([...categories, c]);
+    }
+  };
+
+  const addCategory = () => {
+    if (currCat && !categories.includes(currCat)) {
+      setCategories([...categories, currCat]);
     }
   };
 
@@ -174,21 +181,45 @@ export default function Onboarding() {
   if (user.role === "influencer" && step === 2) {
     return (
       <Layout step={2} title="Define your niche." subtitle="Step 02 / Categories (Select at least 3)">
-        <div className="flex flex-wrap gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-          {ALL_CATEGORIES.map(c => {
-            const active = categories.includes(c);
-            return (
-              <button
-                key={c}
-                onClick={() => toggleCategory(c)}
-                className={`px-4 py-2 font-mono text-xs tracking-widest uppercase transition-colors duration-200 border ${
-                  active ? "border-[#FF3B30] bg-[#FF3B30] text-white" : "border-[#F4F4F0]/20 hover:border-[#F4F4F0]/50"
-                }`}
-              >
-                {c}
-              </button>
-            );
-          })}
+        <div className="space-y-6">
+          <div className="flex gap-4">
+            <select
+              value={currCat}
+              onChange={(e) => setCurrCat(e.target.value)}
+              className="flex-1 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg font-mono"
+            >
+              {ALL_CATEGORIES.map((c) => (
+                <option key={c} className="bg-black" value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={addCategory}
+              disabled={!currCat || categories.includes(currCat)}
+              className="btn-outline px-6 disabled:opacity-50"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Add Category
+            </button>
+          </div>
+          
+          {categories.length > 0 && (
+            <div className="pt-4">
+              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-3">Selected Niches</h4>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => toggleCategory(c)}
+                    className="group px-3 py-1 font-mono text-xs tracking-widest uppercase bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 hover:bg-[#FF3B30]/20 hover:border-[#FF3B30]/40 transition-colors duration-200 flex items-center gap-2"
+                  >
+                    {c}
+                    <span className="opacity-60 group-hover:opacity-100">×</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="pt-8 flex justify-between items-center">
           <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
