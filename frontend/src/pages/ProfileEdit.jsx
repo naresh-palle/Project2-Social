@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
+import { Sparkles, Loader2 } from "lucide-react";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
 const PLATFORMS = ["instagram", "tiktok", "youtube", "twitter"];
@@ -17,6 +18,7 @@ export default function ProfileEdit() {
   const nav = useNavigate();
   const [f, setF] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
   const avatarRef = useRef(null);
   const portfolioRef = useRef(null);
 
@@ -84,16 +86,42 @@ export default function ProfileEdit() {
     } finally { setBusy(false); }
   };
 
+  const runAiCuration = async () => {
+    setAiBusy(true);
+    try {
+      const { data } = await api.post("/ai/suggest-profile", { niches: f.niches, handle: f.handle });
+      if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
+      if (data.portfolio && Array.isArray(data.portfolio)) {
+          setF(prev => ({ ...prev, portfolio: [...prev.portfolio.filter(Boolean), ...data.portfolio] }));
+      }
+      toast.success("AI Curation applied.");
+    } catch (e) {
+      toast.error("AI curation failed.");
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
       <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>
-        <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
-          Your <span className="italic">file</span><span className="tick">.</span>
-        </h1>
+        <div className="flex items-end justify-between">
+            <div>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>
+                <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
+                Your <span className="italic">file</span><span className="tick">.</span>
+                </h1>
+            </div>
+            {isCreator && (
+                <button onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white">
+                    {aiBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    {aiBusy ? "Curating…" : "AI Curation"}
+                </button>
+            )}
+        </div>
 
         <motion.form onSubmit={submit} className="mt-12 space-y-8" data-testid="profile-form"
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>

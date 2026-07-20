@@ -217,7 +217,7 @@ export default function Admin() {
                     {targetOptions.map(o => (
                       <option key={o.id} value={o.email} className="bg-[#0A0A0A]">
                         {o.name} ({o.company || o.role}) - {o.email}
-                      option>
+                      </option>
                     ))}
                   </select>
                 </div>

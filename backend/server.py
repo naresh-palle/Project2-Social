@@ -1715,6 +1715,35 @@ async def ai_review_deliverable(deliverable_id: str, camp: dict) -> None:
 
 
 
+class ProfileSuggestInput(BaseModel):
+    niches: List[str]
+    handle: Optional[str] = None
+
+@api_router.post("/ai/suggest-profile")
+async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    system = "You are a creative director for high-end influencers."
+    prompt = f"""
+    The influencer's niches are: {', '.join(inp.niches) if inp.niches else 'general lifestyle'}.
+    The handle is {inp.handle or 'unknown'}.
+
+    Suggest a punchy, luxurious bio (1-2 sentences max).
+    Also, suggest exactly 4 high-quality image URLs for their portfolio that match these niches.
+    (Use actual real unsplash source URLs like https://images.unsplash.com/photo-...)
+
+    Return ONLY JSON with this structure:
+    {{
+      "bio": "...",
+      "portfolio": ["url1", "url2", "url3", "url4"]
+    }}
+    """
+    try:
+        text = await call_llm(system, prompt)
+        return parse_json(text)
+    except Exception as e:
+        logger.warning("AI profile suggestion failed: %s", e)
+        raise HTTPException(status_code=500, detail="AI generation failed")
+
 # ---------- Startup ----------
 async def seed_admin():
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@cr8.studio").lower()
