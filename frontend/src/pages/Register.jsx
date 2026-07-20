@@ -12,6 +12,7 @@ export default function Register() {
   const [role, setRole] = useState(sp.get("role") === "owner" ? "owner" : "influencer");
   const [form, setForm] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "", city: "", state: "" });
   const [err, setErr] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,9 +42,20 @@ export default function Register() {
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
+    setFieldErrors({});
 
-    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) {
-      setErr("Password must be at least 8 characters and contain both letters and numbers.");
+    let errs = {};
+    if (!form.firstName.trim()) errs.firstName = "Required";
+    if (!form.lastName.trim()) errs.lastName = "Required";
+    if (!/^\\S+@\\S+\\.\\S+$/.test(form.email)) errs.email = "Invalid email";
+    if (!/^\\d{10}$/.test(form.mobile)) errs.mobile = "Must be 10 digits";
+    if (!/^\\d{6}$/.test(form.pincode)) errs.pincode = "Must be 6 digits";
+    if (form.pincode.length === 6 && !form.city) errs.pincode = "Invalid Pincode";
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) errs.password = "Min. 8 chars, alphanumeric";
+    if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Required";
+
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
       return;
     }
 
@@ -133,8 +145,8 @@ export default function Register() {
             </div>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-              <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} placeholder="First name" required />
-              <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} placeholder="Last name" required />
+              <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} placeholder="First name" error={fieldErrors.firstName} required />
+              <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} placeholder="Last name" error={fieldErrors.lastName} required />
               
               {(role === "owner" || role === "agent") && (
                 <Field 
@@ -143,17 +155,18 @@ export default function Register() {
                   value={form.company} 
                   onChange={change("company")} 
                   placeholder={role === "owner" ? "Company name" : "Agency name"} 
+                  error={fieldErrors.company}
                   required 
                 />
               )}
-              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" required />
-              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" required />
-              <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" required />
+              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" error={fieldErrors.email} required />
+              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" error={fieldErrors.mobile} required />
+              <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" error={fieldErrors.pincode} required />
               
               <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" disabled={!!form.city} required />
               <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} placeholder="Auto-filled from Pincode" disabled={!!form.state} required />
 
-              <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 8 chars, alphanumeric" type="password" required />
+              <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 8 chars, alphanumeric" type="password" error={fieldErrors.password} required />
             </div>
 
             {err && (
@@ -183,7 +196,7 @@ export default function Register() {
   );
 }
 
-function Field({ label, testid, ...props }) {
+function Field({ label, testid, error, ...props }) {
   return (
     <div>
       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
@@ -192,8 +205,9 @@ function Field({ label, testid, ...props }) {
       <input
         data-testid={testid}
         {...props}
-        className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
+        className={`mt-2 w-full bg-transparent py-3 focus:outline-none text-lg transition-colors ${error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus:border-[#FF3B30]"}`}
       />
+      {error && <p className="text-[#FF3B30] text-[10px] mt-2 uppercase tracking-widest font-mono">{error}</p>}
     </div>
   );
 }
