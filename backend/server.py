@@ -10,6 +10,7 @@ import json
 import asyncio
 import logging
 import mimetypes
+import secrets
 from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
@@ -169,11 +170,20 @@ class RegisterInput(BaseModel):
     password: str = Field(min_length=8)
     name: str = Field(min_length=1, max_length=80)
     role: UserRole
+    otp: str = Field(min_length=6, max_length=6)
     handle: Optional[str] = None
     platform: Optional[str] = None
     company: Optional[str] = None
     mobile: Optional[str] = None
     pincode: Optional[str] = None
+
+class CheckInput(BaseModel):
+    email: Optional[EmailStr] = None
+    mobile: Optional[str] = None
+
+class SendOTPInput(BaseModel):
+    email: EmailStr
+    mobile: Optional[str] = None
 
 
 class LoginInput(BaseModel):
@@ -303,11 +313,47 @@ class EmailVerifyConfirm(BaseModel):
 
 
 # ---------- Auth Endpoints ----------
+@api_router.post("/auth/check")
+async def check_availability(inp: CheckInput):
+    if inp.email:
+        if await db.users.find_one({"email": inp.email.lower().strip()}):
+            return {"available": False, "field": "email"}
+    if inp.mobile:
+        if await db.users.find_one({"mobile": inp.mobile.strip()}):
+            return {"available": False, "field": "mobile"}
+    return {"available": True}
+
+@api_router.post("/auth/send-otp")
+async def send_otp(inp: SendOTPInput):
+    email = inp.email.lower().strip()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
+    
+    # Store OTP with 10 min expiration
+    await db.otps.update_one(
+        {"email": email},
+        {"$set": {"otp": otp, "expires_at": datetime.utcnow() + timedelta(minutes=10)}},
+        upsert=True
+    )
+    
+    # MOCK OTP SEND: Print to console
+    print(f"\n{'='*40}\n[MOCK OTP] Send to {email}\nYour Studio verification code is: {otp}\n{'='*40}\n")
+    return {"message": "OTP sent successfully"}
+
 @api_router.post("/auth/register")
 async def register(inp: RegisterInput):
     email = inp.email.lower().strip()
     username = inp.username.lower().strip()
     mobile = inp.mobile.strip() if inp.mobile else None
+    
+    # Verify OTP
+    otp_record = await db.otps.find_one({"email": email})
+    if not otp_record or otp_record["otp"] != inp.otp:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+    if otp_record["expires_at"] < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Verification code expired")
     
     if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}]}):
         raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
@@ -349,7 +395,8 @@ async def register(inp: RegisterInput):
     }
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, inp.role)
-    return {"token": token, "user": clean(dict(doc))}
+    await db.otps.delete_one({"email": email})
+    return {"token": token, "user": clean(doc)}
 
 
 @api_router.post("/auth/login")

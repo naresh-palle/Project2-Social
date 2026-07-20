@@ -274,7 +274,7 @@ function SplitView() {
             <li><span className="tick">03 —</span> Contract, deliver, ship</li>
           </ul>
           <Link
-            to="/register?role=owner"
+            to="/register/owner"
             data-testid="split-owner-cta"
             className="btn-pill mt-10 self-start"
           >
@@ -310,7 +310,7 @@ function SplitView() {
             <li><span className="tick">03 —</span> Get paid, keep the credit</li>
           </ul>
           <Link
-            to="/register?role=influencer"
+            to="/register/influencer"
             data-testid="split-influencer-cta"
             className="btn-pill mt-10 self-start text-[#0A0A0A]"
           >
