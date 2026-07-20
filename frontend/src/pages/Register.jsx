@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { MockGoogleLogin } from "@/components/MockGoogleLogin";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -186,7 +186,7 @@ export default function Register() {
           </h1>
 
           <div className="mt-10 flex justify-center w-full">
-            <MockGoogleLogin
+            <GoogleLogin
               onSuccess={credentialResponse => {
                 try {
                   const decoded = jwtDecode(credentialResponse.credential);
@@ -202,6 +202,14 @@ export default function Register() {
                   setErr("Failed to parse Google login");
                 }
               }}
+              onError={() => {
+                setErr("Google Login Failed");
+              }}
+              theme="filled_black"
+              shape="rectangular"
+              text="continue_with"
+              size="large"
+              width="100%"
             />
           </div>
 

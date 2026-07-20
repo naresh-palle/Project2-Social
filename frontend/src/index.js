@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import "@/index.css";
 import App from "@/App";
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID_HERE";
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com";
 
 const queryClient = new QueryClient({
   defaultOptions: {

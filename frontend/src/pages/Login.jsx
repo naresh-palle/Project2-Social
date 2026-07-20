@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { MockGoogleLogin } from "@/components/MockGoogleLogin";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 
@@ -71,7 +71,7 @@ export default function Login() {
 
             <div className="mt-10 space-y-6">
               <div className="flex justify-center w-full mb-8">
-                <MockGoogleLogin
+                <GoogleLogin
                   onSuccess={async (credentialResponse) => {
                     try {
                       setErr("");
@@ -86,6 +86,14 @@ export default function Login() {
                       setErr("Failed to parse Google login");
                     }
                   }}
+                  onError={() => {
+                    setErr("Google Login Failed");
+                  }}
+                  theme="filled_black"
+                  shape="rectangular"
+                  text="signin_with"
+                  size="large"
+                  width="100%"
                 />
               </div>
 
