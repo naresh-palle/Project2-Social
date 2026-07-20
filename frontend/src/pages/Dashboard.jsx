@@ -54,7 +54,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {user.role === "owner" ? <OwnerPanel /> : <InfluencerPanel />}
+        {user.role === "owner" ? <OwnerPanel /> : user.role === "agent" ? <AgentPanel /> : <InfluencerPanel />}
       </div>
       <Footer />
     </div>
@@ -63,10 +63,12 @@ export default function Dashboard() {
 
 function OwnerPanel() {
   const [items, setItems] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(r.data)).catch(() => {});
     api.get("/analytics/owner").then((r) => setStats(r.data)).catch(() => {});
+    api.get("/creators/match").then((r) => setMatches(r.data)).catch(() => {});
   }, []);
 
   const tiles = stats ? [
@@ -109,16 +111,37 @@ function OwnerPanel() {
           ))}
         </div>
       )}
+
+      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6 mt-12">
+        Recommended Creators · {matches.length}
+      </h2>
+      {matches.length === 0 ? (
+        <Empty label="No matches found." />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {matches.slice(0, 4).map((c) => (
+            <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r p-6 flex flex-col justify-between hover:bg-white/5 transition">
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
+                <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
+                <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 function InfluencerPanel() {
   const [apps, setApps] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(r.data)).catch(() => {});
     api.get("/analytics/creator").then((r) => setStats(r.data)).catch(() => {});
+    api.get("/campaigns/match").then((r) => setMatches(r.data)).catch(() => {});
   }, []);
   const tiles = stats ? [
     { k: "Applications", v: stats.applications, tail: "pitched" },
@@ -175,6 +198,45 @@ function InfluencerPanel() {
           ))}
         </div>
       )}
+
+      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6 mt-12">
+        Recommended Briefs · {matches.length}
+      </h2>
+      {matches.length === 0 ? (
+        <Empty label="No matches found." />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {matches.slice(0, 3).map((c) => (
+            <CampaignRow key={c.id} c={c} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgentPanel() {
+  const [creators, setCreators] = useState([]);
+  useEffect(() => {
+    api.get("/creators").then((r) => setCreators(r.data)).catch(() => {});
+  }, []);
+
+  return (
+    <div>
+      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
+        Scouted Talent · {creators.length}
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {creators.map((c) => (
+          <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r p-6 flex flex-col justify-between hover:bg-white/5 transition">
+            <div>
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
+              <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
+              <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
@@ -189,7 +251,10 @@ function CampaignRow({ c }) {
       toast.error(formatApiError(e.response?.data?.detail) || "Failed to load");
     }
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div

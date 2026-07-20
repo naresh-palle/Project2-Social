@@ -19,7 +19,10 @@ export default function Admin() {
     setUsers(u.data);
     setCamps(c.data);
   };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   if (user && user.role !== "admin") {
     return (
@@ -32,6 +35,10 @@ export default function Admin() {
 
   const verify = async (id) => {
     try { await api.post(`/admin/users/${id}/verify`); toast.success("Verified"); load(); }
+    catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
+  };
+  const approveAgent = async (id) => {
+    try { await api.post(`/admin/approve-agent/${id}`); toast.success("Agent Approved"); load(); }
     catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
   };
   const del = async (id) => {
@@ -84,10 +91,14 @@ export default function Admin() {
                 <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
                   {u.verified ? <span className="text-[#FF3B30]">✓ verified</span> : <span className="opacity-60">unverified</span>}
                 </div>
-                <div className="col-span-1 text-right">
+                <div className="col-span-2 text-right flex gap-2 justify-end">
                   {!u.verified && (
                     <button onClick={() => verify(u.id)} data-testid={`admin-verify-${u.id}`}
                       className="btn-pill text-[10px]"><Shield className="w-3 h-3" /></button>
+                  )}
+                  {u.role === "agent" && !u.agent_approved && (
+                    <button onClick={() => approveAgent(u.id)} data-testid={`admin-approve-agent-${u.id}`}
+                      className="btn-pill text-[10px] border-[#FF3B30] text-[#FF3B30]">Approve</button>
                   )}
                 </div>
               </motion.div>

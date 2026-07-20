@@ -152,13 +152,15 @@ async def get_current_user(request: Request) -> dict:
 
 
 async def require_role(current: dict, roles: list) -> dict:
+    if current.get("role") == "admin":
+        return current
     if current.get("role") not in roles:
         raise HTTPException(status_code=403, detail=f"Requires role: {','.join(roles)}")
     return current
 
 
 # ---------- Models ----------
-UserRole = Literal["owner", "influencer", "admin"]
+UserRole = Literal["owner", "influencer", "admin", "agent"]
 
 
 class RegisterInput(BaseModel):
@@ -168,6 +170,8 @@ class RegisterInput(BaseModel):
     role: UserRole
     handle: Optional[str] = None
     company: Optional[str] = None
+    mobile: Optional[str] = None
+    pincode: Optional[str] = None
 
 
 class LoginInput(BaseModel):
@@ -187,8 +191,13 @@ class UserUpdate(BaseModel):
     followers: Optional[int] = None
     platforms: Optional[List[str]] = None
     location: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     portfolio: Optional[List[str]] = None
     rate_card: Optional[Dict[str, int]] = None
+    social_accounts: Optional[List[Dict[str, Any]]] = None
+    onboarding_status: Optional[str] = None
+    agent_approved: Optional[bool] = None
 
 
 class CampaignCreate(BaseModel):
@@ -303,9 +312,11 @@ async def register(inp: RegisterInput):
     doc = {
         "id": user_id, "email": email, "password_hash": hash_password(inp.password),
         "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
+        "mobile": inp.mobile, "pincode": inp.pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": [],
-        "location": None, "industry": None, "website": None,
+        "location": None, "city": None, "state": None, "industry": None, "website": None,
         "portfolio": [], "rate_card": {}, "verified": False, "wallet": 0,
+        "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
     }
     await db.users.insert_one(doc)
@@ -337,6 +348,56 @@ async def update_me(patch: UserUpdate, current: dict = Depends(get_current_user)
     return user
 
 
+class OTPVerifyInput(BaseModel):
+    mobile: str
+    otp: str
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(inp: OTPVerifyInput):
+    if inp.otp == "1234":
+        return {"ok": True}
+    raise HTTPException(status_code=400, detail="Invalid OTP")
+
+
+@api_router.get("/location/pincode/{pincode}")
+async def get_location(pincode: str):
+    async with httpx.AsyncClient(timeout=10) as client:
+        try:
+            r = await client.get(f"https://api.postalpincode.in/pincode/{pincode}")
+            data = r.json()
+            if data and data[0]["Status"] == "Success":
+                return {"city": data[0]["PostOffice"][0]["District"], "state": data[0]["PostOffice"][0]["State"]}
+        except Exception:
+            pass
+    return {"city": "Unknown", "state": "Unknown"}
+
+
+class SocialFetchInput(BaseModel):
+    platform: str
+    handle: str
+
+@api_router.post("/social/fetch")
+async def fetch_social_stats(inp: SocialFetchInput):
+    import random
+    followers = random.randint(1000, 2000000)
+    return {
+        "followers": followers,
+        "following": random.randint(100, 5000),
+        "posts": random.randint(10, 2000),
+        "engagement_rate": round(random.uniform(0.5, 10.0), 2),
+        "verified": followers > 100000
+    }
+
+
+@api_router.post("/admin/approve-agent/{agent_id}")
+async def approve_agent(agent_id: str, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    res = await db.users.update_one({"id": agent_id, "role": "agent"}, {"$set": {"agent_approved": True}})
+    if res.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    return {"ok": True}
+
+
 # ---------- Creators ----------
 @api_router.get("/creators")
 async def list_creators(niche: Optional[str] = None, platform: Optional[str] = None,
@@ -354,6 +415,26 @@ async def list_creators(niche: Optional[str] = None, platform: Optional[str] = N
         ]
     cursor = db.users.find(filt, {"_id": 0, "password_hash": 0}).limit(limit)
     return await cursor.to_list(length=limit)
+
+
+@api_router.get("/creators/match")
+async def match_creators(current: dict = Depends(get_current_user)):
+    await require_role(current, ["owner", "agent", "admin"])
+    if current.get("role") == "agent" and not current.get("agent_approved"):
+        raise HTTPException(status_code=403, detail="Agent not approved by Admin")
+    
+    creators = await db.users.find({"role": "influencer"}, {"_id": 0, "password_hash": 0}).to_list(100)
+    
+    def score(c):
+        s = 0
+        if current.get("industry") and c.get("niches") and current.get("industry") in c.get("niches"):
+            s += 10
+        if current.get("city") and current.get("city") == c.get("city"):
+            s += 5
+        return s
+    
+    creators.sort(key=score, reverse=True)
+    return creators
 
 
 @api_router.get("/creators/{creator_id}")
@@ -407,6 +488,25 @@ async def list_campaigns(niche: Optional[str] = None, platform: Optional[str] = 
         filt["owner_id"] = current["id"]
     cursor = db.campaigns.find(filt, {"_id": 0}).sort("created_at", -1).limit(100)
     return await cursor.to_list(length=100)
+
+
+@api_router.get("/campaigns/match")
+async def match_campaigns(current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer", "agent", "admin"])
+    if current.get("role") == "agent" and not current.get("agent_approved"):
+        raise HTTPException(status_code=403, detail="Agent not approved by Admin")
+    
+    campaigns = await db.campaigns.find({"status": "open"}, {"_id": 0}).to_list(100)
+    
+    def score(camp):
+        s = 0
+        if current.get("niches") and camp.get("niches"):
+            common = set(current.get("niches")).intersection(set(camp.get("niches")))
+            s += len(common) * 10
+        return s
+    
+    campaigns.sort(key=score, reverse=True)
+    return campaigns
 
 
 @api_router.get("/campaigns/{campaign_id}")

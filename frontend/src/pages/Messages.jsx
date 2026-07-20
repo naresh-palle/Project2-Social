@@ -28,7 +28,10 @@ export default function Messages() {
     }
   };
 
-  useEffect(() => { if (user) loadConvos(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => {
+    if (user) loadConvos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   useEffect(() => {
     if (!active) return;

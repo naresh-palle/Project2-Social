@@ -14,6 +14,8 @@ import Messages from "@/pages/Messages";
 import Invitations from "@/pages/Invitations";
 import Wallet from "@/pages/Wallet";
 import Admin from "@/pages/Admin";
+import Onboarding from "@/pages/Onboarding";
+import { RequireAuth } from "@/components/RequireAuth";
 
 function App() {
   return (
@@ -24,16 +26,17 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<ProfileEdit />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/invitations" element={<Invitations />} />
-            <Route path="/wallet" element={<Wallet />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/campaigns/new" element={<NewCampaign />} />
-            <Route path="/campaigns/:id" element={<CampaignDetail />} />
-            <Route path="/creators/:id" element={<CreatorDetail />} />
+            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+            <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route path="/profile" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
+            <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+            <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
+            <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth roles={["admin"]}><Admin /></RequireAuth>} />
+            <Route path="/marketplace" element={<RequireAuth roles={["owner", "admin", "agent"]}><Marketplace /></RequireAuth>} />
+            <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
+            <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
+            <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

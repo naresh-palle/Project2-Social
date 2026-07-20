@@ -101,6 +101,7 @@ export function Nav({ variant = "dark" }) {
                 )}
               </AnimatePresence>
             </div>
+            </>
           ) : (
             <>
               <Link to="/login" data-testid="nav-login" className="hidden sm:block font-mono text-[11px] tracking-[0.22em] uppercase kinetic-underline">Sign In</Link>

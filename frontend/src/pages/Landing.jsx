@@ -104,8 +104,7 @@ function Hero() {
             <div className="grid grid-cols-12 gap-6 items-end">
               <div className="col-span-12 md:col-span-5">
                 <p className="text-[#F4F4F0]/80 max-w-md text-base md:text-lg leading-relaxed">
-                  CR8 is a curated studio pairing brand owners with creators who move culture —
-                  no vanity metrics, no template deals. Only work worth signing.
+                  CR8 connects elite brands with fully verified influencers. Lock budgets securely in smart escrow, automate caption compliance audits, and access direct analytics.
                 </p>
               </div>
               <div className="col-span-12 md:col-span-4 flex flex-wrap items-center gap-4">
@@ -405,6 +404,46 @@ function FeaturedGrid() {
   );
 }
 
+// ————— FAQ Section —————
+const FAQS = [
+  { q: 'How does escrow protection keep payouts secure?', a: 'When a brand launches a campaign, funds are locked in our secure escrow. Creators submit their completed drafts, which are audited for compliance. Payouts release instantly to creators only after the brand approves the final deliverables.' },
+  { q: 'What is the AI Content Review?', a: 'Our built-in AI audits drafts automatically. It checks if the brand logo is clearly visible, verifies that required hashtags like #ad are included in captions, and detects copyright or profanity risks before anything is published.' },
+  { q: 'Can creators join and use CR8 for free?', a: 'Yes! Creators can sign up, list their accounts, and search opportunities for free. We only charge a small 5% transaction commission on free tier payouts.' },
+  { q: 'How does the creator matching work?', a: 'Instead of simple tag filters, our system calculates a fit score using follower demographics, engagement rates, brand affinities, and fake follower risk audits to suggest the perfect candidates.' }
+];
+
+function FAQ() {
+  return (
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-24 md:py-32">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="flex items-baseline justify-between hairline-b pb-6 mb-14">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § FAQ
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              Common questions
+            </span>
+          </div>
+        </FadeUp>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+          {FAQS.map((faq, i) => (
+            <FadeUp key={faq.q} delay={i * 0.06}>
+              <div className="space-y-4">
+                <h4 className="font-editorial text-2xl md:text-3xl leading-tight">{faq.q}</h4>
+                <p className="font-mono text-[11px] md:text-[12px] tracking-[0.05em] uppercase text-[#F4F4F0]/60 leading-relaxed max-w-lg">
+                  {faq.a}
+                </p>
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ————— Stats / Closing —————
 function Numbers() {
   const [stats, setStats] = useState({ creators: 0, owners: 0, campaigns: 0 });
@@ -495,6 +534,7 @@ export default function Landing() {
       <Manifesto />
       <SplitView />
       <FeaturedGrid />
+      <FAQ />
       <Numbers />
       <ClosingCTA />
       <Footer />

@@ -37,7 +37,10 @@ export default function CampaignDetail() {
       }
     } catch { setC(false); }
   };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [id, user]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user]);
 
   const apply = async (e) => {
     e.preventDefault();

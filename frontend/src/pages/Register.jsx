@@ -10,7 +10,7 @@ export default function Register() {
   const nav = useNavigate();
   const [sp] = useSearchParams();
   const [role, setRole] = useState(sp.get("role") === "owner" ? "owner" : "influencer");
-  const [form, setForm] = useState({ email: "", password: "", name: "", handle: "", company: "" });
+  const [form, setForm] = useState({ email: "", password: "", name: "", handle: "", company: "", mobile: "", pincode: "" });
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -79,10 +79,11 @@ export default function Register() {
             </h1>
 
             {/* Role selector */}
-            <div className="mt-8 grid grid-cols-2 gap-3">
+            <div className="mt-8 grid grid-cols-3 gap-3">
               {[
-                { k: "owner", label: "I'm an Owner", sub: "Brand · House · Studio" },
-                { k: "influencer", label: "I'm a Creator", sub: "Editor · Voice · Signal" },
+                { k: "owner", label: "I'm an Owner", sub: "Brand · House" },
+                { k: "influencer", label: "I'm a Creator", sub: "Editor · Voice" },
+                { k: "agent", label: "I'm an Agent", sub: "Talent · Scout" }
               ].map((r) => (
                 <button
                   type="button"
@@ -94,10 +95,10 @@ export default function Register() {
                   }`}
                 >
                   <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-70">
-                    {r.k === "owner" ? "01" : "02"}
+                    {r.k === "owner" ? "01" : r.k === "influencer" ? "02" : "03"}
                   </div>
-                  <div className="font-editorial text-2xl mt-1">{r.label}</div>
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1">
+                  <div className="font-editorial text-xl mt-1">{r.label}</div>
+                  <div className="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60 mt-1">
                     {r.sub}
                   </div>
                 </button>
@@ -109,9 +110,11 @@ export default function Register() {
               {role === "influencer" ? (
                 <Field label="Handle" testid="reg-handle" value={form.handle} onChange={change("handle")} placeholder="@yourhandle" />
               ) : (
-                <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Studio name" />
+                <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Company name" />
               )}
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" required />
+              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" required />
+              <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" required />
               <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 6 chars" type="password" required />
             </div>
 

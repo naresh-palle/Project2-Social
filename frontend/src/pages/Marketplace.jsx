@@ -27,7 +27,10 @@ export default function Marketplace() {
     setCampaigns(cp.data);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [niche]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [niche]);
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
