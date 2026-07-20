@@ -310,8 +310,6 @@ async def register(inp: RegisterInput):
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
     
-    if inp.role == "influencer" and not (inp.platform and inp.handle):
-        raise HTTPException(status_code=400, detail="Creators must provide a platform and handle")
     if inp.role == "owner" and not inp.company:
         raise HTTPException(status_code=400, detail="Owners must provide a brand or company name")
 
