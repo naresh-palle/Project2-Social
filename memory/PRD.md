@@ -26,25 +26,24 @@ User then requested a full-depth Phase-1 marketplace layered on the award-worthy
 - **Auth** — register with role selector (Owner/Creator), login, JWT-based session, seeded admin + demo users (`studio@`, `lena@`, `kai@`, `nova@`)
 - **Marketplace** — creators grid + campaign list with niche filter, search, tabbed view
 - **Creator detail** — hero portrait, bio, stats, rate card, portfolio grid, reviews, Owner-side actions: Invite modal + AI Match Score + Message
-- **Campaign detail** — brief header with escrow status; Owner side: applications list, accept, fund escrow, release payment, review deliverables; Creator side: pitch form, deliverable submission; both-side: post-completion 5-star review
-- **New Campaign (Owner)** — full form + AI Brand Copilot side panel (Claude Sonnet 4.6) that drafts title/desc/deliverables/budget/niches/platforms from a one-line goal
-- **Profile Editor** — role-aware fields, niches/platforms pills, portfolio image list, rate card
-- **Messages** — conversation list + threaded chat per (campaign, creator), 5s polling
-- **Invitations** — Owner sees extended invites, Creator can accept / decline / counter-offer
-- **Wallet (mocked)** — giant editorial balance, deposit (owner) / withdraw (creator), transactions ledger; wired to escrow fund/release on campaign
+- **Campaign detail** — brief header with escrow status; Owner: applications list · accept · fund escrow · release · deliverable review · **AI Top-5 ranked matches** with quick-invite; Creator: pitch form · deliverable submission; both-side: post-completion 5-star review
+- **New Campaign (Owner)** — full form + AI Brand Copilot (Claude Sonnet 4.6) + **cover image upload**
+- **Profile Editor** — role-aware fields, niches/platforms pills, **avatar & portfolio uploads** (drag files → local storage), rate card
+- **Messages** — conversation list + threaded chat per (campaign, creator), **real-time SSE stream** (5s polling replaced)
+- **Invitations** — Owner sees extended, Creator can accept / decline / counter
+- **Wallet (mocked)** — giant editorial balance, deposit/withdraw/escrow, transactions ledger
 - **Admin console** — users list + verify, campaigns list + delete
-- **RBAC** — enforced on all sensitive endpoints; tested (49/49 backend tests pass)
+- **Analytics** — 6-tile snapshot on Owner AND Creator dashboards (live briefs, escrow held, paid, applications, ratings, etc.)
+- **Email notifications** — Resend (Emergent-managed) fires on: new application, application accepted, invitation created, invitation acted on
+- **File uploads** — `/api/uploads` (jpeg/png/webp/gif ≤ 8MB) stored in `/app/backend/uploads`, served back via `/api/uploads/{id}`
+- **RBAC + tests** — 64/64 backend tests pass (49 regression + 15 new)
 
-## What's NOT built from the massive PRD (deferred)
-- Real payments (Stripe) — currently mocked wallet + escrow
-- File uploads (S3 / object storage) — currently image URL fields
-- Real-time WebSockets — messaging polls every 5s
-- Push/email notifications (Resend, FCM, APNs)
+## What's NOT built (deferred)
+- **Stripe payments** — Emergent-provisioned sandbox refused country IN. Wallet remains mocked. To enable: user must be in a Stripe-supported country OR volunteer their own key.
+- Real-time WebSockets (SSE is used instead)
+- Cloud/S3 storage for uploads (currently on-disk in `/app/backend/uploads` — persists in pod, lost on hard restart if not in /app)
+- Push notifications (email only)
 - Mobile apps
-- Analytics dashboards with charts (basic stats only)
-- Redis / BullMQ queues (not needed at MVP scale)
-- Multi-tenant enterprise features, RBAC beyond the 3 roles
-- OAuth (Google, Apple)
 
 ## Backlog (P0 → P2)
 - **P0** — Stripe live payments (replace mocked wallet), Resend transactional email (invite/accept/apply notifications), image uploads to object storage
