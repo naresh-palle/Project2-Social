@@ -48,9 +48,9 @@ export default function RegisterSplash() {
 
             <div className="mt-12 flex flex-col gap-6">
               {[
-                { k: "owner", label: "I'm an Owner", sub: "Brand · House" },
-                { k: "influencer", label: "I'm a Creator", sub: "Editor · Voice" },
-                { k: "agent", label: "I'm an Agent", sub: "Talent · Scout" }
+                { k: "influencer", label: "I'm a Creator", sub: "Editor • Voice" },
+                { k: "owner", label: "I am a Brand", sub: "Brand • House" },
+                { k: "agent", label: "I'm an Agent", sub: "Talent • Scout" }
               ].map((r) => (
                 <Link
                   key={r.k}
@@ -60,7 +60,7 @@ export default function RegisterSplash() {
                 >
                   <div>
                     <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-                      {r.k === "owner" ? "01" : r.k === "influencer" ? "02" : "03"}
+                      {r.k === "influencer" ? "01" : r.k === "owner" ? "02" : "03"}
                     </div>
                     <div className="font-editorial text-3xl mt-2">{r.label}</div>
                     <div className="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60 group-hover:opacity-100 mt-2">

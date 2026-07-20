@@ -46,7 +46,7 @@ export default function Register() {
   }, [urlRole]);
 
   // Format label based on role
-  const roleLabel = role === "owner" ? "an Owner" : role === "agent" ? "an Agent" : "a Creator";
+  const roleLabel = role === "owner" ? "a Brand" : role === "agent" ? "an Agent" : "a Creator";
 
   // Debounced Validation for Email
   useEffect(() => {
