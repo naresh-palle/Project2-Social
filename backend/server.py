@@ -165,7 +165,7 @@ UserRole = Literal["owner", "influencer", "admin", "agent"]
 
 class RegisterInput(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: str = Field(min_length=8)
     name: str = Field(min_length=1, max_length=80)
     role: UserRole
     handle: Optional[str] = None
@@ -310,6 +310,9 @@ async def register(inp: RegisterInput):
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
     
+    if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
+        raise HTTPException(status_code=400, detail="Password must be alphanumeric")
+
     if inp.role == "owner" and not inp.company:
         raise HTTPException(status_code=400, detail="Owners must provide a brand or company name")
 

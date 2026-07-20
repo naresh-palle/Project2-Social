@@ -10,7 +10,7 @@ export default function Register() {
   const nav = useNavigate();
   const [sp] = useSearchParams();
   const [role, setRole] = useState(sp.get("role") === "owner" ? "owner" : "influencer");
-  const [form, setForm] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "" });
+  const [form, setForm] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", mobile: "", pincode: "", city: "", state: "" });
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,11 +19,30 @@ export default function Register() {
     if (r === "owner" || r === "influencer") setRole(r);
   }, [sp]);
 
+  useEffect(() => {
+    if (form.pincode.length === 6) {
+      fetch(`https://api.postalpincode.in/pincode/${form.pincode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0].Status === "Success") {
+            const po = data[0].PostOffice[0];
+            setForm(f => ({ ...f, city: po.District || po.Block || po.Name, state: po.State }));
+          }
+        }).catch(() => {});
+    }
+  }, [form.pincode]);
+
   const change = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
+
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) {
+      setErr("Password must be at least 8 characters and contain both letters and numbers.");
+      return;
+    }
+
     setLoading(true);
     const payload = { ...form, role, name: `${form.firstName.trim()} ${form.lastName.trim()}` };
     delete payload.firstName;
@@ -116,7 +135,11 @@ export default function Register() {
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" required />
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" required />
               <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" required />
-              <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 6 chars" type="password" required />
+              
+              <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" disabled={!!form.city} required />
+              <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} placeholder="Auto-filled from Pincode" disabled={!!form.state} required />
+
+              <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 8 chars, alphanumeric" type="password" required />
             </div>
 
             {err && (
