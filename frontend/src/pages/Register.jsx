@@ -27,8 +27,12 @@ export default function Register() {
           if (data && data[0].Status === "Success") {
             const po = data[0].PostOffice[0];
             setForm(f => ({ ...f, city: po.District || po.Block || po.Name, state: po.State }));
+          } else {
+            setForm(f => ({ ...f, city: "", state: "" }));
           }
-        }).catch(() => {});
+        }).catch(() => { setForm(f => ({ ...f, city: "", state: "" })); });
+    } else {
+      setForm(f => ({ ...f, city: "", state: "" }));
     }
   }, [form.pincode]);
 
@@ -108,7 +112,10 @@ export default function Register() {
                 <button
                   type="button"
                   key={r.k}
-                  onClick={() => setRole(r.k)}
+                  onClick={() => {
+                    setRole(r.k);
+                    setForm((f) => ({ ...f, company: "" }));
+                  }}
                   data-testid={`role-${r.k}`}
                   className={`text-left p-4 hairline-b hairline-t hairline-l hairline-r transition-colors duration-300 ${
                     role === r.k ? "bg-[#FF3B30] text-[#F4F4F0] border-[#FF3B30]" : "hover:bg-white/5"
