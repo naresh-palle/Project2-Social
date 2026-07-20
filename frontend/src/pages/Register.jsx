@@ -126,11 +126,12 @@ export default function Register() {
                       onChange={change("handle")}
                       placeholder="@yourhandle"
                       className="w-2/3 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
+                      required
                     />
                   </div>
                 </div>
               ) : (
-                <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Company name" />
+                <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Company name" required />
               )}
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" required />
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" required />
