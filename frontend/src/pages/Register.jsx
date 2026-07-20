@@ -5,12 +5,14 @@ import { ArrowRight } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 
+const PLATFORMS = ["Instagram", "YouTube", "Facebook", "X (Twitter)", "LinkedIn", "Snapchat", "Moj", "Josh", "ShareChat", "Chingari"];
+
 export default function Register() {
   const { register } = useAuth();
   const nav = useNavigate();
   const [sp] = useSearchParams();
   const [role, setRole] = useState(sp.get("role") === "owner" ? "owner" : "influencer");
-  const [form, setForm] = useState({ email: "", password: "", name: "", handle: "", company: "", mobile: "", pincode: "" });
+  const [form, setForm] = useState({ email: "", password: "", name: "", platform: "Instagram", handle: "", company: "", mobile: "", pincode: "" });
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +28,7 @@ export default function Register() {
     setErr("");
     setLoading(true);
     const payload = { ...form, role };
-    if (role === "owner") delete payload.handle;
+    if (role === "owner") { delete payload.handle; delete payload.platform; }
     if (role === "influencer") delete payload.company;
     const r = await register(payload);
     setLoading(false);
@@ -108,7 +110,25 @@ export default function Register() {
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
               <Field label="Full name" testid="reg-name" value={form.name} onChange={change("name")} placeholder="Your name" required />
               {role === "influencer" ? (
-                <Field label="Handle" testid="reg-handle" value={form.handle} onChange={change("handle")} placeholder="@yourhandle" />
+                <div>
+                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Primary Platform & Handle</label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <select 
+                      value={form.platform} 
+                      onChange={change("platform")}
+                      className="bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg font-mono w-1/3"
+                    >
+                      {PLATFORMS.map(p => <option key={p} className="bg-black text-[#F4F4F0]">{p}</option>)}
+                    </select>
+                    <input
+                      data-testid="reg-handle"
+                      value={form.handle}
+                      onChange={change("handle")}
+                      placeholder="@yourhandle"
+                      className="w-2/3 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
+                    />
+                  </div>
+                </div>
               ) : (
                 <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Company name" />
               )}

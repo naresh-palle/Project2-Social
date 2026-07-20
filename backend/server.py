@@ -169,6 +169,7 @@ class RegisterInput(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     role: UserRole
     handle: Optional[str] = None
+    platform: Optional[str] = None
     company: Optional[str] = None
     mobile: Optional[str] = None
     pincode: Optional[str] = None
@@ -315,15 +316,22 @@ async def register(inp: RegisterInput):
         city = loc.get("city") if loc.get("city") != "Unknown" else None
         state = loc.get("state") if loc.get("state") != "Unknown" else None
 
+    social_accounts = []
+    platforms = []
+    if inp.role == "influencer" and inp.platform and inp.handle:
+        social_accounts.append({"platform": inp.platform, "handle": inp.handle, "followers": 0, "engagement_rate": 0.0})
+        platforms.append(inp.platform)
+
     doc = {
         "id": user_id, "email": email, "password_hash": hash_password(inp.password),
         "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
         "mobile": inp.mobile, "pincode": inp.pincode,
-        "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": [],
+        "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
         "location": None, "city": city, "state": state, "industry": None, "website": None,
         "portfolio": [], "rate_card": {}, "verified": False, "wallet": 0,
         "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
+        "social_accounts": social_accounts,
     }
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, inp.role)
