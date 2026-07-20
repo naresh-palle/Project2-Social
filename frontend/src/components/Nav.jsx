@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Nav({ variant = "dark" }) {
   const { user, logout } = useAuth();
@@ -52,7 +53,9 @@ export function Nav({ variant = "dark" }) {
 
         <div className="flex items-center gap-3">
           {user ? (
-            <div ref={menuRef} className="relative">
+            <>
+              <NotificationBell />
+              <div ref={menuRef} className="relative">
               <button
                 onClick={() => setOpen(v => !v)}
                 data-testid="nav-user-menu"

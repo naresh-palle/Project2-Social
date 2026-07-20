@@ -257,6 +257,40 @@ class AIMatchInput(BaseModel):
     creator_id: str
 
 
+class AIPitchInput(BaseModel):
+    campaign_id: str
+
+
+class AIBioInput(BaseModel):
+    tone: Optional[str] = "editorial"
+
+
+class AIPricingInput(BaseModel):
+    kind: Literal["reel", "story", "post", "video"] = "reel"
+
+
+class AISearchInput(BaseModel):
+    query: str
+
+
+class ContractSign(BaseModel):
+    signed_by: Literal["owner", "creator"]
+    signature_name: str
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str = Field(min_length=6)
+
+
+class EmailVerifyConfirm(BaseModel):
+    token: str
+
+
 # ---------- Auth Endpoints ----------
 @api_router.post("/auth/register")
 async def register(inp: RegisterInput):
@@ -402,6 +436,11 @@ async def apply(campaign_id: str, inp: ApplicationCreate, current: dict = Depend
     # Notify owner
     camp = await db.campaigns.find_one({"id": campaign_id})
     if camp:
+        await push_notification(
+            camp["owner_id"], "application",
+            f"{current['name']} pitched your brief \"{camp['title']}\".",
+            {"campaign_id": camp["id"], "application_id": doc["id"]},
+        )
         owner = await db.users.find_one({"id": camp["owner_id"]}, {"email": 1, "name": 1})
         if owner and owner.get("email"):
             asyncio.create_task(send_email(
@@ -470,6 +509,14 @@ async def accept_application(application_id: str, current: dict = Depends(get_cu
                 cta_label="Open the brief",
             ),
         ))
+    # In-app notify creator
+    await push_notification(
+        app_doc["influencer_id"], "application_accepted",
+        f"{camp['brand']} accepted your pitch for {camp['title']}.",
+        {"campaign_id": camp["id"]},
+    )
+    # Auto-generate a draft contract
+    await _create_contract(camp, app_doc["influencer_id"], app_doc["rate"])
     return {"ok": True}
 
 
@@ -491,6 +538,11 @@ async def create_invitation(inp: InvitationCreate, current: dict = Depends(get_c
     }
     await db.invitations.insert_one(doc)
     # Notify creator
+    await push_notification(
+        inp.creator_id, "invitation",
+        f"{camp['brand']} invited you to \"{camp['title']}\" — offer ${inp.offer}.",
+        {"campaign_id": camp["id"], "invitation_id": doc["id"]},
+    )
     creator = await db.users.find_one({"id": inp.creator_id}, {"email": 1, "name": 1})
     if creator and creator.get("email"):
         asyncio.create_task(send_email(
@@ -700,6 +752,13 @@ async def submit_deliverable(inp: DeliverableCreate, current: dict = Depends(get
     }
     await db.deliverables.insert_one(doc)
     doc.pop("_id", None)
+    # Notify owner & schedule AI review
+    await push_notification(
+        camp["owner_id"], "deliverable_submitted",
+        f"{current['name']} submitted a {inp.kind} for {camp['title']}.",
+        {"campaign_id": camp["id"], "deliverable_id": doc["id"]},
+    )
+    asyncio.create_task(ai_review_deliverable(doc["id"], camp))
     return doc
 
 
@@ -1114,6 +1173,292 @@ async def top_matches(campaign_id: str, limit: int = 5, current: dict = Depends(
 
 
 
+
+# ---------- Notifications ----------
+async def push_notification(user_id: str, kind: str, text: str, meta: Optional[dict] = None) -> None:
+    doc = {
+        "id": str(uuid.uuid4()), "user_id": user_id, "kind": kind, "text": text,
+        "meta": meta or {}, "read": False, "created_at": now_iso(),
+    }
+    await db.notifications.insert_one(doc)
+
+
+@api_router.get("/notifications")
+async def list_notifications(current: dict = Depends(get_current_user)):
+    items = await db.notifications.find({"user_id": current["id"]}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+    unread = await db.notifications.count_documents({"user_id": current["id"], "read": False})
+    return {"items": items, "unread": unread}
+
+
+@api_router.post("/notifications/read")
+async def mark_read_all(current: dict = Depends(get_current_user)):
+    await db.notifications.update_many({"user_id": current["id"], "read": False}, {"$set": {"read": True}})
+    return {"ok": True}
+
+
+@api_router.post("/notifications/{notification_id}/read")
+async def mark_read_one(notification_id: str, current: dict = Depends(get_current_user)):
+    await db.notifications.update_one({"id": notification_id, "user_id": current["id"]}, {"$set": {"read": True}})
+    return {"ok": True}
+
+
+# ---------- Contracts ----------
+async def _create_contract(camp: dict, creator_id: str, rate: int) -> dict:
+    existing = await db.contracts.find_one({"campaign_id": camp["id"], "creator_id": creator_id})
+    if existing:
+        return {k: v for k, v in existing.items() if k != "_id"}
+    creator = await db.users.find_one({"id": creator_id}, {"_id": 0, "name": 1, "handle": 1, "email": 1})
+    owner = await db.users.find_one({"id": camp["owner_id"]}, {"_id": 0, "name": 1, "company": 1, "email": 1})
+    body = (
+        f"This agreement is entered between {owner.get('company') or owner.get('name')} (\"Brand\") "
+        f"and {creator.get('name')} {creator.get('handle') or ''} (\"Creator\") on the CR8 Studio platform.\n\n"
+        f"CAMPAIGN: {camp['title']} — {camp['brand']}\n"
+        f"BRIEF: {camp['description']}\n\n"
+        f"DELIVERABLES: {camp['deliverables']}\n\n"
+        f"COMPENSATION: The Brand agrees to pay the Creator ${rate} USD upon acceptance of the "
+        f"final deliverables, held in CR8 studio escrow until release.\n\n"
+        f"TIMELINE: Deliverables due by {camp.get('deadline') or 'a mutually agreed date'}.\n\n"
+        f"REVISIONS: Up to two rounds of revision requests may be issued. Further revisions "
+        f"require additional compensation.\n\n"
+        f"USAGE RIGHTS: The Brand receives a 12-month, non-exclusive license to use the "
+        f"delivered assets across owned channels. Whitelisting or paid amplification requires "
+        f"separate written consent.\n\n"
+        f"CONFIDENTIALITY: Both parties agree to keep any non-public information exchanged "
+        f"through this collaboration confidential.\n\n"
+        f"DISCLOSURE: The Creator will comply with FTC disclosure requirements (#ad or "
+        f"#sponsored) on all deliverables.\n\n"
+        f"By signing below, both parties agree to the terms above."
+    )
+    doc = {
+        "id": str(uuid.uuid4()), "campaign_id": camp["id"], "creator_id": creator_id,
+        "owner_id": camp["owner_id"], "rate": rate, "body": body, "status": "draft",
+        "signed_by_owner": None, "signed_by_creator": None,
+        "signature_owner": None, "signature_creator": None,
+        "created_at": now_iso(),
+    }
+    await db.contracts.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.get("/campaigns/{campaign_id}/contract")
+async def get_contract(campaign_id: str, current: dict = Depends(get_current_user)):
+    contract = await db.contracts.find_one({"campaign_id": campaign_id}, {"_id": 0})
+    if not contract:
+        raise HTTPException(status_code=404, detail="No contract yet")
+    if current["id"] not in (contract["owner_id"], contract["creator_id"]) and current["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return contract
+
+
+@api_router.post("/contracts/{contract_id}/sign")
+async def sign_contract(contract_id: str, inp: ContractSign, current: dict = Depends(get_current_user)):
+    contract = await db.contracts.find_one({"id": contract_id})
+    if not contract:
+        raise HTTPException(status_code=404, detail="Contract not found")
+    if inp.signed_by == "owner" and current["id"] != contract["owner_id"]:
+        raise HTTPException(status_code=403, detail="Only the brand can sign as owner")
+    if inp.signed_by == "creator" and current["id"] != contract["creator_id"]:
+        raise HTTPException(status_code=403, detail="Only the creator can sign as creator")
+    update: Dict[str, Any] = {
+        f"signed_by_{inp.signed_by}": now_iso(),
+        f"signature_{inp.signed_by}": inp.signature_name,
+    }
+    fresh = {**contract, **update}
+    if fresh.get("signed_by_owner") and fresh.get("signed_by_creator"):
+        update["status"] = "executed"
+    await db.contracts.update_one({"id": contract_id}, {"$set": update})
+    # Notify the other side
+    other_id = contract["creator_id"] if inp.signed_by == "owner" else contract["owner_id"]
+    await push_notification(
+        other_id, "contract_signed",
+        f"{inp.signature_name} signed the contract for a campaign.",
+        {"campaign_id": contract["campaign_id"], "contract_id": contract_id},
+    )
+    return {"ok": True, "status": update.get("status", contract["status"])}
+
+
+# ---------- Password reset & email verification ----------
+_reset_tokens: Dict[str, dict] = {}  # in-memory; token -> {user_id, expires_at}
+_verify_tokens: Dict[str, dict] = {}
+
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(inp: PasswordResetRequest):
+    user = await db.users.find_one({"email": inp.email.lower()})
+    # Do not disclose whether email exists; always 200.
+    if user:
+        token = uuid.uuid4().hex
+        _reset_tokens[token] = {"user_id": user["id"], "expires_at": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()}
+        base = os.environ.get("FRONTEND_URL", "https://owner-creator.emergent.host")
+        link = f"{base}/reset-password?token={token}"
+        asyncio.create_task(send_email(
+            user["email"],
+            "CR8 — reset your password",
+            email_template(
+                "Reset your password.",
+                f'<p>Someone (hopefully you) requested a password reset. '
+                f'This link expires in 2 hours. Ignore this email if it wasn\'t you.</p>'
+                f'<p style="font-family:monospace;font-size:11px;opacity:0.7;word-break:break-all">{link}</p>',
+                cta_url=link, cta_label="Reset password",
+            ),
+        ))
+    return {"ok": True}
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(inp: PasswordResetConfirm):
+    entry = _reset_tokens.get(inp.token)
+    if not entry or entry["expires_at"] < now_iso():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    await db.users.update_one({"id": entry["user_id"]}, {"$set": {"password_hash": hash_password(inp.new_password)}})
+    _reset_tokens.pop(inp.token, None)
+    return {"ok": True}
+
+
+@api_router.post("/auth/send-verify")
+async def send_verify(current: dict = Depends(get_current_user)):
+    if current.get("email_verified"):
+        return {"ok": True, "already": True}
+    token = uuid.uuid4().hex
+    _verify_tokens[token] = {"user_id": current["id"], "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()}
+    base = os.environ.get("FRONTEND_URL", "https://owner-creator.emergent.host")
+    link = f"{base}/verify-email?token={token}"
+    asyncio.create_task(send_email(
+        current["email"],
+        "CR8 — verify your email",
+        email_template(
+            "Confirm your address.",
+            "<p>Tap the button below to confirm this is really you. The link expires in 24 hours.</p>",
+            cta_url=link, cta_label="Verify email",
+        ),
+    ))
+    return {"ok": True}
+
+
+@api_router.post("/auth/verify-email")
+async def verify_email(inp: EmailVerifyConfirm):
+    entry = _verify_tokens.get(inp.token)
+    if not entry or entry["expires_at"] < now_iso():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    await db.users.update_one({"id": entry["user_id"]}, {"$set": {"email_verified": True}})
+    _verify_tokens.pop(inp.token, None)
+    return {"ok": True}
+
+
+# ---------- AI Creator Copilot ----------
+@api_router.post("/ai/pitch")
+async def ai_pitch(inp: AIPitchInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    camp = await db.campaigns.find_one({"id": inp.campaign_id}, {"_id": 0})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    system = ("You are the CR8 AI Creator Copilot — you write short, editorial, sharp "
+              "pitches on behalf of the creator. Restraint over hype. First-person voice.")
+    prompt = (
+        f"Write a 3-4 sentence pitch from {current['name']} ({current.get('handle','')}) "
+        f"to {camp['brand']} for campaign: \"{camp['title']}\". "
+        f"Creator niches: {current.get('niches',[])}, platforms: {current.get('platforms',[])}, "
+        f"followers: {current.get('followers')}, bio: {current.get('bio','')}. "
+        f"Brand brief: {camp['description']}. Return ONLY the pitch text, no preamble."
+    )
+    text = await call_llm(system, prompt)
+    return {"pitch": text.strip()}
+
+
+@api_router.post("/ai/bio")
+async def ai_bio(inp: AIBioInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    system = "You are the CR8 AI Creator Copilot. Write concise, editorial creator bios."
+    prompt = (
+        f"Draft a bio for {current['name']} ({current.get('handle','')}). "
+        f"Niches: {current.get('niches',[])}. Platforms: {current.get('platforms',[])}. "
+        f"Location: {current.get('location','')}. Followers: {current.get('followers')}. "
+        f"Existing bio (may be empty): '{current.get('bio','')}'. "
+        f"Tone: {inp.tone}. Maximum 220 characters, single line. Return ONLY the bio text."
+    )
+    text = await call_llm(system, prompt)
+    return {"bio": text.strip().strip('"')}
+
+
+@api_router.post("/ai/pricing")
+async def ai_pricing(inp: AIPricingInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    system = ("You are the CR8 AI Pricing Engine. Return VALID JSON with keys: "
+              "recommended (int USD), min (int USD), max (int USD), market_average (int USD), "
+              "confidence (int 0-100), rationale (short string).")
+    prompt = (
+        f"Suggest fair pricing for a single '{inp.kind}' deliverable from creator {current['name']}. "
+        f"Followers: {current.get('followers')}. Platforms: {current.get('platforms',[])}. "
+        f"Niches: {current.get('niches',[])}. Location: {current.get('location','')}. "
+        f"Return ONLY JSON."
+    )
+    text = await call_llm(system, prompt)
+    return parse_json(text)
+
+
+# ---------- AI Natural Language Search ----------
+@api_router.post("/ai/search-creators")
+async def ai_search(inp: AISearchInput, current: dict = Depends(get_current_user)):
+    system = ("You convert a natural-language creator search into strict JSON filters. "
+              "Return ONLY JSON with keys: niches (string[]), platforms (string[]), "
+              "min_followers (int|null), max_followers (int|null), location (string|null), "
+              "text (string|null — free-text terms). Niches must be from: "
+              "fashion, luxury, beauty, tech, design, wellness. Platforms from: "
+              "instagram, tiktok, youtube, twitter.")
+    prompt = f"Query: \"{inp.query}\". Return JSON only."
+    text = await call_llm(system, prompt)
+    filters = parse_json(text)
+
+    mongo: Dict[str, Any] = {"role": "influencer"}
+    if isinstance(filters.get("niches"), list) and filters["niches"]:
+        mongo["niches"] = {"$in": filters["niches"]}
+    if isinstance(filters.get("platforms"), list) and filters["platforms"]:
+        mongo["platforms"] = {"$in": filters["platforms"]}
+    follower_range: Dict[str, int] = {}
+    if isinstance(filters.get("min_followers"), int):
+        follower_range["$gte"] = filters["min_followers"]
+    if isinstance(filters.get("max_followers"), int):
+        follower_range["$lte"] = filters["max_followers"]
+    if follower_range:
+        mongo["followers"] = follower_range
+    if filters.get("location"):
+        mongo["location"] = {"$regex": filters["location"], "$options": "i"}
+    if filters.get("text"):
+        mongo.setdefault("$or", []).extend([
+            {"name": {"$regex": filters["text"], "$options": "i"}},
+            {"handle": {"$regex": filters["text"], "$options": "i"}},
+            {"bio": {"$regex": filters["text"], "$options": "i"}},
+        ])
+
+    creators = await db.users.find(mongo, {"_id": 0, "password_hash": 0}).limit(24).to_list(24)
+    return {"filters": filters, "creators": creators}
+
+
+# ---------- AI Content Review (auto-run on deliverable submit) ----------
+async def ai_review_deliverable(deliverable_id: str, camp: dict) -> None:
+    d = await db.deliverables.find_one({"id": deliverable_id})
+    if not d:
+        return
+    system = ("You are the CR8 AI Content Review Officer. You judge whether a submitted "
+              "creator deliverable is on-brief and FTC-compliant. Return VALID JSON with keys: "
+              "on_brief (bool), disclosure_ok (bool), quality (int 0-100), "
+              "issues (string[]), notes (string).")
+    prompt = (
+        f"CAMPAIGN: {camp['brand']} — {camp['title']}. Brief: {camp['description']}. "
+        f"Deliverables required: {camp['deliverables']}.\n"
+        f"SUBMISSION: kind={d['kind']}, url={d['url']}, caption='{d.get('caption','')}'.\n"
+        f"Return ONLY JSON."
+    )
+    try:
+        text = await call_llm(system, prompt)
+        ai = parse_json(text)
+        await db.deliverables.update_one({"id": deliverable_id}, {"$set": {"ai_review": ai}})
+    except Exception as e:
+        logger.warning("AI content review failed: %s", e)
+
+
+
 # ---------- Startup ----------
 async def seed_admin():
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@cr8.studio").lower()
@@ -1211,6 +1556,10 @@ async def on_startup():
     await db.deliverables.create_index("id", unique=True)
     await db.reviews.create_index("id", unique=True)
     await db.wallet_tx.create_index("id", unique=True)
+    await db.notifications.create_index("id", unique=True)
+    await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+    await db.contracts.create_index("id", unique=True)
+    await db.contracts.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
     await seed_admin()
     await seed_demo()
     logger.info("CR8 API ready.")
