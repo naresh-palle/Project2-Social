@@ -17,7 +17,7 @@ export default function RegisterSplash() {
         <div className="grain" />
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-50">
         <Nav />
       </div>
 
