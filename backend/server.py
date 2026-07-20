@@ -313,8 +313,8 @@ async def register(inp: RegisterInput):
     if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
         raise HTTPException(status_code=400, detail="Password must be alphanumeric")
 
-    if inp.role == "owner" and not inp.company:
-        raise HTTPException(status_code=400, detail="Owners must provide a brand or company name")
+    if inp.role in ["owner", "agent"] and not inp.company:
+        raise HTTPException(status_code=400, detail=f"{'Owners' if inp.role == 'owner' else 'Agents'} must provide a {'brand or company' if inp.role == 'owner' else 'agency'} name")
 
     user_id = str(uuid.uuid4())
     city, state = None, None

@@ -47,7 +47,7 @@ export default function Register() {
     const payload = { ...form, role, name: `${form.firstName.trim()} ${form.lastName.trim()}` };
     delete payload.firstName;
     delete payload.lastName;
-    if (role !== "owner") delete payload.company;
+    if (role === "influencer") delete payload.company;
     const r = await register(payload);
     setLoading(false);
     if (r.ok) nav("/dashboard");
@@ -129,8 +129,15 @@ export default function Register() {
               <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} placeholder="First name" required />
               <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} placeholder="Last name" required />
               
-              {role === "owner" && (
-                <Field label="Brand / Company" testid="reg-company" value={form.company} onChange={change("company")} placeholder="Company name" required />
+              {(role === "owner" || role === "agent") && (
+                <Field 
+                  label={role === "owner" ? "Brand / Company" : "Agency Name"} 
+                  testid="reg-company" 
+                  value={form.company} 
+                  onChange={change("company")} 
+                  placeholder={role === "owner" ? "Company name" : "Agency name"} 
+                  required 
+                />
               )}
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@studio.com" type="email" required />
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="9876543210" required />
