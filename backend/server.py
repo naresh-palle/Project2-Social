@@ -1196,8 +1196,8 @@ async def call_llm(system: str, prompt: str) -> str:
     
     genai.configure(api_key=EMERGENT_LLM_KEY)
     
-    # Use Gemini 1.5 Pro or Flash
-    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system)
+    # Use Gemini 1.5 Flash Latest
+    model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=system)
     
     # We use await loop.run_in_executor since genai library might be sync
     import asyncio
