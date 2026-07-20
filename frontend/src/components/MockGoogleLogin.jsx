@@ -2,10 +2,17 @@ import { motion } from "framer-motion";
 
 export function MockGoogleLogin({ onSuccess }) {
   const handleMockLogin = () => {
+    const mockEmail = window.prompt(
+      "[Mock Google SSO] Enter the email you want to simulate logging in as:", 
+      "test.user@mock-google.com"
+    );
+    
+    if (!mockEmail) return; // User cancelled
+
     // Create a mock JWT token (base64 encoded JSON)
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
     const payload = btoa(JSON.stringify({
-      email: "test.user@mock-google.com",
+      email: mockEmail,
       given_name: "Test",
       family_name: "User",
       sub: "mock-google-12345"
