@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Shield, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, Trash2, Send, Sparkles, Loader2, X } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -12,6 +12,12 @@ export default function Admin() {
   const [tab, setTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [camps, setCamps] = useState([]);
+
+  // Pitch Modal State
+  const [pitchUser, setPitchUser] = useState(null);
+  const [pitchForm, setPitchForm] = useState({ target_email: "", target_role: "owner", subject: "", body: "" });
+  const [pitchGenerating, setPitchGenerating] = useState(false);
+  const [pitchSending, setPitchSending] = useState(false);
 
   const load = async () => {
     if (user?.role !== "admin") return;
@@ -45,6 +51,42 @@ export default function Admin() {
     try { await api.delete(`/admin/campaigns/${id}`); toast.success("Deleted"); load(); }
     catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
   };
+
+  const generatePitch = async () => {
+    setPitchGenerating(true);
+    try {
+      const { data } = await api.post("/admin/ai-pitch", { influencer_id: pitchUser.id, target_role: pitchForm.target_role });
+      setPitchForm(f => ({ ...f, subject: data.subject, body: data.body }));
+      toast.success("AI Draft generated.");
+    } catch (e) {
+      toast.error("Failed to generate AI pitch.");
+    } finally {
+      setPitchGenerating(false);
+    }
+  };
+
+  const sendPitch = async () => {
+    if (!pitchForm.target_email || !pitchForm.subject || !pitchForm.body) {
+      toast.error("Complete all fields."); return;
+    }
+    setPitchSending(true);
+    try {
+      await api.post("/admin/send-pitch", { 
+        influencer_id: pitchUser.id, 
+        target_email: pitchForm.target_email,
+        subject: pitchForm.subject,
+        body: pitchForm.body
+      });
+      toast.success("Pitch sent successfully.");
+      setPitchUser(null);
+    } catch (e) {
+      toast.error("Failed to send pitch.");
+    } finally {
+      setPitchSending(false);
+    }
+  };
+
+  const targetOptions = users.filter(u => u.role === "owner" || u.role === "agent");
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
@@ -92,13 +134,20 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="col-span-3 font-mono text-[11px] opacity-70">{u.email}</div>
-                <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
+                <div className="col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase">
                   <span className={u.role === "admin" ? "text-[#FF3B30]" : "opacity-80"}>{u.role}</span>
                 </div>
                 <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
                   {u.verified ? <span className="text-[#FF3B30]">✓ verified</span> : <span className="opacity-60">unverified</span>}
                 </div>
                 <div className="col-span-2 text-right flex gap-2 justify-end">
+                  {u.role === "influencer" && (
+                     <button onClick={() => {
+                        setPitchUser(u);
+                        setPitchForm({ target_email: "", target_role: "owner", subject: "", body: "" });
+                     }} data-testid={`admin-pitch-${u.id}`}
+                      className="btn-pill text-[10px]"><Send className="w-3 h-3" /> Pitch</button>
+                  )}
                   {!u.verified && (
                     <button onClick={() => verify(u.id)} data-testid={`admin-verify-${u.id}`}
                       className="btn-pill text-[10px]"><Shield className="w-3 h-3" /></button>
@@ -139,6 +188,71 @@ export default function Admin() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {pitchUser && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+              className="bg-[#0A0A0A] border border-white/10 w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
+              
+              <div className="flex items-center justify-between pb-6 hairline-b">
+                <div>
+                  <h3 className="font-editorial text-4xl italic">AI Pitch Portfolio</h3>
+                  <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-2">Target: {pitchUser.name}</p>
+                </div>
+                <button onClick={() => setPitchUser(null)} className="text-white/50 hover:text-white transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="mt-8 space-y-6">
+                <div>
+                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">1. Select Target Brand/Agent</label>
+                  <select value={pitchForm.target_email} onChange={e => {
+                    const t = targetOptions.find(o => o.email === e.target.value);
+                    setPitchForm({...pitchForm, target_email: e.target.value, target_role: t ? t.role : "owner"});
+                  }} className="w-full bg-transparent border-b border-white/20 py-3 focus:outline-none focus:border-[#FF3B30]">
+                    <option value="" className="bg-[#0A0A0A]">Select a target...</option>
+                    {targetOptions.map(o => (
+                      <option key={o.id} value={o.email} className="bg-[#0A0A0A]">
+                        {o.name} ({o.company || o.role}) - {o.email}
+                      option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="hairline-b pb-6">
+                  <button onClick={generatePitch} disabled={pitchGenerating || !pitchForm.target_email} className="btn-solid w-full justify-center">
+                    {pitchGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    {pitchGenerating ? "Generating draft..." : "2. Generate AI Draft"}
+                  </button>
+                </div>
+
+                {pitchForm.subject && (
+                  <div className="space-y-4 animate-in fade-in duration-500">
+                    <div>
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">Subject</label>
+                      <input type="text" value={pitchForm.subject} onChange={e => setPitchForm({...pitchForm, subject: e.target.value})}
+                        className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-[#FF3B30] font-editorial text-2xl" />
+                    </div>
+                    <div>
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">Pitch Body</label>
+                      <textarea rows={8} value={pitchForm.body} onChange={e => setPitchForm({...pitchForm, body: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 p-4 focus:outline-none focus:border-[#FF3B30] font-editorial text-lg leading-relaxed resize-none" />
+                    </div>
+
+                    <button onClick={sendPitch} disabled={pitchSending} className="btn-solid w-full justify-center bg-[#FF3B30] text-white hover:bg-white hover:text-black mt-4">
+                      {pitchSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                      {pitchSending ? "Sending..." : "Send Portfolio Pitch"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

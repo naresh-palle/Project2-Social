@@ -195,6 +195,26 @@ class GoogleLoginInput(BaseModel):
     email: str
 
 
+class ContentReviewInput(BaseModel):
+    text: Optional[str] = None
+    media_url: Optional[str] = None
+
+class AIPitchInput(BaseModel):
+    influencer_id: str
+    target_role: str = "owner"
+
+class SendPitchInput(BaseModel):
+    influencer_id: str
+    target_email: EmailStr
+    subject: str
+    body: str
+    avatar: Optional[str] = None
+    handle: Optional[str] = None
+    company: Optional[str] = None
+    industry: Optional[str] = None
+    website: Optional[str] = None
+
+
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     bio: Optional[str] = None
@@ -1108,6 +1128,45 @@ async def admin_verify(user_id: str, current: dict = Depends(get_current_user)):
 async def admin_delete_campaign(campaign_id: str, current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
     await db.campaigns.delete_one({"id": campaign_id})
+    return {"ok": True}
+
+
+@api_router.post("/admin/ai-pitch")
+async def admin_generate_ai_pitch(inp: AIPitchInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    creator = await db.users.find_one({"id": inp.influencer_id, "role": "influencer"})
+    if not creator:
+        raise HTTPException(status_code=404, detail="Creator not found")
+
+    system = "You are an elite talent agent representing high-end influencers."
+    prompt = f"""
+Draft a compelling, visually-focused email pitch to send to a {inp.target_role} (a brand or agent) to represent this creator.
+Keep it punchy, luxurious, and focused on their aesthetic portfolio and metrics.
+
+Creator Info:
+Name: {creator.get("name")}
+Handle: {creator.get("handle")}
+Bio: {creator.get("bio")}
+Niches: {', '.join(creator.get("niches", []))}
+Followers: {creator.get("followers")}
+
+Return a JSON object with:
+"subject": (The email subject line)
+"body": (The body text of the pitch)
+"""
+    try:
+        text = await call_llm(system, prompt)
+        res = parse_json(text)
+        return res
+    except Exception as e:
+        logger.error(f"Pitch generation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate pitch")
+
+@api_router.post("/admin/send-pitch")
+async def admin_send_pitch(inp: SendPitchInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    # In a real app, integrate SendGrid or AWS SES here
+    print(f"\n{'='*40}\n[MOCK EMAIL SENT TO {inp.target_email}]\nSubject: {inp.subject}\n\n{inp.body}\n{'='*40}\n")
     return {"ok": True}
 
 
