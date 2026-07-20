@@ -32,7 +32,7 @@ export default function RegisterSplash() {
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Enter the studio
             </p>
-            <h1 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.1]">
+            <h1 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.15] pb-2">
               Choose your <span className="italic text-[#FF3B30]">door.</span>
             </h1>
           </div>
