@@ -1196,15 +1196,18 @@ async def call_llm(system: str, prompt: str) -> str:
     
     genai.configure(api_key=EMERGENT_LLM_KEY)
     
-    # Use Gemini 1.5 Flash Latest
-    model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=system)
+    # Use standard Gemini Pro
+    model = genai.GenerativeModel('gemini-pro')
+    
+    # Prepend system instruction to prompt for classic gemini-pro support
+    full_prompt = f"System Instruction: {system}\n\nUser Request: {prompt}"
     
     # We use await loop.run_in_executor since genai library might be sync
     import asyncio
     loop = asyncio.get_event_loop()
     
     def generate():
-        response = model.generate_content(prompt)
+        response = model.generate_content(full_prompt)
         return response.text
         
     try:
