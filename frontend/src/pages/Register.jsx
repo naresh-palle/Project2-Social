@@ -79,12 +79,15 @@ export default function Register() {
   // Pincode
   useEffect(() => {
     if (form.pincode.length === 6) {
-      fetch(`https://api.postalpincode.in/pincode/${form.pincode}`)
-        .then(res => res.json())
+      fetch(`https://api.zippopotam.us/in/${form.pincode}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Invalid pincode");
+          return res.json();
+        })
         .then(data => {
-          if (data && data[0].Status === "Success") {
-            const po = data[0].PostOffice[0];
-            setForm(f => ({ ...f, city: po.District || po.Block || po.Name, state: po.State }));
+          if (data && data.places && data.places.length > 0) {
+            const po = data.places[0];
+            setForm(f => ({ ...f, city: po["place name"], state: po["state"] }));
           } else {
             setForm(f => ({ ...f, city: "", state: "" }));
           }
