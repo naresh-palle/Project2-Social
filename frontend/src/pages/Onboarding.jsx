@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Check, ChevronRight, Loader2, AlertCircle, Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
@@ -126,7 +126,7 @@ export default function Onboarding() {
             disabled={fetching || !handle}
             className="btn-outline w-full justify-center disabled:opacity-50"
           >
-            {fetching ? <Loader2 className="animate-spin w-4 h-4" /> : "Fetch Stats"}
+            {fetching ? <Loader2 className="animate-spin w-4 h-4" /> : <><Plus className="w-4 h-4 mr-2" /> Add Social Account</>}
           </button>
 
           {socials.length > 0 && (
