@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
@@ -15,6 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -80,7 +81,7 @@ export default function Login() {
                       const decoded = jwtDecode(credentialResponse.credential);
                       const r = await googleLogin(decoded.email);
                       setLoading(false);
-                      if (r.ok) nav(r.user.role === "admin" ? "/admin" : (location.state?.from || "/dashboard"));
+                      if (r.ok) nav(location.state?.from || "/dashboard");
                       else setErr(r.error);
                     } catch (e) {
                       setLoading(false);
@@ -121,14 +122,23 @@ export default function Login() {
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
                   Password
                 </label>
-                <input
-                  data-testid="login-password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-                />
+                <div className="relative">
+                  <input
+                    data-testid="login-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-2 w-full bg-transparent hairline-b py-3 pr-10 focus:outline-none focus:border-[#FF3B30] text-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 mt-1 p-2 opacity-60 hover:opacity-100 transition-opacity"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
               {err && (
                 <p data-testid="login-error" className="text-[#FF3B30] font-mono text-xs tracking-widest uppercase">
