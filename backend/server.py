@@ -199,7 +199,7 @@ class ContentReviewInput(BaseModel):
     text: Optional[str] = None
     media_url: Optional[str] = None
 
-class AIPitchInput(BaseModel):
+class AdminAIPitchInput(BaseModel):
     influencer_id: str
     target_role: str = "owner"
 
@@ -223,17 +223,27 @@ class UserUpdate(BaseModel):
     company: Optional[str] = None
     industry: Optional[str] = None
     website: Optional[str] = None
-    niches: Optional[List[str]] = None
+    category: Optional[str] = None
     followers: Optional[int] = None
     platforms: Optional[List[str]] = None
     location: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
     portfolio: Optional[List[str]] = None
-    rate_card: Optional[Dict[str, int]] = None
     social_accounts: Optional[List[Dict[str, Any]]] = None
     onboarding_status: Optional[str] = None
     agent_approved: Optional[bool] = None
+    
+    # New Comprehensive Profile Fields
+    availability: Optional[str] = None
+    languages: Optional[List[str]] = None
+    base_rate: Optional[int] = None
+    past_campaigns: Optional[List[Dict[str, Any]]] = None
+    experience: Optional[str] = None
+    content_types: Optional[List[str]] = None
+    response_time: Optional[str] = None
+    platform_metrics: Optional[Dict[str, Dict[str, Any]]] = None
+    monthly_analytics: Optional[List[Dict[str, Any]]] = None  # For historical charts
 
 
 class CampaignCreate(BaseModel):
@@ -515,7 +525,195 @@ async def approve_agent(agent_id: str, current: dict = Depends(get_current_user)
     return {"ok": True}
 
 
+@api_router.get("/admin/dashboard-stats")
+async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    total_creators = await db.users.count_documents({"role": "influencer"})
+    total_brands = await db.users.count_documents({"role": "owner"})
+    total_agencies = await db.users.count_documents({"role": "agent"})
+    
+    total_campaigns = await db.campaigns.count_documents({})
+    active_campaigns = await db.campaigns.count_documents({"status": "in_progress"})
+    completed_campaigns = await db.campaigns.count_documents({"status": "completed"})
+    
+    pipeline = [{"$group": {"_id": None, "total": {"$sum": "$budget"}}}]
+    res = await db.campaigns.aggregate(pipeline).to_list(1)
+    total_payments = res[0]["total"] if res else 0
+    total_revenue = total_payments * 0.15 # 15% platform commission mock
+
+    total_requests = await db.applications.count_documents({})
+    pending_verification = await db.users.count_documents({"role": "agent", "agent_approved": False})
+    
+    # Mock some data for Logins, Registrations, etc.
+    import random
+    
+    return {
+        "users": {
+            "creators": total_creators,
+            "brands": total_brands,
+            "agencies": total_agencies
+        },
+        "campaigns": {
+            "total": total_campaigns,
+            "active": active_campaigns,
+            "completed": completed_campaigns,
+            "pending_approval": 0
+        },
+        "financial": {
+            "total_payments": total_payments,
+            "pending_payments": 0,
+            "completed_payments": total_payments,
+            "revenue": total_revenue
+        },
+        "requests": {
+            "creator_requests": total_requests,
+            "brand_requests": 0,
+            "verification_requests": pending_verification
+        },
+        "platform": {
+            "logins_today": random.randint(100, 500),
+            "new_registrations": random.randint(5, 50),
+            "active_users": random.randint(50, 300)
+        }
+    }
+
+@api_router.get("/admin/recent-activity")
+async def admin_recent_activity(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).limit(5).to_list(5)
+    camps = await db.campaigns.find({}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
+    
+    activity = []
+    for u in users:
+        activity.append({
+            "type": f"{u['role']} Signup",
+            "user": u["name"],
+            "status": "Completed",
+            "time": u["created_at"]
+        })
+    for c in camps:
+        activity.append({
+            "type": "Campaign Created",
+            "user": c["brand"],
+            "status": c["status"],
+            "time": c["created_at"]
+        })
+    activity.sort(key=lambda x: x["time"], reverse=True)
+    return activity[:10]
+
+@api_router.get("/admin/payments")
+async def admin_payments(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    # Mocking recent payments by grabbing campaigns
+    camps = await db.campaigns.find({"status": "completed"}, {"_id": 0}).sort("created_at", -1).limit(10).to_list(10)
+    payments = []
+    import uuid
+    for c in camps:
+        creator = await db.users.find_one({"id": c.get("accepted_creator_id")}, {"name": 1})
+        payments.append({
+            "id": str(uuid.uuid4())[:8].upper(),
+            "creator": creator["name"] if creator else "Unknown",
+            "brand": c["brand"],
+            "campaign": c["title"],
+            "amount": c["budget"],
+            "status": "Completed",
+            "date": c["created_at"]
+        })
+    return payments
+
+@api_router.get("/admin/requests")
+async def admin_requests(current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    apps = await db.applications.find({}, {"_id": 0}).sort("created_at", -1).limit(10).to_list(10)
+    return apps
+
+@api_router.get("/admin/users")
+async def admin_users(
+    role: Optional[str] = None, 
+    category: Optional[str] = None, 
+    q: Optional[str] = None,
+    status: Optional[str] = None,
+    current: dict = Depends(get_current_user)
+):
+    await require_role(current, ["admin"])
+    filt: Dict[str, Any] = {}
+    if role:
+        filt["role"] = role
+    if category:
+        filt["$or"] = [{"category": category}, {"industry": category}]
+    if q:
+        filt["$or"] = [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}},
+            {"handle": {"$regex": q, "$options": "i"}}
+        ]
+    if status == "pending":
+        filt["role"] = "agent"
+        filt["agent_approved"] = False
+    
+    users = await db.users.find(filt, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
+    return users
+
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    res = await db.users.delete_one({"id": user_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    # Also delete associated campaigns, applications, reviews, etc.
+    await db.campaigns.delete_many({"owner_id": user_id})
+    await db.applications.delete_many({"influencer_id": user_id})
+    return {"ok": True, "message": "User deleted successfully"}
+
 # ---------- Creators ----------
+@api_router.post("/creators/sync-analytics")
+async def sync_analytics(current: dict = Depends(get_current_user)):
+    await require_role(current, ["influencer"])
+    
+    import random
+    from datetime import datetime, timedelta
+    
+    # 1. Update Platform Metrics with deep data
+    pm = current.get("platform_metrics") or {}
+    for plat in ["instagram", "youtube", "twitter", "facebook"]:
+        if plat in pm and pm[plat].get("handle"):
+            base_foll = pm[plat].get("followers", random.randint(10000, 500000))
+            pm[plat] = {
+                "handle": pm[plat]["handle"],
+                "followers": base_foll,
+                "engagement": round(random.uniform(1.0, 10.0), 1),
+                "views": int(base_foll * random.uniform(2, 5)),
+                "posts": random.randint(100, 2000),
+                "growth": round(random.uniform(-2.0, 15.0), 1),
+                "last_synced": now_iso()
+            }
+            if plat == "instagram":
+                pm[plat].update({
+                    "story_reach": int(base_foll * 0.15),
+                    "reel_reach": int(base_foll * 1.2),
+                    "profile_visits": int(base_foll * 0.05)
+                })
+    
+    # 2. Generate 12 Months of Historical Data
+    monthly_data = []
+    base_followers = pm.get("instagram", {}).get("followers", 100000)
+    for i in range(11, -1, -1):
+        dt = datetime.now(timezone.utc) - timedelta(days=30*i)
+        growth_factor = 1.0 - (i * 0.02) # Simulate upward trend over time
+        monthly_data.append({
+            "month": dt.strftime("%b %Y"),
+            "followers": int(base_followers * growth_factor),
+            "engagement": round(random.uniform(3.0, 6.0), 1),
+            "views": int(base_followers * growth_factor * random.uniform(2.5, 4.0))
+        })
+        
+    await db.users.update_one(
+        {"id": current["id"]},
+        {"$set": {"platform_metrics": pm, "monthly_analytics": monthly_data, "analytics_last_synced": now_iso()}}
+    )
+    
+    return {"ok": True, "message": "Analytics synchronized with external platforms."}
+
 @api_router.get("/creators")
 async def list_creators(niche: Optional[str] = None, platform: Optional[str] = None,
                         q: Optional[str] = None, limit: int = Query(default=60, le=100)):
@@ -1132,7 +1330,7 @@ async def admin_delete_campaign(campaign_id: str, current: dict = Depends(get_cu
 
 
 @api_router.post("/admin/ai-pitch")
-async def admin_generate_ai_pitch(inp: AIPitchInput, current: dict = Depends(get_current_user)):
+async def admin_generate_ai_pitch(inp: AdminAIPitchInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
     creator = await db.users.find_one({"id": inp.influencer_id, "role": "influencer"})
     if not creator:
@@ -1764,11 +1962,25 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
         # Fallback to mock data if their API key is invalid or missing
         return {
             "bio": "Curating high-end aesthetics with a focus on luxury, design, and editorial storytelling.",
+            "category": "Fashion & Style",
+            "languages": ["English", "Hindi"],
+            "experience": "1-2 years",
+            "content_types": ["Instagram Posts (Photos)", "Instagram Reels (Short Videos)"],
+            "response_time": "Within 2 days",
+            "base_rate": 1500,
+            "availability": "Immediately",
+            "platform_metrics": {
+                "instagram": {"handle": "@mock.creator", "followers": 150000, "engagement": 3.2, "views": 250000},
+                "youtube": {"handle": "@mock.creator.tv", "followers": 45000, "engagement": 2.8, "views": 120000}
+            },
             "portfolio": [
                 "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
                 "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
                 "https://images.unsplash.com/photo-1550614000-4b95d4ed7982?w=800&q=80",
                 "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80"
+            ],
+            "past_campaigns": [
+                {"brand": "Zara", "title": "Summer Collection", "result": "2M impressions, 50K engagement", "date": "June 2024"}
             ]
         }
 

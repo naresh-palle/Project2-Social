@@ -27,6 +27,7 @@ export default function Register() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
@@ -44,6 +45,15 @@ export default function Register() {
     setMobileStatus("typing");
     setUsernameStatus("typing");
   }, [urlRole]);
+
+  // Resend OTP Cooldown Timer
+  useEffect(() => {
+    let timer;
+    if (resendCooldown > 0) {
+      timer = setInterval(() => setResendCooldown(c => c - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   // Format label based on role
   const roleLabel = role === "owner" ? "a Brand" : role === "agent" ? "an Agent" : "a Creator";
@@ -176,10 +186,21 @@ export default function Register() {
     try {
       await api.post("/auth/send-otp", { email: form.email, mobile: form.mobile });
       setShowOtpModal(true);
+      setResendCooldown(30); // Start 30s cooldown
     } catch (e) {
       setErr(e.response?.data?.detail || "Failed to send verification code");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    try {
+      await api.post("/auth/send-otp", { email: form.email, mobile: form.mobile });
+      setResendCooldown(30); // Restart cooldown
+    } catch (e) {
+      setOtpError("Failed to resend code");
     }
   };
 
@@ -383,6 +404,17 @@ export default function Register() {
                 >
                   {otpLoading ? "Entering…" : <>Complete Registration <ArrowRight className="w-4 h-4" /></>}
                 </button>
+
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    disabled={resendCooldown > 0}
+                    onClick={handleResendOtp}
+                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] disabled:opacity-30 disabled:hover:text-current transition-colors"
+                  >
+                    {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </motion.div>

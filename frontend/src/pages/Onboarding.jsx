@@ -1,45 +1,52 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, Loader2, AlertCircle, Plus } from "lucide-react";
+import { ChevronRight, Loader2, Plus, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
 
-const ALL_CATEGORIES = [
-  "Fashion", "Beauty", "Skincare", "Makeup", "Haircare", "Food", "Cooking", "Recipes",
-  "Travel", "Luxury Travel", "Adventure", "Fitness", "Gym", "Yoga", "Health & Wellness",
-  "Nutrition", "Technology", "Gadgets", "AI & Tech", "Gaming", "Esports", "Education",
-  "Finance", "Stock Market", "Crypto", "Business", "Entrepreneurship", "Career", "Motivation",
-  "Comedy", "Entertainment", "Movies", "Music", "Dance", "Photography", "Videography",
-  "Parenting", "Kids", "Pet Care", "Automobiles", "Electric Vehicles", "Motorcycles",
-  "Home Decor", "Interior Design", "DIY", "Art & Craft", "Books", "Product Reviews",
-  "Unboxing", "News", "Politics", "Agriculture", "Real Estate", "Shopping", "E-commerce",
-  "Sustainability", "Environment", "Spirituality", "Religion", "Science", "Coding",
-  "Programming", "Web Development", "Mobile Development", "UI/UX Design", "Graphic Design",
-  "Animation", "Digital Marketing", "Affiliate Marketing", "Podcast", "Public Speaking",
-  "Local Culture", "Events", "Wedding", "Lifestyle Vlogging", "Daily Vlogs", "Short-form Content", "Memes"
+const CATEGORIES = [
+  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
+  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
+  "Travel & Adventure", "Business & Entrepreneurship", 
+  "Entertainment & Gaming", "Education & Learning", "Other"
 ];
 
-const PLATFORMS = ["Instagram", "YouTube", "Facebook", "X (Twitter)", "LinkedIn", "Snapchat", "Moj", "Josh", "ShareChat", "Chingari"];
+const LANGUAGES = [
+  "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
+  "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili", 
+  "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia", 
+  "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu"
+];
+
+const CITIES = ["Mumbai", "Bangalore", "Hyderabad", "Delhi", "Pune", "Chennai", "Kolkata", "Pan-India", "Other"];
+const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
+const PLATFORMS = ["instagram", "youtube", "twitter"];
 
 export default function Onboarding() {
   const { user, refresh } = useAuth();
   const nav = useNavigate();
   
   const [step, setStep] = useState(1);
-  const [socials, setSocials] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [industry, setIndustry] = useState("");
-  const [currCat, setCurrCat] = useState(ALL_CATEGORIES[0]);
-  
-  // Social fetch state
-  const [platform, setPlatform] = useState("Instagram");
-  const [handle, setHandle] = useState("");
-  const [fetching, setFetching] = useState(false);
-  
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Influencer State
+  const [f, setF] = useState({
+      category: "",
+      languages: [],
+      city: "",
+      availability: "",
+      platform_metrics: {
+        instagram: { handle: "", followers: 0, engagement: 0, views: 0 },
+        youtube: { handle: "", followers: 0, engagement: 0, views: 0 },
+        twitter: { handle: "", followers: 0, engagement: 0, views: 0 }
+      }
+  });
+
+  // Owner State
+  const [industry, setIndustry] = useState("");
 
   if (!user) return null;
 
@@ -60,52 +67,21 @@ export default function Onboarding() {
     );
   }
 
-  const addSocial = async () => {
-    const cleanHandle = handle.trim();
-    if (!cleanHandle) return;
-
-    if (socials.some((s) => s.platform === platform)) {
-      setError(`You have already connected a ${platform} account.`);
-      return;
-    }
-
-    setError("");
-    setFetching(true);
-    try {
-      const { data } = await api.post("/social/fetch", { platform, handle: cleanHandle });
-      setSocials([...socials, { platform, handle: cleanHandle, ...data }]);
-      setHandle("");
-    } catch (e) {
-      setError("Failed to fetch social stats.");
-    }
-    setFetching(false);
-  };
-
-  const toggleCategory = (c) => {
-    if (categories.includes(c)) {
-      setCategories(categories.filter((x) => x !== c));
-    } else {
-      setCategories([...categories, c]);
-    }
-  };
-
-  const addCategory = () => {
-    if (currCat && !categories.includes(currCat)) {
-      setCategories([...categories, currCat]);
-    }
+  const toggleLang = (l) => {
+      setF({...f, languages: f.languages.includes(l) ? f.languages.filter(x => x !== l) : [...f.languages, l]});
   };
 
   const submitProfile = async () => {
     setSubmitting(true);
     setError("");
     try {
-      const payload = {
-        onboarding_status: "completed",
-        niches: user.role === "influencer" ? categories : [industry],
-        industry: user.role === "owner" ? industry : null,
-        social_accounts: socials,
-        platforms: socials.map(s => s.platform)
-      };
+      let payload = { onboarding_status: "completed" };
+      if (user.role === "influencer") {
+          payload = { ...payload, ...f };
+      } else if (user.role === "owner") {
+          payload = { ...payload, industry };
+      }
+      
       await api.patch("/auth/me", payload);
       await refresh();
       nav("/dashboard");
@@ -115,121 +91,104 @@ export default function Onboarding() {
     }
   };
 
-  // Influencer Step 1: Socials
+  // INFLUENCER STEP 1: NICHE & LANGUAGE
   if (user.role === "influencer" && step === 1) {
     return (
-      <Layout step={1} title="Connect your audience." subtitle="Step 01 / Socials">
-        <div className="space-y-6">
-          <div className="grid grid-cols-3 gap-4">
-            <select 
-              value={platform} 
-              onChange={e => { setPlatform(e.target.value); setError(""); }}
-              className="col-span-1 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg font-mono"
-            >
-              {PLATFORMS.map(p => <option key={p} className="bg-black">{p}</option>)}
-            </select>
-            <input 
-              type="text" 
-              placeholder="@handle or URL" 
-              value={handle}
-              onChange={e => { setHandle(e.target.value); setError(""); }}
-              className="col-span-2 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg"
-            />
-          </div>
-          {error && <div className="text-[#FF3B30] font-mono text-xs tracking-widest uppercase">{error}</div>}
-          <button 
-            onClick={addSocial}
-            disabled={fetching || !handle}
-            className="btn-outline w-full justify-center disabled:opacity-50"
-          >
-            {fetching ? <Loader2 className="animate-spin w-4 h-4" /> : <><Plus className="w-4 h-4 mr-2" /> Add Social Account</>}
-          </button>
-
-          {socials.length > 0 && (
-            <div className="mt-8 space-y-4">
-              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60">Connected Accounts</h4>
-              {socials.map((s, i) => (
-                <div key={i} className="flex justify-between items-center p-4 border border-[#F4F4F0]/10 rounded-sm">
-                  <div>
-                    <div className="font-editorial text-xl">{s.handle}</div>
-                    <div className="font-mono text-xs opacity-60">{s.platform}</div>
-                  </div>
-                  <div className="text-right font-mono text-xs">
-                    <div>{s.followers.toLocaleString()} Followers</div>
-                    <div className="text-[#34C759]">{s.engagement_rate}% ER</div>
-                  </div>
-                </div>
-              ))}
+      <Layout step={1} title="Define your niche." subtitle="Step 01 / Identity">
+        <div className="space-y-12">
+          
+          <div>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Content Category *</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {CATEGORIES.map(c => (
+                    <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${f.category === c ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-white/10 hover:border-white/30"}`}>
+                        <input type="radio" name="category" value={c} checked={f.category === c} onChange={e=>setF({...f, category: e.target.value})} className="accent-[#FF3B30]" />
+                        <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
+                    </label>
+                ))}
             </div>
-          )}
-
-          <div className="pt-8 flex justify-end">
-            <button 
-              onClick={() => setStep(2)}
-              disabled={socials.length === 0}
-              className="btn-solid disabled:opacity-50"
-            >
-              Continue <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
+
+          <div>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Languages You Speak *</h4>
+            <div className="grid grid-cols-3 gap-3">
+                {LANGUAGES.map(lang => (
+                    <label key={lang} className="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleLang(lang)} className="accent-[#FF3B30] w-4 h-4" />
+                        <span className="text-sm">{lang}</span>
+                    </label>
+                ))}
+            </div>
+          </div>
+
+        </div>
+        <div className="pt-12 flex justify-end">
+          <button onClick={() => setStep(2)} disabled={!f.category || f.languages.length === 0} className="btn-solid disabled:opacity-50">
+            Continue <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </Layout>
     );
   }
 
-  // Influencer Step 2: Categories
+  // INFLUENCER STEP 2: LOCATION
   if (user.role === "influencer" && step === 2) {
     return (
-      <Layout step={2} title="Define your niche." subtitle="Step 02 / Categories (Select at least 3)">
-        <div className="space-y-6">
-          <div className="flex gap-4">
-            <select
-              value={currCat}
-              onChange={(e) => setCurrCat(e.target.value)}
-              className="flex-1 bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg font-mono"
-            >
-              {ALL_CATEGORIES.map((c) => (
-                <option key={c} className="bg-black" value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={addCategory}
-              disabled={!currCat || categories.includes(currCat)}
-              className="btn-outline px-6 disabled:opacity-50"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Add Category
-            </button>
-          </div>
-          
-          {categories.length > 0 && (
-            <div className="pt-4">
-              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-3">Selected Niches</h4>
-              <div className="flex flex-wrap gap-2">
-                {categories.map(c => (
-                  <button
-                    key={c}
-                    onClick={() => toggleCategory(c)}
-                    className="group px-3 py-1 font-mono text-xs tracking-widest uppercase bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 hover:bg-[#FF3B30]/20 hover:border-[#FF3B30]/40 transition-colors duration-200 flex items-center gap-2"
-                  >
-                    {c}
-                    <span className="opacity-60 group-hover:opacity-100">×</span>
-                  </button>
-                ))}
-              </div>
+      <Layout step={2} title="Where are you based?" subtitle="Step 02 / Availability">
+        <div className="space-y-8">
+            <div>
+                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
+                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
+                    <option value="" className="bg-black">Select City...</option>
+                    {CITIES.map(c => <option key={c} value={c} className="bg-black">{c}</option>)}
+                </select>
             </div>
-          )}
+            <div>
+                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
+                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
+                    <option value="" className="bg-black">Select Availability...</option>
+                    {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-black">{a}</option>)}
+                </select>
+            </div>
         </div>
-        <div className="pt-8 flex justify-between items-center">
-          <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
-            ← Back
+        <div className="pt-12 flex justify-between items-center">
+          <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">← Back</button>
+          <button onClick={() => setStep(3)} disabled={!f.city || !f.availability} className="btn-solid disabled:opacity-50">
+            Continue <ChevronRight className="w-4 h-4" />
           </button>
-          <button 
-            onClick={() => setStep(3)}
-            disabled={categories.length < 3}
-            className="btn-solid disabled:opacity-50"
-          >
+        </div>
+      </Layout>
+    );
+  }
+
+  // INFLUENCER STEP 3: SOCIALS
+  if (user.role === "influencer" && step === 3) {
+    return (
+      <Layout step={3} title="Connect your audience." subtitle="Step 03 / Socials">
+        <div className="space-y-6">
+            <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
+            {PLATFORMS.map(plat => (
+                <div key={plat} className="p-4 border border-white/10 bg-white/[0.02]">
+                    <div className="font-editorial text-2xl capitalize mb-4 text-[#FF3B30]">{plat} {plat === "instagram" && "*"}</div>
+                    <div>
+                        <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Handle / Link</label>
+                        <input className="w-full bg-transparent border-b border-white/10 py-2 focus:outline-none focus:border-[#FF3B30] text-lg mt-2" 
+                               placeholder="@handle" 
+                               value={f.platform_metrics[plat]?.handle || ""} 
+                               onChange={e=>setF({
+                                   ...f, 
+                                   platform_metrics: {
+                                       ...f.platform_metrics, 
+                                       [plat]: {...f.platform_metrics[plat], handle: e.target.value}
+                                   }
+                               })} />
+                    </div>
+                </div>
+            ))}
+        </div>
+        <div className="pt-12 flex justify-between items-center">
+          <button onClick={() => setStep(2)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">← Back</button>
+          <button onClick={() => setStep(4)} disabled={!f.platform_metrics.instagram.handle} className="btn-solid disabled:opacity-50">
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -248,11 +207,11 @@ export default function Onboarding() {
               className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial"
             >
               <option value="" className="bg-black" disabled>Select your primary industry</option>
-              {ALL_CATEGORIES.map(p => <option key={p} className="bg-black" value={p}>{p}</option>)}
+              {CATEGORIES.map(p => <option key={p} className="bg-black" value={p}>{p}</option>)}
             </select>
           <div className="pt-8 flex justify-end">
             <button 
-              onClick={() => setStep(2)}
+              onClick={() => setStep(4)}
               disabled={!industry}
               className="btn-solid disabled:opacity-50"
             >
@@ -264,9 +223,9 @@ export default function Onboarding() {
     );
   }
 
-  // Step 3 / 2: Review
+  // FINAL STEP: Review
   return (
-    <Layout step={step} title="Review your profile." subtitle="Final Step / Confirmation">
+    <Layout step={4} title="Review your profile." subtitle="Final Step / Confirmation">
       <div className="space-y-8">
         <div className="grid grid-cols-2 gap-6 p-6 border border-[#F4F4F0]/10 bg-white/5">
           <div>
@@ -275,7 +234,7 @@ export default function Onboarding() {
           </div>
           <div>
             <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Location</div>
-            <div className="font-editorial text-2xl">{user.city}, {user.state}</div>
+            <div className="font-editorial text-2xl">{f.city || user.city}</div>
           </div>
           {user.role === "owner" && (
             <div className="col-span-2">
@@ -284,24 +243,26 @@ export default function Onboarding() {
             </div>
           )}
           {user.role === "influencer" && (
-            <div className="col-span-2">
-              <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Categories</div>
-              <div className="font-mono text-xs uppercase leading-relaxed text-[#FF3B30]">{categories.join(" · ")}</div>
-            </div>
+            <>
+                <div className="col-span-2">
+                <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Category</div>
+                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF3B30]">{f.category}</div>
+                </div>
+                <div className="col-span-2">
+                <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Languages</div>
+                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF3B30]">{f.languages.join(", ")}</div>
+                </div>
+            </>
           )}
         </div>
 
         {error && <div className="text-[#FF3B30] font-mono text-xs">{error}</div>}
 
         <div className="flex justify-between items-center">
-          <button onClick={() => setStep(step - 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
+          <button onClick={() => setStep(user.role === "influencer" ? 3 : 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
             ← Back
           </button>
-          <button 
-            onClick={submitProfile}
-            disabled={submitting}
-            className="btn-solid disabled:opacity-50"
-          >
+          <button onClick={submitProfile} disabled={submitting} className="btn-solid disabled:opacity-50">
             {submitting ? "Confirming..." : "Confirm & Enter Studio"}
           </button>
         </div>
@@ -320,7 +281,7 @@ function Layout({ step, title, subtitle, children }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           key={step}
-          className="w-full max-w-2xl"
+          className="w-full max-w-3xl"
         >
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#FF3B30]">
             {subtitle}

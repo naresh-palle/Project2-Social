@@ -1,258 +1,487 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Trash2, Send, Sparkles, Loader2, X } from "lucide-react";
 import { Nav } from "@/components/Nav";
+import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { api, formatApiError } from "@/lib/api";
+import { Users, DollarSign, Activity, Bell, Search, Download, Calendar, ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, Trash2 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast, Toaster } from "sonner";
+import { useNavigate } from "react-router-dom";
+
+const CATEGORIES = [
+  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
+  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
+  "Travel & Adventure", "Business & Entrepreneurship", 
+  "Entertainment & Gaming", "Education & Learning", "Other"
+];
 
 export default function Admin() {
   const { user } = useAuth();
-  const [tab, setTab] = useState("users");
-  const [users, setUsers] = useState([]);
-  const [camps, setCamps] = useState([]);
+  const nav = useNavigate();
+  
+  const [tab, setTab] = useState("overview"); // overview, users
+  
+  const [stats, setStats] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [requests, setRequests] = useState([]);
+  
+  const [usersList, setUsersList] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  
+  const [loading, setLoading] = useState(true);
+  
+  const [timeFilter, setTimeFilter] = useState("This Month");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // User Filters
+  const [roleFilter, setRoleFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  // Pitch Modal State
-  const [pitchUser, setPitchUser] = useState(null);
-  const [pitchForm, setPitchForm] = useState({ target_email: "", target_role: "owner", subject: "", body: "" });
-  const [pitchGenerating, setPitchGenerating] = useState(false);
-  const [pitchSending, setPitchSending] = useState(false);
+  // Mock notifications
+  const notifications = [
+      { id: 1, text: "New creator '@zara_fashion' registered", time: "2 mins ago", type: "success" },
+      { id: 2, text: "API Synchronization failed for YouTube", time: "1 hr ago", type: "error" },
+      { id: 3, text: "Payment of ₹45,000 completed", time: "3 hrs ago", type: "success" },
+      { id: 4, text: "3 new agency verification requests pending", time: "5 hrs ago", type: "warning" }
+  ];
 
-  const load = async () => {
-    if (user?.role !== "admin") return;
-    const [u, c] = await Promise.all([api.get("/admin/users"), api.get("/admin/campaigns")]);
-    setUsers(u.data);
-    setCamps(c.data);
-  };
   useEffect(() => {
+    async function load() {
+      try {
+        const [stRes, actRes, payRes, reqRes] = await Promise.all([
+          api.get("/admin/dashboard-stats"),
+          api.get("/admin/recent-activity"),
+          api.get("/admin/payments"),
+          api.get("/admin/requests")
+        ]);
+        setStats(stRes.data);
+        setActivity(actRes.data);
+        setPayments(payRes.data);
+        setRequests(reqRes.data);
+      } catch (e) {
+        toast.error("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    }
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
-  if (user && user.role !== "admin") {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pt-40 px-10">
-        <Nav />
-        <h1 className="font-editorial italic text-5xl">Admins only.</h1>
-      </div>
-    );
+  useEffect(() => {
+      if (tab === "users") fetchUsers();
+  }, [tab, roleFilter, categoryFilter, statusFilter, searchQuery]);
+
+  const fetchUsers = async () => {
+      setUsersLoading(true);
+      try {
+          const params = new URLSearchParams();
+          if (roleFilter) params.append("role", roleFilter);
+          if (categoryFilter) params.append("category", categoryFilter);
+          if (statusFilter) params.append("status", statusFilter);
+          if (searchQuery) params.append("q", searchQuery);
+          
+          const { data } = await api.get(`/admin/users?${params.toString()}`);
+          setUsersList(data);
+      } catch (e) {
+          toast.error("Failed to load users");
+      } finally {
+          setUsersLoading(false);
+      }
+  };
+
+  const deleteUser = async (userId) => {
+      if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
+      try {
+          await api.delete(`/admin/users/${userId}`);
+          toast.success("User deleted successfully");
+          fetchUsers();
+          // Optionally refresh dashboard stats
+          const stRes = await api.get("/admin/dashboard-stats");
+          setStats(stRes.data);
+      } catch (e) {
+          toast.error("Failed to delete user");
+      }
+  };
+
+  const exportCSV = () => {
+      let rows = [];
+      let filename = "export.csv";
+      
+      if (tab === "overview") {
+          rows = [["Payment ID", "Creator", "Brand", "Campaign", "Amount", "Status", "Date"]];
+          payments.forEach(p => {
+              rows.push([p.id, p.creator, p.brand, p.campaign, p.amount, p.status, new Date(p.date).toLocaleDateString()]);
+          });
+          filename = "payments_export.csv";
+      } else if (tab === "users") {
+          rows = [["Name", "Email", "Role", "Category/Industry", "Location", "Date Joined"]];
+          usersList.forEach(u => {
+              rows.push([u.name, u.email, u.role, u.category || u.industry || "N/A", u.city || "N/A", new Date(u.created_at).toLocaleDateString()]);
+          });
+          filename = "users_export.csv";
+      }
+      
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Export successful");
+  };
+
+  if (!user || user.role !== "admin") {
+      nav("/dashboard");
+      return null;
   }
 
-  const verify = async (id) => {
-    try { await api.post(`/admin/users/${id}/verify`); toast.success("Verified"); load(); }
-    catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
-  };
-  const approveAgent = async (id) => {
-    try { await api.post(`/admin/approve-agent/${id}`); toast.success("Agent Approved"); load(); }
-    catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
-  };
-  const del = async (id) => {
-    try { await api.delete(`/admin/campaigns/${id}`); toast.success("Deleted"); load(); }
-    catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
-  };
+  if (loading) return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
+        <div className="animate-pulse font-mono tracking-widest text-sm flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" /> Initializing Super Admin...
+        </div>
+      </div>
+  );
 
-  const generatePitch = async () => {
-    setPitchGenerating(true);
-    try {
-      const { data } = await api.post("/admin/ai-pitch", { influencer_id: pitchUser.id, target_role: pitchForm.target_role });
-      setPitchForm(f => ({ ...f, subject: data.subject, body: data.body }));
-      toast.success("AI Draft generated.");
-    } catch (e) {
-      toast.error("Failed to generate AI pitch.");
-    } finally {
-      setPitchGenerating(false);
-    }
-  };
+  const revenueData = [
+      { name: 'Jan', revenue: 10000, payments: 66000 },
+      { name: 'Feb', revenue: 15000, payments: 100000 },
+      { name: 'Mar', revenue: 22000, payments: 146000 },
+      { name: 'Apr', revenue: 35000, payments: 233000 },
+      { name: 'May', revenue: 42000, payments: 280000 },
+      { name: 'Jun', revenue: stats.financial.revenue, payments: stats.financial.total_payments }
+  ];
 
-  const sendPitch = async () => {
-    if (!pitchForm.target_email || !pitchForm.subject || !pitchForm.body) {
-      toast.error("Complete all fields."); return;
-    }
-    setPitchSending(true);
-    try {
-      await api.post("/admin/send-pitch", { 
-        influencer_id: pitchUser.id, 
-        target_email: pitchForm.target_email,
-        subject: pitchForm.subject,
-        body: pitchForm.body
-      });
-      toast.success("Pitch sent successfully.");
-      setPitchUser(null);
-    } catch (e) {
-      toast.error("Failed to send pitch.");
-    } finally {
-      setPitchSending(false);
-    }
-  };
-
-  const targetOptions = users.filter(u => u.role === "owner" || u.role === "agent");
+  const platformData = [
+      { name: 'Active', value: stats.platform.active_users },
+      { name: 'Inactive', value: stats.users.creators + stats.users.brands - stats.platform.active_users }
+  ];
+  const COLORS = ['#34C759', '#FF3B30'];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
-      <div className="grain" />
+    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pb-24">
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
-        <div className="hairline-b pb-6">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Admin console</p>
-          <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
-            The <span className="italic">register</span><span className="tick">.</span>
-          </h1>
-        </div>
-
-        <div className="flex gap-8 mt-6 font-mono text-[11px] tracking-[0.28em] uppercase">
-          {["users", "campaigns"].map(t => (
-            <button key={t} onClick={() => setTab(t)} data-testid={`admin-tab-${t}`}
-              className={`kinetic-underline ${tab === t ? "text-[#FF3B30]" : "opacity-60"}`}>
-              {t === "users" ? `Users · ${users.length}` : `Campaigns · ${camps.length}`}
-            </button>
-          ))}
-        </div>
-
-        {tab === "users" ? (
-          <div className="mt-8 space-y-2">
-            {users.map((u, i) => (
-              <motion.div key={u.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.02 }}
-                data-testid={`admin-user-${u.id}`}
-                className="hairline-b py-4 grid grid-cols-12 gap-4 items-baseline">
-                <div className="col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <div className="col-span-3 flex items-center gap-3">
-                  {u.avatar ? (
-                    <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full object-cover filter grayscale" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-mono text-[10px] opacity-70">{u.name.charAt(0)}</div>
-                  )}
-                  <div>
-                    <div className="font-editorial text-2xl leading-[1.15]">{u.name}</div>
-                    <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 mt-1">
-                      {u.handle || u.company}
-                    </div>
-                  </div>
-                </div>
-                <div className="col-span-3 font-mono text-[11px] opacity-70">{u.email}</div>
-                <div className="col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase">
-                  <span className={u.role === "admin" ? "text-[#FF3B30]" : "opacity-80"}>{u.role}</span>
-                </div>
-                <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
-                  {u.verified ? <span className="text-[#FF3B30]">✓ verified</span> : <span className="opacity-60">unverified</span>}
-                </div>
-                <div className="col-span-2 text-right flex gap-2 justify-end">
-                  {u.role === "influencer" && (
-                     <button onClick={() => {
-                        setPitchUser(u);
-                        setPitchForm({ target_email: "", target_role: "owner", subject: "", body: "" });
-                     }} data-testid={`admin-pitch-${u.id}`}
-                      className="btn-pill text-[10px]"><Send className="w-3 h-3" /> Pitch</button>
-                  )}
-                  {!u.verified && (
-                    <button onClick={() => verify(u.id)} data-testid={`admin-verify-${u.id}`}
-                      className="btn-pill text-[10px]"><Shield className="w-3 h-3" /></button>
-                  )}
-                  {u.role === "agent" && !u.agent_approved && (
-                    <button onClick={() => approveAgent(u.id)} data-testid={`admin-approve-agent-${u.id}`}
-                      className="btn-pill text-[10px] border-[#FF3B30] text-[#FF3B30]">Approve</button>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-8 space-y-2">
-            {camps.map((c, i) => (
-              <motion.div key={c.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.02 }}
-                data-testid={`admin-camp-${c.id}`}
-                className="hairline-b py-4 grid grid-cols-12 gap-4 items-baseline">
-                <div className="col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <div className="col-span-5">
-                  <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{c.brand}</div>
-                  <Link to={`/campaigns/${c.id}`} className="font-editorial text-2xl kinetic-underline">{c.title}</Link>
-                </div>
-                <div className="col-span-2 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">${c.budget}</div>
-                <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
-                  <span className={c.status === "completed" ? "text-[#FF3B30]" : "opacity-80"}>{c.status}</span>
-                </div>
-                <div className="col-span-2 text-right">
-                  <button onClick={() => del(c.id)} data-testid={`admin-delete-${c.id}`} className="btn-pill text-[10px]">
-                    <Trash2 className="w-3 h-3" /> Remove
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <AnimatePresence>
-        {pitchUser && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-              className="bg-[#0A0A0A] border border-white/10 w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
-              
-              <div className="flex items-center justify-between pb-6 hairline-b">
-                <div>
-                  <h3 className="font-editorial text-4xl italic">AI Pitch Portfolio</h3>
-                  <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-2">Target: {pitchUser.name}</p>
-                </div>
-                <button onClick={() => setPitchUser(null)} className="text-white/50 hover:text-white transition-colors">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="mt-8 space-y-6">
-                <div>
-                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">1. Select Target Brand/Agent</label>
-                  <select value={pitchForm.target_email} onChange={e => {
-                    const t = targetOptions.find(o => o.email === e.target.value);
-                    setPitchForm({...pitchForm, target_email: e.target.value, target_role: t ? t.role : "owner"});
-                  }} className="w-full bg-transparent border-b border-white/20 py-3 focus:outline-none focus:border-[#FF3B30]">
-                    <option value="" className="bg-[#0A0A0A]">Select a target...</option>
-                    {targetOptions.map(o => (
-                      <option key={o.id} value={o.email} className="bg-[#0A0A0A]">
-                        {o.name} ({o.company || o.role}) - {o.email}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="hairline-b pb-6">
-                  <button onClick={generatePitch} disabled={pitchGenerating || !pitchForm.target_email} className="btn-solid w-full justify-center">
-                    {pitchGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    {pitchGenerating ? "Generating draft..." : "2. Generate AI Draft"}
-                  </button>
-                </div>
-
-                {pitchForm.subject && (
-                  <div className="space-y-4 animate-in fade-in duration-500">
-                    <div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">Subject</label>
-                      <input type="text" value={pitchForm.subject} onChange={e => setPitchForm({...pitchForm, subject: e.target.value})}
-                        className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-[#FF3B30] font-editorial text-2xl" />
-                    </div>
-                    <div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-2 block">Pitch Body</label>
-                      <textarea rows={8} value={pitchForm.body} onChange={e => setPitchForm({...pitchForm, body: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 p-4 focus:outline-none focus:border-[#FF3B30] font-editorial text-lg leading-relaxed resize-none" />
-                    </div>
-
-                    <button onClick={sendPitch} disabled={pitchSending} className="btn-solid w-full justify-center bg-[#FF3B30] text-white hover:bg-white hover:text-black mt-4">
-                      {pitchSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      {pitchSending ? "Sending..." : "Send Portfolio Pitch"}
+      <div className="pt-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+        
+        {/* HEADER & TABS */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
+            <div>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 text-[#FF3B30]">Super Admin</p>
+                <h1 className="font-editorial text-5xl md:text-6xl leading-none mt-2">Platform Console</h1>
+                <div className="flex gap-6 mt-8 font-mono text-xs uppercase tracking-widest">
+                    <button 
+                        onClick={() => setTab("overview")} 
+                        className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}
+                    >
+                        Overview
                     </button>
-                  </div>
-                )}
-              </div>
+                    <button 
+                        onClick={() => setTab("users")} 
+                        className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}
+                    >
+                        User Management
+                    </button>
+                </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                <button onClick={exportCSV} className="btn-outline border-white/20 hover:border-white px-4 py-2 flex items-center gap-2">
+                    <Download className="w-4 h-4" /> Export {tab === "users" ? "Users" : "Data"}
+                </button>
+            </div>
+        </div>
+
+        {tab === "overview" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                {/* TOP STATS GRID */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                    <StatCard 
+                        title="Total Users" 
+                        value={stats.users.creators + stats.users.brands + stats.users.agencies} 
+                        sub={`${stats.users.creators} Creators · ${stats.users.brands} Brands`}
+                        icon={<Users className="w-5 h-5 text-blue-400" />}
+                        trend="+12%" pos={true}
+                    />
+                    <StatCard 
+                        title="Total Revenue" 
+                        value={`₹${(stats.financial.revenue / 1000).toFixed(1)}K`} 
+                        sub={`From ₹${(stats.financial.total_payments / 1000).toFixed(1)}K GMV`}
+                        icon={<DollarSign className="w-5 h-5 text-green-400" />}
+                        trend="+8%" pos={true}
+                    />
+                    <StatCard 
+                        title="Active Campaigns" 
+                        value={stats.campaigns.active} 
+                        sub={`Out of ${stats.campaigns.total} total campaigns`}
+                        icon={<Activity className="w-5 h-5 text-purple-400" />}
+                        trend="-2%" pos={false}
+                    />
+                    <StatCard 
+                        title="Pending Requests" 
+                        value={stats.requests.verification_requests + stats.requests.creator_requests} 
+                        sub={`${stats.requests.verification_requests} verifications waiting`}
+                        icon={<Bell className="w-5 h-5 text-orange-400" />}
+                        trend="+5%" pos={false}
+                    />
+                </div>
+
+                {/* CHARTS ROW */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                    <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
+                        <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6">Revenue & GMV Growth</h3>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={revenueData}>
+                                    <defs>
+                                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#34C759" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#34C759" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="name" stroke="rgba(244,244,240,0.2)" fontSize={10} />
+                                    <YAxis stroke="rgba(244,244,240,0.2)" fontSize={10} tickFormatter={v => `₹${v/1000}k`} />
+                                    <Tooltip contentStyle={{ backgroundColor: '#0A0A0A', borderColor: 'rgba(244,244,240,0.1)' }} itemStyle={{ color: '#F4F4F0' }} />
+                                    <Area type="monotone" dataKey="revenue" stroke="#34C759" fillOpacity={1} fill="url(#colorRev)" />
+                                    <Area type="monotone" dataKey="payments" stroke="rgba(244,244,240,0.3)" fill="none" strokeDasharray="3 3" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    
+                    <div className="p-6 border border-white/10 bg-white/[0.02] flex flex-col">
+                        <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6">Platform Activity</h3>
+                        <div className="flex-1 flex justify-center items-center">
+                            <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                    <Pie data={platformData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                        {platformData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip contentStyle={{ backgroundColor: '#0A0A0A', borderColor: 'rgba(244,244,240,0.1)' }} itemStyle={{ color: '#F4F4F0' }} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="flex justify-center gap-6 mt-4 font-mono text-[10px] tracking-widest uppercase opacity-80">
+                            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#34C759]" /> Active</div>
+                            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#FF3B30]" /> Inactive</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* BOTTOM ROW */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                    
+                    {/* PAYMENTS TABLE */}
+                    <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60">Recent Payments</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
+                                        <th className="p-3 font-normal">ID</th>
+                                        <th className="p-3 font-normal">Creator</th>
+                                        <th className="p-3 font-normal">Brand</th>
+                                        <th className="p-3 font-normal">Amount</th>
+                                        <th className="p-3 font-normal">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {payments.slice(0, 5).map((p, i) => (
+                                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-3 font-mono text-xs opacity-60">#{p.id}</td>
+                                            <td className="p-3 text-sm">{p.creator}</td>
+                                            <td className="p-3 text-sm opacity-80">{p.brand}</td>
+                                            <td className="p-3 font-mono text-sm text-[#FF3B30]">₹{p.amount.toLocaleString()}</td>
+                                            <td className="p-3">
+                                                <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">
+                                                    {p.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* NOTIFICATIONS & ACTIVITY */}
+                    <div className="space-y-6">
+                        <div className="p-6 border border-white/10 bg-white/[0.02]">
+                            <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6 flex items-center gap-2">
+                                <Bell className="w-3 h-3" /> System Alerts
+                            </h3>
+                            <div className="space-y-4">
+                                {notifications.map(n => (
+                                    <div key={n.id} className="flex items-start gap-3">
+                                        {n.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
+                                        {n.type === 'error' && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
+                                        {n.type === 'warning' && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
+                                        <div>
+                                            <p className="text-sm opacity-90 leading-snug">{n.text}</p>
+                                            <p className="font-mono text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="p-6 border border-white/10 bg-white/[0.02]">
+                            <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6">Recent Activity</h3>
+                            <div className="space-y-4">
+                                {activity.slice(0, 4).map((a, i) => (
+                                    <div key={i} className="flex justify-between items-center border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                                        <div>
+                                            <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">{a.type}</p>
+                                            <p className="text-sm mt-1">{a.user}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">{new Date(a.time).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </motion.div>
-          </motion.div>
         )}
-      </AnimatePresence>
+
+        {tab === "users" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-6">
+                
+                {/* ADVANCED FILTERS */}
+                <div className="p-6 border border-white/10 bg-white/[0.02] flex flex-wrap gap-4 items-center">
+                    <div className="font-mono text-[10px] tracking-widest uppercase opacity-60 flex items-center gap-2 mr-4">
+                        <Filter className="w-3 h-3" /> Filters
+                    </div>
+                    
+                    <div className="relative w-full md:w-64">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
+                        <input 
+                            className="w-full bg-black/50 border border-white/10 py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#FF3B30] transition-colors"
+                            placeholder="Search name, email, handle..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <select 
+                        className="bg-black/50 border border-white/10 py-2 px-4 text-sm focus:outline-none focus:border-[#FF3B30] transition-colors"
+                        value={roleFilter}
+                        onChange={e => setRoleFilter(e.target.value)}
+                    >
+                        <option value="">All Roles (Group)</option>
+                        <option value="influencer">Creator</option>
+                        <option value="owner">Brand</option>
+                        <option value="agent">Agency</option>
+                    </select>
+
+                    <select 
+                        className="bg-black/50 border border-white/10 py-2 px-4 text-sm focus:outline-none focus:border-[#FF3B30] transition-colors"
+                        value={categoryFilter}
+                        onChange={e => setCategoryFilter(e.target.value)}
+                    >
+                        <option value="">All Categories</option>
+                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+
+                    <select 
+                        className="bg-black/50 border border-white/10 py-2 px-4 text-sm focus:outline-none focus:border-[#FF3B30] transition-colors"
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending Verification</option>
+                    </select>
+                </div>
+
+                {/* USERS TABLE */}
+                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                    {usersLoading ? (
+                        <div className="p-12 text-center text-sm font-mono opacity-50">Loading users...</div>
+                    ) : (
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50 bg-black/40">
+                                    <th className="p-4 font-normal">User</th>
+                                    <th className="p-4 font-normal">Role</th>
+                                    <th className="p-4 font-normal">Category</th>
+                                    <th className="p-4 font-normal">Location</th>
+                                    <th className="p-4 font-normal">Joined</th>
+                                    <th className="p-4 font-normal">Status</th>
+                                    <th className="p-4 font-normal text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {usersList.length === 0 ? (
+                                    <tr><td colSpan="7" className="p-8 text-center text-sm opacity-50">No users found matching filters.</td></tr>
+                                ) : (
+                                    usersList.map((u, i) => (
+                                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-4">
+                                                <div className="font-editorial text-xl">{u.name}</div>
+                                                <div className="font-mono text-[10px] opacity-60 mt-1">{u.email}</div>
+                                            </td>
+                                            <td className="p-4 font-mono text-[10px] tracking-widest uppercase">
+                                                <span className={`px-2 py-1 border rounded-sm ${u.role === 'influencer' ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20' : u.role === 'owner' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}`}>
+                                                    {u.role === 'owner' ? 'Brand' : u.role === 'influencer' ? 'Creator' : 'Agency'}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-sm opacity-90">{u.category || u.industry || "N/A"}</td>
+                                            <td className="p-4 text-sm opacity-90">{u.city || "Global"}</td>
+                                            <td className="p-4 font-mono text-[10px] uppercase opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
+                                            <td className="p-4">
+                                                {u.role === "agent" && !u.agent_approved ? (
+                                                    <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">
+                                                        Pending
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">
+                                                        Active
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </motion.div>
+        )}
+
+      </div>
     </div>
   );
+}
+
+function StatCard({ title, value, sub, icon, trend, pos }) {
+    return (
+        <div className="p-6 border border-white/10 bg-white/[0.02] relative overflow-hidden group">
+            <div className="flex justify-between items-start">
+                <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">{title}</div>
+                <div className="p-2 bg-white/5 rounded-sm">{icon}</div>
+            </div>
+            <div className="font-editorial text-4xl mt-4 mb-1">{value}</div>
+            <div className="flex justify-between items-center mt-4">
+                <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{sub}</div>
+                <div className={`flex items-center gap-1 font-mono text-[10px] ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+                    {pos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {trend}
+                </div>
+            </div>
+        </div>
+    );
 }

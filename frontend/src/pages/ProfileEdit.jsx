@@ -1,17 +1,35 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Save, Plus, X, Upload } from "lucide-react";
+import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
-import { Sparkles, Loader2 } from "lucide-react";
 
-const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
-const PLATFORMS = ["instagram", "tiktok", "youtube", "twitter"];
+const CATEGORIES = [
+  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
+  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
+  "Travel & Adventure", "Business & Entrepreneurship", 
+  "Entertainment & Gaming", "Education & Learning", "Other"
+];
+const LANGUAGES = [
+  "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
+  "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili", 
+  "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia", 
+  "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu"
+];
+const CITIES = ["Mumbai", "Bangalore", "Hyderabad", "Delhi", "Pune", "Chennai", "Kolkata", "Pan-India", "Other"];
+const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
+const EXPERIENCES = ["0-6 months", "6-12 months", "1-2 years", "2-5 years", "5+ years"];
+const CONTENT_TYPES = [
+  "Instagram Posts (Photos)", "Instagram Reels (Short Videos)", "Instagram Stories",
+  "YouTube Shorts", "YouTube Long-form", "Twitter/X Threads", "Blog Posts / Articles", "Podcasts"
+];
+const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
+const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
 
 export default function ProfileEdit() {
   const { user, refresh } = useAuth();
@@ -19,6 +37,7 @@ export default function ProfileEdit() {
   const [f, setF] = useState(null);
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const [syncBusy, setSyncBusy] = useState(false);
   const avatarRef = useRef(null);
   const portfolioRef = useRef(null);
 
@@ -26,38 +45,44 @@ export default function ProfileEdit() {
     if (user) {
       setF({
         name: user.name || "",
+        handle: user.handle || "",
         bio: user.bio || "",
         avatar: user.avatar || "",
-        handle: user.handle || "",
+        city: user.city || "Bangalore",
+        availability: user.availability || "Immediately",
+        platform_metrics: user.platform_metrics || {
+          instagram: { handle: "", followers: 0, engagement: 0, views: 0 },
+          youtube: { handle: "", followers: 0, engagement: 0, views: 0 },
+          twitter: { handle: "", followers: 0, engagement: 0, views: 0 },
+          facebook: { handle: "", followers: 0, engagement: 0, views: 0 }
+        },
+        category: user.category || "",
+        languages: user.languages || [],
+        base_rate: user.base_rate || 0,
+        portfolio: user.portfolio || [],
+        past_campaigns: user.past_campaigns || [],
+        experience: user.experience || "",
+        content_types: user.content_types || [],
+        response_time: user.response_time || "",
+        
+        // for owners/agents
         company: user.company || "",
         industry: user.industry || "",
         website: user.website || "",
-        niches: user.niches || [],
-        platforms: user.platforms || [],
-        followers: user.followers || 0,
-        location: user.location || "",
-        portfolio: user.portfolio || [],
-        rate_card: user.rate_card || {},
       });
     }
   }, [user]);
 
-  if (!user) return null;
-  if (!f) return null;
+  if (!user || !f) return null;
   const isCreator = user.role === "influencer";
 
-  const toggle = (key, val) =>
+  const toggleArray = (key, val) =>
     setF({ ...f, [key]: f[key].includes(val) ? f[key].filter(x => x !== val) : [...f[key], val] });
 
+  // Portfolio Images
   const addPortfolio = () => setF({ ...f, portfolio: [...f.portfolio, ""] });
   const setPortfolio = (i, v) => setF({ ...f, portfolio: f.portfolio.map((p, j) => j === i ? v : p) });
   const removePortfolio = (i) => setF({ ...f, portfolio: f.portfolio.filter((_, j) => j !== i) });
-
-  const onAvatarPick = async (e) => {
-    const url = await uploadImage(e.target.files?.[0]);
-    if (url) { setF({ ...f, avatar: url }); toast.success("Avatar uploaded."); }
-    e.target.value = "";
-  };
   const onPortfolioPick = async (e) => {
     const files = Array.from(e.target.files || []);
     const urls = [];
@@ -69,14 +94,30 @@ export default function ProfileEdit() {
     e.target.value = "";
   };
 
+  // Past Campaigns
+  const addCampaign = () => setF({ ...f, past_campaigns: [...f.past_campaigns, { brand: "", title: "", result: "", date: "" }] });
+  const setCampaign = (i, key, v) => {
+    const c = [...f.past_campaigns];
+    c[i] = { ...c[i], [key]: v };
+    setF({ ...f, past_campaigns: c });
+  };
+  const removeCampaign = (i) => setF({ ...f, past_campaigns: f.past_campaigns.filter((_, j) => j !== i) });
+
+  const onAvatarPick = async (e) => {
+    const url = await uploadImage(e.target.files?.[0]);
+    if (url) { setF({ ...f, avatar: url }); toast.success("Avatar uploaded."); }
+    e.target.value = "";
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
       await api.patch("/auth/me", {
         ...f,
-        followers: Number(f.followers) || null,
+        base_rate: Number(f.base_rate) || 0,
         portfolio: f.portfolio.filter(Boolean),
+        past_campaigns: f.past_campaigns.filter(c => c.brand || c.title)
       });
       await refresh();
       toast.success("Profile saved.");
@@ -89,10 +130,27 @@ export default function ProfileEdit() {
   const runAiCuration = async () => {
     setAiBusy(true);
     try {
-      const { data } = await api.post("/ai/suggest-profile", { niches: f.niches, handle: f.handle });
+      const { data } = await api.post("/ai/suggest-profile", { handle: f.handle });
       if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
       if (data.portfolio && Array.isArray(data.portfolio)) {
           setF(prev => ({ ...prev, portfolio: [...prev.portfolio.filter(Boolean), ...data.portfolio] }));
+      }
+      if (data.category) setF(prev => ({ ...prev, category: data.category }));
+      if (data.languages) setF(prev => ({ ...prev, languages: data.languages }));
+      if (data.experience) setF(prev => ({ ...prev, experience: data.experience }));
+      if (data.content_types) setF(prev => ({ ...prev, content_types: data.content_types }));
+      if (data.response_time) setF(prev => ({ ...prev, response_time: data.response_time }));
+      if (data.base_rate) setF(prev => ({ ...prev, base_rate: data.base_rate }));
+      if (data.availability) setF(prev => ({ ...prev, availability: data.availability }));
+      if (data.past_campaigns) setF(prev => ({ ...prev, past_campaigns: data.past_campaigns }));
+      if (data.platform_metrics) {
+         setF(prev => ({
+             ...prev, 
+             platform_metrics: {
+                 ...prev.platform_metrics,
+                 ...data.platform_metrics
+             }
+         }));
       }
       toast.success("AI Curation applied.");
     } catch (e) {
@@ -102,13 +160,42 @@ export default function ProfileEdit() {
     }
   };
 
+  const refreshAnalytics = async () => {
+    setSyncBusy(true);
+    try {
+      await api.post("/creators/sync-analytics");
+      await refresh();
+      toast.success("Analytics successfully synchronized with external platforms.");
+    } catch (e) {
+      toast.error("Failed to sync analytics.");
+    } finally {
+      setSyncBusy(false);
+    }
+  };
+
+  const getCompletion = () => {
+    if (!isCreator) return 100;
+    let score = 0;
+    if (f.name) score += 10;
+    if (f.bio) score += 15;
+    if (f.avatar) score += 10;
+    if (f.city) score += 5;
+    if (f.category) score += 15;
+    if (f.languages?.length) score += 5;
+    if (f.base_rate > 0) score += 5;
+    if (f.portfolio?.length) score += 15;
+    if (Object.values(f.platform_metrics || {}).some(p => p && p.handle)) score += 20;
+    return score;
+  };
+  const completion = getCompletion();
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24">
-        <div className="flex items-end justify-between">
+      <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>
                 <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
@@ -116,101 +203,253 @@ export default function ProfileEdit() {
                 </h1>
             </div>
             {isCreator && (
-                <button onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white">
-                    {aiBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    {aiBusy ? "Curating…" : "AI Curation"}
-                </button>
-            )}
-        </div>
-
-        <motion.form onSubmit={submit} className="mt-12 space-y-8" data-testid="profile-form"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <F label="Name"><input required data-testid="pf-name" className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
-          {isCreator ? (
-            <F label="Handle"><input data-testid="pf-handle" className="inp" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="@yourhandle" /></F>
-          ) : (
-            <>
-              <F label="Company"><input data-testid="pf-company" className="inp" value={f.company} onChange={e=>setF({...f,company:e.target.value})} /></F>
-              <F label="Industry"><input data-testid="pf-industry" className="inp" value={f.industry} onChange={e=>setF({...f,industry:e.target.value})} /></F>
-              <F label="Website"><input data-testid="pf-website" className="inp" value={f.website} onChange={e=>setF({...f,website:e.target.value})} /></F>
-            </>
-          )}
-          <F label="Bio"><textarea data-testid="pf-bio" rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} placeholder="Say something worth reading." /></F>
-          <F label="Avatar">
-            <div className="flex items-center gap-4 mt-2">
-              {f.avatar && <img src={f.avatar} alt="" className="w-16 h-16 object-cover hairline-t hairline-b hairline-l hairline-r" />}
-              <input data-testid="pf-avatar" className="inp flex-1" value={f.avatar} onChange={e=>setF({...f,avatar:e.target.value})} placeholder="Paste URL or upload" />
-              <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} data-testid="pf-avatar-file" />
-              <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-pill text-[10px]">
-                <Upload className="w-3 h-3" /> Upload
-              </button>
-            </div>
-          </F>
-          <F label="Location"><input data-testid="pf-location" className="inp" value={f.location} onChange={e=>setF({...f,location:e.target.value})} placeholder="City, Country" /></F>
-
-          {isCreator && (
-            <>
-              <F label="Followers (total)"><input type="number" data-testid="pf-followers" className="inp" value={f.followers} onChange={e=>setF({...f,followers:e.target.value})} /></F>
-              <F label="Niches">
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {NICHES.map(n => (
-                    <button type="button" key={n} data-testid={`pf-niche-${n}`} onClick={()=>toggle("niches",n)}
-                      className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase ${
-                        f.niches.includes(n) ? "bg-[#FF3B30] text-[#F4F4F0]" : "hairline-t hairline-b hairline-l hairline-r"}`}>
-                      {n}
+                <div className="flex flex-col items-end gap-4">
+                  <div className="flex items-center gap-4">
+                      <div className="text-right">
+                          <div className="font-editorial text-2xl text-[#FF3B30]">{completion}%</div>
+                          <div className="font-mono text-[9px] tracking-widest uppercase opacity-60">Profile Completion</div>
+                      </div>
+                      <div className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center relative overflow-hidden">
+                          <div className="absolute inset-0 bg-[#FF3B30] opacity-20" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
+                      </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-4 py-2">
+                        {aiBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                        {aiBusy ? "Curating…" : "AI Curation"}
                     </button>
-                  ))}
-                </div>
-              </F>
-              <F label="Platforms">
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {PLATFORMS.map(n => (
-                    <button type="button" key={n} data-testid={`pf-platform-${n}`} onClick={()=>toggle("platforms",n)}
-                      className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase ${
-                        f.platforms.includes(n) ? "bg-[#FF3B30] text-[#F4F4F0]" : "hairline-t hairline-b hairline-l hairline-r"}`}>
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </F>
-              <F label="Portfolio images">
-                <div className="space-y-2 mt-2">
-                  {f.portfolio.map((p, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                      {p && <img src={p} alt="" className="w-14 h-14 object-cover" />}
-                      <input data-testid={`pf-portfolio-${i}`} className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} placeholder="https://..." />
-                      <button type="button" onClick={()=>removePortfolio(i)} className="p-2 opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
-                    </div>
-                  ))}
-                  <div className="flex gap-2 mt-2">
-                    <button type="button" onClick={addPortfolio} className="btn-pill" data-testid="pf-add-portfolio">
-                      <Plus className="w-4 h-4" /> Add URL
-                    </button>
-                    <input ref={portfolioRef} type="file" accept="image/*" multiple hidden onChange={onPortfolioPick} data-testid="pf-portfolio-file" />
-                    <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-pill" data-testid="pf-upload-portfolio">
-                      <Upload className="w-4 h-4" /> Upload files
+                    <button type="button" onClick={refreshAnalytics} disabled={syncBusy} className="btn-outline border-white/20 hover:border-white px-4 py-2">
+                        {syncBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                        {syncBusy ? "Syncing…" : "Refresh Analytics"}
                     </button>
                   </div>
                 </div>
+            )}
+        </div>
+
+        <motion.form onSubmit={submit} className="mt-16 space-y-16" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          
+          {/* SECTION 1: BASIC */}
+          <section className="space-y-6">
+              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic</h2>
+              <F label="Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Full name" /></F>
+              {isCreator ? (
+                <F label="Handle / Username *"><input required className="inp" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="@yourhandle" /></F>
+              ) : (
+                <>
+                  <F label="Company"><input className="inp" value={f.company} onChange={e=>setF({...f,company:e.target.value})} /></F>
+                  <F label="Industry"><input className="inp" value={f.industry} onChange={e=>setF({...f,industry:e.target.value})} /></F>
+                  <F label="Website"><input className="inp" value={f.website} onChange={e=>setF({...f,website:e.target.value})} /></F>
+                </>
+              )}
+              <F label="Bio / About *">
+                  <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} placeholder="Tell brands about you (Max 500 characters)" maxLength={500} />
+                  <div className="text-right text-[10px] opacity-40 mt-1">{f.bio.length}/500</div>
               </F>
-              <F label="Rate card (USD)">
-                <div className="grid grid-cols-3 gap-4 mt-2">
-                  {["reel", "story", "post", "video"].map(k => (
-                    <div key={k}>
-                      <label className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{k}</label>
-                      <input type="number" data-testid={`pf-rate-${k}`} className="inp"
-                        value={f.rate_card[k] || ""}
-                        onChange={e=>setF({...f, rate_card: {...f.rate_card, [k]: Number(e.target.value)}})} />
-                    </div>
-                  ))}
+              <F label="Profile Picture *">
+                <div className="flex items-center gap-4 mt-2">
+                  {f.avatar && <img src={f.avatar} alt="" className="w-16 h-16 object-cover hairline-t hairline-b hairline-l hairline-r" />}
+                  <input className="inp flex-1" value={f.avatar} onChange={e=>setF({...f,avatar:e.target.value})} placeholder="Paste URL or upload" />
+                  <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
+                  <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-pill text-[10px]">
+                    <Upload className="w-3 h-3" /> Upload
+                  </button>
                 </div>
               </F>
+          </section>
+
+          {/* LANGUAGES (Available for all) */}
+          <section className="space-y-6">
+              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">Languages You Speak</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {LANGUAGES.map(lang => (
+                      <label key={lang} className="flex items-center gap-3 cursor-pointer">
+                          <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleArray("languages", lang)} className="accent-[#FF3B30] w-4 h-4" />
+                          <span className="text-sm">{lang}</span>
+                      </label>
+                  ))}
+              </div>
+          </section>
+
+          {isCreator && (
+            <>
+              {/* SECTION 2: LOCATION */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">2. Location & Availability</h2>
+                  <div className="grid grid-cols-2 gap-6">
+                      <F label="City *">
+                          <select required className="inp" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
+                              <option value="" className="bg-[#0A0A0A]">Select City...</option>
+                              {CITIES.map(c => <option key={c} value={c} className="bg-[#0A0A0A]">{c}</option>)}
+                          </select>
+                      </F>
+                      <F label="Availability *">
+                          <select required className="inp" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
+                              <option value="" className="bg-[#0A0A0A]">Select Availability...</option>
+                              {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0A0A0A]">{a}</option>)}
+                          </select>
+                      </F>
+                  </div>
+              </section>
+
+              {/* SECTION 3: SOCIAL */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence</h2>
+                  <p className="text-xs opacity-60">Enter your handles and metrics. Metrics are publicly visible. Connect Facebook, Instagram, YouTube, and Twitter.</p>
+                  
+                  {PLATFORMS.map(plat => (
+                      <div key={plat} className="p-6 border border-white/10 bg-white/[0.02]">
+                          <div className="flex justify-between items-center mb-4">
+                              <div className="font-editorial text-3xl capitalize text-[#FF3B30]">{plat} {plat === "instagram" && "*"}</div>
+                              {f.platform_metrics[plat]?.last_synced && (
+                                  <div className="font-mono text-[9px] tracking-widest opacity-50">Last synced: {new Date(f.platform_metrics[plat].last_synced).toLocaleDateString()}</div>
+                              )}
+                          </div>
+                          
+                          <F label={`${plat} Handle`}>
+                              <input required={plat==="instagram"} className="inp font-mono text-sm" placeholder="@handle" 
+                                     value={f.platform_metrics[plat]?.handle || ""} 
+                                     onChange={e=>setF({
+                                         ...f, 
+                                         platform_metrics: {
+                                             ...f.platform_metrics, 
+                                             [plat]: {...(f.platform_metrics[plat] || {}), handle: e.target.value}
+                                         }
+                                     })} />
+                          </F>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+                              <F label={plat==="youtube" ? "Subscribers" : "Followers"}>
+                                  <input type="number" className="inp text-xl" placeholder="0"
+                                         value={f.platform_metrics[plat]?.followers || ""}
+                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
+                              </F>
+                              <F label="Engagement (%)">
+                                  <input type="number" step="0.1" className="inp text-xl" placeholder="0.0"
+                                         value={f.platform_metrics[plat]?.engagement || ""}
+                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
+                              </F>
+                              <F label="Views (3M)">
+                                  <input type="number" className="inp text-xl" placeholder="0"
+                                         value={f.platform_metrics[plat]?.views || ""}
+                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
+                              </F>
+                              <F label="Posts / Videos">
+                                  <input type="number" className="inp text-xl" placeholder="0"
+                                         value={f.platform_metrics[plat]?.posts || ""}
+                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
+                              </F>
+                          </div>
+                      </div>
+                  ))}
+              </section>
+
+              {/* SECTION 4: NICHE */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">4. Content Niche / Category *</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {CATEGORIES.map(c => (
+                          <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${f.category === c ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-white/10 hover:border-white/30"}`}>
+                              <input type="radio" name="category" value={c} checked={f.category === c} onChange={e=>setF({...f, category: e.target.value})} className="accent-[#FF3B30]" required />
+                              <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
+                          </label>
+                      ))}
+                  </div>
+              </section>
+
+              {/* SECTION 5: RATE */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
+                  <F label="Base Rate (INR) *">
+                      <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} placeholder="₹" />
+                  </F>
+              </section>
+
+              {/* SECTION 7: PORTFOLIO */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">7. Your Portfolio & Past Work</h2>
+                  
+                  <F label="Portfolio Images">
+                    <div className="space-y-2 mt-2">
+                      {f.portfolio.map((p, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          {p && <img src={p} alt="" className="w-14 h-14 object-cover" />}
+                          <input className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} placeholder="https://..." />
+                          <button type="button" onClick={()=>removePortfolio(i)} className="p-2 opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
+                        </div>
+                      ))}
+                      <div className="flex gap-2 mt-2">
+                        <button type="button" onClick={addPortfolio} className="btn-pill">
+                          <Plus className="w-4 h-4" /> Add Image URL
+                        </button>
+                        <input ref={portfolioRef} type="file" accept="image/*" multiple hidden onChange={onPortfolioPick} />
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-pill">
+                          <Upload className="w-4 h-4" /> Upload files
+                        </button>
+                      </div>
+                    </div>
+                  </F>
+
+                  <div className="mt-8">
+                      <F label="Past Campaigns (Optional)">
+                          <div className="space-y-4 mt-2">
+                              {f.past_campaigns.map((c, i) => (
+                                  <div key={i} className="p-4 border border-white/10 bg-white/[0.02] relative">
+                                      <button type="button" onClick={()=>removeCampaign(i)} className="absolute top-2 right-2 opacity-50 hover:opacity-100"><X className="w-4 h-4" /></button>
+                                      <div className="grid grid-cols-2 gap-4">
+                                          <input className="inp" placeholder="Brand Name (e.g. Zara)" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                          <input className="inp" placeholder="Date (e.g. June 2024)" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                          <input className="inp col-span-2" placeholder="Campaign Title (e.g. Summer Collection)" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                          <input className="inp col-span-2" placeholder="Result (e.g. 2M impressions, 50K engagement)" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                      </div>
+                                  </div>
+                              ))}
+                              <button type="button" onClick={addCampaign} className="btn-pill mt-2">
+                                <Plus className="w-4 h-4" /> Add Past Campaign
+                              </button>
+                          </div>
+                      </F>
+                  </div>
+              </section>
+
+              {/* SECTION 8: ADDITIONAL */}
+              <section className="space-y-6">
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">8. Additional Information</h2>
+                  
+                  <F label="Years of Experience *">
+                      <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
+                          <option value="" className="bg-[#0A0A0A]">Select Experience...</option>
+                          {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0A0A0A]">{ex}</option>)}
+                      </select>
+                  </F>
+
+                  <F label="Response Time *">
+                      <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
+                          <option value="" className="bg-[#0A0A0A]">Select Response Time...</option>
+                          {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0A0A0A]">{r}</option>)}
+                      </select>
+                  </F>
+
+                  <div className="pt-4">
+                      <F label="Content Types You Create *">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+                              {CONTENT_TYPES.map(type => (
+                                  <label key={type} className="flex items-center gap-3 cursor-pointer">
+                                      <input type="checkbox" checked={f.content_types.includes(type)} onChange={()=>toggleArray("content_types", type)} className="accent-[#FF3B30] w-4 h-4" />
+                                      <span className="text-sm">{type}</span>
+                                  </label>
+                              ))}
+                          </div>
+                      </F>
+                  </div>
+              </section>
             </>
           )}
 
-          <button disabled={busy} className="btn-solid" data-testid="pf-submit">
-            <Save className="w-4 h-4" /> {busy ? "Saving…" : "Save profile"}
-          </button>
+          <div className="pt-8">
+            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
+              <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
+            </button>
+          </div>
         </motion.form>
       </div>
       <Footer />

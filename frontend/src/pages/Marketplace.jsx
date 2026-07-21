@@ -7,7 +7,12 @@ import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 import { useLenis } from "@/lib/useLenis";
 
-const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
+const CATEGORIES = [
+  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
+  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
+  "Travel & Adventure", "Business & Entrepreneurship", 
+  "Entertainment & Gaming", "Education & Learning", "Other"
+];
 
 export default function Marketplace() {
   useLenis();
@@ -78,7 +83,7 @@ export default function Marketplace() {
         {/* Niche pills */}
         <div className="mt-6 flex flex-wrap gap-2">
           <Pill active={niche === ""} onClick={() => setNiche("")} label="All" />
-          {NICHES.map((n) => (
+          {CATEGORIES.map((n) => (
             <Pill key={n} active={niche === n} onClick={() => setNiche(n)} label={n} />
           ))}
         </div>
