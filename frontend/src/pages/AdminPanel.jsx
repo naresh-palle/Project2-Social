@@ -171,6 +171,7 @@ export function AdminPanel() {
                 <div className="flex gap-6 mt-8 font-mono text-xs uppercase tracking-widest">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
                     <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>User Management</button>
+                    <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit Logs</button>
                 </div>
             </div>
             
@@ -347,6 +348,47 @@ export function AdminPanel() {
                             </tbody>
                         </table>
                     )}
+                </div>
+            </motion.div>
+        )}
+
+        {tab === "audit" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
+                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
+                                <th className="p-4 font-normal">Timestamp</th>
+                                <th className="p-4 font-normal">User</th>
+                                <th className="p-4 font-normal">Action Type</th>
+                                <th className="p-4 font-normal">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {activity.length === 0 ? (
+                                <tr><td colSpan={4} className="p-12 text-center font-editorial italic text-2xl opacity-40">No recent activity</td></tr>
+                            ) : (
+                                activity.map((a, i) => (
+                                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                        <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-60">
+                                            {new Date(a.time).toLocaleString()}
+                                        </td>
+                                        <td className="p-4 text-sm opacity-90">{a.user}</td>
+                                        <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-80">{a.type}</td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-mono rounded-sm border ${
+                                                a.status === 'success' ? 'bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20' :
+                                                a.status === 'failed' ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20' :
+                                                'bg-white/5 text-white/70 border-white/10'
+                                            }`}>
+                                                {a.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </motion.div>
         )}

@@ -23,7 +23,7 @@ export default function Login() {
     setLoading(true);
     const r = await login(identifier, password);
     setLoading(false);
-    if (r.ok) nav(location.state?.from || "/dashboard");
+    if (r.ok) nav("/dashboard");
     else setErr(r.error);
   };
 
@@ -81,7 +81,7 @@ export default function Login() {
                       const decoded = jwtDecode(credentialResponse.credential);
                       const r = await googleLogin(decoded.email);
                       setLoading(false);
-                      if (r.ok) nav(location.state?.from || "/dashboard");
+                      if (r.ok) nav("/dashboard");
                       else setErr(r.error);
                     } catch (e) {
                       setLoading(false);

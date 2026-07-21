@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useLenis } from "@/lib/useLenis";
@@ -230,10 +230,10 @@ function Manifesto() {
   );
 }
 
-// ————— Split (Owners vs Influencers) —————
+// ————— Split (Owners vs Agents vs Influencers) —————
 function SplitView() {
-  const [hover, setHover] = useState(null); // 'owner' | 'influencer' | null
-  const ownBasis = hover === "owner" ? 62 : hover === "influencer" ? 38 : 50;
+  const [hover, setHover] = useState(null);
+
   return (
     <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0]">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-24 pb-6">
@@ -243,32 +243,33 @@ function SplitView() {
               § How it works
             </span>
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              Two doors · one studio
+              Three doors · one studio
             </span>
           </div>
         </FadeUp>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-24 pt-6 flex flex-col md:flex-row gap-1 min-h-[540px]">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 pt-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[520px]">
+        {/* Door 1: Brand Owners */}
         <motion.div
           onHoverStart={() => setHover("owner")}
           onHoverEnd={() => setHover(null)}
-          animate={{ flexBasis: `${ownBasis}%` }}
-          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-12 flex flex-col justify-between overflow-hidden"
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.4 }}
+          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-10 flex flex-col justify-between overflow-hidden bg-[#0D0D0D] border border-white/10 hover:border-[#FF3B30]/40 transition-colors"
           data-testid="split-owners"
         >
           <div>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              For the owners
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]">
+              01 — For the owners
             </span>
-            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.1]">
+            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
               Post your brief.
               <br />
               <span className="italic">Meet the mavericks.</span>
             </h3>
           </div>
-          <ul className="mt-10 font-mono text-[12px] tracking-[0.15em] uppercase space-y-3">
+          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3 opacity-80">
             <li><span className="tick">01 —</span> Brief in under 3 minutes</li>
             <li><span className="tick">02 —</span> Receive curated applications</li>
             <li><span className="tick">03 —</span> Contract, deliver, ship</li>
@@ -276,47 +277,230 @@ function SplitView() {
           <Link
             to="/register/owner"
             data-testid="split-owner-cta"
-            className="btn-pill mt-10 self-start"
+            className="btn-pill mt-8 self-start"
           >
             I&apos;m an owner <ArrowUpRight className="w-4 h-4" />
           </Link>
           <div
-            className="absolute -right-24 -bottom-24 h-[420px] w-[420px] rounded-full opacity-[0.06] blur-2xl"
+            className="absolute -right-24 -bottom-24 h-[320px] w-[320px] rounded-full opacity-[0.06] blur-2xl"
             style={{ background: "radial-gradient(circle, #FF3B30 0%, transparent 60%)" }}
           />
         </motion.div>
 
+        {/* Door 2: Talent Agents */}
+        <motion.div
+          onHoverStart={() => setHover("agent")}
+          onHoverEnd={() => setHover(null)}
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.4 }}
+          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-10 flex flex-col justify-between overflow-hidden bg-[#121212] border border-[#FF3B30]/30 hover:border-[#FF3B30] transition-colors"
+          data-testid="split-agents"
+        >
+          <div>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]">
+              02 — For Talent Agents
+            </span>
+            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
+              Manage your roster.
+              <br />
+              <span className="italic">Scale agency deals.</span>
+            </h3>
+          </div>
+          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3 opacity-80">
+            <li><span className="tick">01 —</span> Represent 50+ creators</li>
+            <li><span className="tick">02 —</span> AI Pitch &amp; auto-contracting</li>
+            <li><span className="tick">03 —</span> Verified escrow payouts</li>
+          </ul>
+          <Link
+            to="/register/agent"
+            data-testid="split-agent-cta"
+            className="btn-solid mt-8 self-start bg-[#FF3B30] text-white hover:bg-[#e03126]"
+          >
+            I&apos;m an agent <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
+
+        {/* Door 3: Influencers */}
         <motion.div
           onHoverStart={() => setHover("influencer")}
           onHoverEnd={() => setHover(null)}
-          animate={{ flexBasis: `${100 - ownBasis}%` }}
-          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative bg-[#F4F4F0] text-[#0A0A0A] paper p-8 md:p-12 flex flex-col justify-between overflow-hidden hairline-b"
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.4 }}
+          className="relative bg-[#F4F4F0] text-[#0A0A0A] paper p-8 md:p-10 flex flex-col justify-between overflow-hidden hairline-b"
           data-testid="split-influencers"
         >
           <div>
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              For the influencers
+              03 — For the creators
             </span>
-            <h3 className="font-editorial text-5xl md:text-7xl mt-4 leading-[1.1]">
+            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
               Build a body of work
               <br />
               <span className="italic">worth signing.</span>
             </h3>
           </div>
-          <ul className="mt-10 font-mono text-[12px] tracking-[0.15em] uppercase space-y-3">
+          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3">
             <li><span className="tick">01 —</span> Curated invites only</li>
             <li><span className="tick">02 —</span> Pitch on your terms</li>
-            <li><span className="tick">03 —</span> Get paid, keep the credit</li>
+            <li><span className="tick">03 —</span> Get paid, keep credit</li>
           </ul>
           <Link
             to="/register/influencer"
             data-testid="split-influencer-cta"
-            className="btn-pill mt-10 self-start text-[#0A0A0A]"
+            className="btn-pill mt-8 self-start text-[#0A0A0A]"
           >
             I&apos;m a creator <ArrowUpRight className="w-4 h-4" />
           </Link>
         </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ————— Agent Showcase (AI Data & Verified Agencies) —————
+const FALLBACK_AGENTS = [
+  {
+    id: "agent-1",
+    name: "Karan Agent",
+    company: "Karan Talent Agency",
+    bio: "Head Talent Director representing 45+ premier lifestyle, fashion, and tech creators across India & UAE. Negotiating high-value brand deals and long-term ambassadorships.",
+    industry: "Talent Management & Executive Representation",
+    location: "New Delhi, Delhi",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400&h=400",
+    niches: ["Celebrity Endorsements", "Creator Management", "Brand Contracts"],
+    website: "https://karantalent.com"
+  },
+  {
+    id: "agent-2",
+    name: "Rahul Agent",
+    company: "Rahul Talent Management",
+    bio: "Senior Representative specializing in tech reviewers, gaming streamers, and digital innovators. Streamlining brand deals, legal contracts, and multi-channel growth strategies.",
+    industry: "Digital Talent Strategy & Creator Relations",
+    location: "Bengaluru, Karnataka",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400&h=400",
+    niches: ["Tech Creators", "Gaming Management", "Esports Sponsorships"],
+    website: "https://rahultalent.in"
+  },
+  {
+    id: "agent-3",
+    name: "Karan Johar",
+    company: "Dharma Talent Management",
+    bio: "Executive Creative Director leading luxury brand integrations and celebrity creator collaborations. Bridging mainstream entertainment with digital influence.",
+    industry: "Entertainment & Celebrity Talent Management",
+    location: "Mumbai, Maharashtra",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400&h=400",
+    niches: ["Luxury Brand Deals", "Celebrity Management", "Film & Digital"],
+    website: "https://dharmatalent.com"
+  },
+  {
+    id: "agent-4",
+    name: "Shruti Hassan",
+    company: "South Stars Media",
+    bio: "Founder & Principal Talent Scout representing top South Asian lifestyle, music, and cinematic creators. Driving regional campaigns with pan-India reach.",
+    industry: "Regional & Pan-India Talent Representation",
+    location: "Hyderabad, Telangana",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=400",
+    niches: ["Regional Creators", "Cinema & Music", "Brand Partnerships"],
+    website: "https://southstarsmedia.com"
+  }
+];
+
+function AgentShowcase() {
+  const [agents, setAgents] = useState([]);
+
+  useEffect(() => {
+    api.get("/agents/public")
+      .then((r) => {
+        if (r.data && Array.isArray(r.data) && r.data.length > 0) {
+          setAgents(r.data);
+        } else {
+          setAgents(FALLBACK_AGENTS);
+        }
+      })
+      .catch(() => setAgents(FALLBACK_AGENTS));
+  }, []);
+
+  const displayAgents = agents.length > 0 ? agents : FALLBACK_AGENTS;
+
+  return (
+    <section id="agents-network" className="bg-[#0A0A0A] text-[#F4F4F0] py-20 border-t border-[#F4F4F0]/10">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="flex items-baseline justify-between hairline-b pb-6 mb-12">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" /> § AI Agent Network &amp; Talent Agencies
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              Verified Agencies · AI Roster Routing
+            </span>
+          </div>
+        </FadeUp>
+
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <h2 className="font-editorial text-4xl md:text-6xl leading-[1.1]">
+              Verified Agencies &amp; <span className="italic">AI Talent Directors<span className="tick">.</span></span>
+            </h2>
+            <p className="mt-3 font-mono text-[12px] tracking-[0.1em] uppercase text-[#F4F4F0]/60 max-w-xl">
+              Powering multi-creator rosters, AI pitch automation, contract negotiations, and enterprise escrow payouts.
+            </p>
+          </div>
+          <Link
+            to="/register/agent"
+            data-testid="agent-showcase-register"
+            className="btn-solid self-start shrink-0 flex items-center gap-2"
+          >
+            <Building2 className="w-4 h-4" /> Register Talent Agency <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {displayAgents.slice(0, 4).map((ag, i) => (
+            <FadeUp key={ag.id || i} delay={i * 0.08}>
+              <div 
+                className="group relative bg-[#121212] border border-[#F4F4F0]/10 hover:border-[#FF3B30]/40 p-6 flex flex-col justify-between h-full transition-all duration-500 rounded-sm overflow-hidden"
+                data-testid={`agent-card-${i}`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-4 mb-5">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden border border-[#F4F4F0]/20 shrink-0">
+                      <img 
+                        src={ag.avatar || FALLBACK_AGENTS[i % FALLBACK_AGENTS.length].avatar} 
+                        alt={ag.company || ag.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                    </div>
+                    <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] rounded-sm">
+                      <ShieldCheck className="w-3 h-3" /> Verified Agency
+                    </span>
+                  </div>
+
+                  <h3 className="font-editorial text-2xl group-hover:text-[#FF3B30] transition-colors leading-tight">
+                    {ag.company || ag.name}
+                  </h3>
+                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1 flex items-center gap-2">
+                    <Briefcase className="w-3 h-3 text-[#FF3B30]" /> {ag.name}
+                  </div>
+
+                  <div className="mt-3 font-mono text-[9px] tracking-[0.18em] uppercase text-[#FF3B30]/80 bg-white/[0.03] px-2.5 py-1 inline-block border border-white/5">
+                    {ag.industry || "Talent Representation"}
+                  </div>
+
+                  <p className="mt-4 font-mono text-[11px] leading-relaxed opacity-70 line-clamp-3">
+                    {ag.bio}
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
+                  <span>{ag.location || ag.city || "Pan-India"}</span>
+                  <span className="text-[#FF3B30] group-hover:translate-x-1 transition-transform">
+                    Explore Roster ↗
+                  </span>
+                </div>
+              </div>
+            </FadeUp>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -533,6 +717,7 @@ export default function Landing() {
       <EditorialMarquee />
       <Manifesto />
       <SplitView />
+      <AgentShowcase />
       <FeaturedGrid />
       <FAQ />
       <Numbers />

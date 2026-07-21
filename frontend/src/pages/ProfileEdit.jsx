@@ -73,6 +73,17 @@ export default function ProfileEdit() {
     }
   }, [user]);
 
+  // Handle Escape key to cancel editing
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        nav("/profile");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nav]);
+
   if (!user || !f) return null;
   const isCreator = user.role === "influencer";
 
@@ -215,7 +226,17 @@ export default function ProfileEdit() {
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24">
+      <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 relative">
+        {/* Close Button */}
+        <button 
+          type="button" 
+          onClick={() => nav("/profile")} 
+          className="absolute top-10 right-6 md:right-10 p-2 opacity-50 hover:opacity-100 transition-opacity"
+          title="Close (Esc)"
+        >
+          <X className="w-8 h-8" />
+        </button>
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>

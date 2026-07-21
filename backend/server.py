@@ -1319,10 +1319,6 @@ async def release_escrow(campaign_id: str, current: dict = Depends(get_current_u
 
 
 # ---------- Admin ----------
-@api_router.get("/admin/users")
-async def admin_users(current: dict = Depends(get_current_user)):
-    await require_role(current, ["admin"])
-    return await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(500)
 
 
 @api_router.get("/admin/campaigns")
@@ -1390,8 +1386,18 @@ async def stats():
     return {
         "creators": await db.users.count_documents({"role": "influencer"}),
         "owners": await db.users.count_documents({"role": "owner"}),
+        "agents": await db.users.count_documents({"role": "agent"}),
         "campaigns": await db.campaigns.count_documents({}),
     }
+
+
+@api_router.get("/agents/public")
+async def public_agents():
+    agents = await db.users.find(
+        {"role": "agent"},
+        {"_id": 0, "id": 1, "name": 1, "company": 1, "bio": 1, "avatar": 1, "industry": 1, "location": 1, "niches": 1, "city": 1, "state": 1, "website": 1, "agent_approved": 1}
+    ).to_list(20)
+    return agents
 
 
 @api_router.get("/")
@@ -1997,8 +2003,8 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
     except Exception as e:
         logger.warning("AI profile suggestion failed: %s", repr(e))
         name_str = inp.name or inp.handle or "creator"
-        base_bio = inp.bio or "Curating high-end aesthetics with a focus on luxury, design, and editorial storytelling."
-        fallback_bio = f"{name_str} — {base_bio} Specialized in {niches_str}."
+        # Return a static clean fallback to avoid infinite append loops
+        fallback_bio = f"Curating high-end aesthetics with a focus on luxury and design. Specialized in {niches_str}."
         # Fallback to mock data if their API key is invalid or missing
         return {
             "bio": fallback_bio,
