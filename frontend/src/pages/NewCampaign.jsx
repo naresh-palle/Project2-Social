@@ -15,7 +15,7 @@ export default function NewCampaign() {
   const nav = useNavigate();
   const [f, setF] = useState({
     title: "", brand: user?.company || "", description: "", budget: 1000,
-    deliverables: "", cover: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
+    deliverables: "", cover: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
   });
   const [niches, setNiches] = useState([]);
   const [platforms, setPlatforms] = useState([]);

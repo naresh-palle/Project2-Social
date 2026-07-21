@@ -517,7 +517,7 @@ const FEATURED = [
   },
   {
     span: "md:col-span-6",
-    img: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
+    img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 02",
     title: "Bottle No.7 launch",
     meta: "Luxury Product · 3-day sold out",
