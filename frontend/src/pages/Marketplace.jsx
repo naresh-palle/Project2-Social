@@ -72,7 +72,6 @@ export default function Marketplace() {
                 data-testid="search-input"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="search…"
                 className="bg-transparent focus:outline-none w-40 md:w-64 font-mono text-sm"
               />
             </div>
@@ -158,7 +157,7 @@ export default function Marketplace() {
                   <div className="col-span-6 md:col-span-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
                     {(c.niches || []).join(" · ")}
                   </div>
-                  <div className="col-span-3 md:col-span-2 font-editorial italic text-2xl">${c.budget}</div>
+                  <div className="col-span-3 md:col-span-2 font-editorial italic text-2xl">₹{c.budget}</div>
                   <div className="col-span-3 md:col-span-1 text-right font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] group-hover:translate-x-1 transition-transform">
                     View →
                   </div>

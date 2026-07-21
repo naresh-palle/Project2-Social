@@ -53,11 +53,11 @@ export default function Wallet() {
           <div className="col-span-12 md:col-span-7 hairline-t hairline-b hairline-l hairline-r p-10">
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Available balance</div>
             <div className="font-editorial text-[10rem] leading-[1.15] mt-2 italic">
-              ${w.balance.toLocaleString()}
+              ₹{w.balance.toLocaleString()}
               <span className="tick">.</span>
             </div>
             <div className="mt-6 font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">
-              All balances are recorded in USD · mock escrow
+              All balances are recorded in INR · mock escrow
             </div>
           </div>
           <div className="col-span-12 md:col-span-5 hairline-t hairline-b hairline-l hairline-r p-8">
@@ -65,7 +65,6 @@ export default function Wallet() {
               {isOwner ? "Add funds (mock deposit)" : "Withdraw (mock payout)"}
             </div>
             <input type="number" data-testid="wallet-amount" value={amount} onChange={e => setAmount(e.target.value)}
-              placeholder="Amount USD"
               className="mt-4 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-3xl font-editorial italic" />
             <button data-testid="wallet-submit" disabled={busy || !amount}
               onClick={() => doTx(isOwner ? "deposit" : "withdraw")}
@@ -89,7 +88,7 @@ export default function Wallet() {
               <div className="col-span-3 font-mono text-[11px] tracking-[0.22em] uppercase">{t.kind}</div>
               <div className="col-span-5 opacity-80 text-sm">{t.note}</div>
               <div className={`col-span-2 text-right font-editorial italic text-2xl ${t.amount >= 0 ? "text-[#FF3B30]" : ""}`}>
-                {t.amount >= 0 ? "+" : ""}${t.amount.toLocaleString()}
+                {t.amount >= 0 ? "+" : ""}₹{t.amount.toLocaleString()}
               </div>
             </div>
           ))}

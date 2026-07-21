@@ -173,7 +173,6 @@ export default function Onboarding() {
                     <div>
                         <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Handle / Link</label>
                         <input className="w-full bg-transparent border-b border-white/10 py-2 focus:outline-none focus:border-[#FF3B30] text-lg mt-2" 
-                               placeholder="@handle" 
                                value={f.platform_metrics[plat]?.handle || ""} 
                                onChange={e=>setF({
                                    ...f, 

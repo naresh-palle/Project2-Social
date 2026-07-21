@@ -270,8 +270,7 @@ export default function CampaignDetail() {
                         className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Note</label>
                       <textarea rows={3} data-testid="quick-invite-msg" value={inviteMsg} onChange={e=>setInviteMsg(e.target.value)}
-                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none"
-                        placeholder="Why this creator, why this brief." />
+                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                       <button onClick={sendInviteQuick} data-testid="quick-invite-send" className="btn-solid mt-6 w-full justify-center">
                         <Send className="w-4 h-4" /> Send invitation
                       </button>
@@ -292,10 +291,9 @@ export default function CampaignDetail() {
                     {["reel","story","post","video","other"].map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                   <input required data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}
-                    placeholder="Link to published content"
                     className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
                   <textarea data-testid="deliv-caption" value={delivForm.caption} onChange={e=>setDelivForm({...delivForm,caption:e.target.value})}
-                    rows={2} placeholder="Caption / note"
+                    rows={2}
                     className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                   <button data-testid="deliv-submit" className="btn-solid"><Upload className="w-4 h-4" /> Submit</button>
                 </form>
@@ -359,7 +357,7 @@ export default function CampaignDetail() {
                     <div>
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your pitch</label>
                       <textarea required data-testid="apply-pitch" value={pitch} onChange={(e) => setPitch(e.target.value)}
-                        rows={5} placeholder="What would you do with this brief?"
+                        rows={5}
                         className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                     </div>
                     <div>
@@ -414,8 +412,7 @@ function ReviewBlock({ campaignId, targetId }) {
               </button>
             ))}
           </div>
-          <textarea data-testid="review-text" value={text} onChange={e=>setText(e.target.value)} rows={3}
-            placeholder="A few honest words." className="mt-4 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+          <textarea data-testid="review-text" value={text} onChange={e=>setText(e.target.value)} rows={3} className="mt-4 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
           <button onClick={submit} data-testid="review-submit" className="btn-solid mt-4">
             <Send className="w-4 h-4" /> Submit review
           </button>

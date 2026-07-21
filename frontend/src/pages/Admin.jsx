@@ -146,10 +146,12 @@ export default function Admin() {
       </div>
   );
 
-  if (tab === "overview" && !stats) {
+  if (!stats) {
       return (
-          <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
-              <div className="font-mono text-sm opacity-60">Failed to load platform overview. Refresh to try again.</div>
+          <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center text-[#F4F4F0] p-6 text-center">
+              <div className="font-editorial text-3xl text-[#FF3B30] mb-2">Studio Offline</div>
+              <div className="font-mono text-xs opacity-60 max-w-md">The admin console could not retrieve secure data from the server. Please ensure the backend is running and refresh the page.</div>
+              <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 border border-white/20 text-xs font-mono uppercase tracking-widest hover:bg-white/5 transition">Hard Refresh</button>
           </div>
       );
   }
@@ -160,12 +162,12 @@ export default function Admin() {
       { name: 'Mar', revenue: 22000, payments: 146000 },
       { name: 'Apr', revenue: 35000, payments: 233000 },
       { name: 'May', revenue: 42000, payments: 280000 },
-      { name: 'Jun', revenue: stats.financial.revenue, payments: stats.financial.total_payments }
+      { name: 'Jun', revenue: stats?.financial?.revenue || 0, payments: stats?.financial?.total_payments || 0 }
   ];
 
   const platformData = [
-      { name: 'Active', value: stats.platform.active_users },
-      { name: 'Inactive', value: stats.users.creators + stats.users.brands - stats.platform.active_users }
+      { name: 'Active', value: stats?.platform?.active_users || 0 },
+      { name: 'Inactive', value: ((stats?.users?.creators || 0) + (stats?.users?.brands || 0)) - (stats?.platform?.active_users || 0) }
   ];
   const COLORS = ['#34C759', '#FF3B30'];
 
@@ -209,29 +211,29 @@ export default function Admin() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                     <StatCard 
                         title="Total Users" 
-                        value={stats.users.creators + stats.users.brands + stats.users.agencies} 
-                        sub={`${stats.users.creators} Creators · ${stats.users.brands} Brands`}
+                        value={(stats?.users?.creators || 0) + (stats?.users?.brands || 0) + (stats?.users?.agencies || 0)} 
+                        sub={`${stats?.users?.creators || 0} Creators · ${stats?.users?.brands || 0} Brands`}
                         icon={<Users className="w-5 h-5 text-blue-400" />}
                         trend="+12%" pos={true}
                     />
                     <StatCard 
                         title="Total Revenue" 
-                        value={`₹${(stats.financial.revenue / 1000).toFixed(1)}K`} 
-                        sub={`From ₹${(stats.financial.total_payments / 1000).toFixed(1)}K GMV`}
+                        value={`₹${((stats?.financial?.revenue || 0) / 1000).toFixed(1)}K`} 
+                        sub={`From ₹${((stats?.financial?.total_payments || 0) / 1000).toFixed(1)}K GMV`}
                         icon={<DollarSign className="w-5 h-5 text-green-400" />}
                         trend="+8%" pos={true}
                     />
                     <StatCard 
                         title="Active Campaigns" 
-                        value={stats.campaigns.active} 
-                        sub={`Out of ${stats.campaigns.total} total campaigns`}
+                        value={stats?.campaigns?.active || 0} 
+                        sub={`Out of ${stats?.campaigns?.total || 0} total campaigns`}
                         icon={<Activity className="w-5 h-5 text-purple-400" />}
                         trend="-2%" pos={false}
                     />
                     <StatCard 
                         title="Pending Requests" 
-                        value={stats.requests.verification_requests + stats.requests.creator_requests} 
-                        sub={`${stats.requests.verification_requests} verifications waiting`}
+                        value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0)} 
+                        sub={`${stats?.requests?.verification_requests || 0} verifications waiting`}
                         icon={<Bell className="w-5 h-5 text-orange-400" />}
                         trend="+5%" pos={false}
                     />
@@ -373,7 +375,6 @@ export default function Admin() {
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
                         <input 
                             className="w-full bg-black/50 border border-white/10 py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#FF3B30] transition-colors"
-                            placeholder="Search name, email, handle..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                         />

@@ -145,7 +145,6 @@ export default function Messages() {
                 <form onSubmit={send} className="hairline-t p-4 flex gap-3">
                   <input value={text} onChange={e => setText(e.target.value)}
                     data-testid="msg-input"
-                    placeholder="Write a note…"
                     className="flex-1 bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-2" />
                   <button data-testid="msg-send" className="btn-solid">
                     <Send className="w-4 h-4" /> Send

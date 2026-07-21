@@ -100,7 +100,6 @@ export default function NewCampaign() {
             </div>
             <p className="mt-2 text-sm opacity-70">Describe your goal in one line. We'll draft the brief.</p>
             <textarea rows={3} data-testid="ai-goal" value={aiGoal} onChange={e => setAiGoal(e.target.value)}
-              placeholder="e.g. Launch a premium skincare product for women 18-35"
               className="mt-3 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
             <div className="mt-4 flex justify-end">
               <button onClick={runAI} disabled={aiBusy} data-testid="ai-generate" className="btn-solid">
@@ -111,15 +110,15 @@ export default function NewCampaign() {
         )}
 
         <form onSubmit={submit} className="mt-10 space-y-8" data-testid="new-campaign-form">
-          <Row label="Title"><input required data-testid="cf-title" value={f.title} onChange={change("title")} className="inp" placeholder="Fall Edit — Silhouettes" /></Row>
-          <Row label="Brand"><input required data-testid="cf-brand" value={f.brand} onChange={change("brand")} className="inp" placeholder="Studio Noir" /></Row>
+          <Row label="Title"><input required data-testid="cf-title" value={f.title} onChange={change("title")} className="inp" /></Row>
+          <Row label="Brand"><input required data-testid="cf-brand" value={f.brand} onChange={change("brand")} className="inp" /></Row>
           <Row label="Description"><textarea required data-testid="cf-desc" value={f.description} onChange={change("description")} rows={5} className="inp resize-none" /></Row>
           <Row label="Deliverables"><input required data-testid="cf-deliv" value={f.deliverables} onChange={change("deliverables")} className="inp" /></Row>
           <Row label="Budget (USD)"><input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" /></Row>
           <Row label="Cover image">
             <div className="flex items-center gap-4 mt-2">
               {f.cover && <img src={f.cover} alt="" className="w-16 h-20 object-cover" />}
-              <input data-testid="cf-cover" value={f.cover} onChange={change("cover")} className="inp flex-1" placeholder="Paste URL or upload" />
+              <input data-testid="cf-cover" value={f.cover} onChange={change("cover")} className="inp flex-1" />
               <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} data-testid="cf-cover-file" />
               <button type="button" onClick={() => coverRef.current?.click()} className="btn-pill text-[10px]" data-testid="cf-cover-upload">
                 <Upload className="w-3 h-3" /> Upload

@@ -130,7 +130,7 @@ export default function ProfileEdit() {
   const runAiCuration = async () => {
     setAiBusy(true);
     try {
-      const { data } = await api.post("/ai/suggest-profile", { handle: f.handle });
+      const { data } = await api.post("/ai/suggest-profile", { handle: f.handle, niches: [f.category || "General"] });
       if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
       if (data.portfolio && Array.isArray(data.portfolio)) {
           setF(prev => ({ ...prev, portfolio: [...prev.portfolio.filter(Boolean), ...data.portfolio] }));
@@ -213,16 +213,10 @@ export default function ProfileEdit() {
                           <div className="absolute inset-0 bg-[#FF3B30] opacity-20" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
                       </div>
                   </div>
-                  <div className="flex gap-3">
-                    <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-4 py-2">
-                        {aiBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                        {aiBusy ? "Curating…" : "AI Curation"}
-                    </button>
                     <button type="button" onClick={refreshAnalytics} disabled={syncBusy} className="btn-outline border-white/20 hover:border-white px-4 py-2">
                         {syncBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                         {syncBusy ? "Syncing…" : "Refresh Analytics"}
                     </button>
-                  </div>
                 </div>
             )}
         </div>
@@ -232,9 +226,9 @@ export default function ProfileEdit() {
           {/* SECTION 1: BASIC */}
           <section className="space-y-6">
               <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic</h2>
-              <F label="Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Full name" /></F>
+              <F label="Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
               {isCreator ? (
-                <F label="Handle / Username *"><input required className="inp" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="@yourhandle" /></F>
+                <F label="Handle / Username *"><input required className="inp" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} /></F>
               ) : (
                 <>
                   <F label="Company"><input className="inp" value={f.company} onChange={e=>setF({...f,company:e.target.value})} /></F>
@@ -243,17 +237,28 @@ export default function ProfileEdit() {
                 </>
               )}
               <F label="Bio / About *">
-                  <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} placeholder="Tell brands about you (Max 500 characters)" maxLength={500} />
-                  <div className="text-right text-[10px] opacity-40 mt-1">{f.bio.length}/500</div>
+                  <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
+                  <div className="flex justify-between items-center mt-2">
+                      {isCreator && (
+                          <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1.5 text-[10px]">
+                              {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                              {aiBusy ? "Curating…" : "AI Curation"}
+                          </button>
+                      )}
+                      <div className="text-right text-[10px] opacity-40 flex-1">{f.bio.length}/500</div>
+                  </div>
               </F>
               <F label="Profile Picture *">
                 <div className="flex items-center gap-4 mt-2">
                   {f.avatar && <img src={f.avatar} alt="" className="w-16 h-16 object-cover hairline-t hairline-b hairline-l hairline-r" />}
-                  <input className="inp flex-1" value={f.avatar} onChange={e=>setF({...f,avatar:e.target.value})} placeholder="Paste URL or upload" />
-                  <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                  <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-pill text-[10px]">
-                    <Upload className="w-3 h-3" /> Upload
-                  </button>
+                  <input ref={avatarRef} type="file" accept="image/*,video/*" hidden onChange={onAvatarPick} />
+                  <div 
+                      onClick={()=>avatarRef.current?.click()}
+                      className="inp flex-1 flex items-center justify-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition"
+                  >
+                      <Upload className="w-4 h-4" />
+                      <span>Add Image/s and Upload Videos</span>
+                  </div>
                 </div>
               </F>
           </section>
@@ -312,7 +317,7 @@ export default function ProfileEdit() {
                           </div>
                           
                           <F label={`${plat} Handle`}>
-                              <input required={plat==="instagram"} className="inp font-mono text-sm" placeholder="@handle" 
+                              <input required={plat==="instagram"} className="inp font-mono text-sm" 
                                      value={f.platform_metrics[plat]?.handle || ""} 
                                      onChange={e=>setF({
                                          ...f, 
@@ -324,22 +329,22 @@ export default function ProfileEdit() {
                           </F>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
                               <F label={plat==="youtube" ? "Subscribers" : "Followers"}>
-                                  <input type="number" className="inp text-xl" placeholder="0"
+                                  <input type="number" className="inp text-xl"
                                          value={f.platform_metrics[plat]?.followers || ""}
                                          onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
                               </F>
                               <F label="Engagement (%)">
-                                  <input type="number" step="0.1" className="inp text-xl" placeholder="0.0"
+                                  <input type="number" step="0.1" className="inp text-xl"
                                          value={f.platform_metrics[plat]?.engagement || ""}
                                          onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
                               </F>
                               <F label="Views (3M)">
-                                  <input type="number" className="inp text-xl" placeholder="0"
+                                  <input type="number" className="inp text-xl"
                                          value={f.platform_metrics[plat]?.views || ""}
                                          onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
                               </F>
                               <F label="Posts / Videos">
-                                  <input type="number" className="inp text-xl" placeholder="0"
+                                  <input type="number" className="inp text-xl"
                                          value={f.platform_metrics[plat]?.posts || ""}
                                          onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
                               </F>
@@ -365,7 +370,7 @@ export default function ProfileEdit() {
               <section className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
                   <F label="Base Rate (INR) *">
-                      <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} placeholder="₹" />
+                      <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
                   </F>
               </section>
 
@@ -378,7 +383,7 @@ export default function ProfileEdit() {
                       {f.portfolio.map((p, i) => (
                         <div key={i} className="flex gap-2 items-center">
                           {p && <img src={p} alt="" className="w-14 h-14 object-cover" />}
-                          <input className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} placeholder="https://..." />
+                          <input className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} />
                           <button type="button" onClick={()=>removePortfolio(i)} className="p-2 opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
                         </div>
                       ))}
@@ -401,10 +406,10 @@ export default function ProfileEdit() {
                                   <div key={i} className="p-4 border border-white/10 bg-white/[0.02] relative">
                                       <button type="button" onClick={()=>removeCampaign(i)} className="absolute top-2 right-2 opacity-50 hover:opacity-100"><X className="w-4 h-4" /></button>
                                       <div className="grid grid-cols-2 gap-4">
-                                          <input className="inp" placeholder="Brand Name (e.g. Zara)" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
-                                          <input className="inp" placeholder="Date (e.g. June 2024)" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
-                                          <input className="inp col-span-2" placeholder="Campaign Title (e.g. Summer Collection)" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
-                                          <input className="inp col-span-2" placeholder="Result (e.g. 2M impressions, 50K engagement)" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                          <input className="inp" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                          <input className="inp" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                          <input className="inp col-span-2" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                          <input className="inp col-span-2" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
                                       </div>
                                   </div>
                               ))}

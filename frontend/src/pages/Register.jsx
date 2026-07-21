@@ -291,8 +291,8 @@ export default function Register() {
           </div>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-            <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} placeholder="First name" error={fieldErrors.firstName} required />
-            <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} placeholder="Last name" error={fieldErrors.lastName} required />
+            <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required />
+            <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
             {(role === "owner" || role === "agent") && (
               <Field 
@@ -306,29 +306,29 @@ export default function Register() {
               />
             )}
             <div className="relative">
-              <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} placeholder="your_username" error={fieldErrors.username} required />
+              <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
               {usernameStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
             </div>
             
             <div className="relative">
-              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} placeholder="you@example.com" type="email" error={fieldErrors.email} required />
+              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
               {emailStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
               {emailStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
             </div>
 
             <div className="relative">
-              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} placeholder="" prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
+              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
               {mobileStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
               {mobileStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
             </div>
 
-            <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} placeholder="6 digits" error={fieldErrors.pincode} required />
+            <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
-            <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} placeholder="Auto-filled from Pincode" error={fieldErrors.city} required />
-            <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} placeholder="Auto-filled from Pincode" error={fieldErrors.state} required />
+            <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} error={fieldErrors.city} required />
+            <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} error={fieldErrors.state} required />
 
-            <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} placeholder="min. 8 chars, alphanumeric" type="password" error={fieldErrors.password} required />
+            <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
           </div>
 
           {err && (
@@ -388,7 +388,6 @@ export default function Register() {
                   testid="otp-input" 
                   value={form.otp} 
                   onChange={change("otp")} 
-                  placeholder="000000" 
                   error={otpError} 
                   maxLength={6}
                   required 
