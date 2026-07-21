@@ -12,11 +12,27 @@ export function Nav({ variant = "dark" }) {
   const menuRef = useRef(null);
   const isPaper = variant === "paper";
 
+  const timeoutRef = useRef(null);
+
   useEffect(() => {
     const onClick = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 250);
+  };
 
   const items = user
     ? [
@@ -52,26 +68,30 @@ export function Nav({ variant = "dark" }) {
               <div 
                 ref={menuRef} 
                 className="relative"
-                onMouseEnter={() => setOpen(true)}
-                onMouseLeave={() => setOpen(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
                 <button
                   onClick={() => setOpen(v => !v)}
                   data-testid="nav-user-menu"
-                  className="btn-pill"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
                 >
-                  <span>{user.name?.split(" ")[0]}</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+                  <span className="font-bold text-white tracking-wider">{user.name?.split(" ")[0]}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
                 </button>
                 <AnimatePresence>
                   {open && (
-                    <div className="absolute right-0 top-full pt-2 w-56 z-50">
+                    <div 
+                      className="absolute right-0 top-full pt-1.5 w-60 z-50"
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                    >
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.2 }}
-                        className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-xl"
+                        transition={{ duration: 0.15 }}
+                        className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-2xl rounded-sm overflow-hidden"
                       >
                         <div className="p-4 hairline-b bg-white/[0.03]">
                           <div className="font-editorial text-xl">{user.name}</div>
