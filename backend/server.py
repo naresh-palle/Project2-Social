@@ -1585,17 +1585,30 @@ async def analytics_owner(current: dict = Depends(get_current_user)):
 @api_router.get("/analytics/creator")
 async def analytics_creator(current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
-    applied = await db.applications.count_documents({"influencer_id": current["id"]})
-    accepted = await db.applications.count_documents({"influencer_id": current["id"], "status": "accepted"})
-    invited = await db.invitations.count_documents({"creator_id": current["id"]})
-    delivs = await db.deliverables.count_documents({"creator_id": current["id"]})
-    approved = await db.deliverables.count_documents({"creator_id": current["id"], "status": "approved"})
-    my_apps = await db.applications.find({"influencer_id": current["id"], "status": "accepted"},
-                                         {"_id": 0, "rate": 1}).to_list(200)
-    reviews = await db.reviews.find({"target_id": current["id"]}, {"_id": 0, "rating": 1}).to_list(500)
+    user_id = current["id"]
+
+    (
+        applied,
+        accepted,
+        invited,
+        delivs,
+        approved,
+        my_apps,
+        reviews
+    ) = await asyncio.gather(
+        db.applications.count_documents({"influencer_id": user_id}),
+        db.applications.count_documents({"influencer_id": user_id, "status": "accepted"}),
+        db.invitations.count_documents({"creator_id": user_id}),
+        db.deliverables.count_documents({"creator_id": user_id}),
+        db.deliverables.count_documents({"creator_id": user_id, "status": "approved"}),
+        db.applications.find({"influencer_id": user_id, "status": "accepted"}, {"_id": 0, "rate": 1}).to_list(200),
+        db.reviews.find({"target_id": user_id}, {"_id": 0, "rating": 1}).to_list(500)
+    )
+
     avg_rating = (sum(r["rating"] for r in reviews) / len(reviews)) if reviews else 0
     earned = current.get("wallet", 0)
     contracted = sum(a.get("rate") or 0 for a in my_apps)
+
     return {
         "applications": applied,
         "acceptances": accepted,

@@ -98,7 +98,7 @@ function OwnerPanel() {
 
   return (
     <div>
-      {stats && (
+      {stats ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="owner-analytics">
           {tiles.map((t, i) => (
             <motion.div
@@ -112,6 +112,16 @@ function OwnerPanel() {
               <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
               <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
             </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r animate-pulse">
+          {["LIVE BRIEFS", "IN PROGRESS", "APPLICATIONS", "ESCROW HELD", "PAID TO CREATORS", "CONVERSATIONS"].map((label, i) => (
+            <div key={i} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
+              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-40">{label}</div>
+              <div className="h-10 w-24 bg-white/10 my-2 rounded-xs" />
+              <div className="h-3 w-16 bg-white/5 rounded-xs" />
+            </div>
           ))}
         </div>
       )}
@@ -177,7 +187,7 @@ function InfluencerPanel() {
 
   return (
     <div>
-      {stats && (
+      {stats ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="creator-analytics">
           {tiles.map((t, i) => (
             <motion.div
@@ -191,6 +201,16 @@ function InfluencerPanel() {
               <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
               <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
             </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r animate-pulse">
+          {["APPLICATIONS", "ACCEPTED", "INVITATIONS", "DELIVERABLES", "RATING", "WALLET"].map((label, i) => (
+            <div key={i} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
+              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-40">{label}</div>
+              <div className="h-10 w-24 bg-white/10 my-2 rounded-xs" />
+              <div className="h-3 w-16 bg-white/5 rounded-xs" />
+            </div>
           ))}
         </div>
       )}
