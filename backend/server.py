@@ -1123,34 +1123,55 @@ async def list_conversations(current: dict = Depends(get_current_user)):
             ]
         }
     convos = await db.conversations.find(q, {"_id": 0}).sort("last_at", -1).to_list(200)
+    if not convos:
+        return []
+
+    # Batch gather ids
+    camp_ids = list(set(c.get("campaign_id") for c in convos if c.get("campaign_id")))
+    
+    other_ids = set()
+    for c in convos:
+        participants = c.get("participant_ids") or [c.get("owner_id"), c.get("creator_id")]
+        for pid in participants:
+            if pid and pid != user_id:
+                other_ids.add(pid)
+
+    camps_list, users_list = await asyncio.gather(
+        db.campaigns.find({"id": {"$in": camp_ids}}, {"_id": 0, "id": 1, "title": 1, "brand": 1}).to_list(200),
+        db.users.find({"id": {"$in": list(other_ids)}}, {"_id": 0, "id": 1, "name": 1, "handle": 1, "avatar": 1, "company": 1}).to_list(200)
+    )
+
+    camps_map = {c["id"]: c for c in camps_list}
+    users_map = {u["id"]: u for u in users_list}
+
+    # Parallel lookup last messages for convos
+    async def fetch_last_msg(cid):
+        m = await db.messages.find({"conversation_id": cid}, {"_id": 0, "content": 1}).sort("created_at", -1).limit(1).to_list(1)
+        return cid, m[0]["content"] if m else None
+
+    last_msgs = await asyncio.gather(*[fetch_last_msg(c["id"]) for c in convos[:50]])
+    last_msg_map = dict(last_msgs)
 
     for c in convos:
-        camp = await db.campaigns.find_one({"id": c.get("campaign_id")}, {"_id": 0, "title": 1, "brand": 1})
+        camp = camps_map.get(c.get("campaign_id"))
         if camp:
-            c["campaign_title"] = camp.get("title") or c.get("campaign_title") or "Campaign Brief"
+            c["campaign_title"] = camp.get("title") or c.get("campaign_title") or "Brief Discussion"
             c["campaign_brand"] = camp.get("brand") or c.get("campaign_brand") or "Brand Studio"
         else:
-            c["campaign_title"] = c.get("campaign_title") or "Campaign Collaboration"
-            c["campaign_brand"] = c.get("campaign_brand") or "Brand Partner"
+            c["campaign_title"] = c.get("campaign_title") or "Brief Discussion"
+            c["campaign_brand"] = c.get("campaign_brand") or "Brand Studio"
 
-        # Determine other party
         participants = c.get("participant_ids") or [c.get("owner_id"), c.get("creator_id")]
         other_id = next((pid for pid in participants if pid and pid != user_id), None)
-        if not other_id:
-            other_id = c.get("creator_id") if user_id == c.get("owner_id") else c.get("owner_id")
-            
-        if other_id:
-            other = await db.users.find_one({"id": other_id}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1, "company": 1})
-            if other:
-                c["other_name"] = other.get("name") or other.get("company") or "User"
-                c["other_handle"] = other.get("handle") or other.get("company") or "@partner"
-                c["other_avatar"] = other.get("avatar")
-                
-        if not c.get("other_name"):
+        other = users_map.get(other_id)
+        if other:
+            c["other_name"] = other.get("name") or other.get("company") or "User"
+            c["other_handle"] = other.get("handle") or other.get("company") or "@partner"
+            c["other_avatar"] = other.get("avatar")
+        else:
             c["other_name"] = c.get("campaign_brand") or "Platform Partner"
-
-        last = await db.messages.find({"conversation_id": c["id"]}, {"_id": 0}).sort("created_at", -1).limit(1).to_list(1)
-        c["last_message"] = last[0]["content"] if last else None
+            
+        c["last_message"] = last_msg_map.get(c["id"])
 
     return convos
 
@@ -1309,8 +1330,55 @@ async def list_reviews(target_id: str):
 # ---------- Wallet (mocked) ----------
 @api_router.get("/wallet")
 async def get_wallet(current: dict = Depends(get_current_user)):
-    txs = await db.wallet_tx.find({"user_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
-    return {"balance": current.get("wallet", 0), "transactions": txs}
+    user_doc = await db.users.find_one({"id": current["id"]}, {"_id": 0, "wallet": 1, "transactions": 1, "role": 1, "company": 1, "name": 1})
+    balance = user_doc.get("wallet", 0) if user_doc else current.get("wallet", 50000)
+    txs = user_doc.get("transactions", []) if user_doc else []
+
+    db_txs = await db.wallet_tx.find({"user_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    if db_txs:
+        existing_ids = set(t.get("id") for t in txs)
+        for dt in db_txs:
+            if dt.get("id") not in existing_ids:
+                txs.append(dt)
+        txs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+
+    if not txs:
+        role = current.get("role", "influencer")
+        name = current.get("name", "User")
+        company = current.get("company", name)
+        
+        if role == "admin":
+            balance = 5000000
+            txs = [
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 450000, "kind": "Platform Commission", "note": "5% Escrow commission on Q3 Brand briefs", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 750000, "kind": "Enterprise Settlement", "note": "Audit Clearance for boAt & Studio Noir briefs", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": -120000, "kind": "Server Maintenance", "note": "Cloud infrastructure & Anthropic AI hosting payout", "created_at": now_iso()}
+            ]
+        elif role == "owner":
+            balance = balance or 1800000
+            txs = [
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 750000, "kind": "Vault Deposit", "note": f"Direct Deposit to {company} Campaign Wallet", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": -150000, "kind": "Escrow Funding", "note": "Escrow locked for Summer Launch campaign", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": -65000, "kind": "Creator Payout", "note": "Milestone release for approved video reel", "created_at": now_iso()}
+            ]
+        elif role == "agent":
+            balance = balance or 650000
+            txs = [
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 250000, "kind": "Agency Commission", "note": f"15% Management Dividend for {company} roster deals", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 120000, "kind": "Brand Settlement", "note": "Escrow payment release for talent deliverables", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": -45000, "kind": "Bank Payout", "note": "Withdrawal transfer to corporate bank account", "created_at": now_iso()}
+            ]
+        else:
+            balance = balance or 85000
+            txs = [
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 45000, "kind": "Campaign Earnings", "note": "Approved deliverable payment for Instagram Reel", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": 20000, "kind": "Brand Incentive", "note": "Bonus payout for high engagement metric benchmark", "created_at": now_iso()},
+                {"id": f"tx_{uuid.uuid4().hex[:8]}", "amount": -15000, "kind": "Bank Withdrawal", "note": "Payout transfer to verified UPI account", "created_at": now_iso()}
+            ]
+        
+        await db.users.update_one({"id": current["id"]}, {"$set": {"wallet": balance, "transactions": txs}})
+
+    return {"balance": balance, "transactions": txs}
 
 
 async def add_tx(user_id: str, kind: str, amount: int, note: str):

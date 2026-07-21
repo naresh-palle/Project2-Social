@@ -26,6 +26,18 @@ export default function NewCampaign() {
   const coverRef = useRef(null);
   const change = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
+
+  // Handle Escape key to cancel
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        nav("/dashboard");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nav]);
+
   const onCoverPick = async (e) => {
     const url = await uploadImage(e.target.files?.[0]);
     if (url) { setF({ ...f, cover: url }); toast.success("Cover uploaded."); }
@@ -125,13 +137,17 @@ export default function NewCampaign() {
           <Row label="Description"><textarea required data-testid="cf-desc" value={f.description} onChange={change("description")} rows={5} className="inp resize-none" /></Row>
           <Row label="Deliverables"><input required data-testid="cf-deliv" value={f.deliverables} onChange={change("deliverables")} className="inp" /></Row>
           <Row label="Budget (INR ₹)"><input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" /></Row>
-          <Row label="Cover image">
-            <div className="flex items-center gap-4 mt-2">
-              {f.cover && <img src={f.cover} alt="" className="w-16 h-20 object-cover" />}
-              <input data-testid="cf-cover" value={f.cover} onChange={change("cover")} className="inp flex-1" />
+          <Row label="Cover Image *">
+            <div className="flex items-center gap-4 mt-3">
+              {f.cover && <img src={f.cover} alt="Cover Preview" className="w-20 h-24 object-cover border border-white/20 p-1 rounded-sm shadow-md" />}
               <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} data-testid="cf-cover-file" />
-              <button type="button" onClick={() => coverRef.current?.click()} className="btn-pill text-[10px]" data-testid="cf-cover-upload">
-                <Upload className="w-3 h-3" /> Upload
+              <button 
+                type="button" 
+                onClick={() => coverRef.current?.click()} 
+                className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2.5 text-xs flex items-center gap-2 cursor-pointer transition" 
+                data-testid="cf-cover-upload"
+              >
+                <Upload className="w-4 h-4" /> Upload Cover Image
               </button>
             </div>
           </Row>

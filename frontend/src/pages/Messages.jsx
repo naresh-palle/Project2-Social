@@ -16,15 +16,25 @@ export default function Messages() {
   const [text, setText] = useState("");
   const scrollRef = useRef(null);
 
+  const [loadingConvos, setLoadingConvos] = useState(true);
+  const [loadingMsgs, setLoadingMsgs] = useState(false);
+
   const loadConvos = async () => {
-    const { data } = await api.get("/conversations");
-    setConvos(data);
-    const openId = sp.get("id");
-    if (openId) {
-      const c = data.find(c => c.id === openId);
-      if (c) setActive(c);
-    } else if (data.length && !active) {
-      setActive(data[0]);
+    setLoadingConvos(true);
+    try {
+      const { data } = await api.get("/conversations");
+      setConvos(data);
+      const openId = sp.get("id");
+      if (openId) {
+        const c = data.find(c => c.id === openId);
+        if (c) setActive(c);
+      } else if (data.length && !active) {
+        setActive(data[0]);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingConvos(false);
     }
   };
 
@@ -35,8 +45,8 @@ export default function Messages() {
 
   useEffect(() => {
     if (!active) return;
-    // Initial load
-    api.get(`/conversations/${active.id}/messages`).then(r => setMsgs(r.data));
+    setLoadingMsgs(true);
+    api.get(`/conversations/${active.id}/messages`).then(r => setMsgs(r.data)).finally(() => setLoadingMsgs(false));
     // Real-time SSE stream — token in querystring since EventSource can't set headers
     const token = localStorage.getItem("cr8_token");
     const base = process.env.REACT_APP_BACKEND_URL;
@@ -89,7 +99,17 @@ export default function Messages() {
         <div className="mt-6 grid grid-cols-12 gap-0 min-h-[560px]">
           {/* List */}
           <aside className="col-span-12 md:col-span-4 lg:col-span-3 hairline-t hairline-b hairline-l hairline-r max-h-[70vh] overflow-y-auto">
-            {convos.length === 0 ? (
+            {loadingConvos ? (
+              <div className="p-4 space-y-3 animate-pulse">
+                {[1, 2, 3, 4].map(n => (
+                  <div key={n} className="h-20 bg-white/[0.03] border border-white/5 rounded-xs p-3 space-y-2">
+                    <div className="h-2.5 bg-white/10 w-20" />
+                    <div className="h-4 bg-white/20 w-32" />
+                    <div className="h-2 bg-white/5 w-40" />
+                  </div>
+                ))}
+              </div>
+            ) : convos.length === 0 ? (
               <div className="p-10 font-editorial italic text-2xl opacity-60">No conversations yet.</div>
             ) : convos.map(c => (
               <button key={c.id} onClick={() => setActive(c)}

@@ -15,6 +15,7 @@ import ProfileView from "@/pages/ProfileView";
 import Messages from "@/pages/Messages";
 import Invitations from "@/pages/Invitations";
 import Wallet from "@/pages/Wallet";
+import AdminPage from "@/pages/AdminPage";
 
 import Onboarding from "@/pages/Onboarding";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -38,6 +39,7 @@ function App() {
             <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
 
             <Route path="/marketplace" element={<RequireAuth roles={["owner", "admin", "agent"]}><Marketplace /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth roles={["admin"]}><AdminPage /></RequireAuth>} />
             <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
             <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
             <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
