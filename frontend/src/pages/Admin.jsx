@@ -146,6 +146,14 @@ export default function Admin() {
       </div>
   );
 
+  if (tab === "overview" && !stats) {
+      return (
+          <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
+              <div className="font-mono text-sm opacity-60">Failed to load platform overview. Refresh to try again.</div>
+          </div>
+      );
+  }
+
   const revenueData = [
       { name: 'Jan', revenue: 10000, payments: 66000 },
       { name: 'Feb', revenue: 15000, payments: 100000 },

@@ -14,6 +14,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!loading && !user) nav("/login");
+    else if (!loading && user?.role === "admin") nav("/admin");
   }, [user, loading, nav]);
 
   if (loading || !user) {
