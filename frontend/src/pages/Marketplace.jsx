@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -44,11 +44,16 @@ export default function Marketplace() {
       <Nav />
 
       <div className="pt-28 pb-8 max-w-[1600px] mx-auto px-6 md:px-10">
-        <div className="hairline-b pb-8">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
-          <h1 className="font-editorial text-6xl md:text-8xl leading-[1.15] mt-2">
-            The <span className="italic">file</span> on record<span className="tick">.</span>
-          </h1>
+        <div className="hairline-b pb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
+            <h1 className="font-editorial text-6xl md:text-8xl leading-[1.15] mt-2">
+              The <span className="italic">file</span> on record<span className="tick">.</span>
+            </h1>
+          </div>
+          <Link to="/dashboard" data-testid="back-to-dashboard-btn" className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline flex items-center gap-2 mb-2 text-[#FF3B30]">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
+          </Link>
         </div>
 
         {/* Filters */}

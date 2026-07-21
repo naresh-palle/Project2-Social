@@ -132,7 +132,7 @@ export default function ProfileEdit() {
       });
       await refresh();
       toast.success("Profile saved.");
-      nav("/dashboard");
+      nav("/profile");
     } catch (err) {
       toast.error(formatApiError(err.response?.data?.detail) || "Failed");
     } finally { setBusy(false); }
@@ -227,14 +227,15 @@ export default function ProfileEdit() {
       <Nav />
       <Toaster theme="dark" position="top-center" />
       <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 relative">
-        {/* Close Button */}
+        {/* Floating Close Button */}
         <button 
           type="button" 
           onClick={() => nav("/profile")} 
-          className="absolute top-10 right-6 md:right-10 p-2 opacity-50 hover:opacity-100 transition-opacity"
+          className="fixed top-24 right-6 md:right-12 p-3 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 z-50 group"
           title="Close (Esc)"
+          data-testid="profile-edit-close-btn"
         >
-          <X className="w-8 h-8" />
+          <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
         </button>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -292,15 +293,16 @@ export default function ProfileEdit() {
               </F>
               <F label="Profile Picture *">
                 <div className="flex items-center gap-4 mt-2">
-                  {f.avatar && <img src={f.avatar} alt="" className="w-16 h-16 object-cover hairline-t hairline-b hairline-l hairline-r" />}
-                  <input ref={avatarRef} type="file" accept="image/*,video/*" hidden onChange={onAvatarPick} />
-                  <div 
+                  {f.avatar && <img src={f.avatar} alt="Profile Avatar" className="w-16 h-16 object-cover border border-white/20 p-1 rounded-sm" />}
+                  <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
+                  <button 
+                      type="button"
                       onClick={()=>avatarRef.current?.click()}
-                      className="inp flex-1 flex items-center justify-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition"
+                      className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2.5 text-xs flex items-center gap-2 cursor-pointer transition"
                   >
                       <Upload className="w-4 h-4" />
-                      <span>Add Image/s and Upload Videos</span>
-                  </div>
+                      <span>Upload Profile Pic</span>
+                  </button>
                 </div>
               </F>
           </section>
@@ -318,26 +320,31 @@ export default function ProfileEdit() {
               </div>
           </section>
 
+          {/* SECTION 2: LOCATION & REGION (Available for all roles) */}
+          <section className="space-y-6">
+              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">2. Location &amp; Region Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <F label="City / Location *">
+                      <input 
+                        className="inp" 
+                        value={f.city || ""} 
+                        onChange={e=>setF({...f, city: e.target.value})} 
+                        placeholder="e.g. Mumbai, Bangalore, New Delhi, Paris"
+                      />
+                  </F>
+                  <F label="State / Region">
+                      <input 
+                        className="inp" 
+                        value={f.state || ""} 
+                        onChange={e=>setF({...f, state: e.target.value})} 
+                        placeholder="e.g. Maharashtra, Karnataka, Delhi"
+                      />
+                  </F>
+              </div>
+          </section>
+
           {isCreator && (
             <>
-              {/* SECTION 2: LOCATION */}
-              <section className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">2. Location & Availability</h2>
-                  <div className="grid grid-cols-2 gap-6">
-                      <F label="City *">
-                          <select required className="inp" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
-                              <option value="" className="bg-[#0A0A0A]">Select City...</option>
-                              {CITIES.map(c => <option key={c} value={c} className="bg-[#0A0A0A]">{c}</option>)}
-                          </select>
-                      </F>
-                      <F label="Availability *">
-                          <select required className="inp" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
-                              <option value="" className="bg-[#0A0A0A]">Select Availability...</option>
-                              {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0A0A0A]">{a}</option>)}
-                          </select>
-                      </F>
-                  </div>
-              </section>
 
               {/* SECTION 3: SOCIAL */}
               <section className="space-y-6">
