@@ -67,7 +67,7 @@ export default function Dashboard() {
             <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid">
               <Send className="w-4 h-4" /> Browse briefs
             </Link>
-          )}
+          ) : null}
         </div>
 
         {user.role === "admin" ? <AdminPanel /> : user.role === "owner" ? <OwnerPanel /> : user.role === "agent" ? <AgentPanel /> : <InfluencerPanel />}
