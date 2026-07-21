@@ -127,10 +127,10 @@ export default function CampaignDetail() {
               className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {c.brand}</motion.p>
             <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-3">{c.title}</h1>
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Meta label="Budget" value={`$${c.budget}`} accent />
+              <Meta label="Budget" value={`₹${c.budget}`} accent />
               <Meta label="Niches" value={(c.niches || []).join(" · ") || "—"} />
               <Meta label="Platforms" value={(c.platforms || []).join(" · ") || "—"} />
-              <Meta label="Escrow" value={c.escrow_funded ? `$${c.escrow_funded} held` : "not funded"} />
+              <Meta label="Escrow" value={c.escrow_funded ? `₹${c.escrow_funded} held` : "not funded"} />
             </div>
             <div className="mt-10 hairline-t pt-8">
               <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Brief</h3>
@@ -157,7 +157,7 @@ export default function CampaignDetail() {
                         <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{a.influencer_handle}</div>
                       </div>
                       <div className="col-span-4 opacity-80 text-sm italic">"{a.pitch}"</div>
-                      <div className="col-span-2 font-editorial italic text-2xl">${a.rate}</div>
+                      <div className="col-span-2 font-editorial italic text-2xl">₹{a.rate}</div>
                       <div className="col-span-2 text-right">
                         {a.status === "pending" ? (
                           <button onClick={() => acceptApp(a.id)} data-testid={`accept-${a.id}`} className="btn-solid text-xs">
@@ -182,13 +182,13 @@ export default function CampaignDetail() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     {!c.escrow_funded ? (
                       <button onClick={fund} data-testid="fund-btn" className="btn-solid">
-                        <DollarSign className="w-4 h-4" /> Fund escrow · ${c.budget}
+                        <DollarSign className="w-4 h-4" /> Fund escrow · ₹{c.budget}
                       </button>
                     ) : c.escrow_released ? (
                       <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30]">✓ Payment released</span>
                     ) : (
                       <button onClick={release} disabled={c.status !== "completed"} data-testid="release-btn" className="btn-solid">
-                        <Check className="w-4 h-4" /> Release ${c.escrow_funded}
+                        <Check className="w-4 h-4" /> Release ₹{c.escrow_funded}
                       </button>
                     )}
                   </div>

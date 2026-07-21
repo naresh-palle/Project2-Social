@@ -90,8 +90,8 @@ function OwnerPanel() {
     { k: "Live briefs", v: stats.open_campaigns, tail: `of ${stats.total_campaigns} total` },
     { k: "In progress", v: stats.in_progress, tail: "shipping now" },
     { k: "Applications", v: stats.applications_total, tail: "on file" },
-    { k: "Escrow held", v: `$${stats.escrow_held.toLocaleString()}`, tail: "in the vault" },
-    { k: "Paid to creators", v: `$${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
+    { k: "Escrow held", v: `₹${stats.escrow_held.toLocaleString()}`, tail: "in the vault" },
+    { k: "Paid to creators", v: `₹${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
     { k: "Conversations", v: stats.conversations, tail: "in the studio" },
   ] : [];
 
@@ -171,7 +171,7 @@ function InfluencerPanel() {
     { k: "Invitations", v: stats.invitations, tail: "extended to you" },
     { k: "Deliverables", v: `${stats.approved}/${stats.deliverables}`, tail: "approved / total" },
     { k: "Rating", v: stats.reviews_count ? stats.avg_rating : "—", tail: `${stats.reviews_count} reviews` },
-    { k: "Wallet", v: `$${stats.earned.toLocaleString()}`, tail: "on the books" },
+    { k: "Wallet", v: `₹${stats.earned.toLocaleString()}`, tail: "on the books" },
   ] : [];
 
   return (
@@ -209,7 +209,7 @@ function InfluencerPanel() {
                 </div>
               </div>
               <div className="col-span-6 md:col-span-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
-                Rate · ${a.rate}
+                Rate · ₹{a.rate}
               </div>
               <div className="col-span-6 md:col-span-3 text-right font-mono text-[11px] tracking-[0.25em] uppercase">
                 <span className={a.status === "accepted" ? "text-[#FF3B30]" : "opacity-60"}>
@@ -304,13 +304,13 @@ function CampaignRow({ c }) {
           <Users className="inline w-3 h-3 mr-1" />
           {apps?.length ?? c.applications_count} pitches
         </div>
-        <div className="font-editorial italic text-xl">${c.budget}</div>
+        <div className="font-editorial italic text-xl">₹{c.budget}</div>
       </div>
       {apps && apps.length > 0 && (
         <div className="mt-4 space-y-1">
           {apps.slice(0, 3).map((a) => (
             <div key={a.id} className="font-mono text-[10px] tracking-[0.18em] uppercase opacity-70 truncate">
-              → {a.influencer_name} · ${a.rate}
+              → {a.influencer_name} · ₹{a.rate}
             </div>
           ))}
         </div>
