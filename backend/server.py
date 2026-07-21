@@ -1937,6 +1937,8 @@ async def ai_review_deliverable(deliverable_id: str, camp: dict) -> None:
 class ProfileSuggestInput(BaseModel):
     niches: List[str]
     handle: Optional[str] = None
+    name: Optional[str] = None
+    bio: Optional[str] = None
 
 @api_router.post("/ai/suggest-profile")
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
@@ -1959,28 +1961,21 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
         return parse_json(text)
     except Exception as e:
         logger.warning("AI profile suggestion failed: %s", repr(e))
+        name_str = inp.name or inp.handle or "creator"
+        base_bio = inp.bio or "Curating high-end aesthetics with a focus on luxury, design, and editorial storytelling."
+        fallback_bio = f"{name_str} — {base_bio} Specialized in {niches_str}."
         # Fallback to mock data if their API key is invalid or missing
         return {
-            "bio": "Curating high-end aesthetics with a focus on luxury, design, and editorial storytelling.",
+            "bio": fallback_bio,
             "category": "Fashion & Style",
             "languages": ["English", "Hindi"],
             "experience": "1-2 years",
             "content_types": ["Instagram Posts (Photos)", "Instagram Reels (Short Videos)"],
-            "response_time": "Within 2 days",
-            "base_rate": 1500,
-            "availability": "Immediately",
-            "platform_metrics": {
-                "instagram": {"handle": "@mock.creator", "followers": 150000, "engagement": 3.2, "views": 250000},
-                "youtube": {"handle": "@mock.creator.tv", "followers": 45000, "engagement": 2.8, "views": 120000}
-            },
             "portfolio": [
                 "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
                 "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
                 "https://images.unsplash.com/photo-1550614000-4b95d4ed7982?w=800&q=80",
                 "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80"
-            ],
-            "past_campaigns": [
-                {"brand": "Zara", "title": "Summer Collection", "result": "2M impressions, 50K engagement", "date": "June 2024"}
             ]
         }
 

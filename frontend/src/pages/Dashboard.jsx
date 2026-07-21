@@ -272,8 +272,13 @@ function AgentPanel() {
 }
 
 function CampaignRow({ c }) {
+  const { user } = useAuth();
   const [apps, setApps] = useState(null);
   const load = async () => {
+    if (!user || user.role !== "owner") {
+        setApps([]);
+        return;
+    }
     try {
       const { data } = await api.get(`/campaigns/${c.id}/applications`);
       setApps(data);
@@ -303,7 +308,7 @@ function CampaignRow({ c }) {
       <div className="mt-4 flex items-baseline justify-between hairline-t pt-3">
         <div className="font-mono text-[11px] tracking-[0.2em] uppercase">
           <Users className="inline w-3 h-3 mr-1" />
-          {apps?.length ?? c.applications_count} pitches
+          {user?.role === "owner" ? (apps ? `${apps.length} pitches` : "Loading...") : "Recommended Match"}
         </div>
         <div className="font-editorial italic text-xl">₹{c.budget}</div>
       </div>

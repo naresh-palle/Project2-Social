@@ -130,7 +130,12 @@ export default function ProfileEdit() {
   const runAiCuration = async () => {
     setAiBusy(true);
     try {
-      const { data } = await api.post("/ai/suggest-profile", { handle: f.handle, niches: [f.category || "General"] });
+      const { data } = await api.post("/ai/suggest-profile", { 
+          handle: f.handle, 
+          name: f.name,
+          bio: f.bio,
+          niches: [f.category || "General"] 
+      });
       if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
       if (data.portfolio && Array.isArray(data.portfolio)) {
           setF(prev => ({ ...prev, portfolio: [...prev.portfolio.filter(Boolean), ...data.portfolio] }));
@@ -378,24 +383,26 @@ export default function ProfileEdit() {
               <section className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">7. Your Portfolio & Past Work</h2>
                   
-                  <F label="Portfolio Images">
-                    <div className="space-y-2 mt-2">
+                  <F label="Portfolio Images and Videos">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                       {f.portfolio.map((p, i) => (
-                        <div key={i} className="flex gap-2 items-center">
-                          {p && <img src={p} alt="" className="w-14 h-14 object-cover" />}
-                          <input className="inp flex-1" value={p} onChange={e=>setPortfolio(i,e.target.value)} />
-                          <button type="button" onClick={()=>removePortfolio(i)} className="p-2 opacity-60 hover:opacity-100"><X className="w-4 h-4" /></button>
+                        <div key={i} className="relative group aspect-square bg-black border border-white/10">
+                          {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
+                              <video src={p} className="w-full h-full object-cover" controls />
+                          ) : (
+                              <img src={p} alt="" className="w-full h-full object-cover" />
+                          ))}
+                          <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                              <X className="w-3 h-3 text-white" />
+                          </button>
                         </div>
                       ))}
-                      <div className="flex gap-2 mt-2">
-                        <button type="button" onClick={addPortfolio} className="btn-pill">
-                          <Plus className="w-4 h-4" /> Add Image URL
-                        </button>
-                        <input ref={portfolioRef} type="file" accept="image/*" multiple hidden onChange={onPortfolioPick} />
-                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-pill">
-                          <Upload className="w-4 h-4" /> Upload files
-                        </button>
-                      </div>
+                    </div>
+                    <div className="flex mt-6">
+                      <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
+                      <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-4 px-6 text-sm flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                        <Upload className="w-4 h-4" /> Add Image/s and Upload Videos
+                      </button>
                     </div>
                   </F>
 
