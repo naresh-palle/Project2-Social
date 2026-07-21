@@ -8,7 +8,7 @@ import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
-const PLATFORMS = ["instagram", "tiktok", "youtube", "twitter"];
+const PLATFORMS = ["instagram", "facebook", "youtube", "twitter"];
 
 export default function NewCampaign() {
   const { user } = useAuth();

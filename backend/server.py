@@ -1458,7 +1458,7 @@ async def ai_campaign_builder(inp: AIBuilderInput, current: dict = Depends(get_c
         " \"deliverables\": string (a concise list separated by ' + '),"
         " \"budget\": integer (USD, whole number),"
         " \"niches\": string[] (2-4 from: fashion, luxury, beauty, tech, design, wellness),"
-        " \"platforms\": string[] (2-3 from: instagram, tiktok, youtube, twitter)}"
+        " \"platforms\": string[] (2-3 from: instagram, facebook, youtube, twitter)}"
     )
     text = await call_llm(system, prompt)
     data = parse_json(text)
@@ -1880,7 +1880,7 @@ async def ai_search(inp: AISearchInput, current: dict = Depends(get_current_user
               "min_followers (int|null), max_followers (int|null), location (string|null), "
               "text (string|null — free-text terms). Niches must be from: "
               "fashion, luxury, beauty, tech, design, wellness. Platforms from: "
-              "instagram, tiktok, youtube, twitter.")
+              "instagram, facebook, youtube, twitter.")
     prompt = f"Query: \"{inp.query}\". Return JSON only."
     text = await call_llm(system, prompt)
     filters = parse_json(text)
@@ -2011,7 +2011,7 @@ async def seed_demo():
         {"email": "lena@cr8.studio", "name": "Lena Ivory", "handle": "@lena.ivory",
          "bio": "Editorial fashion + luxury lifestyle creator.",
          "avatar": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
-         "niches": ["fashion", "luxury", "beauty"], "platforms": ["instagram", "tiktok"],
+         "niches": ["fashion", "luxury", "beauty"], "platforms": ["instagram", "facebook"],
          "followers": 214000, "location": "Milan, IT",
          "portfolio": ["https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
                        "https://images.pexels.com/photos/35458193/pexels-photo-35458193.jpeg"],
@@ -2026,7 +2026,7 @@ async def seed_demo():
         {"email": "nova@cr8.studio", "name": "Nova Reyes", "handle": "@nova.reyes",
          "bio": "Beauty rituals & fragrance director.",
          "avatar": "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
-         "niches": ["beauty", "wellness"], "platforms": ["instagram", "tiktok"],
+         "niches": ["beauty", "wellness"], "platforms": ["instagram", "facebook"],
          "followers": 128000, "location": "New York, US",
          "portfolio": ["https://images.unsplash.com/photo-1655657874630-2da5679ef515"],
          "rate_card": {"reel": 1800, "story": 300}},
@@ -2057,7 +2057,7 @@ async def seed_demo():
         "id": str(uuid.uuid4()), "owner_id": owner_id,
         "title": "Fall Edit — Silhouettes", "brand": "Studio Noir",
         "description": "Long-form editorial content for our Fall silhouettes collection. Looking for creators with an editorial eye and a taste for restraint.",
-        "budget": 8500, "niches": ["fashion", "luxury"], "platforms": ["instagram", "tiktok"],
+        "budget": 8500, "niches": ["fashion", "luxury"], "platforms": ["instagram", "facebook"],
         "deliverables": "1 Reel + 3 Stories + 1 grid post.", "deadline": None,
         "cover": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
         "status": "open", "escrow_funded": 0, "escrow_released": 0,

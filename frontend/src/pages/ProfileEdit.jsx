@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw } from "lucide-react";
+import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
@@ -297,10 +297,15 @@ export default function ProfileEdit() {
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence</h2>
                   <p className="text-xs opacity-60">Enter your handles and metrics. Metrics are publicly visible. Connect Facebook, Instagram, YouTube, and Twitter.</p>
                   
-                  {PLATFORMS.map(plat => (
-                      <div key={plat} className="p-6 border border-white/10 bg-white/[0.02]">
+                  {PLATFORMS.map(plat => {
+                      const isConnected = !!f.platform_metrics[plat]?.handle;
+                      return (
+                      <div key={plat} className={`p-6 border transition-colors ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
                           <div className="flex justify-between items-center mb-4">
-                              <div className="font-editorial text-3xl capitalize text-[#FF3B30]">{plat} {plat === "instagram" && "*"}</div>
+                              <div className="flex items-center gap-2 font-editorial text-3xl capitalize text-[#FF3B30]">
+                                  {plat} {plat === "instagram" && "*"}
+                                  {isConnected && <CheckCircle2 className="w-5 h-5 text-[#34C759]" />}
+                              </div>
                               {f.platform_metrics[plat]?.last_synced && (
                                   <div className="font-mono text-[9px] tracking-widest opacity-50">Last synced: {new Date(f.platform_metrics[plat].last_synced).toLocaleDateString()}</div>
                               )}
@@ -340,7 +345,7 @@ export default function ProfileEdit() {
                               </F>
                           </div>
                       </div>
-                  ))}
+                  )})}
               </section>
 
               {/* SECTION 4: NICHE */}
