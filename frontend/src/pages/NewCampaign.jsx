@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Loader2, Upload } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2, Upload, X } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -79,7 +79,17 @@ export default function NewCampaign() {
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24">
+      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24 relative">
+        {/* Floating Cancel / Close Button */}
+        <button 
+          type="button" 
+          onClick={() => nav("/dashboard")} 
+          className="fixed top-24 right-6 md:right-12 p-3 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 z-50 group"
+          title="Cancel / Close (Esc)"
+          data-testid="new-campaign-cancel-btn"
+        >
+          <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+        </button>
         <div className="flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ New brief</p>

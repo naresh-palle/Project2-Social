@@ -99,10 +99,10 @@ export default function ProfileView() {
         </div>
 
         <div className="py-16 grid grid-cols-1 md:grid-cols-12 gap-16">
-            <div className="md:col-span-4 space-y-12">
+            <div className={isCreator ? "md:col-span-4 space-y-12" : "md:col-span-12 space-y-12"}>
                 <div>
                     <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-4">About</h3>
-                    <p className="font-editorial italic text-2xl leading-relaxed">
+                    <p className="font-editorial italic text-2xl md:text-3xl leading-relaxed break-words whitespace-normal max-w-full">
                         {profile.bio || "No bio available."}
                     </p>
                 </div>

@@ -49,52 +49,68 @@ export function Nav({ variant = "dark" }) {
           {user ? (
             <>
               <NotificationBell />
-              <div ref={menuRef} className="relative">
-              <button
-                onClick={() => setOpen(v => !v)}
-                data-testid="nav-user-menu"
-                className="btn-pill"
+              <div 
+                ref={menuRef} 
+                className="relative"
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => setOpen(false)}
               >
-                <span>{user.name?.split(" ")[0]}</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
-              </button>
-              <AnimatePresence>
-                {open && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-3 w-56 bg-[#0A0A0A]/95 backdrop-blur-xl hairline-t hairline-b hairline-l hairline-r"
-                  >
-                    <div className="p-4 hairline-b">
-                      <div className="font-editorial text-xl">{user.name}</div>
-                      <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{user.role}</div>
-                    </div>
-                    <div className="p-2">
-                      {items.map(it => (
-                        <Link
-                          key={it.to}
-                          to={it.to}
-                          onClick={() => setOpen(false)}
-                          data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                          className="block px-3 py-2 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/5"
-                        >
-                          {it.label}
-                        </Link>
-                      ))}
-                      <button
-                        onClick={() => { setOpen(false); logout(); nav("/"); }}
-                        data-testid="nav-logout"
-                        className="block w-full text-left px-3 py-2 font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30] hover:bg-white/5"
+                <button
+                  onClick={() => setOpen(v => !v)}
+                  data-testid="nav-user-menu"
+                  className="btn-pill"
+                >
+                  <span>{user.name?.split(" ")[0]}</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <div className="absolute right-0 top-full pt-2 w-56 z-50">
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-xl"
                       >
-                        Sign Out
-                      </button>
+                        <div className="p-4 hairline-b bg-white/[0.03]">
+                          <div className="font-editorial text-xl">{user.name}</div>
+                          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
+                        </div>
+                        <div className="p-2">
+                          {items.map(it => (
+                            <Link
+                              key={it.to}
+                              to={it.to}
+                              onClick={() => setOpen(false)}
+                              data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
+                              className="block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/10 text-white/90 hover:text-white transition-colors"
+                            >
+                              {it.label}
+                            </Link>
+                          ))}
+                          {user.role === "admin" && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setOpen(false)}
+                              className="block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/10 text-orange-400 hover:text-orange-300 transition-colors"
+                            >
+                              Admin Panel
+                            </Link>
+                          )}
+                          <button
+                            onClick={() => { setOpen(false); logout(); nav("/"); }}
+                            data-testid="nav-logout"
+                            className="block w-full text-left px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30] hover:bg-white/10 transition-colors"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      </motion.div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  )}
+                </AnimatePresence>
+              </div>
             </>
           ) : (
             <>
