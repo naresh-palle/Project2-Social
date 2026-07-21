@@ -24,7 +24,7 @@ export function Nav({ variant = "dark" }) {
         { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
-        { to: "/profile", label: "Edit profile" },
+        { to: "/profile", label: "Profile" },
       ]
     : [];
 

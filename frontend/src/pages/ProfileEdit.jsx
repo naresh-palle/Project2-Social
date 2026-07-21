@@ -134,7 +134,13 @@ export default function ProfileEdit() {
           handle: f.handle, 
           name: f.name,
           bio: f.bio,
-          niches: [f.category || "General"] 
+          niches: [f.category || "General"],
+          city: f.city,
+          state: f.state,
+          languages: f.languages,
+          experience: f.experience,
+          content_types: f.content_types,
+          platform_metrics: f.platform_metrics
       });
       if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
       if (data.portfolio && Array.isArray(data.portfolio)) {
@@ -168,9 +174,19 @@ export default function ProfileEdit() {
   const refreshAnalytics = async () => {
     setSyncBusy(true);
     try {
-      await api.post("/creators/sync-analytics");
-      await refresh();
-      toast.success("Analytics successfully synchronized with external platforms.");
+      const { data } = await api.post("/creators/sync-analytics");
+      
+      if (data.message.includes("No social media platforms connected")) {
+          toast.info(data.message);
+      } else {
+          toast.success(data.message);
+      }
+      
+      setF(prev => ({ 
+          ...prev, 
+          platform_metrics: data.metrics || prev.platform_metrics,
+          monthly_analytics: data.monthly_analytics || prev.monthly_analytics
+      }));
     } catch (e) {
       toast.error("Failed to sync analytics.");
     } finally {

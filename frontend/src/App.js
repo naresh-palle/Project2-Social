@@ -11,6 +11,7 @@ import CampaignDetail from "@/pages/CampaignDetail";
 import CreatorDetail from "@/pages/CreatorDetail";
 import NewCampaign from "@/pages/NewCampaign";
 import ProfileEdit from "@/pages/ProfileEdit";
+import ProfileView from "@/pages/ProfileView";
 import Messages from "@/pages/Messages";
 import Invitations from "@/pages/Invitations";
 import Wallet from "@/pages/Wallet";
@@ -30,7 +31,8 @@ function App() {
             <Route path="/register/:role" element={<Register />} />
             <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
             <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
-            <Route path="/profile" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
+            <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
+            <Route path="/profile/edit" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
             <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
             <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />

@@ -675,6 +675,17 @@ async def sync_analytics(current: dict = Depends(get_current_user)):
     
     # 1. Update Platform Metrics with deep data
     pm = current.get("platform_metrics") or {}
+    
+    # Check if any platforms have handles connected
+    has_handles = any(info.get("handle") for info in pm.values() if isinstance(info, dict))
+    if not has_handles:
+        return {
+            "ok": True, 
+            "message": "No social media platforms connected. No changes made.",
+            "metrics": pm,
+            "monthly_analytics": current.get("monthly_analytics", [])
+        }
+
     for plat in ["instagram", "youtube", "twitter", "facebook"]:
         if plat in pm and pm[plat].get("handle"):
             base_foll = pm[plat].get("followers", random.randint(10000, 500000))
@@ -712,7 +723,12 @@ async def sync_analytics(current: dict = Depends(get_current_user)):
         {"$set": {"platform_metrics": pm, "monthly_analytics": monthly_data, "analytics_last_synced": now_iso()}}
     )
     
-    return {"ok": True, "message": "Analytics synchronized with external platforms."}
+    return {
+        "ok": True, 
+        "message": "Analytics synchronized with external platforms.",
+        "metrics": pm,
+        "monthly_analytics": monthly_data
+    }
 
 @api_router.get("/creators")
 async def list_creators(niche: Optional[str] = None, platform: Optional[str] = None,
@@ -1940,19 +1956,37 @@ class ProfileSuggestInput(BaseModel):
     handle: Optional[str] = None
     name: Optional[str] = None
     bio: Optional[str] = None
+    languages: Optional[List[str]] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    experience: Optional[str] = None
+    content_types: Optional[List[str]] = None
+    platform_metrics: Optional[dict] = None
 
 @api_router.post("/ai/suggest-profile")
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
     system = "You are a creative director for high-end influencers."
     
-    niches_str = ", ".join(inp.niches) if inp.niches else "general lifestyle"
-    handle_str = inp.handle if inp.handle else "unknown"
+    niches_str = ", ".join(inp.niches) if inp.niches else "General"
+    handle_str = inp.handle or "an upcoming creator"
+    name_str = inp.name or "the creator"
+    lang_str = ", ".join(inp.languages) if inp.languages else "English"
+    loc_str = f"{inp.city or ''}, {inp.state or ''}".strip(", ") or "Global"
+    exp_str = inp.experience or "upcoming"
     
-    prompt = "The influencer's niches are: " + niches_str + ".\n"
-    prompt += "The handle is " + handle_str + ".\n\n"
-    prompt += "Suggest a punchy, luxurious bio (1-2 sentences max).\n"
-    prompt += "Also, suggest exactly 4 high-quality image URLs for their portfolio that match these niches.\n"
+    platforms = []
+    if inp.platform_metrics:
+        for p, d in inp.platform_metrics.items():
+            if d and d.get("handle"):
+                platforms.append(p)
+    plat_str = ", ".join(platforms) if platforms else "various platforms"
+    
+    prompt = f"The influencer's name is {name_str}. The niches are: {niches_str}.\n"
+    prompt += f"They are based in {loc_str} and speak {lang_str}.\n"
+    prompt += f"They have {exp_str} experience and are active on {plat_str}.\n\n"
+    prompt += "Suggest a punchy, luxurious bio (1-2 sentences max) that takes all this context into account.\n"
+    prompt += "Also, suggest exactly 4 high-quality image URLs for their portfolio that perfectly match their niches.\n"
     prompt += "(Use actual real unsplash source URLs like https://images.unsplash.com/photo-...)\n\n"
     prompt += "Return ONLY JSON with this structure:\n"
     prompt += "{\n  \"bio\": \"...\",\n  \"portfolio\": [\"url1\", \"url2\", \"url3\", \"url4\"]\n}\n"
