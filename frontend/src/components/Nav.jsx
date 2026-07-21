@@ -109,15 +109,7 @@ export function Nav({ variant = "dark" }) {
                               {it.label}
                             </Link>
                           ))}
-                          {user.role === "admin" && (
-                            <Link
-                              to="/admin"
-                              onClick={() => setOpen(false)}
-                              className="block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/10 text-orange-400 hover:text-orange-300 transition-colors"
-                            >
-                              Admin Panel
-                            </Link>
-                          )}
+
                           <button
                             onClick={() => { setOpen(false); logout(); nav("/"); }}
                             data-testid="nav-logout"
