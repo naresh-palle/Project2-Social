@@ -114,7 +114,7 @@ export default function NewCampaign() {
           <Row label="Brand"><input required data-testid="cf-brand" value={f.brand} onChange={change("brand")} className="inp" /></Row>
           <Row label="Description"><textarea required data-testid="cf-desc" value={f.description} onChange={change("description")} rows={5} className="inp resize-none" /></Row>
           <Row label="Deliverables"><input required data-testid="cf-deliv" value={f.deliverables} onChange={change("deliverables")} className="inp" /></Row>
-          <Row label="Budget (USD)"><input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" /></Row>
+          <Row label="Budget (INR ₹)"><input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" /></Row>
           <Row label="Cover image">
             <div className="flex items-center gap-4 mt-2">
               {f.cover && <img src={f.cover} alt="" className="w-16 h-20 object-cover" />}

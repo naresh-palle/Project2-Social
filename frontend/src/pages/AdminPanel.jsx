@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Users, DollarSign, Activity, Bell, Search, Download, Calendar, ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, Trash2 } from "lucide-react";
+import { Users, IndianRupee, Activity, Bell, Search, Download, Calendar, ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, Trash2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -186,7 +186,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 0) + (stats?.users?.brands || 0) + (stats?.users?.agencies || 0)} sub={`${stats?.users?.creators || 0} Creators · ${stats?.users?.brands || 0} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
-                    <StatCard title="Total Revenue" value={`₹${((stats?.financial?.revenue || 0) / 1000).toFixed(1)}K`} sub={`From ₹${((stats?.financial?.total_payments || 0) / 1000).toFixed(1)}K GMV`} icon={<DollarSign className="w-5 h-5 text-green-400" />} trend="+8%" pos={true} />
+                    <StatCard title="Total Revenue" value={`₹${((stats?.financial?.revenue || 0) / 1000).toFixed(1)}K`} sub={`From ₹${((stats?.financial?.total_payments || 0) / 1000).toFixed(1)}K GMV`} icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+8%" pos={true} />
                     <StatCard title="Active Campaigns" value={stats?.campaigns?.active || 0} sub={`Out of ${stats?.campaigns?.total || 0} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend="-2%" pos={false} />
                     <StatCard title="Pending Requests" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0)} sub={`${stats?.requests?.verification_requests || 0} verifications`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="+5%" pos={false} />
                 </div>

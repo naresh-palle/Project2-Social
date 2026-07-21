@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Send, Check, RotateCw, Star, DollarSign, MessageSquare, Upload, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
@@ -182,7 +182,7 @@ export default function CampaignDetail() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     {!c.escrow_funded ? (
                       <button onClick={fund} data-testid="fund-btn" className="btn-solid">
-                        <DollarSign className="w-4 h-4" /> Fund escrow · ₹{c.budget}
+                        <IndianRupee className="w-4 h-4" /> Fund escrow · ₹{c.budget}
                       </button>
                     ) : c.escrow_released ? (
                       <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30]">✓ Payment released</span>
@@ -264,7 +264,7 @@ export default function CampaignDetail() {
                         <h4 className="font-editorial text-2xl italic">Invite {inviteForCreator.name}</h4>
                         <button onClick={() => setInviteForCreator(null)} className="opacity-60 hover:opacity-100">×</button>
                       </div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Offer (USD)</label>
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Offer (INR ₹)</label>
                       <input type="number" data-testid="quick-invite-offer" value={inviteOffer} onChange={e=>setInviteOffer(e.target.value)}
                         placeholder={`${c.budget}`}
                         className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
@@ -361,7 +361,7 @@ export default function CampaignDetail() {
                         className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your rate (USD)</label>
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your rate (INR ₹)</label>
                       <input required data-testid="apply-rate" type="number" value={rate} onChange={(e) => setRate(e.target.value)}
                         className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg" />
                     </div>
