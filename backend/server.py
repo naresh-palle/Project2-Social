@@ -1385,40 +1385,41 @@ async def root():
 
 # ---------- AI ----------
 async def call_llm(system: str, prompt: str) -> str:
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY missing")
-    try:
-        import google.generativeai as genai
-    except ImportError:
-        raise HTTPException(status_code=500, detail="google-generativeai library missing")
-    
-    genai.configure(api_key=EMERGENT_LLM_KEY)
-    
-    # Use standard Gemini 1.5 Flash
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    
-    # Prepend system instruction to prompt for classic gemini support
-    full_prompt = f"System Instruction: {system}\n\nUser Request: {prompt}"
-    
-    # We use await loop.run_in_executor since genai library might be sync
-    import asyncio
-    loop = asyncio.get_event_loop()
-    
-    def generate():
-        response = model.generate_content(full_prompt)
-        return response.text
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY missing")
         
-    try:
-        text = await loop.run_in_executor(None, generate)
-        return text
-    except Exception as e:
-        available_models = []
+    import httpx
+    
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+    }
+    
+    payload = {
+        "model": "claude-3-haiku-20240307",
+        "max_tokens": 1000,
+        "system": system,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
+    
+    async with httpx.AsyncClient() as client:
         try:
-            available_models = [m.name for m in genai.list_models()]
-        except Exception:
-            pass
-        logger.warning(f"Gemini API error: {e}")
-        raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}. Available: {available_models}")
+            response = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data["content"][0]["text"]
+        except Exception as e:
+            logger.warning(f"Anthropic API error: {e}")
+            raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}")
 
 
 def parse_json(text: str) -> dict:
