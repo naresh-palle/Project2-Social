@@ -993,23 +993,46 @@ async def create_invitation(inp: InvitationCreate, current: dict = Depends(get_c
 
 @api_router.get("/invitations/mine")
 async def my_invitations(current: dict = Depends(get_current_user)):
+    user_id = current["id"]
     if current["role"] == "influencer":
-        invs = await db.invitations.find({"creator_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+        invs = await db.invitations.find({"creator_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
     elif current["role"] == "owner":
-        invs = await db.invitations.find({"owner_id": current["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+        invs = await db.invitations.find({"$or": [{"owner_id": user_id}, {"brand_id": user_id}]}, {"_id": 0}).sort("created_at", -1).to_list(200)
     else:
         invs = []
-    # enrich
+        
+    if not invs:
+        return []
+
+    # Batch lookup campaigns & creators in 2 parallel queries instead of sequential loop queries
+    camp_ids = list(set(i.get("campaign_id") for i in invs if i.get("campaign_id")))
+    creator_ids = list(set(i.get("creator_id") for i in invs if i.get("creator_id")))
+
+    camps_list, creators_list = await asyncio.gather(
+        db.campaigns.find({"id": {"$in": camp_ids}}, {"_id": 0, "id": 1, "title": 1, "brand": 1, "budget": 1}).to_list(200),
+        db.users.find({"id": {"$in": creator_ids}}, {"_id": 0, "id": 1, "name": 1, "handle": 1, "avatar": 1}).to_list(200)
+    )
+
+    camps_map = {c["id"]: c for c in camps_list}
+    creators_map = {u["id"]: u for u in creators_list}
+
     for i in invs:
-        camp = await db.campaigns.find_one({"id": i["campaign_id"]}, {"_id": 0, "title": 1, "brand": 1})
+        camp = camps_map.get(i.get("campaign_id"))
         if camp:
-            i["campaign_title"] = camp["title"]
-            i["campaign_brand"] = camp["brand"]
-        creator = await db.users.find_one({"id": i["creator_id"]}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1})
+            i["campaign_title"] = camp.get("title") or i.get("campaign_title") or "Untitled Brief"
+            i["campaign_brand"] = camp.get("brand") or i.get("campaign_brand") or "Brand Studio"
+            if not i.get("offer"):
+                i["offer"] = camp.get("budget") or 15000
+        
+        if not i.get("offer"):
+            i["offer"] = 15000
+
+        creator = creators_map.get(i.get("creator_id"))
         if creator:
-            i["creator_name"] = creator["name"]
-            i["creator_handle"] = creator.get("handle")
-            i["creator_avatar"] = creator.get("avatar")
+            i["creator_name"] = creator.get("name") or i.get("creator_name")
+            i["creator_handle"] = creator.get("handle") or i.get("creator_handle")
+            i["creator_avatar"] = creator.get("avatar") or i.get("creator_avatar")
+            
     return invs
 
 

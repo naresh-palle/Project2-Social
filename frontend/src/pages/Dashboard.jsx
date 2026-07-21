@@ -230,7 +230,7 @@ function InfluencerPanel() {
                 </div>
               </div>
               <div className="col-span-6 md:col-span-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
-                Rate · ₹{a.rate}
+                Rate · ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}
               </div>
               <div className="col-span-6 md:col-span-3 text-right font-mono text-[11px] tracking-[0.25em] uppercase">
                 <span className={a.status === "accepted" ? "text-[#FF3B30]" : "opacity-60"}>

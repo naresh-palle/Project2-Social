@@ -540,7 +540,7 @@ const FEATURED = [
 
 function FeaturedGrid() {
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-24 md:py-32">
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-14 md:py-20">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="flex items-baseline justify-between hairline-b pb-6 mb-14">
@@ -557,7 +557,7 @@ function FeaturedGrid() {
           {FEATURED.map((f, i) => (
             <FadeUp key={i} delay={i * 0.06} className={f.span}>
               <figure className="group relative overflow-hidden">
-                <div className="relative overflow-hidden aspect-[4/5]">
+                <div className="relative overflow-hidden aspect-[16/10] max-h-[280px] md:max-h-[320px]">
                   <motion.img
                     src={f.img}
                     alt={f.title}

@@ -15,7 +15,15 @@ export default function Invitations() {
   const [counter, setCounter] = useState("");
   const [note, setNote] = useState("");
 
-  const load = () => api.get("/invitations/mine").then(r => setInvs(r.data)).catch(() => {});
+  const [loading, setLoading] = useState(true);
+
+  const load = () => {
+    setLoading(true);
+    api.get("/invitations/mine")
+      .then(r => setInvs(r.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
   useEffect(() => { if (user) load(); }, [user]);
 
   const act = async (id, action, payload = {}) => {
@@ -45,7 +53,13 @@ export default function Invitations() {
           <Link to="/dashboard" className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline">← Dashboard</Link>
         </div>
 
-        {invs.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4 mt-8 animate-pulse">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="hairline-t hairline-b hairline-l hairline-r p-6 h-36 bg-white/[0.02]" />
+            ))}
+          </div>
+        ) : invs.length === 0 ? (
           <div className="py-24 text-center font-editorial italic text-3xl opacity-60">
             No invitations on file.
           </div>
@@ -70,11 +84,11 @@ export default function Invitations() {
                 </div>
                 <div className="col-span-6 md:col-span-2 font-editorial">
                   <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">Offer</div>
-                  <div className="text-4xl italic text-[#FF3B30]">${i.offer}</div>
+                  <div className="text-3xl italic text-[#FF3B30]">₹{Number(i.offer || i.budget || 15000).toLocaleString()}</div>
                   {i.counter_offer && (
                     <>
-                      <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 mt-2">Counter</div>
-                      <div className="text-2xl">${i.counter_offer}</div>
+                      <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 mt-2">Counter Offer</div>
+                      <div className="text-2xl font-editorial italic text-white">₹{Number(i.counter_offer).toLocaleString()}</div>
                     </>
                   )}
                 </div>

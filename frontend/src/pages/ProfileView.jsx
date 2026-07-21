@@ -163,9 +163,13 @@ export default function ProfileView() {
                     <div>
                         <h2 className="font-editorial text-4xl mb-8">Selected Work</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {profile.portfolio.map((img, i) => (
-                                <div key={i} className="aspect-[4/5] bg-white/5 border border-white/10 relative group overflow-hidden">
-                                    <img src={img} alt="Portfolio" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            {profile.portfolio.map((media, i) => (
+                                <div key={i} className="aspect-[16/10] max-h-[260px] bg-white/5 border border-white/10 relative group overflow-hidden rounded-sm">
+                                    {media && media.match(/\.(mp4|webm|ogg)$/i) ? (
+                                        <video src={media} controls className="w-full h-full object-cover" />
+                                    ) : (
+                                        <img src={media} alt={`Work ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    )}
                                 </div>
                             ))}
                         </div>
