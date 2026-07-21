@@ -22,7 +22,7 @@ export default function Login() {
     setLoading(true);
     const r = await login(identifier, password);
     setLoading(false);
-    if (r.ok) nav(r.user.role === "admin" ? "/admin" : (location.state?.from || "/dashboard"));
+    if (r.ok) nav(location.state?.from || "/dashboard");
     else setErr(r.error);
   };
 

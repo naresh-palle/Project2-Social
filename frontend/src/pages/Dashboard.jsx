@@ -8,13 +8,14 @@ import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 
+import { AdminPanel } from "./AdminPanel";
+
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
   useEffect(() => {
     if (!loading && !user) nav("/login");
-    else if (!loading && user?.role === "admin") nav("/admin");
   }, [user, loading, nav]);
 
   if (loading || !user) {
@@ -47,13 +48,13 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                § {user.role === "owner" ? "Owner desk" : user.role === "agent" ? "Agent desk" : "Creator desk"}
+                § {user.role === "admin" ? "Super Admin" : user.role === "owner" ? "Owner desk" : user.role === "agent" ? "Agent desk" : "Creator desk"}
               </p>
               <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
                 {user.name}<span className="tick">.</span>
               </h1>
               <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-3">
-                {user.role === "owner" ? user.company || "Owner" : user.role === "agent" ? "Agent" : user.handle || "Creator"} ·{" "}
+                {user.role === "admin" ? "Platform Console" : user.role === "owner" ? user.company || "Owner" : user.role === "agent" ? "Agent" : user.handle || "Creator"} ·{" "}
                 {user.email}
               </p>
             </div>
@@ -62,14 +63,14 @@ export default function Dashboard() {
             <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid">
               <Plus className="w-4 h-4" /> New campaign
             </Link>
-          ) : (
+          ) : user.role !== "admin" ? (
             <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid">
               <Send className="w-4 h-4" /> Browse briefs
             </Link>
           )}
         </div>
 
-        {user.role === "owner" ? <OwnerPanel /> : user.role === "agent" ? <AgentPanel /> : <InfluencerPanel />}
+        {user.role === "admin" ? <AdminPanel /> : user.role === "owner" ? <OwnerPanel /> : user.role === "agent" ? <AgentPanel /> : <InfluencerPanel />}
       </div>
       <Footer />
     </div>

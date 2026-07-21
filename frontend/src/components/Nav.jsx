@@ -25,7 +25,6 @@ export function Nav({ variant = "dark" }) {
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
         { to: "/profile", label: "Edit profile" },
-        ...(user.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [];
 
