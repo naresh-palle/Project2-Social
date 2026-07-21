@@ -1101,26 +1101,51 @@ async def open_conversation(campaign_id: str, creator_id: str, current: dict = D
 
 @api_router.get("/conversations")
 async def list_conversations(current: dict = Depends(get_current_user)):
-    if current["role"] == "owner":
-        q = {"owner_id": current["id"]}
-    elif current["role"] == "influencer":
-        q = {"creator_id": current["id"]}
-    else:
+    user_id = current["id"]
+    role = current["role"]
+
+    if role == "admin":
         q = {}
+    else:
+        q = {
+            "$or": [
+                {"owner_id": user_id},
+                {"creator_id": user_id},
+                {"brand_id": user_id},
+                {"agent_id": user_id},
+                {"participant_ids": user_id}
+            ]
+        }
     convos = await db.conversations.find(q, {"_id": 0}).sort("last_at", -1).to_list(200)
+
     for c in convos:
-        camp = await db.campaigns.find_one({"id": c["campaign_id"]}, {"_id": 0, "title": 1, "brand": 1})
+        camp = await db.campaigns.find_one({"id": c.get("campaign_id")}, {"_id": 0, "title": 1, "brand": 1})
         if camp:
-            c["campaign_title"] = camp["title"]
-            c["campaign_brand"] = camp["brand"]
-        other_id = c["creator_id"] if current["role"] == "owner" else c["owner_id"]
-        other = await db.users.find_one({"id": other_id}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1, "company": 1})
-        if other:
-            c["other_name"] = other.get("name")
-            c["other_handle"] = other.get("handle") or other.get("company")
-            c["other_avatar"] = other.get("avatar")
+            c["campaign_title"] = camp.get("title") or c.get("campaign_title") or "Campaign Brief"
+            c["campaign_brand"] = camp.get("brand") or c.get("campaign_brand") or "Brand Studio"
+        else:
+            c["campaign_title"] = c.get("campaign_title") or "Campaign Collaboration"
+            c["campaign_brand"] = c.get("campaign_brand") or "Brand Partner"
+
+        # Determine other party
+        participants = c.get("participant_ids") or [c.get("owner_id"), c.get("creator_id")]
+        other_id = next((pid for pid in participants if pid and pid != user_id), None)
+        if not other_id:
+            other_id = c.get("creator_id") if user_id == c.get("owner_id") else c.get("owner_id")
+            
+        if other_id:
+            other = await db.users.find_one({"id": other_id}, {"_id": 0, "name": 1, "handle": 1, "avatar": 1, "company": 1})
+            if other:
+                c["other_name"] = other.get("name") or other.get("company") or "User"
+                c["other_handle"] = other.get("handle") or other.get("company") or "@partner"
+                c["other_avatar"] = other.get("avatar")
+                
+        if not c.get("other_name"):
+            c["other_name"] = c.get("campaign_brand") or "Platform Partner"
+
         last = await db.messages.find({"conversation_id": c["id"]}, {"_id": 0}).sort("created_at", -1).limit(1).to_list(1)
         c["last_message"] = last[0]["content"] if last else None
+
     return convos
 
 
@@ -1129,7 +1154,8 @@ async def list_messages(conversation_id: str, current: dict = Depends(get_curren
     convo = await db.conversations.find_one({"id": conversation_id})
     if not convo:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    if current["id"] not in (convo["owner_id"], convo["creator_id"]):
+    user_id = current["id"]
+    if current["role"] != "admin" and user_id not in (convo.get("owner_id"), convo.get("creator_id"), convo.get("brand_id"), convo.get("agent_id")) and user_id not in convo.get("participant_ids", []):
         raise HTTPException(status_code=403, detail="Forbidden")
     return await db.messages.find({"conversation_id": conversation_id}, {"_id": 0}).sort("created_at", 1).to_list(500)
 
@@ -1139,7 +1165,8 @@ async def send_message(conversation_id: str, inp: MessageCreate, current: dict =
     convo = await db.conversations.find_one({"id": conversation_id})
     if not convo:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    if current["id"] not in (convo["owner_id"], convo["creator_id"]):
+    user_id = current["id"]
+    if current["role"] != "admin" and user_id not in (convo.get("owner_id"), convo.get("creator_id"), convo.get("brand_id"), convo.get("agent_id")) and user_id not in convo.get("participant_ids", []):
         raise HTTPException(status_code=403, detail="Forbidden")
     doc = {
         "id": str(uuid.uuid4()), "conversation_id": conversation_id, "sender_id": current["id"],
