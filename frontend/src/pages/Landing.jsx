@@ -182,28 +182,41 @@ function Hero() {
           >→ Explore</motion.span>
         </motion.div>
       </div>
-
-      {/* ── 5. White Strip Marquee — pinned at very bottom ── */}
-      <div className="relative z-30 mt-auto">
-        <EditorialMarquee />
-      </div>
     </section>
   );
 }
 
-// ————— Marquee —————
+// ————— New Ticker Strip (replaces old white marquee) —————
 function EditorialMarquee() {
+  const items = [
+    "The Owners", "✦", "The Influencers", "✦",
+    "CR8 Studio", "✦", "Signal · Not Noise", "✦",
+    "Verified Creators", "✦", "Elite Brands", "✦",
+  ];
   return (
-    <section className="paper bg-[#F4F4F0] text-[#0A0A0A] hairline-t hairline-b overflow-hidden">
-      <Marquee gradient={false} speed={45} className="py-8 md:py-10">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className="font-editorial italic text-5xl md:text-7xl px-8 flex items-center gap-8">
-            The Owners <span className="tick text-3xl">✦</span> The Influencers
-            <span className="tick text-3xl">✦</span>
+    <div
+      className="w-full overflow-hidden border-t border-b"
+      style={{
+        background: "#0A0A0A",
+        borderColor: "rgba(255,59,48,0.25)",
+        padding: "14px 0",
+      }}
+    >
+      <Marquee gradient={false} speed={50}>
+        {[...items, ...items].map((item, i) => (
+          <span
+            key={i}
+            className={`font-mono tracking-[0.32em] uppercase px-6 ${
+              item === "✦"
+                ? "text-[#FF3B30] text-xs"
+                : "text-[#F4F4F0]/50 text-[11px]"
+            }`}
+          >
+            {item}
           </span>
         ))}
       </Marquee>
-    </section>
+    </div>
   );
 }
 
@@ -737,7 +750,7 @@ export default function Landing() {
   const [deckIndex, setDeckIndex] = useState(0);
 
   const slides = [
-    { id: "hero", component: <Hero /> },
+    { id: "hero", component: <><Hero /><EditorialMarquee /></> },
     { id: "manifesto", component: <Manifesto /> },
     { id: "work", component: <SplitView /> },
     { id: "portfolio", component: <FeaturedGrid /> },
