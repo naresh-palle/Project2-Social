@@ -51,11 +51,24 @@ export default function ProfileView() {
     facebook: { handle: `${profile.name?.toLowerCase().replace(/\s+/g, "")}official`, followers: 95000, engagement: 2.1, views: 180000 }
   };
 
-  const platformMetrics = profile.platform_metrics && Object.keys(profile.platform_metrics).length > 0
+  const rawPlatforms = profile.platform_metrics && Object.keys(profile.platform_metrics).length > 0
     ? profile.platform_metrics
     : (isCreator ? defaultPlatforms : {});
 
-  const totalReach = Object.values(platformMetrics).reduce((acc, p) => acc + (p?.followers || 0), 0);
+  // Filter ONLY platforms selected / filled in by the user (non-empty handle)
+  const activePlatforms = Object.entries(rawPlatforms).filter(([_, data]) => data && data.handle && data.handle.trim() !== "");
+
+  // Fallback to defaults if none explicitly saved
+  const displayPlatforms = activePlatforms.length > 0 
+    ? activePlatforms 
+    : Object.entries(defaultPlatforms);
+
+  const totalReach = displayPlatforms.reduce((acc, [_, p]) => acc + (p?.followers || 0), 0);
+
+  // Format categories as array
+  const categoriesList = Array.isArray(profile.category) 
+    ? profile.category 
+    : (profile.category ? profile.category.split(", ") : []);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
@@ -80,7 +93,7 @@ export default function ProfileView() {
                 )}
                 <div className="flex-1">
                     <div className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2 text-[#FF3B30]">
-                        {profile.category || (isCreator ? "Creator" : "Brand")} · {profile.city || "Global"}
+                        {categoriesList.length > 0 ? categoriesList.join(" · ") : (isCreator ? "Creator" : "Brand")} · {profile.city || "Global"}
                     </div>
                     <h1 className="font-editorial text-5xl md:text-7xl leading-none">
                         {profile.name}
@@ -90,7 +103,7 @@ export default function ProfileView() {
                         {profile.languages?.length > 0 && (
                             <>
                                 <span>·</span>
-                                <span>{profile.languages.join(", ")}</span>
+                                <span>{Array.isArray(profile.languages) ? profile.languages.join(", ") : profile.languages}</span>
                             </>
                         )}
                     </div>
@@ -113,6 +126,17 @@ export default function ProfileView() {
                         {profile.bio || "No bio available."}
                     </p>
                 </div>
+
+                {categoriesList.length > 0 && (
+                    <div className="hairline-t pt-8">
+                        <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-4">Niches &amp; Categories</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {categoriesList.map(c => (
+                                <span key={c} className="px-3 py-1 bg-white/5 border border-white/10 text-xs font-mono rounded-sm text-white">{c}</span>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 
                 {isCreator && (
                     <>
@@ -137,16 +161,16 @@ export default function ProfileView() {
                 )}
             </div>
 
-            {/* Right Column: Social Platforms Summary & Selected Work */}
+            {/* Right Column: Social Presence (Side-by-Side) & Selected Work */}
             {isCreator && (
               <div className="md:col-span-8 space-y-16">
                 
-                {/* 1. SUMMARY OF USER SOCIAL MEDIA PLATFORMS */}
+                {/* OUR SOCIAL PRESENCE (Displaying Selected Platforms Side by Side) */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="font-editorial text-3xl md:text-4xl">Social Platforms &amp; Reach</h2>
-                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Channel Performance Summary</p>
+                      <h2 className="font-editorial text-3xl md:text-4xl">Our Social Presence</h2>
+                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Channel Performance (Selected Platforms)</p>
                     </div>
                     {totalReach > 0 && (
                       <div className="text-right font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3 py-1 border border-[#FF3B30]/20 rounded-xs">
@@ -155,8 +179,9 @@ export default function ProfileView() {
                     )}
                   </div>
 
+                  {/* Render Selected Platforms Side by Side */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(platformMetrics).map(([key, data]) => {
+                    {displayPlatforms.map(([key, data]) => {
                       if (!data) return null;
                       const platformLabels = {
                         instagram: { name: "Instagram", color: "text-pink-400" },
@@ -199,7 +224,7 @@ export default function ProfileView() {
                   </div>
                 </div>
 
-                {/* 2. SELECTED WORK (Portfolio Gallery) */}
+                {/* SELECTED WORK (Portfolio Gallery) */}
                 {profile.portfolio?.length > 0 && (
                     <div>
                         <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-8">

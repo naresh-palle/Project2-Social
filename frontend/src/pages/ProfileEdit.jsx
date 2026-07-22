@@ -307,16 +307,50 @@ export default function ProfileEdit() {
               </F>
           </section>
 
-          {/* LANGUAGES (Available for all) */}
+          {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
           <section className="space-y-6">
               <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">Languages You Speak</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {LANGUAGES.map(lang => (
-                      <label key={lang} className="flex items-center gap-3 cursor-pointer">
-                          <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleArray("languages", lang)} className="accent-[#FF3B30] w-4 h-4" />
-                          <span className="text-sm">{lang}</span>
-                      </label>
-                  ))}
+              <div className="space-y-4">
+                  <F label="Select Languages (Multi-Select)">
+                      <select 
+                        className="inp cursor-pointer bg-[#0A0A0A]"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val && !f.languages.includes(val)) {
+                            setF({ ...f, languages: [...f.languages, val] });
+                          }
+                          e.target.value = "";
+                        }}
+                      >
+                        <option value="" className="bg-[#0A0A0A]">Select a language to add...</option>
+                        {LANGUAGES.filter(lang => !f.languages.includes(lang)).map(lang => (
+                          <option key={lang} value={lang} className="bg-[#0A0A0A]">{lang}</option>
+                        ))}
+                      </select>
+                  </F>
+                  
+                  {/* Selected Languages Pills */}
+                  {f.languages?.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                          {f.languages.map(lang => (
+                              <span key={lang} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
+                                  {lang}
+                                  <button type="button" onClick={() => toggleArray("languages", lang)} className="hover:text-white transition-colors">
+                                      <X className="w-3.5 h-3.5" />
+                                  </button>
+                              </span>
+                          ))}
+                      </div>
+                  )}
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                      {LANGUAGES.slice(0, 8).map(lang => (
+                          <label key={lang} className={`flex items-center gap-3 p-2.5 border cursor-pointer transition-colors ${f.languages.includes(lang) ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                              <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleArray("languages", lang)} className="accent-[#FF3B30] w-4 h-4" />
+                              <span className="text-xs font-mono">{lang}</span>
+                          </label>
+                      ))}
+                  </div>
               </div>
           </section>
 
@@ -402,16 +436,78 @@ export default function ProfileEdit() {
                   )})}
               </section>
 
-              {/* SECTION 4: NICHE */}
+              {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
               <section className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">4. Content Niche / Category *</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {CATEGORIES.map(c => (
-                          <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${f.category === c ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-white/10 hover:border-white/30"}`}>
-                              <input type="radio" name="category" value={c} checked={f.category === c} onChange={e=>setF({...f, category: e.target.value})} className="accent-[#FF3B30]" required />
-                              <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
-                          </label>
-                      ))}
+                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">4. Content Niche / Category * (Multi-Select)</h2>
+                  
+                  <div className="space-y-4">
+                      <F label="Select Niches / Categories">
+                          <select 
+                            className="inp cursor-pointer bg-[#0A0A0A]"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val) {
+                                const currentCats = Array.isArray(f.category) 
+                                  ? f.category 
+                                  : (f.category ? f.category.split(", ") : []);
+                                if (!currentCats.includes(val)) {
+                                  setF({ ...f, category: [...currentCats, val] });
+                                }
+                              }
+                              e.target.value = "";
+                            }}
+                          >
+                            <option value="" className="bg-[#0A0A0A]">Select a category to add...</option>
+                            {CATEGORIES.map(c => (
+                              <option key={c} value={c} className="bg-[#0A0A0A]">{c}</option>
+                            ))}
+                          </select>
+                      </F>
+
+                      {/* Selected Category Pills */}
+                      {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
+                          <div className="flex flex-wrap gap-2 pt-2">
+                              {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map(c => (
+                                  <span key={c} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 text-white text-xs font-mono rounded-sm">
+                                      {c}
+                                      <button 
+                                        type="button" 
+                                        onClick={() => {
+                                          const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
+                                          setF({ ...f, category: currentCats.filter(x => x !== c) });
+                                        }} 
+                                        className="hover:text-[#FF3B30] transition-colors"
+                                      >
+                                          <X className="w-3.5 h-3.5" />
+                                      </button>
+                                  </span>
+                              ))}
+                          </div>
+                      )}
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
+                          {CATEGORIES.map(c => {
+                            const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
+                            const isSelected = currentCats.includes(c);
+                            return (
+                              <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${isSelected ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={isSelected} 
+                                    onChange={() => {
+                                      if (isSelected) {
+                                        setF({ ...f, category: currentCats.filter(x => x !== c) });
+                                      } else {
+                                        setF({ ...f, category: [...currentCats, c] });
+                                      }
+                                    }} 
+                                    className="accent-[#FF3B30] w-4 h-4" 
+                                  />
+                                  <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
+                              </label>
+                            );
+                          })}
+                      </div>
                   </div>
               </section>
 
