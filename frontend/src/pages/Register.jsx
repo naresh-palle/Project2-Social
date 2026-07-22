@@ -230,20 +230,38 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] relative overflow-hidden">
       <div className="grain" />
+
+      {/* Same radial ambient lighting as Sign In */}
+      <div 
+        className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none opacity-20 blur-3xl" 
+        style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 50%, transparent 80%)" }}
+      />
+      <div 
+        className="absolute -bottom-40 right-10 w-[500px] h-[500px] rounded-full pointer-events-none opacity-15 blur-3xl" 
+        style={{ background: "radial-gradient(circle, #34C759 0%, #FF3B30 60%, transparent 80%)" }}
+      />
+      <div 
+        className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" 
+        style={{ background: "radial-gradient(circle, #FF9500 0%, #7000FF 60%, transparent 80%)" }}
+      />
+
       <Nav />
       
-      <div className="min-h-screen flex items-center justify-center pt-24 pb-14 px-6">
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-14 px-6 relative z-10">
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
           onSubmit={handleInitialSubmit}
-          className="w-full max-w-2xl bg-[#0A0A0A] border border-[#F4F4F0]/10 p-8 md:p-14"
+          className="w-full max-w-2xl bg-[#121212]/90 backdrop-blur-2xl border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl relative overflow-hidden"
           data-testid={`register-form-${role}`}
           autoComplete="off"
         >
+          {/* Same top gradient bar as Sign In */}
+          <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
+
           <div className="flex items-center justify-between mb-8">
             <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Apply for access
