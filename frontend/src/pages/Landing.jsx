@@ -49,18 +49,19 @@ function Hero() {
 
   return (
     <section ref={ref} className="relative min-h-[calc(100vh-100px)] py-12 overflow-hidden bg-[#0A0A0A] flex flex-col justify-between">
-      {/* clipped spotlight photograph on the right */}
+      {/* High-fashion Multi-Model Studio Background Photograph */}
       <motion.div
         style={{ y: yImg, scale: scaleImg }}
-        className="absolute right-0 top-0 h-full w-[52%] md:w-[42%] lg:w-[38%]"
+        className="absolute right-0 top-0 h-full w-full md:w-[60%] lg:w-[50%]"
       >
         <div className="relative h-full w-full">
           <img
-            src="https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg"
-            alt="Creator portrait"
-            className="h-full w-full object-cover object-center spotlight-img"
+            src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
+            alt="Diverse Fashion Creator Models"
+            className="h-full w-full object-cover object-center spotlight-img opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#0A0A0A]/10 to-[#0A0A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/40" />
         </div>
       </motion.div>
 
@@ -81,19 +82,19 @@ function Hero() {
           <div className="relative">
             <motion.h1
               style={{ opacity: opacityWord }}
-              className="font-editorial text-[#F4F4F0] leading-[1.05] tracking-tighter"
+              className="font-editorial text-[#F4F4F0] leading-[1.02] tracking-tighter"
             >
               <MaskLine delay={0.2} className="py-1">
-                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] font-medium">The bridge</span>
+                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] font-medium drop-shadow-md">The bridge</span>
               </MaskLine>
               <MaskLine delay={0.35} className="py-1">
-                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] italic font-normal">
+                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] italic font-normal text-[#FF3B30] drop-shadow-md">
                   between owners
                 </span>
               </MaskLine>
               <MaskLine delay={0.5} className="py-1">
-                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] font-medium">
-                  &amp; influence<span className="tick">.</span>
+                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] font-medium drop-shadow-md">
+                  &amp; influence<span className="tick text-white">.</span>
                 </span>
               </MaskLine>
             </motion.h1>
