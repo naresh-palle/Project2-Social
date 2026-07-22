@@ -67,8 +67,8 @@ function Hero() {
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-28 md:pt-36 pb-16 w-full">
-        <div className="flex flex-col justify-between min-h-[calc(100vh-200px)]">
+      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-20 md:pt-24 pb-10 w-full">
+        <div className="flex flex-col justify-between" style={{ minHeight: 'calc(100vh - 160px)' }}>
           {/* Top Meta Bar - Right Side Aligned Meta */}
           <div className="flex items-center justify-between font-mono text-[11px] tracking-[0.28em] uppercase text-[#F4F4F0]/60 border-b border-white/10 pb-4">
             <MaskLine delay={0.1}>
@@ -491,39 +491,38 @@ const FEATURED = [
 
 function FeaturedGrid() {
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-12 md:py-16 border-t border-white/10">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-8 md:py-12 border-t border-white/10">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
         <FadeUp>
-          <div className="hairline-b pb-6 mb-10">
+          <div className="hairline-b pb-5 mb-8">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Selected Work Showcase
             </span>
-            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+            <h2 className="font-editorial text-3xl md:text-4xl mt-1">
               Selected <span className="italic">Work<span className="tick">.</span></span>
             </h2>
           </div>
         </FadeUp>
 
-        {/* Clean Static 3-Column Grid without inner slider or <> buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+        {/* Single Row Horizontal Scroll - All 6 images in one line */}
+        <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-white/10 bg-white/[0.02] p-4 rounded-sm hover:border-[#FF3B30]/40 transition-all">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xs bg-[#121212]">
+            <div key={i} className="group cursor-pointer border border-white/10 bg-white/[0.02] p-3 rounded-sm hover:border-[#FF3B30]/40 transition-all flex-shrink-0" style={{ width: 'calc(100% / 6 - 14px)', minWidth: '200px' }}>
+              <div className="relative overflow-hidden bg-[#121212]" style={{ aspectRatio: '4/3' }}>
                 <img
                   src={f.img}
                   alt={f.title}
                   className="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                 />
-                <div className="absolute top-3 left-3 font-mono text-[9px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2.5 py-1 text-[#F4F4F0] border border-white/10">
+                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10">
                   {f.label}
                 </div>
               </div>
-
-              <div className="mt-4">
-                <h3 className="font-editorial text-2xl group-hover:text-[#FF3B30] transition-colors leading-snug">
+              <div className="mt-3">
+                <h3 className="font-editorial text-base group-hover:text-[#FF3B30] transition-colors leading-snug">
                   {f.title}
                 </h3>
-                <p className="mt-1 font-mono text-xs opacity-60 uppercase tracking-wider">
+                <p className="mt-0.5 font-mono text-[10px] opacity-60 uppercase tracking-wider">
                   {f.meta}
                 </p>
               </div>
@@ -660,7 +659,8 @@ export default function Landing() {
     { id: "manifesto", component: <Manifesto /> },
     { id: "work", component: <SplitView /> },
     { id: "portfolio", component: <FeaturedGrid /> },
-    { id: "faq", component: <><FAQ /><Numbers /><ClosingCTA /></> }
+    { id: "numbers", component: <Numbers /> },
+    { id: "faq", component: <FAQ /> },
   ];
 
   const prevDeck = () => {
@@ -732,19 +732,21 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
-      <div className="pt-16 pb-2 w-full flex-1 relative z-10">
-        <div className="relative overflow-hidden w-full">
+      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER - No internal scrolling */}
+      <div className="pt-16 w-full flex-1 relative z-10 overflow-hidden">
+        <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
           <div
-            className="flex transition-transform duration-700 ease-out w-full items-start"
+            className="flex transition-transform duration-700 ease-out w-full h-full"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
           >
             {slides.map((s) => (
               <div 
                 key={s.id} 
-                className="w-full shrink-0 px-2 sm:px-6 md:px-12 flex flex-col justify-center min-h-[calc(100vh-120px)]"
+                className="w-full h-full shrink-0 overflow-hidden flex flex-col justify-start"
               >
-                {s.component}
+                <div className="w-full h-full overflow-y-hidden">
+                  {s.component}
+                </div>
               </div>
             ))}
           </div>
