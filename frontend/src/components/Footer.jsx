@@ -45,6 +45,56 @@ export function Footer() {
         <span>© {new Date().getFullYear()} CR8 Studio · All rights reserved</span>
         <span>GDPR Compliant • PCI-DSS Secure</span>
       </div>
+
+      {/* ── palram.ai developer credit ── */}
+      <div className="max-w-[1600px] mx-auto mt-8 pt-6 border-t border-white/5 flex items-center justify-center">
+        <a
+          href="https://palram.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 select-none"
+          style={{ textDecoration: 'none' }}
+        >
+          {/* Pulsing dot */}
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF3B30]" />
+          </span>
+
+          {/* Label */}
+          <span className="font-mono text-[11px] tracking-[0.35em] uppercase text-[#F4F4F0]/40 group-hover:text-[#F4F4F0]/70 transition-colors duration-500">
+            Crafted with precision by
+          </span>
+
+          {/* palram.ai — gradient shimmer */}
+          <span
+            className="font-editorial italic text-xl md:text-2xl tracking-tight transition-all duration-500 group-hover:scale-105"
+            style={{
+              background: 'linear-gradient(90deg, #FF3B30, #FF9500, #FF3B30, #7000FF, #FF3B30)',
+              backgroundSize: '300% 100%',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'shimmer 4s linear infinite',
+            }}
+          >
+            palram.ai
+          </span>
+
+          {/* Arrow */}
+          <span className="text-[#FF3B30]/60 group-hover:text-[#FF3B30] group-hover:translate-x-1 transition-all duration-300 font-mono text-xs">
+            ↗
+          </span>
+        </a>
+      </div>
+
+      {/* Shimmer keyframe */}
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 300% 50%; }
+        }
+      `}</style>
     </footer>
   );
 }
