@@ -105,8 +105,14 @@ export default function ProfileEdit() {
     e.target.value = "";
   };
 
-  // Past Campaigns
-  const addCampaign = () => setF({ ...f, past_campaigns: [...f.past_campaigns, { brand: "", title: "", result: "", date: "" }] });
+  // Past Campaigns (Max 5 Limit)
+  const addCampaign = () => {
+    if (f.past_campaigns.length >= 5) {
+      toast.error("Maximum limit reached: You can add at most 5 past campaigns.");
+      return;
+    }
+    setF({ ...f, past_campaigns: [...f.past_campaigns, { brand: "", title: "", result: "", date: "" }] });
+  };
   const setCampaign = (i, key, v) => {
     const c = [...f.past_campaigns];
     c[i] = { ...c[i], [key]: v };
@@ -153,6 +159,13 @@ export default function ProfileEdit() {
       if (!f.base_rate || Number(f.base_rate) <= 0) {
         toast.error("Missing Data: Please specify your Base Rate in Section 5.");
         document.getElementById("sec-rate")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const validPast = f.past_campaigns.filter(c => c.brand?.trim() || c.title?.trim());
+      if (validPast.length === 0) {
+        toast.error("Missing Data: Past Campaigns are required. Please add at least 1 Past Campaign in Section 7.");
+        document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
     }
@@ -553,12 +566,12 @@ export default function ProfileEdit() {
                     </div>
                   </F>
 
-                  <div className="mt-8">
-                      <F label="Past Campaigns (List Mode)">
+                  <div className="mt-8" id="sec-campaigns">
+                      <F label="Past Campaigns * (Required, Max 5)">
                           <div className="space-y-3 mt-3">
                               <div className="hidden md:grid grid-cols-12 gap-3 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
-                                  <div className="col-span-3">Brand</div>
-                                  <div className="col-span-4">Campaign Title / Scope</div>
+                                  <div className="col-span-3">Brand *</div>
+                                  <div className="col-span-4">Campaign Title / Scope *</div>
                                   <div className="col-span-2">Date / Year</div>
                                   <div className="col-span-2">Result / Metric</div>
                                   <div className="col-span-1 text-right">Action</div>
@@ -567,10 +580,10 @@ export default function ProfileEdit() {
                               {f.past_campaigns.map((c, i) => (
                                   <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-3 items-center rounded-sm">
                                       <div className="md:col-span-3">
-                                          <input className="inp text-xs py-1.5" placeholder="Brand Name" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                          <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
                                       </div>
                                       <div className="md:col-span-4">
-                                          <input className="inp text-xs py-1.5" placeholder="Campaign Title" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                          <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
                                       </div>
                                       <div className="md:col-span-2">
                                           <input className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025)" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
@@ -585,9 +598,16 @@ export default function ProfileEdit() {
                                       </div>
                                   </div>
                               ))}
-                              <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
-                                <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row
-                              </button>
+
+                              {f.past_campaigns.length < 5 ? (
+                                  <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
+                                    <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
+                                  </button>
+                              ) : (
+                                  <div className="font-mono text-xs text-orange-400 mt-2">
+                                      Maximum limit reached (5/5 past campaigns added)
+                                  </div>
+                              )}
                           </div>
                       </F>
                   </div>
