@@ -48,17 +48,15 @@ export default function Onboarding() {
   // Owner State
   const [industry, setIndustry] = useState("");
 
-  if (!user) return null;
-
   // Agent State
   const [agentForm, setAgentForm] = useState({
-    company: user.company || "",
-    agent_type: user.agent_type || "company_agent",
-    industry: user.industry || "Fashion & Apparel",
-    city: user.city || "Bangalore",
-    website: user.website || "",
-    bio: user.bio || "",
-    roster_size: user.roster_size || "10-50 creators"
+    company: user?.company || "",
+    agent_type: user?.agent_type || "company_agent",
+    industry: user?.industry || "Fashion & Apparel",
+    city: user?.city || "Bangalore",
+    website: user?.website || "",
+    bio: user?.bio || "",
+    roster_size: user?.roster_size || "10-50 creators"
   });
   const [isEditingAgent, setIsEditingAgent] = useState(false);
 
