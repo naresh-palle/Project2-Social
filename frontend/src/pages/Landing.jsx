@@ -45,93 +45,128 @@ function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
-  const opacityWord = useTransform(scrollYProgress, [0, 0.5], [1, 0.2]);
 
   return (
-    <section ref={ref} className="relative min-h-screen py-12 overflow-hidden bg-[#0B0B0E] flex flex-col justify-between">
-      {/* High-fashion Multi-Model Studio Background Photograph (Vividly Visible Right Side) */}
+    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col">
+
+      {/* ── Cinematic dark curtain reveal animation ── */}
+      <motion.div
+        className="absolute inset-0 bg-[#0B0B0E] z-40 pointer-events-none"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+      />
+
+      {/* ── Floating ambient particles ── */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: `${8 + i * 4}px`,
+            height: `${8 + i * 4}px`,
+            left: `${10 + i * 6}%`,
+            top: `${20 + (i % 3) * 25}%`,
+            background: i % 2 === 0 ? "#FF3B30" : "#7000FF",
+            opacity: 0.15,
+            filter: "blur(2px)",
+          }}
+          animate={{ y: [0, -20, 0], opacity: [0.1, 0.25, 0.1] }}
+          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
+        />
+      ))}
+
+      {/* ── Model photo — right 55% ── */}
       <motion.div
         style={{ y: yImg, scale: scaleImg }}
-        className="absolute right-0 top-0 h-full w-full md:w-[56%] lg:w-[48%] pointer-events-none z-0"
+        className="absolute right-0 top-0 h-full w-[55%] pointer-events-none z-0"
+        initial={{ x: 80, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
       >
         <div className="relative h-full w-full">
           <img
             src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
-            alt="Diverse Fashion Creator Models"
-            className="h-full w-full object-cover object-center spotlight-img opacity-95 rounded-l-sm shadow-2xl"
+            alt="Fashion Creator Models"
+            className="h-full w-full object-cover object-center"
           />
-          {/* Subtle directional fade for text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0E] via-[#0B0B0E]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0E] via-transparent to-[#0B0B0E]/30" />
+          {/* Strong left fade so text is never obscured */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0E] via-[#0B0B0E]/55 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0E]/80 via-transparent to-[#0B0B0E]/20" />
         </div>
       </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-20 md:pt-24 pb-10 w-full">
-        <div className="flex flex-col justify-between" style={{ minHeight: 'calc(100vh - 160px)' }}>
-          {/* Top Meta Bar - Right Side Aligned Meta */}
-          <div className="flex items-center justify-between font-mono text-[11px] tracking-[0.28em] uppercase text-[#F4F4F0]/60 border-b border-white/10 pb-4">
-            <MaskLine delay={0.1}>
-              <span className="text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
-            </MaskLine>
-            <MaskLine delay={0.15}>
-              <span className="text-right text-[#F4F4F0]/80 font-semibold">A studio for signal · not noise</span>
-            </MaskLine>
-          </div>
+      {/* ── Left-locked content (max 45% width) ── */}
+      <div className="relative z-10 flex flex-col justify-between h-full px-6 md:px-12 pt-20 pb-4" style={{ maxWidth: '45%', minWidth: '320px' }}>
+        {/* Top meta */}
+        <motion.div
+          className="flex items-center gap-4 font-mono text-[11px] tracking-[0.28em] uppercase border-b border-white/10 pb-4"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 1.0 }}
+        >
+          <span className="text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
+          <span className="ml-auto text-[#F4F4F0]/60 hidden md:inline">A studio for signal · not noise</span>
+        </motion.div>
 
-          {/* Kinetic Wordmark Headline */}
-          <div className="relative my-auto py-8">
-            <motion.h1
-              style={{ opacity: opacityWord }}
-              className="font-editorial text-[#F4F4F0] leading-[1.02] tracking-tighter"
+        {/* Headline */}
+        <div className="flex-1 flex items-center">
+          <div>
+            <MaskLine delay={1.1} className="py-0.5">
+              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] font-medium text-[#F4F4F0] leading-[1.0] tracking-tighter drop-shadow-lg">
+                The bridge
+              </span>
+            </MaskLine>
+            <MaskLine delay={1.25} className="py-0.5">
+              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] italic font-normal text-[#FF3B30] leading-[1.0] tracking-tighter drop-shadow-lg">
+                between owners
+              </span>
+            </MaskLine>
+            <MaskLine delay={1.4} className="py-0.5">
+              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] font-medium text-[#F4F4F0] leading-[1.0] tracking-tighter drop-shadow-lg">
+                &amp; influence<span className="tick text-white">.</span>
+              </span>
+            </MaskLine>
+            <motion.p
+              className="mt-4 text-[#F4F4F0]/70 text-sm leading-relaxed max-w-xs"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1.7 }}
             >
-              <MaskLine delay={0.2} className="py-1">
-                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] font-medium drop-shadow-md">The bridge</span>
-              </MaskLine>
-              <MaskLine delay={0.35} className="py-1">
-                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] italic font-normal text-[#FF3B30] drop-shadow-md">
-                  between owners
-                </span>
-              </MaskLine>
-              <MaskLine delay={0.5} className="py-1">
-                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] font-medium drop-shadow-md">
-                  &amp; influence<span className="tick text-white">.</span>
-                </span>
-              </MaskLine>
-            </motion.h1>
+              CR8 connects elite brands with fully verified influencers — escrow-protected, AI-audited, results-driven.
+            </motion.p>
           </div>
-
-          {/* Bottom CTA Row & Right Side Sub Meta */}
-          <FadeUp delay={0.8}>
-            <div className="grid grid-cols-12 gap-6 items-end border-t border-white/10 pt-6">
-              <div className="col-span-12 md:col-span-6 lg:col-span-5">
-                <p className="text-[#F4F4F0]/80 text-sm md:text-base leading-relaxed">
-                  CR8 connects elite brands with fully verified influencers. Lock budgets securely in smart escrow, automate caption compliance audits, and access direct analytics.
-                </p>
-              </div>
-              <div className="col-span-12 md:col-span-6 lg:col-span-4 flex flex-wrap items-center gap-4">
-                <Link to="/register" data-testid="hero-cta-primary" className="btn-solid py-3 px-6 text-sm bg-[#FF3B30] text-white">
-                  Enter the studio <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-                <Link
-                  to="/marketplace"
-                  data-testid="hero-cta-secondary"
-                  className="btn-pill text-[#F4F4F0] py-3 px-5 text-sm"
-                >
-                  Browse Creators
-                </Link>
-              </div>
-              <div className="col-span-12 md:col-span-12 lg:col-span-3 font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F0]/60 lg:text-right">
-                <div className="text-[#FF3B30] font-bold">Explore CR8 Studio →</div>
-                <div className="mt-0.5">Verified Brand &amp; Influencer Network</div>
-              </div>
-            </div>
-          </FadeUp>
         </div>
+
+        {/* CTA Row */}
+        <motion.div
+          className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-4"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 1.9 }}
+        >
+          <Link to="/register" data-testid="hero-cta-primary"
+            className="relative inline-flex items-center gap-2 px-5 py-2.5 text-xs font-mono tracking-wider uppercase text-white bg-[#FF3B30] hover:bg-[#e02d22] transition-colors shadow-lg overflow-hidden group"
+          >
+            Enter the studio <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <Link to="/marketplace" data-testid="hero-cta-secondary"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-mono tracking-wider uppercase text-[#F4F4F0]/80 border border-white/20 hover:border-[#FF3B30] hover:text-white transition-colors"
+          >
+            Browse Creators
+          </Link>
+          <motion.div
+            className="ml-auto font-mono text-[9px] tracking-[0.22em] uppercase text-[#F4F4F0]/40 hidden lg:block"
+            animate={{ opacity: [0.4, 0.9, 0.4] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            <div className="text-[#FF3B30]">Explore →</div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Directly Visible White Strip Marquee at bottom of Hero */}
-      <div className="relative z-30 shadow-2xl">
+      {/* ── White Strip Marquee ── */}
+      <div className="relative z-30">
         <EditorialMarquee />
       </div>
     </section>
