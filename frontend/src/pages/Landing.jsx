@@ -490,18 +490,45 @@ const FEATURED = [
 ];
 
 function FeaturedGrid() {
-                      </span>
-                      <div className="font-editorial text-2xl md:text-3xl mt-1 text-white">{f.title}</div>
-                    </div>
-                  </div>
-                  <figcaption className="flex items-baseline justify-between mt-4 font-mono text-[11px] tracking-[0.2em] uppercase">
-                    <span className="text-white font-semibold">{f.title}</span>
-                    <span className="text-[#FF3B30]">{f.meta}</span>
-                  </figcaption>
-                </figure>
-              </div>
-            ))}
+  return (
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-12 md:py-16 border-t border-white/10">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="hairline-b pb-6 mb-10">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § Selected Work Showcase
+            </span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+              Selected <span className="italic">Work<span className="tick">.</span></span>
+            </h2>
           </div>
+        </FadeUp>
+
+        {/* Clean Static 3-Column Grid without inner slider or <> buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+          {FEATURED.map((f, i) => (
+            <div key={i} className="group cursor-pointer border border-white/10 bg-white/[0.02] p-4 rounded-sm hover:border-[#FF3B30]/40 transition-all">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xs bg-[#121212]">
+                <img
+                  src={f.img}
+                  alt={f.title}
+                  className="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                />
+                <div className="absolute top-3 left-3 font-mono text-[9px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2.5 py-1 text-[#F4F4F0] border border-white/10">
+                  {f.label}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h3 className="font-editorial text-2xl group-hover:text-[#FF3B30] transition-colors leading-snug">
+                  {f.title}
+                </h3>
+                <p className="mt-1 font-mono text-xs opacity-60 uppercase tracking-wider">
+                  {f.meta}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
