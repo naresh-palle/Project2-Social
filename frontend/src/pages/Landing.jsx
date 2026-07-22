@@ -799,25 +799,85 @@ function ClosingCTA() {
 // ————— Landing Side-by-Side Deck Engine —————
 export default function Landing() {
   useLenis();
+  const [deckIndex, setDeckIndex] = useState(0);
+
+  const slides = [
+    { id: "hero", component: <Hero /> },
+    { id: "manifesto", component: <Manifesto /> },
+    { id: "work", component: <SplitView /> },
+    { id: "agencies", component: <AgentShowcase /> },
+    { id: "portfolio", component: <FeaturedGrid /> },
+    { id: "faq", component: <><FAQ /><Numbers /><ClosingCTA /></> }
+  ];
+
+  const prevDeck = () => {
+    setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
+  const nextDeck = () => {
+    setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
 
   useEffect(() => {
     document.body.style.background = "#0A0A0A";
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowLeft") prevDeck();
+      if (e.key === "ArrowRight") nextDeck();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
-    <div className="App bg-[#0A0A0A] text-[#F4F4F0] min-h-screen relative overflow-x-hidden" data-testid="landing-page">
+    <div className="App bg-[#0A0A0A] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
       <div className="grain" />
       <Nav />
 
-      {/* CONTINUOUS VERTICAL HOMEPAGE SECTIONS */}
-      <Hero />
-      <Manifesto />
-      <SplitView />
-      <AgentShowcase />
-      <FeaturedGrid />
-      <FAQ />
-      <Numbers />
-      <ClosingCTA />
+      {/* FLOATING TOP RIGHT DECK COUNTER (1 / 6, 2 / 6, etc.) */}
+      <div className="fixed top-24 right-8 z-40 font-mono text-xs tracking-widest uppercase bg-[#0A0A0A]/80 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full text-white/80 shadow-lg">
+        <span className="text-[#FF3B30] font-bold">{deckIndex + 1}</span> / {slides.length}
+      </div>
+
+      {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) AS SHOWN IN SCREENSHOT */}
+      <button
+        type="button"
+        onClick={prevDeck}
+        aria-label="Previous Slide"
+        data-testid="deck-prev-btn"
+        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+      >
+        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
+      </button>
+
+      {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) AS SHOWN IN SCREENSHOT */}
+      <button
+        type="button"
+        onClick={nextDeck}
+        aria-label="Next Slide"
+        data-testid="deck-next-btn"
+        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+      >
+        <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
+      </button>
+
+      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
+      <div className="pt-24 pb-6 flex-1 flex items-center">
+        <div className="relative overflow-hidden w-full min-h-[calc(100vh-220px)] flex items-center">
+          <div
+            className="flex transition-transform duration-700 ease-out w-full"
+            style={{ transform: `translateX(-${deckIndex * 100}%)` }}
+          >
+            {slides.map((s) => (
+              <div 
+                key={s.id} 
+                className="w-full shrink-0 min-h-[calc(100vh-240px)] max-h-[calc(100vh-160px)] overflow-y-auto no-scrollbar px-4 sm:px-10 md:px-20 flex flex-col justify-center"
+              >
+                {s.component}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* WHITE STRIP MARQUEE AT BOTTOM ABOVE FOOTER */}
       <div className="w-full shadow-lg z-30">
