@@ -799,33 +799,9 @@ function ClosingCTA() {
 // ————— Landing Side-by-Side Deck Engine —————
 export default function Landing() {
   useLenis();
-  const [deckIndex, setDeckIndex] = useState(0);
-
-  const slides = [
-    { id: "hero", label: "01 · Overview", component: <Hero /> },
-    { id: "manifesto", label: "02 · Manifesto", component: <Manifesto /> },
-    { id: "work", label: "03 · How It Works", component: <SplitView /> },
-    { id: "agencies", label: "04 · Talent Agencies", component: <AgentShowcase /> },
-    { id: "portfolio", label: "05 · Selected Work", component: <FeaturedGrid /> },
-    { id: "faq", label: "06 · FAQ & Metrics", component: <><FAQ /><Numbers /><ClosingCTA /></> }
-  ];
-
-  const prevDeck = () => {
-    setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const nextDeck = () => {
-    setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-  };
 
   useEffect(() => {
     document.body.style.background = "#0A0A0A";
-    const handleKeyDown = (e) => {
-      if (e.key === "ArrowLeft") prevDeck();
-      if (e.key === "ArrowRight") nextDeck();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -833,89 +809,17 @@ export default function Landing() {
       <div className="grain" />
       <Nav />
 
-      {/* TOP SIDE-BY-SIDE DECK NAVIGATION BAR */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-white/10 px-6 py-3 flex items-center justify-between font-mono text-[10px] tracking-widest uppercase">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <span className="opacity-50 mr-2 font-bold text-[#FF3B30]">Studio Deck:</span>
-          {slides.map((s, idx) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setDeckIndex(idx)}
-              className={`px-3 py-1.5 rounded-sm transition-all whitespace-nowrap cursor-pointer ${
-                deckIndex === idx
-                  ? "bg-[#FF3B30] text-white font-bold shadow-lg"
-                  : "bg-white/5 text-white/70 hover:bg-white/15"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+      {/* CONTINUOUS VERTICAL HOMEPAGE SECTIONS */}
+      <Hero />
+      <Manifesto />
+      <SplitView />
+      <AgentShowcase />
+      <FeaturedGrid />
+      <FAQ />
+      <Numbers />
+      <ClosingCTA />
 
-        <div className="flex items-center gap-3 shrink-0 ml-4">
-          <span className="opacity-60 hidden sm:inline">{deckIndex + 1} / {slides.length}</span>
-          <button
-            type="button"
-            onClick={prevDeck}
-            aria-label="Previous Slide Deck"
-            data-testid="deck-prev-btn"
-            className="p-2 bg-white/10 hover:bg-[#FF3B30] border border-white/20 text-white rounded-full transition-all cursor-pointer"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={nextDeck}
-            aria-label="Next Slide Deck"
-            data-testid="deck-next-btn"
-            className="p-2 bg-white/10 hover:bg-[#FF3B30] border border-white/20 text-white rounded-full transition-all cursor-pointer"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* FLOATING SIDE-BY-SIDE ARROW BUTTONS (LEFT & RIGHT) */}
-      <button
-        type="button"
-        onClick={prevDeck}
-        aria-label="Previous Slide Deck"
-        className="fixed left-4 top-1/2 -translate-y-1/2 z-50 p-4 bg-[#0A0A0A]/80 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer hidden md:flex items-center justify-center group"
-      >
-        <ChevronLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-      </button>
-
-      <button
-        type="button"
-        onClick={nextDeck}
-        aria-label="Next Slide Deck"
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-50 p-4 bg-[#0A0A0A]/80 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer hidden md:flex items-center justify-center group"
-      >
-        <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-      </button>
-
-      {/* SIDE-BY-SIDE SLIDE DECK STACK CONTAINER */}
-      <div className="pt-24 pb-6">
-        {/* RESPONSIVE VIEWPORT SLIDE DECK CONTAINER */}
-        <div className="relative overflow-hidden w-full min-h-[calc(100vh-200px)] flex items-center">
-          <div
-            className="flex transition-transform duration-700 ease-out w-full"
-            style={{ transform: `translateX(-${deckIndex * 100}%)` }}
-          >
-            {slides.map((s, idx) => (
-              <div 
-                key={s.id} 
-                className="w-full shrink-0 min-h-[calc(100vh-220px)] max-h-[calc(100vh-140px)] overflow-y-auto no-scrollbar px-2 sm:px-6 md:px-12 flex flex-col justify-center"
-              >
-                {s.component}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* WHITE STRIP MARQUEE AT BOTTOM */}
+      {/* WHITE STRIP MARQUEE AT BOTTOM ABOVE FOOTER */}
       <div className="w-full shadow-lg z-30">
         <EditorialMarquee />
       </div>
