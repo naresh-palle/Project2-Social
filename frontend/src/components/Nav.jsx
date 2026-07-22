@@ -56,9 +56,12 @@ export function Nav({ variant = "dark" }) {
       <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-10 py-4">
         <Link 
           to="/" 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          onClick={() => {
+            window.dispatchEvent(new Event("resetHomeDeck"));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }} 
           data-testid="nav-logo" 
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
         >
           <span className="font-editorial italic text-2xl leading-[1.15]">CR</span>
           <span className="font-editorial text-2xl leading-[1.15]">8</span>

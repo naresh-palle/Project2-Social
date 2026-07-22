@@ -81,18 +81,18 @@ function Hero() {
           <div className="relative">
             <motion.h1
               style={{ opacity: opacityWord }}
-              className="font-editorial text-[#F4F4F0] leading-[1.15] md:leading-[1.1] tracking-tighter"
+              className="font-editorial text-[#F4F4F0] leading-[1.05] tracking-tighter"
             >
-              <MaskLine delay={0.2} className="py-3">
-                <span className="block text-[10vw] md:text-[7.5vw] font-medium">The bridge</span>
+              <MaskLine delay={0.2} className="py-1">
+                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] font-medium">The bridge</span>
               </MaskLine>
-              <MaskLine delay={0.35} className="py-3">
-                <span className="block text-[10vw] md:text-[7.5vw] italic font-normal">
+              <MaskLine delay={0.35} className="py-1">
+                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] italic font-normal">
                   between owners
                 </span>
               </MaskLine>
-              <MaskLine delay={0.5} className="py-3">
-                <span className="block text-[10vw] md:text-[7.5vw] font-medium">
+              <MaskLine delay={0.5} className="py-1">
+                <span className="block text-[7vw] md:text-[5vw] lg:text-[4.2vw] font-medium">
                   &amp; influence<span className="tick">.</span>
                 </span>
               </MaskLine>
@@ -717,8 +717,14 @@ export default function Landing() {
       if (e.key === "ArrowLeft") prevDeck();
       if (e.key === "ArrowRight") nextDeck();
     };
+    const onReset = () => setDeckIndex(0);
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("resetHomeDeck", onReset);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resetHomeDeck", onReset);
+    };
   }, []);
 
   return (
@@ -749,8 +755,8 @@ export default function Landing() {
       </button>
 
       {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
-      <div className="pt-24 pb-6 flex-1 flex items-center">
-        <div className="relative overflow-hidden w-full min-h-[calc(100vh-220px)] flex items-center">
+      <div className="pt-20 pb-6 flex-1 flex items-center">
+        <div className="relative overflow-hidden w-full min-h-[calc(100vh-140px)] flex items-center">
           <div
             className="flex transition-transform duration-700 ease-out w-full"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
@@ -758,7 +764,7 @@ export default function Landing() {
             {slides.map((s) => (
               <div 
                 key={s.id} 
-                className="w-full shrink-0 min-h-[calc(100vh-240px)] max-h-[calc(100vh-160px)] overflow-y-auto no-scrollbar px-4 sm:px-10 md:px-20 flex flex-col justify-center"
+                className="w-full shrink-0 px-4 sm:px-10 md:px-20 py-12 flex flex-col justify-center min-h-[calc(100vh-140px)]"
               >
                 {s.component}
               </div>
