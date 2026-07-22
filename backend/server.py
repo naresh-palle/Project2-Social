@@ -794,13 +794,14 @@ async def get_creator(creator_id: str):
 # ---------- Campaigns ----------
 @api_router.post("/campaigns")
 async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_current_user)):
-    await require_role(current, ["owner"])
+    await require_role(current, ["owner", "admin"])
     cid = str(uuid.uuid4())
+    cover_url = inp.cover or "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=1200"
     doc = {
-        "id": cid, "owner_id": current["id"], "title": inp.title, "brand": inp.brand,
-        "description": inp.description, "budget": inp.budget, "niches": inp.niches,
-        "platforms": inp.platforms, "deliverables": inp.deliverables, "deadline": inp.deadline,
-        "cover": inp.cover, "status": "open", "escrow_funded": 0, "escrow_released": 0,
+        "id": cid, "owner_id": current["id"], "title": inp.title, "brand": inp.brand or current.get("company") or "Brand Studio",
+        "description": inp.description, "budget": inp.budget, "niches": inp.niches or ["General"],
+        "platforms": inp.platforms or ["instagram"], "deliverables": inp.deliverables, "deadline": inp.deadline,
+        "cover": cover_url, "status": "open", "escrow_funded": 0, "escrow_released": 0,
         "accepted_creator_id": None, "created_at": now_iso(), "applications_count": 0,
     }
     await db.campaigns.insert_one(doc)

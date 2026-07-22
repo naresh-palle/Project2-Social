@@ -122,6 +122,41 @@ export default function ProfileEdit() {
 
   const submit = async (e) => {
     e.preventDefault();
+
+    // Client-side section validation & auto-scroll to missing data
+    if (!f.name || f.name.trim() === "") {
+      toast.error("Missing Data: Please enter your Name in Section 1.");
+      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (!f.bio || f.bio.trim() === "") {
+      toast.error("Missing Data: Please enter your Bio / About in Section 1.");
+      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (!f.avatar) {
+      toast.error("Missing Data: Please upload a Profile Picture in Section 1.");
+      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (isCreator) {
+      const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
+      if (cats.length === 0) {
+        toast.error("Missing Data: Please select at least one Content Niche / Category in Section 4.");
+        document.getElementById("sec-niche")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (!f.base_rate || Number(f.base_rate) <= 0) {
+        toast.error("Missing Data: Please specify your Base Rate in Section 5.");
+        document.getElementById("sec-rate")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+
     setBusy(true);
     try {
       await api.patch("/auth/me", {
@@ -267,7 +302,7 @@ export default function ProfileEdit() {
         <motion.form onSubmit={submit} className="mt-16 space-y-16" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           
           {/* SECTION 1: BASIC */}
-          <section className="space-y-6">
+          <section id="sec-basic" className="space-y-6">
               <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic</h2>
               <F label="Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
               {isCreator ? (
@@ -371,64 +406,69 @@ export default function ProfileEdit() {
           {isCreator && (
             <>
 
-              {/* SECTION 3: SOCIAL */}
+              {/* SECTION 3: SOCIAL (3 Per Row Side-By-Side Grid) */}
               <section className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence</h2>
-                  <p className="text-xs opacity-60">Enter your handles and metrics. Metrics are publicly visible. Connect Facebook, Instagram, YouTube, and Twitter.</p>
+                  <p className="text-xs opacity-60">Enter your handles and channel metrics. Compact side-by-side layout (3 per row).</p>
                   
-                  {PLATFORMS.map(plat => {
-                      const isConnected = !!f.platform_metrics[plat]?.handle;
-                      return (
-                      <div key={plat} className={`p-6 border transition-colors ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
-                          <div className="flex justify-between items-center mb-4">
-                              <div className="flex items-center gap-2 font-editorial text-3xl capitalize text-[#FF3B30]">
-                                  {plat} {plat === "instagram" && "*"}
-                                  {isConnected && <CheckCircle2 className="w-5 h-5 text-[#34C759]" />}
-                              </div>
-                              {f.platform_metrics[plat]?.last_synced && (
-                                  <div className="font-mono text-[9px] tracking-widest opacity-50">Last synced: {new Date(f.platform_metrics[plat].last_synced).toLocaleDateString()}</div>
-                              )}
-                          </div>
-                          
-                          <F label={`${plat} Handle`}>
-                              <input required={plat==="instagram"} className="inp font-mono text-sm" 
-                                     value={f.platform_metrics[plat]?.handle || ""} 
-                                     onChange={e=>setF({
-                                         ...f, 
-                                         platform_metrics: {
-                                             ...f.platform_metrics, 
-                                             [plat]: {...(f.platform_metrics[plat] || {}), handle: e.target.value}
-                                         }
-                                     })} />
-                          </F>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-                              <F label={plat==="youtube" ? "Subscribers" : "Followers"}>
-                                  <input type="number" className="inp text-xl"
-                                         value={f.platform_metrics[plat]?.followers || ""}
-                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
-                              </F>
-                              <F label="Engagement (%)">
-                                  <input type="number" step="0.1" className="inp text-xl"
-                                         value={f.platform_metrics[plat]?.engagement || ""}
-                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
-                              </F>
-                              <F label="Views (3M)">
-                                  <input type="number" className="inp text-xl"
-                                         value={f.platform_metrics[plat]?.views || ""}
-                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
-                              </F>
-                              <F label="Posts / Videos">
-                                  <input type="number" className="inp text-xl"
-                                         value={f.platform_metrics[plat]?.posts || ""}
-                                         onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
-                              </F>
-                          </div>
-                      </div>
-                  )})}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {PLATFORMS.map(plat => {
+                        const isConnected = !!f.platform_metrics[plat]?.handle;
+                        return (
+                        <div key={plat} className={`p-4 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="flex items-center gap-1.5 font-editorial text-2xl capitalize text-[#FF3B30]">
+                                    {plat} {plat === "instagram" && "*"}
+                                    {isConnected && <CheckCircle2 className="w-4 h-4 text-[#34C759]" />}
+                                </div>
+                                <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">{plat}</span>
+                            </div>
+                            
+                            <F label={`${plat} Handle`}>
+                                <input required={plat==="instagram"} className="inp font-mono text-xs py-1" 
+                                       placeholder={`@${plat}_handle`}
+                                       value={f.platform_metrics[plat]?.handle || ""} 
+                                       onChange={e=>setF({
+                                           ...f, 
+                                           platform_metrics: {
+                                               ...f.platform_metrics, 
+                                               [plat]: {...(f.platform_metrics[plat] || {}), handle: e.target.value}
+                                           }
+                                       })} />
+                            </F>
+                            <div className="grid grid-cols-2 gap-3 mt-4 font-mono">
+                                <div>
+                                    <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
+                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                           value={f.platform_metrics[plat]?.followers || ""}
+                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
+                                </div>
+                                <div>
+                                    <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
+                                    <input type="number" step="0.1" className="inp text-sm py-0.5" placeholder="0.0"
+                                           value={f.platform_metrics[plat]?.engagement || ""}
+                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
+                                </div>
+                                <div>
+                                    <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
+                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                           value={f.platform_metrics[plat]?.views || ""}
+                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
+                                </div>
+                                <div>
+                                    <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
+                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                           value={f.platform_metrics[plat]?.posts || ""}
+                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
+                                </div>
+                            </div>
+                        </div>
+                    )})}
+                  </div>
               </section>
 
               {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
-              <section className="space-y-6">
+              <section id="sec-niche" className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">4. Content Niche / Category * (Multi-Select)</h2>
                   
                   <div className="space-y-4">
@@ -479,7 +519,7 @@ export default function ProfileEdit() {
               </section>
 
               {/* SECTION 5: RATE */}
-              <section className="space-y-6">
+              <section id="sec-rate" className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
                   <F label="Base Rate (INR) *">
                       <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
@@ -514,21 +554,39 @@ export default function ProfileEdit() {
                   </F>
 
                   <div className="mt-8">
-                      <F label="Past Campaigns (Optional)">
-                          <div className="space-y-4 mt-2">
+                      <F label="Past Campaigns (List Mode)">
+                          <div className="space-y-3 mt-3">
+                              <div className="hidden md:grid grid-cols-12 gap-3 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
+                                  <div className="col-span-3">Brand</div>
+                                  <div className="col-span-4">Campaign Title / Scope</div>
+                                  <div className="col-span-2">Date / Year</div>
+                                  <div className="col-span-2">Result / Metric</div>
+                                  <div className="col-span-1 text-right">Action</div>
+                              </div>
+
                               {f.past_campaigns.map((c, i) => (
-                                  <div key={i} className="p-4 border border-white/10 bg-white/[0.02] relative">
-                                      <button type="button" onClick={()=>removeCampaign(i)} className="absolute top-2 right-2 opacity-50 hover:opacity-100"><X className="w-4 h-4" /></button>
-                                      <div className="grid grid-cols-2 gap-4">
-                                          <input className="inp" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
-                                          <input className="inp" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
-                                          <input className="inp col-span-2" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
-                                          <input className="inp col-span-2" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                  <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-3 items-center rounded-sm">
+                                      <div className="md:col-span-3">
+                                          <input className="inp text-xs py-1.5" placeholder="Brand Name" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                      </div>
+                                      <div className="md:col-span-4">
+                                          <input className="inp text-xs py-1.5" placeholder="Campaign Title" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                          <input className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025)" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                          <input className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views)" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                      </div>
+                                      <div className="md:col-span-1 text-right">
+                                          <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
+                                              <X className="w-4 h-4" />
+                                          </button>
                                       </div>
                                   </div>
                               ))}
-                              <button type="button" onClick={addCampaign} className="btn-pill mt-2">
-                                <Plus className="w-4 h-4" /> Add Past Campaign
+                              <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
+                                <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row
                               </button>
                           </div>
                       </F>
