@@ -345,47 +345,27 @@ function AgentPanel() {
     api.patch("/auth/me", { associated_brands: updated }).catch(() => {});
   };
 
+  const isInfluencerAgent = user?.agent_type === "influencer_agent";
+
   return (
     <div className="space-y-8">
-      {/* AGENT TYPE TOGGLE BAR */}
+      {/* AGENT CONSOLE HEADER */}
       <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
         <div>
           <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
             § Talent Agent Console
           </span>
           <h2 className="font-editorial text-3xl md:text-4xl mt-1">
-            {agentType === "company_agent" ? "Company & Brand Agent" : "Influencer & Talent Agent"}
+            {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
-
-        <div className="flex items-center gap-2 bg-white/5 p-1.5 border border-white/10 rounded-sm">
-          <button
-            type="button"
-            onClick={() => setAgentType("company_agent")}
-            className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-xs transition-all ${
-              agentType === "company_agent"
-                ? "bg-[#FF3B30] text-white font-bold shadow-md"
-                : "text-white/70 hover:text-white"
-            }`}
-          >
-            🏢 Company Agent
-          </button>
-          <button
-            type="button"
-            onClick={() => setAgentType("influencer_agent")}
-            className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-xs transition-all ${
-              agentType === "influencer_agent"
-                ? "bg-[#FF3B30] text-white font-bold shadow-md"
-                : "text-white/70 hover:text-white"
-            }`}
-          >
-            ⭐ Influencer Agent
-          </button>
+        <div className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] bg-[#FF3B30]/10 px-3.5 py-1.5 border border-[#FF3B30]/30 rounded-xs font-bold">
+          {isInfluencerAgent ? "Role: Influencer Agent" : "Role: Company Agent"}
         </div>
       </div>
 
       {/* TYPE 1: INFLUENCER AGENT VIEW */}
-      {agentType === "influencer_agent" ? (
+      {isInfluencerAgent ? (
         <div className="space-y-12">
           {/* Section 1: Admin Promotion Briefs & Creator Assignments */}
           <div>
