@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Edit2 } from "lucide-react";
+import { ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
@@ -58,7 +58,6 @@ export default function ProfileView() {
   // Filter ONLY platforms selected / filled in by the user (non-empty handle)
   const activePlatforms = Object.entries(rawPlatforms).filter(([_, data]) => data && data.handle && data.handle.trim() !== "");
 
-  // Fallback to defaults if none explicitly saved
   const displayPlatforms = activePlatforms.length > 0 
     ? activePlatforms 
     : Object.entries(defaultPlatforms);
@@ -69,6 +68,11 @@ export default function ProfileView() {
   const categoriesList = Array.isArray(profile.category) 
     ? profile.category 
     : (profile.category ? profile.category.split(", ") : []);
+
+  // Separate portfolio into Images and Videos
+  const portfolioItems = profile.portfolio || [];
+  const portfolioVideos = portfolioItems.filter(item => item && item.match(/\.(mp4|webm|ogg)$/i));
+  const portfolioImages = portfolioItems.filter(item => item && !item.match(/\.(mp4|webm|ogg)$/i));
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
@@ -161,11 +165,11 @@ export default function ProfileView() {
                 )}
             </div>
 
-            {/* Right Column: Social Presence (Side-by-Side) & Selected Work */}
+            {/* Right Column: Social Presence (Side-by-Side) & Separated Portfolio */}
             {isCreator && (
               <div className="md:col-span-8 space-y-16">
                 
-                {/* OUR SOCIAL PRESENCE (Displaying Selected Platforms Side by Side) */}
+                {/* OUR SOCIAL PRESENCE (Selected Platforms Side-by-Side) */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
@@ -179,7 +183,6 @@ export default function ProfileView() {
                     )}
                   </div>
 
-                  {/* Render Selected Platforms Side by Side */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {displayPlatforms.map(([key, data]) => {
                       if (!data) return null;
@@ -224,29 +227,47 @@ export default function ProfileView() {
                   </div>
                 </div>
 
-                {/* SELECTED WORK (Portfolio Gallery) */}
-                {profile.portfolio?.length > 0 && (
-                    <div>
-                        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-8">
-                            <div>
-                                <h2 className="font-editorial text-4xl">Selected Work</h2>
-                                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Featured Deliverables &amp; Campaign Content</p>
-                            </div>
-                            <span className="font-mono text-xs uppercase tracking-wider opacity-60">{profile.portfolio.length} items</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {profile.portfolio.map((media, i) => (
-                                <div key={i} className="aspect-[16/10] max-h-[260px] bg-white/5 border border-white/10 relative group overflow-hidden rounded-sm">
-                                    {media && media.match(/\.(mp4|webm|ogg)$/i) ? (
-                                        <video src={media} controls className="w-full h-full object-cover" />
-                                    ) : (
-                                        <img src={media} alt={`Work ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                {/* SEPARATED PORTFOLIO CATEGORIES: IMAGES & VIDEOS */}
+                <div className="space-y-12">
+                  <div className="border-b border-white/10 pb-4">
+                    <h2 className="font-editorial text-4xl">Selected Work</h2>
+                    <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Categorized Deliverables &amp; Media Assets</p>
+                  </div>
+
+                  {/* 1. SEPARATE IMAGES CATEGORY (Squeezed & Reduced Size) */}
+                  {portfolioImages.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-white/80">
+                        <ImageIcon className="w-4 h-4 text-[#FF3B30]" />
+                        <span>Featured Images ({portfolioImages.length})</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {portfolioImages.map((media, i) => (
+                          <div key={i} className="aspect-square max-h-[150px] bg-white/5 border border-white/10 relative group overflow-hidden rounded-sm">
+                            <img src={media} alt={`Work Image ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                )}
+                  )}
+
+                  {/* 2. SEPARATE VIDEOS CATEGORY */}
+                  {portfolioVideos.length > 0 && (
+                    <div className="space-y-4 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-white/80">
+                        <VideoIcon className="w-4 h-4 text-[#FF3B30]" />
+                        <span>Featured Videos ({portfolioVideos.length})</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {portfolioVideos.map((media, i) => (
+                          <div key={i} className="aspect-video max-h-[200px] bg-black border border-white/10 relative group overflow-hidden rounded-sm">
+                            <video src={media} controls className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
               </div>
             )}

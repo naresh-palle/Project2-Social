@@ -331,7 +331,7 @@ export default function ProfileEdit() {
                   
                   {/* Selected Languages Pills */}
                   {f.languages?.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2">
+                      <div className="flex flex-wrap gap-2 pt-1">
                           {f.languages.map(lang => (
                               <span key={lang} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
                                   {lang}
@@ -342,15 +342,6 @@ export default function ProfileEdit() {
                           ))}
                       </div>
                   )}
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-                      {LANGUAGES.slice(0, 8).map(lang => (
-                          <label key={lang} className={`flex items-center gap-3 p-2.5 border cursor-pointer transition-colors ${f.languages.includes(lang) ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white" : "border-white/10 hover:border-white/30 text-white/70"}`}>
-                              <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleArray("languages", lang)} className="accent-[#FF3B30] w-4 h-4" />
-                              <span className="text-xs font-mono">{lang}</span>
-                          </label>
-                      ))}
-                  </div>
               </div>
           </section>
 
@@ -466,7 +457,7 @@ export default function ProfileEdit() {
 
                       {/* Selected Category Pills */}
                       {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
-                          <div className="flex flex-wrap gap-2 pt-2">
+                          <div className="flex flex-wrap gap-2 pt-1">
                               {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map(c => (
                                   <span key={c} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 text-white text-xs font-mono rounded-sm">
                                       {c}
@@ -484,30 +475,6 @@ export default function ProfileEdit() {
                               ))}
                           </div>
                       )}
-
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
-                          {CATEGORIES.map(c => {
-                            const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
-                            const isSelected = currentCats.includes(c);
-                            return (
-                              <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${isSelected ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white" : "border-white/10 hover:border-white/30 text-white/70"}`}>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={isSelected} 
-                                    onChange={() => {
-                                      if (isSelected) {
-                                        setF({ ...f, category: currentCats.filter(x => x !== c) });
-                                      } else {
-                                        setF({ ...f, category: [...currentCats, c] });
-                                      }
-                                    }} 
-                                    className="accent-[#FF3B30] w-4 h-4" 
-                                  />
-                                  <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
-                              </label>
-                            );
-                          })}
-                      </div>
                   </div>
               </section>
 
