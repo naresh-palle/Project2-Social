@@ -11,6 +11,7 @@ import { toast, Toaster } from "sonner";
 export default function CampaignDetail() {
   const { id } = useParams();
   const nav = useNavigate();
+  const location = useLocation();
   const { user, refresh } = useAuth();
   const [c, setC] = useState(null);
   const [pitch, setPitch] = useState("");
@@ -110,7 +111,6 @@ export default function CampaignDetail() {
   const isAcceptedCreator = user?.role === "influencer" && c.accepted_creator_id === user?.id;
   const canReview = c.status === "completed";
 
-  const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const fromMessages = searchParams.get("from") === "messages" || location.state?.from === "/messages";
   const convoId = searchParams.get("convoId") || location.state?.convoId;
