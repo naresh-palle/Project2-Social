@@ -518,13 +518,43 @@ async def fetch_social_stats(inp: SocialFetchInput):
     }
 
 
+class AgentDeclineInput(BaseModel):
+    reason: Optional[str] = "Agency credentials require further verification."
+
 @api_router.post("/admin/approve-agent/{agent_id}")
 async def approve_agent(agent_id: str, current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
-    res = await db.users.update_one({"id": agent_id, "role": "agent"}, {"$set": {"agent_approved": True}})
-    if res.modified_count == 0:
+    res = await db.users.update_one(
+        {"id": agent_id, "role": "agent"}, 
+        {"$set": {"agent_approved": True, "onboarding_status": "approved", "decline_reason": None}}
+    )
+    if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Agent not found")
-    return {"ok": True}
+    
+    await push_notification(
+        agent_id, "agent_approval", 
+        "🎉 Congratulations! Your Agent Application has been APPROVED by Super Admin. You now have full access to the CR8 Talent Agent Console.",
+        {"status": "approved"}
+    )
+    return {"ok": True, "message": "Agent approved successfully"}
+
+@api_router.post("/admin/decline-agent/{agent_id}")
+async def decline_agent(agent_id: str, inp: Optional[AgentDeclineInput] = None, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    reason = inp.reason if inp and inp.reason else "Agency credentials require further verification."
+    res = await db.users.update_one(
+        {"id": agent_id, "role": "agent"}, 
+        {"$set": {"agent_approved": False, "onboarding_status": "declined", "decline_reason": reason}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    await push_notification(
+        agent_id, "agent_declined", 
+        f"⚠️ Your Agent Application requires revision. Reason: {reason}",
+        {"status": "declined", "reason": reason}
+    )
+    return {"ok": True, "message": "Agent application declined"}
 
 
 @api_router.get("/admin/dashboard-stats")

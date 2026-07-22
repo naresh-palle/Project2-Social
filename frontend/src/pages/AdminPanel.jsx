@@ -168,8 +168,11 @@ export function AdminPanel() {
             <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 text-[#FF3B30]">Super Admin</p>
                 <h1 className="font-editorial text-5xl md:text-6xl leading-none mt-2">Platform Console</h1>
-                <div className="flex gap-6 mt-8 font-mono text-xs uppercase tracking-widest">
+                <div className="flex gap-6 mt-8 font-mono text-xs uppercase tracking-widest flex-wrap">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
+                    <button onClick={() => setTab("agent_approvals")} className={`pb-2 border-b-2 transition-colors ${tab === "agent_approvals" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>
+                      Agent Approvals <span className="bg-[#FF3B30] text-white px-2 py-0.5 text-[9px] rounded-xs font-bold ml-1">Desk</span>
+                    </button>
                     <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>User Management</button>
                     <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit Logs</button>
                 </div>
@@ -294,6 +297,10 @@ export function AdminPanel() {
             </motion.div>
         )}
 
+        {tab === "agent_approvals" && (
+            <AgentApprovalDesk fetchUsers={fetchUsers} setStats={setStats} />
+        )}
+
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
                 <div className="flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
@@ -392,6 +399,190 @@ export function AdminPanel() {
                 </div>
             </motion.div>
         )}
+    </div>
+  );
+}
+
+function AgentApprovalDesk({ fetchUsers, setStats }) {
+  const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [declineModal, setDeclineModal] = useState(null);
+  const [declineReason, setDeclineReason] = useState("");
+
+  const loadAgents = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/admin/users?role=agency");
+      setAgents(data);
+    } catch (e) {
+      toast.error("Failed to load agent applications");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAgents();
+  }, []);
+
+  const handleApprove = async (agent) => {
+    try {
+      await api.post(`/admin/approve-agent/${agent.id}`);
+      toast.success(`🎉 Approved ${agent.company || agent.name}! Response sent to agent.`);
+      loadAgents();
+      fetchUsers();
+    } catch (e) {
+      toast.error("Failed to approve agent");
+    }
+  };
+
+  const handleDeclineSubmit = async (e) => {
+    e.preventDefault();
+    if (!declineModal) return;
+    try {
+      await api.post(`/admin/decline-agent/${declineModal.id}`, { reason: declineReason || "Agency credentials require further verification." });
+      toast.info(`⚠️ Application declined for ${declineModal.company || declineModal.name}. Feedback sent.`);
+      setDeclineModal(null);
+      setDeclineReason("");
+      loadAgents();
+      fetchUsers();
+    } catch (e) {
+      toast.error("Failed to decline application");
+    }
+  };
+
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>;
+
+  return (
+    <div className="mt-8 space-y-8">
+      <div className="border-b border-white/10 pb-4 flex items-center justify-between">
+        <div>
+          <h2 className="font-editorial text-3xl">📋 Agent Verification &amp; Approval Desk</h2>
+          <p className="font-mono text-xs opacity-60 mt-1 uppercase tracking-widest">
+            Review agency credentials, website portfolios, and grant or decline studio access
+          </p>
+        </div>
+        <button onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20">
+          Refresh Applications 🔄
+        </button>
+      </div>
+
+      {agents.length === 0 ? (
+        <div className="p-12 text-center border border-white/10 bg-white/[0.01]">
+          <p className="font-editorial text-2xl opacity-50">No pending agent applications</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {agents.map((ag) => {
+            const isApproved = ag.agent_approved;
+            const isDeclined = ag.onboarding_status === "declined";
+            const isPending = !isApproved && !isDeclined;
+
+            return (
+              <div key={ag.id} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm space-y-4">
+                <div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold">
+                      {ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
+                    </span>
+                    <span className={`font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
+                      isApproved ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" :
+                      isDeclined ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/30" :
+                      "bg-orange-400/10 text-orange-400 border-orange-400/30"
+                    }`}>
+                      {isApproved ? "Approved & Verified" : isDeclined ? "Declined / Revision" : "Pending Review"}
+                    </span>
+                  </div>
+
+                  <h3 className="font-editorial text-3xl font-bold mt-3">{ag.company || ag.name}</h3>
+                  <div className="font-mono text-xs opacity-70 mt-1">{ag.name} · {ag.email}</div>
+
+                  <div className="mt-4 pt-3 border-t border-white/5 space-y-2 font-mono text-xs opacity-80">
+                    <div className="flex justify-between">
+                      <span className="opacity-50">Specialization:</span>
+                      <span className="text-white font-bold">{ag.industry || "General Agency"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-50">Headquarters:</span>
+                      <span className="text-white">{ag.city || "Global"}</span>
+                    </div>
+                    {ag.website && (
+                      <div className="flex justify-between">
+                        <span className="opacity-50">Official Website:</span>
+                        <a href={ag.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline">
+                          {ag.website} ↗
+                        </a>
+                      </div>
+                    )}
+                    {ag.bio && (
+                      <div className="pt-2">
+                        <span className="opacity-50 block mb-1 text-[10px]">Representation Statement:</span>
+                        <p className="text-white/90 italic bg-white/5 p-2.5 rounded-xs border border-white/5 text-[11px]">
+                          "{ag.bio}"
+                        </p>
+                      </div>
+                    )}
+                    {isDeclined && ag.decline_reason && (
+                      <div className="pt-2 text-red-400 font-mono text-[10px]">
+                        Decline Reason: {ag.decline_reason}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-3 font-mono text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeclineModal(ag);
+                      setDeclineReason("Agency credentials require further verification.");
+                    }}
+                    className="btn-outline text-xs py-2 px-4 border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white transition-colors"
+                  >
+                    ❌ Decline / Reject
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApprove(ag)}
+                    className="btn-solid text-xs py-2 px-5 bg-[#34C759] text-white hover:bg-[#2db04e] transition-colors"
+                  >
+                    ✅ Approve Agent
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal for Admin Decline Reason */}
+      {declineModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-[#121212] border border-white/20 p-8 max-w-md w-full rounded-sm relative">
+            <h3 className="font-editorial text-3xl mb-2 text-[#FF3B30]">Decline Agent Application</h3>
+            <p className="font-mono text-xs opacity-70 mb-4">
+              Enter reason for declining {declineModal.company || declineModal.name}. This response will be sent directly to the agent.
+            </p>
+            <form onSubmit={handleDeclineSubmit} className="space-y-4">
+              <div>
+                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Decline Feedback / Reason *</label>
+                <textarea
+                  required
+                  rows={3}
+                  className="inp resize-none mt-2"
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  placeholder="e.g. Website URL broken or portfolio required..."
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10 font-mono text-xs">
+                <button type="button" onClick={() => setDeclineModal(null)} className="btn-pill">Cancel</button>
+                <button type="submit" className="btn-solid bg-[#FF3B30] text-white">Send Decline Response</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
