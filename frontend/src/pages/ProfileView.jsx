@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon, Briefcase, ExternalLink } from "lucide-react";
+import { ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon, Briefcase, ExternalLink, Building2, Globe } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
@@ -30,7 +30,7 @@ export default function ProfileView() {
 
   if (loading) return (
     <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
-      <div className="animate-pulse font-mono tracking-widest text-sm">Loading Studio...</div>
+      <div className="animate-pulse font-mono tracking-widest text-sm">Loading Studio Profile...</div>
     </div>
   );
   if (!profile) return null;
@@ -43,6 +43,34 @@ export default function ProfileView() {
     if (num >= 1_000) return (num / 1_000).toFixed(0) + "K";
     return num.toString();
   };
+
+  // Dynamic Profile Completion Calculation
+  const getCompletionDetails = () => {
+    let score = 0;
+    const missing = [];
+
+    if (profile.name?.trim()) score += 10; else missing.push("Name");
+    if (profile.avatar) score += 15; else missing.push("Profile Picture");
+    if (profile.bio?.trim()) score += 15; else missing.push("Bio / About");
+    if (profile.city?.trim()) score += 10; else missing.push("Location");
+
+    if (isCreator) {
+      if (profile.handle?.trim()) score += 10; else missing.push("Handle");
+      const cats = Array.isArray(profile.category) ? profile.category : (profile.category ? profile.category.split(", ") : []);
+      if (cats.length > 0) score += 10; else missing.push("Category / Niche");
+      if (Number(profile.base_rate) > 0) score += 10; else missing.push("Base Rate");
+      if (profile.past_campaigns?.length > 0) score += 10; else missing.push("Past Campaigns");
+      if (Object.values(profile.platform_metrics || {}).some(p => p && p.handle)) score += 10; else missing.push("Social Handle");
+    } else {
+      if (profile.company?.trim()) score += 20; else missing.push("Company Name");
+      if (profile.industry?.trim()) score += 15; else missing.push("Brand Industry");
+      if (profile.website?.trim()) score += 15; else missing.push("Website URL");
+    }
+
+    return { score: Math.min(100, score), missing };
+  };
+
+  const { score: completionScore, missing: missingFields } = getCompletionDetails();
 
   const defaultPlatforms = {
     instagram: { handle: profile.handle || `@${profile.name?.toLowerCase().replace(/\s+/g, "")}`, followers: 245000, engagement: 4.8, views: 850000 },
@@ -60,7 +88,7 @@ export default function ProfileView() {
 
   const displayPlatforms = activePlatforms.length > 0 
     ? activePlatforms 
-    : Object.entries(defaultPlatforms);
+    : (isCreator ? Object.entries(defaultPlatforms) : []);
 
   const totalReach = displayPlatforms.reduce((acc, [_, p]) => acc + (p?.followers || 0), 0);
 
@@ -87,9 +115,34 @@ export default function ProfileView() {
         <button onClick={() => nav(-1)} className="absolute top-28 left-6 md:left-12 opacity-50 hover:opacity-100 flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase transition-opacity">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
+
+        {/* Profile Completion Meter Banner */}
+        <div className="mt-16 bg-white/5 border border-white/10 p-4 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full border-2 border-[#FF3B30] flex items-center justify-center bg-[#FF3B30]/10 font-editorial text-lg font-bold text-[#FF3B30] shrink-0">
+              {completionScore}%
+            </div>
+            <div>
+              <div className="font-editorial text-xl font-bold">Profile Strength · {completionScore}% Complete</div>
+              {missingFields.length > 0 ? (
+                <div className="font-mono text-[10px] tracking-widest uppercase opacity-70 text-orange-400 mt-0.5">
+                  Complete these to reach 100%: {missingFields.join(" · ")}
+                </div>
+              ) : (
+                <div className="font-mono text-[10px] tracking-widest uppercase opacity-70 text-[#34C759] mt-0.5">
+                  ✓ Profile 100% Complete &amp; Fully Verified
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full sm:w-48 bg-white/10 h-2 rounded-full overflow-hidden">
+            <div className="bg-[#FF3B30] h-full transition-all duration-700" style={{ width: `${completionScore}%` }} />
+          </div>
+        </div>
         
         {/* Profile Header */}
-        <div className="mt-16 flex flex-col md:flex-row gap-12 items-end border-b border-white/10 pb-16 justify-between">
+        <div className="mt-8 flex flex-col md:flex-row gap-12 items-end border-b border-white/10 pb-16 justify-between">
             <div className="flex flex-col md:flex-row gap-8 items-start md:items-end">
                 {profile.avatar ? (
                     <img src={profile.avatar} alt={profile.name} className="w-32 h-32 md:w-48 md:h-48 object-cover grayscale contrast-125 border border-white/20 p-2 rounded-sm shadow-xl" />
@@ -100,18 +153,23 @@ export default function ProfileView() {
                 )}
                 <div className="flex-1">
                     <div className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2 text-[#FF3B30]">
-                        {categoriesList.length > 0 ? categoriesList.join(" · ") : (isCreator ? "Creator" : "Brand")} · {profile.city || "Global"}
+                        {profile.company || (categoriesList.length > 0 ? categoriesList.join(" · ") : (isCreator ? "Creator Studio" : "Brand Owner"))} · {profile.city || "Global"}
                     </div>
                     <h1 className="font-editorial text-5xl md:text-7xl leading-none">
-                        {profile.name}
+                        {profile.company || profile.name}
                     </h1>
-                    <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4">
-                        <span>{profile.handle || "@profile"}</span>
-                        {profile.languages?.length > 0 && (
-                            <>
-                                <span>·</span>
-                                <span>{Array.isArray(profile.languages) ? profile.languages.join(", ") : profile.languages}</span>
-                            </>
+                    <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4 flex-wrap">
+                        {profile.name && <span>{profile.name}</span>}
+                        {profile.handle && <span>· {profile.handle}</span>}
+                        {profile.industry && (
+                          <span className="px-2.5 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono uppercase tracking-wider rounded-xs">
+                            {profile.industry}
+                          </span>
+                        )}
+                        {profile.website && (
+                          <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline flex items-center gap-1">
+                            <Globe className="w-3.5 h-3.5" /> {profile.website.replace(/^https?:\/\//, "")} ↗
+                          </a>
                         )}
                     </div>
                 </div>
@@ -125,7 +183,7 @@ export default function ProfileView() {
 
         {/* Profile Grid Layout */}
         <div className="py-16 grid grid-cols-1 md:grid-cols-12 gap-16">
-            {/* Left Column: About & Bio */}
+            {/* Left Column: About, Bio & Brand Info */}
             <div className={isCreator ? "md:col-span-4 space-y-12" : "md:col-span-12 space-y-12"}>
                 <div>
                     <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-4">About</h3>
@@ -133,6 +191,36 @@ export default function ProfileView() {
                         {profile.bio || "No bio available."}
                     </p>
                 </div>
+
+                {!isCreator && (
+                  <div className="hairline-t pt-8 space-y-6">
+                    <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-4">Brand &amp; Company Overview</h3>
+                    <dl className="space-y-4 text-sm font-mono uppercase tracking-wider">
+                      <div className="flex justify-between border-b border-white/5 pb-3">
+                        <dt className="opacity-50">Company Name</dt>
+                        <dd className="text-white font-bold">{profile.company || profile.name}</dd>
+                      </div>
+                      <div className="flex justify-between border-b border-white/5 pb-3">
+                        <dt className="opacity-50">Brand Industry</dt>
+                        <dd className="text-[#FF3B30] font-semibold">{profile.industry || "General Brand"}</dd>
+                      </div>
+                      {profile.website && (
+                        <div className="flex justify-between border-b border-white/5 pb-3">
+                          <dt className="opacity-50">Website</dt>
+                          <dd>
+                            <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline flex items-center gap-1">
+                              Visit Site <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </dd>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <dt className="opacity-50">Location</dt>
+                        <dd className="text-white">{profile.city || "Global"}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                )}
 
                 {categoriesList.length > 0 && (
                     <div className="hairline-t pt-8">
@@ -172,12 +260,12 @@ export default function ProfileView() {
             {isCreator && (
               <div className="md:col-span-8 space-y-16">
                 
-                {/* 1. OUR SOCIAL PRESENCE TAB */}
+                {/* 1. OUR SOCIAL PRESENCE TAB (4 IN A ROW) */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
                       <h2 className="font-editorial text-3xl md:text-4xl">📱 Our Social Presence</h2>
-                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Channel Performance (Selected Platforms)</p>
+                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Channel Performance (4 in a row)</p>
                     </div>
                     {totalReach > 0 && (
                       <div className="text-right font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3 py-1 border border-[#FF3B30]/20 rounded-xs">
@@ -186,7 +274,7 @@ export default function ProfileView() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     {displayPlatforms.map(([key, data]) => {
                       if (!data) return null;
                       const platformLabels = {
@@ -198,30 +286,32 @@ export default function ProfileView() {
                       const plat = platformLabels[key] || { name: key.toUpperCase(), color: "text-white" };
 
                       return (
-                        <div key={key} className="p-5 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-sm flex flex-col justify-between">
+                        <div key={key} className="p-4 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-sm flex flex-col justify-between">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className={`font-mono text-xs uppercase font-bold tracking-widest ${plat.color}`}>
-                                {plat.name}
-                              </span>
-                            </div>
-                            <span className="font-mono text-[10px] tracking-widest uppercase opacity-60">
+                            <span className={`font-mono text-xs uppercase font-bold tracking-widest ${plat.color}`}>
+                              {plat.name}
+                            </span>
+                            <span className="font-mono text-[9px] tracking-widest uppercase opacity-60">
                               {data.handle || `@${key}`}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/5 font-mono">
+                          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 font-mono">
                             <div>
                               <div className="text-[9px] uppercase tracking-widest opacity-50">Followers</div>
-                              <div className="text-xl font-editorial italic mt-0.5 text-white">{formatNumber(data.followers || 0)}</div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-white">{formatNumber(data.followers || 0)}</div>
                             </div>
                             <div>
                               <div className="text-[9px] uppercase tracking-widest opacity-50">Engagement</div>
-                              <div className="text-xl font-editorial italic mt-0.5 text-[#34C759]">{data.engagement || 4.2}%</div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-[#34C759]">{data.engagement || 4.2}%</div>
                             </div>
                             <div>
-                              <div className="text-[9px] uppercase tracking-widest opacity-50">Monthly Views</div>
-                              <div className="text-xl font-editorial italic mt-0.5 text-white">{formatNumber(data.views || 0)}</div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">Views</div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-white">{formatNumber(data.views || 0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">Posts</div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-white">{data.posts || 120}</div>
                             </div>
                           </div>
                         </div>

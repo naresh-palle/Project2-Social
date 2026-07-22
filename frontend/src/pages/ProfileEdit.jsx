@@ -279,21 +279,38 @@ export default function ProfileEdit() {
     }
   };
 
-  const getCompletion = () => {
-    if (!isCreator) return 100;
+  const INDUSTRIES = [
+    "Fashion & Apparel", "Beauty & Cosmetics", "E-Commerce & Retail", 
+    "Technology & SaaS", "Food & Beverages (F&B)", "Health & Fitness", 
+    "Gaming & Esports", "Luxury Goods", "Travel & Hospitality", 
+    "Entertainment & Media", "Automotive", "Financial & FinTech", "Other"
+  ];
+
+  const getCompletionDetails = () => {
     let score = 0;
-    if (f.name) score += 10;
-    if (f.bio) score += 15;
-    if (f.avatar) score += 10;
-    if (f.city) score += 5;
-    if (f.category) score += 15;
-    if (f.languages?.length) score += 5;
-    if (f.base_rate > 0) score += 5;
-    if (f.portfolio?.length) score += 15;
-    if (Object.values(f.platform_metrics || {}).some(p => p && p.handle)) score += 20;
-    return score;
+    const missing = [];
+
+    if (f.name?.trim()) score += 10; else missing.push("Name");
+    if (f.avatar) score += 15; else missing.push("Profile Picture");
+    if (f.bio?.trim()) score += 15; else missing.push("Bio / About");
+    if (f.city?.trim()) score += 10; else missing.push("Location / City");
+
+    if (isCreator) {
+      if (f.handle?.trim()) score += 10; else missing.push("Handle");
+      const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
+      if (cats.length > 0) score += 10; else missing.push("Category / Niche");
+      if (Number(f.base_rate) > 0) score += 10; else missing.push("Base Rate");
+      if (f.past_campaigns?.length > 0) score += 10; else missing.push("Past Campaigns");
+      if (Object.values(f.platform_metrics || {}).some(p => p && p.handle)) score += 10; else missing.push("Social Handle");
+    } else {
+      if (f.company?.trim()) score += 20; else missing.push("Company Name");
+      if (f.industry?.trim()) score += 15; else missing.push("Brand Industry");
+      if (f.website?.trim()) score += 15; else missing.push("Website URL");
+    }
+
+    return { score: Math.min(100, score), missing };
   };
-  const completion = getCompletion();
+  const { score: completion, missing: missingFields } = getCompletionDetails();
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
@@ -319,39 +336,76 @@ export default function ProfileEdit() {
                 Your <span className="italic">file</span><span className="tick">.</span>
                 </h1>
             </div>
-            {isCreator && (
-                <div className="flex flex-col items-end gap-4">
-                  <div className="flex items-center gap-4">
-                      <div className="text-right">
-                          <div className="font-editorial text-2xl text-[#FF3B30]">{completion}%</div>
-                          <div className="font-mono text-[9px] tracking-widest uppercase opacity-60">Profile Completion</div>
-                      </div>
-                      <div className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center relative overflow-hidden">
-                          <div className="absolute inset-0 bg-[#FF3B30] opacity-20" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
-                      </div>
+            
+            <div className="flex flex-col items-end gap-3">
+              <div className="flex items-center gap-4 bg-white/5 p-3 border border-white/10 rounded-sm">
+                  <div className="text-right">
+                      <div className="font-editorial text-3xl font-bold text-[#FF3B30]">{completion}%</div>
+                      <div className="font-mono text-[9px] tracking-widest uppercase opacity-70">Profile Completion Meter</div>
                   </div>
-                    <button type="button" onClick={refreshAnalytics} disabled={syncBusy} className="btn-outline border-white/20 hover:border-white px-4 py-2">
-                        {syncBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                        {syncBusy ? "Syncing…" : "Refresh Analytics"}
-                    </button>
+                  <div className="w-12 h-12 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
+                      <div className="absolute inset-0 bg-[#FF3B30] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
+                      <span className="font-mono text-xs font-bold z-10 text-white">{completion}%</span>
+                  </div>
+              </div>
+              {missingFields.length > 0 && (
+                <div className="font-mono text-[9px] uppercase tracking-wider text-orange-400">
+                  Missing to 100%: {missingFields.slice(0, 3).join(" · ")}
                 </div>
+              )}
+            </div>
+        </div>
             )}
         </div>
 
         <motion.form onSubmit={submit} className="mt-16 space-y-16" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           
-          {/* SECTION 1: BASIC */}
+          {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
           <section id="sec-basic" className="space-y-6">
-              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic</h2>
-              <F label="Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
-              {isCreator ? (
-                <F label="Handle / Username *"><input required className="inp" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} /></F>
-              ) : (
-                <>
-                  <F label="Company"><input className="inp" value={f.company} onChange={e=>setF({...f,company:e.target.value})} /></F>
-                  <F label="Industry"><input className="inp" value={f.industry} onChange={e=>setF({...f,industry:e.target.value})} /></F>
-                  <F label="Website"><input className="inp" value={f.website} onChange={e=>setF({...f,website:e.target.value})} /></F>
-                </>
+              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic &amp; Brand Details</h2>
+              <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
+              
+              {!isCreator && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2" id="sec-company">
+                  <F label="Company / Brand Name *">
+                    <input 
+                      required 
+                      className="inp" 
+                      value={f.company || ""} 
+                      onChange={e=>setF({...f, company: e.target.value})} 
+                      placeholder="e.g. Acme Luxury Ltd."
+                    />
+                  </F>
+                  <F label="Brand Industry Category *">
+                    <select 
+                      required 
+                      className="inp bg-[#0A0A0A] cursor-pointer" 
+                      value={f.industry || ""} 
+                      onChange={e=>setF({...f, industry: e.target.value})}
+                    >
+                      <option value="" className="bg-[#0A0A0A]">Select Industry Category...</option>
+                      {INDUSTRIES.map(ind => (
+                        <option key={ind} value={ind} className="bg-[#0A0A0A]">{ind}</option>
+                      ))}
+                    </select>
+                  </F>
+                  <F label="Official Website URL *">
+                    <input 
+                      type="url"
+                      required 
+                      className="inp font-mono text-sm" 
+                      value={f.website || ""} 
+                      onChange={e=>setF({...f, website: e.target.value})} 
+                      placeholder="https://brand.com"
+                    />
+                  </F>
+                </div>
+              )}
+
+              {isCreator && (
+                <F label="Creator Handle / Username *">
+                  <input required className="inp font-mono text-sm" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="@username" />
+                </F>
               )}
               <F label="Bio / About *">
                   <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
@@ -442,15 +496,12 @@ export default function ProfileEdit() {
               </div>
           </section>
 
-          {isCreator && (
-            <>
-
-              {/* SECTION 3: SOCIAL (4 Per Row Side-By-Side Grid) */}
-              <section className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence</h2>
-                  <p className="text-xs opacity-60">Enter your handles and channel metrics. Side-by-side layout (4 per row).</p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
+          <section className="space-y-6">
+              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence &amp; Brand Accounts</h2>
+              <p className="text-xs opacity-60">Enter official social handles and audience reach (Instagram, YouTube, Twitter/X, Facebook). 4 in a row grid.</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     {PLATFORMS.map(plat => {
                         const isConnected = !!f.platform_metrics[plat]?.handle;
                         return (
