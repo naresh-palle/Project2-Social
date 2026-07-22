@@ -81,11 +81,11 @@ export default function NewCampaign() {
     } finally { setBusy(false); }
   };
 
-  if (!user || !["owner", "admin"].includes(user.role)) {
+  if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pt-40 px-10">
         <Nav />
-        <h1 className="font-editorial italic text-5xl">Brand Owners &amp; Admins only, please.</h1>
+        <h1 className="font-editorial italic text-5xl">Brand Owners, Agents &amp; Admins only, please.</h1>
       </div>
     );
   }

@@ -59,7 +59,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          {user.role === "owner" ? (
+          {user.role === "owner" || (user.role === "agent" && (user.agent_type === "company_agent" || !user.agent_type)) ? (
             <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid">
               <Plus className="w-4 h-4" /> New campaign
             </Link>
@@ -259,34 +259,253 @@ function InfluencerPanel() {
 }
 
 function AgentPanel() {
+  const { user } = useAuth();
+  const [agentType, setAgentType] = useState(user?.agent_type || "company_agent");
   const [creators, setCreators] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+  const [adminBriefs, setAdminBriefs] = useState([]);
+  const [associatedBrands, setAssociatedBrands] = useState(user?.associated_brands || [
+    { name: "Acme Luxe Ltd.", industry: "Fashion & Apparel", contact: "brand@acmeluxe.com", status: "Active Client" },
+    { name: "HyperTech Global", industry: "Technology & SaaS", contact: "marketing@hypertech.io", status: "Active Client" },
+    { name: "Veda Organics", industry: "Health & Wellness", contact: "collab@vedaorganics.in", status: "Active Client" }
+  ]);
+  const [newBrandModal, setNewBrandModal] = useState(false);
+  const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandIndustry, setNewBrandIndustry] = useState("Fashion & Apparel");
+
   useEffect(() => {
     api.get("/creators").then((r) => setCreators(r.data)).catch(() => {});
+    api.get("/campaigns").then((r) => {
+      setCampaigns(r.data);
+      setAdminBriefs(r.data.slice(0, 4));
+    }).catch(() => {});
   }, []);
 
+  const addBrand = (e) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    const updated = [...associatedBrands, { name: newBrandName, industry: newBrandIndustry, contact: "client@agency.com", status: "Active Client" }];
+    setAssociatedBrands(updated);
+    setNewBrandName("");
+    setNewBrandModal(false);
+    toast.success("Brand added to client roster");
+    api.patch("/auth/me", { associated_brands: updated }).catch(() => {});
+  };
+
   return (
-    <div>
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
-        Scouted Talent · {creators.length}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {creators.map((c) => (
-          <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
-            {c.avatar && (
-              <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
-                <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
-              </div>
-            )}
-            <div className="p-6 flex flex-col justify-between flex-1">
+    <div className="space-y-8">
+      {/* AGENT TYPE TOGGLE BAR */}
+      <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
+        <div>
+          <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+            § Talent Agent Console
+          </span>
+          <h2 className="font-editorial text-3xl md:text-4xl mt-1">
+            {agentType === "company_agent" ? "Company & Brand Agent" : "Influencer & Talent Agent"}
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-2 bg-white/5 p-1.5 border border-white/10 rounded-sm">
+          <button
+            type="button"
+            onClick={() => setAgentType("company_agent")}
+            className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-xs transition-all ${
+              agentType === "company_agent"
+                ? "bg-[#FF3B30] text-white font-bold shadow-md"
+                : "text-white/70 hover:text-white"
+            }`}
+          >
+            🏢 Company Agent
+          </button>
+          <button
+            type="button"
+            onClick={() => setAgentType("influencer_agent")}
+            className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 rounded-xs transition-all ${
+              agentType === "influencer_agent"
+                ? "bg-[#FF3B30] text-white font-bold shadow-md"
+                : "text-white/70 hover:text-white"
+            }`}
+          >
+            ⭐ Influencer Agent
+          </button>
+        </div>
+      </div>
+
+      {/* TYPE 1: INFLUENCER AGENT VIEW */}
+      {agentType === "influencer_agent" ? (
+        <div className="space-y-12">
+          {/* Section 1: Admin Promotion Briefs & Creator Assignments */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
-                <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
-                <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+                <h3 className="font-editorial text-2xl">📋 Admin Promotion Briefs &amp; Creator Assignments</h3>
+                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
+                  Admin campaign details — arrange creators from your roster to fulfill briefs
+                </p>
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {adminBriefs.map((brief) => (
+                <div key={brief.id} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold">
+                        Admin Promotion Brief
+                      </span>
+                      <span className="font-mono text-xs text-[#34C759]">₹{brief.budget?.toLocaleString()} Budget</span>
+                    </div>
+                    <h4 className="font-editorial text-2xl font-bold">{brief.title}</h4>
+                    <p className="font-mono text-xs opacity-70 mt-2 line-clamp-2">{brief.description}</p>
+                    <div className="mt-4 font-mono text-[10px] uppercase opacity-60">
+                      Deliverables: {brief.deliverables || "1x Reel + Stories"}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                    <span className="font-mono text-[10px] uppercase opacity-50">Arrange Influencers</span>
+                    <button
+                      type="button"
+                      onClick={() => toast.success(`Assigned influencers to campaign ${brief.title}`)}
+                      className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126]"
+                    >
+                      Arrange Influencer Roster →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 2: Scouted Influencers Roster */}
+          <div>
+            <h3 className="font-editorial text-2xl mb-4">⭐ Scouted Creator Roster ({creators.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {creators.map((c) => (
+                <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
+                  {c.avatar && (
+                    <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
+                      <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+                    </div>
+                  )}
+                  <div className="p-6 flex flex-col justify-between flex-1">
+                    <div>
+                      <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}</div>
+                      <h4 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h4>
+                      <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* TYPE 2: COMPANY AGENT VIEW */
+        <div className="space-y-12">
+          {/* Section 1: Associated Brands & Companies */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-editorial text-2xl">🏢 Associated Brands &amp; Companies</h3>
+                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
+                  Brand clients represented by your agency
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNewBrandModal(true)}
+                className="btn-solid text-xs py-2 px-4 bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" /> Add Associated Brand
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {associatedBrands.map((brand, i) => (
+                <div key={i} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold">
+                        {brand.status || "Active Client"}
+                      </span>
+                    </div>
+                    <h4 className="font-editorial text-3xl font-bold">{brand.name}</h4>
+                    <div className="font-mono text-xs text-[#34C759] mt-1">{brand.industry}</div>
+                    <div className="font-mono text-[11px] opacity-60 mt-3">{brand.contact}</div>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                    <Link to="/campaigns/new" className="text-xs font-mono text-[#FF3B30] hover:underline flex items-center gap-1">
+                      + Post Campaign ↗
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 2: Client Campaigns & Option to Post New Campaign */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-editorial text-2xl">📢 Client Campaigns ({campaigns.length})</h3>
+                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
+                  Live campaign briefs created for your associated brand clients
+                </p>
+              </div>
+              <Link to="/campaigns/new" className="btn-solid py-2.5 px-5 text-sm bg-[#FF3B30] text-white flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Post New Campaign
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {campaigns.map((c) => (
+                <CampaignRow key={c.id} c={c} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal to Add Associated Brand */}
+      {newBrandModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-[#121212] border border-white/20 p-8 max-w-md w-full rounded-sm relative">
+            <h3 className="font-editorial text-3xl mb-4">Add Associated Brand Client</h3>
+            <form onSubmit={addBrand} className="space-y-4">
+              <div>
+                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Brand / Company Name *</label>
+                <input
+                  required
+                  className="inp"
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  placeholder="e.g. Acme Studio Ltd."
+                />
+              </div>
+              <div>
+                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Brand Industry *</label>
+                <select
+                  className="inp bg-[#121212] cursor-pointer"
+                  value={newBrandIndustry}
+                  onChange={(e) => setNewBrandIndustry(e.target.value)}
+                >
+                  <option value="Fashion & Apparel">Fashion & Apparel</option>
+                  <option value="Beauty & Cosmetics">Beauty & Cosmetics</option>
+                  <option value="Technology & SaaS">Technology & SaaS</option>
+                  <option value="Food & Beverages (F&B)">Food & Beverages (F&B)</option>
+                  <option value="Luxury Goods">Luxury Goods</option>
+                  <option value="Health & Fitness">Health & Fitness</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setNewBrandModal(false)} className="btn-pill">Cancel</button>
+                <button type="submit" className="btn-solid bg-[#FF3B30] text-white">Add Brand Client</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -243,6 +243,8 @@ class UserUpdate(BaseModel):
     content_types: Optional[List[str]] = None
     response_time: Optional[str] = None
     platform_metrics: Optional[Dict[str, Dict[str, Any]]] = None
+    agent_type: Optional[str] = None
+    associated_brands: Optional[List[Dict[str, Any]]] = None
     monthly_analytics: Optional[List[Dict[str, Any]]] = None  # For historical charts
 
 
@@ -794,7 +796,7 @@ async def get_creator(creator_id: str):
 # ---------- Campaigns ----------
 @api_router.post("/campaigns")
 async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_current_user)):
-    await require_role(current, ["owner", "admin"])
+    await require_role(current, ["owner", "agent", "admin"])
     cid = str(uuid.uuid4())
     cover_url = inp.cover or "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=1200"
     doc = {
