@@ -805,7 +805,6 @@ export default function Landing() {
     { id: "hero", component: <Hero /> },
     { id: "manifesto", component: <Manifesto /> },
     { id: "work", component: <SplitView /> },
-    { id: "agencies", component: <AgentShowcase /> },
     { id: "portfolio", component: <FeaturedGrid /> },
     { id: "faq", component: <><FAQ /><Numbers /><ClosingCTA /></> }
   ];
