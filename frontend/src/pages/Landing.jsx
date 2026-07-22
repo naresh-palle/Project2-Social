@@ -48,81 +48,81 @@ function Hero() {
   const opacityWord = useTransform(scrollYProgress, [0, 0.5], [1, 0.2]);
 
   return (
-    <section ref={ref} className="relative min-h-[calc(100vh-100px)] py-12 overflow-hidden bg-[#0A0A0A] flex flex-col justify-between">
-      {/* High-fashion Multi-Model Studio Background Photograph */}
+    <section ref={ref} className="relative min-h-screen py-12 overflow-hidden bg-[#0A0A0A] flex flex-col justify-between">
+      {/* High-fashion Multi-Model Studio Background Photograph (Right Side) */}
       <motion.div
         style={{ y: yImg, scale: scaleImg }}
-        className="absolute right-0 top-0 h-full w-full md:w-[60%] lg:w-[50%]"
+        className="absolute right-0 top-0 h-full w-full md:w-[50%] lg:w-[42%] pointer-events-none"
       >
         <div className="relative h-full w-full">
           <img
             src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
             alt="Diverse Fashion Creator Models"
-            className="h-full w-full object-cover object-center spotlight-img opacity-85"
+            className="h-full w-full object-cover object-center spotlight-img opacity-80"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#0A0A0A]/50 to-[#0A0A0A]" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/40" />
         </div>
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-32 md:pt-40 pb-10 grid grid-cols-12 gap-6">
-        <div className="col-span-12 md:col-span-10 flex flex-col justify-between h-full">
-          {/* top meta */}
-          <div className="flex items-start justify-between font-mono text-[11px] tracking-[0.28em] uppercase text-[#F4F4F0]/60">
+      <div className="relative z-10 h-full max-w-[1600px] mx-auto px-6 md:px-10 pt-28 md:pt-36 pb-16 w-full">
+        <div className="flex flex-col justify-between min-h-[calc(100vh-200px)]">
+          {/* Top Meta Bar - Right Side Aligned Meta */}
+          <div className="flex items-center justify-between font-mono text-[11px] tracking-[0.28em] uppercase text-[#F4F4F0]/60 border-b border-white/10 pb-4">
             <MaskLine delay={0.1}>
-              <span>◎ Vol. 08 · Winter Edition</span>
+              <span className="text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
             </MaskLine>
             <MaskLine delay={0.15}>
-              <span className="hidden md:inline">A studio for signal · not noise</span>
+              <span className="text-right text-[#F4F4F0]/80 font-semibold">A studio for signal · not noise</span>
             </MaskLine>
           </div>
 
-          {/* kinetic wordmark */}
-          <div className="relative">
+          {/* Kinetic Wordmark Headline */}
+          <div className="relative my-auto py-8">
             <motion.h1
               style={{ opacity: opacityWord }}
               className="font-editorial text-[#F4F4F0] leading-[1.02] tracking-tighter"
             >
               <MaskLine delay={0.2} className="py-1">
-                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] font-medium drop-shadow-md">The bridge</span>
+                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] font-medium drop-shadow-md">The bridge</span>
               </MaskLine>
               <MaskLine delay={0.35} className="py-1">
-                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] italic font-normal text-[#FF3B30] drop-shadow-md">
+                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] italic font-normal text-[#FF3B30] drop-shadow-md">
                   between owners
                 </span>
               </MaskLine>
               <MaskLine delay={0.5} className="py-1">
-                <span className="block text-[6.5vw] md:text-[4.5vw] lg:text-[3.8vw] font-medium drop-shadow-md">
+                <span className="block text-[6vw] md:text-[4.2vw] lg:text-[3.5vw] font-medium drop-shadow-md">
                   &amp; influence<span className="tick text-white">.</span>
                 </span>
               </MaskLine>
             </motion.h1>
           </div>
 
-          {/* bottom row */}
+          {/* Bottom CTA Row & Right Side Sub Meta */}
           <FadeUp delay={0.8}>
-            <div className="grid grid-cols-12 gap-6 items-end">
-              <div className="col-span-12 md:col-span-5">
-                <p className="text-[#F4F4F0]/80 max-w-md text-base md:text-lg leading-relaxed">
+            <div className="grid grid-cols-12 gap-6 items-end border-t border-white/10 pt-6">
+              <div className="col-span-12 md:col-span-6 lg:col-span-5">
+                <p className="text-[#F4F4F0]/80 text-sm md:text-base leading-relaxed">
                   CR8 connects elite brands with fully verified influencers. Lock budgets securely in smart escrow, automate caption compliance audits, and access direct analytics.
                 </p>
               </div>
-              <div className="col-span-12 md:col-span-4 flex flex-wrap items-center gap-4">
-                <Link to="/register" data-testid="hero-cta-primary" className="btn-solid">
-                  Enter the studio <ArrowRight className="w-4 h-4" />
+              <div className="col-span-12 md:col-span-6 lg:col-span-4 flex flex-wrap items-center gap-4">
+                <Link to="/register" data-testid="hero-cta-primary" className="btn-solid py-3 px-6 text-sm bg-[#FF3B30] text-white">
+                  Enter the studio <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
                 <Link
                   to="/marketplace"
                   data-testid="hero-cta-secondary"
-                  className="btn-pill text-[#F4F4F0]"
+                  className="btn-pill text-[#F4F4F0] py-3 px-5 text-sm"
                 >
                   Browse Creators
                 </Link>
               </div>
-              <div className="col-span-12 md:col-span-3 font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F0]/50 md:text-right">
-                <div>Explore →</div>
-                <div className="mt-1">side by side studio</div>
+              <div className="col-span-12 md:col-span-12 lg:col-span-3 font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F0]/60 lg:text-right">
+                <div className="text-[#FF3B30] font-bold">Explore CR8 Studio →</div>
+                <div className="mt-0.5">Verified Brand &amp; Influencer Network</div>
               </div>
             </div>
           </FadeUp>
@@ -130,7 +130,7 @@ function Hero() {
       </div>
 
       {/* Directly Visible White Strip Marquee at bottom of Hero */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 shadow-2xl">
+      <div className="relative z-30 shadow-2xl">
         <EditorialMarquee />
       </div>
     </section>
@@ -196,15 +196,15 @@ function Manifesto() {
           </div>
         </FadeUp>
 
-        {/* Clean Static 2x2 Grid Layout for Chapters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        {/* Clean Static 2x2 Grid Layout for Chapters without height clipping or text overlap */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
           {CHAPTERS.map((c) => (
-            <div key={c.n} className="p-8 md:p-10 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow">
+            <div key={c.n} className="p-8 md:p-10 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow min-h-[260px]">
               <div>
-                <div className="chapter-num text-6xl md:text-7xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
+                <div className="chapter-num text-5xl md:text-6xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
                   {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
                 </div>
-                <h3 className="font-editorial text-2xl md:text-3xl leading-[1.15] text-[#0A0A0A]">
+                <h3 className="font-editorial text-2xl md:text-3xl leading-[1.2] text-[#0A0A0A]">
                   {c.title}
                 </h3>
                 <p className="mt-3 font-mono text-xs md:text-sm leading-relaxed text-[#0A0A0A]/80">
@@ -694,85 +694,24 @@ function ClosingCTA() {
 // ————— Landing Side-by-Side Deck Engine —————
 export default function Landing() {
   useLenis();
-  const [deckIndex, setDeckIndex] = useState(0);
-
-  const slides = [
-    { id: "hero", component: <Hero /> },
-    { id: "manifesto", component: <Manifesto /> },
-    { id: "work", component: <SplitView /> },
-    { id: "portfolio", component: <FeaturedGrid /> },
-    { id: "faq", component: <><FAQ /><Numbers /><ClosingCTA /></> }
-  ];
-
-  const prevDeck = () => {
-    setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const nextDeck = () => {
-    setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-  };
 
   useEffect(() => {
     document.body.style.background = "#0A0A0A";
-    const handleKeyDown = (e) => {
-      if (e.key === "ArrowLeft") prevDeck();
-      if (e.key === "ArrowRight") nextDeck();
-    };
-    const onReset = () => setDeckIndex(0);
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resetHomeDeck", onReset);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("resetHomeDeck", onReset);
-    };
   }, []);
 
   return (
-    <div className="App bg-[#0A0A0A] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
+    <div className="App bg-[#0A0A0A] text-[#F4F4F0] min-h-screen relative overflow-x-hidden" data-testid="landing-page">
       <div className="grain" />
       <Nav />
 
-      {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) */}
-      <button
-        type="button"
-        onClick={prevDeck}
-        aria-label="Previous Slide"
-        data-testid="deck-prev-btn"
-        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
-      >
-        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
-      </button>
-
-      {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) */}
-      <button
-        type="button"
-        onClick={nextDeck}
-        aria-label="Next Slide"
-        data-testid="deck-next-btn"
-        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
-      >
-        <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
-      </button>
-
-      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
-      <div className="pt-16 pb-2 w-full flex-1">
-        <div className="relative overflow-hidden w-full">
-          <div
-            className="flex transition-transform duration-700 ease-out w-full items-start"
-            style={{ transform: `translateX(-${deckIndex * 100}%)` }}
-          >
-            {slides.map((s) => (
-              <div 
-                key={s.id} 
-                className="w-full shrink-0 px-2 sm:px-6 md:px-12 flex flex-col justify-center min-h-[calc(100vh-120px)]"
-              >
-                {s.component}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* CONTINUOUS SINGLE PAGE SCROLL LAYOUT */}
+      <Hero />
+      <Manifesto />
+      <SplitView />
+      <FeaturedGrid />
+      <FAQ />
+      <Numbers />
+      <ClosingCTA />
 
       <Footer />
     </div>
