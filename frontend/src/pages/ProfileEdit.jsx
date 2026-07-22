@@ -188,6 +188,12 @@ export default function ProfileEdit() {
         document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
+
+      if (!f.content_types || f.content_types.length === 0) {
+        toast.error("Missing Data: Please select at least one Content Type You Create in Section 8.");
+        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
     }
 
     setBusy(true);
@@ -439,12 +445,12 @@ export default function ProfileEdit() {
           {isCreator && (
             <>
 
-              {/* SECTION 3: SOCIAL (3 Per Row Side-By-Side Grid) */}
+              {/* SECTION 3: SOCIAL (4 Per Row Side-By-Side Grid) */}
               <section className="space-y-6">
                   <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence</h2>
-                  <p className="text-xs opacity-60">Enter your handles and channel metrics. Compact side-by-side layout (3 per row).</p>
+                  <p className="text-xs opacity-60">Enter your handles and channel metrics. Side-by-side layout (4 per row).</p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     {PLATFORMS.map(plat => {
                         const isConnected = !!f.platform_metrics[plat]?.handle;
                         return (
@@ -655,16 +661,37 @@ export default function ProfileEdit() {
                       </select>
                   </F>
 
-                  <div className="pt-4">
-                      <F label="Content Types You Create *">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-                              {CONTENT_TYPES.map(type => (
-                                  <label key={type} className="flex items-center gap-3 cursor-pointer">
-                                      <input type="checkbox" checked={f.content_types.includes(type)} onChange={()=>toggleArray("content_types", type)} className="accent-[#FF3B30] w-4 h-4" />
-                                      <span className="text-sm">{type}</span>
-                                  </label>
-                              ))}
-                          </div>
+                  <div className="pt-4" id="sec-content-types">
+                      <F label="Content Types You Create * (Multi-Select)">
+                          <select 
+                            className="inp cursor-pointer bg-[#0A0A0A]"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val && !f.content_types.includes(val)) {
+                                setF({ ...f, content_types: [...f.content_types, val] });
+                              }
+                              e.target.value = "";
+                            }}
+                          >
+                            <option value="" className="bg-[#0A0A0A]">Select content type to add...</option>
+                            {CONTENT_TYPES.filter(t => !f.content_types.includes(t)).map(t => (
+                              <option key={t} value={t} className="bg-[#0A0A0A]">{t}</option>
+                            ))}
+                          </select>
+
+                          {/* Selected Content Types Pills */}
+                          {f.content_types?.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-3">
+                                  {f.content_types.map(type => (
+                                      <span key={type} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
+                                          {type}
+                                          <button type="button" onClick={() => toggleArray("content_types", type)} className="hover:text-white transition-colors">
+                                              <X className="w-3.5 h-3.5" />
+                                          </button>
+                                      </span>
+                                  ))}
+                              </div>
+                          )}
                       </F>
                   </div>
               </section>
