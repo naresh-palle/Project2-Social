@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon, Briefcase } from "lucide-react";
+import { ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon, Briefcase, ExternalLink } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
@@ -230,12 +230,12 @@ export default function ProfileView() {
                   </div>
                 </div>
 
-                {/* 2. PAST CAMPAIGNS & TRACK RECORD TAB (List Mode, Max 5) */}
+                {/* 2. PAST CAMPAIGNS & TRACK RECORD TAB (List Mode with Post Link) */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
                       <h2 className="font-editorial text-3xl md:text-4xl">📜 Past Campaigns &amp; Track Record</h2>
-                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Brand Collaborations (List Mode)</p>
+                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Brand Collaborations &amp; Post Links</p>
                     </div>
                     <span className="font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-bold">
                       {pastCampaigns.length} / 5 Campaigns
@@ -245,17 +245,27 @@ export default function ProfileView() {
                   {pastCampaigns.length > 0 ? (
                     <div className="space-y-3 font-mono text-xs">
                       <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 border-b border-white/10 text-[10px] uppercase tracking-widest opacity-50">
-                        <div className="col-span-3">Brand</div>
-                        <div className="col-span-4">Campaign Title / Scope</div>
+                        <div className="col-span-2">Brand</div>
+                        <div className="col-span-3">Campaign Scope</div>
                         <div className="col-span-2">Date</div>
-                        <div className="col-span-3 text-right">Result / Impact</div>
+                        <div className="col-span-2">Result</div>
+                        <div className="col-span-3 text-right">Published Post</div>
                       </div>
                       {pastCampaigns.map((c, i) => (
                         <div key={i} className="p-4 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-3 items-center rounded-sm">
-                          <div className="md:col-span-3 font-bold text-white uppercase tracking-wider">{c.brand || "Brand Partner"}</div>
-                          <div className="md:col-span-4 text-white/90">{c.title || "Campaign Brief"}</div>
+                          <div className="md:col-span-2 font-bold text-white uppercase tracking-wider">{c.brand || "Brand Partner"}</div>
+                          <div className="md:col-span-3 text-white/90">{c.title || "Campaign Brief"}</div>
                           <div className="md:col-span-2 text-white/60 text-[11px]">{c.date || "2025"}</div>
-                          <div className="md:col-span-3 md:text-right text-[#34C759] font-semibold">{c.result || "Delivered"}</div>
+                          <div className="md:col-span-2 text-[#34C759] font-semibold">{c.result || "Delivered"}</div>
+                          <div className="md:col-span-3 md:text-right">
+                            {c.post_url ? (
+                              <a href={c.post_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white transition-colors rounded-xs text-[10px] uppercase tracking-wider font-mono">
+                                <span>View Post</span> <ExternalLink className="w-3 h-3" />
+                              </a>
+                            ) : (
+                              <span className="text-[10px] opacity-40 font-mono">No link provided</span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

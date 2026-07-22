@@ -105,13 +105,26 @@ export default function ProfileEdit() {
     e.target.value = "";
   };
 
-  // Past Campaigns (Max 5 Limit)
+  // Past Campaigns (Max 5 Limit with Full Details Requirement)
   const addCampaign = () => {
     if (f.past_campaigns.length >= 5) {
       toast.error("Maximum limit reached: You can add at most 5 past campaigns.");
       return;
     }
-    setF({ ...f, past_campaigns: [...f.past_campaigns, { brand: "", title: "", result: "", date: "" }] });
+
+    const incompleteIndex = f.past_campaigns.findIndex(
+      c => !c.brand?.trim() || !c.title?.trim() || !c.date?.trim() || !c.result?.trim() || !c.post_url?.trim()
+    );
+
+    if (incompleteIndex !== -1) {
+      toast.error(`Please enter full details (Brand, Title, Date, Result, Post Link) for Campaign #${incompleteIndex + 1} before adding a new row.`);
+      return;
+    }
+
+    setF({ 
+      ...f, 
+      past_campaigns: [...f.past_campaigns, { brand: "", title: "", date: "", result: "", post_url: "" }] 
+    });
   };
   const setCampaign = (i, key, v) => {
     const c = [...f.past_campaigns];
@@ -162,9 +175,16 @@ export default function ProfileEdit() {
         return;
       }
 
-      const validPast = f.past_campaigns.filter(c => c.brand?.trim() || c.title?.trim());
+      const validPast = f.past_campaigns.filter(c => c.brand?.trim() || c.title?.trim() || c.post_url?.trim());
       if (validPast.length === 0) {
         toast.error("Missing Data: Past Campaigns are required. Please add at least 1 Past Campaign in Section 7.");
+        document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const incomplete = validPast.find(c => !c.brand?.trim() || !c.title?.trim() || !c.date?.trim() || !c.result?.trim() || !c.post_url?.trim());
+      if (incomplete) {
+        toast.error("Incomplete Campaign Details: Please enter full details (Brand, Title, Date, Result, Post Link) for all past campaigns.");
         document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
@@ -567,29 +587,33 @@ export default function ProfileEdit() {
                   </F>
 
                   <div className="mt-8" id="sec-campaigns">
-                      <F label="Past Campaigns * (Required, Max 5)">
+                      <F label="Past Campaigns * (Full Details Required for Each Entry, Max 5)">
                           <div className="space-y-3 mt-3">
-                              <div className="hidden md:grid grid-cols-12 gap-3 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
-                                  <div className="col-span-3">Brand *</div>
-                                  <div className="col-span-4">Campaign Title / Scope *</div>
-                                  <div className="col-span-2">Date / Year</div>
-                                  <div className="col-span-2">Result / Metric</div>
+                              <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
+                                  <div className="col-span-2">Brand *</div>
+                                  <div className="col-span-3">Campaign Scope *</div>
+                                  <div className="col-span-2">Date *</div>
+                                  <div className="col-span-2">Result *</div>
+                                  <div className="col-span-2">Post Link *</div>
                                   <div className="col-span-1 text-right">Action</div>
                               </div>
 
                               {f.past_campaigns.map((c, i) => (
-                                  <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-3 items-center rounded-sm">
+                                  <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
+                                      <div className="md:col-span-2">
+                                          <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                      </div>
                                       <div className="md:col-span-3">
-                                          <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-4">
-                                          <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                          <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
                                       </div>
                                       <div className="md:col-span-2">
-                                          <input className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025)" value={c.date} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                          <input required className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025) *" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
                                       </div>
                                       <div className="md:col-span-2">
-                                          <input className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views)" value={c.result} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                          <input required className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views) *" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                      </div>
+                                      <div className="md:col-span-2">
+                                          <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="Post Link (https://...) *" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
                                       </div>
                                       <div className="md:col-span-1 text-right">
                                           <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
