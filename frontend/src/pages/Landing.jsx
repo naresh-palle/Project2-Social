@@ -176,96 +176,40 @@ const CHAPTERS = [
 ];
 
 function Manifesto() {
-  const [activeChapter, setActiveChapter] = useState(0);
-
-  const prevChapter = () => {
-    setActiveChapter((prev) => (prev === 0 ? CHAPTERS.length - 1 : prev - 1));
-  };
-
-  const nextChapter = () => {
-    setActiveChapter((prev) => (prev === CHAPTERS.length - 1 ? 0 : prev + 1));
-  };
-
   return (
     <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-16 md:py-24 border-t border-b border-[#0A0A0A]/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
-            <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-                § Studio Manifesto
-              </span>
-              <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0A0A0A]">
-                Four Chapters <span className="italic">of Intent<span className="tick">.</span></span>
-              </h2>
-            </div>
-
-            {/* Clickable < > Nav Buttons & Chapter Pills */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 mr-2">
-                {CHAPTERS.map((ch, idx) => (
-                  <button
-                    key={ch.n}
-                    type="button"
-                    onClick={() => setActiveChapter(idx)}
-                    className={`font-mono text-[10px] tracking-widest px-3 py-1 uppercase rounded-xs transition-all ${
-                      activeChapter === idx ? "bg-[#0A0A0A] text-[#F4F4F0] font-bold" : "bg-[#0A0A0A]/10 text-[#0A0A0A] hover:bg-[#0A0A0A]/20"
-                    }`}
-                  >
-                    Ch {ch.n}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={prevChapter}
-                aria-label="Previous Chapter"
-                data-testid="manifesto-prev-btn"
-                className="p-3 bg-[#0A0A0A] text-[#F4F4F0] border border-[#0A0A0A] hover:bg-[#FF3B30] hover:border-[#FF3B30] rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={nextChapter}
-                aria-label="Next Chapter"
-                data-testid="manifesto-next-btn"
-                className="p-3 bg-[#0A0A0A] text-[#F4F4F0] border border-[#0A0A0A] hover:bg-[#FF3B30] hover:border-[#FF3B30] rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
+          <div className="hairline-b pb-6 mb-12">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § Studio Manifesto
+            </span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0A0A0A]">
+              Four Chapters <span className="italic">of Intent<span className="tick">.</span></span>
+            </h2>
           </div>
         </FadeUp>
 
-        {/* Side-by-side Manifesto Carousel Container */}
-        <div className="relative overflow-hidden pt-2">
-          <div
-            className="flex gap-6 transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${activeChapter * (window?.innerWidth >= 768 ? 50 : 100)}%)` }}
-          >
-            {CHAPTERS.map((c, i) => (
-              <div key={c.n} className="w-full md:w-[calc(50%-12px)] shrink-0">
-                <div className="p-8 md:p-12 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between h-[360px] md:h-[420px] rounded-sm relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <div>
-                    <div className="chapter-num text-7xl md:text-8xl text-[#0A0A0A] font-editorial leading-none mb-4 opacity-90">
-                      {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
-                    </div>
-                    <h3 className="font-editorial text-3xl md:text-4xl leading-[1.15] text-[#0A0A0A]">
-                      {c.title}
-                    </h3>
-                    <p className="mt-4 font-mono text-sm leading-relaxed text-[#0A0A0A]/80">
-                      {c.body}
-                    </p>
-                  </div>
-                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 flex items-center justify-between border-t border-[#0A0A0A]/10 pt-4 mt-6">
-                    <span>Chapter {c.n} / 04</span>
-                    <span className="text-[#FF3B30] font-bold">Click next to explore →</span>
-                  </div>
+        {/* Clean Static 2x2 Grid Layout for Chapters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {CHAPTERS.map((c) => (
+            <div key={c.n} className="p-8 md:p-10 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow">
+              <div>
+                <div className="chapter-num text-6xl md:text-7xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
+                  {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
                 </div>
+                <h3 className="font-editorial text-2xl md:text-3xl leading-[1.15] text-[#0A0A0A]">
+                  {c.title}
+                </h3>
+                <p className="mt-3 font-mono text-xs md:text-sm leading-relaxed text-[#0A0A0A]/80">
+                  {c.body}
+                </p>
               </div>
-            ))}
-          </div>
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 border-t border-[#0A0A0A]/10 pt-4 mt-6">
+                <span>Chapter {c.n} / 04</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -274,8 +218,6 @@ function Manifesto() {
 
 // ————— Split (Owners vs Agents vs Influencers Side-by-Side Slider) —————
 function SplitView() {
-  const [activeDoor, setActiveDoor] = useState(0);
-
   const doors = [
     {
       id: "owner",
@@ -297,101 +239,10 @@ function SplitView() {
     }
   ];
 
-  const prevDoor = () => {
-    setActiveDoor((prev) => (prev === 0 ? doors.length - 1 : prev - 1));
-  };
-
-  const nextDoor = () => {
-    setActiveDoor((prev) => (prev === doors.length - 1 ? 0 : prev + 1));
-  };
-
   return (
     <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0] py-16 border-t border-white/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
-            <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-                § How It Works
-              </span>
-              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                Three Doors <span className="italic">· One Studio<span className="tick">.</span></span>
-              </h2>
-            </div>
-
-            {/* Clickable < > Nav Controls & Door Tabs */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 mr-2">
-                {doors.map((d, idx) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    onClick={() => setActiveDoor(idx)}
-                    className={`font-mono text-[10px] tracking-widest px-3 py-1 uppercase rounded-xs transition-all ${
-                      activeDoor === idx ? "bg-[#FF3B30] text-white font-bold" : "bg-white/10 text-white/70 hover:bg-white/20"
-                    }`}
-                  >
-                    {d.id}s
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={prevDoor}
-                aria-label="Previous Door"
-                data-testid="door-prev-btn"
-                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={nextDoor}
-                aria-label="Next Door"
-                data-testid="door-next-btn"
-                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </FadeUp>
-
-        {/* Side-by-side How It Works Carousel */}
-        <div className="relative overflow-hidden pt-2">
-          <div
-            className="flex gap-6 transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${activeDoor * (window?.innerWidth >= 768 ? 50 : 100)}%)` }}
-          >
-            {doors.map((door, idx) => (
-              <div key={door.id} className="w-full md:w-[calc(50%-12px)] shrink-0">
-                <div className={`p-8 md:p-10 border flex flex-col justify-between h-[420px] rounded-sm relative overflow-hidden transition-all duration-300 ${door.bgClass}`}>
-                  <div>
-                    <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
-                      {door.tag}
-                    </span>
-                    <h3 className="font-editorial text-3xl md:text-4xl mt-3 leading-[1.15]">
-                      {door.title}
-                    </h3>
-                    <ul className="mt-6 font-mono text-[11px] tracking-[0.15em] uppercase space-y-2.5 opacity-90">
-                      {door.points.map((pt, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <span className="text-[#FF3B30] font-bold">0{i+1} —</span> {pt}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-6 border-t border-current/10 flex items-center justify-between">
-                    <Link
-                      to={door.link}
-                      data-testid={`split-${door.id}-cta`}
-                      className="btn-solid flex items-center gap-2 text-xs py-3 px-5"
-                    >
-                      {door.ctaText} <ArrowUpRight className="w-4 h-4" />
-                    </Link>
-                    <span className="font-mono text-[10px] tracking-widest uppercase opacity-60">
-                      Door 0{idx+1} of 03
                     </span>
                   </div>
                 </div>
