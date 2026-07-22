@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useLenis } from "@/lib/useLenis";
@@ -506,82 +506,129 @@ function AgentShowcase() {
   );
 }
 
-// ————— Featured Grid —————
+// ————— Featured Grid Slider (Interactive < > Side-by-Side Carousel) —————
 const FEATURED = [
   {
-    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
     label: "Feature 01",
     title: "Kai Monroe × Studio Noir",
     meta: "Fashion Editorial · 512K",
   },
   {
-    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 02",
     title: "Bottle No.7 launch",
     meta: "Luxury Product · 3-day sold out",
   },
   {
-    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
     label: "Feature 03",
     title: "The Ritual Series",
     meta: "Beauty · Long-form",
   },
   {
-    span: "md:col-span-6",
     img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
     label: "Feature 04",
     title: "Nova Reyes × Fragrance Atlas",
     meta: "Fragrance · Editorial",
   },
+  {
+    img: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 05",
+    title: "Aura Skincare Launch",
+    meta: "Cosmetics · Campaign",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 06",
+    title: "Urban Vibe Apparel",
+    meta: "Streetwear · 850K Reach",
+  }
 ];
 
 function FeaturedGrid() {
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  const prevSlide = () => {
+    setSlideIndex((prev) => (prev === 0 ? FEATURED.length - 2 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setSlideIndex((prev) => (prev >= FEATURED.length - 2 ? 0 : prev + 1));
+  };
+
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-14 md:py-20">
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-14 md:py-20 border-t border-white/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between hairline-b pb-6 mb-14">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              § Selected work
-            </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              2025 file
-            </span>
+          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+                § Selected Work Showcase
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+                Side-by-Side <span className="italic">Showcase<span className="tick">.</span></span>
+              </h2>
+            </div>
+
+            {/* Clickable < > Nav Controls */}
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 mr-2">
+                {slideIndex + 1} / {FEATURED.length - 1}
+              </span>
+              <button
+                type="button"
+                onClick={prevSlide}
+                aria-label="Previous Slide"
+                data-testid="featured-prev-btn"
+                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next Slide"
+                data-testid="featured-next-btn"
+                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </FadeUp>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
-          {FEATURED.map((f, i) => (
-            <FadeUp key={i} delay={i * 0.06} className={f.span}>
-              <figure className="group relative overflow-hidden">
-                <div className="relative overflow-hidden aspect-[16/10] max-h-[280px] md:max-h-[320px]">
-                  <motion.img
-                    src={f.img}
-                    alt={f.title}
-                    className="h-full w-full object-cover"
-                    initial={{ scale: 1.06 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 1.4, ease: [0.2, 0.8, 0.2, 1] }}
-                  />
-                  <div className="absolute inset-0 bg-[#0A0A0A]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-70">
-                      {f.label}
-                    </span>
-                    <div className="font-editorial text-2xl md:text-3xl mt-1">{f.title}</div>
+        {/* Side-by-side Carousel Container */}
+        <div className="relative overflow-hidden pt-2">
+          <div 
+            className="flex gap-6 transition-transform duration-700 ease-out"
+            style={{ transform: `translateX(-${slideIndex * 52}%)` }}
+          >
+            {FEATURED.map((f, i) => (
+              <div key={i} className="w-full md:w-[calc(50%-12px)] shrink-0">
+                <figure className="group relative overflow-hidden bg-[#121212] border border-white/10 p-4 rounded-sm hover:border-[#FF3B30]/40 transition-colors">
+                  <div className="relative overflow-hidden aspect-[16/10] max-h-[320px] md:max-h-[360px]">
+                    <img
+                      src={f.img}
+                      alt={f.title}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#0A0A0A]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                      <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">
+                        {f.label}
+                      </span>
+                      <div className="font-editorial text-2xl md:text-3xl mt-1 text-white">{f.title}</div>
+                    </div>
                   </div>
-                </div>
-                <figcaption className="flex items-baseline justify-between mt-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
-                  <span>{f.title}</span>
-                  <span>{f.meta}</span>
-                </figcaption>
-              </figure>
-            </FadeUp>
-          ))}
+                  <figcaption className="flex items-baseline justify-between mt-4 font-mono text-[11px] tracking-[0.2em] uppercase">
+                    <span className="text-white font-semibold">{f.title}</span>
+                    <span className="text-[#FF3B30]">{f.meta}</span>
+                  </figcaption>
+                </figure>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
