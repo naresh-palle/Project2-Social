@@ -258,17 +258,68 @@ function InfluencerPanel() {
   );
 }
 
+const DEFAULT_COMPANY_AGENT_BRANDS = [
+  { name: "Acme Luxe Apparel Ltd.", industry: "Fashion & Apparel", contact: "partnerships@acmeluxe.com", tier: "Enterprise VIP", activeCampaigns: 3, budget: "₹12,50,000", status: "Active Client" },
+  { name: "HyperTech Global SaaS", industry: "Technology & SaaS", contact: "marketing@hypertech.io", tier: "Corporate Client", activeCampaigns: 2, budget: "₹8,00,000", status: "Active Client" },
+  { name: "Veda Organics Skincare", industry: "Beauty & Wellness", contact: "collab@vedaorganics.in", tier: "Growth Brand", activeCampaigns: 2, budget: "₹5,50,000", status: "Active Client" },
+  { name: "PulseFit Activewear", industry: "Fitness & Sports", contact: "campaigns@pulsefit.co", tier: "Growth Brand", activeCampaigns: 1, budget: "₹3,20,000", status: "Active Client" },
+  { name: "Gourmet & Co. F&B", industry: "Food & Beverages", contact: "press@gourmetco.in", tier: "Corporate Client", activeCampaigns: 1, budget: "₹4,00,000", status: "Active Client" }
+];
+
+const DEFAULT_COMPANY_AGENT_CAMPAIGNS = [
+  {
+    id: "comp-cmp-1",
+    title: "Acme Luxe Spring Silk Collection Release",
+    brand: "Acme Luxe Apparel Ltd.",
+    budget: 350000,
+    deliverables: "3x Instagram Reels + 5x Stories with Tagged Link",
+    status: "open",
+    applications_count: 8,
+    cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
+    created_at: "2026-07-20"
+  },
+  {
+    id: "comp-cmp-2",
+    title: "HyperTech AI Studio App Launch & Review",
+    brand: "HyperTech Global SaaS",
+    budget: 450000,
+    deliverables: "2x YouTube Long-form Review + 4x Shorts",
+    status: "in_progress",
+    applications_count: 12,
+    cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
+    created_at: "2026-07-18"
+  },
+  {
+    id: "comp-cmp-3",
+    title: "Veda Glow Organic Serum Campaign",
+    brand: "Veda Organics Skincare",
+    budget: 200000,
+    deliverables: "2x Reel Unboxing + Dedicated Blog Article",
+    status: "open",
+    applications_count: 5,
+    cover: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
+    created_at: "2026-07-21"
+  },
+  {
+    id: "comp-cmp-4",
+    title: "PulseFit Pro Performance Launch",
+    brand: "PulseFit Activewear",
+    budget: 180000,
+    deliverables: "1x Dedicated Workout Reel + Story Takeover",
+    status: "open",
+    applications_count: 6,
+    cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
+    created_at: "2026-07-22"
+  }
+];
+
 function AgentPanel() {
   const { user } = useAuth();
   const [agentType, setAgentType] = useState(user?.agent_type || "company_agent");
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [adminBriefs, setAdminBriefs] = useState([]);
-  const [associatedBrands, setAssociatedBrands] = useState(user?.associated_brands || [
-    { name: "Acme Luxe Ltd.", industry: "Fashion & Apparel", contact: "brand@acmeluxe.com", status: "Active Client" },
-    { name: "HyperTech Global", industry: "Technology & SaaS", contact: "marketing@hypertech.io", status: "Active Client" },
-    { name: "Veda Organics", industry: "Health & Wellness", contact: "collab@vedaorganics.in", status: "Active Client" }
-  ]);
+  const [associatedBrands, setAssociatedBrands] = useState(user?.associated_brands || DEFAULT_COMPANY_AGENT_BRANDS);
   const [newBrandModal, setNewBrandModal] = useState(false);
   const [newBrandName, setNewBrandName] = useState("");
   const [newBrandIndustry, setNewBrandIndustry] = useState("Fashion & Apparel");
@@ -276,9 +327,11 @@ function AgentPanel() {
   useEffect(() => {
     api.get("/creators").then((r) => setCreators(r.data)).catch(() => {});
     api.get("/campaigns").then((r) => {
-      setCampaigns(r.data);
+      setCampaigns(r.data.length > 0 ? r.data : DEFAULT_COMPANY_AGENT_CAMPAIGNS);
       setAdminBriefs(r.data.slice(0, 4));
-    }).catch(() => {});
+    }).catch(() => {
+      setCampaigns(DEFAULT_COMPANY_AGENT_CAMPAIGNS);
+    });
   }, []);
 
   const addBrand = (e) => {
@@ -403,19 +456,37 @@ function AgentPanel() {
       ) : (
         /* TYPE 2: COMPANY AGENT VIEW */
         <div className="space-y-12">
+          {/* Agency Performance Analytics Summary Tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]">
+            {[
+              { k: "Associated Brands", v: `${associatedBrands.length} Brands`, tail: "client roster" },
+              { k: "Active Campaigns", v: `${campaigns.length} Live`, tail: "managed briefs" },
+              { k: "Managed Ad Budget", v: "₹33.2 Lakhs", tail: "allocated" },
+              { k: "Escrow Held", v: "₹11,80,000", tail: "in studio vault" },
+              { k: "Matched Creators", v: "34 Talent", tail: "vetted roster" },
+              { k: "Average Campaign ROI", v: "4.9x", tail: "proven return" }
+            ].map((t, i) => (
+              <div key={t.k} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
+                <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
+                <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#FF3B30] font-bold">{t.v}</div>
+                <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+              </div>
+            ))}
+          </div>
+
           {/* Section 1: Associated Brands & Companies */}
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="font-editorial text-2xl">🏢 Associated Brands &amp; Companies</h3>
+                <h3 className="font-editorial text-2xl md:text-3xl">🏢 Associated Brands &amp; Client Companies ({associatedBrands.length})</h3>
                 <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
-                  Brand clients represented by your agency
+                  Brand clients represented and managed by your company agency
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setNewBrandModal(true)}
-                className="btn-solid text-xs py-2 px-4 bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5"
+                className="btn-solid text-xs py-2.5 px-4 bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 shadow-lg"
               >
                 <Plus className="w-4 h-4" /> Add Associated Brand
               </button>
@@ -423,20 +494,39 @@ function AgentPanel() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {associatedBrands.map((brand, i) => (
-                <div key={i} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm">
+                <div key={i} className="p-6 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] flex flex-col justify-between rounded-sm transition-colors shadow-sm">
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold">
-                        {brand.status || "Active Client"}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold bg-[#FF3B30]/10 px-2.5 py-0.5 border border-[#FF3B30]/20 rounded-xs">
+                        {brand.tier || "Enterprise Client"}
+                      </span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-[#34C759]">
+                        {brand.status || "Active"}
                       </span>
                     </div>
                     <h4 className="font-editorial text-3xl font-bold">{brand.name}</h4>
-                    <div className="font-mono text-xs text-[#34C759] mt-1">{brand.industry}</div>
-                    <div className="font-mono text-[11px] opacity-60 mt-3">{brand.contact}</div>
+                    <div className="font-mono text-xs text-white/80 mt-1 font-semibold">{brand.industry}</div>
+                    
+                    <div className="mt-4 pt-3 border-t border-white/5 space-y-1.5 font-mono text-[11px] opacity-70">
+                      <div className="flex justify-between">
+                        <span>Managed Budget:</span>
+                        <span className="text-white font-bold">{brand.budget || "₹5,00,000"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Active Briefs:</span>
+                        <span className="text-[#34C759] font-bold">{brand.activeCampaigns || 2} Live</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span>Contact:</span>
+                        <span className="text-white/90">{brand.contact}</span>
+                      </div>
+                    </div>
                   </div>
+
                   <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                    <Link to="/campaigns/new" className="text-xs font-mono text-[#FF3B30] hover:underline flex items-center gap-1">
-                      + Post Campaign ↗
+                    <span className="font-mono text-[10px] uppercase opacity-50">Company Agency</span>
+                    <Link to="/campaigns/new" className="btn-solid py-1.5 px-3 text-xs bg-white/10 hover:bg-[#FF3B30] text-white flex items-center gap-1 transition-colors">
+                      + New Campaign ↗
                     </Link>
                   </div>
                 </div>
@@ -448,17 +538,17 @@ function AgentPanel() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="font-editorial text-2xl">📢 Client Campaigns ({campaigns.length})</h3>
+                <h3 className="font-editorial text-2xl md:text-3xl">📢 Client Campaigns ({campaigns.length})</h3>
                 <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
                   Live campaign briefs created for your associated brand clients
                 </p>
               </div>
-              <Link to="/campaigns/new" className="btn-solid py-2.5 px-5 text-sm bg-[#FF3B30] text-white flex items-center gap-2">
+              <Link to="/campaigns/new" className="btn-solid py-2.5 px-5 text-sm bg-[#FF3B30] text-white flex items-center gap-2 shadow-lg">
                 <Plus className="w-4 h-4" /> Post New Campaign
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaigns.map((c) => (
                 <CampaignRow key={c.id} c={c} />
               ))}
