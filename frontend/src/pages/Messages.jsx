@@ -137,7 +137,11 @@ export default function Messages() {
                     </div>
                     <div className="font-editorial text-3xl mt-1">{active.other_name}</div>
                   </div>
-                  <Link to={`/campaigns/${active.campaign_id}`} className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline text-[#FF3B30]">
+                  <Link 
+                    to={`/campaigns/${active.campaign_id}?from=messages&convoId=${active.id}`} 
+                    state={{ from: "/messages", convoId: active.id }} 
+                    className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline text-[#FF3B30]"
+                  >
                     View brief →
                   </Link>
                 </div>

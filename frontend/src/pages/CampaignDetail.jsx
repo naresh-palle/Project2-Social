@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
@@ -110,6 +110,13 @@ export default function CampaignDetail() {
   const isAcceptedCreator = user?.role === "influencer" && c.accepted_creator_id === user?.id;
   const canReview = c.status === "completed";
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const fromMessages = searchParams.get("from") === "messages" || location.state?.from === "/messages";
+  const convoId = searchParams.get("convoId") || location.state?.convoId;
+  const backTarget = fromMessages ? (convoId ? `/messages?id=${convoId}` : "/messages") : "/marketplace";
+  const backLabel = fromMessages ? "← Back to Messages" : "← Back to file";
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
       <div className="grain" />
@@ -117,7 +124,7 @@ export default function CampaignDetail() {
       <Toaster theme="dark" position="top-center" />
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-16">
         <div className="hairline-b pb-6 flex flex-wrap items-baseline justify-between">
-          <Link to="/marketplace" className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline">← Back to file</Link>
+          <Link to={backTarget} className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline hover:text-[#FF3B30] transition-colors">{backLabel}</Link>
           <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {c.id.slice(0, 6)} · {c.status}</span>
         </div>
 
