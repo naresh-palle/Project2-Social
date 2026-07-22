@@ -69,6 +69,7 @@ export default function ProfileEdit() {
         company: user.company || "",
         industry: user.industry || "",
         website: user.website || "",
+        agent_type: user.agent_type || "company_agent",
       });
     }
   }, [user]);

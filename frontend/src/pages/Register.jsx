@@ -18,7 +18,8 @@ export default function Register() {
 
   const [form, setForm] = useState({ 
     email: "", username: "", password: "", firstName: "", lastName: "", 
-    company: "", mobile: "", pincode: "", city: "", state: "", otp: "" 
+    company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
+    agent_type: "company_agent"
   });
   const [err, setErr] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
@@ -296,7 +297,7 @@ export default function Register() {
             
             {(role === "owner" || role === "agent") && (
               <Field 
-                label={role === "owner" ? "Brand / Company" : "Agency Name"} 
+                label={role === "owner" ? "Brand / Company *" : "Agency Name *"} 
                 testid="reg-company" 
                 value={form.company} 
                 onChange={change("company")} 
@@ -304,6 +305,45 @@ export default function Register() {
                 error={fieldErrors.company}
                 required 
               />
+            )}
+
+            {role === "agent" && (
+              <div className="col-span-1 md:col-span-2 space-y-2 pt-2">
+                <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-70">
+                  Select Talent Agent Type *
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, agent_type: "company_agent" })}
+                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                      form.agent_type === "company_agent"
+                        ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
+                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="font-editorial text-lg text-white">🏢 Company Agent</div>
+                    <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
+                      Represent brand clients, manage client roster, and post campaign briefs
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
+                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                      form.agent_type === "influencer_agent"
+                        ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
+                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="font-editorial text-lg text-white">⭐ Influencer Agent</div>
+                    <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
+                      Manage creator roster, receive admin campaign briefs &amp; arrange talent
+                    </div>
+                  </button>
+                </div>
+              </div>
             )}
             <div className="relative">
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
