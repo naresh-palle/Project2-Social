@@ -120,12 +120,17 @@ function Hero() {
                 </Link>
               </div>
               <div className="col-span-12 md:col-span-3 font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F0]/50 md:text-right">
-                <div>Scroll ↓</div>
-                <div className="mt-1">to open the file</div>
+                <div>Explore →</div>
+                <div className="mt-1">side by side studio</div>
               </div>
             </div>
           </FadeUp>
         </div>
+      </div>
+
+      {/* Directly Visible White Strip Marquee at bottom of Hero */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 shadow-2xl">
+        <EditorialMarquee />
       </div>
     </section>
   );
@@ -243,12 +248,50 @@ function SplitView() {
     <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0] py-16 border-t border-white/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="hairline-b pb-6 mb-12">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+              § How It Works
+            </span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+              Two Doors <span className="italic">· One Studio<span className="tick">.</span></span>
+            </h2>
           </div>
+        </FadeUp>
+
+        {/* Clean Static 2-Column Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {doors.map((door) => (
+            <div
+              key={door.id}
+              className={`p-8 md:p-12 border flex flex-col justify-between rounded-sm relative overflow-hidden shadow-lg ${door.bgClass}`}
+            >
+              <div>
+                <span className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] font-bold block mb-2">
+                  {door.tag}
+                </span>
+                <h3 className="font-editorial text-3xl md:text-4xl leading-tight">
+                  {door.title}
+                </h3>
+                <ul className="mt-6 space-y-3 font-mono text-xs opacity-80">
+                  {door.points.map((pt, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <span className="text-[#FF3B30]">✦</span> {pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="pt-8 mt-6 border-t border-white/10 flex justify-end">
+                <Link
+                  to={door.link}
+                  className="btn-solid py-3 px-6 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2"
+                >
+                  <span>{door.ctaText}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -683,12 +726,7 @@ export default function Landing() {
       <div className="grain" />
       <Nav />
 
-      {/* FLOATING TOP RIGHT DECK COUNTER (1 / 6, 2 / 6, etc.) */}
-      <div className="fixed top-24 right-8 z-40 font-mono text-xs tracking-widest uppercase bg-[#0A0A0A]/80 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full text-white/80 shadow-lg">
-        <span className="text-[#FF3B30] font-bold">{deckIndex + 1}</span> / {slides.length}
-      </div>
-
-      {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) AS SHOWN IN SCREENSHOT */}
+      {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) */}
       <button
         type="button"
         onClick={prevDeck}
@@ -699,7 +737,7 @@ export default function Landing() {
         <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
       </button>
 
-      {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) AS SHOWN IN SCREENSHOT */}
+      {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) */}
       <button
         type="button"
         onClick={nextDeck}
@@ -727,11 +765,6 @@ export default function Landing() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* WHITE STRIP MARQUEE AT BOTTOM ABOVE FOOTER */}
-      <div className="w-full shadow-lg z-30">
-        <EditorialMarquee />
       </div>
 
       <Footer />

@@ -54,7 +54,12 @@ export function Nav({ variant = "dark" }) {
       }`}
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-10 py-4">
-        <Link to="/" data-testid="nav-logo" className="flex items-center gap-2">
+        <Link 
+          to="/" 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          data-testid="nav-logo" 
+          className="flex items-center gap-2"
+        >
           <span className="font-editorial italic text-2xl leading-[1.15]">CR</span>
           <span className="font-editorial text-2xl leading-[1.15]">8</span>
           <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 ml-3">⌘ Studio</span>
