@@ -905,15 +905,28 @@ export default function Landing() {
       </button>
 
       {/* SIDE-BY-SIDE SLIDE DECK STACK CONTAINER */}
-      <div className="pt-28 pb-10">
-        <EditorialMarquee />
-        <div className="relative overflow-hidden w-full min-h-[calc(100vh-160px)]">
+      <div className="pt-28 pb-4">
+        {/* ANIMATED WHITE STRIP MARQUEE DROPPING DOWN */}
+        <motion.div 
+          initial={{ y: -40, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }} 
+          transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+          className="w-full shadow-lg z-30"
+        >
+          <EditorialMarquee />
+        </motion.div>
+
+        {/* RESPONSIVE VIEWPORT SLIDE DECK CONTAINER */}
+        <div className="relative overflow-hidden w-full min-h-[calc(100vh-180px)] flex items-center">
           <div
             className="flex transition-transform duration-700 ease-out w-full"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
           >
             {slides.map((s, idx) => (
-              <div key={s.id} className="w-full shrink-0 min-h-[calc(100vh-180px)]">
+              <div 
+                key={s.id} 
+                className="w-full shrink-0 min-h-[calc(100vh-200px)] max-h-[calc(100vh-140px)] overflow-y-auto no-scrollbar px-2 sm:px-6 md:px-12 flex flex-col justify-center"
+              >
                 {s.component}
               </div>
             ))}
