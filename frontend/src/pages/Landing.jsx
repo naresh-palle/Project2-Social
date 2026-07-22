@@ -147,7 +147,7 @@ function EditorialMarquee() {
   );
 }
 
-// ————— Manifesto —————
+// ————— Manifesto (Side-by-Side Interactive Slider with < > Buttons) —————
 const CHAPTERS = [
   {
     n: "01",
@@ -176,182 +176,238 @@ const CHAPTERS = [
 ];
 
 function Manifesto() {
+  const [activeChapter, setActiveChapter] = useState(0);
+
+  const prevChapter = () => {
+    setActiveChapter((prev) => (prev === 0 ? CHAPTERS.length - 1 : prev - 1));
+  };
+
+  const nextChapter = () => {
+    setActiveChapter((prev) => (prev === CHAPTERS.length - 1 ? 0 : prev + 1));
+  };
+
   return (
-    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-24 md:py-40">
+    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-16 md:py-24 border-t border-b border-[#0A0A0A]/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between hairline-b pb-6 mb-16">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              § Manifesto
-            </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              Four chapters
-            </span>
+          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+                § Studio Manifesto
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0A0A0A]">
+                Four Chapters <span className="italic">of Intent<span className="tick">.</span></span>
+              </h2>
+            </div>
+
+            {/* Clickable < > Nav Buttons & Chapter Pills */}
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 mr-2">
+                {CHAPTERS.map((ch, idx) => (
+                  <button
+                    key={ch.n}
+                    type="button"
+                    onClick={() => setActiveChapter(idx)}
+                    className={`font-mono text-[10px] tracking-widest px-3 py-1 uppercase rounded-xs transition-all ${
+                      activeChapter === idx ? "bg-[#0A0A0A] text-[#F4F4F0] font-bold" : "bg-[#0A0A0A]/10 text-[#0A0A0A] hover:bg-[#0A0A0A]/20"
+                    }`}
+                  >
+                    Ch {ch.n}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={prevChapter}
+                aria-label="Previous Chapter"
+                data-testid="manifesto-prev-btn"
+                className="p-3 bg-[#0A0A0A] text-[#F4F4F0] border border-[#0A0A0A] hover:bg-[#FF3B30] hover:border-[#FF3B30] rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={nextChapter}
+                aria-label="Next Chapter"
+                data-testid="manifesto-next-btn"
+                className="p-3 bg-[#0A0A0A] text-[#F4F4F0] border border-[#0A0A0A] hover:bg-[#FF3B30] hover:border-[#FF3B30] rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </FadeUp>
 
-        <div className="space-y-24 md:space-y-32">
-          {CHAPTERS.map((c, i) => {
-            const alignRight = i % 2 === 1;
-            return (
-              <div
-                key={c.n}
-                className="grid grid-cols-12 gap-6 md:gap-10 items-end"
-              >
-                <FadeUp
-                  className={`col-span-12 md:col-span-4 ${
-                    alignRight ? "md:col-start-9 md:order-2" : ""
-                  }`}
-                >
-                  <div className="chapter-num text-[24vw] md:text-[14vw] text-[#0A0A0A] leading-[1.15]">
-                    {c.n[0]}
-                    <span className="tick not-italic">{c.n[1]}</span>
+        {/* Side-by-side Manifesto Carousel Container */}
+        <div className="relative overflow-hidden pt-2">
+          <div
+            className="flex gap-6 transition-transform duration-700 ease-out"
+            style={{ transform: `translateX(-${activeChapter * (window?.innerWidth >= 768 ? 50 : 100)}%)` }}
+          >
+            {CHAPTERS.map((c, i) => (
+              <div key={c.n} className="w-full md:w-[calc(50%-12px)] shrink-0">
+                <div className="p-8 md:p-12 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between h-[360px] md:h-[420px] rounded-sm relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <div>
+                    <div className="chapter-num text-7xl md:text-8xl text-[#0A0A0A] font-editorial leading-none mb-4 opacity-90">
+                      {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
+                    </div>
+                    <h3 className="font-editorial text-3xl md:text-4xl leading-[1.15] text-[#0A0A0A]">
+                      {c.title}
+                    </h3>
+                    <p className="mt-4 font-mono text-sm leading-relaxed text-[#0A0A0A]/80">
+                      {c.body}
+                    </p>
                   </div>
-                </FadeUp>
-                <FadeUp
-                  delay={0.15}
-                  className={`col-span-12 md:col-span-7 ${
-                    alignRight ? "md:col-start-1 md:order-1" : "md:col-start-6"
-                  }`}
-                >
-                  <h3 className="font-editorial text-4xl md:text-6xl leading-[1.1] tracking-tight">
-                    {c.title}
-                  </h3>
-                  <p className="mt-6 max-w-md text-base md:text-lg leading-relaxed text-[#0A0A0A]/75">
-                    {c.body}
-                  </p>
-                </FadeUp>
+                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 flex items-center justify-between border-t border-[#0A0A0A]/10 pt-4 mt-6">
+                    <span>Chapter {c.n} / 04</span>
+                    <span className="text-[#FF3B30] font-bold">Click next to explore →</span>
+                  </div>
+                </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// ————— Split (Owners vs Agents vs Influencers) —————
+// ————— Split (Owners vs Agents vs Influencers Side-by-Side Slider) —————
 function SplitView() {
-  const [hover, setHover] = useState(null);
+  const [activeDoor, setActiveDoor] = useState(0);
+
+  const doors = [
+    {
+      id: "owner",
+      tag: "01 — For the owners",
+      title: "Post your brief. Meet the mavericks.",
+      points: ["Brief in under 3 minutes", "Receive curated applications", "Contract, deliver, ship"],
+      ctaText: "I'm an owner",
+      link: "/register/owner",
+      bgClass: "bg-[#0D0D0D] border-white/10 text-white"
+    },
+    {
+      id: "agent",
+      tag: "02 — For Talent Agents",
+      title: "Manage your roster. Scale agency deals.",
+      points: ["Represent 50+ creators", "AI Pitch & auto-contracting", "Verified escrow payouts"],
+      ctaText: "I'm an agent",
+      link: "/register/agent",
+      bgClass: "bg-[#121212] border-[#FF3B30]/40 text-white"
+    },
+    {
+      id: "influencer",
+      tag: "03 — For the creators",
+      title: "Build a body of work worth signing.",
+      points: ["Curated invites only", "Pitch on your terms", "Get paid, keep credit"],
+      ctaText: "I'm a creator",
+      link: "/register/influencer",
+      bgClass: "bg-[#F4F4F0] text-[#0A0A0A] border-white/20"
+    }
+  ];
+
+  const prevDoor = () => {
+    setActiveDoor((prev) => (prev === 0 ? doors.length - 1 : prev - 1));
+  };
+
+  const nextDoor = () => {
+    setActiveDoor((prev) => (prev === doors.length - 1 ? 0 : prev + 1));
+  };
 
   return (
-    <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0]">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-24 pb-6">
+    <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0] py-16 border-t border-white/10">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between hairline-b pb-6">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              § How it works
-            </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              Three doors · one studio
-            </span>
+          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+                § How It Works
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+                Three Doors <span className="italic">· One Studio<span className="tick">.</span></span>
+              </h2>
+            </div>
+
+            {/* Clickable < > Nav Controls & Door Tabs */}
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 mr-2">
+                {doors.map((d, idx) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setActiveDoor(idx)}
+                    className={`font-mono text-[10px] tracking-widest px-3 py-1 uppercase rounded-xs transition-all ${
+                      activeDoor === idx ? "bg-[#FF3B30] text-white font-bold" : "bg-white/10 text-white/70 hover:bg-white/20"
+                    }`}
+                  >
+                    {d.id}s
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={prevDoor}
+                aria-label="Previous Door"
+                data-testid="door-prev-btn"
+                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={nextDoor}
+                aria-label="Next Door"
+                data-testid="door-next-btn"
+                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </FadeUp>
-      </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 pt-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[520px]">
-        {/* Door 1: Brand Owners */}
-        <motion.div
-          onHoverStart={() => setHover("owner")}
-          onHoverEnd={() => setHover(null)}
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.4 }}
-          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-10 flex flex-col justify-between overflow-hidden bg-[#0D0D0D] border border-white/10 hover:border-[#FF3B30]/40 transition-colors"
-          data-testid="split-owners"
-        >
-          <div>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]">
-              01 — For the owners
-            </span>
-            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
-              Post your brief.
-              <br />
-              <span className="italic">Meet the mavericks.</span>
-            </h3>
-          </div>
-          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3 opacity-80">
-            <li><span className="tick">01 —</span> Brief in under 3 minutes</li>
-            <li><span className="tick">02 —</span> Receive curated applications</li>
-            <li><span className="tick">03 —</span> Contract, deliver, ship</li>
-          </ul>
-          <Link
-            to="/register/owner"
-            data-testid="split-owner-cta"
-            className="btn-pill mt-8 self-start"
-          >
-            I&apos;m an owner <ArrowUpRight className="w-4 h-4" />
-          </Link>
+        {/* Side-by-side How It Works Carousel */}
+        <div className="relative overflow-hidden pt-2">
           <div
-            className="absolute -right-24 -bottom-24 h-[320px] w-[320px] rounded-full opacity-[0.06] blur-2xl"
-            style={{ background: "radial-gradient(circle, #FF3B30 0%, transparent 60%)" }}
-          />
-        </motion.div>
-
-        {/* Door 2: Talent Agents */}
-        <motion.div
-          onHoverStart={() => setHover("agent")}
-          onHoverEnd={() => setHover(null)}
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.4 }}
-          className="relative hairline-r hairline-l hairline-b hairline-t p-8 md:p-10 flex flex-col justify-between overflow-hidden bg-[#121212] border border-[#FF3B30]/30 hover:border-[#FF3B30] transition-colors"
-          data-testid="split-agents"
-        >
-          <div>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]">
-              02 — For Talent Agents
-            </span>
-            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
-              Manage your roster.
-              <br />
-              <span className="italic">Scale agency deals.</span>
-            </h3>
-          </div>
-          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3 opacity-80">
-            <li><span className="tick">01 —</span> Represent 50+ creators</li>
-            <li><span className="tick">02 —</span> AI Pitch &amp; auto-contracting</li>
-            <li><span className="tick">03 —</span> Verified escrow payouts</li>
-          </ul>
-          <Link
-            to="/register/agent"
-            data-testid="split-agent-cta"
-            className="btn-solid mt-8 self-start bg-[#FF3B30] text-white hover:bg-[#e03126]"
+            className="flex gap-6 transition-transform duration-700 ease-out"
+            style={{ transform: `translateX(-${activeDoor * (window?.innerWidth >= 768 ? 50 : 100)}%)` }}
           >
-            I&apos;m an agent <ArrowUpRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
+            {doors.map((door, idx) => (
+              <div key={door.id} className="w-full md:w-[calc(50%-12px)] shrink-0">
+                <div className={`p-8 md:p-10 border flex flex-col justify-between h-[420px] rounded-sm relative overflow-hidden transition-all duration-300 ${door.bgClass}`}>
+                  <div>
+                    <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                      {door.tag}
+                    </span>
+                    <h3 className="font-editorial text-3xl md:text-4xl mt-3 leading-[1.15]">
+                      {door.title}
+                    </h3>
+                    <ul className="mt-6 font-mono text-[11px] tracking-[0.15em] uppercase space-y-2.5 opacity-90">
+                      {door.points.map((pt, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <span className="text-[#FF3B30] font-bold">0{i+1} —</span> {pt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-        {/* Door 3: Influencers */}
-        <motion.div
-          onHoverStart={() => setHover("influencer")}
-          onHoverEnd={() => setHover(null)}
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.4 }}
-          className="relative bg-[#F4F4F0] text-[#0A0A0A] paper p-8 md:p-10 flex flex-col justify-between overflow-hidden hairline-b"
-          data-testid="split-influencers"
-        >
-          <div>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              03 — For the creators
-            </span>
-            <h3 className="font-editorial text-4xl md:text-5xl mt-4 leading-[1.1]">
-              Build a body of work
-              <br />
-              <span className="italic">worth signing.</span>
-            </h3>
+                  <div className="pt-6 border-t border-current/10 flex items-center justify-between">
+                    <Link
+                      to={door.link}
+                      data-testid={`split-${door.id}-cta`}
+                      className="btn-solid flex items-center gap-2 text-xs py-3 px-5"
+                    >
+                      {door.ctaText} <ArrowUpRight className="w-4 h-4" />
+                    </Link>
+                    <span className="font-mono text-[10px] tracking-widest uppercase opacity-60">
+                      Door 0{idx+1} of 03
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <ul className="mt-8 font-mono text-[11px] tracking-[0.15em] uppercase space-y-3">
-            <li><span className="tick">01 —</span> Curated invites only</li>
-            <li><span className="tick">02 —</span> Pitch on your terms</li>
-            <li><span className="tick">03 —</span> Get paid, keep credit</li>
-          </ul>
-          <Link
-            to="/register/influencer"
-            data-testid="split-influencer-cta"
-            className="btn-pill mt-8 self-start text-[#0A0A0A]"
-          >
-            I&apos;m a creator <ArrowUpRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
