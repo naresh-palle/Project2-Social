@@ -43,130 +43,148 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
 function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col">
+    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0A0A0A] flex flex-col">
 
-      {/* ── Cinematic dark curtain reveal animation ── */}
+      {/* ── 1. Cinematic curtain lift: slides UP to reveal the scene ── */}
       <motion.div
-        className="absolute inset-0 bg-[#0B0B0E] z-40 pointer-events-none"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+        className="absolute inset-0 z-50 pointer-events-none origin-top"
+        style={{ background: "#0A0A0A" }}
+        initial={{ scaleY: 1 }}
+        animate={{ scaleY: 0 }}
+        transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* ── Floating ambient particles ── */}
-      {[...Array(6)].map((_, i) => (
+      {/* ── 2. Full-width new model background ── */}
+      <motion.div
+        style={{ y: yImg }}
+        className="absolute inset-0 z-0"
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
+      >
+        <img
+          src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
+          alt="CR8 Fashion Creator Models"
+          className="w-full h-full object-cover object-top"
+        />
+        {/* Dark overlay so left text is fully readable */}
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(90deg, #0A0A0A 0%, #0A0A0A 32%, rgba(10,10,10,0.75) 50%, rgba(10,10,10,0.15) 100%)"
+        }} />
+        {/* Bottom fade */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 40%)" }} />
+      </motion.div>
+
+      {/* ── 3. Floating glow orbs ── */}
+      {[
+        { color: "#FF3B30", x: "8%",  y: "30%", size: 280, delay: 1.2 },
+        { color: "#7000FF", x: "20%", y: "60%", size: 200, delay: 1.6 },
+        { color: "#FF9500", x: "5%",  y: "80%", size: 150, delay: 2.0 },
+      ].map((orb, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full pointer-events-none"
           style={{
-            width: `${8 + i * 4}px`,
-            height: `${8 + i * 4}px`,
-            left: `${10 + i * 6}%`,
-            top: `${20 + (i % 3) * 25}%`,
-            background: i % 2 === 0 ? "#FF3B30" : "#7000FF",
-            opacity: 0.15,
-            filter: "blur(2px)",
+            left: orb.x, top: orb.y,
+            width: orb.size, height: orb.size,
+            background: orb.color,
+            filter: "blur(80px)",
+            opacity: 0,
           }}
-          animate={{ y: [0, -20, 0], opacity: [0.1, 0.25, 0.1] }}
-          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
+          animate={{ opacity: [0, 0.12, 0.06, 0.12] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
         />
       ))}
 
-      {/* ── Model photo — right 55% ── */}
-      <motion.div
-        style={{ y: yImg, scale: scaleImg }}
-        className="absolute right-0 top-0 h-full w-[55%] pointer-events-none z-0"
-        initial={{ x: 80, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+      {/* ── 4. Left panel: text locked to left 44% — NO OVERLAP ── */}
+      <div className="relative z-10 flex flex-col h-full px-8 md:px-14 pt-[72px] pb-5"
+        style={{ width: "44%", minWidth: "300px", maxWidth: "580px" }}
       >
-        <div className="relative h-full w-full">
-          <img
-            src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
-            alt="Fashion Creator Models"
-            className="h-full w-full object-cover object-center"
-          />
-          {/* Strong left fade so text is never obscured */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0E] via-[#0B0B0E]/55 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0E]/80 via-transparent to-[#0B0B0E]/20" />
-        </div>
-      </motion.div>
-
-      {/* ── Left-locked content (max 45% width) ── */}
-      <div className="relative z-10 flex flex-col justify-between h-full px-6 md:px-12 pt-20 pb-4" style={{ maxWidth: '45%', minWidth: '320px' }}>
-        {/* Top meta */}
+        {/* Top meta bar */}
         <motion.div
-          className="flex items-center gap-4 font-mono text-[11px] tracking-[0.28em] uppercase border-b border-white/10 pb-4"
-          initial={{ opacity: 0, y: -12 }}
+          className="flex items-center justify-between pb-4 mb-auto"
+          style={{ borderBottom: "1px solid rgba(244,244,240,0.10)" }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.0 }}
+          transition={{ duration: 0.6, delay: 1.1 }}
         >
-          <span className="text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
-          <span className="ml-auto text-[#F4F4F0]/60 hidden md:inline">A studio for signal · not noise</span>
+          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">CR8 Studio</span>
         </motion.div>
 
-        {/* Headline */}
-        <div className="flex-1 flex items-center">
-          <div>
-            <MaskLine delay={1.1} className="py-0.5">
-              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] font-medium text-[#F4F4F0] leading-[1.0] tracking-tighter drop-shadow-lg">
-                The bridge
+        {/* Spacer */}
+        <div className="flex-1 flex flex-col justify-center gap-2 mt-6">
+
+          {/* Headline — each word animates in */}
+          {["The bridge", "between owners", "& influence."].map((line, i) => (
+            <MaskLine key={line} delay={1.3 + i * 0.18} className="overflow-hidden">
+              <span className={`block font-editorial leading-[0.98] tracking-tighter ${
+                i === 1
+                  ? "italic text-[#FF3B30] font-normal"
+                  : "text-[#F4F4F0] font-medium"
+              }`}
+                style={{ fontSize: "clamp(28px, 4.4vw, 68px)" }}
+              >
+                {line}{i === 2 && <span className="tick" />}
               </span>
             </MaskLine>
-            <MaskLine delay={1.25} className="py-0.5">
-              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] italic font-normal text-[#FF3B30] leading-[1.0] tracking-tighter drop-shadow-lg">
-                between owners
-              </span>
-            </MaskLine>
-            <MaskLine delay={1.4} className="py-0.5">
-              <span className="block font-editorial text-[7.5vw] md:text-[5vw] lg:text-[4.2vw] font-medium text-[#F4F4F0] leading-[1.0] tracking-tighter drop-shadow-lg">
-                &amp; influence<span className="tick text-white">.</span>
-              </span>
-            </MaskLine>
-            <motion.p
-              className="mt-4 text-[#F4F4F0]/70 text-sm leading-relaxed max-w-xs"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 1.7 }}
-            >
-              CR8 connects elite brands with fully verified influencers — escrow-protected, AI-audited, results-driven.
-            </motion.p>
-          </div>
+          ))}
+
+          {/* Subtext */}
+          <motion.p
+            className="mt-5 text-[#F4F4F0]/60 text-[13px] leading-[1.7] max-w-[320px]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 2.0 }}
+          >
+            CR8 connects elite brands with fully verified influencers —
+            escrow-protected, AI-audited, results-driven.
+          </motion.p>
+
+          {/* Animated divider */}
+          <motion.div
+            className="h-px bg-gradient-to-r from-[#FF3B30] via-[#7000FF] to-transparent mt-4"
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.9, ease: "easeOut", delay: 2.1 }}
+          />
         </div>
 
-        {/* CTA Row */}
+        {/* CTA Row — pinned to bottom */}
         <motion.div
-          className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-4"
-          initial={{ opacity: 0, y: 16 }}
+          className="flex flex-wrap items-center gap-3 pt-4"
+          style={{ borderTop: "1px solid rgba(244,244,240,0.10)" }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.9 }}
+          transition={{ duration: 0.7, delay: 2.2 }}
         >
-          <Link to="/register" data-testid="hero-cta-primary"
-            className="relative inline-flex items-center gap-2 px-5 py-2.5 text-xs font-mono tracking-wider uppercase text-white bg-[#FF3B30] hover:bg-[#e02d22] transition-colors shadow-lg overflow-hidden group"
+          <Link
+            to="/register"
+            data-testid="hero-cta-primary"
+            className="inline-flex items-center gap-2 px-6 py-3 font-mono text-[11px] tracking-[0.25em] uppercase text-white bg-[#FF3B30] hover:bg-[#d62e25] transition-all duration-300 shadow-[0_0_20px_rgba(255,59,48,0.4)] hover:shadow-[0_0_32px_rgba(255,59,48,0.7)]"
           >
             Enter the studio <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-          <Link to="/marketplace" data-testid="hero-cta-secondary"
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-mono tracking-wider uppercase text-[#F4F4F0]/80 border border-white/20 hover:border-[#FF3B30] hover:text-white transition-colors"
+          <Link
+            to="/marketplace"
+            data-testid="hero-cta-secondary"
+            className="inline-flex items-center gap-2 px-5 py-3 font-mono text-[11px] tracking-[0.25em] uppercase text-[#F4F4F0]/70 border border-white/15 hover:border-[#FF3B30]/60 hover:text-white transition-all duration-300"
           >
             Browse Creators
           </Link>
-          <motion.div
-            className="ml-auto font-mono text-[9px] tracking-[0.22em] uppercase text-[#F4F4F0]/40 hidden lg:block"
-            animate={{ opacity: [0.4, 0.9, 0.4] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <div className="text-[#FF3B30]">Explore →</div>
-          </motion.div>
+          <motion.span
+            className="ml-auto font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30]/60 hidden lg:block"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+          >→ Explore</motion.span>
         </motion.div>
       </div>
 
-      {/* ── White Strip Marquee ── */}
-      <div className="relative z-30">
+      {/* ── 5. White Strip Marquee — pinned at very bottom ── */}
+      <div className="relative z-30 mt-auto">
         <EditorialMarquee />
       </div>
     </section>
