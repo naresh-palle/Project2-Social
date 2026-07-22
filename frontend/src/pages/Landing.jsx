@@ -43,25 +43,26 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
 function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const opacityWord = useTransform(scrollYProgress, [0, 0.5], [1, 0.2]);
 
   return (
-    <section ref={ref} className="relative min-h-screen py-12 overflow-hidden bg-[#0A0A0A] flex flex-col justify-between">
-      {/* High-fashion Multi-Model Studio Background Photograph (Right Side) */}
+    <section ref={ref} className="relative min-h-screen py-12 overflow-hidden bg-[#0B0B0E] flex flex-col justify-between">
+      {/* High-fashion Multi-Model Studio Background Photograph (Vividly Visible Right Side) */}
       <motion.div
         style={{ y: yImg, scale: scaleImg }}
-        className="absolute right-0 top-0 h-full w-full md:w-[50%] lg:w-[42%] pointer-events-none"
+        className="absolute right-0 top-0 h-full w-full md:w-[56%] lg:w-[48%] pointer-events-none z-0"
       >
         <div className="relative h-full w-full">
           <img
             src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
             alt="Diverse Fashion Creator Models"
-            className="h-full w-full object-cover object-center spotlight-img opacity-80"
+            className="h-full w-full object-cover object-center spotlight-img opacity-95 rounded-l-sm shadow-2xl"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#0A0A0A]/50 to-[#0A0A0A]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/40" />
+          {/* Subtle directional fade for text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0E] via-[#0B0B0E]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0E] via-transparent to-[#0B0B0E]/30" />
         </div>
       </motion.div>
 
@@ -696,22 +697,42 @@ export default function Landing() {
   useLenis();
 
   useEffect(() => {
-    document.body.style.background = "#0A0A0A";
+    document.body.style.background = "#0B0B0E";
   }, []);
 
   return (
-    <div className="App bg-[#0A0A0A] text-[#F4F4F0] min-h-screen relative overflow-x-hidden" data-testid="landing-page">
-      <div className="grain" />
-      <Nav />
+    <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden" data-testid="landing-page">
+      {/* Rich Luxury Multi-Layer Ambient Lighting Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div 
+          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-20 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 45%, transparent 75%)" }}
+        />
+        <div 
+          className="absolute top-1/3 -left-40 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #FF9500 0%, #FF3B30 60%, transparent 75%)" }}
+        />
+        <div 
+          className="absolute bottom-10 right-10 w-[700px] h-[700px] rounded-full opacity-15 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #34C759 0%, #007AFF 55%, transparent 75%)" }}
+        />
+        <div className="grain" />
+      </div>
+
+      <div className="relative z-50">
+        <Nav />
+      </div>
 
       {/* CONTINUOUS SINGLE PAGE SCROLL LAYOUT */}
-      <Hero />
-      <Manifesto />
-      <SplitView />
-      <FeaturedGrid />
-      <FAQ />
-      <Numbers />
-      <ClosingCTA />
+      <div className="relative z-10">
+        <Hero />
+        <Manifesto />
+        <SplitView />
+        <FeaturedGrid />
+        <FAQ />
+        <Numbers />
+        <ClosingCTA />
+      </div>
 
       <Footer />
     </div>
