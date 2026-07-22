@@ -746,8 +746,6 @@ export default function ProfileEdit() {
                       </F>
                   </div>
               </section>
-            </>
-          )}
 
           <div className="pt-8">
             <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
