@@ -355,8 +355,6 @@ export default function ProfileEdit() {
               )}
             </div>
         </div>
-            )}
-        </div>
 
         <motion.form onSubmit={submit} className="mt-16 space-y-16" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           
