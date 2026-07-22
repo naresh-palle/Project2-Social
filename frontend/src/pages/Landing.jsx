@@ -184,10 +184,10 @@ const CHAPTERS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-16 md:py-24 border-t border-b border-[#0A0A0A]/10">
+    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-12 md:py-16 border-t border-b border-[#0A0A0A]/10">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="hairline-b pb-6 mb-12">
+          <div className="hairline-b pb-6 mb-10">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
               § Studio Manifesto
             </span>
@@ -197,22 +197,22 @@ function Manifesto() {
           </div>
         </FadeUp>
 
-        {/* Clean Static 2x2 Grid Layout for Chapters without height clipping or text overlap */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+        {/* Clean Static Grid for Chapters without height clipping or text overlap */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {CHAPTERS.map((c) => (
-            <div key={c.n} className="p-8 md:p-10 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow min-h-[260px]">
+            <div key={c.n} className="p-6 md:p-8 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow min-h-[220px]">
               <div>
-                <div className="chapter-num text-5xl md:text-6xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
+                <div className="chapter-num text-4xl md:text-5xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
                   {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
                 </div>
-                <h3 className="font-editorial text-2xl md:text-3xl leading-[1.2] text-[#0A0A0A]">
+                <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#0A0A0A] font-bold">
                   {c.title}
                 </h3>
-                <p className="mt-3 font-mono text-xs md:text-sm leading-relaxed text-[#0A0A0A]/80">
+                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#0A0A0A]/80">
                   {c.body}
                 </p>
               </div>
-              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 border-t border-[#0A0A0A]/10 pt-4 mt-6">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 border-t border-[#0A0A0A]/10 pt-3 mt-4">
                 <span>Chapter {c.n} / 04</span>
               </div>
             </div>
@@ -490,76 +490,6 @@ const FEATURED = [
 ];
 
 function FeaturedGrid() {
-  const [slideIndex, setSlideIndex] = useState(0);
-
-  const prevSlide = () => {
-    setSlideIndex((prev) => (prev === 0 ? FEATURED.length - 2 : prev - 1));
-  };
-
-  const nextSlide = () => {
-    setSlideIndex((prev) => (prev >= FEATURED.length - 2 ? 0 : prev + 1));
-  };
-
-  return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-14 md:py-20 border-t border-white/10">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
-        <FadeUp>
-          <div className="flex items-center justify-between hairline-b pb-6 mb-12">
-            <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-                § Selected Work Showcase
-              </span>
-              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                Side-by-Side <span className="italic">Showcase<span className="tick">.</span></span>
-              </h2>
-            </div>
-
-            {/* Clickable < > Nav Controls */}
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 mr-2">
-                {slideIndex + 1} / {FEATURED.length - 1}
-              </span>
-              <button
-                type="button"
-                onClick={prevSlide}
-                aria-label="Previous Slide"
-                data-testid="featured-prev-btn"
-                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={nextSlide}
-                aria-label="Next Slide"
-                data-testid="featured-next-btn"
-                className="p-3 bg-white/5 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full transition-all duration-300 cursor-pointer shadow-lg active:scale-95"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </FadeUp>
-
-        {/* Side-by-side Carousel Container */}
-        <div className="relative overflow-hidden pt-2">
-          <div 
-            className="flex gap-6 transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${slideIndex * 52}%)` }}
-          >
-            {FEATURED.map((f, i) => (
-              <div key={i} className="w-full md:w-[calc(50%-12px)] shrink-0">
-                <figure className="group relative overflow-hidden bg-[#121212] border border-white/10 p-4 rounded-sm hover:border-[#FF3B30]/40 transition-colors">
-                  <div className="relative overflow-hidden aspect-[16/10] max-h-[320px] md:max-h-[360px]">
-                    <img
-                      src={f.img}
-                      alt={f.title}
-                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-[#0A0A0A]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                      <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">
-                        {f.label}
                       </span>
                       <div className="font-editorial text-2xl md:text-3xl mt-1 text-white">{f.title}</div>
                     </div>
@@ -693,15 +623,45 @@ function ClosingCTA() {
 }
 
 // ————— Landing Side-by-Side Deck Engine —————
+// ————— Landing Presentation Slide Deck Engine —————
 export default function Landing() {
   useLenis();
+  const [deckIndex, setDeckIndex] = useState(0);
+
+  const slides = [
+    { id: "hero", component: <Hero /> },
+    { id: "manifesto", component: <Manifesto /> },
+    { id: "work", component: <SplitView /> },
+    { id: "portfolio", component: <FeaturedGrid /> },
+    { id: "faq", component: <><FAQ /><Numbers /><ClosingCTA /></> }
+  ];
+
+  const prevDeck = () => {
+    setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
+  const nextDeck = () => {
+    setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
 
   useEffect(() => {
     document.body.style.background = "#0B0B0E";
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowLeft") prevDeck();
+      if (e.key === "ArrowRight") nextDeck();
+    };
+    const onReset = () => setDeckIndex(0);
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resetHomeDeck", onReset);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resetHomeDeck", onReset);
+    };
   }, []);
 
   return (
-    <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden" data-testid="landing-page">
+    <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
       {/* Rich Luxury Multi-Layer Ambient Lighting Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div 
@@ -723,15 +683,45 @@ export default function Landing() {
         <Nav />
       </div>
 
-      {/* CONTINUOUS SINGLE PAGE SCROLL LAYOUT */}
-      <div className="relative z-10">
-        <Hero />
-        <Manifesto />
-        <SplitView />
-        <FeaturedGrid />
-        <FAQ />
-        <Numbers />
-        <ClosingCTA />
+      {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) */}
+      <button
+        type="button"
+        onClick={prevDeck}
+        aria-label="Previous Slide"
+        data-testid="deck-prev-btn"
+        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+      >
+        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
+      </button>
+
+      {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) */}
+      <button
+        type="button"
+        onClick={nextDeck}
+        aria-label="Next Slide"
+        data-testid="deck-next-btn"
+        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+      >
+        <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
+      </button>
+
+      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
+      <div className="pt-16 pb-2 w-full flex-1 relative z-10">
+        <div className="relative overflow-hidden w-full">
+          <div
+            className="flex transition-transform duration-700 ease-out w-full items-start"
+            style={{ transform: `translateX(-${deckIndex * 100}%)` }}
+          >
+            {slides.map((s) => (
+              <div 
+                key={s.id} 
+                className="w-full shrink-0 px-2 sm:px-6 md:px-12 flex flex-col justify-center min-h-[calc(100vh-120px)]"
+              >
+                {s.component}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <Footer />
