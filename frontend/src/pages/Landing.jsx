@@ -490,45 +490,74 @@ const FEATURED = [
 ];
 
 function FeaturedGrid() {
+  const [stats, setStats] = useState({ creators: 0, owners: 0, campaigns: 0 });
+  useEffect(() => {
+    api.get("/stats").then((r) => setStats(r.data)).catch(() => {});
+  }, []);
+
+  const rows = [
+    { k: "Creators on file", v: stats.creators ?? "—", tail: "credentialed" },
+    { k: "Brand owners", v: stats.owners ?? "—", tail: "invited only" },
+    { k: "Live briefs", v: stats.campaigns ?? "—", tail: "in the studio" },
+    { k: "Signal-to-noise", v: "94%", tail: "matched to intent" },
+  ];
+
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-8 md:py-12 border-t border-white/10">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-6 md:py-8 border-t border-white/10 h-full flex flex-col">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 flex flex-col h-full gap-6">
+
+        {/* Header */}
         <FadeUp>
-          <div className="hairline-b pb-5 mb-8">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              § Selected Work Showcase
-            </span>
-            <h2 className="font-editorial text-3xl md:text-4xl mt-1">
-              Selected <span className="italic">Work<span className="tick">.</span></span>
-            </h2>
+          <div className="hairline-b pb-4 flex items-baseline justify-between">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+                § Selected Work Showcase
+              </span>
+              <h2 className="font-editorial text-2xl md:text-3xl mt-1">
+                Selected <span className="italic">Work<span className="tick">.</span></span>
+              </h2>
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-40">Studio Portfolio</span>
           </div>
         </FadeUp>
 
-        {/* Single Row Horizontal Scroll - All 6 images in one line */}
-        <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+        {/* Single Row Horizontal Images */}
+        <div className="flex flex-nowrap gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-white/10 bg-white/[0.02] p-3 rounded-sm hover:border-[#FF3B30]/40 transition-all flex-shrink-0" style={{ width: 'calc(100% / 6 - 14px)', minWidth: '200px' }}>
-              <div className="relative overflow-hidden bg-[#121212]" style={{ aspectRatio: '4/3' }}>
+            <div key={i} className="group cursor-pointer flex-shrink-0 border border-white/10 hover:border-[#FF3B30]/50 transition-all bg-white/[0.02] p-2" style={{ width: 'clamp(160px, 16vw, 220px)' }}>
+              <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
                 <img
                   src={f.img}
                   alt={f.title}
                   className="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                 />
-                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10">
+                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-1.5 py-0.5 text-[#F4F4F0] border border-white/10">
                   {f.label}
                 </div>
               </div>
-              <div className="mt-3">
-                <h3 className="font-editorial text-base group-hover:text-[#FF3B30] transition-colors leading-snug">
-                  {f.title}
-                </h3>
-                <p className="mt-0.5 font-mono text-[10px] opacity-60 uppercase tracking-wider">
-                  {f.meta}
-                </p>
+              <div className="mt-2 px-1">
+                <h3 className="font-editorial text-sm group-hover:text-[#FF3B30] transition-colors leading-snug truncate">{f.title}</h3>
+                <p className="mt-0.5 font-mono text-[9px] opacity-50 uppercase tracking-wider truncate">{f.meta}</p>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Stats Table (Numbers) — cream light section */}
+        <div className="flex-1 bg-[#F4F4F0] text-[#0A0A0A] rounded-sm overflow-hidden">
+          <div className="px-4 md:px-8 py-3 border-b border-[#0A0A0A]/10">
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-50">Studio Signal</span>
+          </div>
+          {rows.map((r, i) => (
+            <div key={i} className={`grid grid-cols-12 items-baseline px-4 md:px-8 py-3 md:py-4 ${i < rows.length - 1 ? 'border-b border-[#0A0A0A]/10' : ''}` }>
+              <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase opacity-50">0{i + 1}</div>
+              <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-2xl leading-[1.1]">{r.k}</div>
+              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-3xl italic">{r.v}</div>
+              <div className="hidden md:block col-span-2 text-right font-mono text-[10px] tracking-[0.22em] uppercase opacity-50">{r.tail}</div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );
@@ -659,7 +688,6 @@ export default function Landing() {
     { id: "manifesto", component: <Manifesto /> },
     { id: "work", component: <SplitView /> },
     { id: "portfolio", component: <FeaturedGrid /> },
-    { id: "numbers", component: <Numbers /> },
     { id: "faq", component: <FAQ /> },
   ];
 
