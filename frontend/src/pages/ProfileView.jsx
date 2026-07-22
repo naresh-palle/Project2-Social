@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, Edit2, Instagram, Youtube, Twitter, Facebook, Globe, TrendingUp, Users, Eye, Activity } from "lucide-react";
+import { ArrowLeft, Edit2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { toast, Toaster } from "sonner";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 export default function ProfileView() {
   const { user } = useAuth();
   const nav = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [chartRange, setChartRange] = useState(6);
 
   useEffect(() => {
     async function load() {
@@ -59,13 +56,6 @@ export default function ProfileView() {
     : (isCreator ? defaultPlatforms : {});
 
   const totalReach = Object.values(platformMetrics).reduce((acc, p) => acc + (p?.followers || 0), 0);
-
-  const getFilteredChartData = () => {
-    if (!profile.monthly_analytics) return [];
-    return profile.monthly_analytics.slice(-chartRange);
-  };
-
-  const chartData = getFilteredChartData();
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
@@ -147,11 +137,11 @@ export default function ProfileView() {
                 )}
             </div>
 
-            {/* Right Column: Social Platforms, Selected Work & Audience Growth */}
+            {/* Right Column: Social Platforms Summary & Selected Work */}
             {isCreator && (
               <div className="md:col-span-8 space-y-16">
                 
-                {/* 1. SOCIAL MEDIA PLATFORMS SUMMARY */}
+                {/* 1. SUMMARY OF USER SOCIAL MEDIA PLATFORMS */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
@@ -231,36 +221,6 @@ export default function ProfileView() {
                             ))}
                         </div>
                     </div>
-                )}
-
-                {/* 3. AUDIENCE GROWTH (Moved down below Selected Work as requested) */}
-                {chartData.length > 0 && (
-                    <motion.div initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} className="border border-white/10 bg-[#111] p-6 relative rounded-sm">
-                        <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
-                            <div>
-                                <h2 className="font-editorial text-3xl">Audience Growth &amp; Reach</h2>
-                                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Historical Aggregated Reach Trend</p>
-                            </div>
-                            <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-semibold">6-Month Trend</span>
-                        </div>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorFoll" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#FF3B30" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#FF3B30" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <XAxis dataKey="month" stroke="rgba(255,255,255,0.3)" fontSize={10} tickMargin={10} axisLine={false} tickLine={false} />
-                                    <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                                    <Tooltip contentStyle={{backgroundColor:'#0A0A0A', borderColor:'rgba(255,255,255,0.1)', fontSize:'12px'}} itemStyle={{color:'#F4F4F0'}} />
-                                    <Area type="monotone" dataKey="followers" stroke="#FF3B30" strokeWidth={2} fillOpacity={1} fill="url(#colorFoll)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </motion.div>
                 )}
 
               </div>
