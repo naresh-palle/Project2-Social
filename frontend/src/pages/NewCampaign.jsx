@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, Loader2, Upload, X } from "lucide-react";
 import { Nav } from "@/components/Nav";
@@ -7,18 +7,22 @@ import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 
-const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness"];
+const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness", "lifestyle"];
 const PLATFORMS = ["instagram", "facebook", "youtube", "twitter"];
 
 export default function NewCampaign() {
   const { user } = useAuth();
   const nav = useNavigate();
   const [f, setF] = useState({
-    title: "", brand: user?.company || "", description: "", budget: 1000,
-    deliverables: "", cover: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
+    title: "", 
+    brand: user?.company || user?.name || "", 
+    description: "", 
+    budget: 15000,
+    deliverables: "1x Dedicated Reel / Post + 2x Instagram Stories with Swipe-up Link", 
+    cover: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
   });
-  const [niches, setNiches] = useState([]);
-  const [platforms, setPlatforms] = useState([]);
+  const [niches, setNiches] = useState(["fashion", "lifestyle"]);
+  const [platforms, setPlatforms] = useState(["instagram"]);
   const [busy, setBusy] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiGoal, setAiGoal] = useState("");
