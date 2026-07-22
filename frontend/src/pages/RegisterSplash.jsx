@@ -63,14 +63,6 @@ export default function RegisterSplash() {
                 sub: "Post briefs in 3 mins • Access credentialed talent • Escrow security",
                 badge: "Brand Desk",
                 bgHover: "hover:border-[#FF3B30] hover:bg-[#FF3B30]/10" 
-              },
-              { 
-                k: "agent", 
-                num: "03", 
-                label: "I'm a Talent Agent", 
-                sub: "Company Agent or Influencer Agent • Roster management • Agency deals",
-                badge: "Agency Console",
-                bgHover: "hover:border-[#FF3B30] hover:bg-[#FF3B30]/10" 
               }
             ].map((r) => (
               <Link

@@ -287,17 +287,8 @@ function SplitView() {
       bgClass: "bg-[#0D0D0D] border-white/10 text-white"
     },
     {
-      id: "agent",
-      tag: "02 — For Talent Agents",
-      title: "Manage your roster. Scale agency deals.",
-      points: ["Represent 50+ creators", "AI Pitch & auto-contracting", "Verified escrow payouts"],
-      ctaText: "I'm an agent",
-      link: "/register/agent",
-      bgClass: "bg-[#121212] border-[#FF3B30]/40 text-white"
-    },
-    {
       id: "influencer",
-      tag: "03 — For the creators",
+      tag: "02 — For the creators",
       title: "Build a body of work worth signing.",
       points: ["Curated invites only", "Pitch on your terms", "Get paid, keep credit"],
       ctaText: "I'm a creator",
