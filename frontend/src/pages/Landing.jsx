@@ -43,12 +43,12 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
 function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
-  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const opacityWord = useTransform(scrollYProgress, [0, 0.6], [1, 0.15]);
+  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const scaleImg = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const opacityWord = useTransform(scrollYProgress, [0, 0.5], [1, 0.2]);
 
   return (
-    <section ref={ref} className="relative h-[100vh] min-h-[720px] overflow-hidden bg-[#0A0A0A]">
+    <section ref={ref} className="relative min-h-[calc(100vh-100px)] py-12 overflow-hidden bg-[#0A0A0A] flex flex-col justify-between">
       {/* clipped spotlight photograph on the right */}
       <motion.div
         style={{ y: yImg, scale: scaleImg }}
@@ -755,16 +755,16 @@ export default function Landing() {
       </button>
 
       {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
-      <div className="pt-20 pb-6 flex-1 flex items-center">
-        <div className="relative overflow-hidden w-full min-h-[calc(100vh-140px)] flex items-center">
+      <div className="pt-16 pb-2 w-full flex-1">
+        <div className="relative overflow-hidden w-full">
           <div
-            className="flex transition-transform duration-700 ease-out w-full"
+            className="flex transition-transform duration-700 ease-out w-full items-start"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
           >
             {slides.map((s) => (
               <div 
                 key={s.id} 
-                className="w-full shrink-0 px-4 sm:px-10 md:px-20 py-12 flex flex-col justify-center min-h-[calc(100vh-140px)]"
+                className="w-full shrink-0 px-2 sm:px-6 md:px-12 flex flex-col justify-center min-h-[calc(100vh-120px)]"
               >
                 {s.component}
               </div>
