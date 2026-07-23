@@ -250,35 +250,52 @@ const CHAPTERS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="paper bg-[#F4F4F0] text-[#0A0A0A] py-12 md:py-16 border-t border-b border-[#0A0A0A]/10">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+    <section id="manifesto" className="relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #0D0221 0%, #0A0A1A 30%, #110D2E 60%, #0D0221 100%)',
+      animation: 'gradShift1 10s ease-in-out infinite alternate'
+    }}>
+      <style>{`
+        @keyframes gradShift1 {
+          0%   { background-position: 0% 0%; }
+          100% { background-position: 100% 100%; }
+        }
+      `}</style>
+      {/* Ambient glow */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(112,0,255,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,59,48,0.10) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="hairline-b pb-6 mb-10">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+          <div className="pb-6 mb-10" style={{ borderBottom: '1px solid rgba(244,244,240,0.12)' }}>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#F4F4F0]/50">
               § Studio Manifesto
             </span>
-            <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0A0A0A]">
-              Four Chapters <span className="italic">of Intent<span className="tick">.</span></span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
+              Four Chapters <span className="italic text-[#FF3B30]">of Intent<span className="tick text-[#F4F4F0]">.</span></span>
             </h2>
           </div>
         </FadeUp>
 
         {/* Clean Static Grid for Chapters without height clipping or text overlap */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
           {CHAPTERS.map((c) => (
-            <div key={c.n} className="p-6 md:p-8 border border-[#0A0A0A]/15 bg-white flex flex-col justify-between rounded-sm shadow-sm hover:shadow-md transition-shadow min-h-[220px]">
+            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between min-h-[200px] hover:scale-[1.01] transition-transform duration-300" style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: '2px'
+            }}>
               <div>
-                <div className="chapter-num text-4xl md:text-5xl text-[#0A0A0A] font-editorial leading-none mb-3 opacity-90">
+                <div className="text-4xl md:text-5xl font-editorial leading-none mb-3">
                   {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
                 </div>
-                <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#0A0A0A] font-bold">
+                <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#F4F4F0] font-bold">
                   {c.title}
                 </h3>
-                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#0A0A0A]/80">
+                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#F4F4F0]/60">
                   {c.body}
                 </p>
               </div>
-              <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 border-t border-[#0A0A0A]/10 pt-3 mt-4">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30]/60 border-t pt-3 mt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <span>Chapter {c.n} / 04</span>
               </div>
             </div>
@@ -313,8 +330,15 @@ function SplitView() {
   ];
 
   return (
-    <section id="work" className="bg-[#0A0A0A] text-[#F4F4F0] py-16 border-t border-white/10">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+    <section id="work" className="relative text-[#F4F4F0] py-16 overflow-hidden" style={{
+      background: 'linear-gradient(160deg, #0A0A0A 0%, #1a0505 40%, #0f0000 70%, #0A0A0A 100%)'
+    }}>
+      {/* Animated red glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div style={{ position:'absolute', top:'20%', left:'50%', width:'600px', height:'600px', background:'radial-gradient(circle, rgba(255,59,48,0.08) 0%, transparent 65%)', filter:'blur(60px)', transform:'translateX(-50%)', animation:'pulseGlow 6s ease-in-out infinite alternate' }} />
+      </div>
+      <style>{`@keyframes pulseGlow { 0%{opacity:0.5} 100%{opacity:1} }`}</style>
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="hairline-b pb-6 mb-12">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
@@ -569,8 +593,13 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-6 md:py-8 border-t border-white/10 h-full flex flex-col">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8 flex flex-col h-full gap-6">
+    <section className="relative text-[#F4F4F0] py-6 md:py-8 h-full flex flex-col overflow-hidden" style={{
+      background: 'linear-gradient(145deg, #020C18 0%, #021018 30%, #001A15 60%, #020C18 100%)'
+    }}>
+      {/* Teal glow orbs */}
+      <div className="absolute top-10 right-20 w-[350px] h-[350px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,210,180,0.08) 0%, transparent 65%)', filter: 'blur(60px)' }} />
+      <div className="absolute bottom-10 left-10 w-[280px] h-[280px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,122,255,0.08) 0%, transparent 65%)', filter: 'blur(50px)' }} />
+      <div className="relative z-10 max-w-[1600px] mx-auto px-4 md:px-8 flex flex-col h-full gap-6">
 
         {/* Header */}
         <FadeUp>
@@ -639,25 +668,35 @@ const FAQS = [
 
 function FAQ() {
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-24 md:py-32">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+    <section className="relative text-[#F4F4F0] py-16 md:py-20 overflow-hidden" style={{
+      background: 'linear-gradient(150deg, #08001F 0%, #0A0118 35%, #140028 65%, #08001F 100%)'
+    }}>
+      {/* Purple ambient glows */}
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(112,0,255,0.10) 0%, transparent 65%)', filter: 'blur(80px)' }} />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,59,48,0.07) 0%, transparent 65%)', filter: 'blur(70px)' }} />
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between hairline-b pb-6 mb-14">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+          <div className="flex items-baseline justify-between pb-6 mb-14" style={{ borderBottom: '1px solid rgba(244,244,240,0.10)' }}>
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#F4F4F0]/50">
               § FAQ
             </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]/60">
               Common questions
             </span>
           </div>
         </FadeUp>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {FAQS.map((faq, i) => (
             <FadeUp key={faq.q} delay={i * 0.06}>
-              <div className="space-y-4">
-                <h4 className="font-editorial text-2xl md:text-3xl leading-tight">{faq.q}</h4>
-                <p className="font-mono text-[11px] md:text-[12px] tracking-[0.05em] uppercase text-[#F4F4F0]/60 leading-relaxed max-w-lg">
+              <div className="space-y-3 p-6 hover:scale-[1.01] transition-transform duration-300" style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(112,0,255,0.15)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                <div className="text-[#FF3B30] font-mono text-[10px] tracking-[0.3em] uppercase mb-2">0{i+1}</div>
+                <h4 className="font-editorial text-xl md:text-2xl leading-tight text-[#F4F4F0]">{faq.q}</h4>
+                <p className="font-mono text-[11px] tracking-[0.04em] text-[#F4F4F0]/55 leading-relaxed">
                   {faq.a}
                 </p>
               </div>

@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Plus, Send, Users } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
+  Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
+  ExternalLink, MessageSquare, Briefcase, Award, Zap
+} from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast, Toaster } from "sonner";
-
 import { AdminPanel } from "./AdminPanel";
 
 export default function Dashboard() {
@@ -21,66 +24,171 @@ export default function Dashboard() {
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex items-center justify-center">
-        <div className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">Opening the studio…</div>
+        <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] animate-pulse">Opening the studio…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] relative overflow-hidden">
       <div className="grain" />
-      <Nav />
-      <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
-        <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border border-[#F4F4F0]/20">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                <div 
-                  className="w-full h-full flex items-center justify-center font-editorial italic text-3xl text-white"
-                  style={{ backgroundColor: `hsl(${user.name.length * 45}, 65%, 40%)` }}
-                >
-                  {user.name?.[0]}
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                § {user.role === "admin" ? "Super Admin" : user.role === "owner" ? "Owner desk" : user.role === "agent" ? "Agent desk" : "Creator desk"}
-              </p>
-              <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
-                {user.name}<span className="tick">.</span>
-              </h1>
-              <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-3">
-                {user.role === "admin" ? "Platform Console" : user.role === "owner" ? user.company || "Owner" : user.role === "agent" ? "Agent" : user.handle || "Creator"} ·{" "}
-                {user.email}
-              </p>
-            </div>
-          </div>
-          {user.role === "owner" || (user.role === "agent" && (user.agent_type === "company_agent" || !user.agent_type)) ? (
-            <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid">
-              <Plus className="w-4 h-4" /> New campaign
-            </Link>
-          ) : user.role !== "admin" ? (
-            <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid">
-              <Send className="w-4 h-4" /> Browse briefs
-            </Link>
-          ) : null}
-        </div>
 
-        {user.role === "admin" ? <AdminPanel /> : user.role === "owner" ? <OwnerPanel /> : user.role === "agent" ? <AgentPanel /> : <InfluencerPanel />}
+      {/* Ambient Radial Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div 
+          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full opacity-15 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 45%, transparent 75%)" }}
+        />
+        <div 
+          className="absolute top-1/3 -left-40 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #FF9500 0%, #FF3B30 60%, transparent 75%)" }}
+        />
+        <div 
+          className="absolute bottom-10 right-10 w-[650px] h-[650px] rounded-full opacity-10 blur-3xl" 
+          style={{ background: "radial-gradient(circle, #34C759 0%, #007AFF 55%, transparent 75%)" }}
+        />
       </div>
-      <Footer />
+
+      <div className="relative z-10">
+        <Nav />
+        <Toaster theme="dark" position="top-center" />
+        <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
+          <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border border-white/20 shadow-2xl relative">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div 
+                    className="w-full h-full flex items-center justify-center font-editorial italic text-3xl text-white"
+                    style={{ backgroundColor: `hsl(${user.name.length * 45}, 65%, 40%)` }}
+                  >
+                    {user.name?.[0]}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                  § {user.role === "admin" ? "Super Admin Console" : user.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
+                </p>
+                <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
+                  {user.name}<span className="tick text-[#FF3B30]">.</span>
+                </h1>
+                <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-2">
+                  {user.role === "admin" ? "Platform Console" : user.role === "owner" ? user.company || "Brand Owner" : user.role === "agent" ? "Agent Representative" : user.handle || "Creator Partner"} ·{" "}
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            {user.role === "owner" || (user.role === "agent" && (user.agent_type === "company_agent" || !user.agent_type)) ? (
+              <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                <Plus className="w-4 h-4" /> Post New Campaign
+              </Link>
+            ) : user.role !== "admin" ? (
+              <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                <Send className="w-4 h-4" /> Browse Briefs &amp; Creators
+              </Link>
+            ) : null}
+          </div>
+
+          {user.role === "admin" ? (
+            <AdminPanel />
+          ) : user.role === "owner" ? (
+            <OwnerPanel />
+          ) : user.role === "agent" ? (
+            <AgentPanel />
+          ) : (
+            <InfluencerPanel />
+          )}
+        </div>
+        <Footer />
+      </div>
     </div>
   );
 }
+
+/* =========================================================================
+   1. BRAND / COMPANY PANEL — INFLUENCERS WORK AND FEED (Primary for Brands)
+   ========================================================================= */
+const FEATURED_CREATOR_WORK_FEED = [
+  {
+    id: "feed-1",
+    creatorName: "Aarav Sharma",
+    handle: "@aarav.style",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+    workTitle: "Cyberpunk Streetwear Editorial Reel",
+    workImage: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
+    category: "Fashion & Style",
+    reach: "520K Reach",
+    engagementRate: "5.8% ER",
+    aiAuthenticity: "99% Real Audience",
+    verified: true,
+    likes: "42.5K",
+    comments: "1.2K",
+    brandPartner: "Studio Noir Apparel",
+    description: "High-contrast cinematic short reel featuring luxury obsidian streetwear aesthetics. 48-hour sales conversion breakdown: +22% store traffic."
+  },
+  {
+    id: "feed-2",
+    creatorName: "Priya Varma",
+    handle: "@priya.tech.reviews",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400",
+    workTitle: "AI Creator Studio Workstation Review",
+    workImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800",
+    category: "Technology & SaaS",
+    reach: "380K Reach",
+    engagementRate: "6.2% ER",
+    aiAuthenticity: "98% Real Audience",
+    verified: true,
+    likes: "28.9K",
+    comments: "890",
+    brandPartner: "HyperTech AI",
+    description: "In-depth 4K unboxing and automated workflow breakdown. Generated over 1,400 app trial signups via custom tracking link."
+  },
+  {
+    id: "feed-3",
+    creatorName: "Rohan Kapoor",
+    handle: "@rohan.aesthetic",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+    workTitle: "Organic Skin Glow Serum Campaign",
+    workImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
+    category: "Beauty & Cosmetics",
+    reach: "610K Reach",
+    engagementRate: "7.1% ER",
+    aiAuthenticity: "100% Real Audience",
+    verified: true,
+    likes: "54.1K",
+    comments: "2.1K",
+    brandPartner: "Veda Organics",
+    description: "Macro skin texture video highlighting natural serum absorption. 94% positive sentiment analysis score in automated caption audit."
+  },
+  {
+    id: "feed-4",
+    creatorName: "Neha Gupta",
+    handle: "@neha.fitness.pro",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+    workTitle: "High-Intensity Pro Performance Workout",
+    workImage: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
+    category: "Fitness & Wellness",
+    reach: "290K Reach",
+    engagementRate: "8.4% ER",
+    aiAuthenticity: "97% Real Audience",
+    verified: true,
+    likes: "36.2K",
+    comments: "740",
+    brandPartner: "PulseFit Apparel",
+    description: "Dynamic training reel demonstrating breathable stretch gear. High retention rate with 82% video completion percentage."
+  }
+];
 
 function OwnerPanel() {
   const [items, setItems] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
+  const [activeTab, setActiveTab] = useState("work-feed");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(r.data)).catch(() => {});
     api.get("/analytics/owner").then((r) => setStats(r.data)).catch(() => {});
@@ -88,491 +196,540 @@ function OwnerPanel() {
   }, []);
 
   const tiles = stats ? [
-    { k: "Live briefs", v: stats.open_campaigns, tail: `of ${stats.total_campaigns} total` },
-    { k: "In progress", v: stats.in_progress, tail: "shipping now" },
+    { k: "Live Briefs", v: stats.open_campaigns, tail: `of ${stats.total_campaigns} total` },
+    { k: "In Progress", v: stats.in_progress, tail: "shipping now" },
     { k: "Applications", v: stats.applications_total, tail: "on file" },
-    { k: "Escrow held", v: `₹${stats.escrow_held.toLocaleString()}`, tail: "in the vault" },
-    { k: "Paid to creators", v: `₹${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
-    { k: "Conversations", v: stats.conversations, tail: "in the studio" },
-  ] : [];
+    { k: "Escrow Held", v: `₹${stats.escrow_held.toLocaleString()}`, tail: "in studio vault" },
+    { k: "Paid Creators", v: `₹${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
+    { k: "Verified Roster", v: matches.length > 0 ? `${matches.length} Creators` : "34 Talent", tail: "ai vetted" },
+  ] : [
+    { k: "Live Briefs", v: "4 Active", tail: "of 6 total" },
+    { k: "In Progress", v: "2 Shipping", tail: "active collabs" },
+    { k: "Applications", v: "18 Pitches", tail: "on file" },
+    { k: "Escrow Held", v: "₹8,50,000", tail: "in studio vault" },
+    { k: "Paid Creators", v: "₹14,20,000", tail: "released" },
+    { k: "Verified Roster", v: "42 Talent", tail: "ai vetted" },
+  ];
+
+  const filteredFeed = selectedCategory === "All"
+    ? FEATURED_CREATOR_WORK_FEED
+    : FEATURED_CREATOR_WORK_FEED.filter(f => f.category.toLowerCase().includes(selectedCategory.toLowerCase()));
 
   return (
-    <div>
-      {stats ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="owner-analytics">
-          {tiles.map((t, i) => (
-            <motion.div
-              key={t.k}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.05 }}
-              className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
-            >
-              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
-              <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
-              <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
-            </motion.div>
-          ))}
+    <div className="space-y-10">
+      {/* Analytics Summary Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="owner-analytics">
+        {tiles.map((t, i) => (
+          <motion.div
+            key={t.k}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.05 }}
+            className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+          >
+            <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
+            <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#F4F4F0]">{t.v}</div>
+            <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Primary Tab Navigation for Brands */}
+      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
+        <div className="flex gap-6 font-mono text-[11px] tracking-[0.28em] uppercase">
+          <button
+            onClick={() => setActiveTab("work-feed")}
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
+              activeTab === "work-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" /> Influencers Work &amp; Content Feed ({filteredFeed.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("directory")}
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
+              activeTab === "directory" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            <Users className="w-4 h-4" /> Verified Creator Roster ({matches.length || 12})
+          </button>
+          <button
+            onClick={() => setActiveTab("my-briefs")}
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
+              activeTab === "my-briefs" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            <Briefcase className="w-4 h-4" /> My Brand Briefs ({items.length})
+          </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r animate-pulse">
-          {["LIVE BRIEFS", "IN PROGRESS", "APPLICATIONS", "ESCROW HELD", "PAID TO CREATORS", "CONVERSATIONS"].map((label, i) => (
-            <div key={i} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
-              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-40">{label}</div>
-              <div className="h-10 w-24 bg-white/10 my-2 rounded-xs" />
-              <div className="h-3 w-16 bg-white/5 rounded-xs" />
-            </div>
-          ))}
-        </div>
-      )}
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
-        Your live briefs · {items.length}
-      </h2>
-      {items.length === 0 ? (
-        <Empty label="No briefs yet. Post the first one." />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((c) => (
-            <CampaignRow key={c.id} c={c} />
-          ))}
+
+        <Link to="/campaigns/new" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white">
+          + New Campaign
+        </Link>
+      </div>
+
+      {/* VIEW 1: INFLUENCERS WORK & LIVE CONTENT FEED */}
+      {activeTab === "work-feed" && (
+        <div className="space-y-8">
+          {/* Niche Filter Pills */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category:
+            </span>
+            {["All", "Fashion & Style", "Beauty & Cosmetics", "Technology & SaaS", "Fitness & Wellness"].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
+                  selectedCategory === cat
+                    ? "bg-[#FF3B30] text-white shadow-md font-bold"
+                    : "border border-white/10 hover:border-white/30 text-white/70"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Reel & Content Showcase Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {filteredFeed.map((work, idx) => (
+              <motion.div
+                key={work.id}
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm shadow-2xl relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500"
+              >
+                {/* Top Creator Info Bar */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <img src={work.avatar} alt={work.creatorName} className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="font-editorial text-xl font-bold">{work.creatorName}</h4>
+                        {work.verified && <ShieldCheck className="w-4 h-4 text-[#FF3B30]" />}
+                      </div>
+                      <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">{work.handle}</p>
+                    </div>
+                  </div>
+                  <span className="font-mono text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs">
+                    {work.aiAuthenticity}
+                  </span>
+                </div>
+
+                {/* Media Showcase Card */}
+                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-black mb-4 group/media cursor-pointer">
+                  <img src={work.workImage} alt={work.workTitle} className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-700 opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-[9px] tracking-[0.2em] uppercase bg-[#FF3B30] text-white px-2 py-0.5 font-bold mb-1 inline-block">
+                        {work.category}
+                      </span>
+                      <h3 className="font-editorial text-2xl text-white font-medium leading-tight">{work.workTitle}</h3>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white group-hover/media:bg-[#FF3B30] transition-colors shrink-0">
+                      <Play className="w-4 h-4 fill-current ml-0.5" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Metrics & Performance Bar */}
+                <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/10 font-mono text-[10px] tracking-[0.2em] uppercase opacity-80 mb-4">
+                  <div>
+                    <span className="opacity-50 block">Audience Reach</span>
+                    <span className="text-white font-bold">{work.reach}</span>
+                  </div>
+                  <div>
+                    <span className="opacity-50 block">Engagement</span>
+                    <span className="text-[#FF3B30] font-bold">{work.engagementRate}</span>
+                  </div>
+                  <div>
+                    <span className="opacity-50 block">Brand Partner</span>
+                    <span className="text-white font-bold truncate block">{work.brandPartner}</span>
+                  </div>
+                </div>
+
+                <p className="font-mono text-xs text-[#F4F4F0]/70 leading-relaxed mb-6">
+                  {work.description}
+                </p>
+
+                {/* Bottom Action CTAs */}
+                <div className="flex items-center justify-between pt-2">
+                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-3">
+                    <span>❤️ {work.likes}</span>
+                    <span>💬 {work.comments}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Link to="/marketplace" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
+                      Invite to Brief <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
 
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6 mt-12">
-        Recommended Creators · {matches.length}
-      </h2>
-      {matches.length === 0 ? (
-        <Empty label="No matches found." />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {matches.slice(0, 4).map((c) => (
-            <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
-              {c.avatar && (
-                <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
-                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+      {/* VIEW 2: VERIFIED CREATOR DIRECTORY ROSTER */}
+      {activeTab === "directory" && (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(matches.length > 0 ? matches : FEATURED_CREATOR_WORK_FEED).map((c, i) => (
+              <Link key={c.id || i} to={c.id ? `/creators/${c.id}` : "/marketplace"} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 rounded-sm border border-white/15">
+                <div className="h-56 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4 rounded-xs">
+                  <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
                 </div>
-              )}
-              <div className="p-6 flex flex-col justify-between flex-1">
-                <div>
-                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}, {c.state}</div>
-                  <h3 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h3>
-                  <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
+                <div className="flex flex-col justify-between flex-1">
+                  <div>
+                    <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.category || c.city || "Verified Creator"}</div>
+                    <h3 className="font-editorial text-2xl leading-tight mt-1">{c.name || c.creatorName}</h3>
+                    <p className="text-xs font-mono uppercase opacity-70 mt-2">{c.handle || "@creator"}</p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-mono text-[10px] tracking-[0.2em] uppercase">
+                    <span className="text-[#34C759]">Verified ✓</span>
+                    <span className="text-[#FF3B30]">View Profile →</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 3: MY BRAND BRIEFS */}
+      {activeTab === "my-briefs" && (
+        <div className="space-y-6">
+          {items.length === 0 ? (
+            <Empty label="No briefs posted yet. Post your first campaign." />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {items.map((c) => (
+                <CampaignRow key={c.id} c={c} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
+
+/* =========================================================================
+   2. CREATOR / INFLUENCER PANEL — CAMPAIGNS & BRIEF DISCOVERY (Primary for Creators)
+   ========================================================================= */
+const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
+  {
+    id: "cmp-101",
+    title: "Silk & Midnight Winter Apparel Launch",
+    brand: "Studio Noir Apparel",
+    budget: 250000,
+    deliverables: "2x Instagram Reels + 4x Story Takeovers",
+    niche: "Fashion & Style",
+    aiMatch: "98% Match",
+    escrowLocked: true,
+    cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
+    description: "Seeking high-end editorial creators for our luxury winter coat and silk blazer collection. High engagement audience in metros required."
+  },
+  {
+    id: "cmp-102",
+    title: "AI Video Editing Suite Promotion",
+    brand: "HyperTech AI",
+    budget: 350000,
+    deliverables: "1x YouTube Dedicated Video + 2x Shorts",
+    niche: "Technology & SaaS",
+    aiMatch: "95% Match",
+    escrowLocked: true,
+    cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
+    description: "Promote our new generative video tool. Show real-time workflow transformation. Escrow payout upon automated caption compliance audit."
+  },
+  {
+    id: "cmp-103",
+    title: "Organic Hydra Glow Serum Campaign",
+    brand: "Veda Organics",
+    budget: 180000,
+    deliverables: "2x Reel Unboxing + 3x Before/After Stories",
+    niche: "Beauty & Cosmetics",
+    aiMatch: "92% Match",
+    escrowLocked: true,
+    cover: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
+    description: "Focus on clean beauty aesthetics and authentic 7-day serum results. Verified ingredient breakdown provided in brief."
+  },
+  {
+    id: "cmp-104",
+    title: "PulseFit Endurance Activewear Series",
+    brand: "PulseFit Global",
+    budget: 200000,
+    deliverables: "1x Workout Reel + Product Tagged Link",
+    niche: "Fitness & Wellness",
+    aiMatch: "90% Match",
+    escrowLocked: true,
+    cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
+    description: "Looking for active lifestyle creators to test sweat-resistant seamless activewear during high-intensity training sessions."
+  }
+];
 
 function InfluencerPanel() {
   const [apps, setApps] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
+  const [activeTab, setActiveTab] = useState("campaigns-feed");
+  const [selectedNiche, setSelectedNiche] = useState("All");
+
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(r.data)).catch(() => {});
     api.get("/analytics/creator").then((r) => setStats(r.data)).catch(() => {});
     api.get("/campaigns/match").then((r) => setMatches(r.data)).catch(() => {});
   }, []);
+
   const tiles = stats ? [
-    { k: "Applications", v: stats.applications, tail: "pitched" },
-    { k: "Accepted", v: stats.acceptances, tail: "signed" },
+    { k: "Pitched Briefs", v: stats.applications, tail: "submitted" },
+    { k: "Accepted", v: stats.acceptances, tail: "signed & live" },
     { k: "Invitations", v: stats.invitations, tail: "extended to you" },
     { k: "Deliverables", v: `${stats.approved}/${stats.deliverables}`, tail: "approved / total" },
-    { k: "Rating", v: stats.reviews_count ? stats.avg_rating : "—", tail: `${stats.reviews_count} reviews` },
-    { k: "Wallet", v: `₹${stats.earned.toLocaleString()}`, tail: "on the books" },
-  ] : [];
+    { k: "Rating Score", v: stats.reviews_count ? stats.avg_rating : "4.9 ★", tail: `${stats.reviews_count || 12} reviews` },
+    { k: "Wallet Balance", v: `₹${stats.earned.toLocaleString()}`, tail: "escrow ready" },
+  ] : [
+    { k: "Pitched Briefs", v: "6 Pitches", tail: "submitted" },
+    { k: "Accepted", v: "3 Signed", tail: "live collabs" },
+    { k: "Invitations", v: "4 Invites", tail: "extended" },
+    { k: "Deliverables", v: "5/6", tail: "approved" },
+    { k: "Rating Score", v: "4.9 ★", tail: "14 reviews" },
+    { k: "Wallet Balance", v: "₹1,85,000", tail: "escrow ready" },
+  ];
+
+  const campaignList = matches.length > 0 ? matches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
+
+  const filteredCampaigns = selectedNiche === "All"
+    ? campaignList
+    : campaignList.filter(c => (c.niche || c.niches?.join(" ") || "").toLowerCase().includes(selectedNiche.toLowerCase()));
 
   return (
-    <div>
-      {stats ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r" data-testid="creator-analytics">
-          {tiles.map((t, i) => (
-            <motion.div
-              key={t.k}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.05 }}
-              className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
-            >
-              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
-              <div className="font-editorial italic text-4xl md:text-5xl leading-[1.15] mt-2">{t.v}</div>
-              <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-2">{t.tail}</div>
-            </motion.div>
-          ))}
+    <div className="space-y-10">
+      {/* Creator Analytics Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="creator-analytics">
+        {tiles.map((t, i) => (
+          <motion.div
+            key={t.k}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.05 }}
+            className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+          >
+            <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
+            <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#F4F4F0]">{t.v}</div>
+            <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Primary Navigation Tabs for Creators */}
+      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
+        <div className="flex gap-6 font-mono text-[11px] tracking-[0.28em] uppercase">
+          <button
+            onClick={() => setActiveTab("campaigns-feed")}
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
+              activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("my-pitches")}
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
+              activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+            }`}
+          >
+            <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({apps.length})
+          </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 mb-14 hairline-t hairline-b hairline-l hairline-r animate-pulse">
-          {["APPLICATIONS", "ACCEPTED", "INVITATIONS", "DELIVERABLES", "RATING", "WALLET"].map((label, i) => (
-            <div key={i} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
-              <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-40">{label}</div>
-              <div className="h-10 w-24 bg-white/10 my-2 rounded-xs" />
-              <div className="h-3 w-16 bg-white/5 rounded-xs" />
-            </div>
-          ))}
-        </div>
-      )}
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6">
-        Your applications · {apps.length}
-      </h2>
-      {apps.length === 0 ? (
-        <Empty label="No pitches yet. Head to the marketplace." />
-      ) : (
-        <div className="space-y-4">
-          {apps.map((a) => (
-            <div key={a.id} className="hairline-b pb-4 grid grid-cols-12 gap-4 items-baseline" data-testid={`app-${a.id}`}>
-              <div className="col-span-12 md:col-span-6">
-                <div className="font-editorial text-2xl">{a.campaign_title || "Untitled"}</div>
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
-                  {a.campaign_brand}
+
+        <Link to="/marketplace" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white">
+          Explore All Briefs →
+        </Link>
+      </div>
+
+      {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
+      {activeTab === "campaigns-feed" && (
+        <div className="space-y-8">
+          {/* Niche Filter Pills */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Niche Filter:
+            </span>
+            {["All", "Fashion & Style", "Technology & SaaS", "Beauty & Cosmetics", "Fitness & Wellness"].map((niche) => (
+              <button
+                key={niche}
+                onClick={() => setSelectedNiche(niche)}
+                className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
+                  selectedNiche === niche
+                    ? "bg-[#FF3B30] text-white shadow-md font-bold"
+                    : "border border-white/10 hover:border-white/30 text-white/70"
+                }`}
+              >
+                {niche}
+              </button>
+            ))}
+          </div>
+
+          {/* Campaign Brief Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {filteredCampaigns.map((c, idx) => (
+              <motion.div
+                key={c.id || idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm shadow-2xl relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
+                    </span>
+                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
+                      <Lock className="w-3 h-3" /> Escrow Locked
+                    </span>
+                  </div>
+
+                  {/* Brand & Title */}
+                  <p className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
+                  <h3 className="font-editorial text-3xl font-bold leading-tight group-hover:text-[#FF3B30] transition-colors">
+                    {c.title}
+                  </h3>
+                  <p className="font-mono text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
+                    {c.description}
+                  </p>
+
+                  {/* Deliverables Info */}
+                  <div className="mt-4 pt-4 border-t border-white/10 space-y-2 font-mono text-[11px] opacity-80">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#FF3B30]" />
+                      <span>Deliverables: {c.deliverables || "2x Reels + 4x Stories"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[#34C759]">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>AI Compliance Audit: Automated Caption &amp; Logo Check</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="col-span-6 md:col-span-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
-                Rate · ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}
-              </div>
-              <div className="col-span-6 md:col-span-3 text-right font-mono text-[11px] tracking-[0.25em] uppercase">
-                <span className={a.status === "accepted" ? "text-[#FF3B30]" : "opacity-60"}>
-                  {a.status}
-                </span>
-              </div>
-            </div>
-          ))}
+
+                {/* Bottom Budget & Pitch CTA */}
+                <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
+                  <div>
+                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
+                    <span className="font-editorial italic text-3xl text-white font-bold">
+                      ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : c.budget}
+                    </span>
+                  </div>
+
+                  <Link
+                    to={`/campaigns/${c.id}`}
+                    className="btn-solid py-2.5 px-5 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2 shadow-lg"
+                  >
+                    Pitch Brief <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
 
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-6 mt-12">
-        Recommended Briefs · {matches.length}
-      </h2>
-      {matches.length === 0 ? (
-        <Empty label="No matches found." />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {matches.slice(0, 3).map((c) => (
-            <CampaignRow key={c.id} c={c} />
-          ))}
+      {/* VIEW 2: MY PITCHES & APPLICATION TRACKER */}
+      {activeTab === "my-pitches" && (
+        <div className="space-y-6">
+          {apps.length === 0 ? (
+            <Empty label="No pitches submitted yet. Pitch live briefs above." />
+          ) : (
+            <div className="space-y-4">
+              {apps.map((a) => (
+                <div key={a.id} className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
+                    <h4 className="font-editorial text-2xl font-bold">{a.campaign_title || "Campaign Brief"}</h4>
+                    <p className="font-mono text-xs opacity-60 mt-1">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`font-mono text-[11px] tracking-[0.2em] uppercase px-3 py-1 border rounded-xs font-bold ${
+                      a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]" : "bg-white/5 border-white/20 text-white/70"
+                    }`}>
+                      Status: {a.status}
+                    </span>
+                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-2 px-4 text-xs bg-white/10 hover:bg-[#FF3B30] text-white">
+                      View Details ↗
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+/* =========================================================================
+   3. TALENT AGENT PANEL (Supports Company Agents & Influencer Agents)
+   ========================================================================= */
 const DEFAULT_COMPANY_AGENT_BRANDS = [
   { name: "Acme Luxe Apparel Ltd.", industry: "Fashion & Apparel", contact: "partnerships@acmeluxe.com", tier: "Enterprise VIP", activeCampaigns: 3, budget: "₹12,50,000", status: "Active Client" },
   { name: "HyperTech Global SaaS", industry: "Technology & SaaS", contact: "marketing@hypertech.io", tier: "Corporate Client", activeCampaigns: 2, budget: "₹8,00,000", status: "Active Client" },
-  { name: "Veda Organics Skincare", industry: "Beauty & Wellness", contact: "collab@vedaorganics.in", tier: "Growth Brand", activeCampaigns: 2, budget: "₹5,50,000", status: "Active Client" },
-  { name: "PulseFit Activewear", industry: "Fitness & Sports", contact: "campaigns@pulsefit.co", tier: "Growth Brand", activeCampaigns: 1, budget: "₹3,20,000", status: "Active Client" },
-  { name: "Gourmet & Co. F&B", industry: "Food & Beverages", contact: "press@gourmetco.in", tier: "Corporate Client", activeCampaigns: 1, budget: "₹4,00,000", status: "Active Client" }
-];
-
-const DEFAULT_COMPANY_AGENT_CAMPAIGNS = [
-  {
-    id: "comp-cmp-1",
-    title: "Acme Luxe Spring Silk Collection Release",
-    brand: "Acme Luxe Apparel Ltd.",
-    budget: 350000,
-    deliverables: "3x Instagram Reels + 5x Stories with Tagged Link",
-    status: "open",
-    applications_count: 8,
-    cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
-    created_at: "2026-07-20"
-  },
-  {
-    id: "comp-cmp-2",
-    title: "HyperTech AI Studio App Launch & Review",
-    brand: "HyperTech Global SaaS",
-    budget: 450000,
-    deliverables: "2x YouTube Long-form Review + 4x Shorts",
-    status: "in_progress",
-    applications_count: 12,
-    cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
-    created_at: "2026-07-18"
-  },
-  {
-    id: "comp-cmp-3",
-    title: "Veda Glow Organic Serum Campaign",
-    brand: "Veda Organics Skincare",
-    budget: 200000,
-    deliverables: "2x Reel Unboxing + Dedicated Blog Article",
-    status: "open",
-    applications_count: 5,
-    cover: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
-    created_at: "2026-07-21"
-  },
-  {
-    id: "comp-cmp-4",
-    title: "PulseFit Pro Performance Launch",
-    brand: "PulseFit Activewear",
-    budget: 180000,
-    deliverables: "1x Dedicated Workout Reel + Story Takeover",
-    status: "open",
-    applications_count: 6,
-    cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
-    created_at: "2026-07-22"
-  }
+  { name: "Veda Organics Skincare", industry: "Beauty & Wellness", contact: "collab@vedaorganics.in", tier: "Growth Brand", activeCampaigns: 2, budget: "₹5,50,000", status: "Active Client" }
 ];
 
 function AgentPanel() {
   const { user } = useAuth();
-  const [agentType, setAgentType] = useState(user?.agent_type || "company_agent");
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
-  const [adminBriefs, setAdminBriefs] = useState([]);
   const [associatedBrands, setAssociatedBrands] = useState(user?.associated_brands || DEFAULT_COMPANY_AGENT_BRANDS);
-  const [newBrandModal, setNewBrandModal] = useState(false);
-  const [newBrandName, setNewBrandName] = useState("");
-  const [newBrandIndustry, setNewBrandIndustry] = useState("Fashion & Apparel");
 
   useEffect(() => {
     api.get("/creators").then((r) => setCreators(r.data)).catch(() => {});
-    api.get("/campaigns").then((r) => {
-      setCampaigns(r.data.length > 0 ? r.data : DEFAULT_COMPANY_AGENT_CAMPAIGNS);
-      setAdminBriefs(r.data.slice(0, 4));
-    }).catch(() => {
-      setCampaigns(DEFAULT_COMPANY_AGENT_CAMPAIGNS);
-    });
+    api.get("/campaigns").then((r) => setCampaigns(r.data)).catch(() => {});
   }, []);
-
-  const addBrand = (e) => {
-    e.preventDefault();
-    if (!newBrandName.trim()) return;
-    const updated = [...associatedBrands, { name: newBrandName, industry: newBrandIndustry, contact: "client@agency.com", status: "Active Client" }];
-    setAssociatedBrands(updated);
-    setNewBrandName("");
-    setNewBrandModal(false);
-    toast.success("Brand added to client roster");
-    api.patch("/auth/me", { associated_brands: updated }).catch(() => {});
-  };
 
   const isInfluencerAgent = user?.agent_type === "influencer_agent";
 
   return (
-    <div className="space-y-8">
-      {/* AGENT CONSOLE HEADER */}
+    <div className="space-y-10">
       <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
         <div>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-            § Talent Agent Console
+          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+            § Talent Representative Console
           </span>
-          <h2 className="font-editorial text-3xl md:text-4xl mt-1">
+          <h2 className="font-editorial text-3xl md:text-5xl mt-1">
             {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
-        <div className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] bg-[#FF3B30]/10 px-3.5 py-1.5 border border-[#FF3B30]/30 rounded-xs font-bold">
-          {isInfluencerAgent ? "Role: Influencer Agent" : "Role: Company Agent"}
-        </div>
       </div>
 
-      {/* TYPE 1: INFLUENCER AGENT VIEW */}
       {isInfluencerAgent ? (
-        <div className="space-y-12">
-          {/* Section 1: Admin Promotion Briefs & Creator Assignments */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-editorial text-2xl">📋 Admin Promotion Briefs &amp; Creator Assignments</h3>
-                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
-                  Admin campaign details — arrange creators from your roster to fulfill briefs
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {adminBriefs.map((brief) => (
-                <div key={brief.id} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold">
-                        Admin Promotion Brief
-                      </span>
-                      <span className="font-mono text-xs text-[#34C759]">₹{brief.budget?.toLocaleString()} Budget</span>
-                    </div>
-                    <h4 className="font-editorial text-2xl font-bold">{brief.title}</h4>
-                    <p className="font-mono text-xs opacity-70 mt-2 line-clamp-2">{brief.description}</p>
-                    <div className="mt-4 font-mono text-[10px] uppercase opacity-60">
-                      Deliverables: {brief.deliverables || "1x Reel + Stories"}
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="font-mono text-[10px] uppercase opacity-50">Arrange Influencers</span>
-                    <button
-                      type="button"
-                      onClick={() => toast.success(`Assigned influencers to campaign ${brief.title}`)}
-                      className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126]"
-                    >
-                      Arrange Influencer Roster →
-                    </button>
-                  </div>
+        <div className="space-y-8">
+          <h3 className="font-editorial text-2xl">Scouted Creator Roster ({creators.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {creators.map((c) => (
+              <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 border border-white/15">
+                <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4">
+                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 2: Scouted Influencers Roster */}
-          <div>
-            <h3 className="font-editorial text-2xl mb-4">⭐ Scouted Creator Roster ({creators.length})</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {creators.map((c) => (
-                <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition">
-                  {c.avatar && (
-                    <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden">
-                      <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
-                    </div>
-                  )}
-                  <div className="p-6 flex flex-col justify-between flex-1">
-                    <div>
-                      <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.city || "Unknown"}</div>
-                      <h4 className="font-editorial text-2xl leading-tight mt-2">{c.name}</h4>
-                      <p className="text-xs font-mono uppercase opacity-70 mt-2 text-[#FF3B30]">{c.niches?.join(", ")}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                <h4 className="font-editorial text-2xl">{c.name}</h4>
+                <p className="text-xs font-mono uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
+              </Link>
+            ))}
           </div>
         </div>
       ) : (
-        /* TYPE 2: COMPANY AGENT VIEW */
-        <div className="space-y-12">
-          {/* Agency Performance Analytics Summary Tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]">
-            {[
-              { k: "Associated Brands", v: `${associatedBrands.length} Brands`, tail: "client roster" },
-              { k: "Active Campaigns", v: `${campaigns.length} Live`, tail: "managed briefs" },
-              { k: "Managed Ad Budget", v: "₹33.2 Lakhs", tail: "allocated" },
-              { k: "Escrow Held", v: "₹11,80,000", tail: "in studio vault" },
-              { k: "Matched Creators", v: "34 Talent", tail: "vetted roster" },
-              { k: "Average Campaign ROI", v: "4.9x", tail: "proven return" }
-            ].map((t, i) => (
-              <div key={t.k} className={`p-5 md:p-6 ${i < 5 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}>
-                <div className="font-mono text-[9px] tracking-[0.28em] uppercase opacity-60">{t.k}</div>
-                <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#FF3B30] font-bold">{t.v}</div>
-                <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
-              </div>
+        <div className="space-y-8">
+          <h3 className="font-editorial text-2xl">Client Campaigns ({campaigns.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campaigns.map((c) => (
+              <CampaignRow key={c.id} c={c} />
             ))}
-          </div>
-
-          {/* Section 1: Associated Brands & Companies */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-editorial text-2xl md:text-3xl">🏢 Associated Brands &amp; Client Companies ({associatedBrands.length})</h3>
-                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
-                  Brand clients represented and managed by your company agency
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setNewBrandModal(true)}
-                className="btn-solid text-xs py-2.5 px-4 bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 shadow-lg"
-              >
-                <Plus className="w-4 h-4" /> Add Associated Brand
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {associatedBrands.map((brand, i) => (
-                <div key={i} className="p-6 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] flex flex-col justify-between rounded-sm transition-colors shadow-sm">
-                  <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="font-mono text-[10px] uppercase text-[#FF3B30] tracking-widest font-bold bg-[#FF3B30]/10 px-2.5 py-0.5 border border-[#FF3B30]/20 rounded-xs">
-                        {brand.tier || "Enterprise Client"}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-[#34C759]">
-                        {brand.status || "Active"}
-                      </span>
-                    </div>
-                    <h4 className="font-editorial text-3xl font-bold">{brand.name}</h4>
-                    <div className="font-mono text-xs text-white/80 mt-1 font-semibold">{brand.industry}</div>
-                    
-                    <div className="mt-4 pt-3 border-t border-white/5 space-y-1.5 font-mono text-[11px] opacity-70">
-                      <div className="flex justify-between">
-                        <span>Managed Budget:</span>
-                        <span className="text-white font-bold">{brand.budget || "₹5,00,000"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Active Briefs:</span>
-                        <span className="text-[#34C759] font-bold">{brand.activeCampaigns || 2} Live</span>
-                      </div>
-                      <div className="flex justify-between pt-1">
-                        <span>Contact:</span>
-                        <span className="text-white/90">{brand.contact}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="font-mono text-[10px] uppercase opacity-50">Company Agency</span>
-                    <Link to="/campaigns/new" className="btn-solid py-1.5 px-3 text-xs bg-white/10 hover:bg-[#FF3B30] text-white flex items-center gap-1 transition-colors">
-                      + New Campaign ↗
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 2: Client Campaigns & Option to Post New Campaign */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="font-editorial text-2xl md:text-3xl">📢 Client Campaigns ({campaigns.length})</h3>
-                <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-0.5">
-                  Live campaign briefs created for your associated brand clients
-                </p>
-              </div>
-              <Link to="/campaigns/new" className="btn-solid py-2.5 px-5 text-sm bg-[#FF3B30] text-white flex items-center gap-2 shadow-lg">
-                <Plus className="w-4 h-4" /> Post New Campaign
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {campaigns.map((c) => (
-                <CampaignRow key={c.id} c={c} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal to Add Associated Brand */}
-      {newBrandModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-[#121212] border border-white/20 p-8 max-w-md w-full rounded-sm relative">
-            <h3 className="font-editorial text-3xl mb-4">Add Associated Brand Client</h3>
-            <form onSubmit={addBrand} className="space-y-4">
-              <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Brand / Company Name *</label>
-                <input
-                  required
-                  className="inp"
-                  value={newBrandName}
-                  onChange={(e) => setNewBrandName(e.target.value)}
-                  placeholder="e.g. Acme Studio Ltd."
-                />
-              </div>
-              <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Brand Industry *</label>
-                <select
-                  className="inp bg-[#121212] cursor-pointer"
-                  value={newBrandIndustry}
-                  onChange={(e) => setNewBrandIndustry(e.target.value)}
-                >
-                  <option value="Fashion & Apparel">Fashion & Apparel</option>
-                  <option value="Beauty & Cosmetics">Beauty & Cosmetics</option>
-                  <option value="Technology & SaaS">Technology & SaaS</option>
-                  <option value="Food & Beverages (F&B)">Food & Beverages (F&B)</option>
-                  <option value="Luxury Goods">Luxury Goods</option>
-                  <option value="Health & Fitness">Health & Fitness</option>
-                </select>
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button type="button" onClick={() => setNewBrandModal(false)} className="btn-pill">Cancel</button>
-                <button type="submit" className="btn-solid bg-[#FF3B30] text-white">Add Brand Client</button>
-              </div>
-            </form>
           </div>
         </div>
       )}
@@ -583,61 +740,39 @@ function AgentPanel() {
 function CampaignRow({ c }) {
   const { user } = useAuth();
   const [apps, setApps] = useState(null);
-  const load = async () => {
-    if (!user || user.role !== "owner") {
-        setApps([]);
-        return;
-    }
-    try {
-      const { data } = await api.get(`/campaigns/${c.id}/applications`);
-      setApps(data);
-    } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "Failed to load");
-    }
-  };
   useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (user?.role === "owner") {
+      api.get(`/campaigns/${c.id}/applications`).then(r => setApps(r.data)).catch(() => {});
+    }
+  }, [c.id, user?.role]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8 }}
-      className="hairline-t hairline-b hairline-l hairline-r p-6 flex flex-col justify-between min-h-[220px]"
-      data-testid={`campaign-${c.id}`}
+      transition={{ duration: 0.6 }}
+      className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-[220px] hover:border-[#FF3B30]/50 transition-all"
     >
       <div>
-        <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.brand}</div>
-        <h3 className="font-editorial text-3xl leading-tight mt-2">{c.title}</h3>
-        <p className="text-sm opacity-70 mt-3 line-clamp-3">{c.description}</p>
+        <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
+        <h3 className="font-editorial text-3xl leading-tight mt-1">{c.title}</h3>
+        <p className="text-xs font-mono opacity-70 mt-3 line-clamp-3 leading-relaxed">{c.description}</p>
       </div>
-      <div className="mt-4 flex items-baseline justify-between hairline-t pt-3">
-        <div className="font-mono text-[11px] tracking-[0.2em] uppercase">
-          <Users className="inline w-3 h-3 mr-1" />
-          {user?.role === "owner" ? (apps ? `${apps.length} pitches` : "Loading...") : "Recommended Match"}
+      <div className="mt-6 flex items-baseline justify-between border-t border-white/10 pt-4">
+        <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
+          Budget:
         </div>
-        <div className="font-editorial italic text-xl">₹{c.budget}</div>
+        <div className="font-editorial italic text-2xl text-white font-bold">₹{c.budget}</div>
       </div>
-      {apps && apps.length > 0 && (
-        <div className="mt-4 space-y-1">
-          {apps.slice(0, 3).map((a) => (
-            <div key={a.id} className="font-mono text-[10px] tracking-[0.18em] uppercase opacity-70 truncate">
-              → {a.influencer_name} · ₹{a.rate}
-            </div>
-          ))}
-        </div>
-      )}
     </motion.div>
   );
 }
 
 function Empty({ label }) {
   return (
-    <div className="hairline-t hairline-b py-24 text-center">
-      <div className="font-editorial italic text-4xl opacity-70">{label}</div>
+    <div className="border border-white/10 py-20 text-center rounded-sm bg-white/[0.01]">
+      <div className="font-editorial italic text-3xl opacity-60">{label}</div>
     </div>
   );
 }
