@@ -101,15 +101,32 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
-      const lower = (identifier || "").toLowerCase();
+      const lower = (identifier || "").trim().toLowerCase();
+      const pwd = (password || "").trim();
+
+      // Determine expected password for accounts
+      let expectedPwd = "creator123";
+      if (lower.includes("brand") || lower.includes("company") || lower.includes("owner")) {
+        expectedPwd = "company123";
+      } else if (lower.includes("agent")) {
+        expectedPwd = "agent123";
+      } else if (lower.includes("admin")) {
+        expectedPwd = "admin123";
+      }
+
+      // Check password correctness
+      if (pwd !== expectedPwd && pwd !== "Password123" && pwd !== "creator123" && pwd !== "company123" && pwd !== "admin123") {
+        return { ok: false, error: "Invalid email/username or password." };
+      }
+
       let mockUser = MOCK_USERS[lower];
       if (!mockUser) {
         if (lower.includes("brand") || lower.includes("company") || lower.includes("owner")) {
-          mockUser = { id: "usr-owner-demo", email: identifier, name: "Brand Owner", company: "Brand Enterprise", role: "owner" };
+          mockUser = { id: "usr-owner-demo", email: identifier, name: "Brand Owner", company: "Brand Enterprise", role: "owner", onboarding_status: "completed" };
         } else if (lower.includes("agent")) {
-          mockUser = { id: "usr-agent-demo", email: identifier, name: "Talent Agent", role: "agent" };
+          mockUser = { id: "usr-agent-demo", email: identifier, name: "Talent Agent", role: "agent", onboarding_status: "completed" };
         } else if (lower.includes("admin")) {
-          mockUser = { id: "usr-admin-demo", email: identifier, name: "Super Admin", role: "admin" };
+          mockUser = { id: "usr-admin-demo", email: identifier, name: "Super Admin", role: "admin", onboarding_status: "completed" };
         } else {
           const defaultName = identifier.includes("@") ? identifier.split("@")[0] : identifier || "Creator Partner";
           mockUser = { 
@@ -117,7 +134,8 @@ export function AuthProvider({ children }) {
             email: identifier || "creator@cr8.studio", 
             name: defaultName, 
             handle: `@${defaultName.toLowerCase().replace(/\s+/g, "")}`, 
-            role: "influencer" 
+            role: "influencer",
+            onboarding_status: "completed"
           };
         }
       }
