@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
-  ExternalLink, MessageSquare, Briefcase, Award, Zap
+  ExternalLink, MessageSquare, Briefcase, Award, Zap, LayoutGrid
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -184,6 +184,7 @@ function OwnerPanel() {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("work-feed");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(r.data)).catch(() => {});
@@ -267,28 +268,60 @@ function OwnerPanel() {
       {/* VIEW 1: INFLUENCERS WORK & LIVE CONTENT FEED */}
       {activeTab === "work-feed" && (
         <div className="space-y-8">
-          {/* Niche Filter Pills */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category:
-            </span>
-            {["All", "Fashion & Style", "Beauty & Cosmetics", "Technology & SaaS", "Fitness & Wellness"].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
-                  selectedCategory === cat
-                    ? "bg-[#FF3B30] text-white shadow-md font-bold"
-                    : "border border-white/10 hover:border-white/30 text-white/70"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Niche Filter Pills & Grid Layout Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category:
+              </span>
+              {["All", "Fashion & Style", "Beauty & Cosmetics", "Technology & SaaS", "Fitness & Wellness"].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
+                    selectedCategory === cat
+                      ? "bg-[#FF3B30] text-white shadow-md font-bold"
+                      : "border border-white/10 hover:border-white/30 text-white/70"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Interactive Grid View Controls */}
+            <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase">
+              <span className="opacity-50 flex items-center gap-1 mr-1 hidden sm:flex">
+                <LayoutGrid className="w-3.5 h-3.5 text-[#FF3B30]" /> Grid:
+              </span>
+              {[
+                { cols: 2, label: "2 Grid" },
+                { cols: 3, label: "3 Grid" },
+                { cols: 4, label: "4 Grid" },
+              ].map((g) => (
+                <button
+                  key={g.cols}
+                  onClick={() => setGridCols(g.cols)}
+                  className={`px-3 py-1.5 rounded-xs border transition-all ${
+                    gridCols === g.cols
+                      ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                      : "border-white/15 hover:border-white/30 text-white/60"
+                  }`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Reel & Content Showcase Grid (4 in a Row) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Reel & Content Showcase Grid */}
+          <div className={`grid gap-6 ${
+            gridCols === 2
+              ? "grid-cols-1 md:grid-cols-2"
+              : gridCols === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          }`}>
             {filteredFeed.map((work, idx) => (
               <motion.div
                 key={work.id}
@@ -473,6 +506,7 @@ function InfluencerPanel() {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiche, setSelectedNiche] = useState("All");
+  const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(r.data)).catch(() => {});
@@ -542,7 +576,7 @@ function InfluencerPanel() {
           </button>
         </div>
 
-        <Link to="/marketplace" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white">
+        <Link to="/marketplace" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-[#FFFFFF]">
           Explore All Briefs →
         </Link>
       </div>
@@ -550,28 +584,60 @@ function InfluencerPanel() {
       {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
       {activeTab === "campaigns-feed" && (
         <div className="space-y-8">
-          {/* Niche Filter Pills */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Niche Filter:
-            </span>
-            {["All", "Fashion & Style", "Technology & SaaS", "Beauty & Cosmetics", "Fitness & Wellness"].map((niche) => (
-              <button
-                key={niche}
-                onClick={() => setSelectedNiche(niche)}
-                className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
-                  selectedNiche === niche
-                    ? "bg-[#FF3B30] text-white shadow-md font-bold"
-                    : "border border-white/10 hover:border-white/30 text-white/70"
-                }`}
-              >
-                {niche}
-              </button>
-            ))}
+          {/* Niche Filter Pills & Grid View Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Niche Filter:
+              </span>
+              {["All", "Fashion & Style", "Technology & SaaS", "Beauty & Cosmetics", "Fitness & Wellness"].map((niche) => (
+                <button
+                  key={niche}
+                  onClick={() => setSelectedNiche(niche)}
+                  className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
+                    selectedNiche === niche
+                      ? "bg-[#FF3B30] text-white shadow-md font-bold"
+                      : "border border-white/10 hover:border-white/30 text-white/70"
+                  }`}
+                >
+                  {niche}
+                </button>
+              ))}
+            </div>
+
+            {/* Interactive Grid View Controls */}
+            <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase">
+              <span className="opacity-50 flex items-center gap-1 mr-1 hidden sm:flex">
+                <LayoutGrid className="w-3.5 h-3.5 text-[#FF3B30]" /> Grid:
+              </span>
+              {[
+                { cols: 2, label: "2 Grid" },
+                { cols: 3, label: "3 Grid" },
+                { cols: 4, label: "4 Grid" },
+              ].map((g) => (
+                <button
+                  key={g.cols}
+                  onClick={() => setGridCols(g.cols)}
+                  className={`px-3 py-1.5 rounded-xs border transition-all ${
+                    gridCols === g.cols
+                      ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                      : "border-white/15 hover:border-white/30 text-white/60"
+                  }`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Campaign Brief Grid (4 in a Row) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Campaign Brief Grid */}
+          <div className={`grid gap-6 ${
+            gridCols === 2
+              ? "grid-cols-1 md:grid-cols-2"
+              : gridCols === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          }`}>
             {filteredCampaigns.map((c, idx) => (
               <motion.div
                 key={c.id || idx}
