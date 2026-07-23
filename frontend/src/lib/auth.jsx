@@ -11,6 +11,7 @@ const MOCK_USERS = {
     username: "aarav.style",
     handle: "@aarav.style",
     role: "influencer",
+    onboarding_status: "completed",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
     niche: "Fashion & Style",
     followers: "520K",
@@ -23,6 +24,7 @@ const MOCK_USERS = {
     username: "studionoir",
     company: "Studio Noir Apparel Ltd.",
     role: "owner",
+    onboarding_status: "completed",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
   },
   "owner@cr8.studio": {
@@ -32,6 +34,7 @@ const MOCK_USERS = {
     username: "studionoir",
     company: "Studio Noir Apparel Ltd.",
     role: "owner",
+    onboarding_status: "completed",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
   },
   "agent@cr8.studio": {
@@ -40,6 +43,7 @@ const MOCK_USERS = {
     name: "Vikram Mehta",
     username: "vikram.agent",
     role: "agent",
+    onboarding_status: "completed",
     agent_type: "influencer_agent"
   },
   "admin@cr8.studio": {
@@ -47,6 +51,7 @@ const MOCK_USERS = {
     email: "admin@cr8.studio",
     name: "Super Admin",
     username: "admin",
+    onboarding_status: "completed",
     role: "admin"
   }
 };

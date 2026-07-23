@@ -17,13 +17,5 @@ export function RequireAuth({ children, roles = [] }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (user.role !== "admin" && user.onboarding_status === "pending" && !location.pathname.startsWith("/onboarding")) {
-    return <Navigate to={`/onboarding/${user.role}`} replace />;
-  }
-
-  if (user.role !== "admin" && user.onboarding_status === "completed" && location.pathname.startsWith("/onboarding")) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   return children;
 }
