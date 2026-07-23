@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
-  ExternalLink, MessageSquare, Briefcase, Award, Zap, LayoutGrid
+  ExternalLink, MessageSquare, Briefcase, Award, Zap, LayoutGrid, FileText
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
