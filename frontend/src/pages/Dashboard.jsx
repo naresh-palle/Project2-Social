@@ -291,8 +291,8 @@ function OwnerPanel() {
             ))}
           </div>
 
-          {/* Reel & Content Showcase Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Reel & Content Showcase Grid (4 in a Row) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredFeed.map((work, idx) => (
               <motion.div
                 key={work.id}
@@ -405,7 +405,7 @@ function OwnerPanel() {
           {items.length === 0 ? (
             <Empty label="No briefs posted yet. Post your first campaign." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {items.map((c) => (
                 <CampaignRow key={c.id} c={c} />
               ))}
@@ -574,8 +574,8 @@ function InfluencerPanel() {
             ))}
           </div>
 
-          {/* Campaign Brief Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Campaign Brief Grid (4 in a Row) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredCampaigns.map((c, idx) => (
               <motion.div
                 key={c.id || idx}
