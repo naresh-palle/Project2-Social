@@ -570,7 +570,9 @@ function InfluencerPanel() {
               activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCa          <button
+            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
+          </button>
+          <button
             onClick={() => setActiveTab("my-pitches")}
             className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
@@ -732,9 +734,6 @@ function InfluencerPanel() {
                 </div>
               ))}
             </div>
-          )}
-        </div>
-      )}    </div>
           )}
         </div>
       )}
