@@ -56,43 +56,43 @@ export default function Dashboard() {
           <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
             <div className="flex items-center gap-6">
               <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border border-white/20 shadow-2xl relative">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
                 ) : (
                   <div 
                     className="w-full h-full flex items-center justify-center font-editorial italic text-3xl text-white"
-                    style={{ backgroundColor: `hsl(${user.name.length * 45}, 65%, 40%)` }}
+                    style={{ backgroundColor: `hsl(${((user?.name || user?.username || "Creator").length) * 45}, 65%, 40%)` }}
                   >
-                    {user.name?.[0]}
+                    {(user?.name || user?.username || "C")[0]?.toUpperCase()}
                   </div>
                 )}
               </div>
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
-                  § {user.role === "admin" ? "Super Admin Console" : user.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
+                  § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
                 <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
-                  {user.name}<span className="tick text-[#FF3B30]">.</span>
+                  {user?.name || user?.username || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span>
                 </h1>
                 <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-2">
-                  {user.role === "admin" ? "Platform Console" : user.role === "owner" ? user.company || "Brand Owner" : user.role === "agent" ? "Agent Representative" : user.handle || "Creator Partner"} ·{" "}
-                  {user.email}
+                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : user?.handle || user?.username || "Creator Partner"} ·{" "}
+                  {user?.email || ""}
                 </p>
               </div>
             </div>
 
-            {user.role === "influencer" ? (
+            {user?.role !== "owner" && user?.role !== "admin" && user?.role !== "agent" ? (
               <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
                 <Send className="w-4 h-4" /> Browse Briefs &amp; Creators
               </Link>
             ) : null}
           </div>
 
-          {user.role === "admin" ? (
+          {user?.role === "admin" ? (
             <AdminPanel />
-          ) : user.role === "owner" ? (
+          ) : user?.role === "owner" ? (
             <OwnerPanel />
-          ) : user.role === "agent" ? (
+          ) : user?.role === "agent" ? (
             <AgentPanel />
           ) : (
             <InfluencerPanel />

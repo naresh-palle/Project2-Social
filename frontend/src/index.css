@@ -52,6 +52,10 @@ body {
     overflow-x: hidden;
 }
 
+button, input, select, textarea {
+    font-family: inherit;
+}
+
 .font-editorial { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
 .font-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
 
