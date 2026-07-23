@@ -106,7 +106,14 @@ export function AuthProvider({ children }) {
         } else if (lower.includes("admin")) {
           mockUser = { id: "usr-admin-demo", email: identifier, name: "Super Admin", role: "admin" };
         } else {
-          mockUser = { id: "usr-creator-demo", email: identifier || "creator@cr8.studio", name: "Aarav Sharma", handle: "@aarav.style", role: "influencer" };
+          const defaultName = identifier.includes("@") ? identifier.split("@")[0] : identifier || "Creator Partner";
+          mockUser = { 
+            id: "usr-creator-" + Date.now(), 
+            email: identifier || "creator@cr8.studio", 
+            name: defaultName, 
+            handle: `@${defaultName.toLowerCase().replace(/\s+/g, "")}`, 
+            role: "influencer" 
+          };
         }
       }
       const demoToken = "demo-token-" + Date.now();
