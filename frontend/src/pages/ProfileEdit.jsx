@@ -607,144 +607,150 @@ export default function ProfileEdit() {
                   </div>
               </section>
 
-              {/* SECTION 5: RATE */}
-              <section id="sec-rate" className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
-                  <F label="Base Rate (INR) *">
-                      <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
-                  </F>
-              </section>
+              {/* SECTION 5: RATE (Creators Only) */}
+              {isCreator && (
+                <section id="sec-rate" className="space-y-6">
+                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
+                    <F label="Base Rate (INR) *">
+                        <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
+                    </F>
+                </section>
+              )}
 
-              {/* SECTION 7: PORTFOLIO */}
-              <section className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">7. Your Portfolio & Past Work</h2>
-                  
-                  <F label="Portfolio Images and Videos">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                      {f.portfolio.map((p, i) => (
-                        <div key={i} className="relative group aspect-square bg-black border border-white/10">
-                          {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
-                              <video src={p} className="w-full h-full object-cover" controls />
-                          ) : (
-                              <img src={p} alt="" className="w-full h-full object-cover" />
-                          ))}
-                          <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                              <X className="w-3 h-3 text-white" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex mt-6">
-                      <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
-                      <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-4 px-6 text-sm flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
-                        <Upload className="w-4 h-4" /> Add Image/s and Upload Videos
-                      </button>
-                    </div>
-                  </F>
-
-                  <div className="mt-8" id="sec-campaigns">
-                      <F label="Past Campaigns * (Full Details Required for Each Entry, Max 5)">
-                          <div className="space-y-3 mt-3">
-                              <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
-                                  <div className="col-span-2">Brand *</div>
-                                  <div className="col-span-3">Campaign Scope *</div>
-                                  <div className="col-span-2">Date *</div>
-                                  <div className="col-span-2">Result *</div>
-                                  <div className="col-span-2">Post Link *</div>
-                                  <div className="col-span-1 text-right">Action</div>
-                              </div>
-
-                              {f.past_campaigns.map((c, i) => (
-                                  <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
-                                      <div className="md:col-span-2">
-                                          <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-3">
-                                          <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-2">
-                                          <input required className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025) *" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-2">
-                                          <input required className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views) *" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-2">
-                                          <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="Post Link (https://...) *" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
-                                      </div>
-                                      <div className="md:col-span-1 text-right">
-                                          <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
-                                              <X className="w-4 h-4" />
-                                          </button>
-                                      </div>
-                                  </div>
-                              ))}
-
-                              {f.past_campaigns.length < 5 ? (
-                                  <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
-                                    <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
-                                  </button>
-                              ) : (
-                                  <div className="font-mono text-xs text-orange-400 mt-2">
-                                      Maximum limit reached (5/5 past campaigns added)
-                                  </div>
-                              )}
-                          </div>
-                      </F>
-                  </div>
-              </section>
-
-              {/* SECTION 8: ADDITIONAL */}
-              <section className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">8. Additional Information</h2>
-                  
-                  <F label="Years of Experience *">
-                      <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
-                          <option value="" className="bg-[#0A0A0A]">Select Experience...</option>
-                          {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0A0A0A]">{ex}</option>)}
-                      </select>
-                  </F>
-
-                  <F label="Response Time *">
-                      <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
-                          <option value="" className="bg-[#0A0A0A]">Select Response Time...</option>
-                          {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0A0A0A]">{r}</option>)}
-                      </select>
-                  </F>
-
-                  <div className="pt-4" id="sec-content-types">
-                      <F label="Content Types You Create * (Multi-Select)">
-                          <select 
-                            className="inp cursor-pointer bg-[#0A0A0A]"
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val && !f.content_types.includes(val)) {
-                                setF({ ...f, content_types: [...f.content_types, val] });
-                              }
-                              e.target.value = "";
-                            }}
-                          >
-                            <option value="" className="bg-[#0A0A0A]">Select content type to add...</option>
-                            {CONTENT_TYPES.filter(t => !f.content_types.includes(t)).map(t => (
-                              <option key={t} value={t} className="bg-[#0A0A0A]">{t}</option>
+              {/* SECTION 7: PORTFOLIO & PAST WORK (Creators Only) */}
+              {isCreator && (
+                <section className="space-y-6">
+                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">7. Your Portfolio &amp; Past Work</h2>
+                    
+                    <F label="Portfolio Images and Videos">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        {f.portfolio.map((p, i) => (
+                          <div key={i} className="relative group aspect-square bg-black border border-white/10">
+                            {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
+                                <video src={p} className="w-full h-full object-cover" controls />
+                            ) : (
+                                <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
-                          </select>
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex mt-6">
+                        <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-4 px-6 text-sm flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                          <Upload className="w-4 h-4" /> Add Image/s and Upload Videos
+                        </button>
+                      </div>
+                    </F>
 
-                          {/* Selected Content Types Pills */}
-                          {f.content_types?.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-3">
-                                  {f.content_types.map(type => (
-                                      <span key={type} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
-                                          {type}
-                                          <button type="button" onClick={() => toggleArray("content_types", type)} className="hover:text-white transition-colors">
-                                              <X className="w-3.5 h-3.5" />
-                                          </button>
-                                      </span>
-                                  ))}
-                              </div>
-                          )}
-                      </F>
-                  </div>
-              </section>
+                    <div className="mt-8" id="sec-campaigns">
+                        <F label="Past Campaigns * (Full Details Required for Each Entry, Max 5)">
+                            <div className="space-y-3 mt-3">
+                                <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
+                                    <div className="col-span-2">Brand *</div>
+                                    <div className="col-span-3">Campaign Scope *</div>
+                                    <div className="col-span-2">Date *</div>
+                                    <div className="col-span-2">Result *</div>
+                                    <div className="col-span-2">Post Link *</div>
+                                    <div className="col-span-1 text-right">Action</div>
+                                </div>
+
+                                {f.past_campaigns.map((c, i) => (
+                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
+                                        <div className="md:col-span-2">
+                                            <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <input required className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025) *" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <input required className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views) *" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="Post Link (https://...) *" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-1 text-right">
+                                            <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {f.past_campaigns.length < 5 ? (
+                                    <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
+                                      <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
+                                    </button>
+                                ) : (
+                                    <div className="font-mono text-xs text-orange-400 mt-2">
+                                        Maximum limit reached (5/5 past campaigns added)
+                                    </div>
+                                )}
+                            </div>
+                        </F>
+                    </div>
+                </section>
+              )}
+
+              {/* SECTION 8: ADDITIONAL INFORMATION (Creators Only) */}
+              {isCreator && (
+                <section className="space-y-6">
+                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">8. Additional Information</h2>
+                    
+                    <F label="Years of Experience *">
+                        <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
+                            <option value="" className="bg-[#0A0A0A]">Select Experience...</option>
+                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0A0A0A]">{ex}</option>)}
+                        </select>
+                    </F>
+
+                    <F label="Response Time *">
+                        <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
+                            <option value="" className="bg-[#0A0A0A]">Select Response Time...</option>
+                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0A0A0A]">{r}</option>)}
+                        </select>
+                    </F>
+
+                    <div className="pt-4" id="sec-content-types">
+                        <F label="Content Types You Create * (Multi-Select)">
+                            <select 
+                              className="inp cursor-pointer bg-[#0A0A0A]"
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val && !f.content_types.includes(val)) {
+                                  setF({ ...f, content_types: [...f.content_types, val] });
+                                }
+                                e.target.value = "";
+                              }}
+                            >
+                              <option value="" className="bg-[#0A0A0A]">Select content type to add...</option>
+                              {CONTENT_TYPES.filter(t => !f.content_types.includes(t)).map(t => (
+                                <option key={t} value={t} className="bg-[#0A0A0A]">{t}</option>
+                              ))}
+                            </select>
+
+                            {/* Selected Content Types Pills */}
+                            {f.content_types?.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-3">
+                                    {f.content_types.map(type => (
+                                        <span key={type} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
+                                            {type}
+                                            <button type="button" onClick={() => toggleArray("content_types", type)} className="hover:text-white transition-colors">
+                                                <X className="w-3.5 h-3.5" />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </F>
+                    </div>
+                </section>
+              )}
 
           <div className="pt-8">
             <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
