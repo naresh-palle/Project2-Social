@@ -84,7 +84,7 @@ export function Nav({ variant = "dark" }) {
                   data-testid="nav-user-menu"
                   className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
                 >
-                  <span className="font-bold text-white tracking-wider">{user.name?.split(" ")[0]}</span>
+                  <span className="font-bold text-white tracking-wider">{(user.name || user.username || user.email || "User").split(" ")[0]}</span>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
                 </button>
                 <AnimatePresence>

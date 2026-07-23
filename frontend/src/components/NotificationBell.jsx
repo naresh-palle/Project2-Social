@@ -14,8 +14,10 @@ export function NotificationBell() {
   const load = async () => {
     try {
       const { data } = await api.get("/notifications");
-      setData(data);
-    } catch {}
+      setData(data && Array.isArray(data.items) ? data : { items: [], unread: 0 });
+    } catch {
+      setData({ items: [], unread: 0 });
+    }
   };
   useEffect(() => {
     if (!user) return;
