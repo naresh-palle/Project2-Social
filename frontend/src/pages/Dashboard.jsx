@@ -187,18 +187,21 @@ function OwnerPanel() {
   const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
-    api.get("/campaigns?mine=true").then((r) => setItems(r.data)).catch(() => {});
-    api.get("/analytics/owner").then((r) => setStats(r.data)).catch(() => {});
-    api.get("/creators/match").then((r) => setMatches(r.data)).catch(() => {});
+    api.get("/campaigns?mine=true").then((r) => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => setItems([]));
+    api.get("/analytics/owner").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
+    api.get("/creators/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
   }, []);
 
-  const tiles = stats ? [
-    { k: "Live Briefs", v: stats.open_campaigns, tail: `of ${stats.total_campaigns} total` },
-    { k: "In Progress", v: stats.in_progress, tail: "shipping now" },
-    { k: "Applications", v: stats.applications_total, tail: "on file" },
-    { k: "Escrow Held", v: `₹${stats.escrow_held.toLocaleString()}`, tail: "in studio vault" },
-    { k: "Paid Creators", v: `₹${stats.paid_to_creators.toLocaleString()}`, tail: "released" },
-    { k: "Verified Roster", v: matches.length > 0 ? `${matches.length} Creators` : "34 Talent", tail: "ai vetted" },
+  const safeItems = Array.isArray(items) ? items : [];
+  const safeMatches = Array.isArray(matches) ? matches : [];
+
+  const tiles = (stats && typeof stats === "object") ? [
+    { k: "Live Briefs", v: stats.open_campaigns ?? 0, tail: `of ${stats.total_campaigns ?? 0} total` },
+    { k: "In Progress", v: stats.in_progress ?? 0, tail: "shipping now" },
+    { k: "Applications", v: stats.applications_total ?? 0, tail: "on file" },
+    { k: "Escrow Held", v: `₹${(stats.escrow_held ?? 0).toLocaleString()}`, tail: "in studio vault" },
+    { k: "Paid Creators", v: `₹${(stats.paid_to_creators ?? 0).toLocaleString()}`, tail: "released" },
+    { k: "Verified Roster", v: safeMatches.length > 0 ? `${safeMatches.length} Creators` : "34 Talent", tail: "ai vetted" },
   ] : [
     { k: "Live Briefs", v: "4 Active", tail: "of 6 total" },
     { k: "In Progress", v: "2 Shipping", tail: "active collabs" },
@@ -509,18 +512,21 @@ function InfluencerPanel() {
   const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
-    api.get("/applications/mine").then((r) => setApps(r.data)).catch(() => {});
-    api.get("/analytics/creator").then((r) => setStats(r.data)).catch(() => {});
-    api.get("/campaigns/match").then((r) => setMatches(r.data)).catch(() => {});
+    api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
+    api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
+    api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
   }, []);
 
-  const tiles = stats ? [
-    { k: "Pitched Briefs", v: stats.applications, tail: "submitted" },
-    { k: "Accepted", v: stats.acceptances, tail: "signed & live" },
-    { k: "Invitations", v: stats.invitations, tail: "extended to you" },
-    { k: "Deliverables", v: `${stats.approved}/${stats.deliverables}`, tail: "approved / total" },
+  const safeApps = Array.isArray(apps) ? apps : [];
+  const safeMatches = Array.isArray(matches) ? matches : [];
+
+  const tiles = (stats && typeof stats === "object") ? [
+    { k: "Pitched Briefs", v: stats.applications ?? 0, tail: "submitted" },
+    { k: "Accepted", v: stats.acceptances ?? 0, tail: "signed & live" },
+    { k: "Invitations", v: stats.invitations ?? 0, tail: "extended to you" },
+    { k: "Deliverables", v: `${stats.approved ?? 0}/${stats.deliverables ?? 0}`, tail: "approved / total" },
     { k: "Rating Score", v: stats.reviews_count ? stats.avg_rating : "4.9 ★", tail: `${stats.reviews_count || 12} reviews` },
-    { k: "Wallet Balance", v: `₹${stats.earned.toLocaleString()}`, tail: "escrow ready" },
+    { k: "Wallet Balance", v: `₹${(stats.earned ?? 0).toLocaleString()}`, tail: "escrow ready" },
   ] : [
     { k: "Pitched Briefs", v: "6 Pitches", tail: "submitted" },
     { k: "Accepted", v: "3 Signed", tail: "live collabs" },
@@ -530,11 +536,11 @@ function InfluencerPanel() {
     { k: "Wallet Balance", v: "₹1,85,000", tail: "escrow ready" },
   ];
 
-  const campaignList = matches.length > 0 ? matches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
+  const campaignList = safeMatches.length > 0 ? safeMatches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
   const filteredCampaigns = selectedNiche === "All"
     ? campaignList
-    : campaignList.filter(c => (c.niche || c.niches?.join(" ") || "").toLowerCase().includes(selectedNiche.toLowerCase()));
+    : campaignList.filter(c => (c?.niche || (Array.isArray(c?.niches) ? c.niches.join(" ") : c?.niches) || "").toLowerCase().includes(selectedNiche.toLowerCase()));
 
   return (
     <div className="space-y-10">
