@@ -251,7 +251,7 @@ function OwnerPanel() {
               activeTab === "directory" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Users className="w-4 h-4" /> Verified Creator Roster ({matches.length || 12})
+            <Users className="w-4 h-4" /> Verified Creator Roster ({safeMatches.length || 12})
           </button>
           <button
             onClick={() => setActiveTab("my-briefs")}
@@ -259,7 +259,7 @@ function OwnerPanel() {
               activeTab === "my-briefs" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Briefcase className="w-4 h-4" /> My Brand Briefs ({items.length})
+            <Briefcase className="w-4 h-4" /> My Brand Briefs ({safeItems.length})
           </button>
         </div>
 
@@ -409,7 +409,7 @@ function OwnerPanel() {
       {activeTab === "directory" && (
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(matches.length > 0 ? matches : FEATURED_CREATOR_WORK_FEED).map((c, i) => (
+            {(safeMatches.length > 0 ? safeMatches : FEATURED_CREATOR_WORK_FEED).map((c, i) => (
               <Link key={c.id || i} to={c.id ? `/creators/${c.id}` : "/marketplace"} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 rounded-sm border border-white/15">
                 <div className="h-56 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4 rounded-xs">
                   <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
@@ -434,11 +434,11 @@ function OwnerPanel() {
       {/* VIEW 3: MY BRAND BRIEFS */}
       {activeTab === "my-briefs" && (
         <div className="space-y-6">
-          {items.length === 0 ? (
+          {safeItems.length === 0 ? (
             <Empty label="No briefs posted yet. Post your first campaign." />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {items.map((c) => (
+              {safeItems.map((c) => (
                 <CampaignRow key={c.id} c={c} />
               ))}
             </div>
@@ -570,15 +570,13 @@ function InfluencerPanel() {
               activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
-          </button>
-          <button
+            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCa          <button
             onClick={() => setActiveTab("my-pitches")}
             className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({apps.length})
+            <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({safeApps.length})
           </button>
         </div>
 
@@ -710,11 +708,11 @@ function InfluencerPanel() {
       {/* VIEW 2: MY PITCHES & APPLICATION TRACKER */}
       {activeTab === "my-pitches" && (
         <div className="space-y-6">
-          {apps.length === 0 ? (
+          {safeApps.length === 0 ? (
             <Empty label="No pitches submitted yet. Pitch live briefs above." />
           ) : (
             <div className="space-y-4">
-              {apps.map((a) => (
+              {safeApps.map((a) => (
                 <div key={a.id} className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
@@ -734,6 +732,9 @@ function InfluencerPanel() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}    </div>
           )}
         </div>
       )}
