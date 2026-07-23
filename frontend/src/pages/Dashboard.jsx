@@ -81,11 +81,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {user.role === "owner" || (user.role === "agent" && (user.agent_type === "company_agent" || !user.agent_type)) ? (
-              <Link to="/campaigns/new" data-testid="new-campaign-btn" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
-                <Plus className="w-4 h-4" /> Post New Campaign
-              </Link>
-            ) : user.role !== "admin" ? (
+            {user.role === "influencer" ? (
               <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
                 <Send className="w-4 h-4" /> Browse Briefs &amp; Creators
               </Link>
