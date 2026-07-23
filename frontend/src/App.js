@@ -38,7 +38,7 @@ function App() {
             <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
             <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
 
-            <Route path="/marketplace" element={<RequireAuth roles={["owner", "admin", "agent"]}><Marketplace /></RequireAuth>} />
+            <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
             <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
             <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
