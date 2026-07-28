@@ -75,7 +75,7 @@ export default function CreatorDetail() {
         <div className="mt-16 grid grid-cols-1 md:grid-cols-12 gap-12 items-end border-b border-white/10 pb-16">
             <div className="md:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-end">
                 {creator.avatar ? (
-                    <img src={creator.avatar} alt={creator.name} className="w-32 h-32 md:w-48 md:h-48 object-cover grayscale contrast-125 border border-white/20 p-2" />
+                    <img src={creator.avatar} alt={creator.name} className="w-32 h-32 md:w-48 md:h-48 object-cover  border border-white/20 p-2" />
                 ) : (
                     <div className="w-32 h-32 md:w-48 md:h-48 border border-white/20 p-2 flex items-center justify-center bg-white/5">
                         <span className="font-editorial text-4xl opacity-50">{creator.name[0]}</span>
@@ -272,7 +272,7 @@ export default function CreatorDetail() {
                       <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 border-b border-white/10 pb-4 mb-6">Visual Portfolio</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           {creator.portfolio.map((img, i) => (
-                              <img key={i} src={img} alt="" className="w-full h-48 object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                              <img key={i} src={img} alt="" className="w-full h-48 object-cover  transition-all duration-500" />
                           ))}
                       </div>
                   </section>

@@ -639,7 +639,7 @@ function SocialProof() {
    ========================================================================= */
 const FEATURED = [
   {
-    img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
+    img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 01",
     title: "Kai Monroe × Studio Noir",
     meta: "EDITORIAL · ₹12L Budget · 5.2M Reach",
@@ -653,14 +653,14 @@ const FEATURED = [
     creator: "Creator: Emma · 80K followers · 5.8% ER"
   },
   {
-    img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
+    img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 03",
     title: "The Ritual Series",
     meta: "BEAUTY · Long-form · 1.8M Reach",
     creator: "Creator: Sofia · 120K followers · 4.9% ER"
   },
   {
-    img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
+    img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 04",
     title: "Nova Reyes × Fragrance Atlas",
     meta: "FRAGRANCE · ₹15L Budget · 3.8M Reach",
@@ -679,6 +679,34 @@ const FEATURED = [
     title: "Urban Vibe Apparel",
     meta: "STREETWEAR · ₹10L Budget · 2.7M Reach",
     creator: "Creator: Rahul · 95K followers · 5.4% ER"
+  },
+  {
+    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 07",
+    title: "Arjun Sharma Menswear",
+    meta: "FASHION · ₹18L Budget · 4.1M Reach",
+    creator: "Creator: Arjun · 150K followers · 5.2% ER"
+  },
+  {
+    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 08",
+    title: "Zara India Summer Drop",
+    meta: "BRAND CAMPAIGN · ₹25L Budget · 6.8M Reach",
+    creator: "Creator: Zara Team · Verified Brand"
+  },
+  {
+    img: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 09",
+    title: "HyperTech AI Workstation",
+    meta: "TECH & SAAS · ₹20L Budget · 3.4M Reach",
+    creator: "Creator: TechTribe · 310K followers"
+  },
+  {
+    img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200",
+    label: "Feature 10",
+    title: "Veda Glow Botanical Series",
+    meta: "ORGANIC BEAUTY · ₹14L Budget · 2.9M Reach",
+    creator: "Creator: Sneha · 110K followers"
   }
 ];
 
@@ -696,7 +724,7 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section id="portfolio" className="relative text-[#F4F4F0] py-8 md:py-10 pb-16 bg-[#0A0A0A]" data-testid="slide-portfolio">
+    <section id="portfolio" className="relative text-[#F4F4F0] py-8 md:py-10 pb-6 bg-[#0A0A0A]" data-testid="slide-portfolio">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
@@ -705,48 +733,52 @@ function FeaturedGrid() {
                 § Slide 06 · Portfolio &amp; Signal
               </span>
               <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-                SELECTED WORK <span className="italic">SHOWCASE<span className="tick">.</span></span>
+                SELECTED WORK <span className="italic text-[#FF3B30]">SHOWCASE<span className="tick text-white">.</span></span>
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from CR8 Creators</span>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from CR8 Creators (Auto-Expanding Grid)</span>
           </div>
         </FadeUp>
 
-        {/* Carousel Grid of 6 Campaign Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* 5-In-A-Row Auto-Expanding Vibrant Color Campaign Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#FF3B30]/50 transition-all bg-white/[0.02] p-3 rounded-xs">
-              <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
-                <img
-                  src={f.img}
-                  alt={f.title}
-                  className="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                />
-                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10 font-bold">
-                  {f.label}
+            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#FF3B30]/60 transition-all bg-[#121212] p-3 rounded-xs flex flex-col justify-between">
+              <div>
+                <div className="relative overflow-hidden rounded-xs" style={{ aspectRatio: '16/10' }}>
+                  <img
+                    src={f.img}
+                    alt={f.title}
+                    className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
+                  />
+                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10 font-bold">
+                    {f.label}
+                  </div>
+                </div>
+                <div className="mt-3 space-y-1">
+                  <h3 className="font-editorial text-base group-hover:text-[#FF3B30] transition-colors leading-snug font-bold text-white">{f.title}</h3>
+                  <p className="font-mono text-[9px] text-[#FF3B30] uppercase tracking-wider font-bold">{f.meta}</p>
                 </div>
               </div>
-              <div className="mt-3 px-1 space-y-1">
-                <h3 className="font-editorial text-lg group-hover:text-[#FF3B30] transition-colors leading-snug font-bold">{f.title}</h3>
-                <p className="font-mono text-[10px] text-[#FF3B30] uppercase tracking-wider font-bold">{f.meta}</p>
-                <p className="font-mono text-[9px] text-white/50 uppercase tracking-wider">{f.creator}</p>
+              <div className="mt-3 pt-2 border-t border-white/5 font-mono text-[9px] text-white/60 uppercase tracking-wider">
+                {f.creator}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Studio Signal Metrics Table */}
-        <div className="bg-[#F4F4F0] text-[#0A0A0A] rounded-xs overflow-hidden">
-          <div className="px-6 py-3 border-b border-[#0A0A0A]/10 flex items-center justify-between">
-            <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 font-bold">§ STUDIO SIGNAL (Metrics)</span>
-            <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold hover:underline">Browse all completed campaigns →</Link>
+        {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
+        <div className="bg-[#121212] text-[#F4F4F0] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ STUDIO SIGNAL (Metrics)</span>
+            <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#34C759] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
-            <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-[#0A0A0A]/10' : ''}`}>
-              <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase opacity-50">0{i + 1}</div>
-              <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold">{r.k}</div>
-              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold">{r.v}</div>
-              <div className="hidden md:block col-span-2 text-right font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">{r.tail}</div>
+            <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-white/10' : ''}`}>
+              <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">0{i + 1}</div>
+              <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold text-white">{r.k}</div>
+              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold text-[#34C759]">{r.v}</div>
+              <div className="hidden md:block col-span-2 text-right font-mono text-[9px] tracking-[0.2em] uppercase text-white/50">{r.tail}</div>
             </div>
           ))}
         </div>
@@ -1152,9 +1184,9 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* PRESENTATION SLIDES WITH NATURAL WINDOW SCROLLING AT 100% ZOOM */}
-      <div className="pt-16 w-full min-h-[calc(100vh-64px)] relative z-10 overflow-hidden">
-        <div className="w-full min-h-full">
+      {/* PRESENTATION SLIDES (Scroll ends cleanly at the bottom of the footer with zero empty background space) */}
+      <div className="pt-16 w-full relative z-10 overflow-hidden">
+        <div className="w-full">
           <div
             className="flex transition-transform duration-700 ease-out w-full items-start"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
@@ -1162,9 +1194,9 @@ export default function Landing() {
             {slides.map((s) => (
               <div 
                 key={s.id} 
-                className="w-full shrink-0 min-h-[calc(100vh-64px)] flex flex-col justify-between"
+                className="w-full shrink-0 flex flex-col justify-start h-auto"
               >
-                <div className="w-full">
+                <div className="w-full h-auto">
                   {s.component}
                 </div>
               </div>

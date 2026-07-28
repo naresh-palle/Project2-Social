@@ -412,7 +412,7 @@ function OwnerPanel() {
             {(safeMatches.length > 0 ? safeMatches : FEATURED_CREATOR_WORK_FEED).map((c, i) => (
               <Link key={c.id || i} to={c.id ? `/creators/${c.id}` : "/marketplace"} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 rounded-sm border border-white/15">
                 <div className="h-56 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4 rounded-xs">
-                  <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+                  <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover  transition duration-500" />
                 </div>
                 <div className="flex flex-col justify-between flex-1">
                   <div>
@@ -783,7 +783,7 @@ function AgentPanel() {
             {creators.map((c) => (
               <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 border border-white/15">
                 <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4">
-                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition duration-500" />
+                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover  transition duration-500" />
                 </div>
                 <h4 className="font-editorial text-2xl">{c.name}</h4>
                 <p className="text-xs font-mono uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
