@@ -81,25 +81,24 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
       </motion.div>
 
-      {/* 3. Vibrant Studio Glow Orbs & Multi-Color Stage Lighting */}
+      {/* 3. Subtle Floating Glow Orbs */}
       {[
-        { color: "#FF3B30", x: "5%",  y: "20%", size: 360, delay: 0.5 },
-        { color: "#7000FF", x: "45%", y: "15%", size: 400, delay: 1.0 },
-        { color: "#007AFF", x: "70%", y: "50%", size: 320, delay: 1.5 },
-        { color: "#FF9500", x: "25%", y: "70%", size: 280, delay: 2.0 },
+        { color: "#FF3B30", x: "8%",  y: "30%", size: 240, delay: 1.2 },
+        { color: "#7000FF", x: "20%", y: "60%", size: 180, delay: 1.6 },
+        { color: "#007AFF", x: "5%",  y: "80%", size: 140, delay: 2.0 },
       ].map((orb, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full pointer-events-none z-10"
+          className="absolute rounded-full pointer-events-none"
           style={{
             left: orb.x, top: orb.y,
             width: orb.size, height: orb.size,
             background: orb.color,
-            filter: "blur(90px)",
+            filter: "blur(80px)",
             opacity: 0,
           }}
-          animate={{ opacity: [0, 0.35, 0.20, 0.35] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
+          animate={{ opacity: [0, 0.08, 0.04, 0.08] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
         />
       ))}
 
@@ -1111,15 +1110,15 @@ export default function Landing() {
       {/* Multi-Layer Ambient Lighting Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div 
-          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-20 blur-3xl" 
+          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-5 blur-3xl" 
           style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 45%, transparent 75%)" }}
         />
         <div 
-          className="absolute top-1/3 -left-40 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl" 
+          className="absolute top-1/3 -left-40 w-[600px] h-[600px] rounded-full opacity-5 blur-3xl" 
           style={{ background: "radial-gradient(circle, #FF9500 0%, #FF3B30 60%, transparent 75%)" }}
         />
         <div 
-          className="absolute bottom-10 right-10 w-[700px] h-[700px] rounded-full opacity-15 blur-3xl" 
+          className="absolute bottom-10 right-10 w-[700px] h-[700px] rounded-full opacity-5 blur-3xl" 
           style={{ background: "radial-gradient(circle, #34C759 0%, #007AFF 55%, transparent 75%)" }}
         />
         <div className="grain" />
@@ -1172,7 +1171,6 @@ export default function Landing() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }
