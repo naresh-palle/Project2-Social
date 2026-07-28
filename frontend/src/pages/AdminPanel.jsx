@@ -603,10 +603,14 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
    ========================================================================= */
 function EscrowTreasuryDesk() {
   const [escrows, setEscrows] = useState([
-    { id: "ESC-901", campaign: "Silk & Midnight Launch", brand: "Studio Noir", creator: "Aarav Sharma", amount: 250000, fee: 32500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
+    { id: "ESC-901", campaign: "Silk & Midnight Launch", brand: "Studio Noir Apparel", creator: "Aarav Sharma", amount: 250000, fee: 32500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
     { id: "ESC-902", campaign: "AI Video Editing Suite", brand: "HyperTech AI", creator: "Priya Varma", amount: 350000, fee: 45500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
     { id: "ESC-903", campaign: "Hydra Glow Serum", brand: "Veda Organics", creator: "Rohan Kapoor", amount: 180000, fee: 23400, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-904", campaign: "PulseFit Activewear", brand: "PulseFit Global", creator: "Neha Gupta", amount: 200000, fee: 26000, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" }
+    { id: "ESC-904", campaign: "PulseFit Activewear Series", brand: "PulseFit Global", creator: "Neha Gupta", amount: 200000, fee: 26000, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
+    { id: "ESC-905", campaign: "Rockerz 550 Wireless Campaign", brand: "boAt Lifestyle", creator: "Arjun Sharma", amount: 400000, fee: 52000, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
+    { id: "ESC-906", campaign: "Air Flex Eyewear Launch", brand: "Lenskart India", creator: "Sneha Reddy", amount: 150000, fee: 19500, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
+    { id: "ESC-907", campaign: "Gourmet Food Delivery Promo", brand: "Zomato Ltd.", creator: "Karthik Iyer", amount: 280000, fee: 36400, status: "Dispute Under Review", gateway: "Razorpay PCI-DSS" },
+    { id: "ESC-908", campaign: "Pro Fitness Pass Festival", brand: "Cult.fit", creator: "Anya Singh", amount: 220000, fee: 28600, status: "Pending Verification", gateway: "Razorpay PCI-DSS" }
   ]);
 
   const handleForceRelease = (id) => {
@@ -705,9 +709,72 @@ function EscrowTreasuryDesk() {
    ========================================================================= */
 function BriefModerationDesk() {
   const [briefs, setBriefs] = useState([
-    { id: "BRF-101", brand: "Studio Noir Apparel", title: "Cyberpunk Streetwear Launch", budget: 250000, aiSafety: "99% Clean", status: "Approved & Live" },
-    { id: "BRF-102", brand: "HyperTech AI", title: "AI Creator Workstation Review", budget: 350000, aiSafety: "98% Clean", status: "Approved & Live" },
-    { id: "BRF-103", brand: "Veda Organics", title: "Organic Hydra Glow Serum", budget: 180000, aiSafety: "100% Clean", status: "Approved & Live" }
+    { 
+      id: "BRF-101", 
+      brand: "Studio Noir Apparel", 
+      title: "Cyberpunk Streetwear Editorial Launch", 
+      budget: 250000, 
+      category: "Fashion & Style",
+      aiSafety: "99% Clean", 
+      status: "Approved & Live",
+      deliverables: "1x Reel + 3x Stories",
+      timeline: "14 Days"
+    },
+    { 
+      id: "BRF-102", 
+      brand: "HyperTech AI", 
+      title: "AI Creator Workstation Pro Review", 
+      budget: 350000, 
+      category: "Technology & SaaS",
+      aiSafety: "98% Clean", 
+      status: "Approved & Live",
+      deliverables: "1x Long-form Video + 2x Posts",
+      timeline: "21 Days"
+    },
+    { 
+      id: "BRF-103", 
+      brand: "Veda Organics", 
+      title: "Organic Hydra Glow Serum Series", 
+      budget: 180000, 
+      category: "Beauty & Makeup",
+      aiSafety: "100% Clean", 
+      status: "Pending Review",
+      deliverables: "2x Reels + Before/After Story",
+      timeline: "10 Days"
+    },
+    { 
+      id: "BRF-104", 
+      brand: "PulseFit Global", 
+      title: "Pro Performance Seamless Activewear", 
+      budget: 200000, 
+      category: "Fitness & Health",
+      aiSafety: "97% Clean", 
+      status: "Pending Review",
+      deliverables: "1x Fitness Workout Reel",
+      timeline: "7 Days"
+    },
+    { 
+      id: "BRF-105", 
+      brand: "boAt Lifestyle", 
+      title: "Rockerz 550 ANC Wireless Audio", 
+      budget: 400000, 
+      category: "Technology & Gadgets",
+      aiSafety: "99% Clean", 
+      status: "Approved & Live",
+      deliverables: "3x Unboxing Reels + Giveaway",
+      timeline: "30 Days"
+    },
+    { 
+      id: "BRF-106", 
+      brand: "Lenskart India", 
+      title: "Air Flex Ultralight Eyewear Shoot", 
+      budget: 150000, 
+      category: "Fashion & Lifestyle",
+      aiSafety: "96% Clean", 
+      status: "Pending Review",
+      deliverables: "2x Style Reels",
+      timeline: "12 Days"
+    }
   ]);
 
   const handleApproveBrief = (id) => {
