@@ -1150,24 +1150,39 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
+      {/* HORIZONTAL PRESENTATION SLIDE DECK CONTAINER (Full Vertical Scrollable Viewports) */}
       <div className="pt-16 w-full flex-1 relative z-10 overflow-hidden">
         <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
           <div
             className="flex transition-transform duration-700 ease-out w-full h-full"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
           >
-            {slides.map((s) => (
+            {slides.map((s, idx) => (
               <div 
                 key={s.id} 
-                className="w-full h-full shrink-0 overflow-hidden flex flex-col justify-start"
+                className="w-full h-full shrink-0 overflow-y-auto scroll-smooth flex flex-col justify-between"
               >
-                <div className="w-full h-full overflow-y-auto">
+                <div className="w-full min-h-full pb-20">
                   {s.component}
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* FIXED BOTTOM SLIDE NAVIGATION & PROGRESS BAR */}
+      <div className="fixed bottom-4 right-6 z-50 flex items-center gap-3 bg-[#0A0A0A]/90 border border-white/20 px-4 py-2 rounded-full backdrop-blur-md shadow-2xl font-mono text-xs">
+        <span className="text-[#FF3B30] font-bold">Slide {deckIndex + 1} / {slides.length}</span>
+        <div className="w-20 h-1 bg-white/20 rounded-full overflow-hidden hidden sm:block">
+          <div 
+            className="h-full bg-[#FF3B30] transition-all duration-500" 
+            style={{ width: `${((deckIndex + 1) / slides.length) * 100}%` }}
+          />
+        </div>
+        <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+          <button onClick={prevDeck} className="p-1 hover:text-[#FF3B30] transition-colors" title="Previous Slide">&lt;</button>
+          <button onClick={nextDeck} className="p-1 hover:text-[#FF3B30] transition-colors" title="Next Slide">&gt;</button>
         </div>
       </div>
 
