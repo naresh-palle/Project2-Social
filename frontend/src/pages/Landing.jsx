@@ -114,7 +114,7 @@ function Hero() {
           transition={{ duration: 0.6, delay: 1.1 }}
         >
           <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">CR8 × STUDIO</span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">⌘ Slide 01 / 09</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">STUDIO ARCHITECTURE</span>
         </motion.div>
 
         <div className="flex flex-col justify-center gap-2 my-auto">
