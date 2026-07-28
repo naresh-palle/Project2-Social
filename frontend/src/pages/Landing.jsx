@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase, 
+  ChevronLeft, ChevronRight, DollarSign, Lock, Zap, Award, CheckCircle2, 
+  Target, BarChart3, Headphones, UserCheck 
+} from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useLenis } from "@/lib/useLenis";
@@ -220,6 +224,182 @@ function EditorialMarquee() {
   );
 }
 
+// ————— Value Propositions & Platform Advantages —————
+function ValuePropositions() {
+  const creatorPerks = [
+    {
+      icon: <DollarSign className="w-5 h-5 text-[#FF3B30]" />,
+      badge: "💰 HIGHER PAYOUTS",
+      title: "No Middleman, Maximum Earnings",
+      desc: "Direct brand deals with zero middleman cuts. Creators earn ₹87K/month average.",
+      stat: "₹87K/mo avg"
+    },
+    {
+      icon: <Lock className="w-5 h-5 text-[#34C759]" />,
+      badge: "🔒 SECURE & SAFE",
+      title: "100% Escrow Protection",
+      desc: "Campaign funds are locked before work starts. 100% of funds held safely until payout.",
+      stat: "100% Escrow"
+    },
+    {
+      icon: <Zap className="w-5 h-5 text-[#FF9500]" />,
+      badge: "⚡ FAST & EASY",
+      title: "Rapid Deal Matching",
+      desc: "Instant pitch invitations and live campaign opportunities matched within 2 hours.",
+      stat: "< 2 hours"
+    },
+    {
+      icon: <Award className="w-5 h-5 text-[#AF52DE]" />,
+      badge: "🌟 GROW YOUR BRAND",
+      title: "Tier-1 Ambassadorships",
+      desc: "Access luxury brand deals and high-value retainers. Top creators earn ₹2L+/month.",
+      stat: "₹2L+/mo top"
+    }
+  ];
+
+  const brandPerks = [
+    {
+      icon: <UserCheck className="w-5 h-5 text-[#007AFF]" />,
+      badge: "✓ VERIFIED CREATORS",
+      title: "Real Followers & High ER",
+      desc: "Strictly credentialed accounts. Real follower audits, real engagement, zero bot inflation.",
+      stat: "100% Verified"
+    },
+    {
+      icon: <Target className="w-5 h-5 text-[#FF3B30]" />,
+      badge: "🎯 PERFECT MATCHES",
+      title: "AI Precision & Niche Fit",
+      desc: "AI matches creators relevant to your exact audience aesthetic, not just vanity follower numbers.",
+      stat: "AI Matched"
+    },
+    {
+      icon: <BarChart3 className="w-5 h-5 text-[#34C759]" />,
+      badge: "📊 RESULTS-DRIVEN",
+      title: "Live ROI & Sales Metrics",
+      desc: "Track conversion metrics, audience reach, link clicks, and campaign performance in real time.",
+      stat: "Measurable ROI"
+    },
+    {
+      icon: <Headphones className="w-5 h-5 text-[#FF9500]" />,
+      badge: "💼 SUPPORT & SETUP",
+      title: "White-Glove Escrow Care",
+      desc: "Dedicated account managers handle setup, compliance, and dispute resolution with <2hr response.",
+      stat: "< 2hr Response"
+    }
+  ];
+
+  return (
+    <section id="advantages" className="relative text-[#F4F4F0] py-14 md:py-16 overflow-hidden bg-[#0A0A0A]">
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" style={{ background: "radial-gradient(circle, #FF3B30 0%, transparent 70%)" }} />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" style={{ background: "radial-gradient(circle, #007AFF 0%, transparent 70%)" }} />
+
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="hairline-b pb-5 mb-10 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                § Platform Advantage
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
+                Built for <span className="italic text-[#FF3B30]">Creators</span> &amp; <span className="italic text-[#007AFF]">Brands<span className="tick text-[#F4F4F0]">.</span></span>
+              </h2>
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
+              Guaranteed Payouts · Verified Accounts · Instant Matches
+            </span>
+          </div>
+        </FadeUp>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Creator Column */}
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden flex flex-col justify-between" data-testid="creator-advantages">
+            <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30]/15 border-b border-l border-[#FF3B30]/30 font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">
+              Creators
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FF3B30] animate-pulse" />
+                <h3 className="font-editorial text-2xl md:text-3xl font-bold text-white">
+                  For Creators
+                </h3>
+              </div>
+              <div className="space-y-3.5">
+                {creatorPerks.map((p, i) => (
+                  <div key={i} className="p-3.5 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/40 transition-all rounded-xs flex items-start gap-3.5">
+                    <div className="p-2 bg-white/5 border border-white/10 rounded-xs shrink-0 mt-0.5">
+                      {p.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">
+                          {p.badge}
+                        </span>
+                        <span className="font-mono text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-white rounded-xs">
+                          {p.stat}
+                        </span>
+                      </div>
+                      <h4 className="font-editorial text-base text-white font-semibold">{p.title}</h4>
+                      <p className="font-mono text-xs text-white/60 mt-0.5 leading-relaxed">{p.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/50">Avg Creator Payout: ₹87K/mo</span>
+              <Link to="/register/influencer" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2">
+                Join as Creator <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Brand Column */}
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden flex flex-col justify-between" data-testid="brand-advantages">
+            <div className="absolute top-0 right-0 px-4 py-1 bg-[#007AFF]/15 border-b border-l border-[#007AFF]/30 font-mono text-[10px] tracking-[0.25em] uppercase text-[#007AFF] font-bold">
+              Brands
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#007AFF] animate-pulse" />
+                <h3 className="font-editorial text-2xl md:text-3xl font-bold text-white">
+                  For Brands
+                </h3>
+              </div>
+              <div className="space-y-3.5">
+                {brandPerks.map((p, i) => (
+                  <div key={i} className="p-3.5 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/40 transition-all rounded-xs flex items-start gap-3.5">
+                    <div className="p-2 bg-white/5 border border-white/10 rounded-xs shrink-0 mt-0.5">
+                      {p.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold">
+                          {p.badge}
+                        </span>
+                        <span className="font-mono text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#007AFF]/10 border border-[#007AFF]/20 text-white rounded-xs">
+                          {p.stat}
+                        </span>
+                      </div>
+                      <h4 className="font-editorial text-base text-white font-semibold">{p.title}</h4>
+                      <p className="font-mono text-xs text-white/60 mt-0.5 leading-relaxed">{p.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/50">Dispute Support: &lt; 2hr Response</span>
+              <Link to="/register/owner" className="btn-solid py-2 px-4 text-xs bg-[#007AFF] hover:bg-[#0062cc] text-white flex items-center gap-2">
+                Post Brand Brief <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ————— Manifesto (Side-by-Side Interactive Slider with < > Buttons) —————
 const CHAPTERS = [
   {
@@ -311,19 +491,29 @@ function SplitView() {
   const doors = [
     {
       id: "owner",
-      tag: "01 — For the owners",
-      title: "Post your brief. Meet the mavericks.",
-      points: ["Brief in under 3 minutes", "Receive curated applications", "Contract, deliver, ship"],
-      ctaText: "I'm an owner",
+      tag: "01 — For the brands",
+      title: "Post your brief. Target real ROI.",
+      points: [
+        "✓ VERIFIED CREATORS — Real followers, real engagement",
+        "🎯 PERFECT MATCHES — AI finds relevant creators (not just big)",
+        "📊 RESULTS-DRIVEN — ROI tracking, measurable metrics",
+        "💼 SUPPORT & SETUP — Handholding, dispute care, <2hr response"
+      ],
+      ctaText: "Post Brand Brief",
       link: "/register/owner",
       bgClass: "bg-[#0D0D0D] border-white/10 text-white"
     },
     {
       id: "influencer",
       tag: "02 — For the creators",
-      title: "Build a body of work worth signing.",
-      points: ["Curated invites only", "Pitch on your terms", "Get paid, keep credit"],
-      ctaText: "I'm a creator",
+      title: "Direct deals. Escrow protected.",
+      points: [
+        "💰 HIGHER PAYOUTS — No middleman, earn ₹87K/month avg",
+        "🔒 SECURE & SAFE — Escrow protection, 100% funds held",
+        "⚡ FAST & EASY — Opportunities within 2 hours",
+        "🌟 GROW YOUR BRAND — Top creators earn ₹2L+/month"
+      ],
+      ctaText: "Join as Creator",
       link: "/register/influencer",
       bgClass: "bg-[#F4F4F0] text-[#0A0A0A] border-white/20"
     }
@@ -790,6 +980,7 @@ export default function Landing() {
 
   const slides = [
     { id: "hero", component: <><Hero /><EditorialMarquee /></> },
+    { id: "advantages", component: <ValuePropositions /> },
     { id: "manifesto", component: <Manifesto /> },
     { id: "work", component: <SplitView /> },
     { id: "portfolio", component: <FeaturedGrid /> },
