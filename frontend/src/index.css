@@ -95,7 +95,7 @@ a, button { cursor: pointer; }
 .paper .hairline-l { border-left-color: var(--hairline-dark); }
 
 /* Mask reveal for hero */
-.mask-line { display: block; overflow: hidden; }
+.mask-line { display: block; overflow: hidden; padding-bottom: 0.22em; margin-bottom: -0.18em; }
 
 /* Kinetic underline (rest position) */
 .kinetic-underline {

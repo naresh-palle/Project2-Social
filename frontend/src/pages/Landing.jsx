@@ -81,24 +81,25 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
       </motion.div>
 
-      {/* 3. Floating Glow Orbs */}
+      {/* 3. Vibrant Studio Glow Orbs & Multi-Color Stage Lighting */}
       {[
-        { color: "#FF3B30", x: "8%",  y: "30%", size: 280, delay: 1.2 },
-        { color: "#7000FF", x: "20%", y: "60%", size: 200, delay: 1.6 },
-        { color: "#007AFF", x: "5%",  y: "80%", size: 150, delay: 2.0 },
+        { color: "#FF3B30", x: "5%",  y: "20%", size: 360, delay: 0.5 },
+        { color: "#7000FF", x: "45%", y: "15%", size: 400, delay: 1.0 },
+        { color: "#007AFF", x: "70%", y: "50%", size: 320, delay: 1.5 },
+        { color: "#FF9500", x: "25%", y: "70%", size: 280, delay: 2.0 },
       ].map((orb, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full pointer-events-none z-10"
           style={{
             left: orb.x, top: orb.y,
             width: orb.size, height: orb.size,
             background: orb.color,
-            filter: "blur(80px)",
+            filter: "blur(90px)",
             opacity: 0,
           }}
-          animate={{ opacity: [0, 0.12, 0.06, 0.12] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
+          animate={{ opacity: [0, 0.35, 0.20, 0.35] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
         />
       ))}
 
@@ -119,8 +120,8 @@ function Hero() {
 
         <div className="flex flex-col justify-center gap-2 my-auto">
           {["The Bridge Between", "Brands & Influence."].map((line, i) => (
-            <MaskLine key={line} delay={1.3 + i * 0.18} className="overflow-hidden">
-              <span className={`block font-editorial leading-[1.0] tracking-tighter ${
+            <MaskLine key={line} delay={1.3 + i * 0.18}>
+              <span className={`block font-editorial leading-[1.18] tracking-tighter pb-1 ${
                 i === 1 ? "italic text-[#FF3B30] font-normal" : "text-[#F4F4F0] font-medium"
               }`}
                 style={{ fontSize: "clamp(30px, 4.5vw, 64px)" }}
