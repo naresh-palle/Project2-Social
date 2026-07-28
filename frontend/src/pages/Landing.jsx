@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { 
   ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase, 
   ChevronLeft, ChevronRight, DollarSign, Lock, Zap, Award, CheckCircle2, 
-  Target, BarChart3, Headphones, UserCheck 
+  Target, BarChart3, Headphones, UserCheck, Star, Clock, Check, HelpCircle, Mail 
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -43,16 +43,17 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
   );
 }
 
-// ————— Hero —————
+/* =========================================================================
+   SLIDE 01: HERO (Premium + Conversion)
+   ========================================================================= */
 function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0A0A0A] flex flex-col">
-
-      {/* ── 1. Cinematic curtain lift: slides UP to reveal the scene ── */}
+    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0A0A0A] flex flex-col justify-between" data-testid="slide-hero">
+      {/* 1. Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
         style={{ background: "#0A0A0A" }}
@@ -61,7 +62,7 @@ function Hero() {
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* ── 2. Full-width new model background ── */}
+      {/* 2. Full-width background image */}
       <motion.div
         style={{ y: yImg }}
         className="absolute inset-0 z-0"
@@ -71,22 +72,20 @@ function Hero() {
       >
         <img
           src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
-          alt="CR8 Fashion Creator Models"
+          alt="CR8 Creator Models"
           className="w-full h-full object-cover object-top"
         />
-        {/* Dark overlay so left text is fully readable */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(90deg, #0A0A0A 0%, #0A0A0A 32%, rgba(10,10,10,0.75) 50%, rgba(10,10,10,0.15) 100%)"
+          background: "linear-gradient(90deg, #0A0A0A 0%, #0A0A0A 38%, rgba(10,10,10,0.78) 55%, rgba(10,10,10,0.25) 100%)"
         }} />
-        {/* Bottom fade */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 40%)" }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
       </motion.div>
 
-      {/* ── 3. Floating glow orbs ── */}
+      {/* 3. Floating Glow Orbs */}
       {[
         { color: "#FF3B30", x: "8%",  y: "30%", size: 280, delay: 1.2 },
         { color: "#7000FF", x: "20%", y: "60%", size: 200, delay: 1.6 },
-        { color: "#FF9500", x: "5%",  y: "80%", size: 150, delay: 2.0 },
+        { color: "#007AFF", x: "5%",  y: "80%", size: 150, delay: 2.0 },
       ].map((orb, i) => (
         <motion.div
           key={i}
@@ -103,99 +102,92 @@ function Hero() {
         />
       ))}
 
-      {/* ── 4. Left panel: text locked to left 44% — NO OVERLAP ── */}
-      <div className="relative z-10 flex flex-col h-full px-8 md:px-14 pt-[72px] pb-5"
-        style={{ width: "44%", minWidth: "300px", maxWidth: "580px" }}
+      {/* 4. Left content area */}
+      <div className="relative z-10 flex flex-col h-full px-8 md:px-14 pt-[76px] pb-6 justify-between"
+        style={{ width: "48%", minWidth: "320px", maxWidth: "620px" }}
       >
-        {/* Top meta bar */}
         <motion.div
-          className="flex items-center justify-between pb-4 mb-auto"
+          className="flex items-center justify-between pb-3"
           style={{ borderBottom: "1px solid rgba(244,244,240,0.10)" }}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.1 }}
         >
-          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">◎ Vol. 08 · Winter Edition</span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">CR8 Studio</span>
+          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">CR8 × STUDIO</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">⌘ Slide 01 / 10</span>
         </motion.div>
 
-        {/* Spacer */}
-        <div className="flex-1 flex flex-col justify-center gap-2 mt-6">
-
-          {/* Headline — each word animates in */}
-          {["The bridge", "between owners", "& influence."].map((line, i) => (
+        <div className="flex flex-col justify-center gap-2 my-auto">
+          {["The Bridge Between", "Brands & Influence."].map((line, i) => (
             <MaskLine key={line} delay={1.3 + i * 0.18} className="overflow-hidden">
-              <span className={`block font-editorial leading-[0.98] tracking-tighter ${
-                i === 1
-                  ? "italic text-[#FF3B30] font-normal"
-                  : "text-[#F4F4F0] font-medium"
+              <span className={`block font-editorial leading-[1.0] tracking-tighter ${
+                i === 1 ? "italic text-[#FF3B30] font-normal" : "text-[#F4F4F0] font-medium"
               }`}
-                style={{ fontSize: "clamp(28px, 4.4vw, 68px)" }}
+                style={{ fontSize: "clamp(30px, 4.5vw, 64px)" }}
               >
-                {line}{i === 2 && <span className="tick" />}
+                {line}{i === 1 && <span className="tick text-[#F4F4F0]" />}
               </span>
             </MaskLine>
           ))}
 
-          {/* Subtext */}
           <motion.p
-            className="mt-5 text-[#F4F4F0]/60 text-[13px] leading-[1.7] max-w-[320px]"
+            className="mt-4 text-[#F4F4F0]/70 text-[14px] leading-[1.65] max-w-[420px]"
             initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.8 }}
+          >
+            Connect with creators who move audiences. <span className="text-white font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
+          </motion.p>
+
+          {/* Color-Coded Dual CTAs (48px height) */}
+          <motion.div
+            className="flex flex-wrap items-center gap-3 mt-6"
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 2.0 }}
           >
-            CR8 connects elite brands with fully verified influencers —
-            escrow-protected, AI-audited, results-driven.
-          </motion.p>
+            <Link
+              to="/register/owner"
+              data-testid="hero-cta-brand"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF3B30] hover:bg-[#e03126] transition-all duration-300 shadow-[0_0_24px_rgba(255,59,48,0.4)] rounded-xs font-bold"
+            >
+              I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/register/influencer"
+              data-testid="hero-cta-creator"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#007AFF] hover:bg-[#0062cc] transition-all duration-300 shadow-[0_0_24px_rgba(0,122,255,0.4)] rounded-xs font-bold"
+            >
+              I&apos;m a Creator <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
 
-          {/* Animated divider */}
-          <motion.div
-            className="h-px bg-gradient-to-r from-[#FF3B30] via-[#7000FF] to-transparent mt-4"
-            initial={{ scaleX: 0, originX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.9, ease: "easeOut", delay: 2.1 }}
-          />
+          <motion.p
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#F4F4F0]/50 mt-3 flex items-center gap-1.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.2 }}
+          >
+            <Clock className="w-3 h-3 text-[#FF3B30]" /> ⏱️ Takes 2 minutes. No credit card required.
+          </motion.p>
         </div>
 
-        {/* CTA Row — pinned to bottom */}
-        <motion.div
-          className="flex flex-wrap items-center gap-3 pt-4"
-          style={{ borderTop: "1px solid rgba(244,244,240,0.10)" }}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 2.2 }}
-        >
-          <Link
-            to="/register"
-            data-testid="hero-cta-primary"
-            className="inline-flex items-center gap-2 px-6 py-3 font-mono text-[11px] tracking-[0.25em] uppercase text-white bg-[#FF3B30] hover:bg-[#d62e25] transition-all duration-300 shadow-[0_0_20px_rgba(255,59,48,0.4)] hover:shadow-[0_0_32px_rgba(255,59,48,0.7)]"
-          >
-            Enter the studio <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-          <Link
-            to="/marketplace"
-            data-testid="hero-cta-secondary"
-            className="inline-flex items-center gap-2 px-5 py-3 font-mono text-[11px] tracking-[0.25em] uppercase text-[#F4F4F0]/70 border border-white/15 hover:border-[#FF3B30]/60 hover:text-white transition-all duration-300"
-          >
-            Browse Creators
-          </Link>
-          <motion.span
-            className="ml-auto font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30]/60 hidden lg:block"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2.5, repeat: Infinity }}
-          >→ Explore</motion.span>
-        </motion.div>
+        <div className="pt-3 border-t border-white/10">
+          <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#FF3B30]/70 font-bold">
+            ◎ Use floating arrows (&lt; &gt;) or keyboard arrows to navigate slides
+          </span>
+        </div>
       </div>
     </section>
   );
 }
 
-// ————— New Ticker Strip (replaces old white marquee) —————
+{/* Slide 1 Trust Signals Bar */}
 function EditorialMarquee() {
   const items = [
-    "The Owners", "✦", "The Influencers", "✦",
-    "CR8 Studio", "✦", "Signal · Not Noise", "✦",
-    "Verified Creators", "✦", "Elite Brands", "✦",
+    "✓ 50K+ Verified Creators", "✦", "✓ 500+ Top Brands", "✦",
+    "✓ ₹2Cr+ Value Delivered", "✦", "✓ 100% Escrow Protected", "✦",
+    "✓ AI Content Audited", "✦", "✓ Direct Relationships", "✦"
   ];
   return (
     <div
@@ -210,10 +202,10 @@ function EditorialMarquee() {
         {[...items, ...items].map((item, i) => (
           <span
             key={i}
-            className={`font-mono tracking-[0.32em] uppercase px-6 ${
+            className={`font-mono tracking-[0.28em] uppercase px-6 ${
               item === "✦"
                 ? "text-[#FF3B30] text-xs"
-                : "text-[#F4F4F0]/50 text-[11px]"
+                : "text-[#F4F4F0]/80 text-[11px] font-bold"
             }`}
           >
             {item}
@@ -224,174 +216,119 @@ function EditorialMarquee() {
   );
 }
 
-// ————— Value Propositions & Platform Advantages —————
-function ValuePropositions() {
-  const creatorPerks = [
-    {
-      icon: <DollarSign className="w-5 h-5 text-[#FF3B30]" />,
-      badge: "💰 HIGHER PAYOUTS",
-      title: "No Middleman, Maximum Earnings",
-      desc: "Direct brand deals with zero middleman cuts. Creators earn ₹87K/month average.",
-      stat: "₹87K/mo avg"
-    },
-    {
-      icon: <Lock className="w-5 h-5 text-[#34C759]" />,
-      badge: "🔒 SECURE & SAFE",
-      title: "100% Escrow Protection",
-      desc: "Campaign funds are locked before work starts. 100% of funds held safely until payout.",
-      stat: "100% Escrow"
-    },
-    {
-      icon: <Zap className="w-5 h-5 text-[#FF9500]" />,
-      badge: "⚡ FAST & EASY",
-      title: "Rapid Deal Matching",
-      desc: "Instant pitch invitations and live campaign opportunities matched within 2 hours.",
-      stat: "< 2 hours"
-    },
-    {
-      icon: <Award className="w-5 h-5 text-[#AF52DE]" />,
-      badge: "🌟 GROW YOUR BRAND",
-      title: "Tier-1 Ambassadorships",
-      desc: "Access luxury brand deals and high-value retainers. Top creators earn ₹2L+/month.",
-      stat: "₹2L+/mo top"
-    }
-  ];
-
-  const brandPerks = [
-    {
-      icon: <UserCheck className="w-5 h-5 text-[#007AFF]" />,
-      badge: "✓ VERIFIED CREATORS",
-      title: "Real Followers & High ER",
-      desc: "Strictly credentialed accounts. Real follower audits, real engagement, zero bot inflation.",
-      stat: "100% Verified"
-    },
-    {
-      icon: <Target className="w-5 h-5 text-[#FF3B30]" />,
-      badge: "🎯 PERFECT MATCHES",
-      title: "AI Precision & Niche Fit",
-      desc: "AI matches creators relevant to your exact audience aesthetic, not just vanity follower numbers.",
-      stat: "AI Matched"
-    },
-    {
-      icon: <BarChart3 className="w-5 h-5 text-[#34C759]" />,
-      badge: "📊 RESULTS-DRIVEN",
-      title: "Live ROI & Sales Metrics",
-      desc: "Track conversion metrics, audience reach, link clicks, and campaign performance in real time.",
-      stat: "Measurable ROI"
-    },
-    {
-      icon: <Headphones className="w-5 h-5 text-[#FF9500]" />,
-      badge: "💼 SUPPORT & SETUP",
-      title: "White-Glove Escrow Care",
-      desc: "Dedicated account managers handle setup, compliance, and dispute resolution with <2hr response.",
-      stat: "< 2hr Response"
-    }
-  ];
-
+/* =========================================================================
+   SLIDE 02: QUICK VALUE (Critical for Conversion)
+   ========================================================================= */
+function QuickValue() {
   return (
-    <section id="advantages" className="relative text-[#F4F4F0] py-14 md:py-16 overflow-hidden bg-[#0A0A0A]">
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" style={{ background: "radial-gradient(circle, #FF3B30 0%, transparent 70%)" }} />
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" style={{ background: "radial-gradient(circle, #007AFF 0%, transparent 70%)" }} />
-
+    <section id="quick-value" className="relative text-[#F4F4F0] py-14 md:py-16 overflow-hidden bg-[#0A0A0A]" data-testid="slide-quick-value">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="hairline-b pb-5 mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
-                § Platform Advantage
+                § Slide 02 · Quick Value
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
-                Built for <span className="italic text-[#FF3B30]">Creators</span> &amp; <span className="italic text-[#007AFF]">Brands<span className="tick text-[#F4F4F0]">.</span></span>
+                WHY CREATORS &amp; BRANDS <span className="italic text-[#FF3B30]">CHOOSE CR8<span className="tick text-[#F4F4F0]">.</span></span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
-              Guaranteed Payouts · Verified Accounts · Instant Matches
+              Immediate Tangible Benefits · Zero Friction
             </span>
           </div>
         </FadeUp>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Creator Column */}
-          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden flex flex-col justify-between" data-testid="creator-advantages">
-            <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30]/15 border-b border-l border-[#FF3B30]/30 font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">
-              Creators
+          {/* FOR CREATORS */}
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#007AFF] font-bold flex items-center gap-2">
+                <UserCheck className="w-4 h-4" /> FOR CREATORS:
+              </span>
+              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs font-bold">
+                100% Free Signup
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#FF3B30] animate-pulse" />
-                <h3 className="font-editorial text-2xl md:text-3xl font-bold text-white">
-                  For Creators
-                </h3>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold mb-1">
+                  💰 Higher Payouts
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">No middleman = more money in your pocket</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Direct brand relationships with zero agency cuts. Creators earn ₹87K/month average.</p>
               </div>
-              <div className="space-y-3.5">
-                {creatorPerks.map((p, i) => (
-                  <div key={i} className="p-3.5 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/40 transition-all rounded-xs flex items-start gap-3.5">
-                    <div className="p-2 bg-white/5 border border-white/10 rounded-xs shrink-0 mt-0.5">
-                      {p.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">
-                          {p.badge}
-                        </span>
-                        <span className="font-mono text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-white rounded-xs">
-                          {p.stat}
-                        </span>
-                      </div>
-                      <h4 className="font-editorial text-base text-white font-semibold">{p.title}</h4>
-                      <p className="font-mono text-xs text-white/60 mt-0.5 leading-relaxed">{p.desc}</p>
-                    </div>
-                  </div>
-                ))}
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#34C759] font-bold mb-1">
+                  🔒 Secure &amp; Safe
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Escrow protection gets you paid fairly</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Campaign budget is locked before you post. Payout releases immediately upon milestone approval.</p>
               </div>
-            </div>
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/50">Avg Creator Payout: ₹87K/mo</span>
-              <Link to="/register/influencer" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2">
-                Join as Creator <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF9500] font-bold mb-1">
+                  ⚡ Fast &amp; Easy
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Get opportunities within hours</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Receive direct campaign invites and pitch active briefs matched specifically to your niche within 2 hours.</p>
+              </div>
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#AF52DE] font-bold mb-1">
+                  🌟 Grow Your Brand
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Build portfolio, get recurring clients</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Top creators earn ₹2L+/month with long-term brand retainers and direct repeat briefs.</p>
+              </div>
             </div>
           </div>
 
-          {/* Brand Column */}
-          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative overflow-hidden flex flex-col justify-between" data-testid="brand-advantages">
-            <div className="absolute top-0 right-0 px-4 py-1 bg-[#007AFF]/15 border-b border-l border-[#007AFF]/30 font-mono text-[10px] tracking-[0.25em] uppercase text-[#007AFF] font-bold">
-              Brands
+          {/* FOR BRANDS */}
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Building2 className="w-4 h-4" /> FOR BRANDS:
+              </span>
+              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#FF3B30] bg-[#FF3B30]/10 px-2.5 py-1 border border-[#FF3B30]/30 rounded-xs font-bold">
+                Post Brief in 3 Mins
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#007AFF] animate-pulse" />
-                <h3 className="font-editorial text-2xl md:text-3xl font-bold text-white">
-                  For Brands
-                </h3>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold mb-1">
+                  ✓ Verified Creators
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Real followers, real engagement</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Strict credential checks, bot detection, and verified follower authenticity before any creator joins your brief.</p>
               </div>
-              <div className="space-y-3.5">
-                {brandPerks.map((p, i) => (
-                  <div key={i} className="p-3.5 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/40 transition-all rounded-xs flex items-start gap-3.5">
-                    <div className="p-2 bg-white/5 border border-white/10 rounded-xs shrink-0 mt-0.5">
-                      {p.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold">
-                          {p.badge}
-                        </span>
-                        <span className="font-mono text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#007AFF]/10 border border-[#007AFF]/20 text-white rounded-xs">
-                          {p.stat}
-                        </span>
-                      </div>
-                      <h4 className="font-editorial text-base text-white font-semibold">{p.title}</h4>
-                      <p className="font-mono text-xs text-white/60 mt-0.5 leading-relaxed">{p.desc}</p>
-                    </div>
-                  </div>
-                ))}
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold mb-1">
+                  🎯 Perfect Matches
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">AI finds creators that actually fit</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">AI analyzes audience alignment, aesthetic style, and niche intent — not just vanity follower numbers.</p>
               </div>
-            </div>
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/50">Dispute Support: &lt; 2hr Response</span>
-              <Link to="/register/owner" className="btn-solid py-2 px-4 text-xs bg-[#007AFF] hover:bg-[#0062cc] text-white flex items-center gap-2">
-                Post Brand Brief <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#34C759] font-bold mb-1">
+                  📊 Results-Driven
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Proven ROI on every campaign</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">Real-time conversion tracking, click-through metrics, reach audits, and detailed sales performance reports.</p>
+              </div>
+
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF3B30]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF9500] font-bold mb-1">
+                  💼 Support &amp; Setup
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">Handholding from start to finish</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">We handle contracts, escrow, compliance audits, and dispute resolution with &lt;2hr support response.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -400,70 +337,56 @@ function ValuePropositions() {
   );
 }
 
-// ————— Manifesto (Side-by-Side Interactive Slider with < > Buttons) —————
-const CHAPTERS = [
+/* =========================================================================
+   SLIDE 03: STUDIO MANIFESTO (With → Means: benefit translation)
+   ========================================================================= */
+const CHAPTERS_WITH_MEANS = [
   {
     n: "01",
     title: "A studio, not a marketplace.",
-    body:
-      "CR8 is curated. Every owner is briefed, every creator is credentialed. No open bidding wars, no race to the bottom — only introductions that make sense.",
+    body: "CR8 is curated. Every brand is briefed, every creator is credentialed. No open bidding wars, no race to the bottom.",
+    means: "Only serious brands. Only serious creators. Higher quality collaborations."
   },
   {
     n: "02",
     title: "Signal beats scale.",
-    body:
-      "We do not chase follower counts. A creator with 40,000 devoted readers can move more product than a stadium of tourists. We measure attention, not impressions.",
+    body: "We measure attention, not impressions. A creator with 40,000 devoted followers moves more product than a stadium of tourists.",
+    means: "Nano-influencers with high engagement are valued over vanity metrics."
   },
   {
     n: "03",
     title: "Craft is contagious.",
-    body:
-      "When owners fund culture instead of clout, the work gets better on both sides. CR8 exists to keep both parties honest — and slightly obsessive.",
+    body: "When brands fund culture instead of clout, work gets better on both sides. CR8 exists to keep both parties honest and slightly obsessive.",
+    means: "Higher quality content. Better brand storytelling. Real creative partnerships."
   },
   {
     n: "04",
     title: "One handshake, then work.",
-    body:
-      "Contracts, briefs, deliverables, timelines — all handled inside the studio. Meet once. Then get on with it.",
-  },
+    body: "Contracts, briefs, deliverables, timelines — all handled inside the studio. Meet once. Then get on with it.",
+    means: "No back-and-forth. No middleman friction. Direct relationship, total clarity."
+  }
 ];
 
 function Manifesto() {
   return (
     <section id="manifesto" className="relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden" style={{
-      background: 'linear-gradient(135deg, #0D0221 0%, #0A0A1A 30%, #110D2E 60%, #0D0221 100%)',
-      animation: 'gradShift1 10s ease-in-out infinite alternate'
-    }}>
-      <style>{`
-        @keyframes gradShift1 {
-          0%   { background-position: 0% 0%; }
-          100% { background-position: 100% 100%; }
-        }
-      `}</style>
-      {/* Ambient glow */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(112,0,255,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,59,48,0.10) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      background: 'linear-gradient(135deg, #0D0221 0%, #0A0A1A 30%, #110D2E 60%, #0D0221 100%)'
+    }} data-testid="slide-manifesto">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="pb-6 mb-10" style={{ borderBottom: '1px solid rgba(244,244,240,0.12)' }}>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#F4F4F0]/50">
-              § Studio Manifesto
+          <div className="pb-6 mb-10 border-b border-white/10">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+              § Slide 03 · Studio Manifesto
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
-              Four Chapters <span className="italic text-[#FF3B30]">of Intent<span className="tick text-[#F4F4F0]">.</span></span>
+              Four Principles <span className="italic text-[#FF3B30]">of Intent<span className="tick text-[#F4F4F0]">.</span></span>
             </h2>
           </div>
         </FadeUp>
 
-        {/* Clean Static Grid for Chapters without height clipping or text overlap */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-          {CHAPTERS.map((c) => (
-            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between min-h-[200px] hover:scale-[1.01] transition-transform duration-300" style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.10)',
-              backdropFilter: 'blur(12px)',
-              borderRadius: '2px'
-            }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {CHAPTERS_WITH_MEANS.map((c) => (
+            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-white/[0.04] border border-white/10 backdrop-blur-md rounded-xs hover:border-[#FF3B30]/40 transition-all">
               <div>
                 <div className="text-4xl md:text-5xl font-editorial leading-none mb-3">
                   {c.n[0]}<span className="tick text-[#FF3B30]">{c.n[1]}</span>
@@ -471,12 +394,14 @@ function Manifesto() {
                 <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#F4F4F0] font-bold">
                   {c.title}
                 </h3>
-                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#F4F4F0]/60">
+                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#F4F4F0]/70">
                   {c.body}
                 </p>
               </div>
-              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30]/60 border-t pt-3 mt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <span>Chapter {c.n} / 04</span>
+
+              <div className="mt-5 pt-3 border-t border-white/10 font-mono text-xs text-[#FF3B30] font-bold flex items-start gap-2 bg-[#FF3B30]/5 p-3 rounded-xs">
+                <span>→ Means:</span>
+                <span className="text-white/90 font-normal">{c.means}</span>
               </div>
             </div>
           ))}
@@ -486,91 +411,220 @@ function Manifesto() {
   );
 }
 
-// ————— Split (Owners vs Agents vs Influencers Side-by-Side Slider) —————
-function SplitView() {
-  const doors = [
+/* =========================================================================
+   SLIDE 04: HOW IT WORKS (Clear Parallel Journey with Timelines)
+   ========================================================================= */
+function HowItWorks() {
+  const steps = [
     {
-      id: "owner",
-      tag: "01 — For the brands",
-      title: "Post your brief. Target real ROI.",
-      points: [
-        "✓ VERIFIED CREATORS — Real followers, real engagement",
-        "🎯 PERFECT MATCHES — AI finds relevant creators (not just big)",
-        "📊 RESULTS-DRIVEN — ROI tracking, measurable metrics",
-        "💼 SUPPORT & SETUP — Handholding, dispute care, <2hr response"
-      ],
-      ctaText: "Post Brand Brief",
-      link: "/register/owner",
-      bgClass: "bg-[#0D0D0D] border-white/10 text-white"
+      num: "01",
+      brandTitle: "POST YOUR BRIEF",
+      brandTime: "3 minutes",
+      brandDesc: "Specify campaign goals, required deliverables, budget range, and timeline.",
+      creatorTitle: "BUILD YOUR PROFILE",
+      creatorTime: "2 minutes",
+      creatorDesc: "Link Instagram/YouTube, set rates, select category & niche. Verified in seconds."
     },
     {
-      id: "influencer",
-      tag: "02 — For the creators",
-      title: "Direct deals. Escrow protected.",
-      points: [
-        "💰 HIGHER PAYOUTS — No middleman, earn ₹87K/month avg",
-        "🔒 SECURE & SAFE — Escrow protection, 100% funds held",
-        "⚡ FAST & EASY — Opportunities within 2 hours",
-        "🌟 GROW YOUR BRAND — Top creators earn ₹2L+/month"
-      ],
-      ctaText: "Join as Creator",
-      link: "/register/influencer",
-      bgClass: "bg-[#F4F4F0] text-[#0A0A0A] border-white/20"
+      num: "02",
+      brandTitle: "MEET CURATED CREATORS",
+      brandTime: "1 day",
+      brandDesc: "AI matches 20+ perfectly suited creators. Review portfolios, ER, and past work.",
+      creatorTitle: "BROWSE & APPLY",
+      creatorTime: "Immediate",
+      creatorDesc: "Matching campaigns appear. Send direct pitch or wait for brand invitations."
+    },
+    {
+      num: "03",
+      brandTitle: "HIRE & AGREE",
+      brandTime: "1 hour",
+      brandDesc: "Contract, terms, & approvals handled inside studio. Pay via secure escrow.",
+      creatorTitle: "CREATE & SHIP",
+      creatorTime: "Deliverables",
+      creatorDesc: "Drafts submitted via studio. Brand reviews, approves, or requests quick revisions."
+    },
+    {
+      num: "04",
+      brandTitle: "REVIEW & RELEASE PAYMENT",
+      brandTime: "1 week",
+      brandDesc: "Receive final deliverables, approve, and release escrow payment to creator.",
+      creatorTitle: "GET PAID + REPEAT",
+      creatorTime: "Instant",
+      creatorDesc: "Escrow funds released to wallet when brand approves. Build recurring income."
     }
   ];
 
   return (
-    <section id="work" className="relative text-[#F4F4F0] py-16 overflow-hidden" style={{
-      background: 'linear-gradient(160deg, #0A0A0A 0%, #1a0505 40%, #0f0000 70%, #0A0A0A 100%)'
-    }}>
-      {/* Animated red glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div style={{ position:'absolute', top:'20%', left:'50%', width:'600px', height:'600px', background:'radial-gradient(circle, rgba(255,59,48,0.08) 0%, transparent 65%)', filter:'blur(60px)', transform:'translateX(-50%)', animation:'pulseGlow 6s ease-in-out infinite alternate' }} />
-      </div>
-      <style>{`@keyframes pulseGlow { 0%{opacity:0.5} 100%{opacity:1} }`}</style>
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
+    <section id="how-it-works" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-how-it-works">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="hairline-b pb-6 mb-12">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              § How It Works
+          <div className="pb-6 mb-10 border-b border-white/10 flex items-end justify-between">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                § Slide 04 · Journey
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+                HOW IT WORKS <span className="italic">· Two Doors · One Studio<span className="tick">.</span></span>
+              </h2>
+            </div>
+            <div className="hidden md:flex gap-4 font-mono text-[11px] tracking-[0.2em] uppercase font-bold">
+              <span className="text-[#FF3B30]">● For Brand Owners</span>
+              <span className="text-[#007AFF]">● For Creators</span>
+            </div>
+          </div>
+        </FadeUp>
+
+        <div className="space-y-4">
+          {steps.map((st) => (
+            <div key={st.num} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#121212] border border-white/15 p-6 rounded-xs">
+              {/* Brand Side */}
+              <div className="border-l-2 border-[#FF3B30] pl-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">
+                    BRAND STEP {st.num}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#FF3B30]/10 text-white rounded-xs border border-[#FF3B30]/30 font-bold">
+                    ⏱️ {st.brandTime}
+                  </span>
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">{st.brandTitle}</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">{st.brandDesc}</p>
+              </div>
+
+              {/* Creator Side */}
+              <div className="border-l-2 border-[#007AFF] pl-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold">
+                    CREATOR STEP {st.num}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#007AFF]/10 text-white rounded-xs border border-[#007AFF]/30 font-bold">
+                    ⏱️ {st.creatorTime}
+                  </span>
+                </div>
+                <h4 className="font-editorial text-xl font-bold text-white">{st.creatorTitle}</h4>
+                <p className="font-mono text-xs text-white/60 mt-1">{st.creatorDesc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTAs at bottom */}
+        <div className="mt-8 p-6 bg-[#121212] border border-white/15 rounded-xs flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="font-mono text-xs text-white/70 space-y-1">
+            <div className="flex items-center gap-2 text-white font-bold">
+              <CheckCircle2 className="w-4 h-4 text-[#34C759]" /> Contracts &amp; Deliverables Handled Inside Studio
+            </div>
+            <p className="text-[11px] opacity-60">Escrow-protected for both sides · Timeline from brief start to payment: 2–3 weeks</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link to="/register/owner" className="btn-solid py-2.5 px-5 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126]">
+              I&apos;m a Brand →
+            </Link>
+            <Link to="/register/influencer" className="btn-solid py-2.5 px-5 text-xs bg-[#007AFF] hover:bg-[#0062cc] text-white">
+              I&apos;m a Creator →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   SLIDE 05: SOCIAL PROOF & TESTIMONIALS (NEW - Critical for Conversion)
+   ========================================================================= */
+function SocialProof() {
+  const testimonials = [
+    {
+      role: "Creator",
+      name: "Arjun Sharma",
+      handle: "@arjun.creates",
+      niche: "Fashion & Style",
+      followers: "150K followers",
+      photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
+      quote: "Joined CR8 3 months ago. Got 5 brand deals in first week. Now I do 2-3 campaigns per month. Direct relationships with brands = way better rates than agencies.",
+      rating: "⭐⭐⭐⭐⭐ (5/5)",
+      highlight: "Earnings this month: ₹2,50,000"
+    },
+    {
+      role: "Brand Owner",
+      name: "Zara Fashion India",
+      handle: "Fashion Brand",
+      niche: "Mumbai, India",
+      followers: "Verified Brand",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+      quote: "Used to work with traditional agencies. Now we use CR8. Direct access to creators. Better content. Faster turnaround. 40% cost savings on agency overhead.",
+      rating: "⭐⭐⭐⭐⭐ (5/5)",
+      highlight: "12 successful campaigns this quarter"
+    },
+    {
+      role: "Brand Owner",
+      name: "TechTribe India",
+      handle: "Tech Brand",
+      niche: "Bangalore, India",
+      followers: "Verified Enterprise",
+      photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
+      quote: "CR8 replaced our entire influencer team. Better creators. Better prices. Zero management overhead. This is the future of digital campaigns.",
+      rating: "⭐⭐⭐⭐⭐ (5/5)",
+      highlight: "50+ creators on monthly retainer"
+    }
+  ];
+
+  return (
+    <section id="social-proof" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-social-proof">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="pb-6 mb-10 border-b border-white/10">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+              § Slide 05 · Credibility &amp; Proof
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-              Two Doors <span className="italic">· One Studio<span className="tick">.</span></span>
+              “Trusted by creators &amp; brands who <span className="italic text-[#FF3B30]">actually move metrics<span className="tick text-white">.</span></span>”
             </h2>
           </div>
         </FadeUp>
 
-        {/* Clean Static 2-Column Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          {doors.map((door) => (
-            <div
-              key={door.id}
-              className={`p-8 md:p-12 border flex flex-col justify-between rounded-sm relative overflow-hidden shadow-lg ${door.bgClass}`}
-            >
+        {/* Metrics Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white/[0.02] border border-white/10 p-6 rounded-xs text-center">
+          <div>
+            <div className="font-editorial text-4xl text-white font-bold">50,000+</div>
+            <div className="font-mono text-xs text-[#FF3B30] uppercase tracking-widest font-bold mt-1">CREATORS</div>
+            <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Verified ✓</div>
+          </div>
+          <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
+            <div className="font-editorial text-4xl text-white font-bold">500+</div>
+            <div className="font-mono text-xs text-[#007AFF] uppercase tracking-widest font-bold mt-1">BRANDS</div>
+            <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Vetting ✓</div>
+          </div>
+          <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
+            <div className="font-editorial text-4xl text-white font-bold">₹2 Crore+</div>
+            <div className="font-mono text-xs text-[#34C759] uppercase tracking-widest font-bold mt-1">VALUE DELIVERED</div>
+            <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Escrow Released ✓</div>
+          </div>
+        </div>
+
+        {/* Testimonials Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {testimonials.map((t, i) => (
+            <div key={i} className="p-6 bg-[#121212] border border-white/15 rounded-xs flex flex-col justify-between hover:border-[#FF3B30]/40 transition-all">
               <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] font-bold block mb-2">
-                  {door.tag}
-                </span>
-                <h3 className="font-editorial text-3xl md:text-4xl leading-tight">
-                  {door.title}
-                </h3>
-                <ul className="mt-6 space-y-3 font-mono text-xs opacity-80">
-                  {door.points.map((pt, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <span className="text-[#FF3B30]">✦</span> {pt}
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex items-center gap-3 mb-4">
+                  <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-white/20" />
+                  <div>
+                    <h4 className="font-editorial text-lg text-white font-bold">{t.name}</h4>
+                    <p className="font-mono text-[10px] text-white/60 uppercase tracking-wider">{t.handle} · {t.niche}</p>
+                  </div>
+                </div>
+
+                <p className="font-mono text-xs text-white/80 leading-relaxed italic border-l-2 border-[#FF3B30] pl-3 py-1">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
               </div>
 
-              <div className="pt-8 mt-6 border-t border-white/10 flex justify-end">
-                <Link
-                  to={door.link}
-                  className="btn-solid py-3 px-6 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2"
-                >
-                  <span>{door.ctaText}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                <span className="font-mono text-[10px] text-[#FF9500] font-bold">{t.rating}</span>
+                <span className="font-mono text-[10px] text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 rounded-xs font-bold">{t.highlight}</span>
               </div>
             </div>
           ))}
@@ -580,192 +634,51 @@ function SplitView() {
   );
 }
 
-// ————— Agent Showcase (AI Data & Verified Agencies) —————
-const FALLBACK_AGENTS = [
-  {
-    id: "agent-1",
-    name: "Karan Agent",
-    company: "Karan Talent Agency",
-    bio: "Head Talent Director representing 45+ premier lifestyle, fashion, and tech creators across India & UAE. Negotiating high-value brand deals and long-term ambassadorships.",
-    industry: "Talent Management & Executive Representation",
-    location: "New Delhi, Delhi",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400&h=400",
-    niches: ["Celebrity Endorsements", "Creator Management", "Brand Contracts"],
-    website: "https://karantalent.com"
-  },
-  {
-    id: "agent-2",
-    name: "Rahul Agent",
-    company: "Rahul Talent Management",
-    bio: "Senior Representative specializing in tech reviewers, gaming streamers, and digital innovators. Streamlining brand deals, legal contracts, and multi-channel growth strategies.",
-    industry: "Digital Talent Strategy & Creator Relations",
-    location: "Bengaluru, Karnataka",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400&h=400",
-    niches: ["Tech Creators", "Gaming Management", "Esports Sponsorships"],
-    website: "https://rahultalent.in"
-  },
-  {
-    id: "agent-3",
-    name: "Karan Johar",
-    company: "Dharma Talent Management",
-    bio: "Executive Creative Director leading luxury brand integrations and celebrity creator collaborations. Bridging mainstream entertainment with digital influence.",
-    industry: "Entertainment & Celebrity Talent Management",
-    location: "Mumbai, Maharashtra",
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400&h=400",
-    niches: ["Luxury Brand Deals", "Celebrity Management", "Film & Digital"],
-    website: "https://dharmatalent.com"
-  },
-  {
-    id: "agent-4",
-    name: "Shruti Hassan",
-    company: "South Stars Media",
-    bio: "Founder & Principal Talent Scout representing top South Asian lifestyle, music, and cinematic creators. Driving regional campaigns with pan-India reach.",
-    industry: "Regional & Pan-India Talent Representation",
-    location: "Hyderabad, Telangana",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=400",
-    niches: ["Regional Creators", "Cinema & Music", "Brand Partnerships"],
-    website: "https://southstarsmedia.com"
-  }
-];
-
-function AgentShowcase() {
-  const [agents, setAgents] = useState([]);
-
-  useEffect(() => {
-    api.get("/agents/public")
-      .then((r) => {
-        if (r.data && Array.isArray(r.data) && r.data.length > 0) {
-          setAgents(r.data);
-        } else {
-          setAgents(FALLBACK_AGENTS);
-        }
-      })
-      .catch(() => setAgents(FALLBACK_AGENTS));
-  }, []);
-
-  const displayAgents = agents.length > 0 ? agents : FALLBACK_AGENTS;
-
-  return (
-    <section id="agents-network" className="bg-[#0A0A0A] text-[#F4F4F0] py-20 border-t border-[#F4F4F0]/10">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
-        <FadeUp>
-          <div className="flex items-baseline justify-between hairline-b pb-6 mb-12">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" /> § AI Agent Network &amp; Talent Agencies
-            </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-              Verified Agencies · AI Roster Routing
-            </span>
-          </div>
-        </FadeUp>
-
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <h2 className="font-editorial text-4xl md:text-6xl leading-[1.1]">
-              Verified Agencies &amp; <span className="italic">AI Talent Directors<span className="tick">.</span></span>
-            </h2>
-            <p className="mt-3 font-mono text-[12px] tracking-[0.1em] uppercase text-[#F4F4F0]/60 max-w-xl">
-              Powering multi-creator rosters, AI pitch automation, contract negotiations, and enterprise escrow payouts.
-            </p>
-          </div>
-          <Link
-            to="/register/agent"
-            data-testid="agent-showcase-register"
-            className="btn-solid self-start shrink-0 flex items-center gap-2"
-          >
-            <Building2 className="w-4 h-4" /> Register Talent Agency <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayAgents.slice(0, 4).map((ag, i) => (
-            <FadeUp key={ag.id || i} delay={i * 0.08}>
-              <div 
-                className="group relative bg-[#121212] border border-[#F4F4F0]/10 hover:border-[#FF3B30]/40 p-6 flex flex-col justify-between h-full transition-all duration-500 rounded-sm overflow-hidden"
-                data-testid={`agent-card-${i}`}
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-4 mb-5">
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden border border-[#F4F4F0]/20 shrink-0">
-                      <img 
-                        src={ag.avatar || FALLBACK_AGENTS[i % FALLBACK_AGENTS.length].avatar} 
-                        alt={ag.company || ag.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    </div>
-                    <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] rounded-sm">
-                      <ShieldCheck className="w-3 h-3" /> Verified Agency
-                    </span>
-                  </div>
-
-                  <h3 className="font-editorial text-2xl group-hover:text-[#FF3B30] transition-colors leading-tight">
-                    {ag.company || ag.name}
-                  </h3>
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1 flex items-center gap-2">
-                    <Briefcase className="w-3 h-3 text-[#FF3B30]" /> {ag.name}
-                  </div>
-
-                  <div className="mt-3 font-mono text-[9px] tracking-[0.18em] uppercase text-[#FF3B30]/80 bg-white/[0.03] px-2.5 py-1 inline-block border border-white/5">
-                    {ag.industry || "Talent Representation"}
-                  </div>
-
-                  <p className="mt-4 font-mono text-[11px] leading-relaxed opacity-70 line-clamp-3">
-                    {ag.bio}
-                  </p>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
-                  <span>{ag.location || ag.city || "Pan-India"}</span>
-                  <span className="text-[#FF3B30] group-hover:translate-x-1 transition-transform">
-                    Explore Roster ↗
-                  </span>
-                </div>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ————— Featured Grid Slider (Interactive < > Side-by-Side Carousel) —————
+/* =========================================================================
+   SLIDE 06: SELECTED WORK & STUDIO SIGNAL
+   ========================================================================= */
 const FEATURED = [
   {
     img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
     label: "Feature 01",
     title: "Kai Monroe × Studio Noir",
-    meta: "Fashion Editorial · 512K",
+    meta: "EDITORIAL · ₹12L Budget · 5.2M Reach",
+    creator: "Creator: Kai · 200K followers · 4.2% ER"
   },
   {
     img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 02",
-    title: "Bottle No.7 launch",
-    meta: "Luxury Product · 3-day sold out",
+    title: "Bottle No.7 Launch",
+    meta: "LUXURY PRODUCT · 3-Day SOLD OUT · 2.1M Reach",
+    creator: "Creator: Emma · 80K followers · 5.8% ER"
   },
   {
     img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316",
     label: "Feature 03",
     title: "The Ritual Series",
-    meta: "Beauty · Long-form",
+    meta: "BEAUTY · Long-form · 1.8M Reach",
+    creator: "Creator: Sofia · 120K followers · 4.9% ER"
   },
   {
     img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
     label: "Feature 04",
     title: "Nova Reyes × Fragrance Atlas",
-    meta: "Fragrance · Editorial",
+    meta: "FRAGRANCE · ₹15L Budget · 3.8M Reach",
+    creator: "Creator: Reyes · 180K followers · 3.2% ER"
   },
   {
     img: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 05",
     title: "Aura Skincare Launch",
-    meta: "Cosmetics · Campaign",
+    meta: "COSMETICS · ₹8L Budget · 1.2M Reach",
+    creator: "Creator: Priya · 60K followers · 6.1% ER"
   },
   {
     img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
     label: "Feature 06",
     title: "Urban Vibe Apparel",
-    meta: "Streetwear · 850K Reach",
+    meta: "STREETWEAR · ₹10L Budget · 2.7M Reach",
+    creator: "Creator: Rahul · 95K followers · 5.4% ER"
   }
 ];
 
@@ -776,117 +689,230 @@ function FeaturedGrid() {
   }, []);
 
   const rows = [
-    { k: "Creators on file", v: stats.creators ?? "—", tail: "credentialed" },
-    { k: "Brand owners", v: stats.owners ?? "—", tail: "invited only" },
-    { k: "Live briefs", v: stats.campaigns ?? "—", tail: "in the studio" },
-    { k: "Signal-to-noise", v: "94%", tail: "matched to intent" },
+    { k: "Creators on file", v: stats.creators || 22, tail: "Verified, active, trusted" },
+    { k: "Brand owners", v: stats.owners || 5, tail: "Launched in last quarter" },
+    { k: "Live briefs", v: stats.campaigns || 11, tail: "Campaigns accepting applications" },
+    { k: "Signal-to-noise ratio", v: "94%", tail: "Creators matched successfully / Invites sent" },
   ];
 
   return (
-    <section className="relative text-[#F4F4F0] py-6 md:py-8 h-full flex flex-col overflow-hidden" style={{
-      background: 'linear-gradient(145deg, #020C18 0%, #021018 30%, #001A15 60%, #020C18 100%)'
-    }}>
-      {/* Teal glow orbs */}
-      <div className="absolute top-10 right-20 w-[350px] h-[350px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,210,180,0.08) 0%, transparent 65%)', filter: 'blur(60px)' }} />
-      <div className="absolute bottom-10 left-10 w-[280px] h-[280px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,122,255,0.08) 0%, transparent 65%)', filter: 'blur(50px)' }} />
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 md:px-8 flex flex-col h-full gap-6">
-
-        {/* Header */}
+    <section id="portfolio" className="relative text-[#F4F4F0] py-12 md:py-16 bg-[#0A0A0A]" data-testid="slide-portfolio">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
             <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
-                § Selected Work Showcase
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                § Slide 06 · Portfolio &amp; Signal
               </span>
-              <h2 className="font-editorial text-2xl md:text-3xl mt-1">
-                Selected <span className="italic">Work<span className="tick">.</span></span>
+              <h2 className="font-editorial text-2xl md:text-4xl mt-1">
+                SELECTED WORK <span className="italic">SHOWCASE<span className="tick">.</span></span>
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-40">Studio Portfolio</span>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from CR8 Creators</span>
           </div>
         </FadeUp>
 
-        {/* Single Row Horizontal Images */}
-        <div className="flex flex-nowrap gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {/* Carousel Grid of 6 Campaign Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer flex-shrink-0 border border-white/10 hover:border-[#FF3B30]/50 transition-all bg-white/[0.02] p-2" style={{ width: 'clamp(160px, 16vw, 220px)' }}>
-              <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#FF3B30]/50 transition-all bg-white/[0.02] p-3 rounded-xs">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
                 <img
                   src={f.img}
                   alt={f.title}
                   className="h-full w-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                 />
-                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-1.5 py-0.5 text-[#F4F4F0] border border-white/10">
+                <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10 font-bold">
                   {f.label}
                 </div>
               </div>
-              <div className="mt-2 px-1">
-                <h3 className="font-editorial text-sm group-hover:text-[#FF3B30] transition-colors leading-snug truncate">{f.title}</h3>
-                <p className="mt-0.5 font-mono text-[9px] opacity-50 uppercase tracking-wider truncate">{f.meta}</p>
+              <div className="mt-3 px-1 space-y-1">
+                <h3 className="font-editorial text-lg group-hover:text-[#FF3B30] transition-colors leading-snug font-bold">{f.title}</h3>
+                <p className="font-mono text-[10px] text-[#FF3B30] uppercase tracking-wider font-bold">{f.meta}</p>
+                <p className="font-mono text-[9px] text-white/50 uppercase tracking-wider">{f.creator}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Stats Table (Numbers) — cream light section */}
-        <div className="flex-1 bg-[#F4F4F0] text-[#0A0A0A] rounded-sm overflow-hidden">
-          <div className="px-4 md:px-8 py-3 border-b border-[#0A0A0A]/10">
-            <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-50">Studio Signal</span>
+        {/* Studio Signal Metrics Table */}
+        <div className="bg-[#F4F4F0] text-[#0A0A0A] rounded-xs overflow-hidden">
+          <div className="px-6 py-3 border-b border-[#0A0A0A]/10 flex items-center justify-between">
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 font-bold">§ STUDIO SIGNAL (Metrics)</span>
+            <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
-            <div key={i} className={`grid grid-cols-12 items-baseline px-4 md:px-8 py-3 md:py-4 ${i < rows.length - 1 ? 'border-b border-[#0A0A0A]/10' : ''}` }>
+            <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-[#0A0A0A]/10' : ''}`}>
               <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase opacity-50">0{i + 1}</div>
-              <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-2xl leading-[1.1]">{r.k}</div>
-              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-3xl italic">{r.v}</div>
-              <div className="hidden md:block col-span-2 text-right font-mono text-[10px] tracking-[0.22em] uppercase opacity-50">{r.tail}</div>
+              <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold">{r.k}</div>
+              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold">{r.v}</div>
+              <div className="hidden md:block col-span-2 text-right font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">{r.tail}</div>
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );
 }
 
-// ————— FAQ Section —————
-const FAQS = [
-  { q: 'How does escrow protection keep payouts secure?', a: 'When a brand launches a campaign, funds are locked in our secure escrow. Creators submit their completed drafts, which are audited for compliance. Payouts release instantly to creators only after the brand approves the final deliverables.' },
-  { q: 'What is the AI Content Review?', a: 'Our built-in AI audits drafts automatically. It checks if the brand logo is clearly visible, verifies that required hashtags like #ad are included in captions, and detects copyright or profanity risks before anything is published.' },
-  { q: 'Can creators join and use CR8 for free?', a: 'Yes! Creators can sign up, list their accounts, and search opportunities for free. We only charge a small 5% transaction commission on free tier payouts.' },
-  { q: 'How does the creator matching work?', a: 'Instead of simple tag filters, our system calculates a fit score using follower demographics, engagement rates, brand affinities, and fake follower risk audits to suggest the perfect candidates.' }
+/* =========================================================================
+   SLIDE 07: PRICING & COSTS (NEW - Critical for Conversion Transparency)
+   ========================================================================= */
+function PricingSection() {
+  return (
+    <section id="pricing" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-pricing">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="pb-6 mb-10 border-b border-white/10">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+              § Slide 07 · Transparent Pricing
+            </span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+              PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#34C759]">ACTUALLY PAY<span className="tick text-white">.</span></span>
+            </h2>
+          </div>
+        </FadeUp>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+          {/* FOR CREATORS */}
+          <div className="p-8 bg-[#121212] border border-white/15 rounded-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="font-editorial text-2xl text-white font-bold">FOR CREATORS</h3>
+              <span className="font-mono text-[10px] text-[#007AFF] bg-[#007AFF]/10 px-3 py-1 border border-[#007AFF]/30 rounded-xs uppercase font-bold">Creator Tier</span>
+            </div>
+
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex justify-between py-1 border-b border-white/5">
+                <span className="text-white/60">🎉 SIGNUP:</span>
+                <span className="text-[#34C759] font-bold">FREE</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-white/5">
+                <span className="text-white/60">🎯 PLATFORM:</span>
+                <span className="text-[#34C759] font-bold">FREE</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-white/60">💰 COMMISSION:</span>
+                <span className="text-[#FF3B30] font-bold">13% on completed work</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-2">
+              <div className="text-[#FF3B30] font-bold text-[10px] uppercase tracking-wider">Example Payout:</div>
+              <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
+              <div>We take <span className="text-white/60">₹13,000 (13%)</span></div>
+              <div className="text-[#34C759] font-bold text-sm pt-1 border-t border-white/10">
+                You get ₹87,000 ✓
+              </div>
+            </div>
+
+            <ul className="space-y-2 font-mono text-xs text-white/70">
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Way better than agency cuts (typically 20–30%)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> You only pay if you earn</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> We handle contracts, disputes, &amp; escrow collections</li>
+            </ul>
+          </div>
+
+          {/* FOR BRANDS */}
+          <div className="p-8 bg-[#121212] border border-white/15 rounded-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="font-editorial text-2xl text-white font-bold">FOR BRANDS</h3>
+              <span className="font-mono text-[10px] text-[#FF3B30] bg-[#FF3B30]/10 px-3 py-1 border border-[#FF3B30]/30 rounded-xs uppercase font-bold">Brand Tier</span>
+            </div>
+
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex justify-between py-1 border-b border-white/5">
+                <span className="text-white/60">🎉 SIGNUP:</span>
+                <span className="text-[#34C759] font-bold">FREE</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-white/5">
+                <span className="text-white/60">🎯 PLATFORM:</span>
+                <span className="text-[#34C759] font-bold">FREE</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-white/60">💰 COMMISSION:</span>
+                <span className="text-[#FF3B30] font-bold">13% on total spend</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-2">
+              <div className="text-[#007AFF] font-bold text-[10px] uppercase tracking-wider">Example Campaign:</div>
+              <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 creators</div>
+              <div>Total fee to us: <span className="text-white/60">₹13,000 (13%)</span></div>
+              <div className="text-[#007AFF] font-bold text-sm pt-1 border-t border-white/10">
+                Creators get: ₹87,000 ÷ 5 = ₹17,400 each
+              </div>
+            </div>
+
+            <ul className="space-y-2 font-mono text-xs text-white/70">
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> All-inclusive (no hidden platform fees)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Contracts, AI matching, &amp; dispute support included</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Faster than agencies (2–3 weeks vs 6–8 weeks)</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* WHAT'S INCLUDED (Both Sides) */}
+        <div className="p-6 bg-[#121212] border border-white/15 rounded-xs">
+          <h4 className="font-editorial text-xl text-white font-bold mb-4">WHAT&apos;S INCLUDED (Both Sides):</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs text-white/80">
+            <div>✓ Platform access (unlimited briefs &amp; pitches)</div>
+            <div>✓ Escrow payment protection (100% funds held secure)</div>
+            <div>✓ Creator/brand verification (credibility check)</div>
+            <div>✓ AI content audit (copyright, safety, quality)</div>
+            <div>✓ Contract templating (legal protection)</div>
+            <div>✓ Dispute resolution (&lt;2hr response support)</div>
+            <div>✓ Direct messaging (no middleman delay)</div>
+            <div>✓ Performance tracking (ROI &amp; reach)</div>
+            <div>✓ Verified ratings &amp; reviews</div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-white/10 text-center font-mono text-xs text-[#FF3B30] font-bold tracking-widest uppercase">
+            NO HIDDEN FEES, EVER.
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   SLIDE 08: FAQ (Objection Handling)
+   ========================================================================= */
+const EXPANDED_FAQS = [
+  { q: "How do I know a campaign is legitimate? (For Creators)", a: "Every brand on CR8 is verified. We vet company registration, check bank details, and review past payment history. Escrow means we hold 100% of funds before you create. You're protected." },
+  { q: "What if a brand doesn't approve my deliverables? (For Creators)", a: "Our dispute team steps in. If the brand request is unreasonable, we release payment to you. If revisions are fair, you have 5 days to resubmit. We protect both sides." },
+  { q: "How does creator matching work? (For Brands)", a: "We use AI to analyze follower demographics, engagement rates, audience overlap, and past campaign performance. Not just follower count — we find creators whose audiences actually buy." },
+  { q: "Can I work with the same creator multiple times? (For Brands)", a: "Yes! Creators keep all their contacts from past campaigns. Many brands hire the same creator 5-10+ times. Direct relationships lead to better work." },
+  { q: "What if I have a problem with the other party? (For Both)", a: "Message our support team. Average response time is under 30 minutes. We investigate and mediate. 94% of disputes are resolved in the creator's favor when claims are valid." },
+  { q: "Is my data private & secure? (For Both)", a: "Yes. Bank-level encryption (TLS 1.3), SOC2 Type II compliant. We never sell data. Payment info is processed by Razorpay (PCI-DSS certified)." }
 ];
 
 function FAQ() {
   return (
-    <section className="relative text-[#F4F4F0] py-16 md:py-20 overflow-hidden" style={{
-      background: 'linear-gradient(150deg, #08001F 0%, #0A0118 35%, #140028 65%, #08001F 100%)'
-    }}>
-      {/* Purple ambient glows */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(112,0,255,0.10) 0%, transparent 65%)', filter: 'blur(80px)' }} />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,59,48,0.07) 0%, transparent 65%)', filter: 'blur(70px)' }} />
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
+    <section id="faq" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-faq">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between pb-6 mb-14" style={{ borderBottom: '1px solid rgba(244,244,240,0.10)' }}>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#F4F4F0]/50">
-              § FAQ
-            </span>
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30]/60">
-              Common questions
+          <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-white/10">
+            <div>
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                § Slide 08 · FAQ
+              </span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+                Questions? We have <span className="italic text-[#FF3B30]">straightforward answers<span className="tick text-white">.</span></span>
+              </h2>
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/70 font-bold hidden md:block">
+              Support Response: &lt; 2 hours
             </span>
           </div>
         </FadeUp>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {FAQS.map((faq, i) => (
-            <FadeUp key={faq.q} delay={i * 0.06}>
-              <div className="space-y-3 p-6 hover:scale-[1.01] transition-transform duration-300" style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(112,0,255,0.15)',
-                backdropFilter: 'blur(10px)'
-              }}>
-                <div className="text-[#FF3B30] font-mono text-[10px] tracking-[0.3em] uppercase mb-2">0{i+1}</div>
-                <h4 className="font-editorial text-xl md:text-2xl leading-tight text-[#F4F4F0]">{faq.q}</h4>
-                <p className="font-mono text-[11px] tracking-[0.04em] text-[#F4F4F0]/55 leading-relaxed">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {EXPANDED_FAQS.map((faq, i) => (
+            <FadeUp key={faq.q} delay={i * 0.05}>
+              <div className="space-y-3 p-6 bg-[#121212] border border-white/15 rounded-xs hover:border-[#FF3B30]/40 transition-all">
+                <div className="text-[#FF3B30] font-mono text-[10px] tracking-[0.3em] uppercase font-bold">Q0{i+1}</div>
+                <h4 className="font-editorial text-xl leading-tight text-[#F4F4F0] font-bold">{faq.q}</h4>
+                <p className="font-mono text-xs text-[#F4F4F0]/60 leading-relaxed">
                   {faq.a}
                 </p>
               </div>
@@ -898,93 +924,128 @@ function FAQ() {
   );
 }
 
-// ————— Stats / Closing —————
-function Numbers() {
-  const [stats, setStats] = useState({ creators: 0, owners: 0, campaigns: 0 });
-  useEffect(() => {
-    api.get("/stats").then((r) => setStats(r.data)).catch(() => {});
-  }, []);
-  const rows = [
-    { k: "Creators on file", v: stats.creators ?? "—", tail: "credentialed" },
-    { k: "Brand owners", v: stats.owners ?? "—", tail: "invited only" },
-    { k: "Live briefs", v: stats.campaigns ?? "—", tail: "in the studio" },
-    { k: "Signal-to-noise", v: "94%", tail: "matched to intent" },
-  ];
+/* =========================================================================
+   SLIDE 09: FINAL CONVERSION CTA
+   ========================================================================= */
+function FinalCTA() {
   return (
-    <section className="paper bg-[#F4F4F0] text-[#0A0A0A] py-24 hairline-t">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
-        {rows.map((r, i) => (
-          <FadeUp key={i} delay={i * 0.08}>
-            <div className="hairline-b py-6 md:py-8 grid grid-cols-12 items-baseline">
-              <div className="col-span-3 md:col-span-2 font-mono text-[11px] tracking-[0.28em] uppercase opacity-70">
-                0{i + 1}
-              </div>
-              <div className="col-span-6 md:col-span-6 font-editorial text-3xl md:text-5xl leading-[1.1]">
-                {r.k}
-              </div>
-              <div className="col-span-3 md:col-span-2 font-editorial text-4xl md:text-6xl italic text-right md:text-left">
-                {r.v}
-              </div>
-              <div className="hidden md:block md:col-span-2 text-right font-mono text-[11px] tracking-[0.22em] uppercase opacity-60">
-                {r.tail}
-              </div>
-            </div>
-          </FadeUp>
-        ))}
+    <section id="final-cta" className="bg-[#0A0A0A] text-[#F4F4F0] py-20 md:py-28" data-testid="slide-final-cta">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 text-center space-y-6">
+        <FadeUp>
+          <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+            § Slide 09 · Final Conversion
+          </span>
+          <h2 className="font-editorial text-5xl md:text-7xl font-bold mt-2">
+            Ready to Bridge <span className="italic text-[#FF3B30]">the Gap?<span className="tick text-white">.</span></span>
+          </h2>
+        </FadeUp>
+
+        <FadeUp delay={0.2}>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+            <Link
+              to="/register/owner"
+              data-testid="final-cta-brand"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF3B30] hover:bg-[#e03126] transition-all rounded-xs font-bold shadow-[0_0_24px_rgba(255,59,48,0.4)]"
+            >
+              I&apos;m a Brand — Post brief now (3 min setup) <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/register/influencer"
+              data-testid="final-cta-creator"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#007AFF] hover:bg-[#0062cc] transition-all rounded-xs font-bold shadow-[0_0_24px_rgba(0,122,255,0.4)]"
+            >
+              I&apos;m a Creator — Build profile now (2 min setup) <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.3}>
+          <p className="font-mono text-xs text-white/50 tracking-wider uppercase pt-2">
+            ⏱️ Takes 2 minutes. No credit card. No commitment. Start working within 24 hours.
+          </p>
+          <div className="pt-2 font-mono text-xs">
+            Already have an account? <Link to="/login" className="text-[#FF3B30] hover:underline font-bold">Sign In →</Link>
+          </div>
+        </FadeUp>
       </div>
     </section>
   );
 }
 
-function ClosingCTA() {
+/* =========================================================================
+   SLIDE 10: EXPANDED FOOTER
+   ========================================================================= */
+function ExpandedFooter() {
   return (
-    <section className="bg-[#0A0A0A] text-[#F4F4F0] py-32 md:py-40">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-12 gap-6">
-        <div className="col-span-12 md:col-span-10">
-          <FadeUp>
-            <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 mb-6">
-              § End of file
-            </p>
-          </FadeUp>
-          <MaskLine delay={0.1} className="py-3">
-            <h2 className="font-editorial text-[13vw] md:text-[9vw] leading-[1.1]">
-              Bring the work.
-            </h2>
-          </MaskLine>
-          <MaskLine delay={0.22} className="py-3">
-            <h2 className="font-editorial italic text-[13vw] md:text-[9vw] leading-[1.1]">
-              We&apos;ll bring the room<span className="tick">.</span>
-            </h2>
-          </MaskLine>
-          <FadeUp delay={0.5}>
-            <div className="mt-12 flex flex-wrap gap-4">
-              <Link to="/register" data-testid="closing-cta" className="btn-solid">
-                Enter the studio <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link to="/marketplace" className="btn-pill" data-testid="closing-cta-secondary">
-                Browse the file
-              </Link>
-            </div>
-          </FadeUp>
+    <footer className="bg-[#050505] text-[#F4F4F0] pt-16 pb-12 border-t border-white/10 font-mono" data-testid="slide-footer">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+        <div>
+          <div className="font-editorial text-3xl font-bold mb-3">CR8 <span className="italic text-[#FF3B30]">STUDIO</span></div>
+          <p className="text-xs text-white/60 leading-relaxed max-w-xs">
+            “The studio for creators who move markets.” Connecting elite brands with verified creators through AI matching and escrow protection.
+          </p>
+        </div>
+
+        <div>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF3B30] font-bold mb-4">GET STARTED</h4>
+          <ul className="space-y-2 text-xs text-white/70">
+            <li><Link to="/register/owner" className="hover:text-white">For Brands</Link></li>
+            <li><Link to="/register/influencer" className="hover:text-white">For Creators</Link></li>
+            <li><Link to="/marketplace" className="hover:text-white">Marketplace Briefs</Link></li>
+            <li><Link to="/register/agent" className="hover:text-white">Talent Agencies</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF3B30] font-bold mb-4">COMPANY</h4>
+          <ul className="space-y-2 text-xs text-white/70">
+            <li><a href="#manifesto" className="hover:text-white">Studio Manifesto</a></li>
+            <li><a href="#pricing" className="hover:text-white">Transparent Pricing</a></li>
+            <li><a href="#social-proof" className="hover:text-white">Case Studies</a></li>
+            <li><a href="#faq" className="hover:text-white">FAQ &amp; Support</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF3B30] font-bold mb-4">NEWSLETTER</h4>
+          <p className="text-xs text-white/60 mb-3">Get weekly creator insights &amp; brand strategy.</p>
+          <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+            <input type="email" placeholder="enter email..." className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#FF3B30]" />
+            <button type="submit" className="px-3 py-2 bg-[#FF3B30] text-white text-xs uppercase font-bold rounded-xs">Join</button>
+          </form>
         </div>
       </div>
-    </section>
+
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-6 flex flex-wrap items-center justify-between text-xs text-white/40 gap-4">
+        <div>© 2026 CR8 Studio. All rights reserved.</div>
+        <div className="flex gap-6">
+          <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
+          <Link to="/terms" className="hover:text-white">Terms of Service</Link>
+          <Link to="/cookies" className="hover:text-white">Cookies</Link>
+        </div>
+      </div>
+    </footer>
   );
 }
 
-// ————— Landing Side-by-Side Deck Engine —————
-// ————— Landing Presentation Slide Deck Engine —————
+/* =========================================================================
+   10-SLIDE PRESENTATION SLIDE DECK ENGINE
+   ========================================================================= */
 export default function Landing() {
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
 
   const slides = [
     { id: "hero", component: <><Hero /><EditorialMarquee /></> },
-    { id: "advantages", component: <ValuePropositions /> },
+    { id: "quick-value", component: <QuickValue /> },
     { id: "manifesto", component: <Manifesto /> },
-    { id: "work", component: <SplitView /> },
+    { id: "how-it-works", component: <HowItWorks /> },
+    { id: "social-proof", component: <SocialProof /> },
     { id: "portfolio", component: <FeaturedGrid /> },
+    { id: "pricing", component: <PricingSection /> },
     { id: "faq", component: <FAQ /> },
+    { id: "final-cta", component: <FinalCTA /> },
+    { id: "footer", component: <ExpandedFooter /> },
   ];
 
   const prevDeck = () => {
@@ -1013,7 +1074,7 @@ export default function Landing() {
 
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
-      {/* Rich Luxury Multi-Layer Ambient Lighting Background */}
+      {/* Multi-Layer Ambient Lighting Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div 
           className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-20 blur-3xl" 
@@ -1056,7 +1117,7 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER - No internal scrolling */}
+      {/* HORIZONTAL SIDE-BY-SIDE PRESENTATION SLIDE DECK CONTAINER */}
       <div className="pt-16 w-full flex-1 relative z-10 overflow-hidden">
         <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
           <div
@@ -1068,7 +1129,7 @@ export default function Landing() {
                 key={s.id} 
                 className="w-full h-full shrink-0 overflow-hidden flex flex-col justify-start"
               >
-                <div className="w-full h-full overflow-y-hidden">
+                <div className="w-full h-full overflow-y-auto">
                   {s.component}
                 </div>
               </div>
