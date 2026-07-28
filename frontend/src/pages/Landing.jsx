@@ -114,7 +114,7 @@ function Hero() {
           transition={{ duration: 0.6, delay: 1.1 }}
         >
           <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">CR8 × STUDIO</span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">⌘ Slide 01 / 10</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">⌘ Slide 01 / 09</span>
         </motion.div>
 
         <div className="flex flex-col justify-center gap-2 my-auto">
@@ -760,112 +760,112 @@ function FeaturedGrid() {
    ========================================================================= */
 function PricingSection() {
   return (
-    <section id="pricing" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-pricing">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+    <section id="pricing" className="relative text-[#F4F4F0] py-6 md:py-8 bg-[#0A0A0A]" data-testid="slide-pricing">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 space-y-6">
         <FadeUp>
-          <div className="pb-6 mb-10 border-b border-white/10">
+          <div className="pb-4 mb-4 border-b border-white/10">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
               § Slide 07 · Transparent Pricing
             </span>
-            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+            <h2 className="font-editorial text-2xl md:text-4xl mt-1">
               PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#34C759]">ACTUALLY PAY<span className="tick text-white">.</span></span>
             </h2>
           </div>
         </FadeUp>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* FOR CREATORS */}
-          <div className="p-8 bg-[#121212] border border-white/15 rounded-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <h3 className="font-editorial text-2xl text-white font-bold">FOR CREATORS</h3>
-              <span className="font-mono text-[10px] text-[#007AFF] bg-[#007AFF]/10 px-3 py-1 border border-[#007AFF]/30 rounded-xs uppercase font-bold">Creator Tier</span>
+          <div className="p-6 bg-[#121212] border border-white/15 rounded-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="font-editorial text-xl text-white font-bold">FOR CREATORS</h3>
+              <span className="font-mono text-[9px] text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-0.5 border border-[#007AFF]/30 rounded-xs uppercase font-bold">Creator Tier</span>
             </div>
 
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between py-1 border-b border-white/5">
+            <div className="space-y-1.5 font-mono text-xs">
+              <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎉 SIGNUP:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎯 PLATFORM:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-1">
+              <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
                 <span className="text-[#FF3B30] font-bold">13% on completed work</span>
               </div>
             </div>
 
-            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-2">
-              <div className="text-[#FF3B30] font-bold text-[10px] uppercase tracking-wider">Example Payout:</div>
+            <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
+              <div className="text-[#FF3B30] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
               <div>We take <span className="text-white/60">₹13,000 (13%)</span></div>
-              <div className="text-[#34C759] font-bold text-sm pt-1 border-t border-white/10">
+              <div className="text-[#34C759] font-bold text-xs pt-1 border-t border-white/10">
                 You get ₹87,000 ✓
               </div>
             </div>
 
-            <ul className="space-y-2 font-mono text-xs text-white/70">
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Way better than agency cuts (typically 20–30%)</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> You only pay if you earn</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> We handle contracts, disputes, &amp; escrow collections</li>
+            <ul className="space-y-1 font-mono text-xs text-white/70">
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Way better than agency cuts (typically 20–30%)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> You only pay if you earn</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> We handle contracts, disputes, &amp; escrow collections</li>
             </ul>
           </div>
 
           {/* FOR BRANDS */}
-          <div className="p-8 bg-[#121212] border border-white/15 rounded-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <h3 className="font-editorial text-2xl text-white font-bold">FOR BRANDS</h3>
-              <span className="font-mono text-[10px] text-[#FF3B30] bg-[#FF3B30]/10 px-3 py-1 border border-[#FF3B30]/30 rounded-xs uppercase font-bold">Brand Tier</span>
+          <div className="p-6 bg-[#121212] border border-white/15 rounded-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="font-editorial text-xl text-white font-bold">FOR BRANDS</h3>
+              <span className="font-mono text-[9px] text-[#FF3B30] bg-[#FF3B30]/10 px-2.5 py-0.5 border border-[#FF3B30]/30 rounded-xs uppercase font-bold">Brand Tier</span>
             </div>
 
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between py-1 border-b border-white/5">
+            <div className="space-y-1.5 font-mono text-xs">
+              <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎉 SIGNUP:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎯 PLATFORM:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-1">
+              <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
                 <span className="text-[#FF3B30] font-bold">13% on total spend</span>
               </div>
             </div>
 
-            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-2">
-              <div className="text-[#007AFF] font-bold text-[10px] uppercase tracking-wider">Example Campaign:</div>
+            <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
+              <div className="text-[#007AFF] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 creators</div>
               <div>Total fee to us: <span className="text-white/60">₹13,000 (13%)</span></div>
-              <div className="text-[#007AFF] font-bold text-sm pt-1 border-t border-white/10">
+              <div className="text-[#007AFF] font-bold text-xs pt-1 border-t border-white/10">
                 Creators get: ₹87,000 ÷ 5 = ₹17,400 each
               </div>
             </div>
 
-            <ul className="space-y-2 font-mono text-xs text-white/70">
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> All-inclusive (no hidden platform fees)</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Contracts, AI matching, &amp; dispute support included</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> Faster than agencies (2–3 weeks vs 6–8 weeks)</li>
+            <ul className="space-y-1 font-mono text-xs text-white/70">
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> All-inclusive (no hidden platform fees)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Contracts, AI matching, &amp; dispute support included</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Faster than agencies (2–3 weeks vs 6–8 weeks)</li>
             </ul>
           </div>
         </div>
 
-        {/* WHAT'S INCLUDED (Both Sides) */}
-        <div className="p-6 bg-[#121212] border border-white/15 rounded-xs">
-          <h4 className="font-editorial text-xl text-white font-bold mb-4">WHAT&apos;S INCLUDED (Both Sides):</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs text-white/80">
-            <div>✓ Platform access (unlimited briefs &amp; pitches)</div>
-            <div>✓ Escrow payment protection (100% funds held secure)</div>
-            <div>✓ Creator/brand verification (credibility check)</div>
-            <div>✓ AI content audit (copyright, safety, quality)</div>
-            <div>✓ Contract templating (legal protection)</div>
-            <div>✓ Dispute resolution (&lt;2hr response support)</div>
-            <div>✓ Direct messaging (no middleman delay)</div>
-            <div>✓ Performance tracking (ROI &amp; reach)</div>
-            <div>✓ Verified ratings &amp; reviews</div>
+        {/* WHAT'S INCLUDED (Both Sides) — Clean grid with zero text overlap */}
+        <div className="p-5 bg-[#121212] border border-white/15 rounded-xs space-y-3">
+          <h4 className="font-editorial text-lg text-white font-bold border-b border-white/10 pb-2">WHAT&apos;S INCLUDED (Both Sides):</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 font-mono text-xs text-white/90 leading-normal">
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Platform access (unlimited briefs)</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Escrow payment protection</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Creator &amp; brand verification</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> AI content compliance audit</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Automated contract templating</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Dispute resolution (&lt;2hr support)</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Direct studio messaging</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Performance &amp; ROI tracking</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#34C759] font-bold">✓</span> Verified ratings &amp; reviews</div>
           </div>
-          <div className="mt-4 pt-3 border-t border-white/10 text-center font-mono text-xs text-[#FF3B30] font-bold tracking-widest uppercase">
+          <div className="pt-2 border-t border-white/10 text-center font-mono text-[10px] text-[#FF3B30] font-bold tracking-[0.25em] uppercase">
             NO HIDDEN FEES, EVER.
           </div>
         </div>
@@ -1024,6 +1024,40 @@ function ExpandedFooter() {
           <Link to="/cookies" className="hover:text-white">Cookies</Link>
         </div>
       </div>
+
+      <div className="max-w-[1600px] mx-auto mt-6 pt-6 border-t border-white/5 flex items-center justify-center">
+        <a
+          href="https://palramai.in"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 select-none"
+          style={{ textDecoration: 'none' }}
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF3B30]" />
+          </span>
+          <span className="font-mono text-[11px] tracking-[0.35em] uppercase text-[#F4F4F0]/40 group-hover:text-[#F4F4F0]/70 transition-colors duration-500">
+            Crafted with precision by
+          </span>
+          <span
+            className="font-editorial italic text-xl md:text-2xl tracking-tight transition-all duration-500 group-hover:scale-105"
+            style={{
+              background: 'linear-gradient(90deg, #FF3B30, #FF9500, #FF3B30, #7000FF, #FF3B30)',
+              backgroundSize: '300% 100%',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'shimmer 4s linear infinite',
+            }}
+          >
+            palramai.in
+          </span>
+          <span className="text-[#FF3B30]/60 group-hover:text-[#FF3B30] group-hover:translate-x-1 transition-all duration-300 font-mono text-xs">
+            ↗
+          </span>
+        </a>
+      </div>
     </footer>
   );
 }
@@ -1044,8 +1078,7 @@ export default function Landing() {
     { id: "portfolio", component: <FeaturedGrid /> },
     { id: "pricing", component: <PricingSection /> },
     { id: "faq", component: <FAQ /> },
-    { id: "final-cta", component: <FinalCTA /> },
-    { id: "footer", component: <ExpandedFooter /> },
+    { id: "final-cta", component: <><FinalCTA /><ExpandedFooter /></> },
   ];
 
   const prevDeck = () => {

@@ -46,10 +46,10 @@ export function Footer() {
         <span>GDPR Compliant • PCI-DSS Secure</span>
       </div>
 
-      {/* ── palram.ai developer credit ── */}
+      {/* ── palramai.in developer credit ── */}
       <div className="max-w-[1600px] mx-auto mt-8 pt-6 border-t border-white/5 flex items-center justify-center">
         <a
-          href="https://palram.ai"
+          href="https://palramai.in"
           target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center gap-3 select-none"
@@ -66,7 +66,7 @@ export function Footer() {
             Crafted with precision by
           </span>
 
-          {/* palram.ai — gradient shimmer */}
+          {/* palramai.in — gradient shimmer */}
           <span
             className="font-editorial italic text-xl md:text-2xl tracking-tight transition-all duration-500 group-hover:scale-105"
             style={{
@@ -78,7 +78,7 @@ export function Footer() {
               animation: 'shimmer 4s linear infinite',
             }}
           >
-            palram.ai
+            palramai.in
           </span>
 
           {/* Arrow */}
