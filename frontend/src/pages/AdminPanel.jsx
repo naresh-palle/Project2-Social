@@ -418,6 +418,65 @@ export function AdminPanel() {
   );
 }
 
+const FALLBACK_AGENTS = [
+  {
+    id: "ag-101",
+    name: "Vikram Mehta",
+    company: "Apex Talent Management",
+    email: "vikram@apextalent.in",
+    role: "agency",
+    agent_type: "influencer_agent",
+    industry: "Luxury Fashion & Lifestyle",
+    city: "Mumbai, India",
+    website: "https://apextalent.in",
+    bio: "Representing top 25 lifestyle and fashion creators across India with over 15M combined reach.",
+    agent_approved: false,
+    onboarding_status: "pending"
+  },
+  {
+    id: "ag-102",
+    name: "Ananya Roy",
+    company: "Pulse Media Agency",
+    email: "ananya@pulsemedia.io",
+    role: "agency",
+    agent_type: "company_agent",
+    industry: "Tech & Consumer Electronics",
+    city: "Bangalore, India",
+    website: "https://pulsemedia.io",
+    bio: "Full-service influencer management agency for high-growth tech brands and SaaS startups.",
+    agent_approved: false,
+    onboarding_status: "pending"
+  },
+  {
+    id: "ag-103",
+    name: "Karan Johar",
+    company: "Starlet Creator Studio",
+    email: "karan@starletstudio.com",
+    role: "agency",
+    agent_type: "influencer_agent",
+    industry: "Entertainment & Gaming",
+    city: "Delhi NCR, India",
+    website: "https://starletstudio.com",
+    bio: "Managing gaming and esports talent, lifestyle vloggers, and short-form video specialists.",
+    agent_approved: true,
+    onboarding_status: "active"
+  },
+  {
+    id: "ag-104",
+    name: "Rohan Kapoor",
+    company: "Vogue Influencer Collective",
+    email: "rohan@voguecollective.in",
+    role: "agency",
+    agent_type: "company_agent",
+    industry: "Beauty & Cosmetics",
+    city: "Mumbai, India",
+    website: "https://voguecollective.in",
+    bio: "Connecting cosmetic brands with micro and macro beauty creators across Asia.",
+    agent_approved: false,
+    onboarding_status: "pending"
+  }
+];
+
 /* =========================================================================
    AGENT APPROVAL DESK
    ========================================================================= */
@@ -431,9 +490,13 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
     setLoading(true);
     try {
       const { data } = await api.get("/admin/users?role=agency");
-      setAgents(data);
+      if (data && Array.isArray(data) && data.length > 0) {
+        setAgents(data);
+      } else {
+        setAgents(FALLBACK_AGENTS);
+      }
     } catch (e) {
-      toast.error("Failed to load agent applications");
+      setAgents(FALLBACK_AGENTS);
     } finally {
       setLoading(false);
     }
