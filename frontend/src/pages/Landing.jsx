@@ -1083,10 +1083,12 @@ export default function Landing() {
 
   const prevDeck = () => {
     setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const nextDeck = () => {
     setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -1150,19 +1152,19 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* HORIZONTAL PRESENTATION SLIDE DECK CONTAINER (Full Vertical Scrollable Viewports) */}
-      <div className="pt-16 w-full flex-1 relative z-10 overflow-hidden">
-        <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
+      {/* PRESENTATION SLIDES WITH NATURAL WINDOW SCROLLING AT 100% ZOOM */}
+      <div className="pt-16 w-full min-h-[calc(100vh-64px)] relative z-10 overflow-hidden">
+        <div className="w-full min-h-full">
           <div
-            className="flex transition-transform duration-700 ease-out w-full h-full"
+            className="flex transition-transform duration-700 ease-out w-full items-start"
             style={{ transform: `translateX(-${deckIndex * 100}%)` }}
           >
             {slides.map((s) => (
               <div 
                 key={s.id} 
-                className="w-full h-full shrink-0 overflow-y-auto overflow-x-hidden scroll-smooth flex flex-col justify-between"
+                className="w-full shrink-0 min-h-[calc(100vh-64px)] flex flex-col justify-between"
               >
-                <div className="w-full min-h-full pb-32">
+                <div className="w-full">
                   {s.component}
                 </div>
               </div>
