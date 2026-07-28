@@ -1009,7 +1009,7 @@ function FinalCTA() {
    ========================================================================= */
 function ExpandedFooter() {
   return (
-    <footer className="bg-[#050505] text-[#F4F4F0] pt-16 pb-12 border-t border-white/10 font-mono" data-testid="slide-footer">
+    <footer className="bg-[#050505] text-[#F4F4F0] pt-16 pb-16 border-t border-white/10 font-mono relative z-10" data-testid="slide-footer">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
         <div>
           <div className="font-editorial text-3xl font-bold mb-3">CR8 <span className="italic text-[#FF3B30]">STUDIO</span></div>
@@ -1184,25 +1184,20 @@ export default function Landing() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* PRESENTATION SLIDES (Scroll ends cleanly at the bottom of the footer with zero empty background space) */}
-      <div className="pt-16 w-full relative z-10 overflow-hidden">
-        <div className="w-full">
-          <div
-            className="flex transition-transform duration-700 ease-out w-full items-start"
-            style={{ transform: `translateX(-${deckIndex * 100}%)` }}
+      {/* PRESENTATION SLIDES (Only active slide rendered to ensure zero blank space below footer and unclipped borders) */}
+      <div className="pt-16 w-full relative z-10 min-h-[calc(100vh-64px)] flex flex-col justify-between">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slides[deckIndex].id}
+            initial={{ opacity: 0, x: 25 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -25 }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className="w-full flex-1 flex flex-col justify-between"
           >
-            {slides.map((s) => (
-              <div 
-                key={s.id} 
-                className="w-full shrink-0 flex flex-col justify-start h-auto"
-              >
-                <div className="w-full h-auto">
-                  {s.component}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+            {slides[deckIndex].component}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
 
