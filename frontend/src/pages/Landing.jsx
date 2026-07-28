@@ -696,7 +696,7 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section id="portfolio" className="relative text-[#F4F4F0] py-12 md:py-16 bg-[#0A0A0A]" data-testid="slide-portfolio">
+    <section id="portfolio" className="relative text-[#F4F4F0] py-8 md:py-10 pb-16 bg-[#0A0A0A]" data-testid="slide-portfolio">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
@@ -1070,14 +1070,14 @@ export default function Landing() {
   const [deckIndex, setDeckIndex] = useState(0);
 
   const slides = [
-    { id: "hero", component: <><Hero /><EditorialMarquee /></> },
-    { id: "quick-value", component: <QuickValue /> },
-    { id: "manifesto", component: <Manifesto /> },
-    { id: "how-it-works", component: <HowItWorks /> },
-    { id: "social-proof", component: <SocialProof /> },
-    { id: "portfolio", component: <FeaturedGrid /> },
-    { id: "pricing", component: <PricingSection /> },
-    { id: "faq", component: <FAQ /> },
+    { id: "hero", component: <><Hero /><EditorialMarquee /><ExpandedFooter /></> },
+    { id: "quick-value", component: <><QuickValue /><ExpandedFooter /></> },
+    { id: "manifesto", component: <><Manifesto /><ExpandedFooter /></> },
+    { id: "how-it-works", component: <><HowItWorks /><ExpandedFooter /></> },
+    { id: "social-proof", component: <><SocialProof /><ExpandedFooter /></> },
+    { id: "portfolio", component: <><FeaturedGrid /><ExpandedFooter /></> },
+    { id: "pricing", component: <><PricingSection /><ExpandedFooter /></> },
+    { id: "faq", component: <><FAQ /><ExpandedFooter /></> },
     { id: "final-cta", component: <><FinalCTA /><ExpandedFooter /></> },
   ];
 
