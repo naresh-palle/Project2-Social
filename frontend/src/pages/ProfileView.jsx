@@ -33,7 +33,7 @@ export default function ProfileView() {
   }, [nav]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center text-[#F4F4F0]">
       <div className="animate-pulse font-mono tracking-widest text-xs uppercase text-[#FF3B30]">Loading Studio Profile...</div>
     </div>
   );
@@ -108,7 +108,7 @@ export default function ProfileView() {
   const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
       <div className="grain" />
 
       {/* Ambient Radial Lighting Background */}
@@ -476,7 +476,7 @@ export default function ProfileView() {
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {portfolioImages.map((media, i) => (
-                          <div key={i} className="aspect-square max-h-[160px] bg-black border border-white/15 relative group overflow-hidden rounded-sm">
+                          <div key={i} className="aspect-square max-h-[160px] bg-[#0B0B0E] border border-white/15 relative group overflow-hidden rounded-sm">
                             <img src={media} alt={`Work Image ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                           </div>
                         ))}
@@ -493,7 +493,7 @@ export default function ProfileView() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {portfolioVideos.map((media, i) => (
-                          <div key={i} className="aspect-video max-h-[220px] bg-black border border-white/15 relative group overflow-hidden rounded-sm">
+                          <div key={i} className="aspect-video max-h-[220px] bg-[#0B0B0E] border border-white/15 relative group overflow-hidden rounded-sm">
                             <video src={media} controls className="w-full h-full object-cover" />
                           </div>
                         ))}

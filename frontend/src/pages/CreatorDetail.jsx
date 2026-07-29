@@ -35,7 +35,7 @@ export default function CreatorDetail() {
   }, [id, nav]);
 
   if (loading) return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0]">
+      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center text-[#F4F4F0]">
         <div className="animate-pulse font-mono tracking-widest text-sm">Loading Studio...</div>
       </div>
   );
@@ -61,7 +61,7 @@ export default function CreatorDetail() {
   }, {key: null, val: null});
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />

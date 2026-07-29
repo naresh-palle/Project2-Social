@@ -5,7 +5,7 @@ import { Nav } from "@/components/Nav";
 
 export default function RegisterSplash() {
   return (
-    <div className="relative min-h-screen bg-[#0A0A0A] text-[#F4F4F0] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
+    <div className="relative min-h-screen bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
       {/* Sleek Radial Ambient Aura Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div 

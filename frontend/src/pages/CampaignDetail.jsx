@@ -104,8 +104,8 @@ export default function CampaignDetail() {
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || "Failed"); }
   };
 
-  if (c === false) return <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-editorial italic text-5xl">Brief not on file.</h1></div>;
-  if (!c) return <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
+  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-editorial italic text-5xl">Brief not on file.</h1></div>;
+  if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = user?.role === "owner" && c.owner_id === user?.id;
   const isAcceptedCreator = user?.role === "influencer" && c.accepted_creator_id === user?.id;
@@ -118,7 +118,7 @@ export default function CampaignDetail() {
   const backLabel = fromMessages ? "← Back to Messages" : "← Back to file";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
@@ -294,7 +294,7 @@ export default function CampaignDetail() {
                 <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 hairline-b pb-3">§ Submit deliverable</h3>
                 <form onSubmit={submitDeliv} className="mt-4 space-y-4" data-testid="deliv-form">
                   <select data-testid="deliv-kind" value={delivForm.kind} onChange={e=>setDelivForm({...delivForm,kind:e.target.value})}
-                    className="w-full bg-[#0A0A0A] hairline-b py-3 focus:outline-none">
+                    className="w-full bg-[#0B0B0E] hairline-b py-3 focus:outline-none">
                     {["reel","story","post","video","other"].map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                   <input required data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}

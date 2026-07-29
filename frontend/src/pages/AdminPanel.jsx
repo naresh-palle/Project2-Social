@@ -36,7 +36,11 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
 }
 
 export function AdminPanel() {
-  const [tab, setTab] = useState("overview"); 
+  const [tab, setTab] = useState("overview");
+  const [exportModal, setExportModal] = useState(false);
+  const [exportRange, setExportRange] = useState("monthly");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState(""); 
   
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
@@ -114,11 +118,12 @@ export function AdminPanel() {
       }
   };
 
-  const exportCSV = () => {
+    const exportCSV = () => {
       const data = tab === "users" ? usersList : [stats];
       if (!data || !data.length) return;
       const headers = Object.keys(data[0] || {}).join(",");
       const csv = [
+          `# Export Timeframe: ${exportRange.toUpperCase()}${exportRange === 'custom' ? ` (${startDate} to ${endDate || 'Unlimited'})` : ''}`,
           headers,
           ...data.map(row => Object.values(row || {}).map(v => `"${v}"`).join(","))
       ].join("\n");
@@ -126,11 +131,12 @@ export function AdminPanel() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `cr8_export_${tab}_${new Date().toISOString()}.csv`;
+      link.download = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0,10)}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("Export successful");
+      setExportModal(false);
+      toast.success(`Export successful (${exportRange.toUpperCase()} timeframe)`);
   };
 
   if (loading) return (
@@ -189,7 +195,7 @@ export function AdminPanel() {
             </div>
             
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-                <button onClick={exportCSV} className="btn-outline border-white/20 hover:border-white px-4 py-2 flex items-center gap-2">
+                <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
                     <Download className="w-4 h-4" /> Export {tab === "users" ? "Users" : "Data"}
                 </button>
             </div>
@@ -327,16 +333,16 @@ export function AdminPanel() {
                         <div className="flex items-center gap-2">
                             <Filter className="w-3 h-3 opacity-50" />
                             <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer">
-                                <option value="" className="bg-[#0A0A0A]">All Roles</option>
-                                <option value="creator" className="bg-[#0A0A0A]">Creators</option>
-                                <option value="brand" className="bg-[#0A0A0A]">Brands</option>
-                                <option value="agency" className="bg-[#0A0A0A]">Agencies</option>
+                                <option value="" className="bg-[#0B0B0E]">All Roles</option>
+                                <option value="creator" className="bg-[#0B0B0E]">Creators</option>
+                                <option value="brand" className="bg-[#0B0B0E]">Brands</option>
+                                <option value="agency" className="bg-[#0B0B0E]">Agencies</option>
                             </select>
                         </div>
                         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer">
-                            <option value="" className="bg-[#0A0A0A]">All Status</option>
-                            <option value="active" className="bg-[#0A0A0A]">Active</option>
-                            <option value="pending" className="bg-[#0A0A0A]">Pending</option>
+                            <option value="" className="bg-[#0B0B0E]">All Status</option>
+                            <option value="active" className="bg-[#0B0B0E]">Active</option>
+                            <option value="pending" className="bg-[#0B0B0E]">Pending</option>
                         </select>
                     </div>
                 </div>
@@ -414,6 +420,87 @@ export function AdminPanel() {
                 </div>
             </motion.div>
         )}
+
+      {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
+      {exportModal && (
+        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-sm shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
+                <h3 className="font-editorial text-2xl mt-1 text-white">Select Export Timeframe</h3>
+              </div>
+              <button onClick={() => setExportModal(false)} className="text-white/60 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <label className="font-mono text-xs text-white/70 block uppercase tracking-wider">Timeframe Preset</label>
+              <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                {[
+                  { id: "weekly", label: "📅 Weekly (7 Days)" },
+                  { id: "monthly", label: "🗓️ Monthly (30 Days)" },
+                  { id: "6months", label: "📊 6 Months (180 Days)" },
+                  { id: "1year", label: "📈 1 Year (365 Days)" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setExportRange(opt.id)}
+                    className={`p-3 text-left border rounded-xs transition-all ${
+                      exportRange === opt.id
+                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setExportRange("custom")}
+                className={`w-full p-3 text-left border rounded-xs font-mono text-xs transition-all ${
+                  exportRange === "custom"
+                    ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                    : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                }`}
+              >
+                ♾️ Customized (No Limit - Custom Range)
+              </button>
+
+              {exportRange === "custom" && (
+                <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+                  <div>
+                    <label className="text-white/50 block mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/50 block mb-1">End Date (No Limit)</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-mono text-xs">
+              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
+              <button type="button" onClick={exportCSV} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Generate CSV Export 📥</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -485,6 +572,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
   const [loading, setLoading] = useState(true);
   const [declineModal, setDeclineModal] = useState(null);
   const [declineReason, setDeclineReason] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // "grid" (4 in a row thumbnail) or "list"
 
   const loadAgents = async () => {
     setLoading(true);
@@ -509,7 +597,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
   const handleApprove = async (agent) => {
     try {
       await api.post(`/admin/approve-agent/${agent.id}`);
-      toast.success(`🎉 Approved ${agent.company || agent.name}! Response sent to agent.`);
+      toast.success(`🎉 Approved ${agent.company || agent.name}! Access granted.`);
       loadAgents();
       fetchUsers();
     } catch (e) {
@@ -532,97 +620,144 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>;
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50 text-[#FF3B30]" /></div>;
 
   return (
     <div className="mt-8 space-y-8">
-      <div className="border-b border-white/10 pb-4 flex items-center justify-between">
+      <div className="border-b border-white/10 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="font-editorial text-3xl">📋 Agent Verification &amp; Approval Desk</h2>
           <p className="font-mono text-xs opacity-60 mt-1 uppercase tracking-widest">
             Review agency credentials, website portfolios, and grant or decline studio access
           </p>
         </div>
-        <button onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20">
-          Refresh Applications 🔄
-        </button>
+
+        <div className="flex items-center gap-3">
+          {/* VIEW MODE TOGGLE SWITCHER (Thumbnail View 4 in a row vs List View) */}
+          <div className="flex bg-white/5 border border-white/10 p-1 rounded-xs font-mono text-xs">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
+                viewMode === "grid" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+              }`}
+            >
+              ▦ Thumbnail View (4 in Row)
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
+                viewMode === "list" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+              }`}
+            >
+              ☰ List View
+            </button>
+          </div>
+
+          <button onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20 hover:border-white">
+            Refresh Applications 🔄
+          </button>
+        </div>
       </div>
 
       {agents.length === 0 ? (
         <div className="p-12 text-center border border-white/10 bg-white/[0.01]">
           <p className="font-editorial text-2xl opacity-50">No pending agent applications</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      ) : viewMode === "grid" ? (
+        /* THUMBNAIL VIEW (4 IN A ROW GRID) */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {agents.map((ag) => {
             const isApproved = ag.agent_approved;
             const isDeclined = ag.onboarding_status === "declined";
 
             return (
-              <div key={ag.id} className="p-6 border border-white/10 bg-white/[0.02] flex flex-col justify-between rounded-sm space-y-4">
-                <div>
-                  <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold">
-                      {ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
-                    </span>
-                    <span className={`font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
-                      isApproved ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" :
-                      isDeclined ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/30" :
-                      "bg-orange-400/10 text-orange-400 border-orange-400/30"
+              <div key={ag.id} className="p-4 border border-white/15 bg-[#121212] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF3B30]/50 transition-all">
+                <div className="space-y-3">
+                  {/* Thumbnail Avatar/Banner Box */}
+                  <div className="relative w-full h-32 bg-gradient-to-br from-[#FF3B30]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
+                    <span className="font-editorial text-4xl font-bold text-white/80">{ag.company ? ag.company.charAt(0) : "A"}</span>
+                    <span className={`absolute top-2 right-2 font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
+                      isApproved ? "bg-[#34C759] text-black border-[#34C759]" :
+                      isDeclined ? "bg-[#FF3B30] text-white border-[#FF3B30]" :
+                      "bg-orange-500 text-black border-orange-500"
                     }`}>
-                      {isApproved ? "Approved & Verified" : isDeclined ? "Declined / Revision" : "Pending Review"}
+                      {isApproved ? "Approved" : isDeclined ? "Declined" : "Pending"}
                     </span>
                   </div>
 
-                  <h3 className="font-editorial text-3xl font-bold mt-3">{ag.company || ag.name}</h3>
-                  <div className="font-mono text-xs opacity-70 mt-1">{ag.name} · {ag.email}</div>
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] font-bold block">
+                      {ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
+                    </span>
+                    <h3 className="font-editorial text-xl font-bold text-white mt-1 leading-snug line-clamp-1">{ag.company || ag.name}</h3>
+                    <p className="font-mono text-[10px] text-white/60 line-clamp-1">{ag.name} · {ag.email}</p>
+                  </div>
 
-                  <div className="mt-4 pt-3 border-t border-white/5 space-y-2 font-mono text-xs opacity-80">
-                    <div className="flex justify-between">
-                      <span className="opacity-50">Specialization:</span>
-                      <span className="text-white font-bold">{ag.industry || "General Agency"}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="opacity-50">Headquarters:</span>
-                      <span className="text-white">{ag.city || "Global"}</span>
-                    </div>
+                  <div className="pt-2 border-t border-white/5 space-y-1 font-mono text-[10px] text-white/70">
+                    <div><span className="text-white/40">Industry:</span> {ag.industry || "General"}</div>
+                    <div><span className="text-white/40">City:</span> {ag.city || "India"}</div>
                     {ag.website && (
-                      <div className="flex justify-between">
-                        <span className="opacity-50">Official Website:</span>
-                        <a href={ag.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline">
-                          {ag.website} ↗
-                        </a>
-                      </div>
-                    )}
-                    {ag.bio && (
-                      <div className="pt-2">
-                        <span className="opacity-50 block mb-1 text-[10px]">Representation Statement:</span>
-                        <p className="text-white/90 italic bg-white/5 p-2.5 rounded-xs border border-white/5 text-[11px]">
-                          "{ag.bio}"
-                        </p>
-                      </div>
+                      <div className="truncate"><span className="text-white/40">Site:</span> <a href={ag.website} target="_blank" rel="noreferrer" className="text-[#007AFF] hover:underline">{ag.website}</a></div>
                     )}
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-3 font-mono text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDeclineModal(ag);
-                      setDeclineReason("Agency credentials require further verification.");
-                    }}
-                    className="btn-outline text-xs py-2 px-4 border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white transition-colors"
-                  >
-                    ❌ Decline / Reject
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApprove(ag)}
-                    className="btn-solid text-xs py-2 px-5 bg-[#34C759] text-white hover:bg-[#2db04e] transition-colors"
-                  >
-                    ✅ Approve Agent
-                  </button>
+                <div className="pt-3 border-t border-white/10 flex items-center gap-2 font-mono text-[10px]">
+                  {!isApproved ? (
+                    <>
+                      <button onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#34C759] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
+                        Approve ⚡
+                      </button>
+                      <button onClick={() => setDeclineModal(ag)} className="px-2.5 py-1.5 border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/20 rounded-xs font-bold transition-all">
+                        Decline ✖
+                      </button>
+                    </>
+                  ) : (
+                    <div className="w-full py-1.5 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 text-center font-bold rounded-xs">
+                      Verified Studio Access ✓
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* LIST VIEW */
+        <div className="border border-white/15 bg-[#121212] rounded-xs overflow-hidden shadow-2xl font-mono text-xs">
+          <div className="grid grid-cols-12 px-6 py-3 border-b border-white/10 bg-white/[0.02] text-white/50 text-[10px] tracking-widest uppercase font-bold">
+            <div className="col-span-4">Agency / Company</div>
+            <div className="col-span-3">Contact &amp; Location</div>
+            <div className="col-span-2">Type / Industry</div>
+            <div className="col-span-3 text-right">Verification Status / Action</div>
+          </div>
+          {agents.map((ag) => {
+            const isApproved = ag.agent_approved;
+            const isDeclined = ag.onboarding_status === "declined";
+
+            return (
+              <div key={ag.id} className="grid grid-cols-12 items-center px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
+                <div className="col-span-4 space-y-0.5">
+                  <div className="font-editorial text-lg text-white font-bold">{ag.company || ag.name}</div>
+                  <div className="text-[10px] text-white/50">{ag.bio || "Talent agency partner."}</div>
+                </div>
+                <div className="col-span-3 space-y-0.5 text-white/70 text-[11px]">
+                  <div>{ag.name} ({ag.email})</div>
+                  <div className="text-[10px] text-white/40">{ag.city}</div>
+                </div>
+                <div className="col-span-2 space-y-0.5">
+                  <span className="text-[#FF3B30] font-bold text-[10px] uppercase block">{ag.agent_type}</span>
+                  <span className="text-white/60 text-[10px]">{ag.industry}</span>
+                </div>
+                <div className="col-span-3 flex items-center justify-end gap-2">
+                  {!isApproved ? (
+                    <>
+                      <button onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#34C759] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
+                      <button onClick={() => setDeclineModal(ag)} className="px-2 py-1.5 border border-[#FF3B30]/50 text-[#FF3B30] font-bold text-[10px] uppercase rounded-xs hover:bg-[#FF3B30]/10">Decline</button>
+                    </>
+                  ) : (
+                    <span className="text-[#34C759] bg-[#34C759]/10 px-3 py-1 border border-[#34C759]/30 rounded-xs font-bold text-[10px] uppercase">Verified Agent ✓</span>
+                  )}
                 </div>
               </div>
             );
@@ -630,33 +765,107 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
         </div>
       )}
 
+      {/* DECLINE MODAL */}
       {declineModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-[#121212] border border-white/20 p-8 max-w-md w-full rounded-sm relative">
-            <h3 className="font-editorial text-3xl mb-2 text-[#FF3B30]">Decline Agent Application</h3>
-            <p className="font-mono text-xs opacity-70 mb-4">
-              Enter reason for declining {declineModal.company || declineModal.name}. This response will be sent directly to the agent.
-            </p>
-            <form onSubmit={handleDeclineSubmit} className="space-y-4">
-              <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">Decline Feedback / Reason *</label>
-                <textarea
-                  required
-                  rows={3}
-                  className="inp resize-none mt-2"
-                  value={declineReason}
-                  onChange={(e) => setDeclineReason(e.target.value)}
-                  placeholder="e.g. Website URL broken or portfolio required..."
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10 font-mono text-xs">
-                <button type="button" onClick={() => setDeclineModal(null)} className="btn-pill">Cancel</button>
-                <button type="submit" className="btn-solid bg-[#FF3B30] text-white">Send Decline Response</button>
-              </div>
-            </form>
-          </div>
+        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-sm space-y-4 shadow-2xl">
+            <h3 className="font-editorial text-2xl text-white font-bold">Decline Agency Access</h3>
+            <p className="font-mono text-xs opacity-60">Decline application for {declineModal.company || declineModal.name}:</p>
+            <textarea
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              placeholder="Enter feedback or reason for declining (e.g. Website portfolio verification required)..."
+              className="w-full bg-[#0B0B0E]/60 border border-white/20 p-3 text-xs font-mono text-white rounded-xs h-24 focus:outline-none focus:border-[#FF3B30]"
+              required
+            />
+            <div className="flex justify-end gap-3 font-mono text-xs">
+              <button type="button" onClick={() => setDeclineModal(null)} className="px-4 py-2 border border-white/20 hover:bg-white/5">Cancel</button>
+              <button type="submit" className="px-4 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Confirm Decline</button>
+            </div>
+          </form>
         </div>
       )}
+
+      {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
+      {exportModal && (
+        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-sm shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
+                <h3 className="font-editorial text-2xl mt-1 text-white">Select Export Timeframe</h3>
+              </div>
+              <button onClick={() => setExportModal(false)} className="text-white/60 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <label className="font-mono text-xs text-white/70 block uppercase tracking-wider">Timeframe Preset</label>
+              <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                {[
+                  { id: "weekly", label: "📅 Weekly (7 Days)" },
+                  { id: "monthly", label: "🗓️ Monthly (30 Days)" },
+                  { id: "6months", label: "📊 6 Months (180 Days)" },
+                  { id: "1year", label: "📈 1 Year (365 Days)" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setExportRange(opt.id)}
+                    className={`p-3 text-left border rounded-xs transition-all ${
+                      exportRange === opt.id
+                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setExportRange("custom")}
+                className={`w-full p-3 text-left border rounded-xs font-mono text-xs transition-all ${
+                  exportRange === "custom"
+                    ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                    : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                }`}
+              >
+                ♾️ Customized (No Limit - Custom Range)
+              </button>
+
+              {exportRange === "custom" && (
+                <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+                  <div>
+                    <label className="text-white/50 block mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/50 block mb-1">End Date (No Limit)</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-mono text-xs">
+              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
+              <button type="button" onClick={exportCSV} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Generate CSV Export 📥</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </div>
   );
 }

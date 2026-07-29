@@ -54,7 +54,7 @@ export default function Wallet() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]" data-testid="wallet-page">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]" data-testid="wallet-page">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
@@ -142,7 +142,7 @@ export default function Wallet() {
                 value={amount} 
                 onChange={e => setAmount(e.target.value)}
                 placeholder="Enter amount in INR"
-                className="w-full bg-black/40 hairline-b pl-9 pr-4 py-3 focus:outline-none focus:border-[#FF3B30] text-2xl font-editorial italic" 
+                className="w-full bg-[#0B0B0E]/40 hairline-b pl-9 pr-4 py-3 focus:outline-none focus:border-[#FF3B30] text-2xl font-editorial italic" 
               />
             </div>
             <div className="flex gap-3">

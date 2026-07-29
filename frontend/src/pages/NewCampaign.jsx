@@ -83,7 +83,7 @@ export default function NewCampaign() {
 
   if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] pt-40 px-10">
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10">
         <Nav />
         <h1 className="font-editorial italic text-5xl">Brand Owners, Agents &amp; Admins only, please.</h1>
       </div>
@@ -91,7 +91,7 @@ export default function NewCampaign() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />

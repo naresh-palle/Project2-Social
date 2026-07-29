@@ -90,7 +90,7 @@ export default function Onboarding() {
     // 1. Pending Approval Review Screen (Shown after Agent submits details)
     if (isPending && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex flex-col">
+        <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
           <Nav />
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
@@ -176,7 +176,7 @@ export default function Onboarding() {
     // 2. Application Declined Screen
     if (isDeclined && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex flex-col">
+        <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
           <Nav />
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#121212] border border-[#FF3B30]/40 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
@@ -216,7 +216,7 @@ export default function Onboarding() {
 
     // 3. Agent Onboarding Details Entry Form
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex flex-col">
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
         <Nav />
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
@@ -450,15 +450,15 @@ export default function Onboarding() {
             <div>
                 <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
                 <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
-                    <option value="" className="bg-black">Select City...</option>
-                    {CITIES.map(c => <option key={c} value={c} className="bg-black">{c}</option>)}
+                    <option value="" className="bg-[#0B0B0E]">Select City...</option>
+                    {CITIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>)}
                 </select>
             </div>
             <div>
                 <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
                 <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
-                    <option value="" className="bg-black">Select Availability...</option>
-                    {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-black">{a}</option>)}
+                    <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
+                    {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
                 </select>
             </div>
         </div>
@@ -516,8 +516,8 @@ export default function Onboarding() {
               onChange={e => setIndustry(e.target.value)}
               className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial"
             >
-              <option value="" className="bg-black" disabled>Select your primary industry</option>
-              {CATEGORIES.map(p => <option key={p} className="bg-black" value={p}>{p}</option>)}
+              <option value="" className="bg-[#0B0B0E]" disabled>Select your primary industry</option>
+              {CATEGORIES.map(p => <option key={p} className="bg-[#0B0B0E]" value={p}>{p}</option>)}
             </select>
           <div className="pt-8 flex justify-end">
             <button 
@@ -583,7 +583,7 @@ export default function Onboarding() {
 
 function Layout({ step, title, subtitle, children }) {
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex flex-col">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <div className="grain" />
       <Nav />
       <div className="flex-1 flex items-center justify-center p-6 mt-16">

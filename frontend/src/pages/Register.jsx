@@ -230,7 +230,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
       <div className="grain" />
 
       {/* Same radial ambient lighting as Sign In */}
@@ -419,13 +419,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0A0A]/90 backdrop-blur-sm p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0B0E]/90 backdrop-blur-sm p-6"
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0A0A0A] border border-[#F4F4F0]/20 p-8 md:p-12 max-w-md w-full relative"
+              className="bg-[#0B0B0E] border border-[#F4F4F0]/20 p-8 md:p-12 max-w-md w-full relative"
             >
               <button 
                 type="button"

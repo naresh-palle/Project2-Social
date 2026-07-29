@@ -23,14 +23,14 @@ export default function Dashboard() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
         <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] animate-pulse">Opening the studio…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0] relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
       <div className="grain" />
 
       {/* Ambient Radial Mesh Background */}
@@ -351,7 +351,7 @@ function OwnerPanel() {
                 </div>
 
                 {/* Media Showcase Card */}
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-black mb-4 group/media cursor-pointer">
+                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-4 group/media cursor-pointer">
                   <img src={work.workImage} alt={work.workTitle} className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-700 opacity-90" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">

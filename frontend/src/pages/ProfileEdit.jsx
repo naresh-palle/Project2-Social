@@ -314,7 +314,7 @@ export default function ProfileEdit() {
   const { score: completion, missing: missingFields } = getCompletionDetails();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
       <Toaster theme="dark" position="top-center" />
@@ -378,13 +378,13 @@ export default function ProfileEdit() {
                   <F label="Brand Industry Category *">
                     <select 
                       required 
-                      className="inp bg-[#0A0A0A] cursor-pointer" 
+                      className="inp bg-[#0B0B0E] cursor-pointer" 
                       value={f.industry || ""} 
                       onChange={e=>setF({...f, industry: e.target.value})}
                     >
-                      <option value="" className="bg-[#0A0A0A]">Select Industry Category...</option>
+                      <option value="" className="bg-[#0B0B0E]">Select Industry Category...</option>
                       {INDUSTRIES.map(ind => (
-                        <option key={ind} value={ind} className="bg-[#0A0A0A]">{ind}</option>
+                        <option key={ind} value={ind} className="bg-[#0B0B0E]">{ind}</option>
                       ))}
                     </select>
                   </F>
@@ -440,7 +440,7 @@ export default function ProfileEdit() {
               <div className="space-y-4">
                   <F label="Select Languages (Multi-Select)">
                       <select 
-                        className="inp cursor-pointer bg-[#0A0A0A]"
+                        className="inp cursor-pointer bg-[#0B0B0E]"
                         onChange={(e) => {
                           const val = e.target.value;
                           if (val && !f.languages.includes(val)) {
@@ -449,9 +449,9 @@ export default function ProfileEdit() {
                           e.target.value = "";
                         }}
                       >
-                        <option value="" className="bg-[#0A0A0A]">Select a language to add...</option>
+                        <option value="" className="bg-[#0B0B0E]">Select a language to add...</option>
                         {LANGUAGES.filter(lang => !f.languages.includes(lang)).map(lang => (
-                          <option key={lang} value={lang} className="bg-[#0A0A0A]">{lang}</option>
+                          <option key={lang} value={lang} className="bg-[#0B0B0E]">{lang}</option>
                         ))}
                       </select>
                   </F>
@@ -563,7 +563,7 @@ export default function ProfileEdit() {
                   <div className="space-y-4">
                       <F label="Select Niches / Categories">
                           <select 
-                            className="inp cursor-pointer bg-[#0A0A0A]"
+                            className="inp cursor-pointer bg-[#0B0B0E]"
                             onChange={(e) => {
                               const val = e.target.value;
                               if (val) {
@@ -577,9 +577,9 @@ export default function ProfileEdit() {
                               e.target.value = "";
                             }}
                           >
-                            <option value="" className="bg-[#0A0A0A]">Select a category to add...</option>
+                            <option value="" className="bg-[#0B0B0E]">Select a category to add...</option>
                             {CATEGORIES.map(c => (
-                              <option key={c} value={c} className="bg-[#0A0A0A]">{c}</option>
+                              <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
                             ))}
                           </select>
                       </F>
@@ -625,13 +625,13 @@ export default function ProfileEdit() {
                     <F label="Portfolio Images and Videos">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-black border border-white/10">
+                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
                                 <video src={p} className="w-full h-full object-cover" controls />
                             ) : (
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
-                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <X className="w-3 h-3 text-white" />
                             </button>
                           </div>
@@ -704,22 +704,22 @@ export default function ProfileEdit() {
                     
                     <F label="Years of Experience *">
                         <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
-                            <option value="" className="bg-[#0A0A0A]">Select Experience...</option>
-                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0A0A0A]">{ex}</option>)}
+                            <option value="" className="bg-[#0B0B0E]">Select Experience...</option>
+                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0B0B0E]">{ex}</option>)}
                         </select>
                     </F>
 
                     <F label="Response Time *">
                         <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
-                            <option value="" className="bg-[#0A0A0A]">Select Response Time...</option>
-                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0A0A0A]">{r}</option>)}
+                            <option value="" className="bg-[#0B0B0E]">Select Response Time...</option>
+                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0B0B0E]">{r}</option>)}
                         </select>
                     </F>
 
                     <div className="pt-4" id="sec-content-types">
                         <F label="Content Types You Create * (Multi-Select)">
                             <select 
-                              className="inp cursor-pointer bg-[#0A0A0A]"
+                              className="inp cursor-pointer bg-[#0B0B0E]"
                               onChange={(e) => {
                                 const val = e.target.value;
                                 if (val && !f.content_types.includes(val)) {
@@ -728,9 +728,9 @@ export default function ProfileEdit() {
                                 e.target.value = "";
                               }}
                             >
-                              <option value="" className="bg-[#0A0A0A]">Select content type to add...</option>
+                              <option value="" className="bg-[#0B0B0E]">Select content type to add...</option>
                               {CONTENT_TYPES.filter(t => !f.content_types.includes(t)).map(t => (
-                                <option key={t} value={t} className="bg-[#0A0A0A]">{t}</option>
+                                <option key={t} value={t} className="bg-[#0B0B0E]">{t}</option>
                               ))}
                             </select>
 

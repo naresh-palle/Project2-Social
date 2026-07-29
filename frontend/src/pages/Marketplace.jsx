@@ -39,7 +39,7 @@ export default function Marketplace() {
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <div className="grain" />
       <Nav />
 

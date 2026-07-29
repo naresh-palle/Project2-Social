@@ -52,7 +52,7 @@ function Hero() {
   const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0A0A0A] flex flex-col justify-between" data-testid="slide-hero">
+    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
       {/* 1. Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
@@ -221,7 +221,7 @@ function EditorialMarquee() {
    ========================================================================= */
 function QuickValue() {
   return (
-    <section id="quick-value" className="relative text-[#F4F4F0] py-14 md:py-16 overflow-hidden bg-[#0A0A0A]" data-testid="slide-quick-value">
+    <section id="quick-value" className="relative text-[#F4F4F0] py-14 md:py-16 overflow-hidden bg-[#0B0B0E]" data-testid="slide-quick-value">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="hairline-b pb-5 mb-10 flex flex-wrap items-end justify-between gap-4">
@@ -455,7 +455,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-how-it-works">
+    <section id="how-it-works" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0B0B0E]" data-testid="slide-how-it-works">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10 flex items-end justify-between">
@@ -572,7 +572,7 @@ function SocialProof() {
   ];
 
   return (
-    <section id="social-proof" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-social-proof">
+    <section id="social-proof" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0B0B0E]" data-testid="slide-social-proof">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
@@ -724,7 +724,7 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section id="portfolio" className="relative text-[#F4F4F0] py-8 md:py-10 pb-6 bg-[#0A0A0A]" data-testid="slide-portfolio">
+    <section id="portfolio" className="relative text-[#F4F4F0] py-8 md:py-10 pb-6 bg-[#0B0B0E]" data-testid="slide-portfolio">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
@@ -751,7 +751,7 @@ function FeaturedGrid() {
                     alt={f.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
                   />
-                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0A0A0A]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10 font-bold">
+                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#0B0B0E]/90 px-2 py-0.5 text-[#F4F4F0] border border-white/10 font-bold">
                     {f.label}
                   </div>
                 </div>
@@ -792,7 +792,7 @@ function FeaturedGrid() {
    ========================================================================= */
 function PricingSection() {
   return (
-    <section id="pricing" className="relative text-[#F4F4F0] py-6 md:py-8 bg-[#0A0A0A]" data-testid="slide-pricing">
+    <section id="pricing" className="relative text-[#F4F4F0] py-6 md:py-8 bg-[#0B0B0E]" data-testid="slide-pricing">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 space-y-6">
         <FadeUp>
           <div className="pb-4 mb-4 border-b border-white/10">
@@ -920,7 +920,7 @@ const EXPANDED_FAQS = [
 
 function FAQ() {
   return (
-    <section id="faq" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0A0A0A]" data-testid="slide-faq">
+    <section id="faq" className="relative text-[#F4F4F0] py-14 md:py-16 bg-[#0B0B0E]" data-testid="slide-faq">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-white/10">
@@ -961,7 +961,7 @@ function FAQ() {
    ========================================================================= */
 function FinalCTA() {
   return (
-    <section id="final-cta" className="bg-[#0A0A0A] text-[#F4F4F0] py-20 md:py-28" data-testid="slide-final-cta">
+    <section id="final-cta" className="bg-[#0B0B0E] text-[#F4F4F0] py-20 md:py-28" data-testid="slide-final-cta">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 text-center space-y-6">
         <FadeUp>
           <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
@@ -1168,7 +1168,7 @@ export default function Landing() {
         onClick={prevDeck}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0B0B0E]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
       </button>
@@ -1179,7 +1179,7 @@ export default function Landing() {
         onClick={nextDeck}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0A0A0A]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0B0B0E]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
       </button>
