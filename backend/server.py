@@ -19,6 +19,8 @@ import bcrypt
 import jwt
 import httpx
 import aiofiles
+import aiosmtplib
+from email.message import EmailMessage
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, UploadFile, File
 from fastapi.responses import StreamingResponse, FileResponse
 from starlette.middleware.cors import CORSMiddleware
@@ -362,23 +364,42 @@ async def check_availability(inp: CheckInput):
             return {"available": False, "field": "username"}
     return {"available": True}
 
+# Sanity check for Gmail SMTP credentials at startup
+if not os.getenv('GMAIL_USER') or not os.getenv('GMAIL_APP_PASSWORD'):
+    raise RuntimeError('GMAIL_USER and GMAIL_APP_PASSWORD must be set in .env for OTP email delivery')
+
+async def send_email_otp(to: str, otp: str) -> None:
+    msg = EmailMessage()
+    msg["From"] = os.getenv('GMAIL_USER')
+    msg["To"] = to
+    msg["Subject"] = "Your Studio OTP Code"
+    msg.set_content(f"Your verification code is: {otp}\n\nThis code expires in 10 minutes.")
+    await aiosmtplib.send(
+        msg,
+        hostname="smtp.gmail.com",
+        port=587,
+        start_tls=True,
+        username=os.getenv('GMAIL_USER'),
+        password=os.getenv('GMAIL_APP_PASSWORD'),
+    )
+
 @api_router.post("/auth/send-otp")
 async def send_otp(inp: SendOTPInput):
     email = inp.email.lower().strip()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
-    
+
     # Store OTP with 10 min expiration
     await db.otps.update_one(
         {"email": email},
         {"$set": {"otp": otp, "expires_at": datetime.utcnow() + timedelta(minutes=10)}},
         upsert=True
     )
-    
-    # MOCK OTP SEND: Print to console
-    print(f"\n{'='*40}\n[MOCK OTP] Send to {email}\nYour Studio verification code is: {otp}\n{'='*40}\n")
+
+    # Real email send via Gmail SMTP
+    await send_email_otp(email, otp)
     return {"message": "OTP sent successfully"}
 
 @api_router.post("/auth/register")
@@ -386,7 +407,7 @@ async def register(inp: RegisterInput):
     email = inp.email.lower().strip()
     username = inp.username.lower().strip()
     mobile = inp.mobile.strip() if inp.mobile else None
-    
+
     # Verify OTP
     otp_record = await db.otps.find_one({"email": email})
     if not otp_record or otp_record["otp"] != inp.otp:

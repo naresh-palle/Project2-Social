@@ -9,4 +9,5 @@ python-dotenv
 httpx
 aiofiles
 bcrypt
+aiosmtplib
 google-generativeai
