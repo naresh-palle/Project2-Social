@@ -23,7 +23,7 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
                 <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">{title}</div>
                 <div className="p-2 bg-white/5 rounded-sm">{icon}</div>
             </div>
-            <div className="font-editorial text-4xl mt-4 mb-1">{value}</div>
+            <div className="font-editorial font-bold text-4xl md:text-5xl mt-4 mb-1 tracking-tight">{value}</div>
             <div className="flex justify-between items-center mt-4">
                 <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{sub}</div>
                 <div className={`flex items-center gap-1 font-mono text-[10px] ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
@@ -472,19 +472,25 @@ export function AdminPanel() {
               {exportRange === "custom" && (
                 <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
                   <div>
-                    <label className="text-white/50 block mb-1">Start Date</label>
+                    <label className="text-white/50 block mb-1">Start Date (From)</label>
                     <input
                       type="date"
                       value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        if (endDate && e.target.value > endDate) {
+                          setEndDate(e.target.value);
+                        }
+                      }}
                       className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="text-white/50 block mb-1">End Date (No Limit)</label>
+                    <label className="text-white/50 block mb-1">End Date (To)</label>
                     <input
                       type="date"
                       value={endDate}
+                      min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
                     />

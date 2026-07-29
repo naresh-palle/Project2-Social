@@ -224,7 +224,7 @@ function OwnerPanel() {
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#F4F4F0]">{t.v}</div>
+            <div className="font-editorial font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
             <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
@@ -551,7 +551,7 @@ function InfluencerPanel() {
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-editorial italic text-3xl md:text-4xl leading-[1.15] mt-2 text-[#F4F4F0]">{t.v}</div>
+            <div className="font-editorial font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
             <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
