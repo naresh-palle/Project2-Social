@@ -236,7 +236,7 @@ export default function Feed() {
                   required
                   value={postTitle}
                   onChange={(e) => setPostTitle(e.target.value)}
-                  placeholder="e.g. Summer Festival Editorial Shoot 2026..."
+                  placeholder=""
                   className="w-full bg-black/60 border border-white/20 p-3 text-white rounded-xs focus:border-[#FF3B30] outline-none"
                 />
               </div>
@@ -247,7 +247,7 @@ export default function Feed() {
                   type="url"
                   value={postImg}
                   onChange={(e) => setPostImg(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder=""
                   className="w-full bg-black/60 border border-white/20 p-3 text-white rounded-xs focus:border-[#FF3B30] outline-none"
                 />
               </div>
@@ -273,7 +273,7 @@ export default function Feed() {
                   required
                   value={postDesc}
                   onChange={(e) => setPostDesc(e.target.value)}
-                  placeholder="Share your latest photoshoot, campaign results, behind-the-scenes insights..."
+                  placeholder=""
                   className="w-full bg-black/60 border border-white/20 p-3 text-white rounded-xs h-28 focus:border-[#FF3B30] outline-none"
                 />
               </div>

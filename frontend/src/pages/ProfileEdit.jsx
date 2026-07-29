@@ -372,7 +372,7 @@ export default function ProfileEdit() {
                       className="inp" 
                       value={f.company || ""} 
                       onChange={e=>setF({...f, company: e.target.value})} 
-                      placeholder="e.g. Acme Luxury Ltd."
+                      placeholder=""
                     />
                   </F>
                   <F label="Brand Industry Category *">
@@ -395,7 +395,7 @@ export default function ProfileEdit() {
                       className="inp font-mono text-sm" 
                       value={f.website || ""} 
                       onChange={e=>setF({...f, website: e.target.value})} 
-                      placeholder="https://brand.com"
+                      placeholder=""
                     />
                   </F>
                 </div>
@@ -403,7 +403,7 @@ export default function ProfileEdit() {
 
               {isCreator && (
                 <F label="Creator Handle / Username *">
-                  <input required className="inp font-mono text-sm" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="@username" />
+                  <input required className="inp font-mono text-sm" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="" />
                 </F>
               )}
               <F label="Bio / About *">
@@ -481,7 +481,7 @@ export default function ProfileEdit() {
                         className="inp" 
                         value={f.city || ""} 
                         onChange={e=>setF({...f, city: e.target.value})} 
-                        placeholder="e.g. Mumbai, Bangalore, New Delhi, Paris"
+                        placeholder=""
                       />
                   </F>
                   <F label="State / Region">
@@ -489,7 +489,7 @@ export default function ProfileEdit() {
                         className="inp" 
                         value={f.state || ""} 
                         onChange={e=>setF({...f, state: e.target.value})} 
-                        placeholder="e.g. Maharashtra, Karnataka, Delhi"
+                        placeholder=""
                       />
                   </F>
               </div>
@@ -528,25 +528,25 @@ export default function ProfileEdit() {
                             <div className="grid grid-cols-2 gap-3 mt-4 font-mono">
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
                                            value={f.platform_metrics[plat]?.followers || ""}
                                            onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
                                 </div>
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
-                                    <input type="number" step="0.1" className="inp text-sm py-0.5" placeholder="0.0"
+                                    <input type="number" step="0.1" className="inp text-sm py-0.5" placeholder=""
                                            value={f.platform_metrics[plat]?.engagement || ""}
                                            onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
                                 </div>
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
                                            value={f.platform_metrics[plat]?.views || ""}
                                            onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
                                 </div>
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder="0"
+                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
                                            value={f.platform_metrics[plat]?.posts || ""}
                                            onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
                                 </div>
@@ -660,19 +660,19 @@ export default function ProfileEdit() {
                                 {f.past_campaigns.map((c, i) => (
                                     <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="Brand Name *" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-3">
-                                            <input required className="inp text-xs py-1.5" placeholder="Campaign Title *" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="Date (e.g. Q3 2025) *" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="Result (e.g. 500k views) *" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="Post Link (https://...) *" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
+                                            <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-1 text-right">
                                             <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">

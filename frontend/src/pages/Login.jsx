@@ -166,7 +166,7 @@ export default function Login() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-base"
-                  placeholder="enter email or username"
+                  placeholder=""
                 />
               </div>
 
@@ -182,7 +182,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-2 w-full bg-transparent hairline-b py-3 pr-10 focus:outline-none focus:border-[#FF3B30] text-base"
-                    placeholder="••••••••"
+                    placeholder=""
                   />
                   <button
                     type="button"
@@ -219,7 +219,7 @@ export default function Login() {
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
                     className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-base"
-                    placeholder="9876543210"
+                    placeholder=""
                   />
                 </div>
               </div>
@@ -236,7 +236,7 @@ export default function Login() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                     className="mt-2 w-full bg-black/60 border border-[#34C759]/50 p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
-                    placeholder="123456"
+                    placeholder=""
                   />
                 </motion.div>
               )}

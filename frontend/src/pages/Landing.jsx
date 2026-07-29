@@ -1042,7 +1042,7 @@ function ExpandedFooter() {
           <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF3B30] font-bold mb-4">NEWSLETTER</h4>
           <p className="text-xs text-white/60 mb-3">Get weekly creator insights &amp; brand strategy.</p>
           <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
-            <input type="email" placeholder="enter email..." className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#FF3B30]" />
+            <input type="email" placeholder="" className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#FF3B30]" />
             <button type="submit" className="px-3 py-2 bg-[#FF3B30] text-white text-xs uppercase font-bold rounded-xs">Join</button>
           </form>
         </div>

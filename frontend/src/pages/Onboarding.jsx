@@ -290,7 +290,7 @@ export default function Onboarding() {
                     className="inp"
                     value={agentForm.company}
                     onChange={(e) => setAgentForm({ ...agentForm, company: e.target.value })}
-                    placeholder="e.g. Apex Talent Group"
+                    placeholder=""
                   />
                 </div>
 
@@ -323,7 +323,7 @@ export default function Onboarding() {
                     className="inp"
                     value={agentForm.city}
                     onChange={(e) => setAgentForm({ ...agentForm, city: e.target.value })}
-                    placeholder="e.g. Mumbai, Bangalore"
+                    placeholder=""
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export default function Onboarding() {
                     className="inp font-mono text-sm"
                     value={agentForm.website}
                     onChange={(e) => setAgentForm({ ...agentForm, website: e.target.value })}
-                    placeholder="https://agency.com"
+                    placeholder=""
                   />
                 </div>
               </div>
@@ -352,7 +352,7 @@ export default function Onboarding() {
                   className="inp resize-none mt-2"
                   value={agentForm.bio}
                   onChange={(e) => setAgentForm({ ...agentForm, bio: e.target.value })}
-                  placeholder="Describe your talent roster or brand client experience..."
+                  placeholder=""
                 />
               </div>
             </div>

@@ -141,7 +141,7 @@ export default function Wallet() {
                 data-testid="wallet-amount" 
                 value={amount} 
                 onChange={e => setAmount(e.target.value)}
-                placeholder="Enter amount in INR"
+                placeholder=""
                 className="w-full bg-[#0B0B0E]/40 hairline-b pl-9 pr-4 py-3 focus:outline-none focus:border-[#FF3B30] text-2xl font-editorial italic" 
               />
             </div>
@@ -176,7 +176,7 @@ export default function Wallet() {
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-40" />
               <input
                 type="text"
-                placeholder="Search transactions..."
+                placeholder=""
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="bg-white/[0.03] border border-white/10 text-xs font-mono pl-9 pr-3 py-1.5 focus:outline-none focus:border-[#FF3B30] rounded-sm w-48 md:w-64"
