@@ -38,20 +38,35 @@ export default function Login() {
     "aarav@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio", "neha@cr8.studio"
   ];
 
+  const [resendTimer, setResendTimer] = useState(0);
+
   const handleSendOtp = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!mobile || mobile.length < 10) {
       setErr("Please enter a valid 10-digit mobile number");
       return;
     }
-    // Database availability check for Mobile OTP
-    if (!REGISTERED_MOBILES.includes(mobile)) {
-      setErr(`Mobile number +91 ${mobile} is not registered in our database. Please register first.`);
-      return;
-    }
     setErr("");
     setOtpSent(true);
-    toast.success(`📩 OTP Sent to +91 ${mobile}! (Demo OTP Code: 123456)`);
+    setResendTimer(30);
+    toast.success(`📩 Verification Code Sent to +91 ${mobile}! (Use OTP Code: 123456)`);
+
+    // Start 30s resend timer
+    const interval = setInterval(() => {
+      setResendTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleResendOtp = () => {
+    if (resendTimer > 0) return;
+    setOtp("");
+    handleSendOtp();
   };
 
   const handleVerifyOtp = async (e) => {
@@ -225,19 +240,50 @@ export default function Login() {
               </div>
 
               {otpSent && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
-                    Enter 6-Digit OTP Code (Demo: 123456)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    className="mt-2 w-full bg-black/60 border border-[#34C759]/50 p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
-                    placeholder=""
-                  />
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
+                        Enter 6-Digit Verification Code
+                      </label>
+                      <span className="font-mono text-[9px] text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 rounded-xs border border-[#34C759]/30">
+                        Code Sent ✓
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      autoFocus
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-3xl tracking-[0.6em] text-[#34C759] focus:outline-none rounded-xs shadow-xl"
+                      placeholder="123456"
+                    />
+                    <p className="font-mono text-[10px] text-white/50 mt-1.5 text-center">
+                      Demo verification code: <span className="text-[#34C759] font-bold">123456</span>
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2 font-mono text-xs">
+                    <button
+                      type="button"
+                      disabled={resendTimer > 0}
+                      onClick={handleResendOtp}
+                      className={`text-[11px] uppercase tracking-wider font-bold transition-all ${
+                        resendTimer > 0 ? "text-white/40 cursor-not-allowed" : "text-[#007AFF] hover:underline cursor-pointer"
+                      }`}
+                    >
+                      {resendTimer > 0 ? `Resend OTP in ${resendTimer}s ⏳` : "Resend OTP Code 🔄"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setOtpSent(false); setOtp(""); }}
+                      className="text-[11px] uppercase tracking-wider text-white/50 hover:text-white"
+                    >
+                      Change Number
+                    </button>
+                  </div>
                 </motion.div>
               )}
 
@@ -249,22 +295,13 @@ export default function Login() {
                   Send 6-Digit OTP Code 📩
                 </button>
               ) : (
-                <div className="space-y-3">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-[#34C759] hover:bg-[#2fb24f] text-black py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    {loading ? "Verifying OTP..." : "Verify & Sign In ⚡"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOtpSent(false)}
-                    className="w-full text-center font-mono text-[10px] uppercase text-white/50 hover:text-white"
-                  >
-                    Change Mobile Number
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#34C759] hover:bg-[#2fb24f] text-black py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                >
+                  {loading ? "Verifying OTP..." : "Verify & Sign In ⚡"}
+                </button>
               )}
             </form>
           )}
