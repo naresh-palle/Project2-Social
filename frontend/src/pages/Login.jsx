@@ -47,6 +47,13 @@ export default function Login() {
       setErr("Please enter a valid 10-digit mobile number");
       return;
     }
+    // Check if mobile is registered (in default list or registered in localStorage)
+    const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
+    const isRegistered = REGISTERED_MOBILES.includes(cleanMobile) || storedMobiles.includes(cleanMobile);
+    if (!isRegistered && storedMobiles.length > 0) {
+      setErr(`Mobile number +91 ${cleanMobile} is not registered. Please register first.`);
+      return;
+    }
     setErr("");
     setOtpSent(true);
     setResendTimer(30);
@@ -78,11 +85,12 @@ export default function Login() {
     }
     setErr("");
     setLoading(true);
-    // Authenticate with creator mobile OTP
-    const r = await login("creator@cr8.studio", "creator123");
+    const cleanMob = (mobile || "").replace(/\D/g, "");
+    const userEmail = `${cleanMob || "creator"}@cr8.studio`;
+    const r = await login(userEmail, "creator123");
     setLoading(false);
     if (r.ok) {
-      toast.success("📱 Mobile OTP Verified! Welcome back.");
+      toast.success("📱 Mobile OTP Verified! Welcome back to the studio.");
       nav("/dashboard");
     } else {
       setErr("OTP Verification failed");

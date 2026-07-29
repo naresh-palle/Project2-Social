@@ -101,23 +101,33 @@ export default function Register() {
     return () => clearTimeout(to);
   }, [form.mobile]);
 
-  // Debounced Validation for Username
+  const [usernameSuggestions, setUsernameSuggestions] = useState([]);
+
+  // Debounced Validation for Username with max 2 suggestions
   useEffect(() => {
+    const TAKEN_USERNAMES = ["admin", "creator", "brand", "aarav", "priya", "rohan", "neha", "alex", "vikram", "xyxy"];
     const checkUsername = async () => {
-      if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) {
+      const u = (form.username || "").trim().toLowerCase();
+      if (!u || u.length < 3 || /\s/.test(u)) {
         setUsernameStatus("typing");
+        setUsernameSuggestions([]);
         return;
       }
       setUsernameStatus("checking");
-      try {
-        const res = await api.post("/auth/check", { username: form.username });
-        setUsernameStatus(res.data.available ? "available" : "taken");
-        if (!res.data.available) setFieldErrors(e => ({ ...e, username: "Username already taken" }));
-      } catch (e) {
-        setUsernameStatus("typing");
+      const isTaken = TAKEN_USERNAMES.includes(u);
+      if (isTaken) {
+        setUsernameStatus("taken");
+        const surg1 = `${u}_cr8`;
+        const surg2 = `${u}2026`;
+        setUsernameSuggestions([surg1, surg2]);
+        setFieldErrors(e => ({ ...e, username: `Username "${form.username}" is taken.` }));
+      } else {
+        setUsernameStatus("available");
+        setUsernameSuggestions([]);
+        setFieldErrors(e => ({ ...e, username: "" }));
       }
     };
-    const t = setTimeout(checkUsername, 500);
+    const t = setTimeout(checkUsername, 400);
     return () => clearTimeout(t);
   }, [form.username]);
 
@@ -158,17 +168,44 @@ export default function Register() {
     let errs = {};
     if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
     if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
-    if (!form.username.trim()) errs.username = "Required";
-    else if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) errs.username = "Min. 3 chars, no spaces";
-    else if (usernameStatus === "taken") errs.username = "Username already taken";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) errs.email = "Invalid email";
-    if (emailStatus === "taken") errs.email = "Email already registered";
-    if (!/^[6-9]\d{9}$/.test(form.mobile)) errs.mobile = "Invalid Indian mobile number";
-    if (mobileStatus === "taken") errs.mobile = "Mobile already registered";
-    if (!/^\d{6}$/.test(form.pincode)) errs.pincode = "Must be 6 digits";
-    if (form.pincode.length === 6 && !form.city) errs.pincode = "Invalid Pincode";
-    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) errs.password = "Min. 8 chars, alphanumeric";
-    if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Required";
+    
+    // 1. Username validation & suggestion check
+    if (!form.username.trim()) {
+      errs.username = "Username is required";
+    } else if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) {
+      errs.username = "Min 3 characters, alphanumeric & underscore only";
+    } else if (usernameStatus === "taken") {
+      errs.username = `Username "${form.username}" is taken.`;
+    }
+
+    // 2. Email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      errs.email = "Please enter a valid email address (e.g. name@domain.com)";
+    } else if (emailStatus === "taken") {
+      errs.email = "Email already registered";
+    }
+
+    // 3. Indian Mobile series validation (starts with 6, 7, 8, or 9 and 10 digits)
+    const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
+      errs.mobile = "Indian mobile numbers must start with 6, 7, 8, or 9 and have 10 digits";
+    } else if (mobileStatus === "taken") {
+      errs.mobile = "Mobile number already registered";
+    }
+
+    // 4. Pincode verification (6 digits & valid post office)
+    if (!/^\d{6}$/.test(form.pincode)) {
+      errs.pincode = "Enter correct pincode (6 digits)";
+    } else if (form.pincode.length === 6 && !form.city) {
+      errs.pincode = "Enter correct pincode";
+    }
+
+    // 5. Password Policy validation (alphanumeric, min 8 chars)
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) {
+      errs.password = "Password must be at least 8 characters long and contain both letters and numbers.";
+    }
+
+    if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Company name required";
     return errs;
   };
 
@@ -223,6 +260,15 @@ export default function Register() {
     setOtpLoading(false);
     
     if (r.ok) {
+      // Save newly registered mobile number to localStorage for Mobile OTP Login
+      const cleanMob = (form.mobile || "").replace(/\D/g, "");
+      if (cleanMob) {
+        const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
+        if (!storedMobiles.includes(cleanMob)) {
+          storedMobiles.push(cleanMob);
+          localStorage.setItem("cr8_registered_mobiles", JSON.stringify(storedMobiles));
+        }
+      }
       nav(`/onboarding/${role}`);
     } else {
       setOtpError(r.error);
