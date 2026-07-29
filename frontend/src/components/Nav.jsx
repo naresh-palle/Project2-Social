@@ -55,10 +55,12 @@ export function Nav({ variant = "dark" }) {
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-10 py-4">
         <Link 
-          to="/" 
+          to={user ? "/dashboard" : "/"} 
           onClick={() => {
-            window.dispatchEvent(new Event("resetHomeDeck"));
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!user) {
+              window.dispatchEvent(new Event("resetHomeDeck"));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           }} 
           data-testid="nav-logo" 
           className="flex items-center gap-2 cursor-pointer"

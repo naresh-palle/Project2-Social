@@ -824,14 +824,14 @@ function PricingSection() {
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">13% on completed work</span>
+                <span className="text-[#FF3B30] font-bold">0% Commission (100% Free)</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#FF3B30] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
-              <div>We take <span className="text-white/60">₹13,000 (13%)</span></div>
+              <div>Platform Fee: <span className="text-[#34C759]">₹0 (0% Free)</span></div>
               <div className="text-[#34C759] font-bold text-xs pt-1 border-t border-white/10">
                 You get ₹87,000 ✓
               </div>
@@ -862,14 +862,14 @@ function PricingSection() {
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">13% on total spend</span>
+                <span className="text-[#FF3B30] font-bold">0% Commission (100% Free)</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#007AFF] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 creators</div>
-              <div>Total fee to us: <span className="text-white/60">₹13,000 (13%)</span></div>
+              <div>Total fee to us: <span className="text-[#34C759]">₹0 (0% Free)</span></div>
               <div className="text-[#007AFF] font-bold text-xs pt-1 border-t border-white/10">
                 Creators get: ₹87,000 ÷ 5 = ₹17,400 each
               </div>
@@ -1141,22 +1141,8 @@ export default function Landing() {
 
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
-      {/* Multi-Layer Ambient Lighting Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-5 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 45%, transparent 75%)" }}
-        />
-        <div 
-          className="absolute top-1/3 -left-40 w-[600px] h-[600px] rounded-full opacity-5 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #FF9500 0%, #FF3B30 60%, transparent 75%)" }}
-        />
-        <div 
-          className="absolute bottom-10 right-10 w-[700px] h-[700px] rounded-full opacity-5 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #34C759 0%, #007AFF 55%, transparent 75%)" }}
-        />
-        <div className="grain" />
-      </div>
+      {/* Simple Solid Obsidian Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[#0B0B0E]" />
 
       <div className="relative z-50">
         <Nav />
