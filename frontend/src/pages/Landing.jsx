@@ -819,27 +819,27 @@ function PricingSection() {
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-white/5">
-                <span className="text-white/60">🎯 PLATFORM:</span>
+                <span className="text-white/60">🎯 PLATFORM ACCESS:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5">
-                <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">100% Free Platform</span>
+                <span className="text-white/60">🔒 ESCROW SECURITY:</span>
+                <span className="text-[#34C759] font-bold">100% Guaranteed</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#FF3B30] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
-              <div>Platform Access: <span className="text-[#34C759]">100% Free</span></div>
+              <div>Platform Fee: <span className="text-[#34C759]">₹0 (100% Free)</span></div>
               <div className="text-[#34C759] font-bold text-xs pt-1 border-t border-white/10">
-                You get ₹87,000 ✓
+                You get 100% Full Payout: ₹1,00,000 ✓
               </div>
             </div>
 
             <ul className="space-y-1 font-mono text-xs text-white/70">
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Way better than agency cuts (typically 20–30%)</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> You only pay if you earn</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Zero platform cuts or hidden deductions</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> Keep 100% of your earned campaign payouts</li>
               <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#34C759] shrink-0" /> We handle contracts, disputes, &amp; escrow collections</li>
             </ul>
           </div>
@@ -857,21 +857,21 @@ function PricingSection() {
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-white/5">
-                <span className="text-white/60">🎯 PLATFORM:</span>
+                <span className="text-white/60">🎯 PLATFORM ACCESS:</span>
                 <span className="text-[#34C759] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5">
-                <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">100% Free Platform</span>
+                <span className="text-white/60">🔒 ESCROW SECURITY:</span>
+                <span className="text-[#34C759] font-bold">100% Guaranteed</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#007AFF] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 creators</div>
-              <div>Platform Access: <span className="text-[#34C759]">100% Free</span></div>
+              <div>Platform Fee: <span className="text-[#34C759]">₹0 (100% Free)</span></div>
               <div className="text-[#007AFF] font-bold text-xs pt-1 border-t border-white/10">
-                Creators get: ₹87,000 ÷ 5 = ₹17,400 each
+                Creators get 100% Budget: ₹1,00,000 ÷ 5 = ₹20,000 each ✓
               </div>
             </div>
 
