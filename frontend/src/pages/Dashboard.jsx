@@ -72,14 +72,20 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Link to="/feed" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
-                <Sparkles className="w-4 h-4" /> Community Feed &amp; Upload 📸
+            {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
+              <div className="flex items-center gap-3">
+                <Link to="/feed" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                  <Sparkles className="w-4 h-4" /> Feed 📰
+                </Link>
+                <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
+                  <Send className="w-4 h-4" /> Browse Briefs 🚀
+                </Link>
+              </div>
+            ) : (
+              <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
+                <Send className="w-4 h-4" /> Browse Briefs 🚀
               </Link>
-              <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-outline border-white/20 text-white hover:border-white">
-                <Send className="w-4 h-4" /> Browse Briefs &amp; Creators
-              </Link>
-            </div>
+            )}
 
 
           </div>
@@ -503,7 +509,7 @@ function InfluencerPanel() {
   const [apps, setApps] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState("creator-feed");
+  const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiche, setSelectedNiche] = useState("All");
   const [gridCols, setGridCols] = useState(4);
 
@@ -561,14 +567,6 @@ function InfluencerPanel() {
       <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
         <div className="flex gap-6 font-mono text-[11px] tracking-[0.28em] uppercase flex-wrap">
           <button
-            onClick={() => setActiveTab("creator-feed")}
-            className={`kinetic-underline py-2 flex items-center gap-2 ${
-              activeTab === "creator-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-[#FF3B30]" /> Community Feed &amp; Upload 📸
-          </button>
-          <button
             onClick={() => setActiveTab("campaigns-feed")}
             className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
@@ -589,111 +587,7 @@ function InfluencerPanel() {
         
       </div>
 
-            {/* VIEW 0: COMMUNITY FEED & UPLOAD POST FEATURE */}
-      {activeTab === "creator-feed" && (
-        <div className="space-y-8">
-          {/* Upload Post Form Box */}
-          <div className="p-6 border border-white/15 bg-[#121212] rounded-xs space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <span className="font-mono text-xs text-[#FF3B30] font-bold uppercase tracking-widest flex items-center gap-2">
-                📸 Upload Feed Post / Share Creator Update
-              </span>
-              <span className="font-mono text-[10px] text-white/50 uppercase">Public Studio Stream</span>
-            </div>
-
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const form = e.target;
-              const title = form.title.value;
-              const desc = form.desc.value;
-              const img = form.img.value || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800";
-              const newPost = {
-                id: `post-${Date.now()}`,
-                creatorName: user?.name || "Creator Partner",
-                handle: user?.handle || `@${(user?.name || "creator").toLowerCase().replace(/\s+/g, '')}`,
-                avatar: user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-                workTitle: title,
-                workImage: img,
-                category: "Fashion & Lifestyle",
-                reach: "Verified Post",
-                engagementRate: "Live Feed",
-                likes: "1",
-                comments: "0",
-                description: desc
-              };
-              FEATURED_CREATOR_WORK_FEED.unshift(newPost);
-              form.reset();
-              toast.success("🎉 Post Published Live to Community Feed!");
-            }} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
-                <div>
-                  <label className="text-white/60 block mb-1">Post Title / Reel Headline</label>
-                  <input name="title" type="text" required placeholder="e.g. Summer Festival Editorial Shoot 2026..." className="w-full bg-black/60 border border-white/20 p-2.5 text-white rounded-xs focus:border-[#FF3B30] outline-none" />
-                </div>
-                <div>
-                  <label className="text-white/60 block mb-1">Image / Video Thumbnail URL (Optional)</label>
-                  <input name="img" type="url" placeholder="https://images.unsplash.com/..." className="w-full bg-black/60 border border-white/20 p-2.5 text-white rounded-xs focus:border-[#FF3B30] outline-none" />
-                </div>
-              </div>
-
-              <div className="font-mono text-xs">
-                <label className="text-white/60 block mb-1">Post Caption &amp; Description</label>
-                <textarea name="desc" required placeholder="Share your latest photoshoot, campaign results, behind-the-scenes insights, or brand collaboration update..." className="w-full bg-black/60 border border-white/20 p-3 text-white rounded-xs h-24 focus:border-[#FF3B30] outline-none" />
-              </div>
-
-              <div className="flex justify-end">
-                <button type="submit" className="px-6 py-2.5 bg-[#FF3B30] hover:bg-[#e03126] text-white font-mono text-xs font-bold uppercase rounded-xs transition-all shadow-lg flex items-center gap-2">
-                  Publish Feed Post 🚀
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Live Feed Cards Grid */}
-          <div className="space-y-6">
-            <h3 className="font-editorial text-3xl text-white font-bold">📰 Community Creator Stream</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {FEATURED_CREATOR_WORK_FEED.map((post) => (
-                <div key={post.id} className="p-6 border border-white/15 bg-[#121212] rounded-xs space-y-4 shadow-xl hover:border-[#FF3B30]/40 transition-all flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <img src={post.avatar} alt={post.creatorName} className="w-10 h-10 rounded-full object-cover border border-white/20" />
-                        <div>
-                          <div className="font-editorial text-lg text-white font-bold">{post.creatorName}</div>
-                          <div className="font-mono text-[10px] text-[#FF3B30] uppercase tracking-wider">{post.handle} · {post.category}</div>
-                        </div>
-                      </div>
-                      <span className="font-mono text-[10px] text-[#34C759] bg-[#34C759]/10 border border-[#34C759]/30 px-2.5 py-1 font-bold rounded-xs">{post.reach}</span>
-                    </div>
-
-                    <div className="relative overflow-hidden rounded-xs aspect-video border border-white/10">
-                      <img src={post.workImage} alt={post.workTitle} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <h4 className="font-editorial text-2xl text-white font-bold">{post.workTitle}</h4>
-                      <p className="font-mono text-xs text-white/70 leading-relaxed">{post.description}</p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between font-mono text-xs">
-                    <div className="flex gap-4 text-white/60">
-                      <button onClick={() => toast.success("Liked post!")} className="hover:text-[#FF3B30]">❤️ {post.likes} Likes</button>
-                      <button onClick={() => toast.info("Comments section...")} className="hover:text-white">💬 {post.comments} Comments</button>
-                    </div>
-                    <button onClick={() => toast.success("Shared post link to clipboard!")} className="px-3 py-1.5 border border-white/20 text-white/70 hover:text-white rounded-xs text-[10px] uppercase">
-                      Share ↗
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
+            {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
       {activeTab === "campaigns-feed" && (
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid View Controls */}

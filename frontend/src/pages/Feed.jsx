@@ -105,10 +105,10 @@ export default function Feed() {
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> § Live Community Feed &amp; Upload Stream
+              <Sparkles className="w-3.5 h-3.5" /> § Live Community Feed
             </p>
             <h1 className="font-editorial text-4xl md:text-6xl leading-[1.15] mt-2">
-              Community <span className="italic text-[#FF3B30]">Feed &amp; Upload.</span>
+              Community <span className="italic text-[#FF3B30]">Feed.</span>
             </h1>
             <p className="font-mono text-xs opacity-60 mt-1 uppercase tracking-widest">
               Share work, discover brand campaign drops, and connect with verified creators
