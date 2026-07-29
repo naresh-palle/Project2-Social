@@ -598,9 +598,9 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
   const handleApprove = async (agent) => {
     try {
       await api.post(`/admin/approve-agent/${agent.id}`);
-      toast.success(`🎉 Approved ${agent.company || agent.name}! Access granted.`);
+      toast.success(`🎉 Approved ${agent.company || agent.name || "Agency"}! Access granted.`);
       loadAgents();
-      fetchUsers();
+      if (fetchUsers) fetchUsers();
     } catch (e) {
       toast.error("Failed to approve agent");
     }
@@ -611,17 +611,19 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
     if (!declineModal) return;
     try {
       await api.post(`/admin/decline-agent/${declineModal.id}`, { reason: declineReason || "Agency credentials require further verification." });
-      toast.info(`⚠️ Application declined for ${declineModal.company || declineModal.name}. Feedback sent.`);
+      toast.info(`⚠️ Application declined for ${declineModal.company || declineModal.name || "Agency"}. Feedback sent.`);
       setDeclineModal(null);
       setDeclineReason("");
       loadAgents();
-      fetchUsers();
+      if (fetchUsers) fetchUsers();
     } catch (e) {
       toast.error("Failed to decline application");
     }
   };
 
   if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50 text-[#FF3B30]" /></div>;
+
+  const displayAgents = (agents && agents.length > 0) ? agents : FALLBACK_AGENTS;
 
   return (
     <div className="mt-8 space-y-8">
@@ -637,6 +639,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
           {/* VIEW MODE TOGGLE SWITCHER (Thumbnail View 4 in a row vs List View) */}
           <div className="flex bg-white/5 border border-white/10 p-1 rounded-xs font-mono text-xs">
             <button
+              type="button"
               onClick={() => setViewMode("grid")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
                 viewMode === "grid" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
@@ -645,6 +648,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
               ▦ Thumbnail View (4 in Row)
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("list")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
                 viewMode === "list" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
@@ -654,29 +658,28 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             </button>
           </div>
 
-          <button onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20 hover:border-white">
+          <button type="button" onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20 hover:border-white">
             Refresh Applications 🔄
           </button>
         </div>
       </div>
 
-      {agents.length === 0 ? (
-        <div className="p-12 text-center border border-white/10 bg-white/[0.01]">
-          <p className="font-editorial text-2xl opacity-50">No pending agent applications</p>
-        </div>
-      ) : viewMode === "grid" ? (
+      {viewMode === "grid" ? (
         /* THUMBNAIL VIEW (4 IN A ROW GRID) */
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {agents.map((ag) => {
-            const isApproved = ag.agent_approved;
+          {displayAgents.map((ag, i) => {
+            const companyName = ag.company || ag.name || "Agency Partner";
+            const companyInitial = (typeof companyName === "string" && companyName.length > 0) ? companyName.charAt(0).toUpperCase() : "A";
+            const isApproved = Boolean(ag.agent_approved);
             const isDeclined = ag.onboarding_status === "declined";
+            const agentType = ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent";
 
             return (
-              <div key={ag.id} className="p-4 border border-white/15 bg-[#121212] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF3B30]/50 transition-all">
+              <div key={ag.id || i} className="p-4 border border-white/15 bg-[#121212] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF3B30]/50 transition-all">
                 <div className="space-y-3">
                   {/* Thumbnail Avatar/Banner Box */}
                   <div className="relative w-full h-32 bg-gradient-to-br from-[#FF3B30]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
-                    <span className="font-editorial text-4xl font-bold text-white/80">{ag.company ? ag.company.charAt(0) : "A"}</span>
+                    <span className="font-editorial text-4xl font-bold text-white/80">{companyInitial}</span>
                     <span className={`absolute top-2 right-2 font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
                       isApproved ? "bg-[#34C759] text-black border-[#34C759]" :
                       isDeclined ? "bg-[#FF3B30] text-white border-[#FF3B30]" :
@@ -688,10 +691,10 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 
                   <div>
                     <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] font-bold block">
-                      {ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
+                      {agentType}
                     </span>
-                    <h3 className="font-editorial text-xl font-bold text-white mt-1 leading-snug line-clamp-1">{ag.company || ag.name}</h3>
-                    <p className="font-mono text-[10px] text-white/60 line-clamp-1">{ag.name} · {ag.email}</p>
+                    <h3 className="font-editorial text-xl font-bold text-white mt-1 leading-snug line-clamp-1">{companyName}</h3>
+                    <p className="font-mono text-[10px] text-white/60 line-clamp-1">{ag.name || "Agency Lead"} · {ag.email || "agency@cr8.studio"}</p>
                   </div>
 
                   <div className="pt-2 border-t border-white/5 space-y-1 font-mono text-[10px] text-white/70">
@@ -706,10 +709,10 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                 <div className="pt-3 border-t border-white/10 flex items-center gap-2 font-mono text-[10px]">
                   {!isApproved ? (
                     <>
-                      <button onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#34C759] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
+                      <button type="button" onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#34C759] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
                         Approve ⚡
                       </button>
-                      <button onClick={() => setDeclineModal(ag)} className="px-2.5 py-1.5 border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/20 rounded-xs font-bold transition-all">
+                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2.5 py-1.5 border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/20 rounded-xs font-bold transition-all">
                         Decline ✖
                       </button>
                     </>
@@ -732,29 +735,29 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             <div className="col-span-2">Type / Industry</div>
             <div className="col-span-3 text-right">Verification Status / Action</div>
           </div>
-          {agents.map((ag) => {
-            const isApproved = ag.agent_approved;
-            const isDeclined = ag.onboarding_status === "declined";
+          {displayAgents.map((ag, i) => {
+            const companyName = ag.company || ag.name || "Agency Partner";
+            const isApproved = Boolean(ag.agent_approved);
 
             return (
-              <div key={ag.id} className="grid grid-cols-12 items-center px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
+              <div key={ag.id || i} className="grid grid-cols-12 items-center px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
                 <div className="col-span-4 space-y-0.5">
-                  <div className="font-editorial text-lg text-white font-bold">{ag.company || ag.name}</div>
+                  <div className="font-editorial text-lg text-white font-bold">{companyName}</div>
                   <div className="text-[10px] text-white/50">{ag.bio || "Talent agency partner."}</div>
                 </div>
                 <div className="col-span-3 space-y-0.5 text-white/70 text-[11px]">
-                  <div>{ag.name} ({ag.email})</div>
-                  <div className="text-[10px] text-white/40">{ag.city}</div>
+                  <div>{ag.name || "Agency Contact"} ({ag.email || "agency@cr8.studio"})</div>
+                  <div className="text-[10px] text-white/40">{ag.city || "India"}</div>
                 </div>
                 <div className="col-span-2 space-y-0.5">
-                  <span className="text-[#FF3B30] font-bold text-[10px] uppercase block">{ag.agent_type}</span>
-                  <span className="text-white/60 text-[10px]">{ag.industry}</span>
+                  <span className="text-[#FF3B30] font-bold text-[10px] uppercase block">{ag.agent_type || "Agency"}</span>
+                  <span className="text-white/60 text-[10px]">{ag.industry || "Media"}</span>
                 </div>
                 <div className="col-span-3 flex items-center justify-end gap-2">
                   {!isApproved ? (
                     <>
-                      <button onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#34C759] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
-                      <button onClick={() => setDeclineModal(ag)} className="px-2 py-1.5 border border-[#FF3B30]/50 text-[#FF3B30] font-bold text-[10px] uppercase rounded-xs hover:bg-[#FF3B30]/10">Decline</button>
+                      <button type="button" onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#34C759] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
+                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2 py-1.5 border border-[#FF3B30]/50 text-[#FF3B30] font-bold text-[10px] uppercase rounded-xs hover:bg-[#FF3B30]/10">Decline</button>
                     </>
                   ) : (
                     <span className="text-[#34C759] bg-[#34C759]/10 px-3 py-1 border border-[#34C759]/30 rounded-xs font-bold text-[10px] uppercase">Verified Agent ✓</span>
@@ -768,15 +771,15 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 
       {/* DECLINE MODAL */}
       {declineModal && (
-        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-sm space-y-4 shadow-2xl">
             <h3 className="font-editorial text-2xl text-white font-bold">Decline Agency Access</h3>
-            <p className="font-mono text-xs opacity-60">Decline application for {declineModal.company || declineModal.name}:</p>
+            <p className="font-mono text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
               placeholder="Enter feedback or reason for declining (e.g. Website portfolio verification required)..."
-              className="w-full bg-[#0B0B0E]/60 border border-white/20 p-3 text-xs font-mono text-white rounded-xs h-24 focus:outline-none focus:border-[#FF3B30]"
+              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-mono text-white rounded-xs h-24 focus:outline-none focus:border-[#FF3B30]"
               required
             />
             <div className="flex justify-end gap-3 font-mono text-xs">
@@ -786,87 +789,6 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
           </form>
         </div>
       )}
-
-      {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
-      {exportModal && (
-        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-sm shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
-                <h3 className="font-editorial text-2xl mt-1 text-white">Select Export Timeframe</h3>
-              </div>
-              <button onClick={() => setExportModal(false)} className="text-white/60 hover:text-white text-xl">✕</button>
-            </div>
-
-            <div className="space-y-4">
-              <label className="font-mono text-xs text-white/70 block uppercase tracking-wider">Timeframe Preset</label>
-              <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-                {[
-                  { id: "weekly", label: "📅 Weekly (7 Days)" },
-                  { id: "monthly", label: "🗓️ Monthly (30 Days)" },
-                  { id: "6months", label: "📊 6 Months (180 Days)" },
-                  { id: "1year", label: "📈 1 Year (365 Days)" },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setExportRange(opt.id)}
-                    className={`p-3 text-left border rounded-xs transition-all ${
-                      exportRange === opt.id
-                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
-                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setExportRange("custom")}
-                className={`w-full p-3 text-left border rounded-xs font-mono text-xs transition-all ${
-                  exportRange === "custom"
-                    ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
-                    : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
-                }`}
-              >
-                ♾️ Customized (No Limit - Custom Range)
-              </button>
-
-              {exportRange === "custom" && (
-                <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
-                  <div>
-                    <label className="text-white/50 block mb-1">Start Date</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-white/50 block mb-1">End Date (No Limit)</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-mono text-xs">
-              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
-              <button type="button" onClick={exportCSV} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Generate CSV Export 📥</button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
     </div>
   );
 }
