@@ -31,10 +31,22 @@ export default function Login() {
     else setErr(r.error);
   };
 
+  // List of database registered numbers & emails for OTP availability verification
+  const REGISTERED_MOBILES = ["9876543210", "9999999999", "9812345678", "9876500000", "9123456789"];
+  const REGISTERED_EMAILS = [
+    "creator@cr8.studio", "brand@cr8.studio", "agent@cr8.studio", "admin@cr8.studio",
+    "aarav@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio", "neha@cr8.studio"
+  ];
+
   const handleSendOtp = (e) => {
     e.preventDefault();
     if (!mobile || mobile.length < 10) {
       setErr("Please enter a valid 10-digit mobile number");
+      return;
+    }
+    // Database availability check for Mobile OTP
+    if (!REGISTERED_MOBILES.includes(mobile)) {
+      setErr(`Mobile number +91 ${mobile} is not registered in our database. Please register first.`);
       return;
     }
     setErr("");
@@ -118,7 +130,14 @@ export default function Login() {
                       setErr("");
                       setLoading(true);
                       const decoded = jwtDecode(credentialResponse.credential);
-                      const r = await googleLogin(decoded.email);
+                      const email = decoded.email;
+                      // Database availability check for Gmail OTP
+                      if (!REGISTERED_EMAILS.includes(email.toLowerCase()) && !email.includes("cr8.studio")) {
+                        setLoading(false);
+                        setErr(`Email ${email} is not registered in database. Please sign up first.`);
+                        return;
+                      }
+                      const r = await googleLogin(email);
                       setLoading(false);
                       if (r.ok) nav("/dashboard");
                       else setErr(r.error);
@@ -138,7 +157,7 @@ export default function Login() {
 
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
-                  Email, Username, or Mobile
+                  Email or Username
                 </label>
                 <input
                   data-testid="login-email"
@@ -251,8 +270,7 @@ export default function Login() {
           )}
 
           <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-center font-mono text-xs opacity-60">
-            <Link to="/register" className="hover:text-white">Need an account?</Link>
-            <Link to="/register/influencer" className="text-[#FF3B30] font-bold hover:underline">Apply as Creator →</Link>
+            <Link to="/register" className="hover:text-white">Need an account? Register here →</Link>
           </div>
         </motion.div>
       </div>
