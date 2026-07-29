@@ -231,21 +231,12 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
-      <div className="grain" />
+      
 
       {/* Same radial ambient lighting as Sign In */}
-      <div 
-        className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none opacity-20 blur-3xl" 
-        style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 50%, transparent 80%)" }}
-      />
-      <div 
-        className="absolute -bottom-40 right-10 w-[500px] h-[500px] rounded-full pointer-events-none opacity-15 blur-3xl" 
-        style={{ background: "radial-gradient(circle, #34C759 0%, #FF3B30 60%, transparent 80%)" }}
-      />
-      <div 
-        className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none opacity-10 blur-3xl" 
-        style={{ background: "radial-gradient(circle, #FF9500 0%, #7000FF 60%, transparent 80%)" }}
-      />
+      
+      
+      
 
       <Nav />
       

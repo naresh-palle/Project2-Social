@@ -109,18 +109,12 @@ export default function ProfileView() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
-      <div className="grain" />
+      
 
       {/* Ambient Radial Lighting Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full opacity-15 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 50%, transparent 80%)" }}
-        />
-        <div 
-          className="absolute bottom-10 right-10 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #34C759 0%, #007AFF 60%, transparent 80%)" }}
-        />
+        
+        
       </div>
 
       <div className="relative z-10">

@@ -40,7 +40,7 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <div className="grain" />
+      
       <Nav />
 
       <div className="pt-28 pb-8 max-w-[1600px] mx-auto px-6 md:px-10">

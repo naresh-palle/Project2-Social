@@ -8,19 +8,10 @@ export default function RegisterSplash() {
     <div className="relative min-h-screen bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
       {/* Sleek Radial Ambient Aura Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full opacity-25 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #FF3B30 0%, #7000FF 45%, transparent 75%)" }}
-        />
-        <div 
-          className="absolute -bottom-32 left-10 w-[550px] h-[550px] rounded-full opacity-20 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #34C759 0%, #FF3B30 55%, transparent 75%)" }}
-        />
-        <div 
-          className="absolute top-1/3 right-10 w-[450px] h-[450px] rounded-full opacity-15 blur-3xl" 
-          style={{ background: "radial-gradient(circle, #007AFF 0%, #FF3B30 50%, transparent 75%)" }}
-        />
-        <div className="grain" />
+        
+        
+        
+        
       </div>
 
       <div className="relative z-50">

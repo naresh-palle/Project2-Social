@@ -584,7 +584,7 @@ export default function Onboarding() {
 function Layout({ step, title, subtitle, children }) {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <div className="grain" />
+      
       <Nav />
       <div className="flex-1 flex items-center justify-center p-6 mt-16">
         <motion.div 

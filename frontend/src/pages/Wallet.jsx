@@ -55,7 +55,7 @@ export default function Wallet() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]" data-testid="wallet-page">
-      <div className="grain" />
+      
       <Nav />
       <Toaster theme="dark" position="top-center" />
       
