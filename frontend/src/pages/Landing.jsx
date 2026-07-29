@@ -824,14 +824,14 @@ function PricingSection() {
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">0% Commission (100% Free)</span>
+                <span className="text-[#FF3B30] font-bold">100% Free Platform</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#FF3B30] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
-              <div>Platform Fee: <span className="text-[#34C759]">₹0 (0% Free)</span></div>
+              <div>Platform Access: <span className="text-[#34C759]">100% Free</span></div>
               <div className="text-[#34C759] font-bold text-xs pt-1 border-t border-white/10">
                 You get ₹87,000 ✓
               </div>
@@ -862,14 +862,14 @@ function PricingSection() {
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">💰 COMMISSION:</span>
-                <span className="text-[#FF3B30] font-bold">0% Commission (100% Free)</span>
+                <span className="text-[#FF3B30] font-bold">100% Free Platform</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#007AFF] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 creators</div>
-              <div>Total fee to us: <span className="text-[#34C759]">₹0 (0% Free)</span></div>
+              <div>Platform Access: <span className="text-[#34C759]">100% Free</span></div>
               <div className="text-[#007AFF] font-bold text-xs pt-1 border-t border-white/10">
                 Creators get: ₹87,000 ÷ 5 = ₹17,400 each
               </div>

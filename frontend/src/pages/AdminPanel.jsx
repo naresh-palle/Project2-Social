@@ -206,7 +206,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Creators · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
-                    <StatCard title="Platform Fee (0% Free)" value={`₹${(((stats?.financial?.revenue || 630500)) / 1000).toFixed(1)}K`} sub={`From ₹${(((stats?.financial?.total_payments || 4850000)) / 100000).toFixed(1)}L GMV`} icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
+                    <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
                     <StatCard title="Active Campaigns" value={stats?.campaigns?.active || 11} sub={`Out of ${stats?.campaigns?.total || 14} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend="+8%" pos={true} />
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
                 </div>
@@ -825,7 +825,7 @@ function EscrowTreasuryDesk() {
         <div>
           <h2 className="font-editorial text-3xl">💰 Platform Escrow Treasury &amp; Revenue Desk</h2>
           <p className="font-mono text-xs opacity-60 mt-1 uppercase tracking-widest">
-            Audit live escrow locks, 0% commission policy, and manual override releases
+            Audit live escrow locks, Escrow verification policy, and manual override releases
           </p>
         </div>
         <span className="font-mono text-xs px-3 py-1 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 rounded-xs font-bold">
@@ -840,7 +840,7 @@ function EscrowTreasuryDesk() {
           <div className="font-mono text-[9px] text-[#34C759] uppercase tracking-widest mt-2">100% Escrow Protected</div>
         </div>
         <div className="p-6 border border-white/10 bg-white/[0.02]">
-          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Platform Commission (0% Free)</div>
+          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Escrow Protection Status</div>
           <div className="font-editorial text-4xl text-[#FF3B30] font-bold mt-3">₹6,30,500</div>
           <div className="font-mono text-[9px] text-white/50 uppercase tracking-widest mt-2">Zero Agency Cuts</div>
         </div>
@@ -867,7 +867,7 @@ function EscrowTreasuryDesk() {
               <th className="p-4">Campaign &amp; Brand</th>
               <th className="p-4">Creator</th>
               <th className="p-4">Total Amount</th>
-              <th className="p-4">Platform Fee (0%)</th>
+              <th className="p-4">Escrow Status</th>
               <th className="p-4">Status</th>
               <th className="p-4 text-right">Admin Control</th>
             </tr>

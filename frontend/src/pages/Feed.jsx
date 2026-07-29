@@ -19,7 +19,7 @@ const INITIAL_COMMUNITY_FEED = [
     image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
     budget: "₹1,80,000",
     category: "Fashion & Style",
-    desc: "We are seeking 5 fashion creators to showcase our new sustainable linen collection for upcoming summer drops. Guaranteed 0% commission payout via escrow.",
+    desc: "We are seeking 5 fashion creators to showcase our new sustainable linen collection for upcoming summer drops. Guaranteed 100% upfront escrow payout.",
     likes: 42,
     comments: 14
   },
@@ -30,11 +30,11 @@ const INITIAL_COMMUNITY_FEED = [
     role: "Featured Creator",
     time: "2 hours ago",
     avatar: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2?auto=format&fit=crop&q=80&w=400",
-    title: "💡 Creator Case Study: How we delivered 5.2M reach with 0% Commission",
+    title: "💡 Creator Case Study: How we delivered 5.2M reach with Upfront Escrow",
     image: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273?auto=format&fit=crop&q=80&w=1200",
     budget: "5.2M Reach",
     category: "Editorial & Lifestyle",
-    desc: "Working with CR8 Studio ensured 100% upfront escrow locking before camera rolling. Zero delayed payouts and 0% platform fee!",
+    desc: "Working with CR8 Studio ensured 100% upfront escrow locking before camera rolling. Zero delayed payouts and 100% Escrow Protection!",
     likes: 88,
     comments: 29
   },
@@ -194,8 +194,8 @@ export default function Feed() {
               <h3 className="font-mono text-xs tracking-widest uppercase text-[#FF3B30] font-bold">🔥 Trending Creator Topics</h3>
               <div className="space-y-3 font-mono text-xs">
                 <div className="p-3 bg-white/5 border border-white/10 rounded-xs">
-                  <div className="text-white font-bold">#ZeroCommission</div>
-                  <div className="text-[10px] text-white/50">0% Platform Fee for All Users</div>
+                  <div className="text-white font-bold">#EscrowProtection</div>
+                  <div className="text-[10px] text-white/50">100% Upfront Payout Guarantee</div>
                 </div>
                 <div className="p-3 bg-white/5 border border-white/10 rounded-xs">
                   <div className="text-white font-bold">#EscrowProtection</div>
