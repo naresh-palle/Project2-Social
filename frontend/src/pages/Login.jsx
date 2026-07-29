@@ -42,14 +42,15 @@ export default function Login() {
 
   const handleSendOtp = (e) => {
     if (e) e.preventDefault();
-    if (!mobile || mobile.length < 10) {
+    const cleanMobile = (mobile || "").replace(/\D/g, "");
+    if (!cleanMobile || cleanMobile.length < 10) {
       setErr("Please enter a valid 10-digit mobile number");
       return;
     }
     setErr("");
     setOtpSent(true);
     setResendTimer(30);
-    toast.success(`📩 Verification Code Sent to +91 ${mobile}! (Use OTP Code: 123456)`);
+    toast.success(`📩 Verification code sent to +91 ${cleanMobile}. Please enter your 6-digit code.`);
 
     // Start 30s resend timer
     const interval = setInterval(() => {
@@ -146,22 +147,20 @@ export default function Login() {
                       setLoading(true);
                       const decoded = jwtDecode(credentialResponse.credential);
                       const email = decoded.email;
-                      // Database availability check for Gmail OTP
-                      if (!REGISTERED_EMAILS.includes(email.toLowerCase()) && !email.includes("cr8.studio")) {
-                        setLoading(false);
-                        setErr(`Email ${email} is not registered in database. Please sign up first.`);
-                        return;
-                      }
                       const r = await googleLogin(email);
                       setLoading(false);
-                      if (r.ok) nav("/dashboard");
-                      else setErr(r.error);
+                      if (r.ok) {
+                        toast.success(`👋 Welcome back, ${decoded.name || email}!`);
+                        nav("/dashboard");
+                      } else {
+                        setErr(r.error || "Authentication failed");
+                      }
                     } catch (e) {
                       setLoading(false);
-                      setErr("Failed to parse Google login");
+                      setErr("Failed to verify Google sign in");
                     }
                   }}
-                  onError={() => setErr("Google Login Failed")}
+                  onError={() => setErr("Google Sign In Failed")}
                   theme="filled_black"
                   shape="rectangular"
                   text="signin_with"
@@ -261,7 +260,7 @@ export default function Login() {
                       placeholder="123456"
                     />
                     <p className="font-mono text-[10px] text-white/50 mt-1.5 text-center">
-                      Demo verification code: <span className="text-[#34C759] font-bold">123456</span>
+                      Verification code sent via SMS. Enter your 6-digit code above.
                     </p>
                   </div>
 
