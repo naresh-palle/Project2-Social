@@ -6,6 +6,7 @@ import Login from "@/pages/Login";
 import RegisterSplash from "@/pages/RegisterSplash";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
+import Feed from "@/pages/Feed";
 import Marketplace from "@/pages/Marketplace";
 import CampaignDetail from "@/pages/CampaignDetail";
 import CreatorDetail from "@/pages/CreatorDetail";
@@ -32,6 +33,7 @@ function App() {
             <Route path="/register/:role" element={<Register />} />
             <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
             <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
             <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
             <Route path="/profile/edit" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />

@@ -72,6 +72,15 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <div className="flex items-center gap-3">
+              <Link to="/feed" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                <Sparkles className="w-4 h-4" /> Community Feed &amp; Upload 📸
+              </Link>
+              <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-outline border-white/20 text-white hover:border-white">
+                <Send className="w-4 h-4" /> Browse Briefs &amp; Creators
+              </Link>
+            </div>
+
 
           </div>
 

@@ -37,6 +37,7 @@ export function Nav({ variant = "dark" }) {
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
+        { to: "/feed", label: "Feed & Upload 📸" },
         { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
