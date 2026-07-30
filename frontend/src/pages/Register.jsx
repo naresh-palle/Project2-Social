@@ -455,8 +455,8 @@ export default function Register() {
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
-            <Field label="City (Auto-prompted)" testid="reg-city" value={form.city} readOnly placeholder="Auto-prompted via Pincode" className="opacity-60 cursor-not-allowed select-none" error={fieldErrors.city} required />
-            <Field label="State (Auto-prompted)" testid="reg-state" value={form.state} readOnly placeholder="Auto-prompted via Pincode" className="opacity-60 cursor-not-allowed select-none" error={fieldErrors.state} required />
+            <Field label="City (Auto-prompted)" testid="reg-city" value={form.city} disabled readOnly tabIndex={-1} onKeyDown={e => e.preventDefault()} placeholder="Auto-prompted via Pincode" className="opacity-50 cursor-not-allowed select-none pointer-events-none" error={fieldErrors.city} required />
+            <Field label="State (Auto-prompted)" testid="reg-state" value={form.state} disabled readOnly tabIndex={-1} onKeyDown={e => e.preventDefault()} placeholder="Auto-prompted via Pincode" className="opacity-50 cursor-not-allowed select-none pointer-events-none" error={fieldErrors.state} required />
 
             <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
           </div>
@@ -580,18 +580,19 @@ export default function Register() {
   );
 }
 
-function Field({ label, testid, error, prefix, ...props }) {
+function Field({ label, testid, error, prefix, disabled, ...props }) {
   return (
     <div>
       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
         {label}
       </label>
-      <div className={`mt-2 flex items-center w-full bg-transparent transition-colors ${error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
+      <div className={`mt-2 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
         {prefix && <span className="text-lg opacity-60 mr-2 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
+          disabled={disabled}
           {...props}
-          className={`w-full py-3 focus:outline-none text-lg bg-transparent ${props.className || ''}`}
+          className={`w-full py-3 focus:outline-none text-lg bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
       </div>
       {error && <p className="text-[#FF3B30] text-[10px] mt-2 uppercase tracking-widest font-mono">{error}</p>}
