@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
@@ -11,10 +11,12 @@ import { toast } from "sonner";
 export default function Login() {
   const { login, googleLogin } = useAuth();
   const nav = useNavigate();
-  const [mode, setMode] = useState("password"); // "password" or "otp"
-  const [identifier, setIdentifier] = useState("");
+  const location = useLocation();
+  
+  const [mode, setMode] = useState(location.state?.mode || "password"); // "password" or "otp"
+  const [identifier, setIdentifier] = useState(location.state?.identifier || "");
   const [password, setPassword] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(location.state?.mobile || "");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [err, setErr] = useState("");

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
@@ -63,7 +63,7 @@ export default function Register() {
   // Debounced Validation for Email
   useEffect(() => {
     const checkEmail = async () => {
-      if (!/^\\S+@\\S+\\.\\S+$/.test(form.email)) {
+      if (!/^\S+@\S+\.\S+$/.test(form.email)) {
         setEmailStatus("typing");
         return;
       }
@@ -81,7 +81,7 @@ export default function Register() {
     return () => clearTimeout(to);
   }, [form.email]);
 
-  // Real-time & Debounced Validation for Indian Mobile Series (starts with 6, 7, 8, 9 and 10 digits)
+  // Real-time & Debounced Validation for Indian Mobile Series with Backend Database Availability Check
   useEffect(() => {
     const cleanMobile = (form.mobile || "").replace(/\D/g, "");
     if (!form.mobile) {
@@ -94,8 +94,19 @@ export default function Register() {
       setMobileStatus("typing");
       return;
     }
-    setFieldErrors(e => ({ ...e, mobile: "" }));
-    setMobileStatus("available");
+
+    const checkMobile = async () => {
+      try {
+        const res = await api.post("/auth/check", { mobile: cleanMobile });
+        setMobileStatus(res.data.available ? "available" : "taken");
+        if (!res.data.available) setFieldErrors(e => ({ ...e, mobile: "Mobile number already registered" }));
+        else setFieldErrors(e => ({ ...e, mobile: "" }));
+      } catch (e) {
+        setMobileStatus("available");
+      }
+    };
+    const to = setTimeout(checkMobile, 500);
+    return () => clearTimeout(to);
   }, [form.mobile]);
 
   const [usernameSuggestions, setUsernameSuggestions] = useState([]);
@@ -450,6 +461,33 @@ export default function Register() {
             <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
           </div>
 
+          {(emailStatus === "taken" || mobileStatus === "taken") && (
+            <div className="mt-6 p-5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs space-y-3">
+              <p className="text-[#FF3B30] font-bold uppercase tracking-wider flex items-center gap-2 text-sm">
+                <ShieldCheck className="w-4 h-4 shrink-0" /> Account Already Registered!
+              </p>
+              <p className="text-white/80 leading-relaxed">
+                An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered in our database. Choose how you would like to sign in:
+              </p>
+              <div className="flex flex-wrap gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => nav("/login", { state: { identifier: form.email || form.mobile, mode: "password" } })}
+                  className="btn-solid text-xs py-2.5 px-4 bg-white/10 hover:bg-white/20 text-white"
+                >
+                  🔑 Sign In with Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
+                  className="btn-solid text-xs py-2.5 px-4 bg-[#FF3B30] text-white"
+                >
+                  📱 Sign In via Mobile OTP
+                </button>
+              </div>
+            </div>
+          )}
+
           {err && (
             <p data-testid="register-error" className="mt-6 text-[#FF3B30] font-mono text-xs tracking-widest uppercase">
               {err}
@@ -458,8 +496,8 @@ export default function Register() {
 
           <button
             data-testid="register-submit"
-            disabled={loading}
-            className="btn-solid mt-8 w-full justify-center"
+            disabled={loading || emailStatus === "taken" || mobileStatus === "taken"}
+            className="btn-solid mt-8 w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sending Code…" : <>Verify Identity <ArrowRight className="w-4 h-4" /></>}
           </button>
