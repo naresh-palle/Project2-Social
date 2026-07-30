@@ -82,6 +82,33 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+_brevo_account_email: Optional[str] = None
+
+async def get_brevo_verified_sender(api_key: str) -> str:
+    global _brevo_account_email
+    if _brevo_account_email:
+        return _brevo_account_email
+
+    configured = (os.environ.get("BREVO_SENDER_EMAIL") or os.environ.get("EMAIL_USER") or os.environ.get("GMAIL_USER") or "").strip()
+    if configured and "@" in configured and not configured.endswith("@cr8.studio"):
+        return configured
+
+    try:
+        async with httpx.AsyncClient(timeout=8) as c:
+            r = await c.get("https://api.brevo.com/v3/account", headers={"api-key": api_key, "Accept": "application/json"})
+            if r.status_code == 200:
+                data = r.json()
+                acc_email = data.get("email")
+                if acc_email:
+                    _brevo_account_email = acc_email
+                    logger.info("Brevo account email auto-detected: %s", acc_email)
+                    return acc_email
+    except Exception as e:
+        logger.warning("Brevo account info lookup failed: %s", e)
+
+    return configured or "onboarding@resend.dev"
+
+
 async def send_email(to: str, subject: str, html: str) -> None:
     """Delivers email via Brevo HTTP API, Resend HTTP API, Gmail SMTP, or Emergent HTTP proxy."""
     
@@ -89,7 +116,7 @@ async def send_email(to: str, subject: str, html: str) -> None:
     brevo_api_key = (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
     if brevo_api_key:
         try:
-            sender_email = (os.environ.get("BREVO_SENDER_EMAIL") or os.environ.get("EMAIL_USER") or os.environ.get("GMAIL_USER") or "noreply@cr8.studio").strip()
+            sender_email = await get_brevo_verified_sender(brevo_api_key)
             sender_name = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
             async with httpx.AsyncClient(timeout=12) as c:
                 res = await c.post(
@@ -107,7 +134,7 @@ async def send_email(to: str, subject: str, html: str) -> None:
                     }
                 )
                 if res.status_code in (200, 201):
-                    logger.info("Email sent successfully via Brevo HTTP API to %s", to)
+                    logger.info("Email sent successfully via Brevo HTTP API (Sender: %s) to %s", sender_email, to)
                     return
                 else:
                     logger.warning("Brevo HTTP API error status %s: %s", res.status_code, res.text)
