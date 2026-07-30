@@ -135,27 +135,47 @@ export default function Register() {
 
   const [usernameSuggestions, setUsernameSuggestions] = useState([]);
 
-  // Debounced Validation for Username with max 2 suggestions
+  // Debounced Validation for Username with alphanumeric combination check & min 6 chars
   useEffect(() => {
     const TAKEN_USERNAMES = ["admin", "creator", "brand", "aarav", "priya", "rohan", "neha", "alex", "vikram", "xyxy"];
     const checkUsername = async () => {
       const u = (form.username || "").trim().toLowerCase();
-      if (!u || u.length < 3 || /\s/.test(u)) {
+      if (!u) {
         setUsernameStatus("typing");
         setUsernameSuggestions([]);
+        setFieldErrors(e => ({ ...e, username: "" }));
         return;
       }
-      setUsernameStatus("checking");
-      const isTaken = TAKEN_USERNAMES.includes(u);
-      if (isTaken) {
-        setUsernameStatus("taken");
-        const surg1 = `${u}_cr8`;
-        const surg2 = `${u}2026`;
-        setUsernameSuggestions([surg1, surg2]);
-        setFieldErrors(e => ({ ...e, username: `Username "${form.username}" is taken.` }));
-      } else {
-        setUsernameStatus("available");
+      if (u.length < 6) {
+        setUsernameStatus("typing");
         setUsernameSuggestions([]);
+        setFieldErrors(e => ({ ...e, username: "Username must be at least 6 characters long." }));
+        return;
+      }
+      if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9_]{6,}$/.test(u)) {
+        setUsernameStatus("typing");
+        setUsernameSuggestions([]);
+        setFieldErrors(e => ({ ...e, username: "Username must be a combination of letters and numbers (e.g. user123)." }));
+        return;
+      }
+
+      setUsernameStatus("checking");
+      try {
+        const res = await api.post("/auth/check", { username: u });
+        const isTaken = !res.data.available || TAKEN_USERNAMES.includes(u);
+        if (isTaken) {
+          setUsernameStatus("taken");
+          const surg1 = `${u}_cr8`;
+          const surg2 = `${u}2026`;
+          setUsernameSuggestions([surg1, surg2]);
+          setFieldErrors(e => ({ ...e, username: `Username "${form.username}" is taken.` }));
+        } else {
+          setUsernameStatus("available");
+          setUsernameSuggestions([]);
+          setFieldErrors(e => ({ ...e, username: "" }));
+        }
+      } catch (e) {
+        setUsernameStatus("available");
         setFieldErrors(e => ({ ...e, username: "" }));
       }
     };
@@ -224,11 +244,13 @@ export default function Register() {
     if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
     if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
     
-    // 1. Username validation & suggestion check
+    // 1. Username validation & suggestion check (Alphanumeric combination, min 6 chars)
     if (!form.username.trim()) {
       errs.username = "Username is required";
-    } else if (!/^[a-zA-Z0-9_]{3,}$/.test(form.username)) {
-      errs.username = "Min 3 characters, alphanumeric & underscore only";
+    } else if (form.username.trim().length < 6) {
+      errs.username = "Username must be at least 6 characters long";
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9_]{6,}$/.test(form.username.trim())) {
+      errs.username = "Username must contain a combination of letters and numbers (e.g. user123)";
     } else if (usernameStatus === "taken") {
       errs.username = `Username "${form.username}" is taken.`;
     }
