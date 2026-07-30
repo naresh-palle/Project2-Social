@@ -436,8 +436,8 @@ export default function Register() {
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
-            <Field label="City" testid="reg-city" value={form.city} onChange={change("city")} error={fieldErrors.city} required />
-            <Field label="State" testid="reg-state" value={form.state} onChange={change("state")} error={fieldErrors.state} required />
+            <Field label="City (Auto-prompted)" testid="reg-city" value={form.city} readOnly placeholder="Auto-prompted via Pincode" className="opacity-60 cursor-not-allowed select-none" error={fieldErrors.city} required />
+            <Field label="State (Auto-prompted)" testid="reg-state" value={form.state} readOnly placeholder="Auto-prompted via Pincode" className="opacity-60 cursor-not-allowed select-none" error={fieldErrors.state} required />
 
             <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
           </div>
