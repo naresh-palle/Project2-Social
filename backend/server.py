@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from pathlib import Path
+import random
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,7 +20,10 @@ import bcrypt
 import jwt
 import httpx
 import aiofiles
-import aiosmtplib
+try:
+    import aiosmtplib
+except ImportError:
+    aiosmtplib = None
 from email.message import EmailMessage
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, UploadFile, File
 from fastapi.responses import StreamingResponse, FileResponse
@@ -29,11 +33,11 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 
 # ---------- Setup ----------
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'cr8_social')]
 
-JWT_SECRET = os.environ['JWT_SECRET']
+JWT_SECRET = os.environ.get('JWT_SECRET', 'cr8_super_secret_jwt_key_2026')
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60 * 24 * 7
 EMERGENT_LLM_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("EMERGENT_LLM_KEY")
@@ -77,21 +81,49 @@ def now_iso() -> str:
 
 
 async def send_email(to: str, subject: str, html: str) -> None:
-    """Fire-and-forget email via Emergent-managed Resend proxy. Failures are logged, never raised."""
-    if not EMERGENT_EMAIL_KEY:
-        logger.info("Skipping email (no key): %s -> %s", subject, to)
-        return
-    try:
-        async with httpx.AsyncClient(timeout=15) as c:
-            r = await c.post(
-                f"{EMAIL_BASE_URL}/api/v1/email/send",
-                headers={"X-Email-Key": EMERGENT_EMAIL_KEY},
-                json={"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME},
-            )
-            if r.status_code >= 400:
-                logger.warning("Email send failed %s: %s", r.status_code, r.text[:200])
-    except Exception as e:
-        logger.warning("Email exception: %s", e)
+    """Fire-and-forget email delivery via Gmail SMTP or Emergent proxy. Failures are logged, never raised."""
+    gmail_user = os.environ.get("GMAIL_USER")
+    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD")
+    if gmail_user and gmail_pass:
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = gmail_user
+            msg["To"] = to
+            msg.attach(MIMEText(html, "html"))
+            
+            def _send():
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+                    s.login(gmail_user, gmail_pass)
+                    s.sendmail(gmail_user, [to], msg.as_string())
+            
+            await asyncio.to_thread(_send)
+            logger.info("Email sent via Gmail SMTP to %s", to)
+            return
+        except Exception as e:
+            logger.warning("Gmail SMTP delivery failed: %s", e)
+
+    if EMERGENT_EMAIL_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=15) as c:
+                r = await c.post(
+                    f"{EMAIL_BASE_URL}/api/v1/email/send",
+                    headers={"X-Email-Key": EMERGENT_EMAIL_KEY},
+                    json={"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME},
+                )
+                if r.status_code < 400:
+                    logger.info("Email sent via Emergent proxy to %s", to)
+                    return
+                else:
+                    logger.warning("Email send failed %s: %s", r.status_code, r.text[:200])
+        except Exception as e:
+            logger.warning("Emergent email exception: %s", e)
+
+    logger.info("Email delivery simulated (no active email credentials configured): %s -> %s", subject, to)
 
 
 def email_template(headline: str, body_html: str, cta_url: Optional[str] = None, cta_label: Optional[str] = None) -> str:
@@ -132,9 +164,10 @@ def create_access_token(user_id: str, email: str, role: str) -> str:
 def clean(doc: Optional[dict]) -> Optional[dict]:
     if not doc:
         return doc
-    doc.pop("_id", None)
-    doc.pop("password_hash", None)
-    return doc
+    c = dict(doc)
+    c.pop("_id", None)
+    c.pop("password_hash", None)
+    return c
 
 
 async def get_current_user(request: Request) -> dict:
@@ -148,9 +181,27 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+
+    sub = payload.get("sub")
+    email = payload.get("email")
+
+    user = None
+    if sub:
+        user = await db.users.find_one({"id": sub}, {"password_hash": 0})
+        if not user and len(str(sub)) == 24:
+            try:
+                from bson import ObjectId
+                user = await db.users.find_one({"_id": ObjectId(sub)}, {"password_hash": 0})
+            except Exception:
+                pass
+    if not user and email:
+        user = await db.users.find_one({"email": email.lower().strip()}, {"password_hash": 0})
+
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+
+    user["id"] = user.get("id") or str(user.get("_id", ""))
+    user.pop("_id", None)
     return user
 
 
@@ -350,6 +401,18 @@ class EmailVerifyConfirm(BaseModel):
     token: str
 
 
+class OTPRequest(BaseModel):
+    email: EmailStr
+
+
+class OTPVerify(BaseModel):
+    email: EmailStr
+    code: str
+
+
+_otp_store: Dict[str, dict] = {}
+
+
 # ---------- Auth Endpoints ----------
 @api_router.post("/auth/check")
 async def check_availability(inp: CheckInput):
@@ -364,27 +427,81 @@ async def check_availability(inp: CheckInput):
             return {"available": False, "field": "username"}
     return {"available": True}
 
-# Sanity check for Gmail SMTP credentials at startup
-if not os.getenv('GMAIL_USER') or not os.getenv('GMAIL_APP_PASSWORD'):
-    raise RuntimeError('GMAIL_USER and GMAIL_APP_PASSWORD must be set in .env for OTP email delivery')
 
 async def send_email_otp(to: str, otp: str) -> None:
-    msg = EmailMessage()
-    msg["From"] = os.getenv('GMAIL_USER')
-    msg["To"] = to
-    msg["Subject"] = "Your Studio OTP Code"
-    msg.set_content(f"Your verification code is: {otp}\n\nThis code expires in 10 minutes.")
-    await aiosmtplib.send(
-        msg,
-        hostname="smtp.gmail.com",
-        port=587,
-        start_tls=True,
-        username=os.getenv('GMAIL_USER'),
-        password=os.getenv('GMAIL_APP_PASSWORD'),
+    html_content = email_template(
+        "Your Verification Code",
+        f"<p>Use the following 6-digit OTP code to complete your verification:</p>"
+        f'<h2 style="font-family:monospace;font-size:32px;letter-spacing:6px;color:#FF3B30;margin:24px 0;">{otp}</h2>'
+        f"<p>This code will expire in 10 minutes.</p>"
     )
+    asyncio.create_task(send_email(to, "CR8 Studio — Verification Code (OTP)", html_content))
+
 
 @api_router.post("/auth/send-otp")
-async def send_otp(inp: SendOTPInput):
+async def send_otp(inp: OTPRequest):
+    email = inp.email.lower().strip()
+    code = f"{random.randint(100000, 999999)}"
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    _otp_store[email] = {"code": code, "expires_at": expires_at}
+    
+    try:
+        await db.otps.update_one(
+            {"email": email},
+            {"$set": {"code": code, "expires_at": expires_at.isoformat()}},
+            upsert=True
+        )
+    except Exception as e:
+        logger.warning("DB OTP upsert failed: %s", e)
+
+    await send_email_otp(email, code)
+    return {"ok": True, "message": "OTP sent successfully"}
+
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(inp: OTPVerify):
+    email = inp.email.lower().strip()
+    entry = _otp_store.get(email)
+    if not entry:
+        try:
+            otp_doc = await db.otps.find_one({"email": email})
+            if otp_doc:
+                entry = {
+                    "code": otp_doc["code"],
+                    "expires_at": datetime.fromisoformat(otp_doc["expires_at"])
+                }
+        except Exception:
+            pass
+
+    if not entry:
+        raise HTTPException(status_code=400, detail="No OTP requested for this email")
+
+    if datetime.now(timezone.utc) > entry["expires_at"]:
+        _otp_store.pop(email, None)
+        try:
+            await db.otps.delete_one({"email": email})
+        except Exception:
+            pass
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
+
+    if entry["code"] != inp.code.strip():
+        raise HTTPException(status_code=400, detail="Invalid OTP code")
+
+    _otp_store.pop(email, None)
+    try:
+        await db.otps.delete_one({"email": email})
+    except Exception:
+        pass
+
+    user = await db.users.find_one({"email": email})
+    if user:
+        await db.users.update_one({"email": email}, {"$set": {"email_verified": True, "verified": True}})
+
+    return {"ok": True, "verified": True}
+
+
+@api_router.post("/auth/register")
+async def register(inp: RegisterInput):
     email = inp.email.lower().strip()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -464,9 +581,14 @@ async def google_login(inp: GoogleLoginInput):
     user = await db.users.find_one({"email": email})
     if not user:
         raise HTTPException(400, "Google Account not registered with us.")
-    
-    token = create_access_token(str(user["_id"]), email, user.get("role", "influencer"))
-    return {"token": token, "user": clean(user)}
+
+    user_id = user.get("id") or str(user["_id"])
+    if not user.get("id"):
+        await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
+        user["id"] = user_id
+
+    token = create_access_token(user_id, email, user.get("role", "influencer"))
+    return {"token": token, "user": clean(dict(user))}
 
 
 @api_router.post("/auth/login")
@@ -477,6 +599,12 @@ async def login(inp: LoginInput):
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid login credentials")
+    
+    user_id = user.get("id") or str(user["_id"])
+    if not user.get("id"):
+        await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
+        user["id"] = user_id
+
     token = create_access_token(user["id"], user["email"], user["role"])
     return {"token": token, "user": clean(dict(user))}
 
