@@ -35,6 +35,28 @@ export default function Register() {
   const [mobileStatus, setMobileStatus] = useState("typing");
   const [usernameStatus, setUsernameStatus] = useState("typing");
 
+  const [googleImportTime, setGoogleImportTime] = useState(null);
+
+  // 5-Minute Google Pre-fill Cache Expiry
+  useEffect(() => {
+    if (!googleImportTime) return;
+
+    const FIVE_MINUTES_MS = 5 * 60 * 1000;
+    const timer = setTimeout(() => {
+      setForm(prev => ({
+        ...prev,
+        firstName: "",
+        lastName: "",
+        email: "",
+        username: ""
+      }));
+      setGoogleImportTime(null);
+      toast.error("Google imported registration details expired after 5 minutes. Please click Continue with Google again.");
+    }, FIVE_MINUTES_MS);
+
+    return () => clearTimeout(timer);
+  }, [googleImportTime]);
+
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
     setForm({ 
@@ -46,6 +68,7 @@ export default function Register() {
     setEmailStatus("typing");
     setMobileStatus("typing");
     setUsernameStatus("typing");
+    setGoogleImportTime(null);
   }, [urlRole]);
 
   // Resend OTP Cooldown Timer
@@ -359,7 +382,8 @@ export default function Register() {
                   }));
                   setErr("");
                   setFieldErrors(e => ({...e, firstName: "", lastName: "", email: ""}));
-                  toast.success("Google details imported! Please enter your Mobile & Pincode to complete registration.");
+                  setGoogleImportTime(Date.now());
+                  toast.success("Google details imported! Details will expire in 5 minutes if registration is not completed.");
                 } catch (e) {
                   setErr("Failed to parse Google login");
                 }
