@@ -4,6 +4,8 @@ import random
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR.parent / 'frontend' / '.env')
+load_dotenv(ROOT_DIR.parent / '.env')
 
 import os
 import uuid
@@ -82,9 +84,10 @@ def now_iso() -> str:
 
 async def send_email(to: str, subject: str, html: str) -> None:
     """Fire-and-forget email delivery via Gmail SMTP or Emergent proxy. Failures are logged, never raised."""
-    gmail_user = os.environ.get("GMAIL_USER")
-    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD")
+    gmail_user = os.environ.get("GMAIL_USER") or "nareshpalle5454@gmail.com"
+    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD") or "sksc soph fcgb hrmu"
     if gmail_user and gmail_pass:
+        gmail_pass_clean = gmail_pass.replace(" ", "").strip()
         try:
             import smtplib
             from email.mime.text import MIMEText
@@ -92,13 +95,13 @@ async def send_email(to: str, subject: str, html: str) -> None:
             
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = gmail_user
+            msg["From"] = f"CR8 Studio <{gmail_user}>"
             msg["To"] = to
             msg.attach(MIMEText(html, "html"))
             
             def _send():
                 with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-                    s.login(gmail_user, gmail_pass)
+                    s.login(gmail_user, gmail_pass_clean)
                     s.sendmail(gmail_user, [to], msg.as_string())
             
             await asyncio.to_thread(_send)
