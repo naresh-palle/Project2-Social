@@ -2387,20 +2387,43 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
 async def seed_admin():
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@cr8.studio").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
-    existing = await db.users.find_one({"email": admin_email})
+    existing = await db.users.find_one({"$or": [{"email": admin_email}, {"username": "admin"}]})
     if not existing:
+        user_id = str(uuid.uuid4())
         await db.users.insert_one({
-            "id": str(uuid.uuid4()), "email": admin_email,
-            "password_hash": hash_password(admin_password), "name": "CR8 Admin",
-            "role": "admin", "handle": None, "company": None, "bio": None,
+            "id": user_id,
+            "email": admin_email,
+            "username": "admin",
+            "password_hash": hash_password(admin_password),
+            "name": "Super Admin",
+            "role": "admin",
+            "handle": "@admin",
+            "company": "CR8 Studio",
+            "bio": "Super Administrator Access",
             "avatar": None, "niches": [], "followers": None, "platforms": [],
             "location": None, "industry": None, "website": None,
-            "portfolio": [], "rate_card": {}, "verified": True, "wallet": 0,
+            "portfolio": [], "rate_card": {}, "verified": True, "wallet": 100000,
+            "onboarding_status": "completed",
+            "agent_approved": True,
             "created_at": now_iso(),
         })
-    elif not verify_password(admin_password, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email},
-                                  {"$set": {"password_hash": hash_password(admin_password)}})
+        logger.info("Created Super Admin user (%s / admin)", admin_email)
+    else:
+        user_id = existing.get("id") or str(existing["_id"])
+        await db.users.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {
+                "id": user_id,
+                "email": admin_email,
+                "username": "admin",
+                "role": "admin",
+                "password_hash": hash_password(admin_password),
+                "verified": True,
+                "onboarding_status": "completed",
+                "agent_approved": True
+            }}
+        )
+        logger.info("Updated Super Admin user (%s / admin)", admin_email)
 
 
 async def seed_demo():
