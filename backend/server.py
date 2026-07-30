@@ -84,8 +84,8 @@ def now_iso() -> str:
 
 async def send_email(to: str, subject: str, html: str) -> None:
     """Fire-and-forget email delivery via Gmail SMTP or Emergent proxy. Failures are logged, never raised."""
-    gmail_user = os.environ.get("GMAIL_USER") or "nareshpalle5454@gmail.com"
-    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD") or "sksc soph fcgb hrmu"
+    gmail_user = os.environ.get("GMAIL_USER")
+    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD")
     if gmail_user and gmail_pass:
         gmail_pass_clean = gmail_pass.replace(" ", "").strip()
         try:
