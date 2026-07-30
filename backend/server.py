@@ -83,7 +83,63 @@ def now_iso() -> str:
 
 
 async def send_email(to: str, subject: str, html: str) -> None:
-    """Fire-and-forget email delivery via Gmail SMTP or Emergent proxy. Failures are logged, never raised."""
+    """Delivers email via Resend HTTP API, Brevo HTTP API, Gmail SMTP, or Emergent HTTP proxy."""
+    
+    # 1. Resend HTTP API (Recommended - 100 free emails/day over HTTPS, never blocked by cloud firewalls)
+    resend_api_key = (os.environ.get("RESEND_API_KEY") or "").strip()
+    if resend_api_key:
+        try:
+            from_email = os.environ.get("EMAIL_FROM", "CR8 Studio <onboarding@resend.dev>")
+            async with httpx.AsyncClient(timeout=10) as c:
+                res = await c.post(
+                    "https://api.resend.com/emails",
+                    headers={
+                        "Authorization": f"Bearer {resend_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "from": from_email,
+                        "to": [to],
+                        "subject": subject,
+                        "html": html
+                    }
+                )
+                if res.status_code in (200, 201):
+                    logger.info("Email sent successfully via Resend HTTP API to %s", to)
+                    return
+                else:
+                    logger.warning("Resend HTTP API error %s: %s", res.status_code, res.text)
+        except Exception as e:
+            logger.warning("Resend HTTP API exception: %s", e)
+
+    # 2. Brevo (Sendinblue) HTTP API (300 free emails/day over HTTPS)
+    brevo_api_key = (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
+    if brevo_api_key:
+        try:
+            sender_email = os.environ.get("EMAIL_USER", "noreply@cr8.studio")
+            async with httpx.AsyncClient(timeout=10) as c:
+                res = await c.post(
+                    "https://api.brevo.com/v3/smtp/email",
+                    headers={
+                        "api-key": brevo_api_key,
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "sender": {"name": "CR8 Studio", "email": sender_email},
+                        "to": [{"email": to}],
+                        "subject": subject,
+                        "htmlContent": html
+                    }
+                )
+                if res.status_code in (200, 201):
+                    logger.info("Email sent successfully via Brevo HTTP API to %s", to)
+                    return
+                else:
+                    logger.warning("Brevo HTTP API error %s: %s", res.status_code, res.text)
+        except Exception as e:
+            logger.warning("Brevo HTTP API exception: %s", e)
+
+    # 3. Gmail SMTP Fallback
     gmail_user = (os.environ.get("GMAIL_USER") or os.environ.get("EMAIL_USER") or "").strip()
     gmail_pass = (os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("EMAIL_PASS") or "").strip()
     if gmail_user and gmail_pass:
