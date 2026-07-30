@@ -2816,6 +2816,21 @@ async def seed_admin():
 
 
 async def seed_demo():
+    demo_password_hash = hash_password("demo1234")
+    # Always ensure demo accounts exist with correct password
+    seed_emails = [
+        "lena@cr8.studio", "kai@cr8.studio", "nova@cr8.studio",
+        "creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio",
+        "pending_agent@cr8.studio", "studio@cr8.studio",
+        "arjun@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio",
+        "sneha@cr8.studio", "karthik@cr8.studio", "anya@cr8.studio",
+        "vikram@cr8.studio", "neha@cr8.studio",
+        "zomato@cr8.studio", "boat@cr8.studio", "nykaa@cr8.studio",
+        "agent.karan@cr8.studio", "agent.shruti@cr8.studio",
+    ]
+    for em in seed_emails:
+        await db.users.update_many({"email": em}, {"$set": {"password_hash": demo_password_hash}})
+
     if await db.users.count_documents({"role": "influencer"}) > 0:
         return
     demos = [
