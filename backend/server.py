@@ -2896,6 +2896,27 @@ async def get_test_users():
     users = await db.users.find({}, {"email": 1, "role": 1, "mobile": 1, "name": 1, "_id": 0}).to_list(None)
     return {"users": users}
 
+@api_router.post("/admin/reset-demo-passwords")
+async def reset_demo_passwords():
+    """Force reset all demo account passwords to demo1234"""
+    demo_password_hash = hash_password("demo1234")
+    seed_emails = [
+        "lena@cr8.studio", "kai@cr8.studio", "nova@cr8.studio",
+        "creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio",
+        "pending_agent@cr8.studio", "studio@cr8.studio",
+        "arjun@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio",
+        "sneha@cr8.studio", "karthik@cr8.studio", "anya@cr8.studio",
+        "vikram@cr8.studio", "neha@cr8.studio",
+        "zomato@cr8.studio", "boat@cr8.studio", "nykaa@cr8.studio",
+        "agent.karan@cr8.studio", "agent.shruti@cr8.studio",
+        "admin@cr8.studio",
+    ]
+    count = 0
+    for em in seed_emails:
+        result = await db.users.update_many({"email": em}, {"$set": {"password_hash": demo_password_hash}})
+        count += result.modified_count
+    return {"ok": True, "updated": count, "message": f"Reset passwords for {count} accounts to demo1234"}
+
 @app.on_event("startup")
 async def on_startup():
     await db.users.create_index("email", unique=True)
