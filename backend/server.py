@@ -623,6 +623,14 @@ async def google_login(inp: GoogleLoginInput):
             detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details."
         )
 
+    # Enforce mandatory registration details (mobile & pincode)
+    if not user.get("mobile") or not user.get("pincode"):
+        await db.users.delete_one({"_id": user["_id"]})
+        raise HTTPException(
+            status_code=400, 
+            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details."
+        )
+
     user_id = user.get("id") or str(user["_id"])
     if not user.get("id"):
         await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
