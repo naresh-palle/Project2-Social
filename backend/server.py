@@ -434,43 +434,75 @@ async def check_availability(inp: CheckInput):
     return {"available": True}
 
 
+async def send_mobile_sms_otp(mobile: str, otp: str) -> None:
+    """Dispatches real SMS OTP to Indian mobile numbers via Fast2SMS API if FAST2SMS_API_KEY is configured."""
+    clean_mobile = mobile.replace("+91", "").replace(" ", "").strip()
+    if not (len(clean_mobile) == 10 and clean_mobile.isdigit()):
+        return
+
+    api_key = os.environ.get("FAST2SMS_API_KEY")
+    if api_key:
+        try:
+            async with httpx.AsyncClient(timeout=10) as c:
+                res = await c.post(
+                    "https://www.fast2sms.com/dev/bulkV2",
+                    headers={"authorization": api_key, "Content-Type": "application/json"},
+                    json={
+                        "variables_values": otp,
+                        "route": "otp",
+                        "numbers": clean_mobile
+                    }
+                )
+                if res.status_code == 200:
+                    logger.info("Fast2SMS OTP dispatched successfully to +91 %s", clean_mobile)
+                else:
+                    logger.warning("Fast2SMS API error %s: %s", res.status_code, res.text)
+        except Exception as e:
+            logger.warning("Fast2SMS exception: %s", e)
+    else:
+        logger.info("Mobile SMS OTP generated for +91 %s: %s (Set FAST2SMS_API_KEY in .env for live SMS)", clean_mobile, otp)
+
+
 async def send_email_otp(to: str, otp: str) -> None:
     display_name = to.split("@")[0].title()
     html_content = f"""
-    <div style="background-color:#F4F4F4;padding:30px 10px;font-family:Arial,sans-serif;color:#333;">
-      <div style="max-width:550px;margin:0 auto;background:#ffffff;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background-color:#0B0B0E;padding:40px 15px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#F4F4F0;">
+      <div style="max-width:550px;margin:0 auto;background:#121212;border:1px solid rgba(255,255,255,0.15);border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
         
-        <!-- Header Banner -->
-        <div style="background-color:#444444;padding:22px;text-align:left;">
-          <span style="color:#ffffff;font-size:24px;font-weight:bold;letter-spacing:1px;">
-            <span style="color:#FF3B30;font-size:26px;">⚡</span> FAST2SMS / CR8 STUDIO
+        <!-- Header Banner with CR8 Studio Accent Line -->
+        <div style="height:3px;background:linear-gradient(to right, #FF3B30, #9333EA, #34C759);width:100%;"></div>
+        <div style="padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <span style="font-family:monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#FF3B30;font-weight:bold;">
+            § CR8 STUDIO · VERIFICATION
           </span>
         </div>
 
         <!-- Content Body -->
-        <div style="padding:35px 25px;background:#ffffff;">
-          <h2 style="font-size:20px;color:#222222;margin-top:0;font-weight:600;">Hi {display_name},</h2>
+        <div style="padding:36px 28px;background:#121212;">
+          <h2 style="font-size:22px;color:#F4F4F0;margin-top:0;font-weight:400;font-family:Georgia,serif;">Hi {display_name},</h2>
           
-          <p style="font-size:16px;color:#444444;margin:30px 0 25px 0;text-align:center;">
-            OTP to verify email address is: <strong style="font-size:24px;color:#111111;letter-spacing:2px;">{otp}</strong>
+          <p style="font-size:14px;color:rgba(244,244,240,0.8);margin:24px 0 10px 0;line-height:1.6;">
+            Your 6-digit OTP verification code is:
           </p>
+          
+          <div style="margin:24px 0;padding:18px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.3);border-radius:2px;text-align:center;">
+            <span style="font-family:monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#FF3B30;">{otp}</span>
+          </div>
 
-          <p style="font-size:14px;color:#333333;margin-top:35px;line-height:1.5;">
-            Cheers!<br/>
-            <strong>Team Fast2SMS / CR8 Studio.</strong>
+          <p style="font-size:12px;color:rgba(244,244,240,0.5);margin-top:30px;line-height:1.6;font-family:monospace;text-transform:uppercase;">
+            This code will expire in 10 minutes. If you did not request this verification, please ignore this email.
           </p>
         </div>
 
         <!-- Footer Copyright Bar -->
-        <div style="background-color:#444444;padding:18px;text-align:center;color:#ffffff;font-size:12px;line-height:1.6;">
-          <strong>Copyright © 2011-2026 Fast2SMS.com / CR8 Studio</strong><br/>
-          <span style="opacity:0.8;">(a SID GROUPS Venture) All Rights Reserved.</span>
+        <div style="background-color:#0A0A0C;padding:20px;text-align:center;color:rgba(244,244,240,0.4);font-size:10px;font-family:monospace;letter-spacing:0.2em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.08);">
+          CR8 STUDIO · ALL RIGHTS RESERVED
         </div>
 
       </div>
     </div>
     """
-    asyncio.create_task(send_email(to, f"Fast2SMS — Verification Code: {otp}", html_content))
+    asyncio.create_task(send_email(to, f"CR8 Studio — Verification Code: {otp}", html_content))
 
 
 @api_router.post("/auth/send-otp")
@@ -498,7 +530,17 @@ async def send_otp(inp: OTPRequest):
         code = f"{random.randint(100000, 999999)}"
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
         _otp_store[mobile] = {"code": code, "expires_at": expires_at}
-        logger.info("Mobile OTP generated for %s: %s", mobile, code)
+        
+        try:
+            await db.otps.update_one(
+                {"mobile": mobile},
+                {"$set": {"code": code, "expires_at": expires_at.isoformat()}},
+                upsert=True
+            )
+        except Exception as e:
+            logger.warning("DB Mobile OTP upsert failed: %s", e)
+
+        await send_mobile_sms_otp(mobile, code)
         return {"ok": True, "message": "OTP sent successfully to mobile"}
 
     raise HTTPException(status_code=400, detail="Either email or mobile is required")
