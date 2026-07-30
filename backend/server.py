@@ -2876,6 +2876,10 @@ async def seed_demo():
         "created_at": now_iso(), "applications_count": 0,
     })
 
+@api_router.get("/test-users")
+async def get_test_users():
+    users = await db.users.find({}, {"email": 1, "role": 1, "mobile": 1, "name": 1, "_id": 0}).to_list(None)
+    return {"users": users}
 
 @app.on_event("startup")
 async def on_startup():
