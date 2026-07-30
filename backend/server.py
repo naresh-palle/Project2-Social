@@ -435,13 +435,42 @@ async def check_availability(inp: CheckInput):
 
 
 async def send_email_otp(to: str, otp: str) -> None:
-    html_content = email_template(
-        "Your Verification Code",
-        f"<p>Use the following 6-digit OTP code to complete your verification:</p>"
-        f'<h2 style="font-family:monospace;font-size:32px;letter-spacing:6px;color:#FF3B30;margin:24px 0;">{otp}</h2>'
-        f"<p>This code will expire in 10 minutes.</p>"
-    )
-    asyncio.create_task(send_email(to, "CR8 Studio — Verification Code (OTP)", html_content))
+    display_name = to.split("@")[0].title()
+    html_content = f"""
+    <div style="background-color:#F4F4F4;padding:30px 10px;font-family:Arial,sans-serif;color:#333;">
+      <div style="max-width:550px;margin:0 auto;background:#ffffff;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        
+        <!-- Header Banner -->
+        <div style="background-color:#444444;padding:22px;text-align:left;">
+          <span style="color:#ffffff;font-size:24px;font-weight:bold;letter-spacing:1px;">
+            <span style="color:#FF3B30;font-size:26px;">⚡</span> FAST2SMS / CR8 STUDIO
+          </span>
+        </div>
+
+        <!-- Content Body -->
+        <div style="padding:35px 25px;background:#ffffff;">
+          <h2 style="font-size:20px;color:#222222;margin-top:0;font-weight:600;">Hi {display_name},</h2>
+          
+          <p style="font-size:16px;color:#444444;margin:30px 0 25px 0;text-align:center;">
+            OTP to verify email address is: <strong style="font-size:24px;color:#111111;letter-spacing:2px;">{otp}</strong>
+          </p>
+
+          <p style="font-size:14px;color:#333333;margin-top:35px;line-height:1.5;">
+            Cheers!<br/>
+            <strong>Team Fast2SMS / CR8 Studio.</strong>
+          </p>
+        </div>
+
+        <!-- Footer Copyright Bar -->
+        <div style="background-color:#444444;padding:18px;text-align:center;color:#ffffff;font-size:12px;line-height:1.6;">
+          <strong>Copyright © 2011-2026 Fast2SMS.com / CR8 Studio</strong><br/>
+          <span style="opacity:0.8;">(a SID GROUPS Venture) All Rights Reserved.</span>
+        </div>
+
+      </div>
+    </div>
+    """
+    asyncio.create_task(send_email(to, f"Fast2SMS — Verification Code: {otp}", html_content))
 
 
 @api_router.post("/auth/send-otp")

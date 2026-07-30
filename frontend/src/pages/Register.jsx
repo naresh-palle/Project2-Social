@@ -30,6 +30,7 @@ export default function Register() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [termsAgreed, setTermsAgreed] = useState(true);
 
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
@@ -518,18 +519,33 @@ export default function Register() {
             </p>
           )}
 
+          {/* Terms & Conditions Checkbox (Fast2SMS Reference Layout) */}
+          <div className="mt-6 flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="terms-check"
+              required
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+              className="accent-[#FF3B30] w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="terms-check" className="font-mono text-xs text-white/80 cursor-pointer select-none">
+              I agree to <span className="text-[#FF3B30] underline">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] underline">Privacy Policy</span>.
+            </label>
+          </div>
+
           <button
             data-testid="register-submit"
-            disabled={loading || emailStatus === "taken" || mobileStatus === "taken"}
-            className="btn-solid mt-8 w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed}
+            className="btn-solid mt-6 w-full justify-center py-4 bg-[#FF3B30] text-white font-bold text-lg hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg rounded-sm"
           >
-            {loading ? "Sending Code…" : <>Verify Identity <ArrowRight className="w-4 h-4" /></>}
+            {loading ? "Sending Code…" : "Signup"}
           </button>
 
-          <p className="mt-6 font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 text-center">
-            Already inside?{" "}
-            <Link to="/login" className="kinetic-underline text-[#FF3B30]" data-testid="link-to-login">
-              Sign in →
+          <p className="mt-6 font-mono text-xs tracking-wider opacity-70 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#FF3B30] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
+              Login
             </Link>
           </p>
         </motion.form>
