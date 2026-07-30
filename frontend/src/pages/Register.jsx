@@ -538,18 +538,18 @@ export default function Register() {
             </p>
           )}
 
-          {/* Terms & Conditions Checkbox (Fast2SMS Reference Layout) */}
-          <div className="mt-6 flex items-center gap-3">
+          {/* Prominent Terms & Conditions Checkbox Container */}
+          <div className="mt-6 p-4 bg-white/[0.03] border border-white/15 rounded-sm flex items-center gap-3 shadow-inner">
             <input
               type="checkbox"
               id="terms-check"
               required
               checked={termsAgreed}
               onChange={(e) => setTermsAgreed(e.target.checked)}
-              className="accent-[#FF3B30] w-4 h-4 cursor-pointer"
+              className="accent-[#FF3B30] w-5 h-5 cursor-pointer shrink-0"
             />
-            <label htmlFor="terms-check" className="font-mono text-xs text-white/80 cursor-pointer select-none">
-              I agree to <span className="text-[#FF3B30] underline">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] underline">Privacy Policy</span>.
+            <label htmlFor="terms-check" className="font-mono text-xs text-white/90 cursor-pointer select-none leading-snug">
+              I agree to <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
 
