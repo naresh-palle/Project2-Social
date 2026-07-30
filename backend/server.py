@@ -434,215 +434,315 @@ async def check_availability(inp: CheckInput):
     return {"available": True}
 
 
-async def send_mobile_sms_otp(mobile: str, otp: str) -> None:
-    """Dispatches real SMS OTP to Indian mobile numbers via Fast2SMS API if FAST2SMS_API_KEY is configured."""
-    clean_mobile = mobile.replace("+91", "").replace(" ", "").strip()
-    if not (len(clean_mobile) == 10 and clean_mobile.isdigit()):
-        return
+# --- PROVIDER ABSTRACTION & SECURITY CONFIGURATION ---
+from abc import ABC, abstractmethod
+import hashlib
 
-    api_key = os.environ.get("FAST2SMS_API_KEY")
-    if api_key:
-        try:
-            async with httpx.AsyncClient(timeout=10) as c:
-                res = await c.post(
-                    "https://www.fast2sms.com/dev/bulkV2",
-                    headers={"authorization": api_key, "Content-Type": "application/json"},
-                    json={
-                        "variables_values": otp,
-                        "route": "otp",
-                        "numbers": clean_mobile
-                    }
-                )
-                if res.status_code == 200:
-                    logger.info("Fast2SMS OTP dispatched successfully to +91 %s", clean_mobile)
-                else:
-                    logger.warning("Fast2SMS API error %s: %s", res.status_code, res.text)
-        except Exception as e:
-            logger.warning("Fast2SMS exception: %s", e)
-    else:
-        logger.info("Mobile SMS OTP generated for +91 %s: %s (Set FAST2SMS_API_KEY in .env for live SMS)", clean_mobile, otp)
+OTP_LENGTH = int(os.environ.get("OTP_LENGTH", 6))
+OTP_EXPIRY_MINUTES = int(os.environ.get("OTP_EXPIRY_MINUTES", 5))
+OTP_MAX_ATTEMPTS = int(os.environ.get("OTP_MAX_ATTEMPTS", 3))
+OTP_RESEND_SECONDS = int(os.environ.get("OTP_RESEND_SECONDS", 60))
 
+def hash_otp(otp_code: str) -> str:
+    """Hashes OTP using SHA-256 for secure storage."""
+    return hashlib.sha256(otp_code.strip().encode("utf-8")).hexdigest()
 
-async def send_email_otp(to: str, otp: str) -> None:
-    display_name = to.split("@")[0].title()
-    html_content = f"""
-    <div style="background-color:#0B0B0E;padding:40px 15px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#F4F4F0;">
-      <div style="max-width:550px;margin:0 auto;background:#121212;border:1px solid rgba(255,255,255,0.15);border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
-        
-        <!-- Header Banner with CR8 Studio Accent Line -->
-        <div style="height:3px;background:linear-gradient(to right, #FF3B30, #9333EA, #34C759);width:100%;"></div>
-        <div style="padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.1);">
-          <span style="font-family:monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#FF3B30;font-weight:bold;">
-            § CR8 STUDIO · VERIFICATION
-          </span>
-        </div>
+class EmailProvider(ABC):
+    @abstractmethod
+    async def send_email_otp(self, to: str, name: str, otp: str) -> None:
+        pass
 
-        <!-- Content Body -->
-        <div style="padding:36px 28px;background:#121212;">
-          <h2 style="font-size:22px;color:#F4F4F0;margin-top:0;font-weight:400;font-family:Georgia,serif;">Hi {display_name},</h2>
-          
-          <p style="font-size:14px;color:rgba(244,244,240,0.8);margin:24px 0 10px 0;line-height:1.6;">
-            Your 6-digit OTP verification code is:
-          </p>
-          
-          <div style="margin:24px 0;padding:18px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.3);border-radius:2px;text-align:center;">
-            <span style="font-family:monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#FF3B30;">{otp}</span>
+class SmsProvider(ABC):
+    @abstractmethod
+    async def send_sms_otp(self, mobile: str, otp: str) -> None:
+        pass
+
+class GmailEmailProvider(EmailProvider):
+    async def send_email_otp(self, to: str, name: str, otp: str) -> None:
+        display_name = name or to.split("@")[0].title()
+        html_content = f"""
+        <div style="background-color:#0B0B0E;padding:40px 15px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#F4F4F0;">
+          <div style="max-width:550px;margin:0 auto;background:#121212;border:1px solid rgba(255,255,255,0.15);border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+            <div style="height:3px;background:linear-gradient(to right, #FF3B30, #9333EA, #34C759);width:100%;"></div>
+            <div style="padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.1);">
+              <span style="font-family:monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#FF3B30;font-weight:bold;">
+                § CR8 STUDIO · VERIFICATION
+              </span>
+            </div>
+            <div style="padding:36px 28px;background:#121212;">
+              <h2 style="font-size:22px;color:#F4F4F0;margin-top:0;font-weight:400;font-family:Georgia,serif;">Hello {display_name},</h2>
+              <p style="font-size:14px;color:rgba(244,244,240,0.8);margin:24px 0 10px 0;line-height:1.6;">
+                Welcome to cr8 studio. Your verification code is:
+              </p>
+              <div style="margin:24px 0;padding:18px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.3);border-radius:2px;text-align:center;">
+                <span style="font-family:monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#FF3B30;">{otp}</span>
+              </div>
+              <p style="font-size:12px;color:rgba(244,244,240,0.5);margin-top:30px;line-height:1.6;font-family:monospace;text-transform:uppercase;">
+                This OTP is valid for {OTP_EXPIRY_MINUTES} minutes. If you did not request this, ignore this email.
+              </p>
+              <p style="font-size:13px;color:rgba(244,244,240,0.8);margin-top:20px;">
+                Team cr8 studio
+              </p>
+            </div>
+            <div style="background-color:#0A0A0C;padding:20px;text-align:center;color:rgba(244,244,240,0.4);font-size:10px;font-family:monospace;letter-spacing:0.2em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.08);">
+              CR8 STUDIO · ALL RIGHTS RESERVED
+            </div>
           </div>
-
-          <p style="font-size:12px;color:rgba(244,244,240,0.5);margin-top:30px;line-height:1.6;font-family:monospace;text-transform:uppercase;">
-            This code will expire in 10 minutes. If you did not request this verification, please ignore this email.
-          </p>
         </div>
+        """
+        await send_email(to, "Verify your email address - CR8 Studio", html_content)
 
-        <!-- Footer Copyright Bar -->
-        <div style="background-color:#0A0A0C;padding:20px;text-align:center;color:rgba(244,244,240,0.4);font-size:10px;font-family:monospace;letter-spacing:0.2em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.08);">
-          CR8 STUDIO · ALL RIGHTS RESERVED
-        </div>
+class Fast2SMSSmsProvider(SmsProvider):
+    async def send_sms_otp(self, mobile: str, otp: str) -> None:
+        clean_mobile = mobile.replace("+91", "").replace(" ", "").strip()
+        if not (len(clean_mobile) == 10 and clean_mobile.isdigit()):
+            return
 
-      </div>
-    </div>
-    """
-    asyncio.create_task(send_email(to, f"CR8 Studio — Verification Code: {otp}", html_content))
+        api_key = os.environ.get("FAST2SMS_API_KEY")
+        if api_key:
+            try:
+                async with httpx.AsyncClient(timeout=10) as c:
+                    res = await c.post(
+                        "https://www.fast2sms.com/dev/bulkV2",
+                        headers={"authorization": api_key, "Content-Type": "application/json"},
+                        json={
+                            "variables_values": otp,
+                            "route": os.environ.get("FAST2SMS_ROUTE", "otp"),
+                            "numbers": clean_mobile
+                        }
+                    )
+                    if res.status_code == 200:
+                        logger.info("Fast2SMS OTP dispatched to +91 %s", clean_mobile)
+                    else:
+                        logger.warning("Fast2SMS error %s: %s", res.status_code, res.text)
+            except Exception as e:
+                logger.warning("Fast2SMS exception: %s", e)
+        else:
+            logger.info("cr8 studio: Your verification code is %s. Valid for %s minutes. Do not share this OTP with anyone.", otp, OTP_EXPIRY_MINUTES)
+
+email_provider: EmailProvider = GmailEmailProvider()
+sms_provider: SmsProvider = Fast2SMSSmsProvider()
 
 
+# --- EMAIL OTP ENDPOINTS ---
+
+@api_router.post("/auth/email/send-otp")
+@api_router.post("/auth/email/resend-otp")
+async def email_send_otp(inp: OTPRequest):
+    if not inp.email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    
+    email = inp.email.lower().strip()
+    
+    # Check 60s resend cooldown
+    existing = await db.otps.find_one({"email": email})
+    if existing and existing.get("created_at"):
+        try:
+            created_at = datetime.fromisoformat(existing["created_at"])
+            secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+            if secs_passed < OTP_RESEND_SECONDS:
+                wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+
+    otp_code = "".join(str(random.randint(0, 9)) for _ in range(OTP_LENGTH))
+    hashed = hash_otp(otp_code)
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(minutes=OTP_EXPIRY_MINUTES)
+
+    doc = {
+        "email": email,
+        "hashed_otp": hashed,
+        "code": otp_code,
+        "attempts": 0,
+        "created_at": now_utc.isoformat(),
+        "expires_at": expires_at.isoformat()
+    }
+    
+    await db.otps.update_one({"email": email}, {"$set": doc}, upsert=True)
+    _otp_store[email] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
+
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+    return {"ok": True, "message": f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
+
+
+@api_router.post("/auth/email/verify-otp")
+async def email_verify_otp(inp: OTPVerify):
+    if not inp.email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    
+    email = inp.email.lower().strip()
+    target_code = (inp.code or inp.otp or "").strip()
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"email": email})
+    if not doc:
+        doc = _otp_store.get(email)
+
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this email address")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"email": email}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"email": email})
+            _otp_store.pop(email, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"email": email})
+    _otp_store.pop(email, None)
+
+    user = await db.users.find_one({"email": email})
+    if user:
+        await db.users.update_one({"email": email}, {"$set": {"email_verified": True, "verified": True}})
+
+    return {"ok": True, "verified": True, "message": "Email address verified successfully!"}
+
+
+# --- MOBILE OTP ENDPOINTS ---
+
+@api_router.post("/auth/mobile/send-otp")
+@api_router.post("/auth/mobile/resend-otp")
+async def mobile_send_otp(inp: OTPRequest):
+    if not inp.mobile:
+        raise HTTPException(status_code=400, detail="Mobile number is required")
+    
+    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+
+    existing = await db.otps.find_one({"mobile": mobile})
+    if existing and existing.get("created_at"):
+        try:
+            created_at = datetime.fromisoformat(existing["created_at"])
+            secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+            if secs_passed < OTP_RESEND_SECONDS:
+                wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+
+    otp_code = "".join(str(random.randint(0, 9)) for _ in range(OTP_LENGTH))
+    hashed = hash_otp(otp_code)
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(minutes=OTP_EXPIRY_MINUTES)
+
+    doc = {
+        "mobile": mobile,
+        "hashed_otp": hashed,
+        "code": otp_code,
+        "attempts": 0,
+        "created_at": now_utc.isoformat(),
+        "expires_at": expires_at.isoformat()
+    }
+    
+    await db.otps.update_one({"mobile": mobile}, {"$set": doc}, upsert=True)
+    _otp_store[mobile] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
+
+    await sms_provider.send_sms_otp(mobile, otp_code)
+    return {"ok": True, "message": f"Verification code sent to +91 {mobile}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
+
+
+@api_router.post("/auth/mobile/verify-otp")
+async def mobile_verify_otp(inp: OTPVerify):
+    if not inp.mobile:
+        raise HTTPException(status_code=400, detail="Mobile number is required")
+    
+    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+    target_code = (inp.code or inp.otp or "").strip()
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"mobile": mobile})
+    if not doc:
+        doc = _otp_store.get(mobile)
+
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"mobile": mobile})
+            _otp_store.pop(mobile, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"mobile": mobile})
+    _otp_store.pop(mobile, None)
+
+    user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
+    if user:
+        user_id = user.get("id") or str(user["_id"])
+        token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
+        return {"ok": True, "verified": True, "token": token, "user": clean(dict(user)), "message": "Mobile number verified successfully!"}
+
+    return {"ok": True, "verified": True, "message": "Mobile number verified successfully!"}
+
+
+# Backward Compatible Unified Send & Verify Routes
 @api_router.post("/auth/send-otp")
 async def send_otp(inp: OTPRequest):
     if inp.email:
-        email = inp.email.lower().strip()
-        code = f"{random.randint(100000, 999999)}"
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
-        _otp_store[email] = {"code": code, "expires_at": expires_at}
-        
-        try:
-            await db.otps.update_one(
-                {"email": email},
-                {"$set": {"code": code, "expires_at": expires_at.isoformat()}},
-                upsert=True
-            )
-        except Exception as e:
-            logger.warning("DB OTP upsert failed: %s", e)
-
-        await send_email_otp(email, code)
-        return {"ok": True, "message": "OTP sent successfully to email"}
-
+        return await email_send_otp(inp)
     if inp.mobile:
-        mobile = inp.mobile.strip()
-        code = f"{random.randint(100000, 999999)}"
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
-        _otp_store[mobile] = {"code": code, "expires_at": expires_at}
-        
-        try:
-            await db.otps.update_one(
-                {"mobile": mobile},
-                {"$set": {"code": code, "expires_at": expires_at.isoformat()}},
-                upsert=True
-            )
-        except Exception as e:
-            logger.warning("DB Mobile OTP upsert failed: %s", e)
-
-        await send_mobile_sms_otp(mobile, code)
-        return {"ok": True, "message": "OTP sent successfully to mobile"}
-
+        return await mobile_send_otp(inp)
     raise HTTPException(status_code=400, detail="Either email or mobile is required")
-
 
 @api_router.post("/auth/verify-otp")
 async def verify_otp(inp: OTPVerify):
-    target_code = (inp.code or inp.otp or "").strip()
-    if not target_code:
-        raise HTTPException(status_code=400, detail="OTP code required")
-
     if inp.email:
-        email = inp.email.lower().strip()
-        entry = _otp_store.get(email)
-        if not entry:
-            try:
-                otp_doc = await db.otps.find_one({"email": email})
-                if otp_doc:
-                    entry = {
-                        "code": otp_doc.get("code") or otp_doc.get("otp"),
-                        "expires_at": datetime.fromisoformat(otp_doc["expires_at"]) if isinstance(otp_doc.get("expires_at"), str) else otp_doc.get("expires_at")
-                    }
-            except Exception:
-                pass
-
-        if not entry:
-            raise HTTPException(status_code=400, detail="No OTP requested for this email")
-
-        exp = entry.get("expires_at")
-        if exp and isinstance(exp, str):
-            exp = datetime.fromisoformat(exp)
-
-        if exp and datetime.now(timezone.utc) > exp:
-            _otp_store.pop(email, None)
-            try:
-                await db.otps.delete_one({"email": email})
-            except Exception:
-                pass
-            raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
-
-        if entry.get("code") != target_code:
-            raise HTTPException(status_code=400, detail="Invalid OTP code")
-
-        _otp_store.pop(email, None)
-        try:
-            await db.otps.delete_one({"email": email})
-        except Exception:
-            pass
-
-        user = await db.users.find_one({"email": email})
-        if user:
-            await db.users.update_one({"email": email}, {"$set": {"email_verified": True, "verified": True}})
-
-        return {"ok": True, "verified": True}
-
+        return await email_verify_otp(inp)
     if inp.mobile:
-        mobile = inp.mobile.strip()
-        entry = _otp_store.get(mobile)
-        if not entry:
-            try:
-                otp_doc = await db.otps.find_one({"mobile": mobile})
-                if otp_doc:
-                    entry = {
-                        "code": otp_doc.get("code") or otp_doc.get("otp"),
-                        "expires_at": datetime.fromisoformat(otp_doc["expires_at"]) if isinstance(otp_doc.get("expires_at"), str) else otp_doc.get("expires_at")
-                    }
-            except Exception:
-                pass
+        return await mobile_verify_otp(inp)
+    raise HTTPException(status_code=400, detail="Either email or mobile is required")
 
-        if not entry:
-            raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
-
-        exp = entry.get("expires_at")
-        if exp and isinstance(exp, str):
-            exp = datetime.fromisoformat(exp)
-
-        if exp and datetime.now(timezone.utc) > exp:
-            _otp_store.pop(mobile, None)
-            try:
-                await db.otps.delete_one({"mobile": mobile})
-            except Exception:
-                pass
-            raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
-
-        if entry.get("code") != target_code:
-            raise HTTPException(status_code=400, detail="Invalid OTP code")
-
-        _otp_store.pop(mobile, None)
-        try:
-            await db.otps.delete_one({"mobile": mobile})
-        except Exception:
-            pass
-
-        user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
-        if user:
-            user_id = user.get("id") or str(user["_id"])
-            token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
-            return {"ok": True, "verified": True, "token": token, "user": clean(dict(user))}
-
-        return {"ok": True, "verified": True}
-
-    raise HTTPException(status_code=400, detail="Email or mobile required for OTP verification")
+@api_router.post("/auth/logout")
+async def logout_endpoint():
+    return {"ok": True, "message": "Logged out successfully"}
 
 
 @api_router.post("/auth/register")
