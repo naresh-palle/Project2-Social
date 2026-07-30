@@ -528,12 +528,48 @@ async def verify_otp(inp: OTPVerify):
     if inp.mobile:
         mobile = inp.mobile.strip()
         entry = _otp_store.get(mobile)
-        if entry and entry.get("code") == target_code:
+        if not entry:
+            try:
+                otp_doc = await db.otps.find_one({"mobile": mobile})
+                if otp_doc:
+                    entry = {
+                        "code": otp_doc.get("code") or otp_doc.get("otp"),
+                        "expires_at": datetime.fromisoformat(otp_doc["expires_at"]) if isinstance(otp_doc.get("expires_at"), str) else otp_doc.get("expires_at")
+                    }
+            except Exception:
+                pass
+
+        if not entry:
+            raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
+
+        exp = entry.get("expires_at")
+        if exp and isinstance(exp, str):
+            exp = datetime.fromisoformat(exp)
+
+        if exp and datetime.now(timezone.utc) > exp:
             _otp_store.pop(mobile, None)
-            return {"ok": True, "verified": True}
-        if target_code in ("1234", "123456"):
-            return {"ok": True, "verified": True}
-        raise HTTPException(status_code=400, detail="Invalid Mobile OTP code")
+            try:
+                await db.otps.delete_one({"mobile": mobile})
+            except Exception:
+                pass
+            raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
+
+        if entry.get("code") != target_code:
+            raise HTTPException(status_code=400, detail="Invalid OTP code")
+
+        _otp_store.pop(mobile, None)
+        try:
+            await db.otps.delete_one({"mobile": mobile})
+        except Exception:
+            pass
+
+        user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
+        if user:
+            user_id = user.get("id") or str(user["_id"])
+            token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
+            return {"ok": True, "verified": True, "token": token, "user": clean(dict(user))}
+
+        return {"ok": True, "verified": True}
 
     raise HTTPException(status_code=400, detail="Email or mobile required for OTP verification")
 

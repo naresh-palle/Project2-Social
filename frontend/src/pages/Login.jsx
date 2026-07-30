@@ -33,44 +33,38 @@ export default function Login() {
     else setErr(r.error);
   };
 
-  // List of database registered numbers & emails for OTP availability verification
-  const REGISTERED_MOBILES = ["9876543210", "9999999999", "9812345678", "9876500000", "9123456789"];
-  const REGISTERED_EMAILS = [
-    "creator@cr8.studio", "brand@cr8.studio", "agent@cr8.studio", "admin@cr8.studio",
-    "aarav@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio", "neha@cr8.studio"
-  ];
-
   const [resendTimer, setResendTimer] = useState(0);
 
-  const handleSendOtp = (e) => {
+  const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
-    const cleanMobile = (mobile || "").replace(/\D/g, "");
-    if (!cleanMobile || cleanMobile.length < 10) {
-      setErr("Please enter a valid 10-digit mobile number");
-      return;
-    }
-    // Check if mobile is registered (in default list or registered in localStorage)
-    const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
-    const isRegistered = REGISTERED_MOBILES.includes(cleanMobile) || storedMobiles.includes(cleanMobile);
-    if (!isRegistered && storedMobiles.length > 0) {
-      setErr(`Mobile number +91 ${cleanMobile} is not registered. Please register first.`);
-      return;
-    }
     setErr("");
-    setOtpSent(true);
-    setResendTimer(30);
-    toast.success(`📩 Verification code sent to +91 ${cleanMobile}. Please enter your 6-digit code.`);
+    const cleanMobile = (mobile || "").replace(/\D/g, "");
+    if (!cleanMobile || cleanMobile.length !== 10 || !/^[6-9]\d{9}$/.test(cleanMobile)) {
+      setErr("Please enter a valid 10-digit Indian mobile number (starts with 6-9)");
+      return;
+    }
 
-    // Start 30s resend timer
-    const interval = setInterval(() => {
-      setResendTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    setLoading(true);
+    try {
+      const { data } = await api.post("/auth/send-otp", { mobile: cleanMobile });
+      setOtpSent(true);
+      setResendTimer(30);
+      toast.success(data.message || `📩 Verification code sent to +91 ${cleanMobile}.`);
+
+      const interval = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setErr(err.response?.data?.detail || "Failed to send verification code. Ensure your mobile number is registered.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResendOtp = () => {
@@ -81,21 +75,28 @@ export default function Login() {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (otp !== "123456") {
-      setErr("Invalid OTP code. Please enter 123456");
+    setErr("");
+    if (!otp || otp.length !== 6 || /\D/.test(otp)) {
+      setErr("Please enter a valid 6-digit OTP code");
       return;
     }
-    setErr("");
+
     setLoading(true);
-    const cleanMob = (mobile || "").replace(/\D/g, "");
-    const userEmail = `${cleanMob || "creator"}@cr8.studio`;
-    const r = await login(userEmail, "creator123");
-    setLoading(false);
-    if (r.ok) {
-      toast.success("📱 Mobile OTP Verified! Welcome back to the studio.");
-      nav("/dashboard");
-    } else {
-      setErr("OTP Verification failed");
+    const cleanMobile = (mobile || "").replace(/\D/g, "");
+    try {
+      const { data } = await api.post("/auth/verify-otp", { mobile: cleanMobile, code: otp });
+      if (data.ok && data.token) {
+        localStorage.setItem("cr8_token", data.token);
+        localStorage.setItem("cr8_user", JSON.stringify(data.user));
+        toast.success("📱 Mobile OTP Verified! Welcome back to the studio.");
+        window.location.href = "/#/dashboard";
+      } else {
+        setErr(data.detail || "OTP Verification failed");
+      }
+    } catch (err) {
+      setErr(err.response?.data?.detail || "Invalid or expired OTP code.");
+    } finally {
+      setLoading(false);
     }
   };
 
