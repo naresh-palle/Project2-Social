@@ -378,6 +378,18 @@ export default function Onboarding() {
     );
   }
 
+  const toggleCategory = (c) => {
+    const currentCats = Array.isArray(f.category) 
+      ? f.category 
+      : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
+    
+    const updated = currentCats.includes(c) 
+      ? currentCats.filter(x => x !== c) 
+      : [...currentCats, c];
+    
+    setF({ ...f, category: updated });
+  };
+
   const toggleLang = (l) => {
       setF({...f, languages: f.languages.includes(l) ? f.languages.filter(x => x !== l) : [...f.languages, l]});
   };
@@ -388,7 +400,9 @@ export default function Onboarding() {
     try {
       let payload = { onboarding_status: "completed" };
       if (user.role === "influencer") {
-          payload = { ...payload, ...f };
+          const categoryStr = Array.isArray(f.category) ? f.category.join(", ") : f.category;
+          const nichesArr = Array.isArray(f.category) ? f.category : (f.category ? [f.category] : []);
+          payload = { ...payload, ...f, category: categoryStr, niches: nichesArr };
       } else if (user.role === "owner") {
           payload = { ...payload, industry };
       }
@@ -404,19 +418,26 @@ export default function Onboarding() {
 
   // INFLUENCER STEP 1: NICHE & LANGUAGE
   if (user.role === "influencer" && step === 1) {
+    const currentCats = Array.isArray(f.category) 
+      ? f.category 
+      : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
+
     return (
       <Layout step={1} title="Define your niche." subtitle="Step 01 / Identity">
         <div className="space-y-12">
           
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Content Category *</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Content Category * (Multi-Select)</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {CATEGORIES.map(c => (
-                    <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${f.category === c ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-white/10 hover:border-white/30"}`}>
-                        <input type="radio" name="category" value={c} checked={f.category === c} onChange={e=>setF({...f, category: e.target.value})} className="accent-[#FF3B30]" />
-                        <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
-                    </label>
-                ))}
+                {CATEGORIES.map(c => {
+                    const isSelected = currentCats.includes(c);
+                    return (
+                      <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${isSelected ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                          <input type="checkbox" checked={isSelected} onChange={() => toggleCategory(c)} className="accent-[#FF3B30] w-4 h-4" />
+                          <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
+                      </label>
+                    );
+                })}
             </div>
           </div>
 
@@ -434,7 +455,7 @@ export default function Onboarding() {
 
         </div>
         <div className="pt-12 flex justify-end">
-          <button onClick={() => setStep(2)} disabled={!f.category || f.languages.length === 0} className="btn-solid disabled:opacity-50">
+          <button onClick={() => setStep(2)} disabled={currentCats.length === 0 || f.languages.length === 0} className="btn-solid disabled:opacity-50">
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         </div>
