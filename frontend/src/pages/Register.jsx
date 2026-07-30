@@ -480,8 +480,27 @@ export default function Register() {
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
-            <Field label="City (Auto-prompted)" testid="reg-city" value={form.city} disabled readOnly tabIndex={-1} onKeyDown={e => e.preventDefault()} placeholder="Auto-prompted via Pincode" className="opacity-50 cursor-not-allowed select-none pointer-events-none" error={fieldErrors.city} required />
-            <Field label="State (Auto-prompted)" testid="reg-state" value={form.state} disabled readOnly tabIndex={-1} onKeyDown={e => e.preventDefault()} placeholder="Auto-prompted via Pincode" className="opacity-50 cursor-not-allowed select-none pointer-events-none" error={fieldErrors.state} required />
+            {/* Locked Non-Editable City Badge */}
+            <div className="select-none pointer-events-none opacity-80">
+              <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                City (Auto-filled)
+              </label>
+              <div className="mt-2 py-3 border-b border-white/10 font-mono text-base text-white/90 bg-white/[0.02] px-2 rounded-xs flex items-center justify-between min-h-[46px]">
+                <span data-testid="reg-city">{form.city || "Auto-prompted via Pincode"}</span>
+                {form.city && <span className="text-[9px] uppercase font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded-xs border border-green-400/20">Auto-filled ✓</span>}
+              </div>
+            </div>
+
+            {/* Locked Non-Editable State Badge */}
+            <div className="select-none pointer-events-none opacity-80">
+              <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                State (Auto-filled)
+              </label>
+              <div className="mt-2 py-3 border-b border-white/10 font-mono text-base text-white/90 bg-white/[0.02] px-2 rounded-xs flex items-center justify-between min-h-[46px]">
+                <span data-testid="reg-state">{form.state || "Auto-prompted via Pincode"}</span>
+                {form.state && <span className="text-[9px] uppercase font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded-xs border border-green-400/20">Auto-filled ✓</span>}
+              </div>
+            </div>
 
             <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
           </div>
