@@ -854,6 +854,33 @@ class FirebaseRegisterInput(BaseModel):
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+class FirebaseLoginInput(BaseModel):
+    firebase_token: str
+
+@api_router.post("/auth/firebase-login")
+async def firebase_login(inp: FirebaseLoginInput):
+    try:
+        decoded_token = id_token.verify_firebase_token(inp.firebase_token, requests.Request(), "cr8studio-b91fe")
+        mobile = decoded_token.get('phone_number')
+        if not mobile:
+            raise HTTPException(status_code=400, detail="Firebase token does not contain a phone number")
+        
+        # Look up user by mobile number (either with or without +91)
+        clean_mobile = mobile.replace("+91", "")
+        user = await db.users.find_one({"$or": [{"mobile": clean_mobile}, {"mobile": f"+91{clean_mobile}"}]})
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="No account found for this mobile number")
+            
+        user_id = user.get("id") or str(user["_id"])
+        token = create_access_token(user_id, user.get("email"), user.get("role", "influencer"))
+        
+        return {"ok": True, "token": token, "user": clean(dict(user))}
+        
+    except ValueError as e:
+        logger.error(f"Firebase token error during login: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Firebase token")
+
 @api_router.post("/auth/firebase-register")
 async def firebase_register(inp: FirebaseRegisterInput):
     try:
