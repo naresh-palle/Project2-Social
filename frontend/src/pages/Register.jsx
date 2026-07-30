@@ -214,7 +214,10 @@ export default function Register() {
       });
   }, [form.pincode]);
 
-  const change = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const change = (k) => (e) => {
+    if (k === "city" || k === "state") return;
+    setForm(f => ({ ...f, [k]: e.target.value }));
+  };
 
   const validateForm = () => {
     let errs = {};
