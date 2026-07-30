@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function Register() {
   const { register } = useAuth();
@@ -333,14 +334,21 @@ export default function Register() {
               onSuccess={credentialResponse => {
                 try {
                   const decoded = jwtDecode(credentialResponse.credential);
+                  const email = decoded.email || "";
+                  const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
+                  const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
+                  const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
+
                   setForm(f => ({
                     ...f,
-                    firstName: decoded.given_name || "",
-                    lastName: decoded.family_name || "",
-                    email: decoded.email || ""
+                    firstName: firstName || f.firstName,
+                    lastName: lastName || f.lastName,
+                    email: email || f.email,
+                    username: f.username || suggestedUsername
                   }));
                   setErr("");
                   setFieldErrors(e => ({...e, firstName: "", lastName: "", email: ""}));
+                  toast.success("Google details imported! Please enter your Mobile & Pincode to complete registration.");
                 } catch (e) {
                   setErr("Failed to parse Google login");
                 }

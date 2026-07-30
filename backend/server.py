@@ -618,21 +618,10 @@ async def google_login(inp: GoogleLoginInput):
     email = inp.email.lower().strip()
     user = await db.users.find_one({"email": email})
     if not user:
-        user_id = str(uuid.uuid4())
-        name = email.split("@")[0].replace(".", " ").title()
-        user = {
-            "id": user_id,
-            "email": email,
-            "username": f"g_{secrets.token_hex(4)}",
-            "password_hash": hash_password(str(uuid.uuid4())),
-            "name": name,
-            "role": "influencer",
-            "verified": True,
-            "email_verified": True,
-            "onboarding_status": "completed",
-            "created_at": now_iso()
-        }
-        await db.users.insert_one(user)
+        raise HTTPException(
+            status_code=400, 
+            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details."
+        )
 
     user_id = user.get("id") or str(user["_id"])
     if not user.get("id"):
