@@ -3,59 +3,6 @@ import { api, formatApiError } from "./api";
 
 const AuthCtx = createContext(null);
 
-const MOCK_USERS = {
-  "creator@cr8.studio": {
-    id: "usr-creator-1",
-    email: "creator@cr8.studio",
-    name: "Aarav Sharma",
-    username: "aarav.style",
-    handle: "@aarav.style",
-    role: "influencer",
-    onboarding_status: "completed",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-    niche: "Fashion & Style",
-    followers: "520K",
-    er: "5.8%"
-  },
-  "brand@cr8.studio": {
-    id: "usr-brand-1",
-    email: "brand@cr8.studio",
-    name: "Studio Noir Apparel",
-    username: "studionoir",
-    company: "Studio Noir Apparel Ltd.",
-    role: "owner",
-    onboarding_status: "completed",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
-  },
-  "owner@cr8.studio": {
-    id: "usr-brand-1",
-    email: "owner@cr8.studio",
-    name: "Studio Noir Apparel",
-    username: "studionoir",
-    company: "Studio Noir Apparel Ltd.",
-    role: "owner",
-    onboarding_status: "completed",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
-  },
-  "agent@cr8.studio": {
-    id: "usr-agent-1",
-    email: "agent@cr8.studio",
-    name: "Vikram Mehta",
-    username: "vikram.agent",
-    role: "agent",
-    onboarding_status: "completed",
-    agent_type: "influencer_agent"
-  },
-  "admin@cr8.studio": {
-    id: "usr-admin-1",
-    email: "admin@cr8.studio",
-    name: "Super Admin",
-    username: "admin",
-    onboarding_status: "completed",
-    role: "admin"
-  }
-};
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,18 +19,9 @@ export function AuthProvider({ children }) {
       localStorage.setItem("cr8_user", JSON.stringify(data));
       setUser(data);
     } catch {
-      const cached = localStorage.getItem("cr8_user");
-      if (cached) {
-        try {
-          setUser(JSON.parse(cached));
-        } catch {
-          localStorage.removeItem("cr8_token");
-          setUser(null);
-        }
-      } else {
-        localStorage.removeItem("cr8_token");
-        setUser(null);
-      }
+      localStorage.removeItem("cr8_token");
+      localStorage.removeItem("cr8_user");
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -101,49 +39,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
-      const lower = (identifier || "").trim().toLowerCase();
-      const pwd = (password || "").trim();
-
-      // Determine expected password for accounts
-      let expectedPwd = "creator123";
-      if (lower.includes("brand") || lower.includes("company") || lower.includes("owner")) {
-        expectedPwd = "company123";
-      } else if (lower.includes("agent")) {
-        expectedPwd = "agent123";
-      } else if (lower.includes("admin")) {
-        expectedPwd = "admin123";
-      }
-
-      // Check password correctness
-      if (pwd !== expectedPwd && pwd !== "Password123" && pwd !== "creator123" && pwd !== "company123" && pwd !== "admin123") {
-        return { ok: false, error: "Invalid email/username or password." };
-      }
-
-      let mockUser = MOCK_USERS[lower];
-      if (!mockUser) {
-        if (lower.includes("brand") || lower.includes("company") || lower.includes("owner")) {
-          mockUser = { id: "usr-owner-demo", email: identifier, name: "Brand Owner", company: "Brand Enterprise", role: "owner", onboarding_status: "completed" };
-        } else if (lower.includes("agent")) {
-          mockUser = { id: "usr-agent-demo", email: identifier, name: "Talent Agent", role: "agent", onboarding_status: "completed" };
-        } else if (lower.includes("admin")) {
-          mockUser = { id: "usr-admin-demo", email: identifier, name: "Super Admin", role: "admin", onboarding_status: "completed" };
-        } else {
-          const defaultName = identifier.includes("@") ? identifier.split("@")[0] : identifier || "Creator Partner";
-          mockUser = { 
-            id: "usr-creator-" + Date.now(), 
-            email: identifier || "creator@cr8.studio", 
-            name: defaultName, 
-            handle: `@${defaultName.toLowerCase().replace(/\s+/g, "")}`, 
-            role: "influencer",
-            onboarding_status: "completed"
-          };
-        }
-      }
-      const demoToken = "demo-token-" + Date.now();
-      localStorage.setItem("cr8_token", demoToken);
-      localStorage.setItem("cr8_user", JSON.stringify(mockUser));
-      setUser(mockUser);
-      return { ok: true, user: mockUser };
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
     }
   };
 
@@ -155,19 +51,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
-      const lower = (email || "").toLowerCase();
-      const mockUser = MOCK_USERS[lower] || {
-        id: "usr-g-creator",
-        email: email,
-        name: email.split("@")[0] || "Creator Partner",
-        handle: `@${(email.split("@")[0] || "creator").toLowerCase()}`,
-        role: "influencer"
-      };
-      const demoToken = "demo-token-google-" + Date.now();
-      localStorage.setItem("cr8_token", demoToken);
-      localStorage.setItem("cr8_user", JSON.stringify(mockUser));
-      setUser(mockUser);
-      return { ok: true, user: mockUser };
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
     }
   };
 
@@ -179,17 +63,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
-      const newUser = {
-        id: "usr-new-" + Date.now(),
-        email: payload.email || "creator@cr8.studio",
-        name: payload.name || "New Partner",
-        role: payload.role || "influencer"
-      };
-      const demoToken = "demo-token-" + Date.now();
-      localStorage.setItem("cr8_token", demoToken);
-      localStorage.setItem("cr8_user", JSON.stringify(newUser));
-      setUser(newUser);
-      return { ok: true, user: newUser };
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
     }
   };
 
