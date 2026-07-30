@@ -84,8 +84,8 @@ def now_iso() -> str:
 
 async def send_email(to: str, subject: str, html: str) -> None:
     """Fire-and-forget email delivery via Gmail SMTP or Emergent proxy. Failures are logged, never raised."""
-    gmail_user = os.environ.get("GMAIL_USER")
-    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD")
+    gmail_user = (os.environ.get("GMAIL_USER") or os.environ.get("EMAIL_USER") or "").strip()
+    gmail_pass = (os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("EMAIL_PASS") or "").strip()
     if gmail_user and gmail_pass:
         gmail_pass_clean = gmail_pass.replace(" ", "").strip()
         try:
@@ -93,22 +93,30 @@ async def send_email(to: str, subject: str, html: str) -> None:
             from email.mime.text import MIMEText
             from email.mime.multipart import MIMEMultipart
             
+            from_header = os.environ.get("EMAIL_FROM", f"CR8 Studio <{gmail_user}>")
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = f"CR8 Studio <{gmail_user}>"
+            msg["From"] = from_header
             msg["To"] = to
             msg.attach(MIMEText(html, "html"))
             
             def _send():
-                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-                    s.login(gmail_user, gmail_pass_clean)
-                    s.sendmail(gmail_user, [to], msg.as_string())
+                try:
+                    with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as s:
+                        s.login(gmail_user, gmail_pass_clean)
+                        s.sendmail(gmail_user, [to], msg.as_string())
+                except Exception as ssl_err:
+                    logger.warning("Gmail SSL port 465 failed (%s). Retrying via TLS port 587...", ssl_err)
+                    with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as s:
+                        s.starttls()
+                        s.login(gmail_user, gmail_pass_clean)
+                        s.sendmail(gmail_user, [to], msg.as_string())
             
             await asyncio.to_thread(_send)
             logger.info("Email sent via Gmail SMTP to %s", to)
             return
         except Exception as e:
-            logger.warning("Gmail SMTP delivery failed: %s", e)
+            logger.warning("Gmail SMTP delivery failed for %s: %s", to, e)
 
     if EMERGENT_EMAIL_KEY:
         try:
