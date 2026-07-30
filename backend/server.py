@@ -838,27 +838,79 @@ async def logout_endpoint():
     return {"ok": True, "message": "Logged out successfully"}
 
 
+class FirebaseRegisterInput(BaseModel):
+    firebase_token: str
+    email: str
+    username: str
+    password: str
+    name: str
+    role: str
+    company: Optional[str] = None
+    agent_type: Optional[str] = None
+    pincode: Optional[str] = None
+    platform: Optional[str] = None
+    handle: Optional[str] = None
+
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+@api_router.post("/auth/firebase-register")
+async def firebase_register(inp: FirebaseRegisterInput):
+    try:
+        decoded_token = id_token.verify_firebase_token(inp.firebase_token, requests.Request(), "cr8studio-b91fe")
+        mobile = decoded_token.get('phone_number')
+        if not mobile:
+            raise HTTPException(status_code=400, detail="Firebase token does not contain a phone number")
+        
+        email = inp.email.lower().strip()
+        username = inp.username.lower().strip()
+        
+        if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}, {"mobile": mobile.replace("+91", "")}]}):
+            raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
+            
+        if inp.role == "admin":
+            raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+            
+        if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
+            raise HTTPException(status_code=400, detail="Password must be alphanumeric")
+
+        user_id = str(uuid.uuid4())
+        city, state = None, None
+        if inp.pincode:
+            loc = await fetch_pincode_details(inp.pincode)
+            city = loc.get("city") if loc.get("city") != "Unknown" else None
+            state = loc.get("state") if loc.get("state") != "Unknown" else None
+
+        social_accounts = []
+        platforms = []
+        if inp.role == "influencer" and inp.platform and inp.handle:
+            social_accounts.append({"platform": inp.platform, "handle": inp.handle, "followers": 0, "engagement_rate": 0.0})
+            platforms.append(inp.platform)
+
+        doc = {
+            "id": user_id,
+            "email": email,
+            "username": username,
+            "password_hash": hash_password(inp.password),
+            "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
+            "mobile": mobile.replace("+91", ""), "pincode": inp.pincode,
+            "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
+            "location": None, "city": city, "state": state, "industry": None, "website": None,
+            "portfolio": [], "rate_card": {}, "verified": True, "email_verified": False, "wallet": 0,
+            "onboarding_status": "pending", "agent_approved": False,
+            "created_at": now_iso(),
+            "social_accounts": social_accounts,
+        }
+        await db.users.insert_one(doc)
+        token = create_access_token(user_id, email, inp.role)
+        return {"ok": True, "token": token, "user": clean(doc)}
+        
+    except ValueError as e:
+        logger.error(f"Firebase token error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Firebase token")
+
 @api_router.post("/auth/register")
-async def register(inp: RegisterInput):
-    email = inp.email.lower().strip()
-    if await db.users.find_one({"email": email}):
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
-
-    # Store OTP with 10 min expiration
-    await db.otps.update_one(
-        {"email": email},
-        {"$set": {"otp": otp, "expires_at": datetime.utcnow() + timedelta(minutes=10)}},
-        upsert=True
-    )
-
-    # Real email send via Gmail SMTP
-    await send_email_otp(email, otp)
-    return {"message": "OTP sent successfully"}
-
-@api_router.post("/auth/register")
-async def register(inp: RegisterInput):
+async def register_old(inp: RegisterInput):
     email = inp.email.lower().strip()
     username = inp.username.lower().strip()
     mobile = inp.mobile.strip() if inp.mobile else None

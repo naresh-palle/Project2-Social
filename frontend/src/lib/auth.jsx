@@ -101,8 +101,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const firebaseRegister = async (payload) => {
+    try {
+      const { data } = await api.post("/auth/firebase-register", payload);
+      localStorage.setItem("cr8_token", data.token);
+      localStorage.setItem("cr8_user", JSON.stringify(data.user));
+      setUser(data.user);
+      return { ok: true, user: data.user };
+    } catch (e) {
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
+    }
+  };
+
   return (
-    <AuthCtx.Provider value={{ user, loading, login, googleLogin, register, logout, refresh }}>
+    <AuthCtx.Provider value={{ user, loading, login, googleLogin, register, firebaseRegister, logout, refresh }}>
       {children}
     </AuthCtx.Provider>
   );
