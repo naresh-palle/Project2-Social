@@ -237,6 +237,7 @@ export default function Register() {
   const change = (k) => (e) => {
     if (k === "city" || k === "state") return;
     setForm(f => ({ ...f, [k]: e.target.value }));
+    setFieldErrors(errs => ({ ...errs, [k]: "" }));
   };
 
   const validateForm = () => {
