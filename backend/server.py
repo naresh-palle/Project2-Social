@@ -666,13 +666,26 @@ async def me(current: dict = Depends(get_current_user)):
     return current
 
 
-@api_router.patch("/auth/me")
-async def update_me(patch: UserUpdate, current: dict = Depends(get_current_user)):
-    update = {k: v for k, v in patch.model_dump(exclude_none=True).items()}
-    if update:
-        await db.users.update_one({"id": current["id"]}, {"$set": update})
-    user = await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
-    return user
+class ChangePasswordInput(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+@api_router.post("/auth/change-password")
+async def change_password(inp: ChangePasswordInput, current: dict = Depends(get_current_user)):
+    user = await db.users.find_one({"id": current["id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not verify_password(inp.current_password, user.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    if not (any(c.isalpha() for c in inp.new_password) and any(c.isdigit() for c in inp.new_password)):
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters long and contain both letters and numbers.")
+
+    new_hash = hash_password(inp.new_password)
+    await db.users.update_one({"id": current["id"]}, {"$set": {"password_hash": new_hash}})
+    return {"ok": True, "message": "Password updated successfully"}
 
 
 

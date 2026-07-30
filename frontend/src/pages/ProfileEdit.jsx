@@ -752,6 +752,9 @@ export default function ProfileEdit() {
                 </section>
               )}
 
+              {/* SECTION: SECURITY & MODIFY PASSWORD */}
+              <PasswordChangeSection />
+
           <div className="pt-8">
             <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
               <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
@@ -763,6 +766,102 @@ export default function ProfileEdit() {
       <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: #F4F4F0; }
       .inp:focus { border-color: #FF3B30; }`}</style>
     </div>
+  );
+}
+
+function PasswordChangeSection() {
+  const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
+  const [pwdBusy, setPwdBusy] = useState(false);
+  const [pwdErr, setPwdErr] = useState("");
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPwdErr("");
+
+    if (!pwdForm.current_password) {
+      setPwdErr("Current password is required");
+      return;
+    }
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(pwdForm.new_password)) {
+      setPwdErr("New password must be at least 8 characters long and contain both letters and numbers.");
+      return;
+    }
+    if (pwdForm.new_password !== pwdForm.confirm_password) {
+      setPwdErr("New password and confirm password do not match");
+      return;
+    }
+
+    setPwdBusy(true);
+    try {
+      await api.post("/auth/change-password", {
+        current_password: pwdForm.current_password,
+        new_password: pwdForm.new_password
+      });
+      toast.success("Password updated successfully!");
+      setPwdForm({ current_password: "", new_password: "", confirm_password: "" });
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Failed to change password";
+      setPwdErr(msg);
+      toast.error(msg);
+    } finally {
+      setPwdBusy(false);
+    }
+  };
+
+  return (
+    <section id="sec-security" className="space-y-6 pt-4">
+      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">
+        Security &amp; Modify Password
+      </h2>
+      <div className="bg-white/[0.02] p-6 border border-white/10 rounded-sm space-y-6">
+        <F label="Current Password *">
+          <input 
+            type="password" 
+            required 
+            className="inp font-mono" 
+            placeholder="••••••••" 
+            value={pwdForm.current_password} 
+            onChange={e => setPwdForm({ ...pwdForm, current_password: e.target.value })} 
+          />
+        </F>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <F label="New Password * (Min 8 chars, Alphanumeric)">
+            <input 
+              type="password" 
+              required 
+              className="inp font-mono" 
+              placeholder="••••••••" 
+              value={pwdForm.new_password} 
+              onChange={e => setPwdForm({ ...pwdForm, new_password: e.target.value })} 
+            />
+          </F>
+          <F label="Confirm New Password *">
+            <input 
+              type="password" 
+              required 
+              className="inp font-mono" 
+              placeholder="••••••••" 
+              value={pwdForm.confirm_password} 
+              onChange={e => setPwdForm({ ...pwdForm, confirm_password: e.target.value })} 
+            />
+          </F>
+        </div>
+
+        {pwdErr && (
+          <p className="text-[#FF3B30] text-xs font-mono tracking-wider uppercase">{pwdErr}</p>
+        )}
+
+        <button 
+          type="button" 
+          onClick={handlePasswordChange}
+          disabled={pwdBusy} 
+          className="btn-solid text-xs bg-white/10 hover:bg-[#FF3B30] hover:text-white transition-colors py-3 px-8"
+        >
+          {pwdBusy ? "Updating Password…" : "Update Password"}
+        </button>
+      </div>
+    </section>
   );
 }
 
