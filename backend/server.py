@@ -14,6 +14,7 @@ import asyncio
 import logging
 import mimetypes
 import secrets
+import re
 from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
@@ -535,6 +536,7 @@ class EmailVerifyConfirm(BaseModel):
 class OTPRequest(BaseModel):
     email: Optional[EmailStr] = None
     mobile: Optional[str] = None
+    ntfy_topic: Optional[str] = None  # open-source live OTP via ntfy.sh
 
 
 class OTPVerify(BaseModel):
@@ -570,18 +572,48 @@ OTP_LENGTH = int(os.environ.get("OTP_LENGTH", 6))
 OTP_EXPIRY_MINUTES = int(os.environ.get("OTP_EXPIRY_MINUTES", 5))
 OTP_MAX_ATTEMPTS = int(os.environ.get("OTP_MAX_ATTEMPTS", 3))
 OTP_RESEND_SECONDS = int(os.environ.get("OTP_RESEND_SECONDS", 60))
-# Practice mode: skip real email delivery and return OTP in API response (for local/demo learning)
-OTP_PRACTICE_MODE = (os.environ.get("OTP_PRACTICE_MODE") or "").strip().lower() in ("1", "true", "yes", "on")
+NTFY_BASE_URL = (os.environ.get("NTFY_BASE_URL") or "https://ntfy.sh").rstrip("/")
 
 
-def practice_otp_payload(otp_code: str) -> dict:
-    if not OTP_PRACTICE_MODE:
-        return {}
-    return {
-        "practice_mode": True,
-        "practice_otp": otp_code,
-        "message_practice": f"Practice mode: your OTP is {otp_code}",
-    }
+def sanitize_ntfy_topic(topic: str) -> str:
+    topic = (topic or "").strip().lower()
+    topic = re.sub(r"[^a-z0-9_-]", "-", topic)
+    topic = re.sub(r"-+", "-", topic).strip("-_")
+    if len(topic) < 8 or len(topic) > 64:
+        raise HTTPException(
+            status_code=400,
+            detail="ntfy topic must be 8–64 characters (letters, numbers, _ or -).",
+        )
+    return topic
+
+
+async def send_ntfy_otp(topic: str, otp: str, name: str = "there") -> str:
+    """Live OTP via open-source ntfy (https://ntfy.sh). Works over HTTPS from Render."""
+    topic = sanitize_ntfy_topic(topic)
+    url = f"{NTFY_BASE_URL}/{topic}"
+    try:
+        async with httpx.AsyncClient(timeout=12) as c:
+            res = await c.post(
+                url,
+                content=f"Hello {name}, your CR8 Studio verification code is {otp}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+                headers={
+                    "Title": "CR8 Studio OTP",
+                    "Priority": "high",
+                    "Tags": "key,cr8",
+                    "Content-Type": "text/plain",
+                },
+            )
+            if res.status_code >= 400:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"ntfy delivery failed ({res.status_code}). Open {url} in another tab, then retry.",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning("ntfy OTP exception: %s", e)
+        raise HTTPException(status_code=502, detail=f"ntfy delivery failed: {e}")
+    return url
 
 def hash_otp(otp_code: str) -> str:
     """Hashes OTP using SHA-256 for secure storage."""
@@ -636,29 +668,39 @@ class Fast2SMSSmsProvider(SmsProvider):
     async def send_sms_otp(self, mobile: str, otp: str) -> None:
         clean_mobile = mobile.replace("+91", "").replace(" ", "").strip()
         if not (len(clean_mobile) == 10 and clean_mobile.isdigit()):
-            return
+            raise HTTPException(status_code=400, detail="Invalid mobile number for SMS OTP")
 
         api_key = os.environ.get("FAST2SMS_API_KEY")
-        if api_key:
-            try:
-                async with httpx.AsyncClient(timeout=10) as c:
-                    res = await c.post(
-                        "https://www.fast2sms.com/dev/bulkV2",
-                        headers={"authorization": api_key, "Content-Type": "application/json"},
-                        json={
-                            "variables_values": otp,
-                            "route": os.environ.get("FAST2SMS_ROUTE", "otp"),
-                            "numbers": clean_mobile
-                        }
-                    )
-                    if res.status_code == 200:
-                        logger.info("Fast2SMS OTP dispatched to +91 %s", clean_mobile)
-                    else:
-                        logger.warning("Fast2SMS error %s: %s", res.status_code, res.text)
-            except Exception as e:
-                logger.warning("Fast2SMS exception: %s", e)
-        else:
-            logger.info("cr8 studio: Your verification code is %s. Valid for %s minutes. Do not share this OTP with anyone.", otp, OTP_EXPIRY_MINUTES)
+        if not api_key:
+            raise HTTPException(status_code=502, detail="SMS provider is not configured (FAST2SMS_API_KEY missing)")
+
+        try:
+            async with httpx.AsyncClient(timeout=10) as c:
+                res = await c.post(
+                    "https://www.fast2sms.com/dev/bulkV2",
+                    headers={"authorization": api_key, "Content-Type": "application/json"},
+                    json={
+                        "variables_values": otp,
+                        "route": os.environ.get("FAST2SMS_ROUTE", "otp"),
+                        "numbers": clean_mobile,
+                    },
+                )
+                if res.status_code == 200:
+                    data = {}
+                    try:
+                        data = res.json()
+                    except Exception:
+                        pass
+                    if data.get("return") is False:
+                        raise HTTPException(status_code=502, detail=f"SMS provider rejected OTP: {data.get('message') or res.text[:200]}")
+                    logger.info("Fast2SMS OTP dispatched to +91 %s", clean_mobile)
+                    return
+                raise HTTPException(status_code=502, detail=f"SMS provider error {res.status_code}: {res.text[:200]}")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("Fast2SMS exception: %s", e)
+            raise HTTPException(status_code=502, detail=f"SMS delivery failed: {e}")
 
 email_provider: EmailProvider = GmailEmailProvider()
 sms_provider: SmsProvider = Fast2SMSSmsProvider()
@@ -702,24 +744,12 @@ async def email_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat()
     }
 
-    if OTP_PRACTICE_MODE:
-        logger.info("OTP practice mode — code for %s: %s", email, otp_code)
-    else:
-        await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
 
     await db.otps.update_one({"email": email}, {"$set": doc}, upsert=True)
     _otp_store[email] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
 
-    resp = {
-        "ok": True,
-        "message": (
-            f"Practice mode: use OTP {otp_code}"
-            if OTP_PRACTICE_MODE
-            else f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."
-        ),
-    }
-    resp.update(practice_otp_payload(otp_code))
-    return resp
+    return {"ok": True, "message": f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
 
 
 @api_router.post("/auth/email/verify-otp")
@@ -860,10 +890,10 @@ async def email_provider_status():
         "brevo_sender_resolved": detected,
         "gmail_smtp_configured": gmail,
         "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
-        "practice_mode": OTP_PRACTICE_MODE,
+        "ntfy_base_url": NTFY_BASE_URL,
         "hint": (
-            "Practice: set OTP_PRACTICE_MODE=true to show OTP on screen. "
-            "Production: set BREVO_SENDER_EMAIL to a verified Brevo sender (custom domain preferred)."
+            "Live open-source OTP: signup uses ntfy.sh push (set a private topic on the register form). "
+            "Optional SMS if FAST2SMS_API_KEY is set. Email freemail (Gmail) is unreliable for OTP."
         ),
     }
 
@@ -1016,19 +1046,25 @@ async def consume_email_otp(email: str, target_code: str) -> None:
 @api_router.post("/auth/register/send-otp")
 @api_router.post("/auth/register/resend-otp")
 async def register_send_otp(inp: OTPRequest):
-    """Send one OTP for signup via email (Brevo/Gmail) and optionally SMS if Fast2SMS is configured."""
+    """Live signup OTP via open-source ntfy push (required). Optional SMS if Fast2SMS is configured."""
     if not inp.email:
         raise HTTPException(status_code=400, detail="Email address is required")
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
+    if not inp.ntfy_topic:
+        raise HTTPException(
+            status_code=400,
+            detail="ntfy topic is required for live OTP. Create one at https://ntfy.sh and subscribe before requesting the code.",
+        )
 
     email = inp.email.lower().strip()
     mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
     if len(mobile) != 10 or not mobile.isdigit():
         raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
 
-    # Shared cooldown across email/mobile keys for this signup attempt
-    for key, query in ((email, {"email": email}), (mobile, {"mobile": mobile})):
+    topic = sanitize_ntfy_topic(inp.ntfy_topic)
+
+    for query in ({"email": email}, {"mobile": mobile}):
         existing = await db.otps.find_one(query)
         if existing and existing.get("created_at"):
             try:
@@ -1054,33 +1090,30 @@ async def register_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat(),
     }
 
-    # Deliver (or practice-mode skip) — then persist OTP
-    if OTP_PRACTICE_MODE:
-        logger.info("OTP practice mode — code for %s / %s: %s", email, mobile, otp_code)
-        channels = ["practice mode (shown on screen)"]
-    else:
-        await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
-        channels = [f"email ({email})"]
-        if os.environ.get("FAST2SMS_API_KEY"):
+    display_name = email.split("@")[0]
+    ntfy_url = await send_ntfy_otp(topic, otp_code, display_name)
+    channels = [f"ntfy ({ntfy_url})"]
+
+    # Optional SMS backup when configured
+    if os.environ.get("FAST2SMS_API_KEY"):
+        try:
             await sms_provider.send_sms_otp(mobile, otp_code)
             channels.append(f"SMS (+91 {mobile})")
+        except HTTPException as sms_err:
+            logger.warning("Optional SMS OTP failed (ntfy already delivered): %s", sms_err.detail)
 
     await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
     await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
     _otp_store[email] = {**shared, "expires_at": expires_at}
     _otp_store[mobile] = {**shared, "expires_at": expires_at}
 
-    resp = {
+    return {
         "ok": True,
-        "message": (
-            f"Practice mode: your OTP is {otp_code}"
-            if OTP_PRACTICE_MODE
-            else f"Verification code sent to {' and '.join(channels)}. Valid for {OTP_EXPIRY_MINUTES} minutes."
-        ),
+        "message": f"Verification code sent via ntfy. Open {ntfy_url} if you have not subscribed yet. Valid for {OTP_EXPIRY_MINUTES} minutes.",
         "channels": channels,
+        "ntfy_url": ntfy_url,
+        "ntfy_topic": topic,
     }
-    resp.update(practice_otp_payload(otp_code))
-    return resp
 
 
 @api_router.post("/auth/firebase-login")
