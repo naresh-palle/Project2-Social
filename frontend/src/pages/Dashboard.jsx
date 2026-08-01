@@ -676,7 +676,7 @@ function InfluencerPanel() {
                   <div>
                     <span className="font-mono text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
                     <span className="font-editorial italic text-3xl text-white font-bold">
-                      ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : c.budget}
+                       ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
                     </span>
                   </div>
 

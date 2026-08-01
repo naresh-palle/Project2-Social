@@ -2917,6 +2917,41 @@ async def reset_demo_passwords():
         count += result.modified_count
     return {"ok": True, "updated": count, "message": f"Reset passwords for {count} accounts to demo1234"}
 
+@api_router.post("/admin/fix-usernames")
+async def fix_usernames():
+    """Fix all demo accounts that have null usernames"""
+    fixes = [
+        ("creator@cr8.studio", "arjuncreator"),
+        ("lena@cr8.studio", "lenaivorystudio"),
+        ("kai@cr8.studio", "kaimonroe"),
+        ("nova@cr8.studio", "novareyes"),
+        ("studio@cr8.studio", "studionoir"),
+        ("company@cr8.studio", "riyabrand"),
+        ("agent@cr8.studio", "karanagent"),
+        ("pending_agent@cr8.studio", "rahulagent"),
+        ("zomato@cr8.studio", "deepinderg"),
+        ("boat@cr8.studio", "amanboat"),
+        ("nykaa@cr8.studio", "falguninykaa"),
+        ("agent.karan@cr8.studio", "karanjohar"),
+        ("agent.shruti@cr8.studio", "shrutiagent"),
+        ("arjun@cr8.studio", "arjunsharma"),
+        ("priya@cr8.studio", "priyakapoor"),
+        ("rohan@cr8.studio", "rohandesai"),
+        ("sneha@cr8.studio", "snehareddy"),
+        ("karthik@cr8.studio", "karthikiyer"),
+        ("anya@cr8.studio", "anyasingh"),
+        ("vikram@cr8.studio", "vikrampatel"),
+        ("neha@cr8.studio", "nehajoshi"),
+    ]
+    count = 0
+    for email, username in fixes:
+        result = await db.users.update_one(
+            {"email": email, "$or": [{"username": None}, {"username": ""}]},
+            {"$set": {"username": username}}
+        )
+        count += result.modified_count
+    return {"ok": True, "updated": count}
+
 @app.on_event("startup")
 async def on_startup():
     await db.users.create_index("email", unique=True)
