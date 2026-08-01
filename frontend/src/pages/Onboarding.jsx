@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Loader2, Plus, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api";
+import { api, formatApiError } from "@/lib/api";
 import { Nav } from "@/components/Nav";
 
 const CATEGORIES = [
@@ -399,10 +399,20 @@ export default function Onboarding() {
     setError("");
     try {
       let payload = { onboarding_status: "completed" };
-      if (user.role === "influencer") {
+      const isCreator = user.role === "influencer" || user.role === "creator";
+      if (isCreator) {
           const categoryStr = Array.isArray(f.category) ? f.category.join(", ") : f.category;
           const nichesArr = Array.isArray(f.category) ? f.category : (f.category ? [f.category] : []);
-          payload = { ...payload, ...f, category: categoryStr, niches: nichesArr };
+          payload = {
+            ...payload,
+            category: categoryStr,
+            niches: nichesArr,
+            languages: f.languages,
+            city: f.city,
+            location: f.city,
+            availability: f.availability,
+            platform_metrics: f.platform_metrics,
+          };
       } else if (user.role === "owner") {
           payload = { ...payload, industry };
       }
@@ -411,13 +421,15 @@ export default function Onboarding() {
       await refresh();
       nav("/dashboard");
     } catch (e) {
-      setError("Failed to complete onboarding.");
+      setError(formatApiError(e.response?.data?.detail) || e.message || "Failed to complete onboarding.");
       setSubmitting(false);
     }
   };
 
+  const isCreator = user.role === "influencer" || user.role === "creator";
+
   // INFLUENCER STEP 1: NICHE & LANGUAGE
-  if (user.role === "influencer" && step === 1) {
+  if (isCreator && step === 1) {
     const currentCats = Array.isArray(f.category) 
       ? f.category 
       : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
@@ -464,7 +476,7 @@ export default function Onboarding() {
   }
 
   // INFLUENCER STEP 2: LOCATION
-  if (user.role === "influencer" && step === 2) {
+  if (isCreator && step === 2) {
     return (
       <Layout step={2} title="Where are you based?" subtitle="Step 02 / Availability">
         <div className="space-y-8">
@@ -494,7 +506,7 @@ export default function Onboarding() {
   }
 
   // INFLUENCER STEP 3: SOCIALS
-  if (user.role === "influencer" && step === 3) {
+  if (isCreator && step === 3) {
     return (
       <Layout step={3} title="Connect your audience." subtitle="Step 03 / Socials">
         <div className="space-y-6">
@@ -573,11 +585,13 @@ export default function Onboarding() {
               <div className="font-editorial text-2xl text-[#FF3B30]">{industry}</div>
             </div>
           )}
-          {user.role === "influencer" && (
+          {isCreator && (
             <>
                 <div className="col-span-2">
                 <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Category</div>
-                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF3B30]">{f.category}</div>
+                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF3B30]">
+                  {Array.isArray(f.category) ? f.category.join(", ") : f.category}
+                </div>
                 </div>
                 <div className="col-span-2">
                 <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Languages</div>
@@ -590,7 +604,7 @@ export default function Onboarding() {
         {error && <div className="text-[#FF3B30] font-mono text-xs">{error}</div>}
 
         <div className="flex justify-between items-center">
-          <button onClick={() => setStep(user.role === "influencer" ? 3 : 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
+          <button onClick={() => setStep(isCreator ? 3 : 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
             ← Back
           </button>
           <button onClick={submitProfile} disabled={submitting} className="btn-solid disabled:opacity-50">

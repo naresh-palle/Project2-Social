@@ -418,6 +418,8 @@ class UserUpdate(BaseModel):
     social_accounts: Optional[List[Dict[str, Any]]] = None
     onboarding_status: Optional[str] = None
     agent_approved: Optional[bool] = None
+    niches: Optional[List[str]] = None
+    roster_size: Optional[str] = None
     
     # New Comprehensive Profile Fields
     availability: Optional[str] = None
@@ -431,6 +433,7 @@ class UserUpdate(BaseModel):
     agent_type: Optional[str] = None
     associated_brands: Optional[List[Dict[str, Any]]] = None
     monthly_analytics: Optional[List[Dict[str, Any]]] = None  # For historical charts
+    decline_reason: Optional[str] = None
 
 
 class CampaignCreate(BaseModel):
@@ -1447,6 +1450,37 @@ async def login(inp: LoginInput):
 @api_router.get("/auth/me")
 async def me(current: dict = Depends(get_current_user)):
     return current
+
+
+@api_router.patch("/auth/me")
+async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
+    """Update current user profile / onboarding fields."""
+    data = inp.model_dump(exclude_unset=True) if hasattr(inp, "model_dump") else inp.dict(exclude_unset=True)
+    # Drop nulls so we don't wipe existing fields unintentionally
+    updates = {k: v for k, v in data.items() if v is not None}
+
+    if not updates:
+        return current
+
+    # Keep location in sync when city is set during onboarding
+    if "city" in updates and "location" not in updates:
+        updates["location"] = updates["city"]
+
+    user_id = current.get("id")
+    result = await db.users.update_one({"id": user_id}, {"$set": updates})
+    if result.matched_count == 0:
+        # Fallback for older docs keyed only by email
+        await db.users.update_one({"email": current.get("email")}, {"$set": updates})
+
+    user = await db.users.find_one({"id": user_id}, {"password_hash": 0})
+    if not user:
+        user = await db.users.find_one({"email": current.get("email")}, {"password_hash": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user["id"] = user.get("id") or str(user.get("_id", ""))
+    user.pop("_id", None)
+    return clean(dict(user))
 
 
 class ChangePasswordInput(BaseModel):
