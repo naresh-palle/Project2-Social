@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast, Toaster } from "sonner";
 import { AdminPanel } from "./AdminPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -30,7 +31,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
       
 
       {/* Ambient Radial Mesh Background */}
@@ -103,6 +105,7 @@ export default function Dashboard() {
         <Footer />
       </div>
     </div>
+    </ErrorBoundary>
   );
 }
 
