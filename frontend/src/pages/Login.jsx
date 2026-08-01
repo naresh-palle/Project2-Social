@@ -5,6 +5,7 @@ import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound } from "luci
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { api, formatApiError } from "@/lib/api";
@@ -42,39 +43,67 @@ export default function Login() {
     } else setErr(r.error);
   };
 
+  const finishAppleLogin = async (token) => {
+    const r = await appleLogin(token, { remember_me: rememberMe });
+    setLoading(false);
+    if (r.ok) {
+      toast.success("Welcome back via Apple!");
+      nav("/dashboard");
+      return;
+    }
+    if (r.notRegistered) {
+      let email = "";
+      let firstName = "";
+      let lastName = "";
+      try {
+        const decoded = jwtDecode(token);
+        email = decoded.email || "";
+        const name = decoded.name || "";
+        firstName = name.split(" ")[0] || "";
+        lastName = name.split(" ").slice(1).join(" ") || "";
+      } catch {}
+      toast.error("No account found for this Apple ID. Please register first.");
+      nav("/register", {
+        state: { fromAppleLogin: true, email, firstName, lastName },
+      });
+      return;
+    }
+    setErr(r.error || "Apple login failed");
+  };
+
   const handleAppleSignIn = async () => {
+    setErr("");
     if (window.AppleID?.auth) {
       try {
         setLoading(true);
         const res = await window.AppleID.auth.signIn();
         const token = res?.authorization?.id_token;
         if (!token) {
-          setErr("Apple sign-in did not return a token");
           setLoading(false);
+          setErr("Apple sign-in did not return a token");
           return;
         }
-        const r = await appleLogin(token, { remember_me: rememberMe });
+        await finishAppleLogin(token);
+      } catch (e) {
         setLoading(false);
-        if (r.ok) nav("/dashboard");
-        else if (r.notRegistered) {
-          toast.error("No account found for this Apple ID. Please register first.");
-        } else setErr(r.error);
-      } catch {
-        setLoading(false);
-        setShowAppleFallback(true);
+        if (e?.error !== "popup_closed_by_user") {
+          setShowAppleFallback(true);
+          setErr("Apple Sign In needs Apple Developer setup. You can still use Google or password.");
+        }
       }
-    } else {
-      setShowAppleFallback(true);
+      return;
     }
+    setShowAppleFallback(true);
+    toast.message("Apple button is ready", {
+      description: "Apple Developer Client ID is not configured yet. Use Google / password, or paste a test token below.",
+    });
   };
 
   const submitAppleToken = async () => {
     if (!appleToken.trim()) return;
     setLoading(true);
-    const r = await appleLogin(appleToken.trim(), { remember_me: rememberMe });
-    setLoading(false);
-    if (r.ok) nav("/dashboard");
-    else setErr(r.error || "Apple login failed");
+    setErr("");
+    await finishAppleLogin(appleToken.trim());
   };
 
   const [resendTimer, setResendTimer] = useState(0);
@@ -204,49 +233,76 @@ export default function Login() {
 
           {mode === "password" ? (
             <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
-              <div className="flex justify-center w-full mb-2">
-                <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      setErr("");
-                      setLoading(true);
-                      const credential = credentialResponse.credential;
-                      if (!credential) {
+              {/* Social sign-in — Google + Apple stacked, both always visible */}
+              <div className="flex flex-col gap-3 w-full">
+                <div className="w-full flex justify-center [&>div]:w-full">
+                  <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                      try {
+                        setErr("");
+                        setLoading(true);
+                        const credential = credentialResponse.credential;
+                        if (!credential) {
+                          setLoading(false);
+                          setErr("Google sign-in did not return a credential");
+                          return;
+                        }
+                        const decoded = jwtDecode(credential);
+                        const r = await googleLogin(credential);
                         setLoading(false);
-                        setErr("Google sign-in did not return a credential");
-                        return;
+                        if (r.ok) {
+                          toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
+                          nav("/dashboard");
+                        } else if (r.notRegistered) {
+                          toast.error("No account found for this Google email. Please register first.");
+                          nav("/register", {
+                            state: {
+                              fromGoogleLogin: true,
+                              email: decoded.email || "",
+                              firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
+                              lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
+                            },
+                          });
+                        } else {
+                          setErr(r.error || "Authentication failed");
+                        }
+                      } catch (e) {
+                        setLoading(false);
+                        setErr("Failed to verify Google sign in");
                       }
-                      const decoded = jwtDecode(credential);
-                      const r = await googleLogin(credential);
-                      setLoading(false);
-                      if (r.ok) {
-                        toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
-                        nav("/dashboard");
-                      } else if (r.notRegistered) {
-                        toast.error("No account found for this Google email. Please register first.");
-                        nav("/register", {
-                          state: {
-                            fromGoogleLogin: true,
-                            email: decoded.email || "",
-                            firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
-                            lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
-                          },
-                        });
-                      } else {
-                        setErr(r.error || "Authentication failed");
-                      }
-                    } catch (e) {
-                      setLoading(false);
-                      setErr("Failed to verify Google sign in");
-                    }
-                  }}
-                  onError={() => setErr("Google Sign In Failed")}
-                  theme="filled_black"
-                  shape="rectangular"
-                  text="signin_with"
-                  size="large"
-                  width="100%"
-                />
+                    }}
+                    onError={() => setErr("Google Sign In Failed")}
+                    theme="filled_black"
+                    shape="rectangular"
+                    text="signin_with"
+                    size="large"
+                    width="100%"
+                  />
+                </div>
+                <AppleSignInButton mode="signin" loading={loading} onClick={handleAppleSignIn} />
+                {showAppleFallback && (
+                  <div className="p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
+                    <p className="font-mono text-[10px] opacity-60">
+                      Apple JS SDK not configured. Paste an Apple identity token to test API login:
+                    </p>
+                    <textarea
+                      value={appleToken}
+                      onChange={(e) => setAppleToken(e.target.value)}
+                      rows={2}
+                      className="w-full bg-black/60 border border-white/20 p-2 font-mono text-[10px] rounded-xs"
+                      placeholder="Apple identity token…"
+                    />
+                    <button type="button" onClick={submitAppleToken} className="font-mono text-[10px] uppercase text-[#FF3B30]">
+                      Test Apple Login
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4 opacity-50">
+                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>
+                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
               </div>
 
               <div>
@@ -316,28 +372,6 @@ export default function Login() {
                     className="mt-2 w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
                     placeholder="000000"
                   />
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={handleAppleSignIn}
-                className="w-full py-3 border border-white/20 hover:border-white/40 font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
-              >
-                Sign in with Apple
-              </button>
-
-              {showAppleFallback && (
-                <div className="p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
-                  <p className="font-mono text-[10px] opacity-60">Configure Apple Sign In in production. For testing, paste identity token:</p>
-                  <textarea
-                    value={appleToken}
-                    onChange={(e) => setAppleToken(e.target.value)}
-                    rows={3}
-                    className="w-full bg-black/60 border border-white/20 p-2 font-mono text-[10px] rounded-xs"
-                    placeholder="Apple identity token…"
-                  />
-                  <button type="button" onClick={submitAppleToken} className="font-mono text-[10px] uppercase text-[#FF3B30]">Test Apple Login</button>
                 </div>
               )}
 

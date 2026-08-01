@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -18,20 +19,21 @@ export default function Register() {
   // Enforce valid roles
   const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
 
-  const googlePrefill = location.state?.fromGoogleLogin ? location.state : null;
+  const socialPrefill = (location.state?.fromGoogleLogin || location.state?.fromAppleLogin) ? location.state : null;
 
   const [form, setForm] = useState({ 
-    email: googlePrefill?.email || "",
-    username: googlePrefill?.email ? googlePrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
+    email: socialPrefill?.email || "",
+    username: socialPrefill?.email ? socialPrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
     password: "",
-    firstName: googlePrefill?.firstName || "",
-    lastName: googlePrefill?.lastName || "", 
+    firstName: socialPrefill?.firstName || "",
+    lastName: socialPrefill?.lastName || "", 
     company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
     agent_type: "company_agent"
   });
   const [err, setErr] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [appleBusy, setAppleBusy] = useState(false);
   
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
@@ -58,7 +60,7 @@ export default function Register() {
         username: ""
       }));
       setGoogleImportTime(null);
-      toast.error("Google imported registration details expired after 5 minutes. Please click Continue with Google again.");
+      toast.error("Imported registration details expired after 5 minutes. Please continue with Google or Apple again.");
     }, FIVE_MINUTES_MS);
 
     return () => clearTimeout(timer);
@@ -66,7 +68,7 @@ export default function Register() {
 
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
-    const prefill = location.state?.fromGoogleLogin ? location.state : null;
+    const prefill = (location.state?.fromGoogleLogin || location.state?.fromAppleLogin) ? location.state : null;
     const suggestedUsername = prefill?.email
       ? prefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase()
       : "";
@@ -86,6 +88,53 @@ export default function Register() {
     setUsernameStatus("typing");
     setGoogleImportTime(prefill ? Date.now() : null);
   }, [urlRole, location.state]);
+
+  const applySocialPrefill = (email, firstName, lastName, source = "Google") => {
+    const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
+    setForm((f) => ({
+      ...f,
+      firstName: firstName || f.firstName,
+      lastName: lastName || f.lastName,
+      email: email || f.email,
+      username: f.username || suggestedUsername,
+    }));
+    setErr("");
+    setFieldErrors((e) => ({ ...e, firstName: "", lastName: "", email: "" }));
+    setGoogleImportTime(Date.now());
+    toast.success(`${source} details imported! Complete mobile OTP to finish registration.`);
+  };
+
+  const handleAppleContinue = async () => {
+    setErr("");
+    if (window.AppleID?.auth) {
+      try {
+        setAppleBusy(true);
+        const res = await window.AppleID.auth.signIn();
+        const token = res?.authorization?.id_token;
+        if (!token) {
+          setErr("Apple did not return a token");
+          setAppleBusy(false);
+          return;
+        }
+        const decoded = jwtDecode(token);
+        const email = decoded.email || "";
+        const nameParts = res?.user?.name;
+        const firstName = nameParts?.firstName || (decoded.name || "").split(" ")[0] || "";
+        const lastName = nameParts?.lastName || (decoded.name || "").split(" ").slice(1).join(" ") || "";
+        applySocialPrefill(email, firstName, lastName, "Apple");
+      } catch (e) {
+        if (e?.error !== "popup_closed_by_user") {
+          setErr("Apple Sign In needs Apple Developer setup. Fill the form manually or use Google.");
+        }
+      } finally {
+        setAppleBusy(false);
+      }
+      return;
+    }
+    toast.message("Continue with Apple", {
+      description: "Apple Developer Client ID is not configured yet. Use Google or fill the form manually.",
+    });
+  };
 
   // Resend OTP Cooldown Timer
   useEffect(() => {
@@ -428,40 +477,31 @@ export default function Register() {
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 
-          <div className="mt-10 flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={credentialResponse => {
-                try {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  const email = decoded.email || "";
-                  const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
-                  const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
-                  const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
-
-                  setForm(f => ({
-                    ...f,
-                    firstName: firstName || f.firstName,
-                    lastName: lastName || f.lastName,
-                    email: email || f.email,
-                    username: f.username || suggestedUsername
-                  }));
-                  setErr("");
-                  setFieldErrors(e => ({...e, firstName: "", lastName: "", email: ""}));
-                  setGoogleImportTime(Date.now());
-                  toast.success("Google details imported! Details will expire in 5 minutes if registration is not completed.");
-                } catch (e) {
-                  setErr("Failed to parse Google login");
-                }
-              }}
-              onError={() => {
-                setErr("Google Login Failed");
-              }}
-              theme="filled_black"
-              shape="rectangular"
-              text="continue_with"
-              size="large"
-              width="100%"
-            />
+          <div className="mt-10 flex flex-col gap-3 w-full">
+            <div className="flex justify-center w-full [&>div]:w-full">
+              <GoogleLogin
+                onSuccess={credentialResponse => {
+                  try {
+                    const decoded = jwtDecode(credentialResponse.credential);
+                    const email = decoded.email || "";
+                    const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
+                    const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
+                    applySocialPrefill(email, firstName, lastName, "Google");
+                  } catch (e) {
+                    setErr("Failed to parse Google login");
+                  }
+                }}
+                onError={() => {
+                  setErr("Google Login Failed");
+                }}
+                theme="filled_black"
+                shape="rectangular"
+                text="continue_with"
+                size="large"
+                width="100%"
+              />
+            </div>
+            <AppleSignInButton mode="signup" loading={appleBusy} onClick={handleAppleContinue} />
           </div>
 
           <div className="flex items-center gap-4 mt-8 opacity-60">
