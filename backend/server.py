@@ -2812,84 +2812,45 @@ async def seed_admin():
                 "agent_approved": True
             }}
         )
-        logger.info("Updated Super Admin user (%s / admin)", admin_email)
-
-
-async def seed_demo():
+        logger.info("Updated Super Admasync def seed_demo():
     demo_password_hash = hash_password("demo1234")
-    # Always ensure demo accounts exist with correct password
-    seed_emails = [
-        "lena@cr8.studio", "kai@cr8.studio", "nova@cr8.studio",
-        "creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio",
-        "pending_agent@cr8.studio", "studio@cr8.studio",
-        "arjun@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio",
-        "sneha@cr8.studio", "karthik@cr8.studio", "anya@cr8.studio",
-        "vikram@cr8.studio", "neha@cr8.studio",
-        "zomato@cr8.studio", "boat@cr8.studio", "nykaa@cr8.studio",
-        "agent.karan@cr8.studio", "agent.shruti@cr8.studio",
-    ]
+    
+    seed_emails = ["creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio"]
     for em in seed_emails:
         await db.users.update_many({"email": em}, {"$set": {"password_hash": demo_password_hash}})
 
-    if await db.users.count_documents({"role": "influencer"}) > 0:
-        return
-    demos = [
-        {"email": "lena@cr8.studio", "name": "Lena Ivory", "handle": "@lena.ivory",
-         "bio": "Editorial fashion + luxury lifestyle creator.",
-         "avatar": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
-         "niches": ["fashion", "luxury", "beauty"], "platforms": ["instagram", "facebook"],
-         "followers": 214000, "location": "Milan, IT",
-         "portfolio": ["https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd",
-                       "https://images.pexels.com/photos/35458193/pexels-photo-35458193.jpeg"],
-         "rate_card": {"reel": 2500, "story": 400, "post": 1800}},
-        {"email": "kai@cr8.studio", "name": "Kai Monroe", "handle": "@kai.monroe",
-         "bio": "Minimalist tech + design storytelling.",
-         "avatar": "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2",
-         "niches": ["tech", "design"], "platforms": ["youtube", "instagram"],
-         "followers": 512000, "location": "Berlin, DE",
-         "portfolio": ["https://images.unsplash.com/photo-1739950839930-ef45c078f316"],
-         "rate_card": {"video": 6500, "post": 2400}},
-        {"email": "nova@cr8.studio", "name": "Nova Reyes", "handle": "@nova.reyes",
-         "bio": "Beauty rituals & fragrance director.",
-         "avatar": "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273",
-         "niches": ["beauty", "wellness"], "platforms": ["instagram", "facebook"],
-         "followers": 128000, "location": "New York, US",
-         "portfolio": ["https://images.unsplash.com/photo-1655657874630-2da5679ef515"],
-         "rate_card": {"reel": 1800, "story": 300}},
-    ]
-    for c in demos:
+    if await db.users.count_documents({"email": "creator@cr8.studio"}) == 0:
         await db.users.insert_one({
-            "id": str(uuid.uuid4()), "email": c["email"],
-            "password_hash": hash_password("demo1234"), "name": c["name"],
-            "role": "influencer", "handle": c["handle"], "company": None, "bio": c["bio"],
-            "avatar": c["avatar"], "niches": c["niches"], "followers": c["followers"],
-            "platforms": c["platforms"], "location": c["location"],
-            "industry": None, "website": None,
-            "portfolio": c["portfolio"], "rate_card": c["rate_card"],
-            "verified": True, "wallet": 0, "created_at": now_iso(),
+            "id": str(uuid.uuid4()), "email": "creator@cr8.studio",
+            "password_hash": demo_password_hash, "name": "Creator Demo", "username": "creatordemo",
+            "role": "influencer", "handle": "@creator.demo", "company": None, "bio": "Demo creator.",
+            "avatar": None, "niches": ["tech", "lifestyle"], "followers": 10000,
+            "platforms": ["instagram"], "location": "Remote", "mobile": None,
+            "industry": None, "website": None, "portfolio": [], "rate_card": {},
+            "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
+        })
+    
+    if await db.users.count_documents({"email": "company@cr8.studio"}) == 0:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()), "email": "company@cr8.studio",
+            "password_hash": demo_password_hash, "name": "Company Demo", "username": "companydemo",
+            "role": "owner", "handle": None, "company": "Acme Brand", "bio": "Brand account.",
+            "avatar": None, "niches": [], "followers": None, "mobile": None,
+            "platforms": [], "location": "Remote", "industry": "Fashion",
+            "website": None, "portfolio": [], "rate_card": {},
+            "verified": True, "wallet": 50000, "created_at": now_iso(), "onboarding_status": "completed"
         })
 
-    owner_id = str(uuid.uuid4())
-    await db.users.insert_one({
-        "id": owner_id, "email": "studio@cr8.studio",
-        "password_hash": hash_password("demo1234"), "name": "Studio Noir",
-        "role": "owner", "handle": None, "company": "Studio Noir",
-        "bio": "House of quiet luxury.", "avatar": None, "niches": [], "followers": None,
-        "platforms": [], "location": "Paris", "industry": "Fashion",
-        "website": "https://studionoir.example", "portfolio": [], "rate_card": {},
-        "verified": True, "wallet": 25000, "created_at": now_iso(),
-    })
-    await db.campaigns.insert_one({
-        "id": str(uuid.uuid4()), "owner_id": owner_id,
-        "title": "Fall Edit — Silhouettes", "brand": "Studio Noir",
-        "description": "Long-form editorial content for our Fall silhouettes collection. Looking for creators with an editorial eye and a taste for restraint.",
-        "budget": 8500, "niches": ["fashion", "luxury"], "platforms": ["instagram", "facebook"],
-        "deliverables": "1 Reel + 3 Stories + 1 grid post.", "deadline": None,
-        "cover": "https://images.pexels.com/photos/11264890/pexels-photo-11264890.jpeg",
-        "status": "open", "escrow_funded": 0, "escrow_released": 0,
-        "accepted_creator_id": None,
-        "created_at": now_iso(), "applications_count": 0,
-    })
+    if await db.users.count_documents({"email": "agent@cr8.studio"}) == 0:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()), "email": "agent@cr8.studio",
+            "password_hash": demo_password_hash, "name": "Agent Demo", "username": "agentdemo",
+            "role": "agent", "handle": None, "company": "Talent Agency", "bio": "Talent agent.",
+            "avatar": None, "niches": [], "followers": None, "mobile": None,
+            "platforms": [], "location": "Remote", "industry": None,
+            "website": None, "portfolio": [], "rate_card": {},
+            "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
+        })
 
 @api_router.get("/test-users")
 async def get_test_users():
@@ -2916,6 +2877,20 @@ async def reset_demo_passwords():
         result = await db.users.update_many({"email": em}, {"$set": {"password_hash": demo_password_hash}})
         count += result.modified_count
     return {"ok": True, "updated": count, "message": f"Reset passwords for {count} accounts to demo1234"}
+
+@api_router.post("/admin/wipe-db")
+async def wipe_db():
+    res1 = await db.users.delete_many({"role": {"$ne": "admin"}})
+    res2 = await db.campaigns.delete_many({})
+    res3 = await db.applications.delete_many({})
+    await seed_demo()
+    return {
+        "ok": True,
+        "deleted_users": res1.deleted_count,
+        "deleted_campaigns": res2.deleted_count,
+        "deleted_apps": res3.deleted_count,
+        "message": "DB wiped and re-seeded with 1 creator, 1 company, 1 agent."
+    }
 
 @api_router.post("/admin/fix-usernames")
 async def fix_usernames():
