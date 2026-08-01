@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
@@ -14,13 +14,20 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 export default function Register() {
   const { register, firebaseRegister } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
   const { role: urlRole } = useParams();
   
   // Enforce valid roles
   const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
 
+  const googlePrefill = location.state?.fromGoogleLogin ? location.state : null;
+
   const [form, setForm] = useState({ 
-    email: "", username: "", password: "", firstName: "", lastName: "", 
+    email: googlePrefill?.email || "",
+    username: googlePrefill?.email ? googlePrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
+    password: "",
+    firstName: googlePrefill?.firstName || "",
+    lastName: googlePrefill?.lastName || "", 
     company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
     agent_type: "company_agent"
   });
@@ -63,17 +70,26 @@ export default function Register() {
 
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
-    setForm({ 
-      email: "", username: "", password: "", firstName: "", lastName: "", 
-      company: "", mobile: "", pincode: "", city: "", state: "", otp: "" 
+    const prefill = location.state?.fromGoogleLogin ? location.state : null;
+    const suggestedUsername = prefill?.email
+      ? prefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase()
+      : "";
+    setForm({
+      email: prefill?.email || "",
+      username: suggestedUsername,
+      password: "",
+      firstName: prefill?.firstName || "",
+      lastName: prefill?.lastName || "",
+      company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
+      agent_type: "company_agent"
     });
     setFieldErrors({});
     setErr("");
     setEmailStatus("typing");
     setMobileStatus("typing");
     setUsernameStatus("typing");
-    setGoogleImportTime(null);
-  }, [urlRole]);
+    setGoogleImportTime(prefill ? Date.now() : null);
+  }, [urlRole, location.state]);
 
   // Resend OTP Cooldown Timer
   useEffect(() => {

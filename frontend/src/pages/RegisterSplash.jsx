@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 export default function RegisterSplash() {
+  const location = useLocation();
+  const googleState = location.state?.fromGoogleLogin ? location.state : null;
+
   return (
     <div className="relative min-h-screen bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
       {/* Sleek Radial Ambient Aura Background */}
@@ -33,8 +36,15 @@ export default function RegisterSplash() {
               Choose your <span className="italic text-[#FF3B30]">door.</span>
             </h1>
             <p className="font-mono text-xs opacity-60 uppercase tracking-widest mt-3 max-w-md mx-auto">
-              Select your role to open the dedicated studio workspace
+              {googleState
+                ? "Google account is not registered yet — pick a role to complete signup"
+                : "Select your role to open the dedicated studio workspace"}
             </p>
+            {googleState?.email && (
+              <p className="mt-4 font-mono text-[11px] text-[#FF3B30]/90 tracking-wide">
+                Continuing as {googleState.email}
+              </p>
+            )}
           </div>
 
           <div className="mt-12 flex flex-col gap-5">
@@ -59,6 +69,7 @@ export default function RegisterSplash() {
               <Link
                 key={r.k}
                 to={`/register/${r.k}`}
+                state={googleState || undefined}
                 data-testid={`splash-door-${r.k}`}
                 className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#121212]/90 backdrop-blur-xl border border-white/15 ${r.bgHover} transition-all duration-500 rounded-sm shadow-xl`}
               >
@@ -81,10 +92,7 @@ export default function RegisterSplash() {
                     {r.sub}
                   </div>
                 </div>
-
-                <div className="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 group-hover:border-[#FF3B30] group-hover:bg-[#FF3B30] transition-all duration-500 shrink-0">
-                  <ArrowRight className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-500" />
-                </div>
+                <ArrowRight className="w-6 h-6 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 text-[#FF3B30]" />
               </Link>
             ))}
           </div>

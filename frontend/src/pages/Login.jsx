@@ -181,13 +181,28 @@ export default function Login() {
                     try {
                       setErr("");
                       setLoading(true);
-                      const decoded = jwtDecode(credentialResponse.credential);
-                      const email = decoded.email;
-                      const r = await googleLogin(email);
+                      const credential = credentialResponse.credential;
+                      if (!credential) {
+                        setLoading(false);
+                        setErr("Google sign-in did not return a credential");
+                        return;
+                      }
+                      const decoded = jwtDecode(credential);
+                      const r = await googleLogin(credential);
                       setLoading(false);
                       if (r.ok) {
-                        toast.success(`👋 Welcome back, ${decoded.name || email}!`);
+                        toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
                         nav("/dashboard");
+                      } else if (r.notRegistered) {
+                        toast.error("No account found for this Google email. Please register first.");
+                        nav("/register", {
+                          state: {
+                            fromGoogleLogin: true,
+                            email: decoded.email || "",
+                            firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
+                            lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
+                          },
+                        });
                       } else {
                         setErr(r.error || "Authentication failed");
                       }

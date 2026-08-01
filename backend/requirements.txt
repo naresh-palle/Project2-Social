@@ -11,3 +11,4 @@ aiofiles
 bcrypt
 aiosmtplib
 google-generativeai
+google-auth

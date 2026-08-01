@@ -87,15 +87,20 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const googleLogin = async (email) => {
+  const googleLogin = async (credential) => {
     try {
-      const { data } = await api.post("/auth/google-login", { email });
+      const { data } = await api.post("/auth/google-login", { credential });
       localStorage.setItem("cr8_token", data.token);
       localStorage.setItem("cr8_user", JSON.stringify(data.user));
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
-      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
+      return {
+        ok: false,
+        error: formatApiError(e.response?.data?.detail) || e.message,
+        status: e.response?.status,
+        notRegistered: e.response?.status === 404,
+      };
     }
   };
 

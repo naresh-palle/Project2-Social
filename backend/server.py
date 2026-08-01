@@ -341,7 +341,7 @@ class LoginInput(BaseModel):
     password: str
 
 class GoogleLoginInput(BaseModel):
-    email: str
+    credential: str  # Google OAuth ID token from client; email alone is not accepted
 
 
 class ContentReviewInput(BaseModel):
@@ -992,22 +992,44 @@ async def register_old(inp: RegisterInput):
     await db.otps.delete_one({"email": email})
     return {"token": token, "user": clean(doc)}
 
+GOOGLE_CLIENT_ID = os.environ.get(
+    "GOOGLE_CLIENT_ID",
+    "858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com",
+)
+
 @api_router.post("/auth/google-login")
 async def google_login(inp: GoogleLoginInput):
-    email = inp.email.lower().strip()
+    """Sign in only for already-registered users. Never creates accounts."""
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            inp.credential,
+            requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except ValueError as e:
+        logger.error(f"Google ID token verification failed: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Google sign-in token")
+
+    if idinfo.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+        raise HTTPException(status_code=401, detail="Invalid Google token issuer")
+
+    email = (idinfo.get("email") or "").lower().strip()
+    if not email or not idinfo.get("email_verified", False):
+        raise HTTPException(status_code=400, detail="Google account email is missing or not verified")
+
     user = await db.users.find_one({"email": email})
     if not user:
+        # Do not auto-register — user must complete signup first
         raise HTTPException(
-            status_code=400, 
-            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details."
+            status_code=404,
+            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details.",
         )
 
     # Enforce mandatory registration details (mobile & pincode)
     if not user.get("mobile") or not user.get("pincode"):
-        await db.users.delete_one({"_id": user["_id"]})
         raise HTTPException(
-            status_code=400, 
-            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details."
+            status_code=400,
+            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details.",
         )
 
     user_id = user.get("id") or str(user["_id"])
