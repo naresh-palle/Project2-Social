@@ -42,6 +42,7 @@ export default function Register() {
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
   const [usernameStatus, setUsernameStatus] = useState("typing");
+  const [practiceOtp, setPracticeOtp] = useState("");
   const [googleImportTime, setGoogleImportTime] = useState(null);
 
   // 5-Minute Google Pre-fill Cache Expiry
@@ -321,7 +322,14 @@ export default function Register() {
       });
       setShowOtpModal(true);
       setResendCooldown(30);
-      toast.success(data?.message || `Verification code sent to ${form.email}`);
+      if (data?.practice_otp) {
+        setPracticeOtp(data.practice_otp);
+        setForm(f => ({ ...f, otp: data.practice_otp }));
+        toast.success(`Practice OTP: ${data.practice_otp}`);
+      } else {
+        setPracticeOtp("");
+        toast.success(data?.message || `Verification code sent to ${form.email}`);
+      }
     } catch (e) {
       setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
     } finally {
@@ -339,7 +347,14 @@ export default function Register() {
       });
       setResendCooldown(30);
       setOtpError("");
-      toast.success(data?.message || "Verification code resent");
+      if (data?.practice_otp) {
+        setPracticeOtp(data.practice_otp);
+        setForm(f => ({ ...f, otp: data.practice_otp }));
+        toast.success(`Practice OTP: ${data.practice_otp}`);
+      } else {
+        setPracticeOtp("");
+        toast.success(data?.message || "Verification code resent");
+      }
     } catch (e) {
       setOtpError(formatApiError(e.response?.data?.detail) || e.message || "Failed to resend code");
     }
@@ -660,9 +675,17 @@ export default function Register() {
               </button>
 
               <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
-              <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-8 leading-relaxed">
-                We sent a 6-digit code to {form.email}. Please enter your 6-digit verification code below.
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-4 leading-relaxed">
+                {practiceOtp
+                  ? "Practice mode is on — use the code below (no email required)."
+                  : `We sent a 6-digit code to ${form.email}. Please enter your 6-digit verification code below.`}
               </p>
+              {practiceOtp && (
+                <div className="mb-6 p-4 border border-[#34C759]/40 bg-[#34C759]/10 text-center">
+                  <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#34C759] mb-2">Practice OTP</p>
+                  <p className="font-mono text-3xl tracking-[0.4em] text-white font-bold">{practiceOtp}</p>
+                </div>
+              )}
 
               <form onSubmit={verifyAndRegister}>
                 <Field 

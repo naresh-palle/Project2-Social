@@ -570,6 +570,18 @@ OTP_LENGTH = int(os.environ.get("OTP_LENGTH", 6))
 OTP_EXPIRY_MINUTES = int(os.environ.get("OTP_EXPIRY_MINUTES", 5))
 OTP_MAX_ATTEMPTS = int(os.environ.get("OTP_MAX_ATTEMPTS", 3))
 OTP_RESEND_SECONDS = int(os.environ.get("OTP_RESEND_SECONDS", 60))
+# Practice mode: skip real email delivery and return OTP in API response (for local/demo learning)
+OTP_PRACTICE_MODE = (os.environ.get("OTP_PRACTICE_MODE") or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def practice_otp_payload(otp_code: str) -> dict:
+    if not OTP_PRACTICE_MODE:
+        return {}
+    return {
+        "practice_mode": True,
+        "practice_otp": otp_code,
+        "message_practice": f"Practice mode: your OTP is {otp_code}",
+    }
 
 def hash_otp(otp_code: str) -> str:
     """Hashes OTP using SHA-256 for secure storage."""
@@ -690,12 +702,24 @@ async def email_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat()
     }
 
-    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+    if OTP_PRACTICE_MODE:
+        logger.info("OTP practice mode — code for %s: %s", email, otp_code)
+    else:
+        await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
 
     await db.otps.update_one({"email": email}, {"$set": doc}, upsert=True)
     _otp_store[email] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
 
-    return {"ok": True, "message": f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
+    resp = {
+        "ok": True,
+        "message": (
+            f"Practice mode: use OTP {otp_code}"
+            if OTP_PRACTICE_MODE
+            else f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."
+        ),
+    }
+    resp.update(practice_otp_payload(otp_code))
+    return resp
 
 
 @api_router.post("/auth/email/verify-otp")
@@ -836,9 +860,10 @@ async def email_provider_status():
         "brevo_sender_resolved": detected,
         "gmail_smtp_configured": gmail,
         "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
+        "practice_mode": OTP_PRACTICE_MODE,
         "hint": (
-            "Set BREVO_SENDER_EMAIL to a sender verified in Brevo (Senders & IPs). "
-            "Gmail SMTP is often blocked on Render — Brevo HTTP API is preferred."
+            "Practice: set OTP_PRACTICE_MODE=true to show OTP on screen. "
+            "Production: set BREVO_SENDER_EMAIL to a verified Brevo sender (custom domain preferred)."
         ),
     }
 
@@ -1029,24 +1054,33 @@ async def register_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat(),
     }
 
-    # Deliver first — only persist OTP if email actually sends
-    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
-    channels = [f"email ({email})"]
-
-    if os.environ.get("FAST2SMS_API_KEY"):
-        await sms_provider.send_sms_otp(mobile, otp_code)
-        channels.append(f"SMS (+91 {mobile})")
+    # Deliver (or practice-mode skip) — then persist OTP
+    if OTP_PRACTICE_MODE:
+        logger.info("OTP practice mode — code for %s / %s: %s", email, mobile, otp_code)
+        channels = ["practice mode (shown on screen)"]
+    else:
+        await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+        channels = [f"email ({email})"]
+        if os.environ.get("FAST2SMS_API_KEY"):
+            await sms_provider.send_sms_otp(mobile, otp_code)
+            channels.append(f"SMS (+91 {mobile})")
 
     await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
     await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
     _otp_store[email] = {**shared, "expires_at": expires_at}
     _otp_store[mobile] = {**shared, "expires_at": expires_at}
 
-    return {
+    resp = {
         "ok": True,
-        "message": f"Verification code sent to {' and '.join(channels)}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+        "message": (
+            f"Practice mode: your OTP is {otp_code}"
+            if OTP_PRACTICE_MODE
+            else f"Verification code sent to {' and '.join(channels)}. Valid for {OTP_EXPIRY_MINUTES} minutes."
+        ),
         "channels": channels,
     }
+    resp.update(practice_otp_payload(otp_code))
+    return resp
 
 
 @api_router.post("/auth/firebase-login")
