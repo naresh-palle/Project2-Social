@@ -6,13 +6,11 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api";
+import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function Register() {
-  const { register, firebaseRegister } = useAuth();
+  const { mobileRegister } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   const { role: urlRole } = useParams();
@@ -44,8 +42,6 @@ export default function Register() {
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
   const [usernameStatus, setUsernameStatus] = useState("typing");
-  const [confirmationResult, setConfirmationResult] = useState(null);
-
   const [googleImportTime, setGoogleImportTime] = useState(null);
 
   // 5-Minute Google Pre-fill Cache Expiry
@@ -306,14 +302,6 @@ export default function Register() {
     return errs;
   };
 
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible'
-      });
-    }
-  };
-
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
     setErr("");
@@ -326,19 +314,13 @@ export default function Register() {
 
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = form.mobile.startsWith("+91") ? form.mobile : `+91${form.mobile}`;
-      
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
       setShowOtpModal(true);
       setResendCooldown(30);
+      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}`);
     } catch (e) {
-      setErr(e.message || "Failed to send verification code via Firebase");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => window.grecaptcha.reset(widgetId));
-      }
+      setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
     } finally {
       setLoading(false);
     }
@@ -347,14 +329,13 @@ export default function Register() {
   const handleResendOtp = async () => {
     if (resendCooldown > 0) return;
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = form.mobile.startsWith("+91") ? form.mobile : `+91${form.mobile}`;
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/mobile/resend-otp", { mobile: cleanMobile });
       setResendCooldown(30);
+      setOtpError("");
+      toast.success(data?.message || "Verification code resent");
     } catch (e) {
-      setOtpError(e.message || "Failed to resend code");
+      setOtpError(formatApiError(e.response?.data?.detail) || e.message || "Failed to resend code");
     }
   };
 
@@ -368,26 +349,32 @@ export default function Register() {
 
     setOtpLoading(true);
     try {
-      const result = await confirmationResult.confirm(form.otp);
-      const firebaseToken = await result.user.getIdToken();
-
-      const payload = { ...form, role, name: `${form.firstName.trim()} ${form.lastName.trim()}`, firebase_token: firebaseToken };
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const payload = {
+        ...form,
+        mobile: cleanMobile,
+        role,
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`,
+        otp: form.otp,
+      };
       delete payload.firstName;
       delete payload.lastName;
+      delete payload.city;
+      delete payload.state;
       if (role === "influencer") delete payload.company;
-      
-      const r = await firebaseRegister(payload);
+
+      const r = await mobileRegister(payload);
       setOtpLoading(false);
-      
+
       if (r.ok) {
-        const cleanMob = (form.mobile || "").replace(/\D/g, "");
-        if (cleanMob) {
+        if (cleanMobile) {
           const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
-          if (!storedMobiles.includes(cleanMob)) {
-            storedMobiles.push(cleanMob);
+          if (!storedMobiles.includes(cleanMobile)) {
+            storedMobiles.push(cleanMobile);
             localStorage.setItem("cr8_registered_mobiles", JSON.stringify(storedMobiles));
           }
         }
+        toast.success("Account created successfully");
         nav(`/onboarding/${role}`);
       } else {
         setOtpError(r.error);
@@ -609,7 +596,7 @@ export default function Register() {
             </p>
           )}
 
-          <div id="recaptcha-container"></div>
+          {/* OTP handled via backend SMS — no Firebase recaptcha */}
 
           {/* Prominent Terms & Conditions Checkbox Container */}
           <div className="mt-6 p-4 bg-white/[0.03] border border-white/15 rounded-sm flex items-center gap-3 shadow-inner">

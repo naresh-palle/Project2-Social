@@ -765,47 +765,10 @@ async def mobile_send_otp(inp: OTPRequest):
 async def mobile_verify_otp(inp: OTPVerify):
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
-    
+
     mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
     target_code = (inp.code or inp.otp or "").strip()
-    if not target_code or len(target_code) != OTP_LENGTH:
-        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
-
-    doc = await db.otps.find_one({"mobile": mobile})
-    if not doc:
-        doc = _otp_store.get(mobile)
-
-    if not doc:
-        raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
-
-    expires_at_raw = doc.get("expires_at")
-    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
-
-    if expires_at and datetime.now(timezone.utc) > expires_at:
-        await db.otps.delete_one({"mobile": mobile})
-        _otp_store.pop(mobile, None)
-        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
-
-    attempts = doc.get("attempts", 0) + 1
-    if attempts > OTP_MAX_ATTEMPTS:
-        await db.otps.delete_one({"mobile": mobile})
-        _otp_store.pop(mobile, None)
-        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
-
-    target_hash = hash_otp(target_code)
-    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
-
-    if target_hash != stored_hash and target_code != doc.get("code"):
-        await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
-        remaining = OTP_MAX_ATTEMPTS - attempts
-        if remaining <= 0:
-            await db.otps.delete_one({"mobile": mobile})
-            _otp_store.pop(mobile, None)
-            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
-        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
-
-    await db.otps.delete_one({"mobile": mobile})
-    _otp_store.pop(mobile, None)
+    await consume_mobile_otp(mobile, target_code)
 
     user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
     if user:
@@ -850,12 +813,74 @@ class FirebaseRegisterInput(BaseModel):
     pincode: Optional[str] = None
     platform: Optional[str] = None
     handle: Optional[str] = None
+    mobile: Optional[str] = None
+
+
+class MobileRegisterInput(BaseModel):
+    """Register with backend-sent mobile OTP (no Firebase / billing required)."""
+    otp: str = Field(min_length=6, max_length=6)
+    email: EmailStr
+    username: str
+    password: str
+    name: str
+    role: str
+    mobile: str
+    company: Optional[str] = None
+    agent_type: Optional[str] = None
+    pincode: Optional[str] = None
+    platform: Optional[str] = None
+    handle: Optional[str] = None
+
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 class FirebaseLoginInput(BaseModel):
     firebase_token: str
+
+
+async def consume_mobile_otp(mobile: str, target_code: str) -> None:
+    """Validate and consume a mobile OTP. Raises HTTPException on failure."""
+    mobile = (mobile or "").strip().replace(" ", "").replace("+91", "")
+    target_code = (target_code or "").strip()
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"mobile": mobile})
+    if not doc:
+        doc = _otp_store.get(mobile)
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"mobile": mobile})
+            _otp_store.pop(mobile, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"mobile": mobile})
+    _otp_store.pop(mobile, None)
+
 
 @api_router.post("/auth/firebase-login")
 async def firebase_login(inp: FirebaseLoginInput):
@@ -881,6 +906,93 @@ async def firebase_login(inp: FirebaseLoginInput):
         logger.error(f"Firebase token error during login: {e}")
         raise HTTPException(status_code=401, detail="Invalid Firebase token")
 
+
+async def _create_registered_user(
+    *,
+    email: str,
+    username: str,
+    password: str,
+    name: str,
+    role: str,
+    mobile: str,
+    company: Optional[str] = None,
+    agent_type: Optional[str] = None,
+    pincode: Optional[str] = None,
+    platform: Optional[str] = None,
+    handle: Optional[str] = None,
+    verified: bool = True,
+) -> dict:
+    email = email.lower().strip()
+    username = username.lower().strip()
+    clean_mobile = (mobile or "").replace("+91", "").replace(" ", "").strip()
+
+    if await db.users.find_one({"$or": [
+        {"email": email},
+        {"username": username},
+        {"mobile": clean_mobile},
+        {"mobile": f"+91{clean_mobile}"},
+    ]}):
+        raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
+
+    if role == "admin":
+        raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+
+    if not (any(c.isalpha() for c in password) and any(c.isdigit() for c in password)):
+        raise HTTPException(status_code=400, detail="Password must be alphanumeric")
+
+    user_id = str(uuid.uuid4())
+    city, state = None, None
+    if pincode:
+        loc = await fetch_pincode_details(pincode)
+        city = loc.get("city") if loc.get("city") != "Unknown" else None
+        state = loc.get("state") if loc.get("state") != "Unknown" else None
+
+    social_accounts = []
+    platforms = []
+    if role == "influencer" and platform and handle:
+        social_accounts.append({"platform": platform, "handle": handle, "followers": 0, "engagement_rate": 0.0})
+        platforms.append(platform)
+
+    doc = {
+        "id": user_id,
+        "email": email,
+        "username": username,
+        "password_hash": hash_password(password),
+        "name": name, "role": role, "handle": handle, "company": company,
+        "mobile": clean_mobile, "pincode": pincode,
+        "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
+        "location": None, "city": city, "state": state, "industry": None, "website": None,
+        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
+        "onboarding_status": "pending", "agent_approved": False,
+        "created_at": now_iso(),
+        "social_accounts": social_accounts,
+        "agent_type": agent_type,
+    }
+    await db.users.insert_one(doc)
+    token = create_access_token(user_id, email, role)
+    return {"ok": True, "token": token, "user": clean(doc)}
+
+
+@api_router.post("/auth/mobile-register")
+async def mobile_register(inp: MobileRegisterInput):
+    """Sign up using SMS OTP from our backend — does not require Firebase billing."""
+    await consume_mobile_otp(inp.mobile, inp.otp)
+    return await _create_registered_user(
+        email=inp.email,
+        username=inp.username,
+        password=inp.password,
+        name=inp.name,
+        role=inp.role,
+        mobile=inp.mobile,
+        company=inp.company,
+        agent_type=inp.agent_type,
+        pincode=inp.pincode,
+        platform=inp.platform,
+        handle=inp.handle,
+        verified=True,
+    )
+
+
 @api_router.post("/auth/firebase-register")
 async def firebase_register(inp: FirebaseRegisterInput):
     try:
@@ -888,50 +1000,21 @@ async def firebase_register(inp: FirebaseRegisterInput):
         mobile = decoded_token.get('phone_number')
         if not mobile:
             raise HTTPException(status_code=400, detail="Firebase token does not contain a phone number")
-        
-        email = inp.email.lower().strip()
-        username = inp.username.lower().strip()
-        
-        if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}, {"mobile": mobile.replace("+91", "")}]}):
-            raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
-            
-        if inp.role == "admin":
-            raise HTTPException(status_code=400, detail="Cannot self-register as admin")
-            
-        if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
-            raise HTTPException(status_code=400, detail="Password must be alphanumeric")
 
-        user_id = str(uuid.uuid4())
-        city, state = None, None
-        if inp.pincode:
-            loc = await fetch_pincode_details(inp.pincode)
-            city = loc.get("city") if loc.get("city") != "Unknown" else None
-            state = loc.get("state") if loc.get("state") != "Unknown" else None
-
-        social_accounts = []
-        platforms = []
-        if inp.role == "influencer" and inp.platform and inp.handle:
-            social_accounts.append({"platform": inp.platform, "handle": inp.handle, "followers": 0, "engagement_rate": 0.0})
-            platforms.append(inp.platform)
-
-        doc = {
-            "id": user_id,
-            "email": email,
-            "username": username,
-            "password_hash": hash_password(inp.password),
-            "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
-            "mobile": mobile.replace("+91", ""), "pincode": inp.pincode,
-            "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
-            "location": None, "city": city, "state": state, "industry": None, "website": None,
-            "portfolio": [], "rate_card": {}, "verified": True, "email_verified": False, "wallet": 0,
-            "onboarding_status": "pending", "agent_approved": False,
-            "created_at": now_iso(),
-            "social_accounts": social_accounts,
-        }
-        await db.users.insert_one(doc)
-        token = create_access_token(user_id, email, inp.role)
-        return {"ok": True, "token": token, "user": clean(doc)}
-        
+        return await _create_registered_user(
+            email=inp.email,
+            username=inp.username,
+            password=inp.password,
+            name=inp.name,
+            role=inp.role,
+            mobile=mobile,
+            company=inp.company,
+            agent_type=inp.agent_type,
+            pincode=inp.pincode,
+            platform=inp.platform,
+            handle=inp.handle,
+            verified=True,
+        )
     except ValueError as e:
         logger.error(f"Firebase token error: {e}")
         raise HTTPException(status_code=401, detail="Invalid Firebase token")

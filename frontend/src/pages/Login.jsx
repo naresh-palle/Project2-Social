@@ -7,9 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { api, formatApiError } from "@/lib/api";
 
 export default function Login() {
   const { login, googleLogin } = useAuth();
@@ -25,7 +23,6 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const submitPassword = async (e) => {
     e.preventDefault();
@@ -39,14 +36,6 @@ export default function Login() {
 
   const [resendTimer, setResendTimer] = useState(0);
 
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'login-recaptcha-container', {
-        'size': 'invisible'
-      });
-    }
-  };
-
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     setErr("");
@@ -58,15 +47,17 @@ export default function Login() {
 
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = `+91${cleanMobile}`;
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
-      
+      const check = await api.post("/auth/check", { mobile: cleanMobile });
+      if (check.data?.available) {
+        setErr("No account found for this mobile number. Please register first.");
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
       setOtpSent(true);
       setResendTimer(30);
-      toast.success(`📩 Verification code sent to +91 ${cleanMobile}.`);
+      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}.`);
 
       const interval = setInterval(() => {
         setResendTimer((prev) => {
@@ -78,10 +69,7 @@ export default function Login() {
         });
       }, 1000);
     } catch (err) {
-      setErr(err.message || "Failed to send verification code via Firebase");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => window.grecaptcha.reset(widgetId));
-      }
+      setErr(formatApiError(err.response?.data?.detail) || err.message || "Failed to send verification code");
     } finally {
       setLoading(false);
     }
@@ -103,21 +91,21 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const result = await confirmationResult.confirm(otp);
-      const firebaseToken = await result.user.getIdToken();
-      
-      const { data } = await api.post("/auth/firebase-login", { firebase_token: firebaseToken });
-      
+      const cleanMobile = (mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/mobile/verify-otp", { mobile: cleanMobile, code: otp });
+
       if (data.ok && data.token) {
         localStorage.setItem("cr8_token", data.token);
         localStorage.setItem("cr8_user", JSON.stringify(data.user));
-        toast.success("📱 Mobile OTP Verified! Welcome back to the studio.");
+        toast.success("Mobile OTP verified. Welcome back.");
         window.location.href = "/#/dashboard";
+      } else if (data.ok && data.verified && !data.token) {
+        setErr("No account found for this mobile number. Please register first.");
       } else {
-        setErr(data.detail || "OTP Verification failed");
+        setErr(data.detail || data.message || "OTP Verification failed");
       }
     } catch (err) {
-      setErr(err.response?.data?.detail || err.message || "Invalid or expired OTP code.");
+      setErr(formatApiError(err.response?.data?.detail) || err.message || "Invalid or expired OTP code.");
     } finally {
       setLoading(false);
     }
@@ -170,8 +158,6 @@ export default function Login() {
               <ShieldCheck className="w-4 h-4 shrink-0" /> {err}
             </div>
           )}
-
-          <div id="login-recaptcha-container"></div>
 
           {mode === "password" ? (
             <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
