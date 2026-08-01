@@ -477,8 +477,8 @@ export default function Register() {
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 
-          <div className="mt-10 flex flex-col gap-3 w-full">
-            <div className="flex justify-center w-full [&>div]:w-full">
+          <div className="mt-10 flex flex-col items-center gap-2.5 w-full">
+            <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
               <GoogleLogin
                 onSuccess={credentialResponse => {
                   try {
@@ -498,7 +498,7 @@ export default function Register() {
                 shape="rectangular"
                 text="continue_with"
                 size="large"
-                width="100%"
+                width="240"
               />
             </div>
             <AppleSignInButton mode="signup" loading={appleBusy} onClick={handleAppleContinue} />

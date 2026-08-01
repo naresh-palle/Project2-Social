@@ -233,9 +233,9 @@ export default function Login() {
 
           {mode === "password" ? (
             <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
-              {/* Social sign-in — Google + Apple stacked, both always visible */}
-              <div className="flex flex-col gap-3 w-full">
-                <div className="w-full flex justify-center [&>div]:w-full">
+              {/* Social sign-in — Google + Apple, matched compact size */}
+              <div className="flex flex-col items-center gap-2.5 w-full">
+                <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
                   <GoogleLogin
                     onSuccess={async (credentialResponse) => {
                       try {
@@ -276,12 +276,12 @@ export default function Login() {
                     shape="rectangular"
                     text="signin_with"
                     size="large"
-                    width="100%"
+                    width="240"
                   />
                 </div>
                 <AppleSignInButton mode="signin" loading={loading} onClick={handleAppleSignIn} />
                 {showAppleFallback && (
-                  <div className="p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
+                  <div className="w-full max-w-[240px] p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
                     <p className="font-mono text-[10px] opacity-60">
                       Apple JS SDK not configured. Paste an Apple identity token to test API login:
                     </p>
