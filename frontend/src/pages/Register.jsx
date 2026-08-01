@@ -26,7 +26,7 @@ export default function Register() {
     password: "",
     firstName: googlePrefill?.firstName || "",
     lastName: googlePrefill?.lastName || "", 
-    company: "", mobile: "", pincode: "", city: "", state: "", otp: "", ntfy_topic: "",
+    company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
     agent_type: "company_agent"
   });
   const [err, setErr] = useState("");
@@ -38,7 +38,6 @@ export default function Register() {
   const [otpError, setOtpError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [termsAgreed, setTermsAgreed] = useState(true);
-  const [ntfyUrl, setNtfyUrl] = useState("");
 
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
@@ -77,7 +76,7 @@ export default function Register() {
       password: "",
       firstName: prefill?.firstName || "",
       lastName: prefill?.lastName || "",
-      company: "", mobile: "", pincode: "", city: "", state: "", otp: "", ntfy_topic: "",
+      company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
       agent_type: "company_agent"
     });
     setFieldErrors({});
@@ -299,13 +298,6 @@ export default function Register() {
       errs.password = "Password must be at least 8 characters long and contain both letters and numbers.";
     }
 
-    const topic = (form.ntfy_topic || "").trim().toLowerCase();
-    if (!topic || topic.length < 8) {
-      errs.ntfy_topic = "Enter a private ntfy topic (min 8 chars) for live OTP delivery";
-    } else if (!/^[a-z0-9_-]+$/.test(topic)) {
-      errs.ntfy_topic = "Topic can only use letters, numbers, _ or -";
-    }
-
     if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Company name required";
     return errs;
   };
@@ -323,18 +315,13 @@ export default function Register() {
     setLoading(true);
     try {
       const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const topic = (form.ntfy_topic || "").trim().toLowerCase();
-      // Open subscribe page so the user can receive the live push OTP
-      window.open(`https://ntfy.sh/${encodeURIComponent(topic)}`, "_blank", "noopener,noreferrer");
       const { data } = await api.post("/auth/register/send-otp", {
         email: form.email.trim(),
         mobile: cleanMobile,
-        ntfy_topic: topic,
       });
       setShowOtpModal(true);
       setResendCooldown(30);
-      setNtfyUrl(data?.ntfy_url || `https://ntfy.sh/${topic}`);
-      toast.success(data?.message || "Verification code sent via ntfy");
+      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}`);
     } catch (e) {
       setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
     } finally {
@@ -346,16 +333,13 @@ export default function Register() {
     if (resendCooldown > 0) return;
     try {
       const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const topic = (form.ntfy_topic || "").trim().toLowerCase();
       const { data } = await api.post("/auth/register/resend-otp", {
         email: form.email.trim(),
         mobile: cleanMobile,
-        ntfy_topic: topic,
       });
       setResendCooldown(30);
       setOtpError("");
-      setNtfyUrl(data?.ntfy_url || `https://ntfy.sh/${topic}`);
-      toast.success(data?.message || "Verification code resent via ntfy");
+      toast.success(data?.message || "Verification code resent by SMS");
     } catch (e) {
       setOtpError(formatApiError(e.response?.data?.detail) || e.message || "Failed to resend code");
     }
@@ -383,7 +367,6 @@ export default function Register() {
       delete payload.lastName;
       delete payload.city;
       delete payload.state;
-      delete payload.ntfy_topic;
       if (role === "influencer") delete payload.company;
 
       const r = await mobileRegister(payload);
@@ -584,31 +567,7 @@ export default function Register() {
             </div>
 
             <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
-
-            <div className="md:col-span-2 space-y-2">
-              <Field
-                label="ntfy topic (live open-source OTP)"
-                testid="reg-ntfy-topic"
-                value={form.ntfy_topic}
-                onChange={change("ntfy_topic")}
-                error={fieldErrors.ntfy_topic}
-                required
-                placeholder="e.g. cr8-naresh-private1"
-              />
-              <p className="font-mono text-[10px] tracking-[0.12em] uppercase opacity-55 leading-relaxed">
-                Open-source push OTP via ntfy.sh — pick a private topic name, keep that tab open (or use the ntfy app), then continue.{" "}
-                {form.ntfy_topic.trim().length >= 8 && (
-                  <a
-                    href={`https://ntfy.sh/${encodeURIComponent(form.ntfy_topic.trim().toLowerCase())}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#007AFF] underline"
-                  >
-                    Open topic →
-                  </a>
-                )}
-              </p>
-            </div>          </div>
+          </div>
 
           {(emailStatus === "taken" || mobileStatus === "taken") && (
             <div className="mt-6 p-5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs space-y-3">
@@ -701,19 +660,9 @@ export default function Register() {
               </button>
 
               <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
-              <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-4 leading-relaxed">
-                Live OTP was sent to your ntfy topic. Check the ntfy tab/app for the 6-digit code.
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-8 leading-relaxed">
+                We sent a 6-digit SMS code to +91 {form.mobile}. Enter it below to finish registration.
               </p>
-              {ntfyUrl && (
-                <a
-                  href={ntfyUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mb-6 inline-flex font-mono text-[11px] tracking-[0.15em] uppercase text-[#007AFF] underline"
-                >
-                  Open ntfy topic again →
-                </a>
-              )}
 
               <form onSubmit={verifyAndRegister}>
                 <Field 

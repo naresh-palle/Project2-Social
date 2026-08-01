@@ -674,28 +674,74 @@ class Fast2SMSSmsProvider(SmsProvider):
         if not api_key:
             raise HTTPException(status_code=502, detail="SMS provider is not configured (FAST2SMS_API_KEY missing)")
 
+        message = (
+            f"CR8 Studio verification code is {otp}. "
+            f"Valid for {OTP_EXPIRY_MINUTES} minutes. Do not share this code."
+        )
+        # Prefer Quick SMS (route q) — OTP route often requires Fast2SMS website/DLT verification
+        route = (os.environ.get("FAST2SMS_ROUTE") or "q").strip() or "q"
+        payload = {
+            "route": route,
+            "numbers": clean_mobile,
+            "language": "english",
+            "message": message,
+        }
+        # Legacy OTP template route support
+        if route.lower() == "otp":
+            payload = {
+                "route": "otp",
+                "variables_values": otp,
+                "numbers": clean_mobile,
+            }
+
         try:
-            async with httpx.AsyncClient(timeout=10) as c:
+            async with httpx.AsyncClient(timeout=15) as c:
                 res = await c.post(
                     "https://www.fast2sms.com/dev/bulkV2",
                     headers={"authorization": api_key, "Content-Type": "application/json"},
-                    json={
-                        "variables_values": otp,
-                        "route": os.environ.get("FAST2SMS_ROUTE", "otp"),
-                        "numbers": clean_mobile,
-                    },
+                    json=payload,
                 )
-                if res.status_code == 200:
-                    data = {}
+                data = {}
+                try:
+                    data = res.json()
+                except Exception:
+                    pass
+
+                if res.status_code == 200 and data.get("return") is not False:
+                    logger.info("Fast2SMS OTP dispatched via route=%s to +91 %s", route, clean_mobile)
+                    return
+
+                # Auto-fallback: OTP route blocked → Quick SMS
+                err_msg = str(data.get("message") or res.text or "")
+                if route.lower() == "otp" or "website verification" in err_msg.lower() or "dlt" in err_msg.lower():
+                    logger.warning("Fast2SMS route=%s failed (%s). Retrying with Quick SMS route=q", route, err_msg[:200])
+                    res2 = await c.post(
+                        "https://www.fast2sms.com/dev/bulkV2",
+                        headers={"authorization": api_key, "Content-Type": "application/json"},
+                        json={
+                            "route": "q",
+                            "numbers": clean_mobile,
+                            "language": "english",
+                            "message": message,
+                        },
+                    )
+                    data2 = {}
                     try:
-                        data = res.json()
+                        data2 = res2.json()
                     except Exception:
                         pass
-                    if data.get("return") is False:
-                        raise HTTPException(status_code=502, detail=f"SMS provider rejected OTP: {data.get('message') or res.text[:200]}")
-                    logger.info("Fast2SMS OTP dispatched to +91 %s", clean_mobile)
-                    return
-                raise HTTPException(status_code=502, detail=f"SMS provider error {res.status_code}: {res.text[:200]}")
+                    if res2.status_code == 200 and data2.get("return") is not False:
+                        logger.info("Fast2SMS OTP dispatched via Quick SMS to +91 %s", clean_mobile)
+                        return
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"SMS provider error: {data2.get('message') or res2.text[:200]}",
+                    )
+
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"SMS provider error {res.status_code}: {err_msg[:200]}",
+                )
         except HTTPException:
             raise
         except Exception as e:
@@ -892,8 +938,8 @@ async def email_provider_status():
         "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
         "ntfy_base_url": NTFY_BASE_URL,
         "hint": (
-            "Live open-source OTP: signup uses ntfy.sh push (set a private topic on the register form). "
-            "Optional SMS if FAST2SMS_API_KEY is set. Email freemail (Gmail) is unreliable for OTP."
+            "Live signup OTP is sent by SMS (FAST2SMS_API_KEY). "
+            "Set FAST2SMS_ROUTE=q for Quick SMS if OTP route needs DLT/website verification."
         ),
     }
 
@@ -1046,23 +1092,16 @@ async def consume_email_otp(email: str, target_code: str) -> None:
 @api_router.post("/auth/register/send-otp")
 @api_router.post("/auth/register/resend-otp")
 async def register_send_otp(inp: OTPRequest):
-    """Live signup OTP via open-source ntfy push (required). Optional SMS if Fast2SMS is configured."""
+    """Live signup OTP via SMS (primary). Optional ntfy topic as extra channel."""
     if not inp.email:
         raise HTTPException(status_code=400, detail="Email address is required")
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
-    if not inp.ntfy_topic:
-        raise HTTPException(
-            status_code=400,
-            detail="ntfy topic is required for live OTP. Create one at https://ntfy.sh and subscribe before requesting the code.",
-        )
 
     email = inp.email.lower().strip()
     mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
     if len(mobile) != 10 or not mobile.isdigit():
         raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
-
-    topic = sanitize_ntfy_topic(inp.ntfy_topic)
 
     for query in ({"email": email}, {"mobile": mobile}):
         existing = await db.otps.find_one(query)
@@ -1090,30 +1129,39 @@ async def register_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat(),
     }
 
-    display_name = email.split("@")[0]
-    ntfy_url = await send_ntfy_otp(topic, otp_code, display_name)
-    channels = [f"ntfy ({ntfy_url})"]
+    channels = []
+    ntfy_url = None
 
-    # Optional SMS backup when configured
-    if os.environ.get("FAST2SMS_API_KEY"):
+    # 1) Real SMS to the user's phone (friend-friendly)
+    if not os.environ.get("FAST2SMS_API_KEY"):
+        raise HTTPException(
+            status_code=502,
+            detail="SMS OTP is not configured. Set FAST2SMS_API_KEY on the server to enable live mobile verification.",
+        )
+    await sms_provider.send_sms_otp(mobile, otp_code)
+    channels.append(f"SMS (+91 {mobile})")
+
+    # 2) Optional ntfy mirror if topic provided
+    if inp.ntfy_topic:
         try:
-            await sms_provider.send_sms_otp(mobile, otp_code)
-            channels.append(f"SMS (+91 {mobile})")
-        except HTTPException as sms_err:
-            logger.warning("Optional SMS OTP failed (ntfy already delivered): %s", sms_err.detail)
+            ntfy_url = await send_ntfy_otp(inp.ntfy_topic, otp_code, email.split("@")[0])
+            channels.append(f"ntfy ({ntfy_url})")
+        except HTTPException as e:
+            logger.warning("Optional ntfy OTP failed (SMS already sent): %s", e.detail)
 
     await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
     await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
     _otp_store[email] = {**shared, "expires_at": expires_at}
     _otp_store[mobile] = {**shared, "expires_at": expires_at}
 
-    return {
+    resp = {
         "ok": True,
-        "message": f"Verification code sent via ntfy. Open {ntfy_url} if you have not subscribed yet. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+        "message": f"Verification code sent by SMS to +91 {mobile}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
         "channels": channels,
-        "ntfy_url": ntfy_url,
-        "ntfy_topic": topic,
     }
+    if ntfy_url:
+        resp["ntfy_url"] = ntfy_url
+    return resp
 
 
 @api_router.post("/auth/firebase-login")
