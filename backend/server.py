@@ -2812,7 +2812,9 @@ async def seed_admin():
                 "agent_approved": True
             }}
         )
-        logger.info("Updated Super Admasync def seed_demo():
+        logger.info("Updated Super Admin user (%s / admin)", admin_email)
+
+async def seed_demo():
     demo_password_hash = hash_password("demo1234")
     
     seed_emails = ["creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio"]
