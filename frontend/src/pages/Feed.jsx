@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Heart, MessageSquare, Share2, Plus, Image, Send, ArrowRight } from "lucide-react";
+import { Sparkles, Heart, MessageSquare, Share2, Plus, Image, Send, ArrowRight, ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
@@ -104,6 +104,12 @@ export default function Feed() {
         {/* Header Stream Banner */}
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] transition-colors mb-3"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
+            </Link>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" /> § Live Community Feed
             </p>
