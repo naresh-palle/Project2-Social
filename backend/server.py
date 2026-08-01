@@ -882,6 +882,110 @@ async def consume_mobile_otp(mobile: str, target_code: str) -> None:
     _otp_store.pop(mobile, None)
 
 
+async def consume_email_otp(email: str, target_code: str) -> None:
+    """Validate and consume an email OTP. Raises HTTPException on failure."""
+    email = (email or "").lower().strip()
+    target_code = (target_code or "").strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"email": email})
+    if not doc:
+        doc = _otp_store.get(email)
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this email address")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"email": email}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"email": email})
+            _otp_store.pop(email, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"email": email})
+    _otp_store.pop(email, None)
+
+
+@api_router.post("/auth/register/send-otp")
+@api_router.post("/auth/register/resend-otp")
+async def register_send_otp(inp: OTPRequest):
+    """Send one OTP for signup via email (Brevo/Gmail) and optionally SMS if Fast2SMS is configured."""
+    if not inp.email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    if not inp.mobile:
+        raise HTTPException(status_code=400, detail="Mobile number is required")
+
+    email = inp.email.lower().strip()
+    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+
+    # Shared cooldown across email/mobile keys for this signup attempt
+    for key, query in ((email, {"email": email}), (mobile, {"mobile": mobile})):
+        existing = await db.otps.find_one(query)
+        if existing and existing.get("created_at"):
+            try:
+                created_at = datetime.fromisoformat(existing["created_at"])
+                secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+                if secs_passed < OTP_RESEND_SECONDS:
+                    wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                    raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+            except HTTPException:
+                raise
+            except Exception:
+                pass
+
+    otp_code = "".join(str(random.randint(0, 9)) for _ in range(OTP_LENGTH))
+    hashed = hash_otp(otp_code)
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(minutes=OTP_EXPIRY_MINUTES)
+    shared = {
+        "hashed_otp": hashed,
+        "code": otp_code,
+        "attempts": 0,
+        "created_at": now_utc.isoformat(),
+        "expires_at": expires_at.isoformat(),
+    }
+
+    await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
+    await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
+    _otp_store[email] = {**shared, "expires_at": expires_at}
+    _otp_store[mobile] = {**shared, "expires_at": expires_at}
+
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+    channels = [f"email ({email})"]
+
+    # Optional SMS when Fast2SMS is configured
+    if os.environ.get("FAST2SMS_API_KEY"):
+        await sms_provider.send_sms_otp(mobile, otp_code)
+        channels.append(f"SMS (+91 {mobile})")
+
+    return {
+        "ok": True,
+        "message": f"Verification code sent to {' and '.join(channels)}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+        "channels": channels,
+    }
+
+
 @api_router.post("/auth/firebase-login")
 async def firebase_login(inp: FirebaseLoginInput):
     try:
@@ -975,9 +1079,25 @@ async def _create_registered_user(
 
 @api_router.post("/auth/mobile-register")
 async def mobile_register(inp: MobileRegisterInput):
-    """Sign up using SMS OTP from our backend — does not require Firebase billing."""
-    await consume_mobile_otp(inp.mobile, inp.otp)
-    return await _create_registered_user(
+    """Sign up using email/SMS OTP from our backend — does not require Firebase billing."""
+    # Accept the same OTP from either channel (register/send-otp stores both)
+    try:
+        await consume_email_otp(inp.email, inp.otp)
+    except HTTPException as email_err:
+        try:
+            await consume_mobile_otp(inp.mobile, inp.otp)
+        except HTTPException:
+            raise email_err
+
+    # Clear the sibling OTP key if still present
+    clean_mobile = (inp.mobile or "").replace("+91", "").replace(" ", "").strip()
+    email = inp.email.lower().strip()
+    await db.otps.delete_one({"mobile": clean_mobile})
+    await db.otps.delete_one({"email": email})
+    _otp_store.pop(clean_mobile, None)
+    _otp_store.pop(email, None)
+
+    result = await _create_registered_user(
         email=inp.email,
         username=inp.username,
         password=inp.password,
@@ -991,6 +1111,10 @@ async def mobile_register(inp: MobileRegisterInput):
         handle=inp.handle,
         verified=True,
     )
+    await db.users.update_one({"email": email}, {"$set": {"email_verified": True}})
+    if result.get("user"):
+        result["user"]["email_verified"] = True
+    return result
 
 
 @api_router.post("/auth/firebase-register")

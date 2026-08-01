@@ -315,10 +315,13 @@ export default function Register() {
     setLoading(true);
     try {
       const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
+      const { data } = await api.post("/auth/register/send-otp", {
+        email: form.email.trim(),
+        mobile: cleanMobile,
+      });
       setShowOtpModal(true);
       setResendCooldown(30);
-      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}`);
+      toast.success(data?.message || `Verification code sent to ${form.email}`);
     } catch (e) {
       setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
     } finally {
@@ -330,7 +333,10 @@ export default function Register() {
     if (resendCooldown > 0) return;
     try {
       const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const { data } = await api.post("/auth/mobile/resend-otp", { mobile: cleanMobile });
+      const { data } = await api.post("/auth/register/resend-otp", {
+        email: form.email.trim(),
+        mobile: cleanMobile,
+      });
       setResendCooldown(30);
       setOtpError("");
       toast.success(data?.message || "Verification code resent");
@@ -596,7 +602,7 @@ export default function Register() {
             </p>
           )}
 
-          {/* OTP handled via backend SMS — no Firebase recaptcha */}
+          {/* OTP handled via backend email (Brevo/Gmail) + optional SMS */}
 
           {/* Prominent Terms & Conditions Checkbox Container */}
           <div className="mt-6 p-4 bg-white/[0.03] border border-white/15 rounded-sm flex items-center gap-3 shadow-inner">
