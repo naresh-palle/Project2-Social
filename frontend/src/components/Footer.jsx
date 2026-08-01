@@ -30,9 +30,10 @@ export function Footer() {
         <div className="md:col-span-2">
           <h4 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-50 mb-4">Legal</h4>
           <ul className="space-y-2 font-editorial text-lg">
-            <li><Link to="#" className="kinetic-underline">Privacy Policy</Link></li>
-            <li><Link to="#" className="kinetic-underline">Terms of Service</Link></li>
-            <li><Link to="#" className="kinetic-underline">FTC Guidelines</Link></li>
+            <li><Link to="/legal/privacy" className="kinetic-underline">Privacy Policy</Link></li>
+            <li><Link to="/legal/terms" className="kinetic-underline">Terms of Service</Link></li>
+            <li><Link to="/legal/cookies" className="kinetic-underline">Cookie Policy</Link></li>
+            <li><Link to="/legal/ftc" className="kinetic-underline">FTC Guidelines</Link></li>
           </ul>
         </div>
         <div className="md:col-span-2">

@@ -10,13 +10,18 @@ import { toast } from "sonner";
 import { api, formatApiError } from "@/lib/api";
 
 export default function Login() {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, appleLogin } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   
-  const [mode, setMode] = useState(location.state?.mode || "password"); // "password" or "otp"
+  const [mode, setMode] = useState(location.state?.mode || "password");
   const [identifier, setIdentifier] = useState(location.state?.identifier || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem("cr8_remember_me") === "true");
+  const [requires2fa, setRequires2fa] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [appleToken, setAppleToken] = useState("");
+  const [showAppleFallback, setShowAppleFallback] = useState(false);
   const [mobile, setMobile] = useState(location.state?.mobile || "");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -28,10 +33,48 @@ export default function Login() {
     e.preventDefault();
     setErr("");
     setLoading(true);
-    const r = await login(identifier, password);
+    const r = await login(identifier, password, { remember_me: rememberMe, totp_code: totpCode || undefined });
     setLoading(false);
     if (r.ok) nav("/dashboard");
-    else setErr(r.error);
+    else if (r.requires_2fa) {
+      setRequires2fa(true);
+      setErr("");
+    } else setErr(r.error);
+  };
+
+  const handleAppleSignIn = async () => {
+    if (window.AppleID?.auth) {
+      try {
+        setLoading(true);
+        const res = await window.AppleID.auth.signIn();
+        const token = res?.authorization?.id_token;
+        if (!token) {
+          setErr("Apple sign-in did not return a token");
+          setLoading(false);
+          return;
+        }
+        const r = await appleLogin(token, { remember_me: rememberMe });
+        setLoading(false);
+        if (r.ok) nav("/dashboard");
+        else if (r.notRegistered) {
+          toast.error("No account found for this Apple ID. Please register first.");
+        } else setErr(r.error);
+      } catch {
+        setLoading(false);
+        setShowAppleFallback(true);
+      }
+    } else {
+      setShowAppleFallback(true);
+    }
+  };
+
+  const submitAppleToken = async () => {
+    if (!appleToken.trim()) return;
+    setLoading(true);
+    const r = await appleLogin(appleToken.trim(), { remember_me: rememberMe });
+    setLoading(false);
+    if (r.ok) nav("/dashboard");
+    else setErr(r.error || "Apple login failed");
   };
 
   const [resendTimer, setResendTimer] = useState(0);
@@ -243,7 +286,60 @@ export default function Login() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <div className="flex items-center justify-between mt-3">
+                  <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="accent-[#FF3B30]"
+                    />
+                    Remember Me
+                  </label>
+                  <Link to="/forgot-password" className="font-mono text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
+
+              {requires2fa && (
+                <div>
+                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
+                    2FA Authentication Code
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                    className="mt-2 w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
+                    placeholder="000000"
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleAppleSignIn}
+                className="w-full py-3 border border-white/20 hover:border-white/40 font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+              >
+                Sign in with Apple
+              </button>
+
+              {showAppleFallback && (
+                <div className="p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
+                  <p className="font-mono text-[10px] opacity-60">Configure Apple Sign In in production. For testing, paste identity token:</p>
+                  <textarea
+                    value={appleToken}
+                    onChange={(e) => setAppleToken(e.target.value)}
+                    rows={3}
+                    className="w-full bg-black/60 border border-white/20 p-2 font-mono text-[10px] rounded-xs"
+                    placeholder="Apple identity token…"
+                  />
+                  <button type="button" onClick={submitAppleToken} className="font-mono text-[10px] uppercase text-[#FF3B30]">Test Apple Login</button>
+                </div>
+              )}
 
               <button
                 type="submit"

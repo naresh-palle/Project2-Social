@@ -159,6 +159,13 @@ export default function ProfileView() {
             </div>
           </div>
           
+          {/* Cover photo */}
+          {profile.cover_photo && (
+            <div className="mt-8 w-full h-40 md:h-56 overflow-hidden border border-white/10 rounded-sm">
+              <img src={profile.cover_photo} alt="Cover" className="w-full h-full object-cover" />
+            </div>
+          )}
+
           {/* Profile Header Banner */}
           <div className="mt-8 flex flex-col md:flex-row gap-10 items-start md:items-end border-b border-white/10 pb-12 justify-between">
             <div className="flex flex-col md:flex-row gap-8 items-start md:items-end">
@@ -177,8 +184,16 @@ export default function ProfileView() {
                       ? "Brand Owner Profile" 
                       : profile.role === "agent" 
                       ? `Talent Agent (${profile.agent_type || "Company Agent"})` 
-                      : "Verified Influencer Profile"}
+                      : "Influencer Profile"}
                   </span>
+                  {profile.verified && (
+                    <span className="inline-flex items-center gap-1 text-[#34C759] ml-2">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                    </span>
+                  )}
+                  {profile.online && (
+                    <span className="inline-flex items-center gap-1 text-emerald-400 ml-2">● Online</span>
+                  )}
                 </div>
                 <h1 className="font-editorial text-5xl md:text-7xl leading-none font-medium">
                   {profile.company || profile.name}

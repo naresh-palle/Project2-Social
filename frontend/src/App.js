@@ -7,6 +7,12 @@ import RegisterSplash from "@/pages/RegisterSplash";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Feed from "@/pages/Feed";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import Settings from "@/pages/Settings";
+import SearchPage from "@/pages/SearchPage";
+import Legal from "@/pages/Legal";
+import PublicProfile from "@/pages/PublicProfile";
 import Marketplace from "@/pages/Marketplace";
 import CampaignDetail from "@/pages/CampaignDetail";
 import CreatorDetail from "@/pages/CreatorDetail";
@@ -29,11 +35,17 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/legal/:doc" element={<Legal />} />
             <Route path="/register" element={<RegisterSplash />} />
             <Route path="/register/:role" element={<Register />} />
             <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
             <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
             <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
+            <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />
+            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+            <Route path="/u/:userId" element={<RequireAuth><PublicProfile /></RequireAuth>} />
             <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
             <Route path="/profile/edit" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
             <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />

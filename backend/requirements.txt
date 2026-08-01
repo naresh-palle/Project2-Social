@@ -12,3 +12,5 @@ bcrypt
 aiosmtplib
 google-generativeai
 google-auth
+pyotp
+Pillow

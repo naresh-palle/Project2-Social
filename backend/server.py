@@ -375,6 +375,9 @@ class SendOTPInput(BaseModel):
 class LoginInput(BaseModel):
     identifier: str
     password: str
+    remember_me: bool = False
+    device_name: Optional[str] = None
+    totp_code: Optional[str] = None
 
 class GoogleLoginInput(BaseModel):
     credential: str  # Google OAuth ID token from client; email alone is not accepted
@@ -404,6 +407,7 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     bio: Optional[str] = None
     avatar: Optional[str] = None
+    cover_photo: Optional[str] = None
     handle: Optional[str] = None
     company: Optional[str] = None
     industry: Optional[str] = None
@@ -434,6 +438,17 @@ class UserUpdate(BaseModel):
     associated_brands: Optional[List[Dict[str, Any]]] = None
     monthly_analytics: Optional[List[Dict[str, Any]]] = None  # For historical charts
     decline_reason: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    gender: Optional[str] = None
+    is_private: Optional[bool] = None
+    show_online_status: Optional[bool] = None
+    show_last_seen: Optional[bool] = None
+    language: Optional[str] = None
+    theme: Optional[str] = None
+    high_contrast: Optional[bool] = None
+    font_scale: Optional[float] = None
+    notification_prefs: Optional[Dict[str, Any]] = None
+    privacy: Optional[Dict[str, Any]] = None
 
 
 class CampaignCreate(BaseModel):
@@ -466,7 +481,10 @@ class InvitationAction(BaseModel):
 
 
 class MessageCreate(BaseModel):
-    content: str
+    content: str = ""
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
+    reply_to_id: Optional[str] = None
 
 
 class DeliverableCreate(BaseModel):
@@ -1430,21 +1448,59 @@ async def google_login(inp: GoogleLoginInput):
 
 
 @api_router.post("/auth/login")
-async def login(inp: LoginInput):
+async def login(inp: LoginInput, request: Request):
     identifier = inp.identifier.lower().strip()
     user = await db.users.find_one({
         "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid login credentials")
+    if user.get("banned"):
+        raise HTTPException(status_code=403, detail="Account suspended")
+
+    # Optional 2FA gate (TOTP)
+    if user.get("two_fa_enabled"):
+        try:
+            import pyotp
+        except ImportError:
+            pyotp = None
+        if not inp.totp_code or not pyotp:
+            return {"requires_2fa": True}
+        if not pyotp.TOTP(user.get("two_fa_secret", "")).verify(inp.totp_code, valid_window=1):
+            raise HTTPException(status_code=401, detail="Invalid 2FA code")
     
     user_id = user.get("id") or str(user["_id"])
     if not user.get("id"):
         await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
         user["id"] = user_id
 
-    token = create_access_token(user["id"], user["email"], user["role"])
-    return {"token": token, "user": clean(dict(user))}
+    minutes = 60 * 24 * 30 if inp.remember_me else ACCESS_TOKEN_MINUTES
+    payload = {
+        "sub": user["id"], "email": user["email"], "role": user["role"],
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=minutes),
+        "type": "access", "remember": inp.remember_me,
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    # Track session + login history
+    ua = request.headers.get("user-agent", "")[:240]
+    ip = request.client.host if request.client else ""
+    session_id = str(uuid.uuid4())
+    import hashlib as _hashlib
+    await db.sessions.insert_one({
+        "id": session_id, "user_id": user["id"],
+        "token_hash": _hashlib.sha256(token.encode()).hexdigest(),
+        "device_name": inp.device_name or ua[:80] or "Unknown device",
+        "user_agent": ua, "ip": ip, "remember_me": inp.remember_me,
+        "created_at": now_iso(), "last_active": now_iso(), "revoked": False,
+    })
+    await db.login_history.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user["id"], "ip": ip,
+        "user_agent": ua, "device_name": inp.device_name or ua[:80],
+        "created_at": now_iso(), "success": True,
+    })
+    await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen": now_iso(), "online": True}})
+    return {"token": token, "user": clean(dict(user)), "session_id": session_id, "remember_me": inp.remember_me}
 
 
 @api_router.get("/auth/me")
@@ -1598,9 +1654,14 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
 
     total_requests = await db.applications.count_documents({})
     pending_verification = await db.users.count_documents({"role": "agent", "agent_approved": False})
-    
-    # Mock some data for Logins, Registrations, etc.
-    import random
+
+    now = datetime.now(timezone.utc)
+    day_ago = (now - timedelta(days=1)).isoformat()
+    month_ago = (now - timedelta(days=30)).isoformat()
+    dau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": day_ago}, "success": True})
+    mau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": month_ago}, "success": True})
+    logins_today = len([x for x in dau_ids if x])
+    new_registrations = await db.users.count_documents({"created_at": {"$gte": day_ago}})
     
     return {
         "users": {
@@ -1612,7 +1673,7 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
             "total": total_campaigns,
             "active": active_campaigns,
             "completed": completed_campaigns,
-            "pending_approval": 0
+            "pending_approval": await db.posts.count_documents({"status": "pending_approval"}),
         },
         "financial": {
             "total_payments": total_payments,
@@ -1626,9 +1687,13 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
             "verification_requests": pending_verification
         },
         "platform": {
-            "logins_today": random.randint(100, 500),
-            "new_registrations": random.randint(5, 50),
-            "active_users": random.randint(50, 300)
+            "logins_today": logins_today,
+            "new_registrations": new_registrations,
+            "active_users": logins_today,
+            "dau": logins_today,
+            "mau": len([x for x in mau_ids if x]),
+            "open_reports": await db.reports.count_documents({"status": "open"}),
+            "published_posts": await db.posts.count_documents({"status": "published"}),
         }
     }
 
@@ -2254,7 +2319,9 @@ async def send_message(conversation_id: str, inp: MessageCreate, current: dict =
     doc = {
         "id": str(uuid.uuid4()), "conversation_id": conversation_id, "sender_id": current["id"],
         "sender_name": current["name"], "sender_role": current["role"],
-        "content": inp.content, "created_at": now_iso(),
+        "content": inp.content or "", "media_url": inp.media_url, "media_type": inp.media_type,
+        "reply_to_id": inp.reply_to_id, "created_at": now_iso(),
+        "read_by": [current["id"]], "edited": False, "deleted": False,
     }
     await db.messages.insert_one(doc)
     await db.conversations.update_one({"id": conversation_id}, {"$set": {"last_at": now_iso()}})
@@ -2701,13 +2768,15 @@ async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_
 
 # ---------- Uploads ----------
 ALLOWED_IMAGE = {"image/jpeg", "image/png", "image/webp", "image/gif"}
-MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # 8 MB
+ALLOWED_VIDEO = {"video/mp4", "video/webm", "video/quicktime"}
+ALLOWED_UPLOAD = ALLOWED_IMAGE | ALLOWED_VIDEO
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB (images + short video)
 
 
 @api_router.post("/uploads")
 async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_current_user)):
-    if file.content_type not in ALLOWED_IMAGE:
-        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif allowed")
+    if file.content_type not in ALLOWED_UPLOAD:
+        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif/mp4/webm allowed")
     ext = mimetypes.guess_extension(file.content_type) or ".bin"
     fid = f"{uuid.uuid4().hex}{ext}"
     dest = UPLOAD_DIR / fid
@@ -2718,9 +2787,10 @@ async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_
             if size > MAX_UPLOAD_BYTES:
                 await f.close()
                 dest.unlink(missing_ok=True)
-                raise HTTPException(status_code=413, detail="File too large (max 8MB)")
+                raise HTTPException(status_code=413, detail="File too large (max 50MB)")
             await f.write(chunk)
-    return {"id": fid, "url": f"/api/uploads/{fid}"}
+    media_type = "video" if file.content_type in ALLOWED_VIDEO else "image"
+    return {"id": fid, "url": f"/api/uploads/{fid}", "media_type": media_type, "size": size}
 
 
 @api_router.get("/uploads/{file_id}")
@@ -2981,8 +3051,8 @@ async def forgot_password(inp: PasswordResetRequest):
     if user:
         token = uuid.uuid4().hex
         _reset_tokens[token] = {"user_id": user["id"], "expires_at": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()}
-        base = os.environ.get("FRONTEND_URL", "https://owner-creator.emergent.host")
-        link = f"{base}/reset-password?token={token}"
+        base = os.environ.get("FRONTEND_URL", "https://naresh-palle.github.io/Project2-Social")
+        link = f"{base}/#/reset-password?token={token}"
         asyncio.create_task(send_email(
             user["email"],
             "CR8 — reset your password",
@@ -3391,6 +3461,8 @@ async def on_startup():
     await db.contracts.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
     await seed_admin()
     await seed_demo()
+    if _phase1_ensure_indexes:
+        await _phase1_ensure_indexes()
     logger.info("CR8 API ready.")
 
 
@@ -3405,6 +3477,30 @@ app.add_middleware(
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# ---------- Phase 1 social / platform features (register BEFORE include_router) ----------
+from phase1_features import setup_phase1  # noqa: E402
+
+_phase1_ensure_indexes = setup_phase1(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    clean=clean,
+    now_iso=now_iso,
+    hash_password=hash_password,
+    verify_password=verify_password,
+    create_access_token=create_access_token,
+    push_notification=push_notification,
+    send_email=send_email,
+    email_template=email_template,
+    sse_publish=sse_publish,
+    UPLOAD_DIR=UPLOAD_DIR,
+    JWT_SECRET=JWT_SECRET,
+    JWT_ALGORITHM=JWT_ALGORITHM,
+    logger=logger,
+    call_llm=call_llm,
 )
 
 app.include_router(api_router)

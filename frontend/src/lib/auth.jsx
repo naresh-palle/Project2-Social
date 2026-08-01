@@ -3,7 +3,32 @@ import { api, formatApiError } from "./api";
 
 const AuthCtx = createContext(null);
 
-const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes idle timeout
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+
+export function applyUserSettings(user) {
+  const root = document.documentElement;
+  const theme = user?.theme || localStorage.getItem("cr8_theme") || "dark";
+  const highContrast = Boolean(
+    user?.high_contrast ?? localStorage.getItem("cr8_high_contrast") === "true"
+  );
+  const fontScale = Number(user?.font_scale || localStorage.getItem("cr8_font_scale") || 1);
+
+  root.classList.remove("theme-light", "theme-dark", "high-contrast");
+  if (theme === "light") root.classList.add("theme-light");
+  else if (theme === "dark") root.classList.add("theme-dark");
+  else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+    root.classList.add("theme-light");
+  } else {
+    root.classList.add("theme-dark");
+  }
+
+  if (highContrast) root.classList.add("high-contrast");
+  root.style.fontSize = `${Math.min(1.5, Math.max(0.85, fontScale)) * 100}%`;
+
+  if (user?.theme) localStorage.setItem("cr8_theme", user.theme);
+  localStorage.setItem("cr8_high_contrast", String(highContrast));
+  localStorage.setItem("cr8_font_scale", String(fontScale));
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -16,24 +41,29 @@ export function AuthProvider({ children }) {
       setLoading(false);
       return;
     }
-    // Use cached user immediately so dashboard shows instantly
     const cachedUser = localStorage.getItem("cr8_user");
     if (cachedUser) {
-      try { setUser(JSON.parse(cachedUser)); } catch {}
+      try {
+        const parsed = JSON.parse(cachedUser);
+        setUser(parsed);
+        applyUserSettings(parsed);
+      } catch {}
     }
     try {
       const { data } = await api.get("/auth/me");
       localStorage.setItem("cr8_user", JSON.stringify(data));
       setUser(data);
+      applyUserSettings(data);
+      try {
+        const { data: settings } = await api.get("/settings");
+        applyUserSettings({ ...data, ...settings });
+      } catch {}
     } catch (e) {
-      // Only log out on explicit 401 (invalid/expired token)
-      // Network errors (backend sleeping/cold start) should NOT log the user out
       if (e?.response?.status === 401) {
         localStorage.removeItem("cr8_token");
         localStorage.removeItem("cr8_user");
         setUser(null);
       }
-      // Otherwise keep the cached user — backend may just be waking up
     } finally {
       setLoading(false);
     }
@@ -44,17 +74,16 @@ export function AuthProvider({ children }) {
   }, [refresh]);
 
   const logout = useCallback(() => {
+    api.post("/auth/presence", { online: false }).catch(() => {});
     localStorage.removeItem("cr8_token");
     localStorage.removeItem("cr8_user");
     setUser(null);
   }, []);
 
-  // 30-Minute Inactivity / Idle Auto-Logout Listener
   useEffect(() => {
     if (!user) return;
 
     let idleTimer;
-
     const resetIdleTimer = () => {
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
@@ -65,34 +94,76 @@ export function AuthProvider({ children }) {
     };
 
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
-    events.forEach(ev => window.addEventListener(ev, resetIdleTimer));
-
-    resetIdleTimer(); // Initialize timer
+    events.forEach((ev) => window.addEventListener(ev, resetIdleTimer));
+    resetIdleTimer();
 
     return () => {
       if (idleTimer) clearTimeout(idleTimer);
-      events.forEach(ev => window.removeEventListener(ev, resetIdleTimer));
+      events.forEach((ev) => window.removeEventListener(ev, resetIdleTimer));
     };
   }, [user, logout]);
 
-  const login = async (identifier, password) => {
+  // Presence heartbeat every 60s when logged in
+  useEffect(() => {
+    if (!user) return;
+    const beat = () => {
+      api.post("/auth/presence", { online: true }).catch(() => {});
+    };
+    beat();
+    const interval = setInterval(beat, 60_000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const storeSession = (data, rememberMe) => {
+    localStorage.setItem("cr8_token", data.token);
+    localStorage.setItem("cr8_user", JSON.stringify(data.user));
+    localStorage.setItem("cr8_remember_me", rememberMe ? "true" : "false");
+    setUser(data.user);
+    applyUserSettings(data.user);
+  };
+
+  const login = async (identifier, password, opts = {}) => {
+    const { remember_me = false, totp_code } = opts;
     try {
-      const { data } = await api.post("/auth/login", { identifier, password });
-      localStorage.setItem("cr8_token", data.token);
-      localStorage.setItem("cr8_user", JSON.stringify(data.user));
-      setUser(data.user);
+      const { data } = await api.post("/auth/login", {
+        identifier,
+        password,
+        remember_me,
+        totp_code: totp_code || undefined,
+      });
+      if (data.requires_2fa) {
+        return { ok: false, requires_2fa: true };
+      }
+      storeSession(data, remember_me);
       return { ok: true, user: data.user };
     } catch (e) {
       return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
     }
   };
 
+  const appleLogin = async (identityToken, opts = {}) => {
+    const { remember_me = false } = opts;
+    try {
+      const { data } = await api.post("/auth/apple-login", {
+        identity_token: identityToken,
+        remember_me,
+      });
+      storeSession(data, remember_me);
+      return { ok: true, user: data.user };
+    } catch (e) {
+      return {
+        ok: false,
+        error: formatApiError(e.response?.data?.detail) || e.message,
+        status: e.response?.status,
+        notRegistered: e.response?.status === 404,
+      };
+    }
+  };
+
   const googleLogin = async (credential) => {
     try {
       const { data } = await api.post("/auth/google-login", { credential });
-      localStorage.setItem("cr8_token", data.token);
-      localStorage.setItem("cr8_user", JSON.stringify(data.user));
-      setUser(data.user);
+      storeSession(data, false);
       return { ok: true, user: data.user };
     } catch (e) {
       return {
@@ -107,9 +178,7 @@ export function AuthProvider({ children }) {
   const register = async (payload) => {
     try {
       const { data } = await api.post("/auth/register", payload);
-      localStorage.setItem("cr8_token", data.token);
-      localStorage.setItem("cr8_user", JSON.stringify(data.user));
-      setUser(data.user);
+      storeSession(data, false);
       return { ok: true, user: data.user };
     } catch (e) {
       return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
@@ -119,9 +188,7 @@ export function AuthProvider({ children }) {
   const firebaseRegister = async (payload) => {
     try {
       const { data } = await api.post("/auth/firebase-register", payload);
-      localStorage.setItem("cr8_token", data.token);
-      localStorage.setItem("cr8_user", JSON.stringify(data.user));
-      setUser(data.user);
+      storeSession(data, false);
       return { ok: true, user: data.user };
     } catch (e) {
       return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
@@ -131,9 +198,7 @@ export function AuthProvider({ children }) {
   const mobileRegister = async (payload) => {
     try {
       const { data } = await api.post("/auth/mobile-register", payload);
-      localStorage.setItem("cr8_token", data.token);
-      localStorage.setItem("cr8_user", JSON.stringify(data.user));
-      setUser(data.user);
+      storeSession(data, false);
       return { ok: true, user: data.user };
     } catch (e) {
       return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
@@ -141,7 +206,21 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthCtx.Provider value={{ user, loading, login, googleLogin, register, firebaseRegister, mobileRegister, logout, refresh }}>
+    <AuthCtx.Provider
+      value={{
+        user,
+        loading,
+        login,
+        appleLogin,
+        googleLogin,
+        register,
+        firebaseRegister,
+        mobileRegister,
+        logout,
+        refresh,
+        applyUserSettings,
+      }}
+    >
       {children}
     </AuthCtx.Provider>
   );

@@ -39,6 +39,7 @@ export default function ProfileEdit() {
   const [aiBusy, setAiBusy] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
   const avatarRef = useRef(null);
+  const coverRef = useRef(null);
   const portfolioRef = useRef(null);
 
   useEffect(() => {
@@ -70,6 +71,10 @@ export default function ProfileEdit() {
         industry: user.industry || "",
         website: user.website || "",
         agent_type: user.agent_type || "company_agent",
+        cover_photo: user.cover_photo || "",
+        date_of_birth: user.date_of_birth || "",
+        gender: user.gender || "",
+        is_private: user.is_private || false,
       });
     }
   }, [user]);
@@ -137,6 +142,12 @@ export default function ProfileEdit() {
   const onAvatarPick = async (e) => {
     const url = await uploadImage(e.target.files?.[0]);
     if (url) { setF({ ...f, avatar: url }); toast.success("Avatar uploaded."); }
+    e.target.value = "";
+  };
+
+  const onCoverPick = async (e) => {
+    const url = await uploadImage(e.target.files?.[0]);
+    if (url) { setF({ ...f, cover_photo: url }); toast.success("Cover photo uploaded."); }
     e.target.value = "";
   };
 
@@ -432,6 +443,43 @@ export default function ProfileEdit() {
                   </button>
                 </div>
               </F>
+              <F label="Cover Photo">
+                <div className="mt-2 space-y-2">
+                  {f.cover_photo && (
+                    <img src={f.cover_photo} alt="Cover" className="w-full h-32 object-cover border border-white/20 rounded-xs" />
+                  )}
+                  <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
+                  <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2 text-xs flex items-center gap-2">
+                    <Upload className="w-4 h-4" /> Upload Cover
+                  </button>
+                </div>
+              </F>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <F label="Date of Birth">
+                  <input type="date" className="inp" value={f.date_of_birth || ""} onChange={(e) => setF({ ...f, date_of_birth: e.target.value })} />
+                </F>
+                <F label="Gender">
+                  <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                    <option value="" className="bg-[#0B0B0E]">Prefer not to say</option>
+                    <option value="female" className="bg-[#0B0B0E]">Female</option>
+                    <option value="male" className="bg-[#0B0B0E]">Male</option>
+                    <option value="non-binary" className="bg-[#0B0B0E]">Non-binary</option>
+                    <option value="other" className="bg-[#0B0B0E]">Other</option>
+                  </select>
+                </F>
+              </div>
+              <label className="flex items-center justify-between py-3 border border-white/10 px-4 rounded-xs cursor-pointer">
+                <div>
+                  <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 block">Private Account</span>
+                  <span className="font-mono text-xs opacity-50">Only approved followers see your posts</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={!!f.is_private}
+                  onChange={(e) => setF({ ...f, is_private: e.target.checked })}
+                  className="accent-[#FF3B30] w-5 h-5"
+                />
+              </label>
           </section>
 
           {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}

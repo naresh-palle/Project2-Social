@@ -41,9 +41,13 @@ export default function CreatorDetail() {
   );
   if (!creator) return null;
 
-  const handleMessage = () => {
-    // Nav to messages with pre-selected user. (Stubbed)
-    nav(`/messages?compose=${creator.id}`);
+  const handleMessage = async () => {
+    try {
+      const { data } = await api.post("/conversations/dm", { user_id: creator.id });
+      nav(`/messages?id=${data.id}`);
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Could not open conversation");
+    }
   };
 
   const getFilteredChartData = () => {
