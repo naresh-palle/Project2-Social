@@ -85,12 +85,16 @@ def now_iso() -> str:
 _brevo_account_email: Optional[str] = None
 
 async def get_brevo_verified_sender(api_key: str) -> str:
+    """Resolve a Brevo-safe sender. Prefer explicit BREVO_SENDER_EMAIL, then Brevo account email.
+    Do NOT use GMAIL_USER as Brevo sender — Gmail addresses are usually unverified in Brevo.
+    """
     global _brevo_account_email
     if _brevo_account_email:
         return _brevo_account_email
 
-    configured = (os.environ.get("BREVO_SENDER_EMAIL") or os.environ.get("EMAIL_USER") or os.environ.get("GMAIL_USER") or "").strip()
-    if configured and "@" in configured and not configured.endswith("@cr8.studio"):
+    # Only use a sender that was explicitly configured for Brevo
+    configured = (os.environ.get("BREVO_SENDER_EMAIL") or "").strip()
+    if configured and "@" in configured:
         return configured
 
     try:
@@ -103,16 +107,22 @@ async def get_brevo_verified_sender(api_key: str) -> str:
                     _brevo_account_email = acc_email
                     logger.info("Brevo account email auto-detected: %s", acc_email)
                     return acc_email
+            else:
+                logger.warning("Brevo account lookup status %s: %s", r.status_code, r.text[:200])
     except Exception as e:
         logger.warning("Brevo account info lookup failed: %s", e)
 
-    return configured or "onboarding@resend.dev"
+    # Last resort — Brevo free accounts can often send from their login email only
+    return configured or "noreply@cr8.studio"
 
 
-async def send_email(to: str, subject: str, html: str) -> None:
-    """Delivers email via Brevo HTTP API, Resend HTTP API, Gmail SMTP, or Emergent HTTP proxy."""
-    
-    # 1. Brevo (Sendinblue) HTTP API (300 free transactional emails/day over HTTPS)
+async def send_email(to: str, subject: str, html: str) -> bool:
+    """Delivers email via Brevo → Resend → Gmail SMTP → Emergent.
+    Returns True only when a provider confirms delivery; never silently succeeds.
+    """
+    errors = []
+
+    # 1. Brevo (Sendinblue) HTTP API
     brevo_api_key = (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
     if brevo_api_key:
         try:
@@ -135,13 +145,15 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if res.status_code in (200, 201):
                     logger.info("Email sent successfully via Brevo HTTP API (Sender: %s) to %s", sender_email, to)
-                    return
-                else:
-                    logger.warning("Brevo HTTP API error status %s: %s", res.status_code, res.text)
+                    return True
+                err = f"Brevo {res.status_code}: {res.text[:300]}"
+                errors.append(err)
+                logger.warning("Brevo HTTP API error: %s", err)
         except Exception as e:
+            errors.append(f"Brevo exception: {e}")
             logger.warning("Brevo HTTP API exception: %s", e)
 
-    # 2. Resend HTTP API (100 free emails/day over HTTPS)
+    # 2. Resend HTTP API
     resend_api_key = (os.environ.get("RESEND_API_KEY") or "").strip()
     if resend_api_key:
         try:
@@ -162,13 +174,15 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if res.status_code in (200, 201):
                     logger.info("Email sent successfully via Resend HTTP API to %s", to)
-                    return
-                else:
-                    logger.warning("Resend HTTP API error %s: %s", res.status_code, res.text)
+                    return True
+                err = f"Resend {res.status_code}: {res.text[:300]}"
+                errors.append(err)
+                logger.warning("Resend HTTP API error: %s", err)
         except Exception as e:
+            errors.append(f"Resend exception: {e}")
             logger.warning("Resend HTTP API exception: %s", e)
 
-    # 3. Gmail SMTP Fallback
+    # 3. Gmail SMTP Fallback (often blocked on Render free tier)
     gmail_user = (os.environ.get("GMAIL_USER") or os.environ.get("EMAIL_USER") or "").strip()
     gmail_pass = (os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("EMAIL_PASS") or "").strip()
     if gmail_user and gmail_pass:
@@ -177,14 +191,14 @@ async def send_email(to: str, subject: str, html: str) -> None:
             import smtplib
             from email.mime.text import MIMEText
             from email.mime.multipart import MIMEMultipart
-            
+
             from_header = os.environ.get("EMAIL_FROM", f"CR8 Studio <{gmail_user}>")
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = from_header
             msg["To"] = to
             msg.attach(MIMEText(html, "html"))
-            
+
             def _send():
                 try:
                     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as s:
@@ -196,11 +210,12 @@ async def send_email(to: str, subject: str, html: str) -> None:
                         s.starttls()
                         s.login(gmail_user, gmail_pass_clean)
                         s.sendmail(gmail_user, [to], msg.as_string())
-            
+
             await asyncio.to_thread(_send)
             logger.info("Email sent via Gmail SMTP to %s", to)
-            return
+            return True
         except Exception as e:
+            errors.append(f"Gmail SMTP failed: {e}")
             logger.warning("Gmail SMTP delivery failed for %s: %s", to, e)
 
     if EMERGENT_EMAIL_KEY:
@@ -213,13 +228,33 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if r.status_code < 400:
                     logger.info("Email sent via Emergent proxy to %s", to)
-                    return
-                else:
-                    logger.warning("Email send failed %s: %s", r.status_code, r.text[:200])
+                    return True
+                err = f"Emergent {r.status_code}: {r.text[:200]}"
+                errors.append(err)
+                logger.warning("Email send failed: %s", err)
         except Exception as e:
+            errors.append(f"Emergent exception: {e}")
             logger.warning("Emergent email exception: %s", e)
 
-    logger.info("Email delivery simulated (no active email credentials configured): %s -> %s", subject, to)
+    if not errors and not brevo_api_key and not gmail_user:
+        logger.error("Email delivery failed: no BREVO_API_KEY / GMAIL credentials configured")
+        return False
+
+    logger.error("Email delivery failed for %s. Attempts: %s", to, " | ".join(errors) or "no providers")
+    return False
+
+
+async def send_email_or_raise(to: str, subject: str, html: str) -> None:
+    ok = await send_email(to, subject, html)
+    if not ok:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Could not deliver email OTP. Check Brevo: verify a sender email in Brevo dashboard "
+                "and set BREVO_SENDER_EMAIL to that address. Gmail SMTP is often blocked on Render — "
+                "prefer Brevo HTTP API."
+            ),
+        )
 
 
 def email_template(headline: str, body_html: str, cta_url: Optional[str] = None, cta_label: Optional[str] = None) -> str:
@@ -583,7 +618,7 @@ class GmailEmailProvider(EmailProvider):
           </div>
         </div>
         """
-        await send_email(to, "Verify your email address - CR8 Studio", html_content)
+        await send_email_or_raise(to, "Verify your email address - CR8 Studio", html_content)
 
 class Fast2SMSSmsProvider(SmsProvider):
     async def send_sms_otp(self, mobile: str, otp: str) -> None:
@@ -654,11 +689,12 @@ async def email_send_otp(inp: OTPRequest):
         "created_at": now_utc.isoformat(),
         "expires_at": expires_at.isoformat()
     }
-    
+
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+
     await db.otps.update_one({"email": email}, {"$set": doc}, upsert=True)
     _otp_store[email] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
 
-    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
     return {"ok": True, "message": f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
 
 
@@ -780,6 +816,33 @@ async def mobile_verify_otp(inp: OTPVerify):
 
 
 # Backward Compatible Unified Send & Verify Routes
+@api_router.get("/auth/email/status")
+async def email_provider_status():
+    """Safe diagnostics — no secrets. Use to verify Render env + Brevo sender setup."""
+    brevo_key = bool((os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip())
+    brevo_sender = (os.environ.get("BREVO_SENDER_EMAIL") or "").strip()
+    gmail = bool((os.environ.get("GMAIL_USER") or "").strip() and (os.environ.get("GMAIL_APP_PASSWORD") or "").strip())
+    detected = None
+    if brevo_key:
+        try:
+            detected = await get_brevo_verified_sender(
+                (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
+            )
+        except Exception as e:
+            detected = f"error: {e}"
+    return {
+        "brevo_api_key": brevo_key,
+        "brevo_sender_email_env": brevo_sender or None,
+        "brevo_sender_resolved": detected,
+        "gmail_smtp_configured": gmail,
+        "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
+        "hint": (
+            "Set BREVO_SENDER_EMAIL to a sender verified in Brevo (Senders & IPs). "
+            "Gmail SMTP is often blocked on Render — Brevo HTTP API is preferred."
+        ),
+    }
+
+
 @api_router.post("/auth/send-otp")
 async def send_otp(inp: OTPRequest):
     if inp.email:
@@ -966,18 +1029,18 @@ async def register_send_otp(inp: OTPRequest):
         "expires_at": expires_at.isoformat(),
     }
 
+    # Deliver first — only persist OTP if email actually sends
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+    channels = [f"email ({email})"]
+
+    if os.environ.get("FAST2SMS_API_KEY"):
+        await sms_provider.send_sms_otp(mobile, otp_code)
+        channels.append(f"SMS (+91 {mobile})")
+
     await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
     await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
     _otp_store[email] = {**shared, "expires_at": expires_at}
     _otp_store[mobile] = {**shared, "expires_at": expires_at}
-
-    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
-    channels = [f"email ({email})"]
-
-    # Optional SMS when Fast2SMS is configured
-    if os.environ.get("FAST2SMS_API_KEY"):
-        await sms_provider.send_sms_otp(mobile, otp_code)
-        channels.append(f"SMS (+91 {mobile})")
 
     return {
         "ok": True,
