@@ -96,11 +96,18 @@ Hive boxes cache feed / profile / conversations. Failed posts/messages can be en
 
 ## Release notes
 
-### Android
+### Android / Play Store
 
-1. Create a release keystore and configure `android/key.properties` (do not commit secrets)
-2. `flutter build appbundle --release --dart-define=API_BASE=...`
-3. Manifest includes `INTERNET`; package / application id: `studio.cr8.cr8_mobile`
+Full checklist of **what you must provide** + Console steps: [`docs/PLAY_STORE_PUBLISH.md`](docs/PLAY_STORE_PUBLISH.md)
+
+```bash
+cd mobile/android && bash scripts/create_upload_keystore.sh   # once
+# edit android/key.properties with your passwords
+cd .. && flutter build appbundle --release --dart-define=API_BASE=https://project2-social.onrender.com/api
+# upload build/app/outputs/bundle/release/app-release.aab in Play Console
+```
+
+Application id: `studio.cr8.cr8_mobile`. Manifest includes `INTERNET` + `cr8://` deep links.
 
 ### iOS (macOS)
 

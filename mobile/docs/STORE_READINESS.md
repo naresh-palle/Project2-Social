@@ -2,11 +2,15 @@
 
 ## Android (Play Console)
 
-- [ ] Create upload keystore; keep `android/key.properties` local (never commit)
-- [ ] Set `applicationId` / version in `android/app/build.gradle(.kts)` (`studio.cr8.cr8_mobile`)
-- [ ] Configure Google Sign-In SHA-1 / SHA-256 for release + debug
-- [ ] Privacy policy URL (same as web Legal)
-- [ ] Build: `flutter build appbundle --release --dart-define=API_BASE=https://project2-social.onrender.com/api`
+See **[PLAY_STORE_PUBLISH.md](PLAY_STORE_PUBLISH.md)** for the full “what to provide” list and upload steps.
+
+- [ ] Play Console developer account (\$25)
+- [ ] Create upload keystore: `bash android/scripts/create_upload_keystore.sh`
+- [ ] Fill `android/key.properties` (never commit; template: `key.properties.example`)
+- [ ] Store listing assets (icon 512, feature 1024×500, ≥2 screenshots, descriptions, privacy URL)
+- [ ] Add release SHA-1 / SHA-256 to Google Sign-In OAuth client
+- [ ] `flutter build appbundle --release --dart-define=API_BASE=https://project2-social.onrender.com/api`
+- [ ] Upload `.aab` → Internal testing → Production
 - [ ] Smoke-test: login, marketplace apply, DM send, profile upload on a physical device
 
 ## iOS (App Store Connect)
