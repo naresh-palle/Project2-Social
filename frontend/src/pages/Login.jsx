@@ -21,8 +21,6 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(localStorage.getItem("cr8_remember_me") === "true");
   const [requires2fa, setRequires2fa] = useState(false);
   const [totpCode, setTotpCode] = useState("");
-  const [appleToken, setAppleToken] = useState("");
-  const [showAppleFallback, setShowAppleFallback] = useState(false);
   const [mobile, setMobile] = useState(location.state?.mobile || "");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -83,23 +81,19 @@ export default function Login() {
         const token = res?.authorization?.id_token;
         if (!token) {
           setLoading(false);
-          setErr("Apple sign-in did not return a token");
+          toast.message("Apple Sign In", { description: "In progress — please use Google or password for now." });
           return;
         }
         await finishAppleLogin(token);
       } catch (err) {
         setLoading(false);
         if (err?.error !== "popup_closed_by_user") {
-          setShowAppleFallback(true);
-          setErr("Apple Sign In needs Apple Developer setup. You can still use Google or password.");
+          toast.message("Apple Sign In", { description: "In progress — please use Google or password for now." });
         }
       }
       return;
     }
-    setShowAppleFallback(true);
-    toast.message("Apple button is ready", {
-      description: "Apple Developer Client ID is not configured yet. Use Google / password, or paste a test token below.",
-    });
+    toast.message("Apple Sign In", { description: "In progress — please use Google or password for now." });
   };
 
   const handleGoogleCredential = async (credential) => {
@@ -134,13 +128,6 @@ export default function Login() {
       setLoading(false);
       setErr("Failed to verify Google sign in");
     }
-  };
-
-  const submitAppleToken = async () => {
-    if (!appleToken.trim()) return;
-    setLoading(true);
-    setErr("");
-    await finishAppleLogin(appleToken.trim());
   };
 
   const [resendTimer, setResendTimer] = useState(0);
@@ -279,23 +266,6 @@ export default function Login() {
                   onGoogleError={() => setErr("Google Sign In Failed")}
                   onAppleClick={handleAppleSignIn}
                 />
-                {showAppleFallback && (
-                  <div className="w-full max-w-sm mx-auto p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
-                    <p className="font-mono text-[10px] opacity-60">
-                      Apple JS SDK not configured. Paste an Apple identity token to test API login:
-                    </p>
-                    <textarea
-                      value={appleToken}
-                      onChange={(e) => setAppleToken(e.target.value)}
-                      rows={2}
-                      className="w-full bg-black/60 border border-white/20 p-2 font-mono text-[10px] rounded-xs"
-                      placeholder="Apple identity token…"
-                    />
-                    <button type="button" onClick={submitAppleToken} className="font-mono text-[10px] uppercase text-[#FF3B30]">
-                      Test Apple Login
-                    </button>
-                  </div>
-                )}
                 <div className="flex items-center gap-4 opacity-50">
                   <div className="h-px bg-[#F4F4F0]/20 flex-1" />
                   <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>

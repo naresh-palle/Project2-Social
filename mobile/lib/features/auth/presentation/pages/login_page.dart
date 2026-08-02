@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -98,44 +97,8 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
   }
 
   Future<void> _apple() async {
-    try {
-      setState(() => _busy = true);
-      final cred = await SignInWithApple.getAppleIDCredential(scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ]);
-      final token = cred.identityToken;
-      if (token == null) {
-        if (mounted) {
-          setState(() => _busy = false);
-          showCr8Snack(context, 'Apple did not return a token', error: true);
-        }
-        return;
-      }
-      final ok = await ref.read(authProvider.notifier).apple(token, rememberMe: _remember);
-      if (!mounted) return;
-      setState(() => _busy = false);
-      if (ok) {
-        context.go('/dashboard');
-      } else {
-        final err = ref.read(authProvider).error ?? '';
-        if (err.toLowerCase().contains('no account') || err.contains('404')) {
-          context.push('/register', extra: {
-            'email': cred.email,
-            'firstName': cred.givenName,
-            'lastName': cred.familyName,
-            'fromApple': true,
-          });
-        } else {
-          showCr8Snack(context, err, error: true);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _busy = false);
-        showCr8Snack(context, 'Apple Sign In unavailable: $e', error: true);
-      }
-    }
+    // Apple Sign In is not fully configured for this build yet.
+    showCr8Snack(context, 'Apple Sign In is in progress — use Google or password for now.');
   }
 
   Future<void> _sendOtp() async {
@@ -301,7 +264,12 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Apple Sign In · In progress',
+                                  style: TextStyle(fontSize: 11, color: Colors.white54, letterSpacing: 1.2),
+                                ),
+                                const SizedBox(height: 12),
                                 const Divider(),
                                 TextField(controller: _id, decoration: const InputDecoration(labelText: 'Email or Username')),
                                 TextField(

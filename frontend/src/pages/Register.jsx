@@ -115,7 +115,7 @@ export default function Register() {
         const res = await window.AppleID.auth.signIn();
         const token = res?.authorization?.id_token;
         if (!token) {
-          setErr("Apple did not return a token");
+          toast.message("Apple Sign In", { description: "In progress — please use Google or fill the form manually." });
           setAppleBusy(false);
           return;
         }
@@ -127,16 +127,14 @@ export default function Register() {
         applySocialPrefill(email, firstName, lastName, "Apple");
       } catch (err) {
         if (err?.error !== "popup_closed_by_user") {
-          setErr("Apple Sign In needs Apple Developer setup. Fill the form manually or use Google.");
+          toast.message("Apple Sign In", { description: "In progress — please use Google or fill the form manually." });
         }
       } finally {
         setAppleBusy(false);
       }
       return;
     }
-    toast.message("Continue with Apple", {
-      description: "Apple Developer Client ID is not configured yet. Use Google or fill the form manually.",
-    });
+    toast.message("Apple Sign In", { description: "In progress — please use Google or fill the form manually." });
   };
 
   const handleGoogleCredential = (credential) => {

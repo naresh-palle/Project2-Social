@@ -74,6 +74,9 @@ export function SocialAuthButtons({
           <span>Apple</span>
         </button>
       </div>
+      <p className="mt-2 text-center font-mono text-[10px] tracking-widest uppercase text-white/40">
+        Apple Sign In · In progress
+      </p>
     </div>
   );
 }
