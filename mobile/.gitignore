@@ -44,6 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Local / cloud APK drop folder (do not commit binaries)
+/dist/
+*.apk
+*.aab
+
 # Release signing — never commit secrets or keystores
 /android/key.properties
 /android/*.jks
