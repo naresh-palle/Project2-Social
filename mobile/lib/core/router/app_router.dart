@@ -23,6 +23,8 @@ import '../../features/settings/presentation/pages/legal_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../widgets/app_widgets.dart';
+import '../widgets/studio_backdrop.dart';
+import '../theme/app_theme.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
 final scaffoldKeyProvider = Provider<GlobalKey<ScaffoldState>>((_) => GlobalKey<ScaffoldState>());
@@ -135,68 +137,141 @@ class _AuthListenable extends ChangeNotifier {
   final Ref ref;
 }
 
-class _LandingPage extends ConsumerWidget {
+class _LandingPage extends ConsumerStatefulWidget {
   const _LandingPage();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _intro;
+
+  @override
+  void initState() {
+    super.initState();
+    _intro = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600))..forward();
+  }
+
+  @override
+  void dispose() {
+    _intro.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     if (auth.loading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: ColoredBox(
+          color: Color(0xFF0A0A0A),
+          child: Center(child: CircularProgressIndicator(color: Cr8Colors.accent)),
+        ),
       );
     }
+
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0B0B0E), Color(0xFF1A1214), Color(0xFF0B0B0E)],
-          ),
-        ),
+      body: StudioBackdrop(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'CR8',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        fontStyle: FontStyle.italic,
-                        fontSize: 64,
-                        height: 1,
+                FadeSlideIn(
+                  animation: _intro,
+                  begin: const Offset(0, -0.2),
+                  interval: const Interval(0.15, 0.55, curve: Curves.easeOutCubic),
+                  child: Row(
+                    children: [
+                      Text(
+                        'CR8 × STUDIO',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Cr8Colors.accent,
+                              letterSpacing: 3.2,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
+                      const Spacer(),
+                      Text(
+                        'MOBILE',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Colors.white38,
+                              letterSpacing: 2.2,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
-                Text('STUDIO', style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 6)),
+                const SizedBox(height: 18),
+                FadeSlideIn(
+                  animation: _intro,
+                  interval: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
+                  child: Text(
+                    'CR8',
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 72,
+                          height: 0.95,
+                          color: Cr8Colors.text,
+                        ),
+                  ),
+                ),
+                FadeSlideIn(
+                  animation: _intro,
+                  interval: const Interval(0.32, 0.8, curve: Curves.easeOutCubic),
+                  child: Text(
+                    'STUDIO',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 8, color: Colors.white70),
+                  ),
+                ),
                 const Spacer(),
-                Text(
-                  'Connect brands\nwith creators.',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic, height: 1.2),
+                FadeSlideIn(
+                  animation: _intro,
+                  interval: const Interval(0.4, 0.95, curve: Curves.easeOutCubic),
+                  child: Text(
+                    'Connect brands\nwith creators.',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          height: 1.15,
+                          color: Cr8Colors.text,
+                        ),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Marketplace, campaigns, and collaboration — one studio.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                FadeSlideIn(
+                  animation: _intro,
+                  interval: const Interval(0.48, 1, curve: Curves.easeOutCubic),
+                  child: const Text(
+                    'Marketplace, campaigns, and collaboration — one studio.',
+                    style: TextStyle(color: Colors.white70, height: 1.4),
+                  ),
                 ),
-                const SizedBox(height: 32),
-                Cr8Button(label: 'Sign In', onPressed: () => context.go('/login')),
-                const SizedBox(height: 12),
-                Cr8Button(label: 'Join Studio', onPressed: () => context.go('/register'), outlined: true),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () => context.push('/legal/terms'),
-                      child: const Text('Terms', style: TextStyle(fontSize: 12, color: Colors.white54)),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push('/legal/privacy'),
-                      child: const Text('Privacy', style: TextStyle(fontSize: 12, color: Colors.white54)),
-                    ),
-                  ],
+                const SizedBox(height: 28),
+                FadeSlideIn(
+                  animation: _intro,
+                  interval: const Interval(0.55, 1, curve: Curves.easeOutCubic),
+                  child: Column(
+                    children: [
+                      Cr8Button(label: 'Sign In', onPressed: () => context.go('/login')),
+                      const SizedBox(height: 12),
+                      Cr8Button(label: 'Join Studio', onPressed: () => context.go('/register'), outlined: true),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => context.push('/legal/terms'),
+                            child: const Text('Terms', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/legal/privacy'),
+                            child: const Text('Privacy', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

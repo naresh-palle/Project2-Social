@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/network/cr8_api.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/widgets/studio_backdrop.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterSplashPage extends StatelessWidget {
@@ -12,20 +14,40 @@ class RegisterSplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Join Studio')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Choose your door.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
-            const SizedBox(height: 24),
-            ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
-            const SizedBox(height: 12),
-            OutlinedButton(onPressed: () => context.push('/register/owner'), child: const Text('BRAND OWNER')),
-            const SizedBox(height: 12),
-            TextButton(onPressed: () => context.push('/register/agent'), child: const Text('Talent Agent')),
-          ],
+      backgroundColor: Colors.transparent,
+      body: StudioBackdrop(
+        dim: 0.65,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white70),
+                  ),
+                ),
+                Text(
+                  'CR8 × STUDIO',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent, letterSpacing: 3),
+                ),
+                const SizedBox(height: 12),
+                Text('Choose your door.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
+                const SizedBox(height: 8),
+                const Text('Pick a role to start onboarding.', style: TextStyle(color: Colors.white70)),
+                const Spacer(),
+                ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
+                const SizedBox(height: 12),
+                OutlinedButton(onPressed: () => context.push('/register/owner'), child: const Text('BRAND OWNER')),
+                const SizedBox(height: 12),
+                TextButton(onPressed: () => context.push('/register/agent'), child: const Text('Talent Agent')),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         ),
       ),
     );
