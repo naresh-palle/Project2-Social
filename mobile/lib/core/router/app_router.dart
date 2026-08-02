@@ -33,7 +33,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootKey,
-    initialLocation: '/dashboard',
+    // Unauthenticated users should see the landing/home first (not login).
+    initialLocation: '/',
     refreshListenable: _AuthListenable(ref),
     redirect: (context, state) {
       final loading = auth.loading;
@@ -46,9 +47,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/reset-password') ||
           loc.startsWith('/legal');
 
+      // Stay put while session restore runs (avoids login flash).
       if (loading) return null;
-      if (!loggedIn && !public) return '/login';
-      if (loggedIn && (loc == '/login' || loc == '/')) {
+      // Protected routes → landing (brand home), not straight to login.
+      if (!loggedIn && !public) return '/';
+      if (loggedIn && (loc == '/login' || loc == '/' || loc.startsWith('/register'))) {
         final status = auth.user?.onboardingStatus;
         if (status == null || status == 'pending' || status == '') {
           return '/onboarding/${auth.user?.role ?? 'influencer'}';
@@ -132,27 +135,71 @@ class _AuthListenable extends ChangeNotifier {
   final Ref ref;
 }
 
-class _LandingPage extends StatelessWidget {
+class _LandingPage extends ConsumerWidget {
   const _LandingPage();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    if (auth.loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('CR8', style: Theme.of(context).textTheme.displayLarge?.copyWith(fontStyle: FontStyle.italic)),
-              const Text('Studio'),
-              const Spacer(),
-              Text('Connect brands with creators.', style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 24),
-              Cr8Button(label: 'Sign In', onPressed: () => context.go('/login')),
-              const SizedBox(height: 12),
-              Cr8Button(label: 'Join Studio', onPressed: () => context.go('/register'), outlined: true),
-            ],
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0B0B0E), Color(0xFF1A1214), Color(0xFF0B0B0E)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CR8',
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 64,
+                        height: 1,
+                      ),
+                ),
+                Text('STUDIO', style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 6)),
+                const Spacer(),
+                Text(
+                  'Connect brands\nwith creators.',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic, height: 1.2),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Marketplace, campaigns, and collaboration — one studio.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 32),
+                Cr8Button(label: 'Sign In', onPressed: () => context.go('/login')),
+                const SizedBox(height: 12),
+                Cr8Button(label: 'Join Studio', onPressed: () => context.go('/register'), outlined: true),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () => context.push('/legal/terms'),
+                      child: const Text('Terms', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/legal/privacy'),
+                      child: const Text('Privacy', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
