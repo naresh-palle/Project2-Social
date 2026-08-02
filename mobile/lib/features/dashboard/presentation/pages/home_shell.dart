@@ -55,7 +55,7 @@ class HomeShell extends ConsumerWidget {
                 title: const Text('Sign Out'),
                 onTap: () async {
                   await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) context.go('/login');
+                  if (context.mounted) context.go('/');
                 },
               ),
             ],

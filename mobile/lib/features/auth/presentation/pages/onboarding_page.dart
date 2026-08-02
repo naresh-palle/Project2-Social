@@ -48,6 +48,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       }
       await ref.read(authProvider.notifier).updateProfile(patch);
       if (!mounted) return;
+      // Force completed if API didn't echo status.
+      await ref.read(authProvider.notifier).refresh();
+      if (!mounted) return;
       context.go('/dashboard');
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);

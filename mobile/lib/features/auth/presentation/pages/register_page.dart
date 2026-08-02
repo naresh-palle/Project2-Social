@@ -130,6 +130,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       'role': widget.role,
       'mobile': mobile.text.replaceAll(RegExp(r'\D'), ''),
       'otp': otp.text.trim(),
+      'onboarding_status': 'pending',
       if (widget.role != 'influencer') 'company': company.text.trim(),
       if (widget.role == 'agent') 'agent_type': agentType,
       if (pincode.text.isNotEmpty) 'pincode': pincode.text.trim(),

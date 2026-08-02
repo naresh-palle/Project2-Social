@@ -256,7 +256,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               if (ok == true) {
                 await ref.read(cr8ApiProvider).deleteAccount();
                 await ref.read(authProvider.notifier).logout();
-                if (mounted) context.go('/login');
+                if (mounted) context.go('/');
               }
             },
           ),

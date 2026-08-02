@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/forgot_reset_pages.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/domain/entities/user_entity.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/campaigns/presentation/pages/campaign_detail_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -29,40 +30,58 @@ import '../theme/app_theme.dart';
 final _rootKey = GlobalKey<NavigatorState>();
 final scaffoldKeyProvider = Provider<GlobalKey<ScaffoldState>>((_) => GlobalKey<ScaffoldState>());
 
+/// Where a signed-in user should land.
+/// Only explicit `pending` onboarding redirects to the wizard; otherwise dashboard.
+String postAuthHome(UserEntity? user) {
+  if (user == null) return '/';
+  final status = (user.onboardingStatus ?? '').trim().toLowerCase();
+  if (status == 'pending') {
+    return '/onboarding/${user.role.isEmpty ? 'influencer' : user.role}';
+  }
+  return '/dashboard';
+}
+
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final auth = ref.watch(authProvider);
-  final scaffoldKey = ref.watch(scaffoldKeyProvider);
+  // Do NOT watch auth here — recreating GoRouter resets navigation.
+  final refresh = _AuthListenable(ref);
+  final scaffoldKey = ref.read(scaffoldKeyProvider);
 
   return GoRouter(
     navigatorKey: _rootKey,
-    // Unauthenticated users should see the landing/home first (not login).
-    initialLocation: '/',
-    refreshListenable: _AuthListenable(ref),
+    initialLocation: '/splash',
+    refreshListenable: refresh,
     redirect: (context, state) {
-      final loading = auth.loading;
-      final loggedIn = auth.isAuthenticated;
+      final auth = ref.read(authProvider);
       final loc = state.matchedLocation;
       final public = loc == '/' ||
           loc == '/login' ||
           loc.startsWith('/register') ||
           loc == '/forgot-password' ||
           loc.startsWith('/reset-password') ||
-          loc.startsWith('/legal');
+          loc.startsWith('/legal') ||
+          loc == '/splash';
 
-      // Stay put while session restore runs (avoids login flash).
-      if (loading) return null;
-      // Protected routes → landing (brand home), not straight to login.
-      if (!loggedIn && !public) return '/';
-      if (loggedIn && (loc == '/login' || loc == '/' || loc.startsWith('/register'))) {
-        final status = auth.user?.onboardingStatus;
-        if (status == null || status == 'pending' || status == '') {
-          return '/onboarding/${auth.user?.role ?? 'influencer'}';
-        }
-        return '/dashboard';
+      // Session restore in progress → branded splash (no homepage flash for logged-in users).
+      if (auth.loading) {
+        return loc == '/splash' ? null : '/splash';
+      }
+
+      // Bootstrap done.
+      if (loc == '/splash') {
+        return auth.isAuthenticated ? postAuthHome(auth.user) : '/';
+      }
+
+      if (!auth.isAuthenticated && !public) return '/';
+
+      // Logged-in users hitting marketing/auth entry points → dashboard (every time).
+      if (auth.isAuthenticated &&
+          (loc == '/' || loc == '/login' || loc.startsWith('/register'))) {
+        return postAuthHome(auth.user);
       }
       return null;
     },
     routes: [
+      GoRoute(path: '/splash', builder: (_, __) => const _AuthSplashPage()),
       GoRoute(path: '/', builder: (_, __) => const _LandingPage()),
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
       GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordPage()),
@@ -137,6 +156,41 @@ class _AuthListenable extends ChangeNotifier {
   final Ref ref;
 }
 
+class _AuthSplashPage extends StatelessWidget {
+  const _AuthSplashPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color(0xFF0A0A0A),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'CR8',
+              style: TextStyle(
+                color: Cr8Colors.text,
+                fontSize: 48,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text('STUDIO', style: TextStyle(color: Colors.white54, letterSpacing: 6, fontSize: 12)),
+            SizedBox(height: 28),
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Cr8Colors.accent),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _LandingPage extends ConsumerStatefulWidget {
   const _LandingPage();
 
@@ -161,16 +215,6 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authProvider);
-    if (auth.loading) {
-      return const Scaffold(
-        body: ColoredBox(
-          color: Color(0xFF0A0A0A),
-          child: Center(child: CircularProgressIndicator(color: Cr8Colors.accent)),
-        ),
-      );
-    }
-
     return Scaffold(
       body: StudioBackdrop(
         child: SafeArea(
