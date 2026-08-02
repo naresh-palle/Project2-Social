@@ -15,37 +15,37 @@ class RegisterSplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: StudioBackdrop(
-        dim: 0.65,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () => context.canPop() ? context.pop() : context.go('/'),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white70),
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) cr8Back(context, fallback: '/');
+        },
+        child: StudioBackdrop(
+          dim: 0.32,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Cr8BackButton(fallback: '/'),
+                  Text(
+                    'CR8 × STUDIO',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent, letterSpacing: 3),
                   ),
-                ),
-                Text(
-                  'CR8 × STUDIO',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent, letterSpacing: 3),
-                ),
-                const SizedBox(height: 12),
-                Text('Choose your door.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
-                const SizedBox(height: 8),
-                const Text('Pick a role to start onboarding.', style: TextStyle(color: Colors.white70)),
-                const Spacer(),
-                ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
-                const SizedBox(height: 12),
-                OutlinedButton(onPressed: () => context.push('/register/owner'), child: const Text('BRAND OWNER')),
-                const SizedBox(height: 12),
-                TextButton(onPressed: () => context.push('/register/agent'), child: const Text('Talent Agent')),
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 12),
+                  Text('Choose your door.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
+                  const SizedBox(height: 8),
+                  const Text('Pick a role to start onboarding.', style: TextStyle(color: Colors.white70)),
+                  const Spacer(),
+                  ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
+                  const SizedBox(height: 12),
+                  OutlinedButton(onPressed: () => context.push('/register/owner'), child: const Text('BRAND OWNER')),
+                  const SizedBox(height: 12),
+                  TextButton(onPressed: () => context.push('/register/agent'), child: const Text('Talent Agent')),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
@@ -148,39 +148,48 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final roleLabel = widget.role == 'owner' ? 'Brand' : widget.role == 'agent' ? 'Agent' : 'Creator';
     return Scaffold(
-      appBar: AppBar(title: Text('Register as $roleLabel')),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            TextFormField(controller: firstName, decoration: const InputDecoration(labelText: 'First name'), validator: _req),
-            TextFormField(controller: lastName, decoration: const InputDecoration(labelText: 'Last name'), validator: _req),
-            if (widget.role != 'influencer')
-              TextFormField(controller: company, decoration: InputDecoration(labelText: widget.role == 'owner' ? 'Company' : 'Agency'), validator: _req),
-            if (widget.role == 'agent')
-              DropdownButtonFormField<String>(
-                value: agentType,
-                items: const [
-                  DropdownMenuItem(value: 'company_agent', child: Text('Company Agent')),
-                  DropdownMenuItem(value: 'influencer_agent', child: Text('Influencer Agent')),
-                ],
-                onChanged: (v) => setState(() => agentType = v ?? agentType),
-                decoration: const InputDecoration(labelText: 'Agent type'),
-              ),
-            TextFormField(controller: email, decoration: const InputDecoration(labelText: 'Email'), validator: _req),
-            TextFormField(controller: username, decoration: const InputDecoration(labelText: 'Username'), validator: _req),
-            TextFormField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password'), validator: _req),
-            TextFormField(controller: mobile, keyboardType: TextInputType.phone, maxLength: 10, decoration: const InputDecoration(labelText: 'Mobile', prefixText: '+91 '), validator: _req),
-            TextFormField(controller: pincode, keyboardType: TextInputType.number, maxLength: 6, decoration: const InputDecoration(labelText: 'Pincode (optional)')),
-            const SizedBox(height: 16),
-            Cr8Button(label: 'Continue with OTP', onPressed: _submit, loading: busy && !otpOpen),
-            if (otpOpen) ...[
+      appBar: AppBar(
+        title: Text('Register as $roleLabel'),
+        leading: const Cr8BackButton(fallback: '/register'),
+      ),
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) cr8Back(context, fallback: '/register');
+        },
+        child: Form(
+          key: _form,
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              TextFormField(controller: firstName, decoration: const InputDecoration(labelText: 'First name'), validator: _req),
+              TextFormField(controller: lastName, decoration: const InputDecoration(labelText: 'Last name'), validator: _req),
+              if (widget.role != 'influencer')
+                TextFormField(controller: company, decoration: InputDecoration(labelText: widget.role == 'owner' ? 'Company' : 'Agency'), validator: _req),
+              if (widget.role == 'agent')
+                DropdownButtonFormField<String>(
+                  value: agentType,
+                  items: const [
+                    DropdownMenuItem(value: 'company_agent', child: Text('Company Agent')),
+                    DropdownMenuItem(value: 'influencer_agent', child: Text('Influencer Agent')),
+                  ],
+                  onChanged: (v) => setState(() => agentType = v ?? agentType),
+                  decoration: const InputDecoration(labelText: 'Agent type'),
+                ),
+              TextFormField(controller: email, decoration: const InputDecoration(labelText: 'Email'), validator: _req),
+              TextFormField(controller: username, decoration: const InputDecoration(labelText: 'Username'), validator: _req),
+              TextFormField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password'), validator: _req),
+              TextFormField(controller: mobile, keyboardType: TextInputType.phone, maxLength: 10, decoration: const InputDecoration(labelText: 'Mobile', prefixText: '+91 '), validator: _req),
+              TextFormField(controller: pincode, keyboardType: TextInputType.number, maxLength: 6, decoration: const InputDecoration(labelText: 'Pincode (optional)')),
               const SizedBox(height: 16),
-              TextField(controller: otp, maxLength: 6, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'SMS OTP')),
-              Cr8Button(label: 'Verify & Create Account', onPressed: _verify, loading: busy),
+              Cr8Button(label: 'Continue with OTP', onPressed: _submit, loading: busy && !otpOpen),
+              if (otpOpen) ...[
+                const SizedBox(height: 16),
+                TextField(controller: otp, maxLength: 6, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'SMS OTP')),
+                Cr8Button(label: 'Verify & Create Account', onPressed: _verify, loading: busy),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

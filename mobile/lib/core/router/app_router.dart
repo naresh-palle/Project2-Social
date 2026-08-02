@@ -254,9 +254,9 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.55, 1, curve: Curves.easeOutCubic),
                   child: Column(
                     children: [
-                      Cr8Button(label: 'Sign In', onPressed: () => context.go('/login')),
+                      Cr8Button(label: 'Sign In', onPressed: () => context.push('/login')),
                       const SizedBox(height: 12),
-                      Cr8Button(label: 'Join Studio', onPressed: () => context.go('/register'), outlined: true),
+                      Cr8Button(label: 'Join Studio', onPressed: () => context.push('/register'), outlined: true),
                       const SizedBox(height: 16),
                       Row(
                         children: [

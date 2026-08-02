@@ -222,150 +222,154 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
     final auth = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: StudioBackdrop(
-        dim: 0.7,
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  onPressed: () => context.canPop() ? context.pop() : context.go('/'),
-                  icon: const Icon(Icons.arrow_back, color: Colors.white70),
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          cr8Back(context, fallback: '/');
+        },
+        child: StudioBackdrop(
+          dim: 0.32,
+          child: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+              children: [
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Cr8BackButton(fallback: '/'),
                 ),
-              ),
-              FadeSlideIn(
-                animation: _intro,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Cr8Colors.surface.withValues(alpha: 0.92),
-                    border: Border.all(color: Cr8Colors.hairline),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const StudioAccentBar(),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('§ STUDIO SIGN IN', style: Theme.of(context).textTheme.labelSmall),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Return to the studio.',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ChoiceChip(
-                                    label: const Text('Password'),
-                                    selected: !_otpMode,
-                                    onSelected: (_) => setState(() => _otpMode = false),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: ChoiceChip(
-                                    label: const Text('Mobile OTP'),
-                                    selected: _otpMode,
-                                    onSelected: (_) => setState(() => _otpMode = true),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            if (!_otpMode) ...[
+                FadeSlideIn(
+                  animation: _intro,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Cr8Colors.surface.withValues(alpha: 0.88),
+                      border: Border.all(color: Cr8Colors.hairline),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const StudioAccentBar(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('§ STUDIO SIGN IN', style: Theme.of(context).textTheme.labelSmall),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Return to the studio.',
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic),
+                              ),
+                              const SizedBox(height: 20),
                               Row(
                                 children: [
-                                  _socialButton(
-                                    onTap: _busy ? null : _google,
-                                    background: const Color(0xFF111111),
-                                    foreground: Colors.white,
-                                    icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.white),
-                                    label: 'Google',
+                                  Expanded(
+                                    child: ChoiceChip(
+                                      label: const Text('Password'),
+                                      selected: !_otpMode,
+                                      onSelected: (_) => setState(() => _otpMode = false),
+                                    ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  _socialButton(
-                                    onTap: _busy ? null : _apple,
-                                    background: Colors.white,
-                                    foreground: Colors.black,
-                                    icon: const Icon(Icons.apple, size: 22, color: Colors.black),
-                                    label: 'Apple',
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: ChoiceChip(
+                                      label: const Text('Mobile OTP'),
+                                      selected: _otpMode,
+                                      onSelected: (_) => setState(() => _otpMode = true),
+                                    ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              const Divider(),
-                              TextField(controller: _id, decoration: const InputDecoration(labelText: 'Email or Username')),
-                              TextField(
-                                controller: _password,
-                                obscureText: _obscure,
-                                decoration: InputDecoration(
-                                  labelText: 'Password',
-                                  suffixIcon: IconButton(
-                                    icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                                    onPressed: () => setState(() => _obscure = !_obscure),
+                              if (!_otpMode) ...[
+                                Row(
+                                  children: [
+                                    _socialButton(
+                                      onTap: _busy ? null : _google,
+                                      background: const Color(0xFF111111),
+                                      foreground: Colors.white,
+                                      icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.white),
+                                      label: 'Google',
+                                    ),
+                                    const SizedBox(width: 12),
+                                    _socialButton(
+                                      onTap: _busy ? null : _apple,
+                                      background: Colors.white,
+                                      foreground: Colors.black,
+                                      icon: const Icon(Icons.apple, size: 22, color: Colors.black),
+                                      label: 'Apple',
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                const Divider(),
+                                TextField(controller: _id, decoration: const InputDecoration(labelText: 'Email or Username')),
+                                TextField(
+                                  controller: _password,
+                                  obscureText: _obscure,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                                      onPressed: () => setState(() => _obscure = !_obscure),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  Checkbox(value: _remember, onChanged: (v) => setState(() => _remember = v ?? false)),
-                                  const Text('Remember Me'),
-                                  const Spacer(),
-                                  TextButton(onPressed: () => context.push('/forgot-password'), child: const Text('Forgot password?')),
-                                ],
-                              ),
-                              if (auth.requires2fa)
-                                TextField(
-                                  controller: _totp,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 6,
-                                  decoration: const InputDecoration(labelText: '2FA Code'),
+                                Row(
+                                  children: [
+                                    Checkbox(value: _remember, onChanged: (v) => setState(() => _remember = v ?? false)),
+                                    const Text('Remember Me'),
+                                    const Spacer(),
+                                    TextButton(onPressed: () => context.push('/forgot-password'), child: const Text('Forgot password?')),
+                                  ],
                                 ),
-                              const SizedBox(height: 12),
-                              Cr8Button(label: 'Sign In to Studio', onPressed: _busy ? null : _passwordLogin, loading: _busy),
-                            ] else ...[
-                              TextField(
-                                controller: _mobile,
-                                keyboardType: TextInputType.phone,
-                                maxLength: 10,
-                                enabled: !_otpSent,
-                                decoration: const InputDecoration(labelText: 'Mobile (+91)', prefixText: '+91 '),
-                              ),
-                              if (_otpSent)
+                                if (auth.requires2fa)
+                                  TextField(
+                                    controller: _totp,
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 6,
+                                    decoration: const InputDecoration(labelText: '2FA Code'),
+                                  ),
+                                const SizedBox(height: 12),
+                                Cr8Button(label: 'Sign In to Studio', onPressed: _busy ? null : _passwordLogin, loading: _busy),
+                              ] else ...[
                                 TextField(
-                                  controller: _otp,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 6,
-                                  decoration: const InputDecoration(labelText: '6-digit OTP'),
+                                  controller: _mobile,
+                                  keyboardType: TextInputType.phone,
+                                  maxLength: 10,
+                                  enabled: !_otpSent,
+                                  decoration: const InputDecoration(labelText: 'Mobile (+91)', prefixText: '+91 '),
                                 ),
-                              const SizedBox(height: 12),
-                              Cr8Button(
-                                label: _otpSent ? 'Verify OTP' : 'Send OTP',
-                                onPressed: _busy ? null : (_otpSent ? _verifyOtp : _sendOtp),
-                                loading: _busy,
+                                if (_otpSent)
+                                  TextField(
+                                    controller: _otp,
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 6,
+                                    decoration: const InputDecoration(labelText: '6-digit OTP'),
+                                  ),
+                                const SizedBox(height: 12),
+                                Cr8Button(
+                                  label: _otpSent ? 'Verify OTP' : 'Send OTP',
+                                  onPressed: _busy ? null : (_otpSent ? _verifyOtp : _sendOtp),
+                                  loading: _busy,
+                                ),
+                              ],
+                              const SizedBox(height: 16),
+                              Center(
+                                child: TextButton(
+                                  onPressed: () => context.push('/register'),
+                                  child: const Text('New here? Join Studio →'),
+                                ),
                               ),
                             ],
-                            const SizedBox(height: 16),
-                            Center(
-                              child: TextButton(
-                                onPressed: () => context.push('/register'),
-                                child: const Text('New here? Join Studio →'),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
