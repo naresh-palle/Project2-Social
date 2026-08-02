@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
-import { AppleSignInButton } from "@/components/AppleSignInButton";
+import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { ensureAppleAuth } from "@/lib/appleAuth";
 
 export default function Register() {
   const { mobileRegister } = useAuth();
@@ -104,9 +104,12 @@ export default function Register() {
     toast.success(`${source} details imported! Complete mobile OTP to finish registration.`);
   };
 
-  const handleAppleContinue = async () => {
+  const handleAppleContinue = async (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     setErr("");
-    if (window.AppleID?.auth) {
+    const ready = await ensureAppleAuth();
+    if (ready && window.AppleID?.auth) {
       try {
         setAppleBusy(true);
         const res = await window.AppleID.auth.signIn();
@@ -122,8 +125,8 @@ export default function Register() {
         const firstName = nameParts?.firstName || (decoded.name || "").split(" ")[0] || "";
         const lastName = nameParts?.lastName || (decoded.name || "").split(" ").slice(1).join(" ") || "";
         applySocialPrefill(email, firstName, lastName, "Apple");
-      } catch (e) {
-        if (e?.error !== "popup_closed_by_user") {
+      } catch (err) {
+        if (err?.error !== "popup_closed_by_user") {
           setErr("Apple Sign In needs Apple Developer setup. Fill the form manually or use Google.");
         }
       } finally {
@@ -134,6 +137,22 @@ export default function Register() {
     toast.message("Continue with Apple", {
       description: "Apple Developer Client ID is not configured yet. Use Google or fill the form manually.",
     });
+  };
+
+  const handleGoogleCredential = (credential) => {
+    try {
+      if (!credential) {
+        setErr("Google Login Failed");
+        return;
+      }
+      const decoded = jwtDecode(credential);
+      const email = decoded.email || "";
+      const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
+      const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
+      applySocialPrefill(email, firstName, lastName, "Google");
+    } catch (_) {
+      setErr("Failed to parse Google login");
+    }
   };
 
   // Resend OTP Cooldown Timer
@@ -477,31 +496,14 @@ export default function Register() {
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 
-          <div className="mt-10 flex flex-col items-center gap-2.5 w-full">
-            <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
-              <GoogleLogin
-                onSuccess={credentialResponse => {
-                  try {
-                    const decoded = jwtDecode(credentialResponse.credential);
-                    const email = decoded.email || "";
-                    const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
-                    const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
-                    applySocialPrefill(email, firstName, lastName, "Google");
-                  } catch (e) {
-                    setErr("Failed to parse Google login");
-                  }
-                }}
-                onError={() => {
-                  setErr("Google Login Failed");
-                }}
-                theme="filled_black"
-                shape="rectangular"
-                text="continue_with"
-                size="large"
-                width="240"
-              />
-            </div>
-            <AppleSignInButton mode="signup" loading={appleBusy} onClick={handleAppleContinue} />
+          <div className="mt-10 w-full">
+            <SocialAuthButtons
+              mode="signup"
+              loading={appleBusy}
+              onGoogleCredential={handleGoogleCredential}
+              onGoogleError={() => setErr("Google Login Failed")}
+              onAppleClick={handleAppleContinue}
+            />
           </div>
 
           <div className="flex items-center gap-4 mt-8 opacity-60">

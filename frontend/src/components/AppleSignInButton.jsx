@@ -7,21 +7,50 @@ export function AppleIcon({ className = "w-4 h-4" }) {
   );
 }
 
-/** Compact Apple button sized to match Google's "large" control (~240×40). */
-export function AppleSignInButton({ onClick, loading, mode = "signin", className = "" }) {
-  const label = mode === "signup" ? "Continue with Apple" : "Sign in with Apple";
+/**
+ * Compact Apple control. Always type="button" so it never submits login/signup forms.
+ * Use variant="row" with SocialAuthButtons sibling Google control.
+ */
+export function AppleSignInButton({
+  onClick,
+  loading,
+  mode = "signin",
+  className = "",
+  variant = "full",
+}) {
+  const label = mode === "signup" ? "Apple" : "Apple";
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!loading) onClick?.(e);
+  };
+
+  if (variant === "icon") {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        data-testid="apple-signin-button"
+        aria-label={mode === "signup" ? "Continue with Apple" : "Sign in with Apple"}
+        className={`h-11 w-11 shrink-0 rounded-full bg-white hover:bg-neutral-100 text-black inline-flex items-center justify-center border border-black/10 disabled:opacity-60 ${className}`}
+      >
+        <AppleIcon className="w-5 h-5 text-black" />
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleClick}
       disabled={loading}
       data-testid="apple-signin-button"
-      aria-label={label}
-      className={`w-[240px] h-10 max-w-full bg-white hover:bg-neutral-100 text-black text-[14px] leading-none font-medium rounded-[4px] inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 border border-black/10 ${className}`}
-      style={{ fontFamily: "Roboto, 'Helvetica Neue', Arial, sans-serif" }}
+      aria-label={mode === "signup" ? "Continue with Apple" : "Sign in with Apple"}
+      className={`flex-1 h-11 min-w-0 bg-white hover:bg-neutral-100 text-black text-sm leading-none font-medium rounded-md inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 border border-black/10 px-3 ${className}`}
     >
       <AppleIcon className="w-4 h-4 text-black shrink-0" />
-      <span>{loading ? "Connecting…" : label}</span>
+      <span className="truncate">{loading ? "…" : label}</span>
     </button>
   );
 }

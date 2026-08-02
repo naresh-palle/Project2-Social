@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../providers/auth_provider.dart';
 
@@ -45,8 +46,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           rememberMe: _remember,
           totpCode: _totp.text.trim().isEmpty ? null : _totp.text.trim(),
         );
-    setState(() => _busy = false);
     if (!mounted) return;
+    setState(() => _busy = false);
     final st = ref.read(authProvider);
     if (ok) {
       context.go('/dashboard');
@@ -63,12 +64,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final auth = await account?.authentication;
       final idToken = auth?.idToken;
       if (idToken == null) {
-        setState(() => _busy = false);
+        if (mounted) setState(() => _busy = false);
         return;
       }
       final ok = await ref.read(authProvider.notifier).google(idToken);
-      setState(() => _busy = false);
       if (!mounted) return;
+      setState(() => _busy = false);
       if (ok) {
         context.go('/dashboard');
       } else {
@@ -80,8 +81,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         }
       }
     } catch (e) {
-      setState(() => _busy = false);
-      if (mounted) showCr8Snack(context, e.toString(), error: true);
+      if (mounted) {
+        setState(() => _busy = false);
+        showCr8Snack(context, e.toString(), error: true);
+      }
     }
   }
 
@@ -94,13 +97,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ]);
       final token = cred.identityToken;
       if (token == null) {
-        setState(() => _busy = false);
-        showCr8Snack(context, 'Apple did not return a token', error: true);
+        if (mounted) {
+          setState(() => _busy = false);
+          showCr8Snack(context, 'Apple did not return a token', error: true);
+        }
         return;
       }
       final ok = await ref.read(authProvider.notifier).apple(token, rememberMe: _remember);
-      setState(() => _busy = false);
       if (!mounted) return;
+      setState(() => _busy = false);
       if (ok) {
         context.go('/dashboard');
       } else {
@@ -117,8 +122,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         }
       }
     } catch (e) {
-      setState(() => _busy = false);
-      if (mounted) showCr8Snack(context, 'Apple Sign In unavailable: $e', error: true);
+      if (mounted) {
+        setState(() => _busy = false);
+        showCr8Snack(context, 'Apple Sign In unavailable: $e', error: true);
+      }
     }
   }
 
@@ -131,14 +138,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _busy = true);
     try {
       await ref.read(authRepositoryProvider).sendMobileOtp(mobile);
+      if (!mounted) return;
       setState(() {
         _otpSent = true;
         _busy = false;
       });
-      if (mounted) showCr8Snack(context, 'OTP sent to +91 $mobile');
+      showCr8Snack(context, 'OTP sent to +91 $mobile');
     } catch (e) {
-      setState(() => _busy = false);
-      if (mounted) showCr8Snack(context, e.toString(), error: true);
+      if (mounted) {
+        setState(() => _busy = false);
+        showCr8Snack(context, e.toString(), error: true);
+      }
     }
   }
 
@@ -148,13 +158,54 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           _mobile.text.replaceAll(RegExp(r'\D'), ''),
           _otp.text.trim(),
         );
-    setState(() => _busy = false);
     if (!mounted) return;
+    setState(() => _busy = false);
     if (ok) {
       context.go('/dashboard');
     } else {
       showCr8Snack(context, ref.read(authProvider).error ?? 'OTP failed', error: true);
     }
+  }
+
+  Widget _socialButton({
+    required VoidCallback? onTap,
+    required Color background,
+    required Color foreground,
+    required Widget icon,
+    required String label,
+  }) {
+    return Expanded(
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 48,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Cr8Colors.hairline),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                icon,
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: foreground, fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -191,27 +242,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             const SizedBox(height: 20),
             if (!_otpMode) ...[
-              SizedBox(
-                width: 240,
-                child: OutlinedButton.icon(
-                  onPressed: _busy ? null : _google,
-                  icon: const Icon(Icons.g_mobiledata, size: 28),
-                  label: const Text('Sign in with Google'),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 240,
-                height: 40,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
+              Row(
+                children: [
+                  _socialButton(
+                    onTap: _busy ? null : _google,
+                    background: const Color(0xFF111111),
+                    foreground: Colors.white,
+                    icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.white),
+                    label: 'Google',
                   ),
-                  onPressed: _busy ? null : _apple,
-                  icon: const Icon(Icons.apple, size: 20),
-                  label: const Text('Sign in with Apple'),
-                ),
+                  const SizedBox(width: 12),
+                  _socialButton(
+                    onTap: _busy ? null : _apple,
+                    background: Colors.white,
+                    foreground: Colors.black,
+                    icon: const Icon(Icons.apple, size: 22, color: Colors.black),
+                    label: 'Apple',
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               const Divider(),
@@ -243,7 +291,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   decoration: const InputDecoration(labelText: '2FA Code'),
                 ),
               const SizedBox(height: 12),
-              Cr8Button(label: 'Sign In to Studio', onPressed: _passwordLogin, loading: _busy),
+              Cr8Button(label: 'Sign In to Studio', onPressed: _busy ? null : _passwordLogin, loading: _busy),
             ] else ...[
               TextField(
                 controller: _mobile,
@@ -262,7 +310,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 12),
               Cr8Button(
                 label: _otpSent ? 'Verify OTP' : 'Send OTP',
-                onPressed: _otpSent ? _verifyOtp : _sendOtp,
+                onPressed: _busy ? null : (_otpSent ? _verifyOtp : _sendOtp),
                 loading: _busy,
               ),
             ],

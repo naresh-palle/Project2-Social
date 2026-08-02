@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
-import { AppleSignInButton } from "@/components/AppleSignInButton";
+import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { api, formatApiError } from "@/lib/api";
+import { ensureAppleAuth } from "@/lib/appleAuth";
 
 export default function Login() {
   const { login, googleLogin, appleLogin } = useAuth();
@@ -71,9 +71,12 @@ export default function Login() {
     setErr(r.error || "Apple login failed");
   };
 
-  const handleAppleSignIn = async () => {
+  const handleAppleSignIn = async (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     setErr("");
-    if (window.AppleID?.auth) {
+    const ready = await ensureAppleAuth();
+    if (ready && window.AppleID?.auth) {
       try {
         setLoading(true);
         const res = await window.AppleID.auth.signIn();
@@ -84,9 +87,9 @@ export default function Login() {
           return;
         }
         await finishAppleLogin(token);
-      } catch (e) {
+      } catch (err) {
         setLoading(false);
-        if (e?.error !== "popup_closed_by_user") {
+        if (err?.error !== "popup_closed_by_user") {
           setShowAppleFallback(true);
           setErr("Apple Sign In needs Apple Developer setup. You can still use Google or password.");
         }
@@ -97,6 +100,40 @@ export default function Login() {
     toast.message("Apple button is ready", {
       description: "Apple Developer Client ID is not configured yet. Use Google / password, or paste a test token below.",
     });
+  };
+
+  const handleGoogleCredential = async (credential) => {
+    try {
+      setErr("");
+      setLoading(true);
+      if (!credential) {
+        setLoading(false);
+        setErr("Google sign-in did not return a credential");
+        return;
+      }
+      const decoded = jwtDecode(credential);
+      const r = await googleLogin(credential);
+      setLoading(false);
+      if (r.ok) {
+        toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
+        nav("/dashboard");
+      } else if (r.notRegistered) {
+        toast.error("No account found for this Google email. Please register first.");
+        nav("/register", {
+          state: {
+            fromGoogleLogin: true,
+            email: decoded.email || "",
+            firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
+            lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
+          },
+        });
+      } else {
+        setErr(r.error || "Authentication failed");
+      }
+    } catch (_) {
+      setLoading(false);
+      setErr("Failed to verify Google sign in");
+    }
   };
 
   const submitAppleToken = async () => {
@@ -232,56 +269,18 @@ export default function Login() {
           )}
 
           {mode === "password" ? (
-            <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
-              {/* Social sign-in — Google + Apple, matched compact size */}
-              <div className="flex flex-col items-center gap-2.5 w-full">
-                <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
-                  <GoogleLogin
-                    onSuccess={async (credentialResponse) => {
-                      try {
-                        setErr("");
-                        setLoading(true);
-                        const credential = credentialResponse.credential;
-                        if (!credential) {
-                          setLoading(false);
-                          setErr("Google sign-in did not return a credential");
-                          return;
-                        }
-                        const decoded = jwtDecode(credential);
-                        const r = await googleLogin(credential);
-                        setLoading(false);
-                        if (r.ok) {
-                          toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
-                          nav("/dashboard");
-                        } else if (r.notRegistered) {
-                          toast.error("No account found for this Google email. Please register first.");
-                          nav("/register", {
-                            state: {
-                              fromGoogleLogin: true,
-                              email: decoded.email || "",
-                              firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
-                              lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
-                            },
-                          });
-                        } else {
-                          setErr(r.error || "Authentication failed");
-                        }
-                      } catch (e) {
-                        setLoading(false);
-                        setErr("Failed to verify Google sign in");
-                      }
-                    }}
-                    onError={() => setErr("Google Sign In Failed")}
-                    theme="filled_black"
-                    shape="rectangular"
-                    text="signin_with"
-                    size="large"
-                    width="240"
-                  />
-                </div>
-                <AppleSignInButton mode="signin" loading={loading} onClick={handleAppleSignIn} />
+            <>
+              {/* Social outside <form> so Apple/Google never steal Login submit */}
+              <div className="mt-6 space-y-4">
+                <SocialAuthButtons
+                  mode="signin"
+                  loading={loading}
+                  onGoogleCredential={handleGoogleCredential}
+                  onGoogleError={() => setErr("Google Sign In Failed")}
+                  onAppleClick={handleAppleSignIn}
+                />
                 {showAppleFallback && (
-                  <div className="w-full max-w-[240px] p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
+                  <div className="w-full max-w-sm mx-auto p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
                     <p className="font-mono text-[10px] opacity-60">
                       Apple JS SDK not configured. Paste an Apple identity token to test API login:
                     </p>
@@ -297,14 +296,14 @@ export default function Login() {
                     </button>
                   </div>
                 )}
+                <div className="flex items-center gap-4 opacity-50">
+                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                  <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>
+                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                </div>
               </div>
 
-              <div className="flex items-center gap-4 opacity-50">
-                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
-                <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>
-                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
-              </div>
-
+              <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
                   Email or Username
@@ -384,6 +383,7 @@ export default function Login() {
                 {loading ? "Authenticating..." : "Sign In to Studio"} <ArrowRight className="w-4 h-4" />
               </button>
             </form>
+            </>
           ) : (
             <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-6 space-y-6">
               <div>
