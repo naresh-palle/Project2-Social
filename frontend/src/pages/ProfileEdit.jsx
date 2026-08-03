@@ -47,12 +47,16 @@ export default function ProfileEdit() {
 
   useEffect(() => {
     if (user) {
+      const uname = user.username || "";
+      const handleFromDb = user.handle || (uname ? `@${uname}` : "");
       setF({
         name: user.name || "",
-        handle: user.handle || "",
+        username: uname,
+        handle: handleFromDb,
         bio: user.bio || "",
         avatar: user.avatar || "",
-        city: user.city || "Bangalore",
+        city: user.city || "",
+        state: user.state || "",
         availability: user.availability || "Immediately",
         platform_metrics: user.platform_metrics || {
           instagram: { handle: "", followers: 0, engagement: 0, views: 0 },
@@ -60,7 +64,7 @@ export default function ProfileEdit() {
           twitter: { handle: "", followers: 0, engagement: 0, views: 0 },
           facebook: { handle: "", followers: 0, engagement: 0, views: 0 }
         },
-        category: user.category || "",
+        category: user.category || user.niches || "",
         languages: user.languages || [],
         base_rate: user.base_rate || 0,
         portfolio: user.portfolio || [],
@@ -294,8 +298,10 @@ export default function ProfileEdit() {
 
     setBusy(true);
     try {
+      const handleValue = (f.handle || (f.username ? `@${f.username}` : "")).trim();
       await api.patch("/auth/me", {
         ...f,
+        handle: handleValue,
         base_rate: Number(f.base_rate) || 0,
         portfolio: f.portfolio.filter(Boolean),
         past_campaigns: f.past_campaigns.filter(c => c.brand || c.title)
@@ -311,40 +317,54 @@ export default function ProfileEdit() {
   const runAiCuration = async () => {
     setAiBusy(true);
     try {
-      const { data } = await api.post("/ai/suggest-profile", { 
-          handle: f.handle, 
-          name: f.name,
-          bio: f.bio,
-          niches: [f.category || "General"],
-          city: f.city,
-          state: f.state,
-          languages: f.languages,
-          experience: f.experience,
-          content_types: f.content_types,
-          platform_metrics: f.platform_metrics
+      const niches = Array.isArray(f.category)
+        ? f.category.filter(Boolean)
+        : (f.category ? String(f.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
+      const { data } = await api.post("/ai/suggest-profile", {
+        handle: f.handle || (f.username ? `@${f.username}` : ""),
+        name: f.name,
+        username: f.username,
+        bio: f.bio,
+        niches: niches.length ? niches : ["Lifestyle"],
+        city: f.city,
+        state: f.state,
+        languages: f.languages,
+        experience: f.experience,
+        content_types: f.content_types,
+        platform_metrics: f.platform_metrics,
+        base_rate: f.base_rate,
+        response_time: f.response_time,
+        availability: f.availability,
       });
-      if (data.bio) setF(prev => ({ ...prev, bio: data.bio }));
-      if (data.portfolio && Array.isArray(data.portfolio)) {
-          setF(prev => ({ ...prev, portfolio: [...prev.portfolio.filter(Boolean), ...data.portfolio] }));
-      }
-      if (data.category) setF(prev => ({ ...prev, category: data.category }));
-      if (data.languages) setF(prev => ({ ...prev, languages: data.languages }));
-      if (data.experience) setF(prev => ({ ...prev, experience: data.experience }));
-      if (data.content_types) setF(prev => ({ ...prev, content_types: data.content_types }));
-      if (data.response_time) setF(prev => ({ ...prev, response_time: data.response_time }));
-      if (data.base_rate) setF(prev => ({ ...prev, base_rate: data.base_rate }));
-      if (data.availability) setF(prev => ({ ...prev, availability: data.availability }));
-      if (data.past_campaigns) setF(prev => ({ ...prev, past_campaigns: data.past_campaigns }));
-      if (data.platform_metrics) {
-         setF(prev => ({
-             ...prev, 
-             platform_metrics: {
-                 ...prev.platform_metrics,
-                 ...data.platform_metrics
-             }
-         }));
-      }
-      toast.success("AI Curation applied.");
+      setF((prev) => {
+        const next = { ...prev };
+        // Always refresh bio from AI using current profile context
+        if (data.bio) next.bio = data.bio;
+        // Only fill empty fields — never overwrite user-entered values with hardcoded defaults
+        const prevCats = Array.isArray(prev.category)
+          ? prev.category
+          : (prev.category ? String(prev.category).split(", ").filter(Boolean) : []);
+        if ((!prevCats.length) && data.category) {
+          next.category = Array.isArray(data.category) ? data.category : [data.category];
+        }
+        if ((!prev.languages || !prev.languages.length) && Array.isArray(data.languages) && data.languages.length) {
+          next.languages = data.languages;
+        }
+        if (!prev.experience && data.experience) next.experience = data.experience;
+        if ((!prev.content_types || !prev.content_types.length) && Array.isArray(data.content_types) && data.content_types.length) {
+          next.content_types = data.content_types;
+        }
+        if (!prev.response_time && data.response_time) next.response_time = data.response_time;
+        if ((!prev.base_rate || Number(prev.base_rate) <= 0) && data.base_rate) next.base_rate = data.base_rate;
+        if (!prev.availability && data.availability) next.availability = data.availability;
+        if (Array.isArray(data.portfolio) && data.portfolio.length) {
+          const existing = (prev.portfolio || []).filter(Boolean);
+          const incoming = data.portfolio.filter((u) => u && !existing.includes(u));
+          next.portfolio = [...existing, ...incoming].slice(0, 12);
+        }
+        return next;
+      });
+      toast.success("AI Curation applied from your profile details.");
     } catch (e) {
       toast.error("AI curation failed.");
     } finally {
@@ -413,7 +433,7 @@ export default function ProfileEdit() {
       
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 relative">
+      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-12 relative">
         {/* Floating Close Button */}
         <button 
           type="button" 
@@ -425,37 +445,37 @@ export default function ProfileEdit() {
           <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
         </button>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-                <p className="font-sans text-[11px] tracking-[0.22em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
-                <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
+                <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
+                <h1 className="font-editorial text-3xl md:text-4xl leading-[1.15] mt-1">
                 Your <span className="italic">file</span><span className="tick">.</span>
                 </h1>
             </div>
             
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex items-center gap-4 bg-white/5 p-3 border border-white/10 rounded-sm">
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-3 bg-white/5 px-3 py-2 border border-white/10">
                   <div className="text-right">
-                      <div className="font-editorial text-3xl font-bold text-[#FF3B30]">{completion}%</div>
-                      <div className="font-mono text-[9px] tracking-widest uppercase opacity-70">Profile Completion Meter</div>
+                      <div className="font-editorial text-2xl font-bold text-[#FF3B30]">{completion}%</div>
+                      <div className="font-sans text-[9px] tracking-widest uppercase opacity-70">Completion</div>
                   </div>
-                  <div className="w-12 h-12 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
+                  <div className="w-10 h-10 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
                       <div className="absolute inset-0 bg-[#FF3B30] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
-                      <span className="font-mono text-xs font-bold z-10 text-white">{completion}%</span>
+                      <span className="font-sans text-[10px] font-bold z-10 text-white">{completion}%</span>
                   </div>
               </div>
               {missingFields.length > 0 && (
-                <div className="font-mono text-[9px] uppercase tracking-wider text-orange-400">
-                  Missing to 100%: {missingFields.slice(0, 3).join(" · ")}
+                <div className="font-sans text-[9px] uppercase tracking-wider text-orange-400">
+                  Missing: {missingFields.slice(0, 3).join(" · ")}
                 </div>
               )}
             </div>
         </div>
 
-        <motion.form onSubmit={submit} className="mt-16 space-y-16" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <motion.form onSubmit={submit} className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5 items-start" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           
           {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
-          <section id="sec-basic" className="space-y-6">
+          <section id="sec-basic" className="space-y-3">
               <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                 <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">01</span>
                 Basic &amp; Brand Details
@@ -500,9 +520,26 @@ export default function ProfileEdit() {
               )}
 
               {isCreator && (
-                <F label="Creator Handle / Username *">
-                  <input required className="inp font-mono text-sm" value={f.handle} onChange={e=>setF({...f,handle:e.target.value})} placeholder="" />
-                </F>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <F label="Username (from account)">
+                    <input
+                      className="inp opacity-80"
+                      value={f.username || ""}
+                      readOnly
+                      disabled
+                      data-testid="reg-username-readonly"
+                    />
+                  </F>
+                  <F label="Creator Handle *">
+                    <input
+                      required
+                      className="inp"
+                      value={f.handle || ""}
+                      onChange={(e) => setF({ ...f, handle: e.target.value })}
+                      placeholder={f.username ? `@${f.username}` : "@handle"}
+                    />
+                  </F>
+                </div>
               )}
               <F label="Bio / About *">
                   <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
@@ -586,7 +623,7 @@ export default function ProfileEdit() {
           </section>
 
           {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
-          <section className="space-y-6">
+          <section className="space-y-3">
               <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                 Languages You Speak
               </h2>
@@ -626,7 +663,7 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 2: LOCATION & REGION (Available for all roles) */}
-          <section id="sec-location" className="space-y-6">
+          <section id="sec-location" className="space-y-3">
               <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                 <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">02</span>
                 Location &amp; Region Details
@@ -653,7 +690,7 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
-          <section id="sec-social" className="space-y-6">
+          <section id="sec-social" className="space-y-3">
               <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                 <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">03</span>
                 Social Presence &amp; Brand Accounts
@@ -717,7 +754,7 @@ export default function ProfileEdit() {
               </section>
 
               {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
-              <section id="sec-niche" className="space-y-6">
+              <section id="sec-niche" className="space-y-3">
                   <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                     <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">04</span>
                     Content Niche / Category *
@@ -771,7 +808,7 @@ export default function ProfileEdit() {
               </section>
 
               {isCreator && (
-                <section id="sec-rate" className="space-y-6">
+                <section id="sec-rate" className="space-y-3">
                     <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                       <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">05</span>
                       Pricing &amp; Rates
@@ -784,7 +821,7 @@ export default function ProfileEdit() {
 
               {/* SECTION 6: PORTFOLIO & PAST WORK (Creators Only) */}
               {isCreator && (
-                <section className="space-y-6">
+                <section className="space-y-3 lg:col-span-2">
                     <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                       <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">06</span>
                       Portfolio &amp; Past Work
@@ -866,7 +903,7 @@ export default function ProfileEdit() {
               )}
 
               {isCreator && (
-                <section className="space-y-6" id="sec-content-types">
+                <section className="space-y-3 lg:col-span-2" id="sec-content-types">
                     <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
                       <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">07</span>
                       Additional Information
@@ -925,14 +962,14 @@ export default function ProfileEdit() {
               {/* Password lives outside the profile form so empty password fields
                   never block Save profile via HTML5 required validation. */}
 
-          <div className="pt-8">
-            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
+          <div className="pt-2 lg:col-span-2">
+            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-3.5 bg-[#FF3B30] text-white text-base">
               <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
             </button>
           </div>
         </motion.form>
 
-        <div className="mt-16">
+        <div className="mt-6">
           <PasswordChangeSection />
         </div>
       </div>
@@ -996,11 +1033,11 @@ function PasswordChangeSection() {
   };
 
   return (
-    <section id="sec-security" className="space-y-6 pt-4">
-      <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+    <section id="sec-security" className="space-y-3 pt-2">
+      <h2 className="font-editorial text-lg md:text-xl border-b border-white/10 pb-1.5">
         Security &amp; Modify Password
       </h2>
-      <div className="bg-white/[0.02] p-6 border border-white/10 rounded-sm space-y-6">
+      <div className="bg-white/[0.02] p-4 border border-white/10 space-y-3">
         <p className="font-sans text-sm opacity-60">Password changes are saved separately from your profile. Leave blank if you only want to update profile details.</p>
         <F label="Current Password">
           <input 

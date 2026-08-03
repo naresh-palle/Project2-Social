@@ -450,7 +450,7 @@ class UserUpdate(BaseModel):
     company: Optional[str] = None
     industry: Optional[str] = None
     website: Optional[str] = None
-    category: Optional[str] = None
+    category: Optional[Any] = None
     followers: Optional[int] = None
     platforms: Optional[List[str]] = None
     location: Optional[str] = None
@@ -3266,6 +3266,7 @@ class ProfileSuggestInput(BaseModel):
     niches: List[str]
     handle: Optional[str] = None
     name: Optional[str] = None
+    username: Optional[str] = None
     bio: Optional[str] = None
     languages: Optional[List[str]] = None
     city: Optional[str] = None
@@ -3273,56 +3274,86 @@ class ProfileSuggestInput(BaseModel):
     experience: Optional[str] = None
     content_types: Optional[List[str]] = None
     platform_metrics: Optional[dict] = None
+    base_rate: Optional[int] = None
+    response_time: Optional[str] = None
+    availability: Optional[str] = None
 
 @api_router.post("/ai/suggest-profile")
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
-    system = "You are a creative director for high-end influencers."
+    system = "You are a creative director writing profile copy from the creator's real inputs only. Never invent unrelated niches."
     
-    niches_str = ", ".join(inp.niches) if inp.niches else "General"
-    handle_str = inp.handle or "an upcoming creator"
-    name_str = inp.name or "the creator"
-    lang_str = ", ".join(inp.languages) if inp.languages else "English"
-    loc_str = f"{inp.city or ''}, {inp.state or ''}".strip(", ") or "Global"
-    exp_str = inp.experience or "upcoming"
+    niches = [n for n in (inp.niches or []) if n and str(n).strip() and str(n).strip().lower() != "general"]
+    niches_str = ", ".join(niches) if niches else "their stated specialty"
+    handle_str = inp.handle or (f"@{inp.username}" if inp.username else "the creator")
+    name_str = inp.name or handle_str or "the creator"
+    lang_str = ", ".join(inp.languages) if inp.languages else "the languages they listed"
+    loc_str = f"{inp.city or ''}, {inp.state || ''}".strip(", ") or "their location"
+    exp_str = inp.experience or "their experience level"
+    types_str = ", ".join(inp.content_types) if inp.content_types else "the content formats they create"
     
     platforms = []
     if inp.platform_metrics:
         for p, d in inp.platform_metrics.items():
             if d and d.get("handle"):
-                platforms.append(p)
-    plat_str = ", ".join(platforms) if platforms else "various platforms"
+                platforms.append(f"{p} ({d.get('handle')})")
+    plat_str = ", ".join(platforms) if platforms else "their connected platforms"
     
-    prompt = f"The influencer's name is {name_str}. The niches are: {niches_str}.\n"
-    prompt += f"They are based in {loc_str} and speak {lang_str}.\n"
-    prompt += f"They have {exp_str} experience and are active on {plat_str}.\n\n"
-    prompt += "Suggest a punchy, luxurious bio (1-2 sentences max) that takes all this context into account.\n"
-    prompt += "Also, suggest exactly 4 high-quality image URLs for their portfolio that perfectly match their niches.\n"
-    prompt += "(Use actual real unsplash source URLs like https://images.unsplash.com/photo-...)\n\n"
-    prompt += "Return ONLY JSON with this structure:\n"
-    prompt += "{\n  \"bio\": \"...\",\n  \"portfolio\": [\"url1\", \"url2\", \"url3\", \"url4\"]\n}\n"
+    prompt = (
+        f"Write profile suggestions using ONLY this creator's data.\n"
+        f"Name: {name_str}\nHandle: {handle_str}\nUsername: {inp.username or 'n/a'}\n"
+        f"Niches: {niches_str}\nLocation: {loc_str}\nLanguages: {lang_str}\n"
+        f"Experience: {exp_str}\nContent types: {types_str}\nPlatforms: {plat_str}\n"
+        f"Existing bio (refine, do not ignore): {inp.bio or 'none yet'}\n\n"
+        f"Return ONLY JSON:\n"
+        "{\n"
+        '  "bio": "1-2 punchy sentences grounded in the niches/location/platforms above",\n'
+        '  "category": ["niche1","niche2"],\n'
+        '  "languages": ["..."],\n'
+        '  "experience": "...",\n'
+        '  "content_types": ["..."],\n'
+        '  "response_time": "Within 24 hours",\n'
+        '  "availability": "Immediately",\n'
+        '  "portfolio": ["https://images.unsplash.com/photo-..."]\n'
+        "}\n"
+        "Rules: category/languages/content_types must reflect the user inputs when provided; "
+        "do not default to Fashion unless Fashion is in niches."
+    )
 
     try:
         text = await call_llm(system, prompt)
-        return parse_json(text)
+        data = parse_json(text)
+        # Prefer user-provided fields over model guesses when present
+        if niches:
+            data["category"] = niches
+        if inp.languages:
+            data["languages"] = inp.languages
+        if inp.experience:
+            data["experience"] = inp.experience
+        if inp.content_types:
+            data["content_types"] = inp.content_types
+        if inp.response_time:
+            data["response_time"] = inp.response_time
+        if inp.availability:
+            data["availability"] = inp.availability
+        return data
     except Exception as e:
         logger.warning("AI profile suggestion failed: %s", repr(e))
-        name_str = inp.name or inp.handle or "creator"
-        # Return a static clean fallback to avoid infinite append loops
-        fallback_bio = f"Curating high-end aesthetics with a focus on luxury and design. Specialized in {niches_str}."
-        # Fallback to mock data if their API key is invalid or missing
+        name_str = inp.name or inp.handle or inp.username or "creator"
+        niche_focus = niches_str if niches else "authentic creator storytelling"
+        fallback_bio = (
+            f"{name_str} — crafting {niche_focus} from {loc_str}. "
+            f"Active on {plat_str}."
+        )
         return {
             "bio": fallback_bio,
-            "category": "Fashion & Style",
-            "languages": ["English", "Hindi"],
-            "experience": "1-2 years",
-            "content_types": ["Instagram Posts (Photos)", "Instagram Reels (Short Videos)"],
-            "portfolio": [
-                "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
-                "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
-                "https://images.unsplash.com/photo-1550614000-4b95d4ed7982?w=800&q=80",
-                "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80"
-            ]
+            "category": niches or None,
+            "languages": inp.languages or None,
+            "experience": inp.experience or None,
+            "content_types": inp.content_types or None,
+            "response_time": inp.response_time or "Within 24 hours",
+            "availability": inp.availability or "Immediately",
+            "portfolio": [],
         }
 
 # ---------- Startup ----------

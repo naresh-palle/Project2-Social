@@ -48,7 +48,7 @@ export default function ProfileView() {
 
   if (loading) return (
     <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center text-[#F4F4F0]">
-      <div className="animate-pulse font-mono tracking-widest text-xs uppercase text-[#FF3B30]">Loading Studio Profile...</div>
+      <div className="animate-pulse font-sans tracking-widest text-xs uppercase text-[#FF3B30]">Loading Studio Profile...</div>
     </div>
   );
   if (!profile) return null;
@@ -73,7 +73,7 @@ export default function ProfileView() {
     if (profile.city?.trim()) score += 10; else missing.push("Location");
 
     if (isCreator) {
-      if (profile.handle?.trim()) score += 10; else missing.push("Handle");
+      if ((profile.handle || profile.username)?.trim()) score += 10; else missing.push("Handle");
       const cats = Array.isArray(profile.category) ? profile.category : (profile.category ? profile.category.split(", ") : []);
       if (cats.length > 0) score += 10; else missing.push("Niche");
       if (Number(profile.base_rate) > 0) score += 10; else missing.push("Base Rate");
@@ -136,16 +136,16 @@ export default function ProfileView() {
         <Nav />
         <Toaster theme="dark" position="top-center" />
         
-        <div className="pt-24 px-6 md:px-12 max-w-7xl mx-auto pb-24">
+        <div className="pt-20 px-4 md:px-8 max-w-6xl mx-auto pb-12">
           <button 
             onClick={() => nav(-1)} 
-            className="opacity-60 hover:opacity-100 flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase transition-opacity text-white"
+            className="opacity-60 hover:opacity-100 flex items-center gap-2 font-sans text-[11px] tracking-widest uppercase transition-opacity text-white"
           >
             <ArrowLeft className="w-4 h-4 text-[#FF3B30]" /> Back to Studio
           </button>
 
           {/* Profile Strength & Completion Meter */}
-          <div className="mt-8 bg-[#121212]/90 border border-white/15 p-5 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="mt-4 bg-[#121212]/90 border border-white/15 p-3 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full border-2 border-[#FF3B30] flex items-center justify-center bg-[#FF3B30]/10 font-editorial text-lg font-bold text-[#FF3B30] shrink-0">
                 {completionScore}%
@@ -153,16 +153,16 @@ export default function ProfileView() {
               <div>
                 <div className="font-editorial text-xl font-bold flex items-center gap-2">
                   <span>Profile Strength &amp; Verification</span>
-                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] rounded-xs font-bold">
+                  <span className="font-sans text-[10px] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] rounded-xs font-bold">
                     {completionScore === 100 ? "Verified Tier 1" : "In Progress"}
                   </span>
                 </div>
                 {missingFields.length > 0 ? (
-                  <div className="font-mono text-[10px] tracking-widest uppercase text-orange-400 mt-1">
+                  <div className="font-sans text-[11px] tracking-widest uppercase text-orange-400 mt-1">
                     Missing in profile: {missingFields.join(" · ")} (Click Edit Profile below)
                   </div>
                 ) : (
-                  <div className="font-mono text-[10px] tracking-widest uppercase text-[#34C759] mt-1 flex items-center gap-1 font-bold">
+                  <div className="font-sans text-[11px] tracking-widest uppercase text-[#34C759] mt-1 flex items-center gap-1 font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> All details 100% complete and verified on studio ledger
                   </div>
                 )}
@@ -176,23 +176,23 @@ export default function ProfileView() {
           
           {/* Cover photo */}
           {profile.cover_photo && (
-            <div className="mt-8 w-full h-40 md:h-56 overflow-hidden border border-white/10 rounded-sm">
+            <div className="mt-4 w-full h-28 md:h-36 overflow-hidden border border-white/10 rounded-sm">
               <img src={profile.cover_photo} alt="Cover" className="w-full h-full object-cover" />
             </div>
           )}
 
           {/* Profile Header Banner */}
-          <div className="mt-8 flex flex-col md:flex-row gap-10 items-start md:items-end border-b border-white/10 pb-12 justify-between">
-            <div className="flex flex-col md:flex-row gap-8 items-start md:items-end">
+          <div className="mt-4 flex flex-col md:flex-row gap-5 items-start md:items-end border-b border-white/10 pb-5 justify-between">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
               {profile.avatar ? (
-                <img src={profile.avatar} alt={profile.name} className="w-32 h-32 md:w-44 md:h-44 object-cover border border-white/20 p-2 rounded-sm shadow-2xl shrink-0" />
+                <img src={profile.avatar} alt={profile.name} className="w-20 h-20 md:w-28 md:h-28 object-cover border border-white/20 p-2 rounded-sm shadow-2xl shrink-0" />
               ) : (
-                <div className="w-32 h-32 md:w-44 md:h-44 border border-white/20 p-2 flex items-center justify-center bg-white/5 rounded-sm shrink-0">
+                <div className="w-20 h-20 md:w-28 md:h-28 border border-white/20 p-2 flex items-center justify-center bg-white/5 rounded-sm shrink-0">
                   <span className="font-editorial text-5xl italic text-white/50">{profile.name?.[0]}</span>
                 </div>
               )}
               <div>
-                <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-2 flex items-center gap-2">
+                <div className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4" />
                   <span>
                     {profile.role === "owner" 
@@ -214,19 +214,19 @@ export default function ProfileView() {
                     </Tip>
                   )}
                 </div>
-                <h1 className="font-editorial text-5xl md:text-7xl leading-none font-medium">
+                <h1 className="font-editorial text-xl md:text-2xl leading-none font-medium">
                   {profile.company || profile.name}
                 </h1>
-                <div className="font-mono text-xs opacity-75 mt-3 flex items-center gap-3 flex-wrap">
+                <div className="font-sans text-xs opacity-75 mt-3 flex items-center gap-3 flex-wrap">
                   {profile.name && <span>{profile.name}</span>}
-                  {profile.handle && <span className="text-white/60">· {profile.handle}</span>}
+                  {(profile.handle || profile.username) && <span className="text-white/60">· {profile.handle || `@${profile.username}`}</span>}
                   {profile.city && (
                     <span className="flex items-center gap-1 opacity-60">
                       <MapPin className="w-3 h-3 text-[#FF3B30]" /> {profile.city}
                     </span>
                   )}
                   {profile.industry && (
-                    <span className="px-2.5 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-mono text-[10px] uppercase tracking-wider rounded-xs font-bold">
+                    <span className="px-2.5 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-sans text-[11px] uppercase tracking-wider rounded-xs font-bold">
                       {profile.industry}
                     </span>
                   )}
@@ -247,27 +247,27 @@ export default function ProfileView() {
           </div>
 
           {/* Main Content Layout Grid */}
-          <div className="py-12 grid grid-cols-1 md:grid-cols-12 gap-12">
+          <div className="py-5 grid grid-cols-1 md:grid-cols-12 gap-5">
             
             {/* LEFT COLUMN: Overview & Detailed Settings */}
-            <div className={isCreator ? "md:col-span-4 space-y-10" : "md:col-span-12 space-y-10"}>
+            <div className={isCreator ? "md:col-span-4 space-y-4" : "md:col-span-12 space-y-4"}>
               {/* About / Bio */}
-              <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm">
-                <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-3">
+              <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm">
+                <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-3">
                   § Studio Bio &amp; Overview
                 </h3>
-                <p className="font-editorial italic text-2xl leading-relaxed break-words whitespace-normal text-white">
+                <p className="font-editorial italic text-lg leading-relaxed break-words whitespace-normal text-white">
                   {profile.bio || "No bio specified yet. Add bio in Edit Profile."}
                 </p>
               </div>
 
               {/* BRAND / OWNER DETAILS */}
               {!isCreator && (
-                <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm space-y-6">
-                  <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">
+                <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm space-y-6">
+                  <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
                     § Brand &amp; Client Overview
                   </h3>
-                  <dl className="space-y-3.5 text-xs font-mono uppercase tracking-wider">
+                  <dl className="space-y-3.5 text-xs font-sans uppercase tracking-wider">
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
                       <dt className="opacity-50">Company Name</dt>
                       <dd className="text-white font-bold">{profile.company || profile.name}</dd>
@@ -300,11 +300,11 @@ export default function ProfileView() {
 
               {/* CREATOR STUDIO DETAILS (Experience, Rates, Availability, Languages, Response Time) */}
               {isCreator && (
-                <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm space-y-6">
-                  <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">
+                <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm space-y-6">
+                  <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
                     § Studio Specifications &amp; Rates
                   </h3>
-                  <dl className="space-y-3.5 text-xs font-mono uppercase tracking-wider">
+                  <dl className="space-y-3.5 text-xs font-sans uppercase tracking-wider">
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
                       <dt className="opacity-50">
                         <Tip label="Years of professional creator experience on record.">Experience</Tip>
@@ -339,13 +339,13 @@ export default function ProfileView() {
 
               {/* CATEGORIES & NICHES */}
               {categoriesList.length > 0 && (
-                <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm">
-                  <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-3">
+                <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm">
+                  <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-3">
                     § Niches &amp; Categories
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {categoriesList.map(c => (
-                      <span key={c} className="px-3 py-1 bg-white/5 border border-white/15 text-xs font-mono rounded-xs text-white">
+                      <span key={c} className="px-3 py-1 bg-white/5 border border-white/15 text-xs font-sans rounded-xs text-white">
                         {c}
                       </span>
                     ))}
@@ -355,8 +355,8 @@ export default function ProfileView() {
 
               {/* LANGUAGES SPOKEN */}
               {languagesList.length > 0 && (
-                <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm">
-                  <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-3 flex items-center gap-1.5">
+                <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm">
+                  <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-3 flex items-center gap-1.5">
                     <Languages className="w-3.5 h-3.5" />{" "}
                     <Tip label="Languages this creator can create content and communicate in.">
                       Languages Spoken
@@ -365,7 +365,7 @@ export default function ProfileView() {
                   <div className="flex flex-wrap gap-2">
                     {languagesList.map(l => (
                       <Tip key={l} label={`Content language: ${l}`}>
-                        <span className="px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-xs font-mono text-[#FF3B30] rounded-xs font-bold">
+                        <span className="px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-xs font-sans text-[#FF3B30] rounded-xs font-bold">
                           {l}
                         </span>
                       </Tip>
@@ -376,13 +376,13 @@ export default function ProfileView() {
 
               {/* CONTENT FORMATS */}
               {isCreator && contentTypesList.length > 0 && (
-                <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm">
-                  <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-3">
+                <div className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm">
+                  <h3 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-3">
                     § Content Formats &amp; Deliverables
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {contentTypesList.map(t => (
-                      <span key={t} className="px-3 py-1 bg-white/5 border border-white/15 text-xs font-mono text-white/90 rounded-xs">
+                      <span key={t} className="px-3 py-1 bg-white/5 border border-white/15 text-xs font-sans text-white/90 rounded-xs">
                         {t}
                       </span>
                     ))}
@@ -393,17 +393,17 @@ export default function ProfileView() {
 
             {/* RIGHT COLUMN: Social Presence, Past Campaigns & Portfolio */}
             {isCreator && (
-              <div className="md:col-span-8 space-y-12">
+              <div className="md:col-span-8 space-y-5">
                 
                 {/* 1. SOCIAL PRESENCE TAB */}
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="font-editorial text-3xl md:text-4xl">📱 Verified Social Presence</h2>
-                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Live Audience Reach &amp; Channel Metrics</p>
+                      <h2 className="font-editorial text-xl md:text-2xl">📱 Verified Social Presence</h2>
+                      <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Live Audience Reach &amp; Channel Metrics</p>
                     </div>
                     {totalReach > 0 && (
-                      <div className="text-right font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3.5 py-1 border border-[#FF3B30]/30 rounded-xs">
+                      <div className="text-right font-sans text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3.5 py-1 border border-[#FF3B30]/30 rounded-xs">
                         <Tip label={`Exact combined audience: ${Number(totalReach).toLocaleString()} followers across connected channels.`}>
                           Total Combined Reach · {formatNumber(totalReach)}
                         </Tip>
@@ -425,15 +425,15 @@ export default function ProfileView() {
                       return (
                         <div key={key} className="p-4 border border-white/15 bg-[#121212]/90 hover:border-[#FF3B30]/50 transition-all rounded-sm flex flex-col justify-between">
                           <div className="flex items-center justify-between">
-                            <span className={`font-mono text-xs uppercase font-bold tracking-widest ${plat.color}`}>
+                            <span className={`font-sans text-xs uppercase font-bold tracking-widest ${plat.color}`}>
                               {plat.name}
                             </span>
-                            <span className="font-mono text-[9px] tracking-widest uppercase opacity-60 truncate max-w-[100px]">
+                            <span className="font-sans text-[10px] tracking-widest uppercase opacity-60 truncate max-w-[100px]">
                               {data.handle || `@${key}`}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 font-mono">
+                          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 font-sans">
                             <div>
                               <div className="text-[9px] uppercase tracking-widest opacity-50">
                                 <Tip label="Audience size on this platform.">Followers</Tip>
@@ -477,16 +477,16 @@ export default function ProfileView() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="font-editorial text-3xl md:text-4xl">📜 Past Campaigns &amp; Track Record</h2>
-                      <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Verified Brand Collaborations &amp; Post Links</p>
+                      <h2 className="font-editorial text-xl md:text-2xl">📜 Past Campaigns &amp; Track Record</h2>
+                      <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Verified Brand Collaborations &amp; Post Links</p>
                     </div>
-                    <span className="font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-bold">
+                    <span className="font-sans text-xs uppercase tracking-wider text-[#FF3B30] font-bold">
                       {pastCampaigns.length} / 5 Campaigns
                     </span>
                   </div>
 
                   {pastCampaigns.length > 0 ? (
-                    <div className="space-y-3 font-mono text-xs">
+                    <div className="space-y-3 font-sans text-xs">
                       <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 border-b border-white/10 text-[10px] uppercase tracking-widest opacity-50">
                         <div className="col-span-2">Brand</div>
                         <div className="col-span-3">Campaign Scope</div>
@@ -502,18 +502,18 @@ export default function ProfileView() {
                           <div className="md:col-span-2 text-[#34C759] font-semibold">{c.result || "Delivered"}</div>
                           <div className="md:col-span-3 md:text-right">
                             {c.post_url ? (
-                              <a href={c.post_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white transition-colors rounded-xs text-[10px] uppercase tracking-wider font-mono">
+                              <a href={c.post_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white transition-colors rounded-xs text-[10px] uppercase tracking-wider font-sans">
                                 <span>View Post</span> <ExternalLink className="w-3 h-3" />
                               </a>
                             ) : (
-                              <span className="text-[10px] opacity-40 font-mono">No link provided</span>
+                              <span className="text-[10px] opacity-40 font-sans">No link provided</span>
                             )}
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-8 border border-white/15 bg-[#121212]/90 text-center font-mono text-xs opacity-60 rounded-sm">
+                    <div className="p-4 border border-white/15 bg-[#121212]/90 text-center font-sans text-xs opacity-60 rounded-sm">
                       No past campaigns specified yet. Add past campaigns in Edit Profile.
                     </div>
                   )}
@@ -522,14 +522,14 @@ export default function ProfileView() {
                 {/* 3. FEATURED PORTFOLIO MEDIA (Images & Videos) */}
                 <div className="space-y-8">
                   <div className="border-b border-white/10 pb-4">
-                    <h2 className="font-editorial text-3xl md:text-4xl">🎨 Featured Portfolio Deliverables</h2>
-                    <p className="font-mono text-[10px] tracking-widest uppercase opacity-50 mt-1">Categorized Media Assets &amp; Portfolio Showcase</p>
+                    <h2 className="font-editorial text-xl md:text-2xl">🎨 Featured Portfolio Deliverables</h2>
+                    <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Categorized Media Assets &amp; Portfolio Showcase</p>
                   </div>
 
                   {/* 📷 Featured Images Category */}
                   {portfolioImages.length > 0 && (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-white/80">
+                      <div className="flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-white/80">
                         <ImageIcon className="w-4 h-4 text-[#FF3B30]" />
                         <span>📷 Featured Images ({portfolioImages.length})</span>
                       </div>
@@ -546,7 +546,7 @@ export default function ProfileView() {
                   {/* 🎬 Featured Videos Category */}
                   {portfolioVideos.length > 0 && (
                     <div className="space-y-4 pt-4 border-t border-white/10">
-                      <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-white/80">
+                      <div className="flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-white/80">
                         <VideoIcon className="w-4 h-4 text-[#FF3B30]" />
                         <span>🎬 Featured Videos ({portfolioVideos.length})</span>
                       </div>
@@ -561,7 +561,7 @@ export default function ProfileView() {
                   )}
 
                   {portfolioImages.length === 0 && portfolioVideos.length === 0 && (
-                    <div className="p-8 border border-white/15 bg-[#121212]/90 text-center font-mono text-xs opacity-60 rounded-sm">
+                    <div className="p-4 border border-white/15 bg-[#121212]/90 text-center font-sans text-xs opacity-60 rounded-sm">
                       No portfolio media added yet. Upload images &amp; videos in Edit Profile.
                     </div>
                   )}
