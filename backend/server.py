@@ -3318,7 +3318,7 @@ async def oauth_login(platform: str, user=Depends(get_current_user)):
     
     # Since we are returning the URL to the frontend to redirect the user to,
     # we need to make sure the callback URL points to the backend server.
-    backend_url = os.environ.get("BACKEND_URL", "https://social-api-mock.onrender.com")
+    backend_url = os.environ.get("BACKEND_URL", "https://project2-social.onrender.com")
     return {"url": f"{backend_url}{callback_url}"}
 
 @api_router.get("/oauth/{platform}/callback")
