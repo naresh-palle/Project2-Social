@@ -426,15 +426,11 @@ export default function Onboarding() {
     }
   };
 
-<<<<<<< HEAD
-  // INFLUENCER STEP 1: NICHE & PROFILE
-  if (user.role === "influencer" && step === 1) {
-=======
+
   const isCreator = user.role === "influencer" || user.role === "creator";
 
-  // INFLUENCER STEP 1: NICHE & LANGUAGE
+  // INFLUENCER STEP 1: NICHE & PROFILE
   if (isCreator && step === 1) {
->>>>>>> 6baf63bffbda3caaa84ec0d0921842e0331c9013
     const currentCats = Array.isArray(f.category) 
       ? f.category 
       : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
@@ -487,46 +483,8 @@ export default function Onboarding() {
               </select>
           </div>
 
-<<<<<<< HEAD
           <div>
             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Connect your audience.</h4>
-=======
-  // INFLUENCER STEP 2: LOCATION
-  if (isCreator && step === 2) {
-    return (
-      <Layout step={2} title="Where are you based?" subtitle="Step 02 / Availability">
-        <div className="space-y-8">
-            <div>
-                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
-                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
-                    <option value="" className="bg-[#0B0B0E]">Select City...</option>
-                    {CITIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>)}
-                </select>
-            </div>
-            <div>
-                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
-                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
-                    <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
-                    {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
-                </select>
-            </div>
-        </div>
-        <div className="pt-12 flex justify-between items-center">
-          <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">← Back</button>
-          <button onClick={() => setStep(3)} disabled={!f.city || !f.availability} className="btn-solid disabled:opacity-50">
-            Continue <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </Layout>
-    );
-  }
-
-  // INFLUENCER STEP 3: SOCIALS
-  if (isCreator && step === 3) {
-    return (
-      <Layout step={3} title="Connect your audience." subtitle="Step 03 / Socials">
-        <div className="space-y-6">
->>>>>>> 6baf63bffbda3caaa84ec0d0921842e0331c9013
             <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
             {PLATFORMS.map(plat => (
                 <div key={plat} className="p-4 border border-white/10 bg-white/[0.02] mb-4">
@@ -627,11 +585,7 @@ export default function Onboarding() {
         {error && <div className="text-[#FF3B30] font-mono text-xs">{error}</div>}
 
         <div className="flex justify-between items-center">
-<<<<<<< HEAD
           <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
-=======
-          <button onClick={() => setStep(isCreator ? 3 : 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
->>>>>>> 6baf63bffbda3caaa84ec0d0921842e0331c9013
             ← Back
           </button>
           <button onClick={submitProfile} disabled={submitting} className="btn-solid disabled:opacity-50">
