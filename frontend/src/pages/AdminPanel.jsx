@@ -368,7 +368,13 @@ export function AdminPanel() {
                                             <td className="p-4">
                                                 {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>}
                                             </td>
-                                            <td className="p-4 text-right"><button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button></td>
+                                            <td className="p-4 text-right">
+                                                {u.role !== 'admin' && (
+                                                    <button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))
                                 )}

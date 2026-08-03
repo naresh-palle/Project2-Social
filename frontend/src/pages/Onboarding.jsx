@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Loader2, Plus, X } from "lucide-react";
+import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
@@ -416,14 +416,14 @@ export default function Onboarding() {
     }
   };
 
-  // INFLUENCER STEP 1: NICHE & LANGUAGE
+  // INFLUENCER STEP 1: NICHE & PROFILE
   if (user.role === "influencer" && step === 1) {
     const currentCats = Array.isArray(f.category) 
       ? f.category 
       : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
 
     return (
-      <Layout step={1} title="Define your niche." subtitle="Step 01 / Identity">
+      <Layout step={1} title="Define your niche & availability." subtitle="Step 01 / Identity">
         <div className="space-y-12">
           
           <div>
@@ -442,66 +442,45 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Languages You Speak *</h4>
-            <div className="grid grid-cols-3 gap-3">
-                {LANGUAGES.map(lang => (
-                    <label key={lang} className="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" checked={f.languages.includes(lang)} onChange={()=>toggleLang(lang)} className="accent-[#FF3B30] w-4 h-4" />
-                        <span className="text-sm">{lang}</span>
-                    </label>
-                ))}
-            </div>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Languages You Speak * Dropdown select</h4>
+            <select 
+              value={f.languages[0] || ""} 
+              onChange={e => setF({...f, languages: [e.target.value]})} 
+              className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial"
+            >
+              <option value="" className="bg-[#0B0B0E]">Select Language...</option>
+              {LANGUAGES.map(lang => (
+                <option key={lang} value={lang} className="bg-[#0B0B0E]">{lang}</option>
+              ))}
+            </select>
           </div>
 
-        </div>
-        <div className="pt-12 flex justify-end">
-          <button onClick={() => setStep(2)} disabled={currentCats.length === 0 || f.languages.length === 0} className="btn-solid disabled:opacity-50">
-            Continue <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </Layout>
-    );
-  }
+          <div>
+             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
+             <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
+                 <option value="" className="bg-[#0B0B0E]">Select City...</option>
+                 {CITIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>)}
+             </select>
+          </div>
+          <div>
+              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
+              <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
+                  <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
+                  {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
+              </select>
+          </div>
 
-  // INFLUENCER STEP 2: LOCATION
-  if (user.role === "influencer" && step === 2) {
-    return (
-      <Layout step={2} title="Where are you based?" subtitle="Step 02 / Availability">
-        <div className="space-y-8">
-            <div>
-                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
-                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
-                    <option value="" className="bg-[#0B0B0E]">Select City...</option>
-                    {CITIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>)}
-                </select>
-            </div>
-            <div>
-                <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
-                <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
-                    <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
-                    {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
-                </select>
-            </div>
-        </div>
-        <div className="pt-12 flex justify-between items-center">
-          <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">← Back</button>
-          <button onClick={() => setStep(3)} disabled={!f.city || !f.availability} className="btn-solid disabled:opacity-50">
-            Continue <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </Layout>
-    );
-  }
-
-  // INFLUENCER STEP 3: SOCIALS
-  if (user.role === "influencer" && step === 3) {
-    return (
-      <Layout step={3} title="Connect your audience." subtitle="Step 03 / Socials">
-        <div className="space-y-6">
+          <div>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Connect your audience.</h4>
             <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
             {PLATFORMS.map(plat => (
-                <div key={plat} className="p-4 border border-white/10 bg-white/[0.02]">
-                    <div className="font-editorial text-2xl capitalize mb-4 text-[#FF3B30]">{plat} {plat === "instagram" && "*"}</div>
+                <div key={plat} className="p-4 border border-white/10 bg-white/[0.02] mb-4">
+                    <div className="font-editorial text-2xl capitalize mb-4 text-[#FF3B30] flex items-center gap-3">
+                      {plat === "instagram" && <Instagram className="w-6 h-6" />}
+                      {plat === "youtube" && <Youtube className="w-6 h-6" />}
+                      {plat === "twitter" && <Twitter className="w-6 h-6" />}
+                      {plat} {plat === "instagram" && "*"}
+                    </div>
                     <div>
                         <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Handle / Link</label>
                         <input className="w-full bg-transparent border-b border-white/10 py-2 focus:outline-none focus:border-[#FF3B30] text-lg mt-2" 
@@ -516,10 +495,11 @@ export default function Onboarding() {
                     </div>
                 </div>
             ))}
+          </div>
+
         </div>
-        <div className="pt-12 flex justify-between items-center">
-          <button onClick={() => setStep(2)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">← Back</button>
-          <button onClick={() => setStep(4)} disabled={!f.platform_metrics.instagram.handle} className="btn-solid disabled:opacity-50">
+        <div className="pt-12 flex justify-end">
+          <button onClick={() => setStep(4)} disabled={currentCats.length === 0 || f.languages.length === 0 || !f.city || !f.availability || !f.platform_metrics.instagram.handle} className="btn-solid disabled:opacity-50">
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -590,7 +570,7 @@ export default function Onboarding() {
         {error && <div className="text-[#FF3B30] font-mono text-xs">{error}</div>}
 
         <div className="flex justify-between items-center">
-          <button onClick={() => setStep(user.role === "influencer" ? 3 : 1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
+          <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
             ← Back
           </button>
           <button onClick={submitProfile} disabled={submitting} className="btn-solid disabled:opacity-50">
