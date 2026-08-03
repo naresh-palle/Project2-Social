@@ -1,3 +1,6 @@
+
+import { SocialConnect } from "@/components/SocialConnect";
+import { SocialAnalyticsCards } from "@/components/SocialAnalyticsCards";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -506,11 +509,23 @@ const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
 ];
 
 function InfluencerPanel() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const [apps, setApps] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState("campaigns-feed");
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await api.post("/oauth/sync");
+      await refresh(); // refresh user data from /auth/me
+    } catch (e) {
+      console.error(e);
+    }
+    setSyncing(false);
+  };
+const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiche, setSelectedNiche] = useState("All");
   const [gridCols, setGridCols] = useState(4);
 
@@ -584,6 +599,16 @@ function InfluencerPanel() {
             {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
       {activeTab === "campaigns-feed" && (
         <div className="space-y-8">
+        <SocialAnalyticsCards 
+          connections={user?.oauth_connections || []} 
+          onSync={handleSync} 
+          isSyncing={syncing} 
+        />
+        
+        <SocialConnect 
+          connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)} 
+        />
+
           {/* Niche Filter Pills & Grid View Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2 items-center">
