@@ -1,13 +1,15 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
+import { ImageCropModal } from "@/components/ImageCropModal";
+import { DateField } from "@/components/DateField";
 
 const CATEGORIES = [
   "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
@@ -38,6 +40,7 @@ export default function ProfileEdit() {
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [cropState, setCropState] = useState(null); // { src, aspect, target: 'avatar'|'cover' }
   const avatarRef = useRef(null);
   const coverRef = useRef(null);
   const portfolioRef = useRef(null);
@@ -140,15 +143,48 @@ export default function ProfileEdit() {
   const removeCampaign = (i) => setF({ ...f, past_campaigns: f.past_campaigns.filter((_, j) => j !== i) });
 
   const onAvatarPick = async (e) => {
-    const url = await uploadImage(e.target.files?.[0]);
-    if (url) { setF({ ...f, avatar: url }); toast.success("Avatar uploaded."); }
+    const file = e.target.files?.[0];
     e.target.value = "";
+    if (!file) return;
+    const src = URL.createObjectURL(file);
+    setCropState({ src, aspect: 1, target: "avatar", title: "Crop profile picture" });
   };
 
   const onCoverPick = async (e) => {
-    const url = await uploadImage(e.target.files?.[0]);
-    if (url) { setF({ ...f, cover_photo: url }); toast.success("Cover photo uploaded."); }
+    const file = e.target.files?.[0];
     e.target.value = "";
+    if (!file) return;
+    const src = URL.createObjectURL(file);
+    setCropState({ src, aspect: 16 / 5, target: "cover", title: "Crop cover photo" });
+  };
+
+  const onCropComplete = async (file) => {
+    const target = cropState?.target;
+    const prevSrc = cropState?.src;
+    setCropState(null);
+    if (prevSrc) URL.revokeObjectURL(prevSrc);
+    const url = await uploadImage(file);
+    if (!url) {
+      toast.error("Upload failed.");
+      return;
+    }
+    if (target === "avatar") {
+      setF((prev) => ({ ...prev, avatar: url }));
+      toast.success("Avatar uploaded. You can re-crop anytime before saving.");
+    } else {
+      setF((prev) => ({ ...prev, cover_photo: url }));
+      toast.success("Cover photo uploaded.");
+    }
+  };
+
+  const recropAvatar = () => {
+    if (!f.avatar) return;
+    setCropState({ src: f.avatar, aspect: 1, target: "avatar", title: "Edit profile picture crop" });
+  };
+
+  const recropCover = () => {
+    if (!f.cover_photo) return;
+    setCropState({ src: f.cover_photo, aspect: 16 / 5, target: "cover", title: "Edit cover crop" });
   };
 
   const submit = async (e) => {
@@ -173,7 +209,43 @@ export default function ProfileEdit() {
       return;
     }
 
+    if (!f.city || f.city.trim() === "") {
+      toast.error("Missing Data: Please enter your City / Location in Section 2.");
+      document.getElementById("sec-location")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (!isCreator) {
+      if (!f.company?.trim()) {
+        toast.error("Missing Data: Company / Brand Name is required.");
+        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      if (!f.industry?.trim()) {
+        toast.error("Missing Data: Brand Industry is required.");
+        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      if (!f.website?.trim()) {
+        toast.error("Missing Data: Official Website URL is required.");
+        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+
     if (isCreator) {
+      if (!f.handle?.trim()) {
+        toast.error("Missing Data: Creator Handle is required in Section 1.");
+        document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (!f.platform_metrics?.instagram?.handle?.trim()) {
+        toast.error("Missing Data: Instagram handle is required in Social Presence.");
+        document.getElementById("sec-social")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
       const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
       if (cats.length === 0) {
         toast.error("Missing Data: Please select at least one Content Niche / Category in Section 4.");
@@ -182,14 +254,14 @@ export default function ProfileEdit() {
       }
 
       if (!f.base_rate || Number(f.base_rate) <= 0) {
-        toast.error("Missing Data: Please specify your Base Rate in Section 5.");
+        toast.error("Missing Data: Please specify your Pricing & Rates in Section 5.");
         document.getElementById("sec-rate")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
       const validPast = f.past_campaigns.filter(c => c.brand?.trim() || c.title?.trim() || c.post_url?.trim());
       if (validPast.length === 0) {
-        toast.error("Missing Data: Past Campaigns are required. Please add at least 1 Past Campaign in Section 7.");
+        toast.error("Missing Data: Past Campaigns are required. Please add at least 1 Past Campaign in Section 6.");
         document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
@@ -201,8 +273,20 @@ export default function ProfileEdit() {
         return;
       }
 
+      if (!f.experience?.trim()) {
+        toast.error("Missing Data: Years of Experience is required in Section 7.");
+        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (!f.response_time?.trim()) {
+        toast.error("Missing Data: Response Time is required in Section 7.");
+        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
       if (!f.content_types || f.content_types.length === 0) {
-        toast.error("Missing Data: Please select at least one Content Type You Create in Section 8.");
+        toast.error("Missing Data: Please select at least one Content Type You Create in Section 7.");
         document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
@@ -343,7 +427,7 @@ export default function ProfileEdit() {
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Edit profile</p>
+                <p className="font-sans text-[11px] tracking-[0.22em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
                 <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
                 Your <span className="italic">file</span><span className="tick">.</span>
                 </h1>
@@ -372,7 +456,10 @@ export default function ProfileEdit() {
           
           {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
           <section id="sec-basic" className="space-y-6">
-              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">1. Basic &amp; Brand Details</h2>
+              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">01</span>
+                Basic &amp; Brand Details
+              </h2>
               <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
               
               {!isCreator && (
@@ -430,7 +517,7 @@ export default function ProfileEdit() {
                   </div>
               </F>
               <F label="Profile Picture *">
-                <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-4 mt-2 flex-wrap">
                   {f.avatar && <img src={f.avatar} alt="Profile Avatar" className="w-16 h-16 object-cover border border-white/20 p-1 rounded-sm" />}
                   <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
                   <button 
@@ -439,8 +526,17 @@ export default function ProfileEdit() {
                       className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2.5 text-xs flex items-center gap-2 cursor-pointer transition"
                   >
                       <Upload className="w-4 h-4" />
-                      <span>Upload Profile Pic</span>
+                      <span>{f.avatar ? "Replace Profile Pic" : "Upload Profile Pic"}</span>
                   </button>
+                  {f.avatar && (
+                    <button
+                      type="button"
+                      onClick={recropAvatar}
+                      className="btn-solid bg-white/5 hover:bg-white/15 text-white px-4 py-2.5 text-xs flex items-center gap-2"
+                    >
+                      <Crop className="w-4 h-4" /> Edit crop
+                    </button>
+                  )}
                 </div>
               </F>
               <F label="Cover Photo">
@@ -449,14 +545,21 @@ export default function ProfileEdit() {
                     <img src={f.cover_photo} alt="Cover" className="w-full h-32 object-cover border border-white/20 rounded-xs" />
                   )}
                   <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                  <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2 text-xs flex items-center gap-2">
-                    <Upload className="w-4 h-4" /> Upload Cover
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2 text-xs flex items-center gap-2">
+                      <Upload className="w-4 h-4" /> {f.cover_photo ? "Replace Cover" : "Upload Cover"}
+                    </button>
+                    {f.cover_photo && (
+                      <button type="button" onClick={recropCover} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-4 py-2 text-xs flex items-center gap-2">
+                        <Crop className="w-4 h-4" /> Edit crop
+                      </button>
+                    )}
+                  </div>
                 </div>
               </F>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <F label="Date of Birth">
-                  <input type="date" className="inp" value={f.date_of_birth || ""} onChange={(e) => setF({ ...f, date_of_birth: e.target.value })} />
+                  <DateField value={f.date_of_birth || ""} onChange={(v) => setF({ ...f, date_of_birth: v })} placeholder="Select date of birth" />
                 </F>
                 <F label="Gender">
                   <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
@@ -484,7 +587,9 @@ export default function ProfileEdit() {
 
           {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
           <section className="space-y-6">
-              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">Languages You Speak</h2>
+              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                Languages You Speak
+              </h2>
               <div className="space-y-4">
                   <F label="Select Languages (Multi-Select)">
                       <select 
@@ -521,11 +626,15 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 2: LOCATION & REGION (Available for all roles) */}
-          <section className="space-y-6">
-              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">2. Location &amp; Region Details</h2>
+          <section id="sec-location" className="space-y-6">
+              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">02</span>
+                Location &amp; Region Details
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <F label="City / Location *">
                       <input 
+                        required
                         className="inp" 
                         value={f.city || ""} 
                         onChange={e=>setF({...f, city: e.target.value})} 
@@ -544,9 +653,12 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
-          <section className="space-y-6">
-              <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">3. Our Social Presence &amp; Brand Accounts</h2>
-              <p className="text-xs opacity-60">Enter official social handles and audience reach (Instagram, YouTube, Twitter/X, Facebook). 4 in a row grid.</p>
+          <section id="sec-social" className="space-y-6">
+              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">03</span>
+                Social Presence &amp; Brand Accounts
+              </h2>
+              <p className="font-sans text-sm opacity-60">Enter official social handles and audience reach (Instagram, YouTube, Twitter/X, Facebook).</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     {PLATFORMS.map(plat => {
@@ -606,7 +718,10 @@ export default function ProfileEdit() {
 
               {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
               <section id="sec-niche" className="space-y-6">
-                  <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">4. Content Niche / Category * (Multi-Select)</h2>
+                  <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                    <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">04</span>
+                    Content Niche / Category *
+                  </h2>
                   
                   <div className="space-y-4">
                       <F label="Select Niches / Categories">
@@ -655,20 +770,25 @@ export default function ProfileEdit() {
                   </div>
               </section>
 
-              {/* SECTION 5: RATE (Creators Only) */}
               {isCreator && (
                 <section id="sec-rate" className="space-y-6">
-                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">5. Rate</h2>
+                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">05</span>
+                      Pricing &amp; Rates
+                    </h2>
                     <F label="Base Rate (INR) *">
-                        <input type="number" required className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
+                        <input type="number" required min={1} className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
                     </F>
                 </section>
               )}
 
-              {/* SECTION 7: PORTFOLIO & PAST WORK (Creators Only) */}
+              {/* SECTION 6: PORTFOLIO & PAST WORK (Creators Only) */}
               {isCreator && (
                 <section className="space-y-6">
-                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">7. Your Portfolio &amp; Past Work</h2>
+                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">06</span>
+                      Portfolio &amp; Past Work
+                    </h2>
                     
                     <F label="Portfolio Images and Videos">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
@@ -714,7 +834,7 @@ export default function ProfileEdit() {
                                             <input required className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.date || ""} onChange={e=>setCampaign(i, 'date', e.target.value)} />
+                                            <DateField required value={c.date || ""} onChange={(v)=>setCampaign(i, 'date', v)} placeholder="Campaign date" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <input required className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
@@ -745,10 +865,12 @@ export default function ProfileEdit() {
                 </section>
               )}
 
-              {/* SECTION 8: ADDITIONAL INFORMATION (Creators Only) */}
               {isCreator && (
-                <section className="space-y-6">
-                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">8. Additional Information</h2>
+                <section className="space-y-6" id="sec-content-types">
+                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
+                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">07</span>
+                      Additional Information
+                    </h2>
                     
                     <F label="Years of Experience *">
                         <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
@@ -764,7 +886,7 @@ export default function ProfileEdit() {
                         </select>
                     </F>
 
-                    <div className="pt-4" id="sec-content-types">
+                    <div className="pt-4">
                         <F label="Content Types You Create * (Multi-Select)">
                             <select 
                               className="inp cursor-pointer bg-[#0B0B0E]"
@@ -800,8 +922,8 @@ export default function ProfileEdit() {
                 </section>
               )}
 
-              {/* SECTION: SECURITY & MODIFY PASSWORD */}
-              <PasswordChangeSection />
+              {/* Password lives outside the profile form so empty password fields
+                  never block Save profile via HTML5 required validation. */}
 
           <div className="pt-8">
             <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-5 bg-[#FF3B30] text-white text-xl">
@@ -809,10 +931,27 @@ export default function ProfileEdit() {
             </button>
           </div>
         </motion.form>
+
+        <div className="mt-16">
+          <PasswordChangeSection />
+        </div>
       </div>
       <Footer />
-      <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: #F4F4F0; }
-      .inp:focus { border-color: #FF3B30; }`}</style>
+      {cropState && (
+        <ImageCropModal
+          imageSrc={cropState.src}
+          aspect={cropState.aspect}
+          title={cropState.title}
+          onCancel={() => {
+            if (cropState.src?.startsWith("blob:")) URL.revokeObjectURL(cropState.src);
+            setCropState(null);
+          }}
+          onComplete={onCropComplete}
+        />
+      )}
+      <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
+      .inp:focus { border-color: #FF3B30; }
+      input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }`}</style>
     </div>
   );
 }
@@ -858,38 +997,39 @@ function PasswordChangeSection() {
 
   return (
     <section id="sec-security" className="space-y-6 pt-4">
-      <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 border-b border-white/10 pb-2">
+      <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
         Security &amp; Modify Password
       </h2>
       <div className="bg-white/[0.02] p-6 border border-white/10 rounded-sm space-y-6">
-        <F label="Current Password *">
+        <p className="font-sans text-sm opacity-60">Password changes are saved separately from your profile. Leave blank if you only want to update profile details.</p>
+        <F label="Current Password">
           <input 
             type="password" 
-            required 
             className="inp font-mono" 
             placeholder="••••••••" 
+            autoComplete="current-password"
             value={pwdForm.current_password} 
             onChange={e => setPwdForm({ ...pwdForm, current_password: e.target.value })} 
           />
         </F>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <F label="New Password * (Min 8 chars, Alphanumeric)">
+          <F label="New Password (Min 8 chars, Alphanumeric)">
             <input 
               type="password" 
-              required 
               className="inp font-mono" 
               placeholder="••••••••" 
+              autoComplete="new-password"
               value={pwdForm.new_password} 
               onChange={e => setPwdForm({ ...pwdForm, new_password: e.target.value })} 
             />
           </F>
-          <F label="Confirm New Password *">
+          <F label="Confirm New Password">
             <input 
               type="password" 
-              required 
               className="inp font-mono" 
               placeholder="••••••••" 
+              autoComplete="new-password"
               value={pwdForm.confirm_password} 
               onChange={e => setPwdForm({ ...pwdForm, confirm_password: e.target.value })} 
             />
@@ -916,7 +1056,7 @@ function PasswordChangeSection() {
 function F({ label, children }) {
   return (
     <div>
-      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">{label}</label>
+      <label className="font-sans text-[11px] tracking-[0.18em] uppercase opacity-60 font-medium">{label}</label>
       {children}
     </div>
   );

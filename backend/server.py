@@ -577,7 +577,12 @@ async def check_availability(inp: CheckInput):
         if await db.users.find_one({"email": inp.email.lower().strip()}):
             return {"available": False, "field": "email"}
     if inp.mobile:
-        if await db.users.find_one({"mobile": inp.mobile.strip()}):
+        clean_mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+        if await db.users.find_one({"$or": [
+            {"mobile": clean_mobile},
+            {"mobile": f"+91{clean_mobile}"},
+            {"mobile": f"+91 {clean_mobile}"},
+        ]}):
             return {"available": False, "field": "mobile"}
     if inp.username:
         if await db.users.find_one({"username": inp.username.lower().strip()}):
@@ -927,13 +932,29 @@ async def mobile_verify_otp(inp: OTPVerify):
     target_code = (inp.code or inp.otp or "").strip()
     await consume_mobile_otp(mobile, target_code)
 
-    user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
+    user = await db.users.find_one({"$or": [
+        {"mobile": mobile},
+        {"mobile": f"+91{mobile}"},
+        {"mobile": f"+91 {mobile}"},
+    ]})
+    # Fallback: match trailing 10 digits for legacy rows
+    if not user:
+        cursor = db.users.find({"mobile": {"$regex": f"{mobile}$"}})
+        async for row in cursor:
+            digits = "".join(ch for ch in str(row.get("mobile") or "") if ch.isdigit())
+            if digits.endswith(mobile) or digits[-10:] == mobile:
+                user = row
+                break
+
     if user:
         user_id = user.get("id") or str(user["_id"])
         token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
         return {"ok": True, "verified": True, "token": token, "user": clean(dict(user)), "message": "Mobile number verified successfully!"}
 
-    return {"ok": True, "verified": True, "message": "Mobile number verified successfully!"}
+    raise HTTPException(
+        status_code=404,
+        detail="No account found for this mobile number. Please register first.",
+    )
 
 
 # Backward Compatible Unified Send & Verify Routes

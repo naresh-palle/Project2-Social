@@ -1,7 +1,7 @@
 name: cr8_mobile
 description: CR8 Studio — influencer marketplace mobile client (Android + iOS). Shares the same backend APIs as the web app.
 publish_to: "none"
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
@@ -32,6 +32,7 @@ dependencies:
   pull_to_refresh: ^2.0.0
   timeago: ^3.7.0
   uuid: ^4.5.1
+  share_plus: ^12.0.2
 
 dev_dependencies:
   flutter_test:

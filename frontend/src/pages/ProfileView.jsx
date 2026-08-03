@@ -10,6 +10,20 @@ import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { toast, Toaster } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+function Tip({ label, children, side = "top" }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="cursor-help border-b border-dotted border-white/30">{children}</span>
+      </TooltipTrigger>
+      <TooltipContent side={side} className="bg-[#1A1A1A] border border-white/20 text-[#F4F4F0] max-w-xs text-xs font-sans normal-case tracking-normal">
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -108,6 +122,7 @@ export default function ProfileView() {
   const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
       
 
@@ -187,12 +202,16 @@ export default function ProfileView() {
                       : "Influencer Profile"}
                   </span>
                   {profile.verified && (
-                    <span className="inline-flex items-center gap-1 text-[#34C759] ml-2">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified
-                    </span>
+                    <Tip label="This account has completed verification on the CR8 Studio ledger.">
+                      <span className="inline-flex items-center gap-1 text-[#34C759] ml-2">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                      </span>
+                    </Tip>
                   )}
                   {profile.online && (
-                    <span className="inline-flex items-center gap-1 text-emerald-400 ml-2">● Online</span>
+                    <Tip label="Creator is currently online on the platform.">
+                      <span className="inline-flex items-center gap-1 text-emerald-400 ml-2">● Online</span>
+                    </Tip>
                   )}
                 </div>
                 <h1 className="font-editorial text-5xl md:text-7xl leading-none font-medium">
@@ -287,19 +306,27 @@ export default function ProfileView() {
                   </h3>
                   <dl className="space-y-3.5 text-xs font-mono uppercase tracking-wider">
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
-                      <dt className="opacity-50">Experience</dt>
+                      <dt className="opacity-50">
+                        <Tip label="Years of professional creator experience on record.">Experience</Tip>
+                      </dt>
                       <dd className="text-white font-bold">{profile.experience || "Not Specified"}</dd>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
-                      <dt className="opacity-50">Base Rate</dt>
+                      <dt className="opacity-50">
+                        <Tip label="Starting collaboration fee in Indian Rupees (INR).">Base Rate</Tip>
+                      </dt>
                       <dd className="text-[#FF3B30] font-bold text-base">₹{Number(profile.base_rate || 0).toLocaleString()}</dd>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
-                      <dt className="opacity-50">Availability</dt>
+                      <dt className="opacity-50">
+                        <Tip label="When the creator can start a new brand collaboration.">Availability</Tip>
+                      </dt>
                       <dd className="text-[#34C759] font-bold">{profile.availability || "Immediately"}</dd>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2.5">
-                      <dt className="opacity-50">Response Time</dt>
+                      <dt className="opacity-50">
+                        <Tip label="Typical reply time for brand messages and briefs.">Response Time</Tip>
+                      </dt>
                       <dd className="text-white font-bold">{profile.response_time || "Within 24 hours"}</dd>
                     </div>
                     <div className="flex justify-between">
@@ -330,13 +357,18 @@ export default function ProfileView() {
               {languagesList.length > 0 && (
                 <div className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm">
                   <h3 className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold mb-3 flex items-center gap-1.5">
-                    <Languages className="w-3.5 h-3.5" /> Languages Spoken
+                    <Languages className="w-3.5 h-3.5" />{" "}
+                    <Tip label="Languages this creator can create content and communicate in.">
+                      Languages Spoken
+                    </Tip>
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {languagesList.map(l => (
-                      <span key={l} className="px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-xs font-mono text-[#FF3B30] rounded-xs font-bold">
-                        {l}
-                      </span>
+                      <Tip key={l} label={`Content language: ${l}`}>
+                        <span className="px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-xs font-mono text-[#FF3B30] rounded-xs font-bold">
+                          {l}
+                        </span>
+                      </Tip>
                     ))}
                   </div>
                 </div>
@@ -372,7 +404,9 @@ export default function ProfileView() {
                     </div>
                     {totalReach > 0 && (
                       <div className="text-right font-mono text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3.5 py-1 border border-[#FF3B30]/30 rounded-xs">
-                        Total Combined Reach · {formatNumber(totalReach)}
+                        <Tip label={`Exact combined audience: ${Number(totalReach).toLocaleString()} followers across connected channels.`}>
+                          Total Combined Reach · {formatNumber(totalReach)}
+                        </Tip>
                       </div>
                     )}
                   </div>
@@ -401,19 +435,35 @@ export default function ProfileView() {
 
                           <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 font-mono">
                             <div>
-                              <div className="text-[9px] uppercase tracking-widest opacity-50">Followers</div>
-                              <div className="text-lg font-editorial italic mt-0.5 text-white">{formatNumber(data.followers || 0)}</div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">
+                                <Tip label="Audience size on this platform.">Followers</Tip>
+                              </div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-white">
+                                <Tip label={`Exact: ${Number(data.followers || 0).toLocaleString()} followers`}>
+                                  {formatNumber(data.followers || 0)}
+                                </Tip>
+                              </div>
                             </div>
                             <div>
-                              <div className="text-[9px] uppercase tracking-widest opacity-50">Engagement</div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">
+                                <Tip label="Engagement rate — likes, comments, and shares relative to followers.">Engagement</Tip>
+                              </div>
                               <div className="text-lg font-editorial italic mt-0.5 text-[#34C759]">{data.engagement || 4.8}%</div>
                             </div>
                             <div>
-                              <div className="text-[9px] uppercase tracking-widest opacity-50">Views</div>
-                              <div className="text-lg font-editorial italic mt-0.5 text-white">{formatNumber(data.views || 0)}</div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">
+                                <Tip label="Approximate content views on this channel.">Views</Tip>
+                              </div>
+                              <div className="text-lg font-editorial italic mt-0.5 text-white">
+                                <Tip label={`Exact: ${Number(data.views || 0).toLocaleString()} views`}>
+                                  {formatNumber(data.views || 0)}
+                                </Tip>
+                              </div>
                             </div>
                             <div>
-                              <div className="text-[9px] uppercase tracking-widest opacity-50">Posts</div>
+                              <div className="text-[9px] uppercase tracking-widest opacity-50">
+                                <Tip label="Published posts or videos counted for this channel.">Posts</Tip>
+                              </div>
                               <div className="text-lg font-editorial italic mt-0.5 text-white">{data.posts || 120}</div>
                             </div>
                           </div>
@@ -524,5 +574,6 @@ export default function ProfileView() {
         <Footer />
       </div>
     </div>
+    </TooltipProvider>
   );
 }

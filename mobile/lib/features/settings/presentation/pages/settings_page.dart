@@ -1,12 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/cr8_api.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/appearance_prefs.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
@@ -24,7 +29,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   List<Map<String, dynamic>> drafts = [];
   Map<String, dynamic>? social;
   bool loading = true;
+  bool saving = false;
   final totp = TextEditingController();
+
+  static const _notifLabels = {
+    'likes': 'Likes',
+    'comments': 'Comments',
+    'follows': 'Follows',
+    'mentions': 'Mentions',
+    'messages': 'Messages',
+    'email': 'Email alerts',
+    'push': 'Push notifications',
+  };
+
+  static const _analyticsLabels = {
+    'profile_views': 'Profile Views',
+    'post_views': 'Post Views',
+    'likes': 'Likes',
+    'shares': 'Shares',
+    'comments': 'Comments',
+    'followers': 'Followers',
+    'following': 'Following',
+    'reach': 'Reach',
+    'engagement_rate': 'Engagement %',
+    'posts_count': 'Posts',
+    'followers_growth': 'Followers Growth',
+  };
 
   @override
   void initState() {
@@ -48,6 +78,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       blocks = await api.blocks();
       drafts = await api.myPosts(status: 'draft');
       social = await api.analyticsSocial();
+      _syncAppearance(settings);
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
     } finally {
@@ -55,14 +86,74 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  void _syncAppearance(Map<String, dynamic>? s) {
+    if (s == null) return;
+    ref.read(appearancePrefsProvider.notifier).state = AppearancePrefs(
+      theme: '${s['theme'] ?? 'dark'}',
+      highContrast: s['high_contrast'] == true,
+      fontScale: (s['font_scale'] as num?)?.toDouble() ?? 1,
+    );
+  }
+
   Future<void> _patch(Map<String, dynamic> body) async {
-    settings = await ref.read(cr8ApiProvider).patchSettings(body);
-    final storage = ref.read(sessionStorageProvider);
-    if (body['theme'] != null) await storage.saveTheme('${body['theme']}');
-    if (body['high_contrast'] != null) await storage.saveHighContrast(body['high_contrast'] == true);
-    if (body['font_scale'] != null) await storage.saveFontScale((body['font_scale'] as num).toDouble());
-    setState(() {});
-    if (mounted) showCr8Snack(context, 'Saved');
+    if (saving) return;
+    setState(() => saving = true);
+    // Optimistic local update so toggles feel instant
+    setState(() {
+      settings = {
+        ...?settings,
+        ...body,
+        if (body['notification_prefs'] is Map)
+          'notification_prefs': {
+            ...Map<String, dynamic>.from(settings?['notification_prefs'] as Map? ?? {}),
+            ...Map<String, dynamic>.from(body['notification_prefs'] as Map),
+          },
+      };
+    });
+    try {
+      await ref.read(cr8ApiProvider).patchSettings(body);
+      settings = await ref.read(cr8ApiProvider).settings();
+      final storage = ref.read(sessionStorageProvider);
+      if (body['theme'] != null) await storage.saveTheme('${body['theme']}');
+      if (body['high_contrast'] != null) await storage.saveHighContrast(body['high_contrast'] == true);
+      if (body['font_scale'] != null) await storage.saveFontScale((body['font_scale'] as num).toDouble());
+      _syncAppearance(settings);
+      if (mounted) showCr8Snack(context, 'Saved');
+    } catch (e) {
+      await _load();
+      if (mounted) showCr8Snack(context, e.toString(), error: true);
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  Future<void> _downloadData() async {
+    try {
+      showCr8Snack(context, 'Preparing export…');
+      final data = await ref.read(cr8ApiProvider).exportData();
+      final json = const JsonEncoder.withIndent('  ').convert(data);
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/cr8-studio-data-export.json');
+      await file.writeAsString(json);
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'application/json')],
+          subject: 'CR8 Studio data export',
+          text: 'Your CR8 Studio account data export',
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        // Fallback: copy JSON to clipboard if share fails
+        try {
+          final data = await ref.read(cr8ApiProvider).exportData();
+          await Clipboard.setData(ClipboardData(text: const JsonEncoder.withIndent('  ').convert(data)));
+          if (mounted) showCr8Snack(context, 'Export copied to clipboard');
+        } catch (_) {
+          if (mounted) showCr8Snack(context, e.toString(), error: true);
+        }
+      }
+    }
   }
 
   @override
@@ -83,13 +174,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 DropdownMenuItem(value: 'light', child: Text('Light')),
                 DropdownMenuItem(value: 'system', child: Text('System')),
               ],
-              onChanged: (v) => _patch({'theme': v}),
+              onChanged: saving ? null : (v) => _patch({'theme': v}),
             ),
           ),
           SwitchListTile(
             title: const Text('High contrast'),
             value: settings?['high_contrast'] == true,
-            onChanged: (v) => _patch({'high_contrast': v}),
+            onChanged: saving ? null : (v) => _patch({'high_contrast': v}),
           ),
           ListTile(
             title: const Text('Font scale'),
@@ -97,32 +188,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               value: ((settings?['font_scale'] as num?)?.toDouble() ?? 1).clamp(0.85, 1.5),
               min: 0.85,
               max: 1.5,
-              onChanged: (v) => setState(() => settings = {...?settings, 'font_scale': v}),
-              onChangeEnd: (v) => _patch({'font_scale': v}),
+              onChanged: saving
+                  ? null
+                  : (v) => setState(() => settings = {...?settings, 'font_scale': v}),
+              onChangeEnd: saving ? null : (v) => _patch({'font_scale': v}),
             ),
           ),
           const ListTile(title: Cr8SectionLabel('Privacy')),
           SwitchListTile(
             title: const Text('Private profile'),
             value: settings?['is_private'] == true,
-            onChanged: (v) => _patch({'is_private': v}),
+            onChanged: saving ? null : (v) => _patch({'is_private': v}),
           ),
           SwitchListTile(
             title: const Text('Show online status'),
             value: settings?['show_online_status'] != false,
-            onChanged: (v) => _patch({'show_online_status': v}),
+            onChanged: saving ? null : (v) => _patch({'show_online_status': v}),
           ),
           SwitchListTile(
             title: const Text('Show last seen'),
             value: settings?['show_last_seen'] != false,
-            onChanged: (v) => _patch({'show_last_seen': v}),
+            onChanged: saving ? null : (v) => _patch({'show_last_seen': v}),
           ),
           const ListTile(title: Cr8SectionLabel('Notifications')),
-          ...['likes', 'comments', 'follows', 'mentions', 'messages', 'email', 'push'].map((k) {
+          ..._notifLabels.entries.map((e) {
             return SwitchListTile(
-              title: Text(k),
-              value: prefs[k] != false,
-              onChanged: (v) => _patch({'notification_prefs': {k: v}}),
+              title: Text(e.value),
+              value: prefs[e.key] != false,
+              onChanged: saving ? null : (v) => _patch({'notification_prefs': {e.key: v}}),
             );
           }),
           const ListTile(title: Cr8SectionLabel('Security')),
@@ -186,7 +279,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             final id = u['id'] ?? b['block']?['blocked_id'];
             return ListTile(
               title: Text('${u['name'] ?? id}'),
-              trailing: TextButton(onPressed: () async { await ref.read(cr8ApiProvider).unblock('$id'); _load(); }, child: const Text('Unblock')),
+              trailing: TextButton(
+                onPressed: () async {
+                  await ref.read(cr8ApiProvider).unblock('$id');
+                  _load();
+                },
+                child: const Text('Unblock'),
+              ),
             );
           }),
           const ListTile(title: Cr8SectionLabel('Drafts')),
@@ -194,7 +293,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 title: Text('${d['title'] ?? d['text'] ?? 'Draft'}'),
                 trailing: TextButton(
                   onPressed: () async {
-                    // publish via patch endpoint through raw client would need extra method; recreate via createPost
                     await ref.read(cr8ApiProvider).createPost({
                       'text': d['text'],
                       'title': d['title'],
@@ -213,8 +311,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  for (final e in ['profile_views', 'post_views', 'likes', 'followers', 'engagement_rate'])
-                    Chip(label: Text('$e: ${social![e] ?? 0}')),
+                  for (final e in _analyticsLabels.entries)
+                    if (social!.containsKey(e.key) ||
+                        ['profile_views', 'post_views', 'likes', 'followers', 'engagement_rate'].contains(e.key))
+                      Chip(label: Text('${e.value}: ${social![e.key] ?? 0}')),
                 ],
               ),
             ),
@@ -222,21 +322,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const ListTile(title: Cr8SectionLabel('Data')),
           ListTile(
             title: const Text('Download my data'),
+            subtitle: const Text('Export account JSON and share/save the file'),
             leading: const Icon(Icons.download),
-            onTap: () async {
-              final data = await ref.read(cr8ApiProvider).exportData();
-              if (mounted) {
-                await showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    backgroundColor: Cr8Colors.surface,
-                    title: const Text('Export'),
-                    content: SingleChildScrollView(child: SelectableText(const JsonEncoder.withIndent('  ').convert(data))),
-                    actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
-                  ),
-                );
-              }
-            },
+            onTap: _downloadData,
           ),
           ListTile(
             title: const Text('Delete account', style: TextStyle(color: Cr8Colors.accent)),

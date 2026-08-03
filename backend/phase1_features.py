@@ -564,8 +564,8 @@ def setup_phase1(
                 updates[k] = v
         if updates:
             await db.users.update_one({"id": current["id"]}, {"$set": updates})
-        user = await db.users.find_one({"id": current["id"]}, {"password_hash": 0})
-        return clean(dict(user)) if user else current
+        # Always return the settings-shaped payload so mobile toggles stay in sync
+        return await get_settings(current)
 
     @api_router.get("/settings")
     async def get_settings(current: dict = Depends(get_current_user)):

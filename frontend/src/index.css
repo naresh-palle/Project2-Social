@@ -60,6 +60,7 @@ button, input, select, textarea {
 
 .font-editorial { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
 .font-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
+.font-sans { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; }
 
 /* Selection */
 ::selection {

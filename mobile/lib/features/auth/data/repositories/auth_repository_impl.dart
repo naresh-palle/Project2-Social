@@ -97,7 +97,10 @@ class AuthRepositoryImpl implements AuthRepository {
     final res = await _api.post('/auth/mobile/verify-otp', data: {'mobile': mobile, 'code': code});
     final data = Map<String, dynamic>.from(res.data as Map);
     if (data['token'] == null) {
-      throw AppFailure('No account found for this mobile number. Please register first.');
+      throw AppFailure(
+        'No account found for this mobile number. Please register first.',
+        statusCode: 404,
+      );
     }
     await _persist(data['token'] as String, Map<String, dynamic>.from(data['user'] as Map));
     return _user!;

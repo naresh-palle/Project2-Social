@@ -5,6 +5,7 @@ import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/storage/offline_cache.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/appearance_prefs.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 
 Future<void> main() async {
@@ -21,10 +22,6 @@ class Cr8App extends ConsumerStatefulWidget {
 }
 
 class _Cr8AppState extends ConsumerState<Cr8App> with WidgetsBindingObserver {
-  ThemeMode _themeMode = ThemeMode.dark;
-  bool _highContrast = false;
-  double _fontScale = 1;
-
   @override
   void initState() {
     super.initState();
@@ -38,17 +35,11 @@ class _Cr8AppState extends ConsumerState<Cr8App> with WidgetsBindingObserver {
     final hc = await storage.highContrast();
     final fs = await storage.fontScale();
     if (!mounted) return;
-    setState(() {
-      _highContrast = hc;
-      _fontScale = fs;
-      if (t == 'light') {
-        _themeMode = ThemeMode.light;
-      } else if (t == 'system') {
-        _themeMode = ThemeMode.system;
-      } else {
-        _themeMode = ThemeMode.dark;
-      }
-    });
+    ref.read(appearancePrefsProvider.notifier).state = AppearancePrefs(
+      theme: t.isEmpty ? 'dark' : t,
+      highContrast: hc,
+      fontScale: fs,
+    );
   }
 
   @override
@@ -67,17 +58,24 @@ class _Cr8AppState extends ConsumerState<Cr8App> with WidgetsBindingObserver {
     }
   }
 
+  ThemeMode _mapTheme(String t) {
+    if (t == 'light') return ThemeMode.light;
+    if (t == 'system') return ThemeMode.system;
+    return ThemeMode.dark;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Keep auth provider alive so bootstrap + presence run.
     ref.watch(authProvider);
+    final appearance = ref.watch(appearancePrefsProvider);
     final router = ref.watch(goRouterProvider);
     return MaterialApp.router(
       title: 'CR8 Studio',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(highContrast: _highContrast, fontScale: _fontScale),
-      darkTheme: AppTheme.dark(highContrast: _highContrast, fontScale: _fontScale),
-      themeMode: _themeMode,
+      theme: AppTheme.light(highContrast: appearance.highContrast, fontScale: appearance.fontScale),
+      darkTheme: AppTheme.dark(highContrast: appearance.highContrast, fontScale: appearance.fontScale),
+      themeMode: _mapTheme(appearance.theme),
       routerConfig: router,
     );
   }

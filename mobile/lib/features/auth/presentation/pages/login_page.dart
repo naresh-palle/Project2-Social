@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/network/cr8_api.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/studio_backdrop.dart';
@@ -109,6 +110,14 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
     }
     setState(() => _busy = true);
     try {
+      // Ensure an account exists for this mobile before sending OTP (avoids confusing 404 later).
+      final check = await ref.read(cr8ApiProvider).checkAvailability(mobile: mobile);
+      if (check['available'] == true) {
+        if (!mounted) return;
+        setState(() => _busy = false);
+        showCr8Snack(context, 'No account found for this mobile. Please register first.', error: true);
+        return;
+      }
       await ref.read(authRepositoryProvider).sendMobileOtp(mobile);
       if (!mounted) return;
       setState(() {

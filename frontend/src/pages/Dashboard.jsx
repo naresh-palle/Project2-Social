@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
-  ExternalLink, MessageSquare, Briefcase, Award, Zap, LayoutGrid, FileText
+  ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -61,15 +61,15 @@ export default function Dashboard() {
                 )}
               </div>
               <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+                <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">
                   § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
                 <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
                   {user?.name || user?.username || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span>
                 </h1>
-                <p className="font-mono text-[11px] tracking-[0.22em] uppercase opacity-60 mt-2">
-                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : user?.handle || user?.username || "Creator Partner"} ·{" "}
-                  {user?.email || ""}
+                <p className="font-sans text-sm opacity-65 mt-2">
+                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : user?.handle || user?.username || "Creator Partner"}
+                  {user?.email ? ` · ${user.email}` : ""}
                 </p>
               </div>
             </div>
@@ -189,7 +189,6 @@ function OwnerPanel() {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("work-feed");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => setItems([]));
@@ -290,39 +289,10 @@ function OwnerPanel() {
               ))}
             </div>
 
-            {/* Interactive Grid View Controls */}
-            <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase">
-              <span className="opacity-50 flex items-center gap-1 mr-1 hidden sm:flex">
-                <LayoutGrid className="w-3.5 h-3.5 text-[#FF3B30]" /> Grid:
-              </span>
-              {[
-                { cols: 2, label: "2 Grid" },
-                { cols: 3, label: "3 Grid" },
-                { cols: 4, label: "4 Grid" },
-              ].map((g) => (
-                <button
-                  key={g.cols}
-                  onClick={() => setGridCols(g.cols)}
-                  className={`px-3 py-1.5 rounded-xs border transition-all ${
-                    gridCols === g.cols
-                      ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
-                      : "border-white/15 hover:border-white/30 text-white/60"
-                  }`}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Reel & Content Showcase Grid */}
-          <div className={`grid gap-6 ${
-            gridCols === 2
-              ? "grid-cols-1 md:grid-cols-2"
-              : gridCols === 3
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          }`}>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredFeed.map((work, idx) => (
               <motion.div
                 key={work.id}
@@ -381,7 +351,7 @@ function OwnerPanel() {
                   </div>
                 </div>
 
-                <p className="font-mono text-xs text-[#F4F4F0]/70 leading-relaxed mb-6">
+                <p className="font-sans text-sm text-[#F4F4F0]/75 leading-relaxed mb-6">
                   {work.description}
                 </p>
 
@@ -508,7 +478,6 @@ function InfluencerPanel() {
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiche, setSelectedNiche] = useState("All");
-  const [gridCols, setGridCols] = useState(4);
 
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
@@ -601,39 +570,10 @@ function InfluencerPanel() {
               ))}
             </div>
 
-            {/* Interactive Grid View Controls */}
-            <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase">
-              <span className="opacity-50 flex items-center gap-1 mr-1 hidden sm:flex">
-                <LayoutGrid className="w-3.5 h-3.5 text-[#FF3B30]" /> Grid:
-              </span>
-              {[
-                { cols: 2, label: "2 Grid" },
-                { cols: 3, label: "3 Grid" },
-                { cols: 4, label: "4 Grid" },
-              ].map((g) => (
-                <button
-                  key={g.cols}
-                  onClick={() => setGridCols(g.cols)}
-                  className={`px-3 py-1.5 rounded-xs border transition-all ${
-                    gridCols === g.cols
-                      ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
-                      : "border-white/15 hover:border-white/30 text-white/60"
-                  }`}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Campaign Brief Grid */}
-          <div className={`grid gap-6 ${
-            gridCols === 2
-              ? "grid-cols-1 md:grid-cols-2"
-              : gridCols === 3
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          }`}>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredCampaigns.map((c, idx) => (
               <motion.div
                 key={c.id || idx}
