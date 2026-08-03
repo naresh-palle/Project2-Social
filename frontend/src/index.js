@@ -6,6 +6,22 @@ import "@/index.css";
 import App from "@/App";
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com";
+const APPLE_CLIENT_ID = process.env.REACT_APP_APPLE_CLIENT_ID || "";
+
+// Optional Apple Sign In JS init (button always visible; popup works when client id is set)
+function initAppleAuth() {
+  if (!APPLE_CLIENT_ID || !window.AppleID?.auth) return;
+  try {
+    window.AppleID.auth.init({
+      clientId: APPLE_CLIENT_ID,
+      scope: "name email",
+      redirectURI: `${window.location.origin}${window.location.pathname}`,
+      usePopup: true,
+    });
+  } catch (_) {}
+}
+if (document.readyState === "complete") initAppleAuth();
+else window.addEventListener("load", initAppleAuth);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,3 +42,9 @@ root.render(
     </GoogleOAuthProvider>
   </React.StrictMode>,
 );
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register(`${process.env.PUBLIC_URL || ""}/sw.js`).catch(() => {});
+  });
+}

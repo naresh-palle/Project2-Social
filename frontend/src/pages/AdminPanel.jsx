@@ -55,6 +55,11 @@ export function AdminPanel() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [reports, setReports] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [platformStats, setPlatformStats] = useState(null);
+  const [broadcastText, setBroadcastText] = useState("");
+  const [broadcastRole, setBroadcastRole] = useState("");
 
   const notifications = [
       { id: 1, text: "New creator '@zara_fashion' registered", time: "2 mins ago", type: "success" },
@@ -74,6 +79,10 @@ export function AdminPanel() {
         setStats(stRes.data);
         setActivity(actRes.data);
         setPayments(payRes.data);
+        try {
+          const platRes = await api.get("/analytics/platform");
+          setPlatformStats(platRes.data);
+        } catch {}
       } catch (e) {
         toast.error("Failed to load platform data");
       } finally {
@@ -103,6 +112,12 @@ export function AdminPanel() {
 
   useEffect(() => {
       if (tab === "users") fetchUsers();
+      if (tab === "reports") {
+        api.get("/admin/reports").then(r => setReports(r.data || [])).catch(() => toast.error("Failed to load reports"));
+      }
+      if (tab === "categories") {
+        api.get("/admin/categories").then(r => setCategories(r.data || [])).catch(() => toast.error("Failed to load categories"));
+      }
   }, [tab, roleFilter, categoryFilter, statusFilter, searchQuery]);
 
   const deleteUser = async (userId) => {
@@ -115,6 +130,43 @@ export function AdminPanel() {
           setStats(stRes.data);
       } catch (e) {
           toast.error("Failed to delete user");
+      }
+  };
+
+  const banUser = async (userId) => {
+      const reason = window.prompt("Ban reason (optional):") || "Policy violation";
+      if (!window.confirm("Ban this user?")) return;
+      try {
+          await api.post(`/admin/users/${userId}/ban`, { reason });
+          toast.success("User banned");
+          fetchUsers();
+      } catch {
+          toast.error("Ban failed");
+      }
+  };
+
+  const handleReportAction = async (reportId, status) => {
+      try {
+          await api.post(`/admin/reports/${reportId}`, { status, note: `Marked ${status}` });
+          toast.success(`Report ${status}`);
+          const { data } = await api.get("/admin/reports");
+          setReports(data || []);
+      } catch {
+          toast.error("Action failed");
+      }
+  };
+
+  const sendBroadcast = async () => {
+      if (!broadcastText.trim()) return;
+      try {
+          const { data } = await api.post("/admin/notifications/broadcast", {
+              text: broadcastText,
+              role: broadcastRole || undefined,
+          });
+          toast.success(`Broadcast sent to ${data.sent} users`);
+          setBroadcastText("");
+      } catch {
+          toast.error("Broadcast failed");
       }
   };
 
@@ -190,6 +242,9 @@ export function AdminPanel() {
                       Brief Moderation <span className="bg-purple-500 text-white px-2 py-0.5 text-[9px] rounded-xs font-bold ml-1">AI</span>
                     </button>
                     <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>User Management</button>
+                    <button onClick={() => setTab("reports")} className={`pb-2 border-b-2 transition-colors ${tab === "reports" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Reports</button>
+                    <button onClick={() => setTab("categories")} className={`pb-2 border-b-2 transition-colors ${tab === "categories" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Categories</button>
+                    <button onClick={() => setTab("broadcast")} className={`pb-2 border-b-2 transition-colors ${tab === "broadcast" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Broadcast</button>
                     <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit Logs</button>
                 </div>
             </div>
@@ -206,6 +261,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Creators · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
+                    <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
                     <StatCard title="Active Campaigns" value={stats?.campaigns?.active || 11} sub={`Out of ${stats?.campaigns?.total || 14} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend="+8%" pos={true} />
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
@@ -368,12 +424,18 @@ export function AdminPanel() {
                                             <td className="p-4">
                                                 {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>}
                                             </td>
+<<<<<<< HEAD
                                             <td className="p-4 text-right">
                                                 {u.role !== 'admin' && (
                                                     <button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 )}
+=======
+                                            <td className="p-4 text-right flex items-center justify-end gap-1">
+                                                <button onClick={() => banUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Ban User"><Lock className="w-4 h-4" /></button>
+                                                <button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
+>>>>>>> 6baf63bffbda3caaa84ec0d0921842e0331c9013
                                             </td>
                                         </tr>
                                     ))
@@ -382,6 +444,62 @@ export function AdminPanel() {
                         </table>
                     )}
                 </div>
+            </motion.div>
+        )}
+
+        {/* TAB: REPORTS */}
+        {tab === "reports" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 border border-white/10 bg-white/[0.02] overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
+                            <th className="p-4">Type</th><th className="p-4">Target</th><th className="p-4">Reason</th><th className="p-4">Status</th><th className="p-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {reports.length === 0 ? (
+                            <tr><td colSpan={5} className="p-12 text-center font-editorial italic text-2xl opacity-40">No open reports</td></tr>
+                        ) : reports.map((r) => (
+                            <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                <td className="p-4 font-mono text-xs uppercase">{r.target_type}</td>
+                                <td className="p-4 font-mono text-xs">{r.target_id}</td>
+                                <td className="p-4 text-sm">{r.reason}</td>
+                                <td className="p-4"><span className="px-2 py-1 text-[9px] uppercase font-mono bg-orange-400/10 text-orange-400 border border-orange-400/20 rounded-xs">{r.status}</span></td>
+                                <td className="p-4 text-right space-x-2">
+                                    <button onClick={() => handleReportAction(r.id, "resolved")} className="font-mono text-[10px] text-[#34C759] uppercase">Resolve</button>
+                                    <button onClick={() => handleReportAction(r.id, "dismissed")} className="font-mono text-[10px] opacity-50 uppercase">Dismiss</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </motion.div>
+        )}
+
+        {/* TAB: CATEGORIES */}
+        {tab === "categories" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02]">
+                <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Platform Categories</h3>
+                <div className="flex flex-wrap gap-2">
+                    {(categories.length ? categories : CATEGORIES.map((name) => ({ name }))).map((c, i) => (
+                        <span key={c.id || i} className="px-3 py-1.5 bg-white/5 border border-white/10 font-mono text-xs rounded-xs">{c.name || c}</span>
+                    ))}
+                </div>
+            </motion.div>
+        )}
+
+        {/* TAB: BROADCAST */}
+        {tab === "broadcast" && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl space-y-4">
+                <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h3>
+                <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-mono text-sm h-28 rounded-xs" />
+                <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs">
+                    <option value="">All Users</option>
+                    <option value="influencer">Creators Only</option>
+                    <option value="owner">Brands Only</option>
+                    <option value="agent">Agencies Only</option>
+                </select>
+                <button onClick={sendBroadcast} className="btn-solid bg-[#FF3B30] text-white px-6 py-2 font-mono text-xs uppercase">Send Broadcast</button>
             </motion.div>
         )}
 

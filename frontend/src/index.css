@@ -166,3 +166,25 @@ a, button { cursor: pointer; }
     transition: transform 250ms ease, background-color 250ms ease;
 }
 .btn-solid:hover { transform: translateY(-2px); background: #ff5548; }
+
+/* Theme & accessibility preferences */
+html.theme-light,
+html.theme-light body,
+html.theme-light #root {
+    background: #F4F4F0 !important;
+    color: #0A0A0A;
+}
+html.theme-light .bg-\[\#0B0B0E\] { background-color: #F4F4F0 !important; }
+html.theme-light .bg-\[\#121212\] { background-color: #E8E8E4 !important; }
+html.theme-light .text-\[\#F4F4F0\] { color: #0A0A0A !important; }
+
+html.high-contrast {
+    --hairline: rgba(244, 244, 240, 0.35);
+}
+html.high-contrast * {
+    border-color: rgba(244, 244, 240, 0.35) !important;
+}
+html.high-contrast .btn-solid,
+html.high-contrast button[class*="bg-[#FF3B30]"] {
+    outline: 2px solid #F4F4F0;
+}

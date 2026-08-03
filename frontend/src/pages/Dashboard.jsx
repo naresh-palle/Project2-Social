@@ -506,6 +506,7 @@ const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
 ];
 
 function InfluencerPanel() {
+  const { user } = useAuth();
   const [apps, setApps] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);

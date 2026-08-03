@@ -14,6 +14,7 @@ import asyncio
 import logging
 import mimetypes
 import secrets
+import re
 from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
@@ -85,12 +86,16 @@ def now_iso() -> str:
 _brevo_account_email: Optional[str] = None
 
 async def get_brevo_verified_sender(api_key: str) -> str:
+    """Resolve a Brevo-safe sender. Prefer explicit BREVO_SENDER_EMAIL, then Brevo account email.
+    Do NOT use GMAIL_USER as Brevo sender — Gmail addresses are usually unverified in Brevo.
+    """
     global _brevo_account_email
     if _brevo_account_email:
         return _brevo_account_email
 
-    configured = (os.environ.get("BREVO_SENDER_EMAIL") or os.environ.get("EMAIL_USER") or os.environ.get("GMAIL_USER") or "").strip()
-    if configured and "@" in configured and not configured.endswith("@cr8.studio"):
+    # Only use a sender that was explicitly configured for Brevo
+    configured = (os.environ.get("BREVO_SENDER_EMAIL") or "").strip()
+    if configured and "@" in configured:
         return configured
 
     try:
@@ -103,16 +108,22 @@ async def get_brevo_verified_sender(api_key: str) -> str:
                     _brevo_account_email = acc_email
                     logger.info("Brevo account email auto-detected: %s", acc_email)
                     return acc_email
+            else:
+                logger.warning("Brevo account lookup status %s: %s", r.status_code, r.text[:200])
     except Exception as e:
         logger.warning("Brevo account info lookup failed: %s", e)
 
-    return configured or "onboarding@resend.dev"
+    # Last resort — Brevo free accounts can often send from their login email only
+    return configured or "noreply@cr8.studio"
 
 
-async def send_email(to: str, subject: str, html: str) -> None:
-    """Delivers email via Brevo HTTP API, Resend HTTP API, Gmail SMTP, or Emergent HTTP proxy."""
-    
-    # 1. Brevo (Sendinblue) HTTP API (300 free transactional emails/day over HTTPS)
+async def send_email(to: str, subject: str, html: str) -> bool:
+    """Delivers email via Brevo → Resend → Gmail SMTP → Emergent.
+    Returns True only when a provider confirms delivery; never silently succeeds.
+    """
+    errors = []
+
+    # 1. Brevo (Sendinblue) HTTP API
     brevo_api_key = (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
     if brevo_api_key:
         try:
@@ -135,13 +146,15 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if res.status_code in (200, 201):
                     logger.info("Email sent successfully via Brevo HTTP API (Sender: %s) to %s", sender_email, to)
-                    return
-                else:
-                    logger.warning("Brevo HTTP API error status %s: %s", res.status_code, res.text)
+                    return True
+                err = f"Brevo {res.status_code}: {res.text[:300]}"
+                errors.append(err)
+                logger.warning("Brevo HTTP API error: %s", err)
         except Exception as e:
+            errors.append(f"Brevo exception: {e}")
             logger.warning("Brevo HTTP API exception: %s", e)
 
-    # 2. Resend HTTP API (100 free emails/day over HTTPS)
+    # 2. Resend HTTP API
     resend_api_key = (os.environ.get("RESEND_API_KEY") or "").strip()
     if resend_api_key:
         try:
@@ -162,13 +175,15 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if res.status_code in (200, 201):
                     logger.info("Email sent successfully via Resend HTTP API to %s", to)
-                    return
-                else:
-                    logger.warning("Resend HTTP API error %s: %s", res.status_code, res.text)
+                    return True
+                err = f"Resend {res.status_code}: {res.text[:300]}"
+                errors.append(err)
+                logger.warning("Resend HTTP API error: %s", err)
         except Exception as e:
+            errors.append(f"Resend exception: {e}")
             logger.warning("Resend HTTP API exception: %s", e)
 
-    # 3. Gmail SMTP Fallback
+    # 3. Gmail SMTP Fallback (often blocked on Render free tier)
     gmail_user = (os.environ.get("GMAIL_USER") or os.environ.get("EMAIL_USER") or "").strip()
     gmail_pass = (os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("EMAIL_PASS") or "").strip()
     if gmail_user and gmail_pass:
@@ -177,14 +192,14 @@ async def send_email(to: str, subject: str, html: str) -> None:
             import smtplib
             from email.mime.text import MIMEText
             from email.mime.multipart import MIMEMultipart
-            
+
             from_header = os.environ.get("EMAIL_FROM", f"CR8 Studio <{gmail_user}>")
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = from_header
             msg["To"] = to
             msg.attach(MIMEText(html, "html"))
-            
+
             def _send():
                 try:
                     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as s:
@@ -196,11 +211,12 @@ async def send_email(to: str, subject: str, html: str) -> None:
                         s.starttls()
                         s.login(gmail_user, gmail_pass_clean)
                         s.sendmail(gmail_user, [to], msg.as_string())
-            
+
             await asyncio.to_thread(_send)
             logger.info("Email sent via Gmail SMTP to %s", to)
-            return
+            return True
         except Exception as e:
+            errors.append(f"Gmail SMTP failed: {e}")
             logger.warning("Gmail SMTP delivery failed for %s: %s", to, e)
 
     if EMERGENT_EMAIL_KEY:
@@ -213,13 +229,33 @@ async def send_email(to: str, subject: str, html: str) -> None:
                 )
                 if r.status_code < 400:
                     logger.info("Email sent via Emergent proxy to %s", to)
-                    return
-                else:
-                    logger.warning("Email send failed %s: %s", r.status_code, r.text[:200])
+                    return True
+                err = f"Emergent {r.status_code}: {r.text[:200]}"
+                errors.append(err)
+                logger.warning("Email send failed: %s", err)
         except Exception as e:
+            errors.append(f"Emergent exception: {e}")
             logger.warning("Emergent email exception: %s", e)
 
-    logger.info("Email delivery simulated (no active email credentials configured): %s -> %s", subject, to)
+    if not errors and not brevo_api_key and not gmail_user:
+        logger.error("Email delivery failed: no BREVO_API_KEY / GMAIL credentials configured")
+        return False
+
+    logger.error("Email delivery failed for %s. Attempts: %s", to, " | ".join(errors) or "no providers")
+    return False
+
+
+async def send_email_or_raise(to: str, subject: str, html: str) -> None:
+    ok = await send_email(to, subject, html)
+    if not ok:
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Could not deliver email OTP. Check Brevo: verify a sender email in Brevo dashboard "
+                "and set BREVO_SENDER_EMAIL to that address. Gmail SMTP is often blocked on Render — "
+                "prefer Brevo HTTP API."
+            ),
+        )
 
 
 def email_template(headline: str, body_html: str, cta_url: Optional[str] = None, cta_label: Optional[str] = None) -> str:
@@ -339,9 +375,12 @@ class SendOTPInput(BaseModel):
 class LoginInput(BaseModel):
     identifier: str
     password: str
+    remember_me: bool = False
+    device_name: Optional[str] = None
+    totp_code: Optional[str] = None
 
 class GoogleLoginInput(BaseModel):
-    email: str
+    credential: str  # Google OAuth ID token from client; email alone is not accepted
 
 
 class ContentReviewInput(BaseModel):
@@ -368,6 +407,7 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     bio: Optional[str] = None
     avatar: Optional[str] = None
+    cover_photo: Optional[str] = None
     handle: Optional[str] = None
     company: Optional[str] = None
     industry: Optional[str] = None
@@ -382,6 +422,8 @@ class UserUpdate(BaseModel):
     social_accounts: Optional[List[Dict[str, Any]]] = None
     onboarding_status: Optional[str] = None
     agent_approved: Optional[bool] = None
+    niches: Optional[List[str]] = None
+    roster_size: Optional[str] = None
     
     # New Comprehensive Profile Fields
     availability: Optional[str] = None
@@ -395,6 +437,18 @@ class UserUpdate(BaseModel):
     agent_type: Optional[str] = None
     associated_brands: Optional[List[Dict[str, Any]]] = None
     monthly_analytics: Optional[List[Dict[str, Any]]] = None  # For historical charts
+    decline_reason: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    gender: Optional[str] = None
+    is_private: Optional[bool] = None
+    show_online_status: Optional[bool] = None
+    show_last_seen: Optional[bool] = None
+    language: Optional[str] = None
+    theme: Optional[str] = None
+    high_contrast: Optional[bool] = None
+    font_scale: Optional[float] = None
+    notification_prefs: Optional[Dict[str, Any]] = None
+    privacy: Optional[Dict[str, Any]] = None
 
 
 class CampaignCreate(BaseModel):
@@ -427,7 +481,10 @@ class InvitationAction(BaseModel):
 
 
 class MessageCreate(BaseModel):
-    content: str
+    content: str = ""
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
+    reply_to_id: Optional[str] = None
 
 
 class DeliverableCreate(BaseModel):
@@ -500,6 +557,7 @@ class EmailVerifyConfirm(BaseModel):
 class OTPRequest(BaseModel):
     email: Optional[EmailStr] = None
     mobile: Optional[str] = None
+    ntfy_topic: Optional[str] = None  # open-source live OTP via ntfy.sh
 
 
 class OTPVerify(BaseModel):
@@ -535,6 +593,48 @@ OTP_LENGTH = int(os.environ.get("OTP_LENGTH", 6))
 OTP_EXPIRY_MINUTES = int(os.environ.get("OTP_EXPIRY_MINUTES", 5))
 OTP_MAX_ATTEMPTS = int(os.environ.get("OTP_MAX_ATTEMPTS", 3))
 OTP_RESEND_SECONDS = int(os.environ.get("OTP_RESEND_SECONDS", 60))
+NTFY_BASE_URL = (os.environ.get("NTFY_BASE_URL") or "https://ntfy.sh").rstrip("/")
+
+
+def sanitize_ntfy_topic(topic: str) -> str:
+    topic = (topic or "").strip().lower()
+    topic = re.sub(r"[^a-z0-9_-]", "-", topic)
+    topic = re.sub(r"-+", "-", topic).strip("-_")
+    if len(topic) < 8 or len(topic) > 64:
+        raise HTTPException(
+            status_code=400,
+            detail="ntfy topic must be 8–64 characters (letters, numbers, _ or -).",
+        )
+    return topic
+
+
+async def send_ntfy_otp(topic: str, otp: str, name: str = "there") -> str:
+    """Live OTP via open-source ntfy (https://ntfy.sh). Works over HTTPS from Render."""
+    topic = sanitize_ntfy_topic(topic)
+    url = f"{NTFY_BASE_URL}/{topic}"
+    try:
+        async with httpx.AsyncClient(timeout=12) as c:
+            res = await c.post(
+                url,
+                content=f"Hello {name}, your CR8 Studio verification code is {otp}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+                headers={
+                    "Title": "CR8 Studio OTP",
+                    "Priority": "high",
+                    "Tags": "key,cr8",
+                    "Content-Type": "text/plain",
+                },
+            )
+            if res.status_code >= 400:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"ntfy delivery failed ({res.status_code}). Open {url} in another tab, then retry.",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning("ntfy OTP exception: %s", e)
+        raise HTTPException(status_code=502, detail=f"ntfy delivery failed: {e}")
+    return url
 
 def hash_otp(otp_code: str) -> str:
     """Hashes OTP using SHA-256 for secure storage."""
@@ -583,35 +683,91 @@ class GmailEmailProvider(EmailProvider):
           </div>
         </div>
         """
-        await send_email(to, "Verify your email address - CR8 Studio", html_content)
+        await send_email_or_raise(to, "Verify your email address - CR8 Studio", html_content)
 
 class Fast2SMSSmsProvider(SmsProvider):
     async def send_sms_otp(self, mobile: str, otp: str) -> None:
         clean_mobile = mobile.replace("+91", "").replace(" ", "").strip()
         if not (len(clean_mobile) == 10 and clean_mobile.isdigit()):
-            return
+            raise HTTPException(status_code=400, detail="Invalid mobile number for SMS OTP")
 
         api_key = os.environ.get("FAST2SMS_API_KEY")
-        if api_key:
-            try:
-                async with httpx.AsyncClient(timeout=10) as c:
-                    res = await c.post(
+        if not api_key:
+            raise HTTPException(status_code=502, detail="SMS provider is not configured (FAST2SMS_API_KEY missing)")
+
+        message = (
+            f"CR8 Studio verification code is {otp}. "
+            f"Valid for {OTP_EXPIRY_MINUTES} minutes. Do not share this code."
+        )
+        # Prefer Quick SMS (route q) — OTP route often requires Fast2SMS website/DLT verification
+        route = (os.environ.get("FAST2SMS_ROUTE") or "q").strip() or "q"
+        payload = {
+            "route": route,
+            "numbers": clean_mobile,
+            "language": "english",
+            "message": message,
+        }
+        # Legacy OTP template route support
+        if route.lower() == "otp":
+            payload = {
+                "route": "otp",
+                "variables_values": otp,
+                "numbers": clean_mobile,
+            }
+
+        try:
+            async with httpx.AsyncClient(timeout=15) as c:
+                res = await c.post(
+                    "https://www.fast2sms.com/dev/bulkV2",
+                    headers={"authorization": api_key, "Content-Type": "application/json"},
+                    json=payload,
+                )
+                data = {}
+                try:
+                    data = res.json()
+                except Exception:
+                    pass
+
+                if res.status_code == 200 and data.get("return") is not False:
+                    logger.info("Fast2SMS OTP dispatched via route=%s to +91 %s", route, clean_mobile)
+                    return
+
+                # Auto-fallback: OTP route blocked → Quick SMS
+                err_msg = str(data.get("message") or res.text or "")
+                if route.lower() == "otp" or "website verification" in err_msg.lower() or "dlt" in err_msg.lower():
+                    logger.warning("Fast2SMS route=%s failed (%s). Retrying with Quick SMS route=q", route, err_msg[:200])
+                    res2 = await c.post(
                         "https://www.fast2sms.com/dev/bulkV2",
                         headers={"authorization": api_key, "Content-Type": "application/json"},
                         json={
-                            "variables_values": otp,
-                            "route": os.environ.get("FAST2SMS_ROUTE", "otp"),
-                            "numbers": clean_mobile
-                        }
+                            "route": "q",
+                            "numbers": clean_mobile,
+                            "language": "english",
+                            "message": message,
+                        },
                     )
-                    if res.status_code == 200:
-                        logger.info("Fast2SMS OTP dispatched to +91 %s", clean_mobile)
-                    else:
-                        logger.warning("Fast2SMS error %s: %s", res.status_code, res.text)
-            except Exception as e:
-                logger.warning("Fast2SMS exception: %s", e)
-        else:
-            logger.info("cr8 studio: Your verification code is %s. Valid for %s minutes. Do not share this OTP with anyone.", otp, OTP_EXPIRY_MINUTES)
+                    data2 = {}
+                    try:
+                        data2 = res2.json()
+                    except Exception:
+                        pass
+                    if res2.status_code == 200 and data2.get("return") is not False:
+                        logger.info("Fast2SMS OTP dispatched via Quick SMS to +91 %s", clean_mobile)
+                        return
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"SMS provider error: {data2.get('message') or res2.text[:200]}",
+                    )
+
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"SMS provider error {res.status_code}: {err_msg[:200]}",
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("Fast2SMS exception: %s", e)
+            raise HTTPException(status_code=502, detail=f"SMS delivery failed: {e}")
 
 email_provider: EmailProvider = GmailEmailProvider()
 sms_provider: SmsProvider = Fast2SMSSmsProvider()
@@ -654,11 +810,12 @@ async def email_send_otp(inp: OTPRequest):
         "created_at": now_utc.isoformat(),
         "expires_at": expires_at.isoformat()
     }
-    
+
+    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
+
     await db.otps.update_one({"email": email}, {"$set": doc}, upsert=True)
     _otp_store[email] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
 
-    await email_provider.send_email_otp(email, email.split("@")[0], otp_code)
     return {"ok": True, "message": f"Verification code sent to {email}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
 
 
@@ -765,47 +922,10 @@ async def mobile_send_otp(inp: OTPRequest):
 async def mobile_verify_otp(inp: OTPVerify):
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
-    
+
     mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
     target_code = (inp.code or inp.otp or "").strip()
-    if not target_code or len(target_code) != OTP_LENGTH:
-        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
-
-    doc = await db.otps.find_one({"mobile": mobile})
-    if not doc:
-        doc = _otp_store.get(mobile)
-
-    if not doc:
-        raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
-
-    expires_at_raw = doc.get("expires_at")
-    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
-
-    if expires_at and datetime.now(timezone.utc) > expires_at:
-        await db.otps.delete_one({"mobile": mobile})
-        _otp_store.pop(mobile, None)
-        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
-
-    attempts = doc.get("attempts", 0) + 1
-    if attempts > OTP_MAX_ATTEMPTS:
-        await db.otps.delete_one({"mobile": mobile})
-        _otp_store.pop(mobile, None)
-        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
-
-    target_hash = hash_otp(target_code)
-    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
-
-    if target_hash != stored_hash and target_code != doc.get("code"):
-        await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
-        remaining = OTP_MAX_ATTEMPTS - attempts
-        if remaining <= 0:
-            await db.otps.delete_one({"mobile": mobile})
-            _otp_store.pop(mobile, None)
-            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
-        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
-
-    await db.otps.delete_one({"mobile": mobile})
-    _otp_store.pop(mobile, None)
+    await consume_mobile_otp(mobile, target_code)
 
     user = await db.users.find_one({"$or": [{"mobile": mobile}, {"mobile": f"+91{mobile}"}]})
     if user:
@@ -817,6 +937,34 @@ async def mobile_verify_otp(inp: OTPVerify):
 
 
 # Backward Compatible Unified Send & Verify Routes
+@api_router.get("/auth/email/status")
+async def email_provider_status():
+    """Safe diagnostics — no secrets. Use to verify Render env + Brevo sender setup."""
+    brevo_key = bool((os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip())
+    brevo_sender = (os.environ.get("BREVO_SENDER_EMAIL") or "").strip()
+    gmail = bool((os.environ.get("GMAIL_USER") or "").strip() and (os.environ.get("GMAIL_APP_PASSWORD") or "").strip())
+    detected = None
+    if brevo_key:
+        try:
+            detected = await get_brevo_verified_sender(
+                (os.environ.get("BREVO_API_KEY") or os.environ.get("SENDINBLUE_API_KEY") or "").strip()
+            )
+        except Exception as e:
+            detected = f"error: {e}"
+    return {
+        "brevo_api_key": brevo_key,
+        "brevo_sender_email_env": brevo_sender or None,
+        "brevo_sender_resolved": detected,
+        "gmail_smtp_configured": gmail,
+        "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
+        "ntfy_base_url": NTFY_BASE_URL,
+        "hint": (
+            "Live signup OTP is sent by SMS (FAST2SMS_API_KEY). "
+            "Set FAST2SMS_ROUTE=q for Quick SMS if OTP route needs DLT/website verification."
+        ),
+    }
+
+
 @api_router.post("/auth/send-otp")
 async def send_otp(inp: OTPRequest):
     if inp.email:
@@ -850,12 +998,192 @@ class FirebaseRegisterInput(BaseModel):
     pincode: Optional[str] = None
     platform: Optional[str] = None
     handle: Optional[str] = None
+    mobile: Optional[str] = None
+
+
+class MobileRegisterInput(BaseModel):
+    """Register with backend-sent mobile OTP (no Firebase / billing required)."""
+    otp: str = Field(min_length=6, max_length=6)
+    email: EmailStr
+    username: str
+    password: str
+    name: str
+    role: str
+    mobile: str
+    company: Optional[str] = None
+    agent_type: Optional[str] = None
+    pincode: Optional[str] = None
+    platform: Optional[str] = None
+    handle: Optional[str] = None
+
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 class FirebaseLoginInput(BaseModel):
     firebase_token: str
+
+
+async def consume_mobile_otp(mobile: str, target_code: str) -> None:
+    """Validate and consume a mobile OTP. Raises HTTPException on failure."""
+    mobile = (mobile or "").strip().replace(" ", "").replace("+91", "")
+    target_code = (target_code or "").strip()
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"mobile": mobile})
+    if not doc:
+        doc = _otp_store.get(mobile)
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"mobile": mobile})
+            _otp_store.pop(mobile, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"mobile": mobile})
+    _otp_store.pop(mobile, None)
+
+
+async def consume_email_otp(email: str, target_code: str) -> None:
+    """Validate and consume an email OTP. Raises HTTPException on failure."""
+    email = (email or "").lower().strip()
+    target_code = (target_code or "").strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    if not target_code or len(target_code) != OTP_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Please enter a valid {OTP_LENGTH}-digit OTP code")
+
+    doc = await db.otps.find_one({"email": email})
+    if not doc:
+        doc = _otp_store.get(email)
+    if not doc:
+        raise HTTPException(status_code=400, detail="No OTP requested for this email address")
+
+    expires_at_raw = doc.get("expires_at")
+    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
+    if expires_at and datetime.now(timezone.utc) > expires_at:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
+
+    attempts = doc.get("attempts", 0) + 1
+    if attempts > OTP_MAX_ATTEMPTS:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+        raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+
+    target_hash = hash_otp(target_code)
+    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
+    if target_hash != stored_hash and target_code != doc.get("code"):
+        await db.otps.update_one({"email": email}, {"$set": {"attempts": attempts}})
+        remaining = OTP_MAX_ATTEMPTS - attempts
+        if remaining <= 0:
+            await db.otps.delete_one({"email": email})
+            _otp_store.pop(email, None)
+            raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
+
+    await db.otps.delete_one({"email": email})
+    _otp_store.pop(email, None)
+
+
+@api_router.post("/auth/register/send-otp")
+@api_router.post("/auth/register/resend-otp")
+async def register_send_otp(inp: OTPRequest):
+    """Live signup OTP via SMS (primary). Optional ntfy topic as extra channel."""
+    if not inp.email:
+        raise HTTPException(status_code=400, detail="Email address is required")
+    if not inp.mobile:
+        raise HTTPException(status_code=400, detail="Mobile number is required")
+
+    email = inp.email.lower().strip()
+    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+
+    for query in ({"email": email}, {"mobile": mobile}):
+        existing = await db.otps.find_one(query)
+        if existing and existing.get("created_at"):
+            try:
+                created_at = datetime.fromisoformat(existing["created_at"])
+                secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+                if secs_passed < OTP_RESEND_SECONDS:
+                    wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                    raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+            except HTTPException:
+                raise
+            except Exception:
+                pass
+
+    otp_code = "".join(str(random.randint(0, 9)) for _ in range(OTP_LENGTH))
+    hashed = hash_otp(otp_code)
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(minutes=OTP_EXPIRY_MINUTES)
+    shared = {
+        "hashed_otp": hashed,
+        "code": otp_code,
+        "attempts": 0,
+        "created_at": now_utc.isoformat(),
+        "expires_at": expires_at.isoformat(),
+    }
+
+    channels = []
+    ntfy_url = None
+
+    # 1) Real SMS to the user's phone (friend-friendly)
+    if not os.environ.get("FAST2SMS_API_KEY"):
+        raise HTTPException(
+            status_code=502,
+            detail="SMS OTP is not configured. Set FAST2SMS_API_KEY on the server to enable live mobile verification.",
+        )
+    await sms_provider.send_sms_otp(mobile, otp_code)
+    channels.append(f"SMS (+91 {mobile})")
+
+    # 2) Optional ntfy mirror if topic provided
+    if inp.ntfy_topic:
+        try:
+            ntfy_url = await send_ntfy_otp(inp.ntfy_topic, otp_code, email.split("@")[0])
+            channels.append(f"ntfy ({ntfy_url})")
+        except HTTPException as e:
+            logger.warning("Optional ntfy OTP failed (SMS already sent): %s", e.detail)
+
+    await db.otps.update_one({"email": email}, {"$set": {**shared, "email": email}}, upsert=True)
+    await db.otps.update_one({"mobile": mobile}, {"$set": {**shared, "mobile": mobile}}, upsert=True)
+    _otp_store[email] = {**shared, "expires_at": expires_at}
+    _otp_store[mobile] = {**shared, "expires_at": expires_at}
+
+    resp = {
+        "ok": True,
+        "message": f"Verification code sent by SMS to +91 {mobile}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+        "channels": channels,
+    }
+    if ntfy_url:
+        resp["ntfy_url"] = ntfy_url
+    return resp
+
 
 @api_router.post("/auth/firebase-login")
 async def firebase_login(inp: FirebaseLoginInput):
@@ -881,6 +1209,113 @@ async def firebase_login(inp: FirebaseLoginInput):
         logger.error(f"Firebase token error during login: {e}")
         raise HTTPException(status_code=401, detail="Invalid Firebase token")
 
+
+async def _create_registered_user(
+    *,
+    email: str,
+    username: str,
+    password: str,
+    name: str,
+    role: str,
+    mobile: str,
+    company: Optional[str] = None,
+    agent_type: Optional[str] = None,
+    pincode: Optional[str] = None,
+    platform: Optional[str] = None,
+    handle: Optional[str] = None,
+    verified: bool = True,
+) -> dict:
+    email = email.lower().strip()
+    username = username.lower().strip()
+    clean_mobile = (mobile or "").replace("+91", "").replace(" ", "").strip()
+
+    if await db.users.find_one({"$or": [
+        {"email": email},
+        {"username": username},
+        {"mobile": clean_mobile},
+        {"mobile": f"+91{clean_mobile}"},
+    ]}):
+        raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
+
+    if role == "admin":
+        raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+
+    if not (any(c.isalpha() for c in password) and any(c.isdigit() for c in password)):
+        raise HTTPException(status_code=400, detail="Password must be alphanumeric")
+
+    user_id = str(uuid.uuid4())
+    city, state = None, None
+    if pincode:
+        loc = await fetch_pincode_details(pincode)
+        city = loc.get("city") if loc.get("city") != "Unknown" else None
+        state = loc.get("state") if loc.get("state") != "Unknown" else None
+
+    social_accounts = []
+    platforms = []
+    if role == "influencer" and platform and handle:
+        social_accounts.append({"platform": platform, "handle": handle, "followers": 0, "engagement_rate": 0.0})
+        platforms.append(platform)
+
+    doc = {
+        "id": user_id,
+        "email": email,
+        "username": username,
+        "password_hash": hash_password(password),
+        "name": name, "role": role, "handle": handle, "company": company,
+        "mobile": clean_mobile, "pincode": pincode,
+        "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
+        "location": None, "city": city, "state": state, "industry": None, "website": None,
+        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
+        "onboarding_status": "pending", "agent_approved": False,
+        "created_at": now_iso(),
+        "social_accounts": social_accounts,
+        "agent_type": agent_type,
+    }
+    await db.users.insert_one(doc)
+    token = create_access_token(user_id, email, role)
+    return {"ok": True, "token": token, "user": clean(doc)}
+
+
+@api_router.post("/auth/mobile-register")
+async def mobile_register(inp: MobileRegisterInput):
+    """Sign up using email/SMS OTP from our backend — does not require Firebase billing."""
+    # Accept the same OTP from either channel (register/send-otp stores both)
+    try:
+        await consume_email_otp(inp.email, inp.otp)
+    except HTTPException as email_err:
+        try:
+            await consume_mobile_otp(inp.mobile, inp.otp)
+        except HTTPException:
+            raise email_err
+
+    # Clear the sibling OTP key if still present
+    clean_mobile = (inp.mobile or "").replace("+91", "").replace(" ", "").strip()
+    email = inp.email.lower().strip()
+    await db.otps.delete_one({"mobile": clean_mobile})
+    await db.otps.delete_one({"email": email})
+    _otp_store.pop(clean_mobile, None)
+    _otp_store.pop(email, None)
+
+    result = await _create_registered_user(
+        email=inp.email,
+        username=inp.username,
+        password=inp.password,
+        name=inp.name,
+        role=inp.role,
+        mobile=inp.mobile,
+        company=inp.company,
+        agent_type=inp.agent_type,
+        pincode=inp.pincode,
+        platform=inp.platform,
+        handle=inp.handle,
+        verified=True,
+    )
+    await db.users.update_one({"email": email}, {"$set": {"email_verified": True}})
+    if result.get("user"):
+        result["user"]["email_verified"] = True
+    return result
+
+
 @api_router.post("/auth/firebase-register")
 async def firebase_register(inp: FirebaseRegisterInput):
     try:
@@ -888,50 +1323,21 @@ async def firebase_register(inp: FirebaseRegisterInput):
         mobile = decoded_token.get('phone_number')
         if not mobile:
             raise HTTPException(status_code=400, detail="Firebase token does not contain a phone number")
-        
-        email = inp.email.lower().strip()
-        username = inp.username.lower().strip()
-        
-        if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}, {"mobile": mobile.replace("+91", "")}]}):
-            raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
-            
-        if inp.role == "admin":
-            raise HTTPException(status_code=400, detail="Cannot self-register as admin")
-            
-        if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
-            raise HTTPException(status_code=400, detail="Password must be alphanumeric")
 
-        user_id = str(uuid.uuid4())
-        city, state = None, None
-        if inp.pincode:
-            loc = await fetch_pincode_details(inp.pincode)
-            city = loc.get("city") if loc.get("city") != "Unknown" else None
-            state = loc.get("state") if loc.get("state") != "Unknown" else None
-
-        social_accounts = []
-        platforms = []
-        if inp.role == "influencer" and inp.platform and inp.handle:
-            social_accounts.append({"platform": inp.platform, "handle": inp.handle, "followers": 0, "engagement_rate": 0.0})
-            platforms.append(inp.platform)
-
-        doc = {
-            "id": user_id,
-            "email": email,
-            "username": username,
-            "password_hash": hash_password(inp.password),
-            "name": inp.name, "role": inp.role, "handle": inp.handle, "company": inp.company,
-            "mobile": mobile.replace("+91", ""), "pincode": inp.pincode,
-            "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
-            "location": None, "city": city, "state": state, "industry": None, "website": None,
-            "portfolio": [], "rate_card": {}, "verified": True, "email_verified": False, "wallet": 0,
-            "onboarding_status": "pending", "agent_approved": False,
-            "created_at": now_iso(),
-            "social_accounts": social_accounts,
-        }
-        await db.users.insert_one(doc)
-        token = create_access_token(user_id, email, inp.role)
-        return {"ok": True, "token": token, "user": clean(doc)}
-        
+        return await _create_registered_user(
+            email=inp.email,
+            username=inp.username,
+            password=inp.password,
+            name=inp.name,
+            role=inp.role,
+            mobile=mobile,
+            company=inp.company,
+            agent_type=inp.agent_type,
+            pincode=inp.pincode,
+            platform=inp.platform,
+            handle=inp.handle,
+            verified=True,
+        )
     except ValueError as e:
         logger.error(f"Firebase token error: {e}")
         raise HTTPException(status_code=401, detail="Invalid Firebase token")
@@ -992,22 +1398,44 @@ async def register_old(inp: RegisterInput):
     await db.otps.delete_one({"email": email})
     return {"token": token, "user": clean(doc)}
 
+GOOGLE_CLIENT_ID = os.environ.get(
+    "GOOGLE_CLIENT_ID",
+    "858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com",
+)
+
 @api_router.post("/auth/google-login")
 async def google_login(inp: GoogleLoginInput):
-    email = inp.email.lower().strip()
+    """Sign in only for already-registered users. Never creates accounts."""
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            inp.credential,
+            requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except ValueError as e:
+        logger.error(f"Google ID token verification failed: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Google sign-in token")
+
+    if idinfo.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+        raise HTTPException(status_code=401, detail="Invalid Google token issuer")
+
+    email = (idinfo.get("email") or "").lower().strip()
+    if not email or not idinfo.get("email_verified", False):
+        raise HTTPException(status_code=400, detail="Google account email is missing or not verified")
+
     user = await db.users.find_one({"email": email})
     if not user:
+        # Do not auto-register — user must complete signup first
         raise HTTPException(
-            status_code=400, 
-            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details."
+            status_code=404,
+            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details.",
         )
 
     # Enforce mandatory registration details (mobile & pincode)
     if not user.get("mobile") or not user.get("pincode"):
-        await db.users.delete_one({"_id": user["_id"]})
         raise HTTPException(
-            status_code=400, 
-            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details."
+            status_code=400,
+            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details.",
         )
 
     user_id = user.get("id") or str(user["_id"])
@@ -1020,26 +1448,95 @@ async def google_login(inp: GoogleLoginInput):
 
 
 @api_router.post("/auth/login")
-async def login(inp: LoginInput):
+async def login(inp: LoginInput, request: Request):
     identifier = inp.identifier.lower().strip()
     user = await db.users.find_one({
         "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid login credentials")
+    if user.get("banned"):
+        raise HTTPException(status_code=403, detail="Account suspended")
+
+    # Optional 2FA gate (TOTP)
+    if user.get("two_fa_enabled"):
+        try:
+            import pyotp
+        except ImportError:
+            pyotp = None
+        if not inp.totp_code or not pyotp:
+            return {"requires_2fa": True}
+        if not pyotp.TOTP(user.get("two_fa_secret", "")).verify(inp.totp_code, valid_window=1):
+            raise HTTPException(status_code=401, detail="Invalid 2FA code")
     
     user_id = user.get("id") or str(user["_id"])
     if not user.get("id"):
         await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
         user["id"] = user_id
 
-    token = create_access_token(user["id"], user["email"], user["role"])
-    return {"token": token, "user": clean(dict(user))}
+    minutes = 60 * 24 * 30 if inp.remember_me else ACCESS_TOKEN_MINUTES
+    payload = {
+        "sub": user["id"], "email": user["email"], "role": user["role"],
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=minutes),
+        "type": "access", "remember": inp.remember_me,
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    # Track session + login history
+    ua = request.headers.get("user-agent", "")[:240]
+    ip = request.client.host if request.client else ""
+    session_id = str(uuid.uuid4())
+    import hashlib as _hashlib
+    await db.sessions.insert_one({
+        "id": session_id, "user_id": user["id"],
+        "token_hash": _hashlib.sha256(token.encode()).hexdigest(),
+        "device_name": inp.device_name or ua[:80] or "Unknown device",
+        "user_agent": ua, "ip": ip, "remember_me": inp.remember_me,
+        "created_at": now_iso(), "last_active": now_iso(), "revoked": False,
+    })
+    await db.login_history.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user["id"], "ip": ip,
+        "user_agent": ua, "device_name": inp.device_name or ua[:80],
+        "created_at": now_iso(), "success": True,
+    })
+    await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen": now_iso(), "online": True}})
+    return {"token": token, "user": clean(dict(user)), "session_id": session_id, "remember_me": inp.remember_me}
 
 
 @api_router.get("/auth/me")
 async def me(current: dict = Depends(get_current_user)):
     return current
+
+
+@api_router.patch("/auth/me")
+async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
+    """Update current user profile / onboarding fields."""
+    data = inp.model_dump(exclude_unset=True) if hasattr(inp, "model_dump") else inp.dict(exclude_unset=True)
+    # Drop nulls so we don't wipe existing fields unintentionally
+    updates = {k: v for k, v in data.items() if v is not None}
+
+    if not updates:
+        return current
+
+    # Keep location in sync when city is set during onboarding
+    if "city" in updates and "location" not in updates:
+        updates["location"] = updates["city"]
+
+    user_id = current.get("id")
+    result = await db.users.update_one({"id": user_id}, {"$set": updates})
+    if result.matched_count == 0:
+        # Fallback for older docs keyed only by email
+        await db.users.update_one({"email": current.get("email")}, {"$set": updates})
+
+    user = await db.users.find_one({"id": user_id}, {"password_hash": 0})
+    if not user:
+        user = await db.users.find_one({"email": current.get("email")}, {"password_hash": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user["id"] = user.get("id") or str(user.get("_id", ""))
+    user.pop("_id", None)
+    return clean(dict(user))
 
 
 class ChangePasswordInput(BaseModel):
@@ -1157,9 +1654,14 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
 
     total_requests = await db.applications.count_documents({})
     pending_verification = await db.users.count_documents({"role": "agent", "agent_approved": False})
-    
-    # Mock some data for Logins, Registrations, etc.
-    import random
+
+    now = datetime.now(timezone.utc)
+    day_ago = (now - timedelta(days=1)).isoformat()
+    month_ago = (now - timedelta(days=30)).isoformat()
+    dau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": day_ago}, "success": True})
+    mau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": month_ago}, "success": True})
+    logins_today = len([x for x in dau_ids if x])
+    new_registrations = await db.users.count_documents({"created_at": {"$gte": day_ago}})
     
     return {
         "users": {
@@ -1171,7 +1673,7 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
             "total": total_campaigns,
             "active": active_campaigns,
             "completed": completed_campaigns,
-            "pending_approval": 0
+            "pending_approval": await db.posts.count_documents({"status": "pending_approval"}),
         },
         "financial": {
             "total_payments": total_payments,
@@ -1185,9 +1687,13 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
             "verification_requests": pending_verification
         },
         "platform": {
-            "logins_today": random.randint(100, 500),
-            "new_registrations": random.randint(5, 50),
-            "active_users": random.randint(50, 300)
+            "logins_today": logins_today,
+            "new_registrations": new_registrations,
+            "active_users": logins_today,
+            "dau": logins_today,
+            "mau": len([x for x in mau_ids if x]),
+            "open_reports": await db.reports.count_documents({"status": "open"}),
+            "published_posts": await db.posts.count_documents({"status": "published"}),
         }
     }
 
@@ -1813,7 +2319,9 @@ async def send_message(conversation_id: str, inp: MessageCreate, current: dict =
     doc = {
         "id": str(uuid.uuid4()), "conversation_id": conversation_id, "sender_id": current["id"],
         "sender_name": current["name"], "sender_role": current["role"],
-        "content": inp.content, "created_at": now_iso(),
+        "content": inp.content or "", "media_url": inp.media_url, "media_type": inp.media_type,
+        "reply_to_id": inp.reply_to_id, "created_at": now_iso(),
+        "read_by": [current["id"]], "edited": False, "deleted": False,
     }
     await db.messages.insert_one(doc)
     await db.conversations.update_one({"id": conversation_id}, {"$set": {"last_at": now_iso()}})
@@ -2260,13 +2768,15 @@ async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_
 
 # ---------- Uploads ----------
 ALLOWED_IMAGE = {"image/jpeg", "image/png", "image/webp", "image/gif"}
-MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # 8 MB
+ALLOWED_VIDEO = {"video/mp4", "video/webm", "video/quicktime"}
+ALLOWED_UPLOAD = ALLOWED_IMAGE | ALLOWED_VIDEO
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB (images + short video)
 
 
 @api_router.post("/uploads")
 async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_current_user)):
-    if file.content_type not in ALLOWED_IMAGE:
-        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif allowed")
+    if file.content_type not in ALLOWED_UPLOAD:
+        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif/mp4/webm allowed")
     ext = mimetypes.guess_extension(file.content_type) or ".bin"
     fid = f"{uuid.uuid4().hex}{ext}"
     dest = UPLOAD_DIR / fid
@@ -2277,9 +2787,10 @@ async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_
             if size > MAX_UPLOAD_BYTES:
                 await f.close()
                 dest.unlink(missing_ok=True)
-                raise HTTPException(status_code=413, detail="File too large (max 8MB)")
+                raise HTTPException(status_code=413, detail="File too large (max 50MB)")
             await f.write(chunk)
-    return {"id": fid, "url": f"/api/uploads/{fid}"}
+    media_type = "video" if file.content_type in ALLOWED_VIDEO else "image"
+    return {"id": fid, "url": f"/api/uploads/{fid}", "media_type": media_type, "size": size}
 
 
 @api_router.get("/uploads/{file_id}")
@@ -2540,8 +3051,8 @@ async def forgot_password(inp: PasswordResetRequest):
     if user:
         token = uuid.uuid4().hex
         _reset_tokens[token] = {"user_id": user["id"], "expires_at": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()}
-        base = os.environ.get("FRONTEND_URL", "https://owner-creator.emergent.host")
-        link = f"{base}/reset-password?token={token}"
+        base = os.environ.get("FRONTEND_URL", "https://naresh-palle.github.io/Project2-Social")
+        link = f"{base}/#/reset-password?token={token}"
         asyncio.create_task(send_email(
             user["email"],
             "CR8 — reset your password",
@@ -2950,6 +3461,8 @@ async def on_startup():
     await db.contracts.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
     await seed_admin()
     await seed_demo()
+    if _phase1_ensure_indexes:
+        await _phase1_ensure_indexes()
     logger.info("CR8 API ready.")
 
 
@@ -2964,6 +3477,30 @@ app.add_middleware(
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# ---------- Phase 1 social / platform features (register BEFORE include_router) ----------
+from phase1_features import setup_phase1  # noqa: E402
+
+_phase1_ensure_indexes = setup_phase1(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    clean=clean,
+    now_iso=now_iso,
+    hash_password=hash_password,
+    verify_password=verify_password,
+    create_access_token=create_access_token,
+    push_notification=push_notification,
+    send_email=send_email,
+    email_template=email_template,
+    sse_publish=sse_publish,
+    UPLOAD_DIR=UPLOAD_DIR,
+    JWT_SECRET=JWT_SECRET,
+    JWT_ALGORITHM=JWT_ALGORITHM,
+    logger=logger,
+    call_llm=call_llm,
 )
 
 app.include_router(api_router)

@@ -37,11 +37,13 @@ export function Nav({ variant = "dark" }) {
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
-        ...(user.role === "influencer" || user.role === "creator" || !["owner", "admin", "agent"].includes(user.role) ? [{ to: "/feed", label: "Feed" }] : []),
+        { to: "/feed", label: "Feed" },
+        { to: "/search", label: "Search" },
         { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
         { to: "/profile", label: "Profile" },
+        { to: "/settings", label: "Settings" },
       ]
     : [];
 

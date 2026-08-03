@@ -1,32 +1,39 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api";
+import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function Register() {
-  const { register, firebaseRegister } = useAuth();
+  const { mobileRegister } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
   const { role: urlRole } = useParams();
   
   // Enforce valid roles
   const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
 
+  const socialPrefill = (location.state?.fromGoogleLogin || location.state?.fromAppleLogin) ? location.state : null;
+
   const [form, setForm] = useState({ 
-    email: "", username: "", password: "", firstName: "", lastName: "", 
+    email: socialPrefill?.email || "",
+    username: socialPrefill?.email ? socialPrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
+    password: "",
+    firstName: socialPrefill?.firstName || "",
+    lastName: socialPrefill?.lastName || "", 
     company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
     agent_type: "company_agent"
   });
   const [err, setErr] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [appleBusy, setAppleBusy] = useState(false);
   
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
@@ -37,8 +44,6 @@ export default function Register() {
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
   const [usernameStatus, setUsernameStatus] = useState("typing");
-  const [confirmationResult, setConfirmationResult] = useState(null);
-
   const [googleImportTime, setGoogleImportTime] = useState(null);
 
   // 5-Minute Google Pre-fill Cache Expiry
@@ -55,7 +60,7 @@ export default function Register() {
         username: ""
       }));
       setGoogleImportTime(null);
-      toast.error("Google imported registration details expired after 5 minutes. Please click Continue with Google again.");
+      toast.error("Imported registration details expired after 5 minutes. Please continue with Google or Apple again.");
     }, FIVE_MINUTES_MS);
 
     return () => clearTimeout(timer);
@@ -63,17 +68,73 @@ export default function Register() {
 
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
-    setForm({ 
-      email: "", username: "", password: "", firstName: "", lastName: "", 
-      company: "", mobile: "", pincode: "", city: "", state: "", otp: "" 
+    const prefill = (location.state?.fromGoogleLogin || location.state?.fromAppleLogin) ? location.state : null;
+    const suggestedUsername = prefill?.email
+      ? prefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase()
+      : "";
+    setForm({
+      email: prefill?.email || "",
+      username: suggestedUsername,
+      password: "",
+      firstName: prefill?.firstName || "",
+      lastName: prefill?.lastName || "",
+      company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
+      agent_type: "company_agent"
     });
     setFieldErrors({});
     setErr("");
     setEmailStatus("typing");
     setMobileStatus("typing");
     setUsernameStatus("typing");
-    setGoogleImportTime(null);
-  }, [urlRole]);
+    setGoogleImportTime(prefill ? Date.now() : null);
+  }, [urlRole, location.state]);
+
+  const applySocialPrefill = (email, firstName, lastName, source = "Google") => {
+    const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
+    setForm((f) => ({
+      ...f,
+      firstName: firstName || f.firstName,
+      lastName: lastName || f.lastName,
+      email: email || f.email,
+      username: f.username || suggestedUsername,
+    }));
+    setErr("");
+    setFieldErrors((e) => ({ ...e, firstName: "", lastName: "", email: "" }));
+    setGoogleImportTime(Date.now());
+    toast.success(`${source} details imported! Complete mobile OTP to finish registration.`);
+  };
+
+  const handleAppleContinue = async () => {
+    setErr("");
+    if (window.AppleID?.auth) {
+      try {
+        setAppleBusy(true);
+        const res = await window.AppleID.auth.signIn();
+        const token = res?.authorization?.id_token;
+        if (!token) {
+          setErr("Apple did not return a token");
+          setAppleBusy(false);
+          return;
+        }
+        const decoded = jwtDecode(token);
+        const email = decoded.email || "";
+        const nameParts = res?.user?.name;
+        const firstName = nameParts?.firstName || (decoded.name || "").split(" ")[0] || "";
+        const lastName = nameParts?.lastName || (decoded.name || "").split(" ").slice(1).join(" ") || "";
+        applySocialPrefill(email, firstName, lastName, "Apple");
+      } catch (e) {
+        if (e?.error !== "popup_closed_by_user") {
+          setErr("Apple Sign In needs Apple Developer setup. Fill the form manually or use Google.");
+        }
+      } finally {
+        setAppleBusy(false);
+      }
+      return;
+    }
+    toast.message("Continue with Apple", {
+      description: "Apple Developer Client ID is not configured yet. Use Google or fill the form manually.",
+    });
+  };
 
   // Resend OTP Cooldown Timer
   useEffect(() => {
@@ -290,14 +351,6 @@ export default function Register() {
     return errs;
   };
 
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible'
-      });
-    }
-  };
-
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
     setErr("");
@@ -310,19 +363,16 @@ export default function Register() {
 
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = form.mobile.startsWith("+91") ? form.mobile : `+91${form.mobile}`;
-      
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/register/send-otp", {
+        email: form.email.trim(),
+        mobile: cleanMobile,
+      });
       setShowOtpModal(true);
       setResendCooldown(30);
+      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}`);
     } catch (e) {
-      setErr(e.message || "Failed to send verification code via Firebase");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => window.grecaptcha.reset(widgetId));
-      }
+      setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
     } finally {
       setLoading(false);
     }
@@ -331,14 +381,16 @@ export default function Register() {
   const handleResendOtp = async () => {
     if (resendCooldown > 0) return;
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = form.mobile.startsWith("+91") ? form.mobile : `+91${form.mobile}`;
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/register/resend-otp", {
+        email: form.email.trim(),
+        mobile: cleanMobile,
+      });
       setResendCooldown(30);
+      setOtpError("");
+      toast.success(data?.message || "Verification code resent by SMS");
     } catch (e) {
-      setOtpError(e.message || "Failed to resend code");
+      setOtpError(formatApiError(e.response?.data?.detail) || e.message || "Failed to resend code");
     }
   };
 
@@ -352,26 +404,32 @@ export default function Register() {
 
     setOtpLoading(true);
     try {
-      const result = await confirmationResult.confirm(form.otp);
-      const firebaseToken = await result.user.getIdToken();
-
-      const payload = { ...form, role, name: `${form.firstName.trim()} ${form.lastName.trim()}`, firebase_token: firebaseToken };
+      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
+      const payload = {
+        ...form,
+        mobile: cleanMobile,
+        role,
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`,
+        otp: form.otp,
+      };
       delete payload.firstName;
       delete payload.lastName;
+      delete payload.city;
+      delete payload.state;
       if (role === "influencer") delete payload.company;
-      
-      const r = await firebaseRegister(payload);
+
+      const r = await mobileRegister(payload);
       setOtpLoading(false);
-      
+
       if (r.ok) {
-        const cleanMob = (form.mobile || "").replace(/\D/g, "");
-        if (cleanMob) {
+        if (cleanMobile) {
           const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
-          if (!storedMobiles.includes(cleanMob)) {
-            storedMobiles.push(cleanMob);
+          if (!storedMobiles.includes(cleanMobile)) {
+            storedMobiles.push(cleanMobile);
             localStorage.setItem("cr8_registered_mobiles", JSON.stringify(storedMobiles));
           }
         }
+        toast.success("Account created successfully");
         nav(`/onboarding/${role}`);
       } else {
         setOtpError(r.error);
@@ -419,40 +477,31 @@ export default function Register() {
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 
-          <div className="mt-10 flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={credentialResponse => {
-                try {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  const email = decoded.email || "";
-                  const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
-                  const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
-                  const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
-
-                  setForm(f => ({
-                    ...f,
-                    firstName: firstName || f.firstName,
-                    lastName: lastName || f.lastName,
-                    email: email || f.email,
-                    username: f.username || suggestedUsername
-                  }));
-                  setErr("");
-                  setFieldErrors(e => ({...e, firstName: "", lastName: "", email: ""}));
-                  setGoogleImportTime(Date.now());
-                  toast.success("Google details imported! Details will expire in 5 minutes if registration is not completed.");
-                } catch (e) {
-                  setErr("Failed to parse Google login");
-                }
-              }}
-              onError={() => {
-                setErr("Google Login Failed");
-              }}
-              theme="filled_black"
-              shape="rectangular"
-              text="continue_with"
-              size="large"
-              width="100%"
-            />
+          <div className="mt-10 flex flex-col items-center gap-2.5 w-full">
+            <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
+              <GoogleLogin
+                onSuccess={credentialResponse => {
+                  try {
+                    const decoded = jwtDecode(credentialResponse.credential);
+                    const email = decoded.email || "";
+                    const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
+                    const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
+                    applySocialPrefill(email, firstName, lastName, "Google");
+                  } catch (e) {
+                    setErr("Failed to parse Google login");
+                  }
+                }}
+                onError={() => {
+                  setErr("Google Login Failed");
+                }}
+                theme="filled_black"
+                shape="rectangular"
+                text="continue_with"
+                size="large"
+                width="240"
+              />
+            </div>
+            <AppleSignInButton mode="signup" loading={appleBusy} onClick={handleAppleContinue} />
           </div>
 
           <div className="flex items-center gap-4 mt-8 opacity-60">
@@ -593,7 +642,7 @@ export default function Register() {
             </p>
           )}
 
-          <div id="recaptcha-container"></div>
+          {/* OTP handled via backend email (Brevo/Gmail) + optional SMS */}
 
           {/* Prominent Terms & Conditions Checkbox Container */}
           <div className="mt-6 p-4 bg-white/[0.03] border border-white/15 rounded-sm flex items-center gap-3 shadow-inner">
@@ -652,7 +701,7 @@ export default function Register() {
 
               <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
               <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-8 leading-relaxed">
-                We sent a 6-digit code to {form.email}. Please enter your 6-digit verification code below.
+                We sent a 6-digit SMS code to +91 {form.mobile}. Enter it below to finish registration.
               </p>
 
               <form onSubmit={verifyAndRegister}>

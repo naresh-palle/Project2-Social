@@ -5,47 +5,108 @@ import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound } from "luci
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { api, formatApiError } from "@/lib/api";
 
 export default function Login() {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, appleLogin } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   
-  const [mode, setMode] = useState(location.state?.mode || "password"); // "password" or "otp"
+  const [mode, setMode] = useState(location.state?.mode || "password");
   const [identifier, setIdentifier] = useState(location.state?.identifier || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem("cr8_remember_me") === "true");
+  const [requires2fa, setRequires2fa] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [appleToken, setAppleToken] = useState("");
+  const [showAppleFallback, setShowAppleFallback] = useState(false);
   const [mobile, setMobile] = useState(location.state?.mobile || "");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const submitPassword = async (e) => {
     e.preventDefault();
     setErr("");
     setLoading(true);
-    const r = await login(identifier, password);
+    const r = await login(identifier, password, { remember_me: rememberMe, totp_code: totpCode || undefined });
     setLoading(false);
     if (r.ok) nav("/dashboard");
-    else setErr(r.error);
+    else if (r.requires_2fa) {
+      setRequires2fa(true);
+      setErr("");
+    } else setErr(r.error);
+  };
+
+  const finishAppleLogin = async (token) => {
+    const r = await appleLogin(token, { remember_me: rememberMe });
+    setLoading(false);
+    if (r.ok) {
+      toast.success("Welcome back via Apple!");
+      nav("/dashboard");
+      return;
+    }
+    if (r.notRegistered) {
+      let email = "";
+      let firstName = "";
+      let lastName = "";
+      try {
+        const decoded = jwtDecode(token);
+        email = decoded.email || "";
+        const name = decoded.name || "";
+        firstName = name.split(" ")[0] || "";
+        lastName = name.split(" ").slice(1).join(" ") || "";
+      } catch {}
+      toast.error("No account found for this Apple ID. Please register first.");
+      nav("/register", {
+        state: { fromAppleLogin: true, email, firstName, lastName },
+      });
+      return;
+    }
+    setErr(r.error || "Apple login failed");
+  };
+
+  const handleAppleSignIn = async () => {
+    setErr("");
+    if (window.AppleID?.auth) {
+      try {
+        setLoading(true);
+        const res = await window.AppleID.auth.signIn();
+        const token = res?.authorization?.id_token;
+        if (!token) {
+          setLoading(false);
+          setErr("Apple sign-in did not return a token");
+          return;
+        }
+        await finishAppleLogin(token);
+      } catch (e) {
+        setLoading(false);
+        if (e?.error !== "popup_closed_by_user") {
+          setShowAppleFallback(true);
+          setErr("Apple Sign In needs Apple Developer setup. You can still use Google or password.");
+        }
+      }
+      return;
+    }
+    setShowAppleFallback(true);
+    toast.message("Apple button is ready", {
+      description: "Apple Developer Client ID is not configured yet. Use Google / password, or paste a test token below.",
+    });
+  };
+
+  const submitAppleToken = async () => {
+    if (!appleToken.trim()) return;
+    setLoading(true);
+    setErr("");
+    await finishAppleLogin(appleToken.trim());
   };
 
   const [resendTimer, setResendTimer] = useState(0);
-
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'login-recaptcha-container', {
-        'size': 'invisible'
-      });
-    }
-  };
 
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
@@ -58,15 +119,17 @@ export default function Login() {
 
     setLoading(true);
     try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formattedMobile = `+91${cleanMobile}`;
-      const confirmation = await signInWithPhoneNumber(auth, formattedMobile, appVerifier);
-      setConfirmationResult(confirmation);
-      
+      const check = await api.post("/auth/check", { mobile: cleanMobile });
+      if (check.data?.available) {
+        setErr("No account found for this mobile number. Please register first.");
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
       setOtpSent(true);
       setResendTimer(30);
-      toast.success(`📩 Verification code sent to +91 ${cleanMobile}.`);
+      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}.`);
 
       const interval = setInterval(() => {
         setResendTimer((prev) => {
@@ -78,10 +141,7 @@ export default function Login() {
         });
       }, 1000);
     } catch (err) {
-      setErr(err.message || "Failed to send verification code via Firebase");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => window.grecaptcha.reset(widgetId));
-      }
+      setErr(formatApiError(err.response?.data?.detail) || err.message || "Failed to send verification code");
     } finally {
       setLoading(false);
     }
@@ -103,21 +163,21 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const result = await confirmationResult.confirm(otp);
-      const firebaseToken = await result.user.getIdToken();
-      
-      const { data } = await api.post("/auth/firebase-login", { firebase_token: firebaseToken });
-      
+      const cleanMobile = (mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/mobile/verify-otp", { mobile: cleanMobile, code: otp });
+
       if (data.ok && data.token) {
         localStorage.setItem("cr8_token", data.token);
         localStorage.setItem("cr8_user", JSON.stringify(data.user));
-        toast.success("📱 Mobile OTP Verified! Welcome back to the studio.");
+        toast.success("Mobile OTP verified. Welcome back.");
         window.location.href = "/#/dashboard";
+      } else if (data.ok && data.verified && !data.token) {
+        setErr("No account found for this mobile number. Please register first.");
       } else {
-        setErr(data.detail || "OTP Verification failed");
+        setErr(data.detail || data.message || "OTP Verification failed");
       }
     } catch (err) {
-      setErr(err.response?.data?.detail || err.message || "Invalid or expired OTP code.");
+      setErr(formatApiError(err.response?.data?.detail) || err.message || "Invalid or expired OTP code.");
     } finally {
       setLoading(false);
     }
@@ -171,38 +231,78 @@ export default function Login() {
             </div>
           )}
 
-          <div id="login-recaptcha-container"></div>
-
           {mode === "password" ? (
             <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
-              <div className="flex justify-center w-full mb-2">
-                <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      setErr("");
-                      setLoading(true);
-                      const decoded = jwtDecode(credentialResponse.credential);
-                      const email = decoded.email;
-                      const r = await googleLogin(email);
-                      setLoading(false);
-                      if (r.ok) {
-                        toast.success(`👋 Welcome back, ${decoded.name || email}!`);
-                        nav("/dashboard");
-                      } else {
-                        setErr(r.error || "Authentication failed");
+              {/* Social sign-in — Google + Apple, matched compact size */}
+              <div className="flex flex-col items-center gap-2.5 w-full">
+                <div className="w-[240px] max-w-full flex justify-center overflow-hidden [&_iframe]:!w-[240px] [&_div]:!w-[240px]">
+                  <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                      try {
+                        setErr("");
+                        setLoading(true);
+                        const credential = credentialResponse.credential;
+                        if (!credential) {
+                          setLoading(false);
+                          setErr("Google sign-in did not return a credential");
+                          return;
+                        }
+                        const decoded = jwtDecode(credential);
+                        const r = await googleLogin(credential);
+                        setLoading(false);
+                        if (r.ok) {
+                          toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
+                          nav("/dashboard");
+                        } else if (r.notRegistered) {
+                          toast.error("No account found for this Google email. Please register first.");
+                          nav("/register", {
+                            state: {
+                              fromGoogleLogin: true,
+                              email: decoded.email || "",
+                              firstName: decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : ""),
+                              lastName: decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : ""),
+                            },
+                          });
+                        } else {
+                          setErr(r.error || "Authentication failed");
+                        }
+                      } catch (e) {
+                        setLoading(false);
+                        setErr("Failed to verify Google sign in");
                       }
-                    } catch (e) {
-                      setLoading(false);
-                      setErr("Failed to verify Google sign in");
-                    }
-                  }}
-                  onError={() => setErr("Google Sign In Failed")}
-                  theme="filled_black"
-                  shape="rectangular"
-                  text="signin_with"
-                  size="large"
-                  width="100%"
-                />
+                    }}
+                    onError={() => setErr("Google Sign In Failed")}
+                    theme="filled_black"
+                    shape="rectangular"
+                    text="signin_with"
+                    size="large"
+                    width="240"
+                  />
+                </div>
+                <AppleSignInButton mode="signin" loading={loading} onClick={handleAppleSignIn} />
+                {showAppleFallback && (
+                  <div className="w-full max-w-[240px] p-3 border border-white/10 bg-white/[0.02] rounded-xs space-y-2">
+                    <p className="font-mono text-[10px] opacity-60">
+                      Apple JS SDK not configured. Paste an Apple identity token to test API login:
+                    </p>
+                    <textarea
+                      value={appleToken}
+                      onChange={(e) => setAppleToken(e.target.value)}
+                      rows={2}
+                      className="w-full bg-black/60 border border-white/20 p-2 font-mono text-[10px] rounded-xs"
+                      placeholder="Apple identity token…"
+                    />
+                    <button type="button" onClick={submitAppleToken} className="font-mono text-[10px] uppercase text-[#FF3B30]">
+                      Test Apple Login
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4 opacity-50">
+                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>
+                <div className="h-px bg-[#F4F4F0]/20 flex-1" />
               </div>
 
               <div>
@@ -242,7 +342,38 @@ export default function Login() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <div className="flex items-center justify-between mt-3">
+                  <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="accent-[#FF3B30]"
+                    />
+                    Remember Me
+                  </label>
+                  <Link to="/forgot-password" className="font-mono text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
+
+              {requires2fa && (
+                <div>
+                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
+                    2FA Authentication Code
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                    className="mt-2 w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
+                    placeholder="000000"
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"
