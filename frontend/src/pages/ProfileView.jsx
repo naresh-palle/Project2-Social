@@ -91,21 +91,14 @@ export default function ProfileView() {
 
   const { score: completionScore, missing: missingFields } = getCompletionDetails();
 
-  const defaultPlatforms = {
-    instagram: { handle: profile.handle || `@${profile.name?.toLowerCase().replace(/\s+/g, "")}`, followers: 245000, engagement: 4.8, views: 850000, posts: 142 },
-    youtube: { handle: `${profile.name?.replace(/\s+/g, "")}Studio`, followers: 512000, engagement: 6.2, views: 2100000, posts: 86 },
-    twitter: { handle: `@${profile.name?.toLowerCase().replace(/\s+/g, "")}_tx`, followers: 128000, engagement: 3.4, views: 450000, posts: 320 },
-    facebook: { handle: `${profile.name?.toLowerCase().replace(/\s+/g, "")}official`, followers: 95000, engagement: 2.1, views: 180000, posts: 95 }
-  };
+  const defaultPlatforms = {};
 
   const rawPlatforms = profile.platform_metrics && Object.keys(profile.platform_metrics).length > 0
     ? profile.platform_metrics
-    : (isCreator ? defaultPlatforms : {});
+    : {};
 
   const activePlatforms = Object.entries(rawPlatforms).filter(([_, data]) => data && data.handle && data.handle.trim() !== "");
-  const displayPlatforms = activePlatforms.length > 0 
-    ? activePlatforms 
-    : (isCreator ? Object.entries(defaultPlatforms) : []);
+  const displayPlatforms = activePlatforms;
 
   const totalReach = displayPlatforms.reduce((acc, [_, p]) => acc + (p?.followers || 0), 0);
 
@@ -188,7 +181,7 @@ export default function ProfileView() {
                 <img src={profile.avatar} alt={profile.name} className="w-20 h-20 md:w-28 md:h-28 object-cover border border-white/20 p-2 rounded-sm shadow-2xl shrink-0" />
               ) : (
                 <div className="w-20 h-20 md:w-28 md:h-28 border border-white/20 p-2 flex items-center justify-center bg-white/5 rounded-sm shrink-0">
-                  <span className="font-editorial text-5xl italic text-white/50">{profile.name?.[0]}</span>
+                  <span className="font-editorial text-3xl italic text-white/50">{profile.name?.[0]}</span>
                 </div>
               )}
               <div>

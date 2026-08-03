@@ -31,18 +31,18 @@ export function SocialAuthButtons({
 
   return (
     <div className="w-full max-w-sm mx-auto" data-testid="social-auth-row">
-      <div className="grid grid-cols-2 gap-3 w-full">
+      <div className="grid grid-cols-2 gap-2 w-full">
         {/* Google slot */}
         <div
-          className="relative h-11 rounded-md overflow-hidden border border-white/15 bg-[#111]"
+          className="relative h-9 rounded-md overflow-hidden border border-white/15 bg-[#111]"
           data-testid="google-signin-button"
         >
-          <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center gap-2 text-white text-sm font-medium">
-            <GoogleIcon className="w-5 h-5 shrink-0" />
+          <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center gap-2 text-white text-xs font-medium">
+            <GoogleIcon className="w-4 h-4 shrink-0" />
             <span>Google</span>
           </div>
           {/* Real clickable Google control — only covers THIS cell */}
-          <div className="absolute inset-0 z-10 opacity-0 cursor-pointer [&>div]:!w-full [&>div]:!h-full [&_iframe]:!w-full [&_iframe]:!min-w-full [&_iframe]:!h-[44px]">
+          <div className="absolute inset-0 z-10 opacity-0 cursor-pointer [&>div]:!w-full [&>div]:!h-full [&_iframe]:!w-full [&_iframe]:!min-w-full [&_iframe]:!h-[36px]">
             <GoogleLogin
               onSuccess={(res) => {
                 if (res?.credential) onGoogleCredential?.(res.credential);
@@ -51,7 +51,7 @@ export function SocialAuthButtons({
               onError={() => onGoogleError?.()}
               theme="filled_black"
               shape="rectangular"
-              size="large"
+              size="medium"
               text={mode === "signup" ? "continue_with" : "signin_with"}
               width="200"
               useOneTap={false}
@@ -68,13 +68,13 @@ export function SocialAuthButtons({
           onClick={handleApple}
           data-testid="apple-signin-button"
           aria-label={mode === "signup" ? "Continue with Apple" : "Sign in with Apple"}
-          className="h-11 rounded-md border border-black/10 bg-white hover:bg-neutral-100 text-black text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 relative z-20"
+          className="h-9 rounded-md border border-black/10 bg-white hover:bg-neutral-100 text-black text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 relative z-20"
         >
-          <AppleIcon className="w-4 h-4 text-black shrink-0" />
+          <AppleIcon className="w-3.5 h-3.5 text-black shrink-0" />
           <span>Apple</span>
         </button>
       </div>
-      <p className="mt-2 text-center font-mono text-[10px] tracking-widest uppercase text-white/40">
+      <p className="mt-1 text-center font-sans text-[9px] tracking-widest uppercase text-white/40">
         Apple Sign In · In progress
       </p>
     </div>

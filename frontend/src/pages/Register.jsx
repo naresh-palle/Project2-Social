@@ -467,43 +467,36 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
-      
-
-      {/* Same radial ambient lighting as Sign In */}
-      
-      
-      
-
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative">
       <Nav />
       
-      <div className="min-h-screen flex items-center justify-center pt-24 pb-14 px-6 relative z-10">
+      <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
           onSubmit={handleInitialSubmit}
-          className="w-full max-w-2xl bg-[#121212]/90 backdrop-blur-2xl border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#121212]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-sm shadow-2xl relative overflow-hidden"
           data-testid={`register-form-${role}`}
           autoComplete="off"
         >
           {/* Same top gradient bar as Sign In */}
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
-          <div className="flex items-center justify-between mb-6 gap-4">
-            <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold">
+          <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
+            <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold">
               § Apply for access
             </p>
-            <Link to="/register" className="font-sans text-[11px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold">
+            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold">
               ← Change Door
             </Link>
           </div>
 
-          <h1 className="font-editorial text-4xl md:text-5xl leading-[1.15]">
+          <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0">
             Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
           </h1>
 
-          <div className="mt-10 w-full">
+          <div className="mt-1.5 w-full shrink-0">
             <SocialAuthButtons
               mode="signup"
               loading={appleBusy}
@@ -513,61 +506,63 @@ export default function Register() {
             />
           </div>
 
-          <div className="flex items-center gap-4 mt-8 opacity-60">
+          <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
             <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
-            <span className="font-sans text-[11px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
+            <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
             <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 min-h-0">
             <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
             {(role === "owner" || role === "agent") && (
-              <Field 
-                label={role === "owner" ? "Brand / Company *" : "Agency Name *"} 
-                testid="reg-company" 
-                value={form.company} 
-                onChange={change("company")} 
-                placeholder={role === "owner" ? "Company name" : "Agency name"} 
-                error={fieldErrors.company}
-                required 
-              />
+              <div className="col-span-2">
+                <Field 
+                  label={role === "owner" ? "Brand / Company *" : "Agency Name *"} 
+                  testid="reg-company" 
+                  value={form.company} 
+                  onChange={change("company")} 
+                  placeholder={role === "owner" ? "Company name" : "Agency name"} 
+                  error={fieldErrors.company}
+                  required 
+                />
+              </div>
             )}
 
             {role === "agent" && (
-              <div className="col-span-1 md:col-span-2 space-y-2 pt-2">
-                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-70 font-medium">
-                  Select Talent Agent Type *
+              <div className="col-span-2 space-y-1 pt-0.5">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-70 font-medium">
+                  Talent Agent Type *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
-                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`px-2 py-1.5 border text-left rounded-sm transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-editorial text-lg text-white">🏢 Company Agent</div>
-                    <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
-                      Represent brand clients, manage client roster, and post campaign briefs
+                    <div className="font-sans text-xs text-white">Company Agent</div>
+                    <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
+                      Brand clients &amp; campaign briefs
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
-                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`px-2 py-1.5 border text-left rounded-sm transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-editorial text-lg text-white">⭐ Influencer Agent</div>
-                    <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
-                      Manage creator roster, receive admin campaign briefs &amp; arrange talent
+                    <div className="font-sans text-xs text-white">Influencer Agent</div>
+                    <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
+                      Creator roster &amp; talent
                     </div>
                   </button>
                 </div>
@@ -575,39 +570,39 @@ export default function Register() {
             )}
             <div className="relative">
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
-              {usernameStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
-              {usernameStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
+              {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
+              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
             </div>
             
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
-              {emailStatus === "available" && <CheckCircle2 className="absolute right-3 top-7 w-4 h-4 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-3 top-7 w-4 h-4 text-[#FF3B30]" />}
+              {emailStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
+              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
             </div>
 
             <div className="relative">
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
-              {mobileStatus === "available" && <CheckCircle2 className="absolute right-3 top-7 w-4 h-4 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-3 top-7 w-4 h-4 text-[#FF3B30]" />}
+              {mobileStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
+              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
             </div>
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
             {/* City / State from pincode — plain values, no autofill badges */}
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 City
               </label>
-              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[40px]">
+              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-city">{form.city || ""}</span>
               </div>
             </div>
 
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 State
               </label>
-              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[40px]">
+              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-state">{form.state || ""}</span>
               </div>
             </div>
@@ -616,42 +611,40 @@ export default function Register() {
           </div>
 
           {(emailStatus === "taken" || mobileStatus === "taken") && (
-            <div className="mt-6 p-5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs space-y-3">
-              <p className="text-[#FF3B30] font-bold uppercase tracking-wider flex items-center gap-2 text-sm">
-                <ShieldCheck className="w-4 h-4 shrink-0" /> Account Already Registered!
+            <div className="mt-1.5 p-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 font-sans text-[10px] space-y-1 shrink-0">
+              <p className="text-[#FF3B30] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
               </p>
-              <p className="text-white/80 leading-relaxed">
-                An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered in our database. Choose how you would like to sign in:
+              <p className="text-white/80 leading-snug">
+                An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered. Choose how to sign in:
               </p>
-              <div className="flex flex-wrap gap-3 pt-1">
+              <div className="flex flex-wrap gap-2 pt-0.5">
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { identifier: form.email || form.mobile, mode: "password" } })}
-                  className="btn-solid text-xs py-2.5 px-4 bg-white/10 hover:bg-white/20 text-white"
+                  className="btn-solid text-[10px] py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white"
                 >
-                  🔑 Sign In with Password
+                  Sign In with Password
                 </button>
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
-                  className="btn-solid text-xs py-2.5 px-4 bg-[#FF3B30] text-white"
+                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#FF3B30] text-white"
                 >
-                  📱 Sign In via Mobile OTP
+                  Sign In via Mobile OTP
                 </button>
               </div>
             </div>
           )}
 
           {err && (
-            <p data-testid="register-error" className="mt-6 text-[#FF3B30] font-mono text-xs tracking-widest uppercase">
+            <p data-testid="register-error" className="mt-1 text-[#FF3B30] font-sans text-[10px] tracking-wider uppercase shrink-0">
               {err}
             </p>
           )}
 
-          {/* OTP handled via backend email (Brevo/Gmail) + optional SMS */}
-
           {/* Prominent Terms & Conditions Checkbox Container */}
-          <div className="mt-6 p-4 bg-white/[0.03] border border-white/15 rounded-sm flex items-center gap-3 shadow-inner">
+          <div className="mt-1.5 p-1.5 bg-white/[0.03] border border-white/15 flex items-center gap-2 shrink-0">
             <input
               type="checkbox"
               id="terms-check"
@@ -659,9 +652,9 @@ export default function Register() {
               checked={termsAgreed}
               onChange={(e) => setTermsAgreed(e.target.checked)}
               tabIndex={0}
-              className="accent-[#FF3B30] w-5 h-5 cursor-pointer shrink-0"
+              className="accent-[#FF3B30] w-4 h-4 cursor-pointer shrink-0"
             />
-            <label htmlFor="terms-check" className="font-sans text-xs text-white/90 cursor-pointer select-none leading-snug">
+            <label htmlFor="terms-check" className="font-sans text-[11px] text-white/90 cursor-pointer select-none leading-snug">
               I agree to <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
@@ -669,12 +662,12 @@ export default function Register() {
           <button
             data-testid="register-submit"
             disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed}
-            className="btn-solid mt-6 w-full justify-center py-4 bg-[#FF3B30] text-white font-bold text-lg hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg rounded-sm"
+            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF3B30] text-white font-bold text-sm hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
           >
             {loading ? "Sending Code…" : "Signup"}
           </button>
 
-          <p className="mt-6 font-mono text-xs tracking-wider opacity-70 text-center">
+          <p className="mt-1.5 font-sans text-[10px] tracking-wider opacity-70 text-center shrink-0">
             Already have an account?{" "}
             <Link to="/login" className="text-[#FF3B30] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
               Login
@@ -755,20 +748,20 @@ export default function Register() {
 function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) {
   return (
     <div className="space-y-0">
-      <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
+      <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
         {label}
       </label>
-      <div className={`mt-1 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
-        {prefix && <span className="font-sans text-base opacity-60 mr-2 flex-shrink-0">{prefix}</span>}
+      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
+        {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
           disabled={disabled}
           autoFocus={autoFocus}
           {...props}
-          className={`w-full py-2 focus:outline-none font-sans text-base bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
+          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
       </div>
-      {error && <p className="text-[#FF3B30] text-[11px] mt-1.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
+      {error && <p className="text-[#FF3B30] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }

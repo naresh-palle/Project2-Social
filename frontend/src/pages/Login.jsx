@@ -205,31 +205,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden flex flex-col justify-between" data-testid="login-page">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative" data-testid="login-page">
       <Nav />
       
-      <div className="min-h-screen flex items-center justify-center pt-28 pb-16 px-6 relative z-10">
+      <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.98 }}
+          initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl relative overflow-hidden"
+          transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+          className="w-full max-w-md max-h-[calc(100dvh-4rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-sm shadow-2xl relative overflow-hidden"
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+          <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
             § Studio Sign In
           </p>
-          <h1 className="font-editorial text-4xl md:text-5xl mt-2 leading-[1.15]">
+          <h1 className="font-editorial text-xl md:text-2xl mt-0.5 leading-[1.15]">
             Return to <span className="italic text-[#FF3B30]">the studio.</span>
           </h1>
 
           {/* LOGIN METHOD SWITCHER (Password vs Mobile OTP) */}
-          <div className="flex bg-white/5 border border-white/10 p-1 rounded-xs mt-6 font-mono text-xs">
+          <div className="flex bg-white/5 border border-white/10 p-0.5 rounded-xs mt-3 font-sans text-[11px]">
             <button
               type="button"
               onClick={() => { setMode("password"); setErr(""); }}
-              className={`flex-1 py-2 flex items-center justify-center gap-2 rounded-xs transition-all ${
+              className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
                 mode === "password" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
@@ -238,24 +238,24 @@ export default function Login() {
             <button
               type="button"
               onClick={() => { setMode("otp"); setErr(""); }}
-              className={`flex-1 py-2 flex items-center justify-center gap-2 rounded-xs transition-all ${
+              className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
                 mode === "otp" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5" /> Mobile OTP 📱
+              <Smartphone className="w-3.5 h-3.5" /> Mobile OTP
             </button>
           </div>
 
           {err && (
-            <div className="mt-4 p-3 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-mono text-xs rounded-xs flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 shrink-0" /> {err}
+            <div className="mt-2 p-2 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-sans text-[11px] rounded-xs flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> {err}
             </div>
           )}
 
           {mode === "password" ? (
             <>
               {/* Social outside <form> so Apple/Google never steal Login submit */}
-              <div className="mt-6 space-y-4">
+              <div className="mt-3 space-y-2">
                 <SocialAuthButtons
                   mode="signin"
                   loading={loading}
@@ -263,16 +263,16 @@ export default function Login() {
                   onGoogleError={() => setErr("Google Sign In Failed")}
                   onAppleClick={handleAppleSignIn}
                 />
-                <div className="flex items-center gap-4 opacity-50">
+                <div className="flex items-center gap-3 opacity-50">
                   <div className="h-px bg-[#F4F4F0]/20 flex-1" />
-                  <span className="font-mono text-[10px] tracking-widest uppercase">Or use password</span>
+                  <span className="font-sans text-[10px] tracking-widest uppercase">Or use password</span>
                   <div className="h-px bg-[#F4F4F0]/20 flex-1" />
                 </div>
               </div>
 
-              <form onSubmit={submitPassword} className="mt-6 space-y-4" data-testid="login-form">
+              <form onSubmit={submitPassword} className="mt-3 space-y-2.5" data-testid="login-form">
               <div>
-                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
                   Email or Username
                 </label>
                 <input
@@ -281,13 +281,13 @@ export default function Login() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="mt-1 w-full bg-transparent hairline-b py-2 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
+                  className="mt-0.5 w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
                   placeholder=""
                 />
               </div>
 
               <div>
-                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
                   Password
                 </label>
                 <div className="relative">
@@ -297,19 +297,19 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 w-full bg-transparent hairline-b py-2 pr-10 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
+                    className="mt-0.5 w-full bg-transparent hairline-b py-1.5 pr-10 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
                     placeholder=""
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-2 text-white/50 hover:text-white"
+                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-1.5 text-white/50 hover:text-white"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <div className="flex items-center justify-between mt-3">
-                  <label className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-wider cursor-pointer font-medium">
+                <div className="flex items-center justify-between mt-1.5">
+                  <label className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider cursor-pointer font-medium">
                     <input
                       type="checkbox"
                       checked={rememberMe}
@@ -318,7 +318,7 @@ export default function Login() {
                     />
                     Remember Me
                   </label>
-                  <Link to="/forgot-password" className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] hover:underline font-medium">
+                  <Link to="/forgot-password" className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -345,20 +345,20 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 data-testid="login-submit"
-                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-4 font-sans text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {loading ? "Authenticating..." : "Sign In to Studio"} <ArrowRight className="w-4 h-4" />
               </button>
             </form>
             </>
           ) : (
-            <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-6 space-y-4">
+            <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-3 space-y-2.5">
               <div>
-                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
                   Mobile Number (+91 India)
                 </label>
-                <div className="flex gap-2 mt-1">
-                  <span className="bg-white/5 border border-white/10 px-3 py-2 font-sans text-sm flex items-center text-white/60">+91</span>
+                <div className="flex gap-2 mt-0.5">
+                  <span className="bg-white/5 border border-white/10 px-2.5 py-1.5 font-sans text-xs flex items-center text-white/60">+91</span>
                   <input
                     type="tel"
                     required
@@ -366,21 +366,21 @@ export default function Login() {
                     disabled={otpSent}
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-transparent hairline-b py-2 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
+                    className="w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
                     placeholder=""
                   />
                 </div>
               </div>
 
               {otpSent && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
                   <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#34C759] font-semibold">
-                        Enter 6-Digit Verification Code
+                    <div className="flex justify-between items-center mb-0.5">
+                      <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#34C759] font-semibold">
+                        6-Digit Verification Code
                       </label>
-                      <span className="font-sans text-[10px] text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 tracking-wider uppercase font-medium">
-                        Code Sent ✓
+                      <span className="font-sans text-[9px] text-[#34C759] bg-[#34C759]/10 px-1.5 py-0.5 border border-[#34C759]/30 tracking-wider uppercase font-medium">
+                        Sent ✓
                       </span>
                     </div>
                     <input
@@ -390,29 +390,26 @@ export default function Login() {
                       maxLength={6}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="w-full bg-black/80 border-2 border-[#34C759] p-3 font-sans text-center text-3xl tracking-[0.5em] text-[#34C759] focus:outline-none shadow-xl"
+                      className="w-full bg-black/80 border border-[#34C759] py-2 font-sans text-center text-xl tracking-[0.4em] text-[#34C759] focus:outline-none"
                       placeholder="123456"
                     />
-                    <p className="font-sans text-[11px] text-white/50 mt-1.5 text-center">
-                      Verification code sent via SMS. Enter your 6-digit code above.
-                    </p>
                   </div>
 
-                  <div className="flex justify-between items-center pt-2 font-mono text-xs">
+                  <div className="flex justify-between items-center font-sans text-[10px]">
                     <button
                       type="button"
                       disabled={resendTimer > 0}
                       onClick={handleResendOtp}
-                      className={`text-[11px] uppercase tracking-wider font-bold transition-all ${
+                      className={`uppercase tracking-wider font-bold transition-all ${
                         resendTimer > 0 ? "text-white/40 cursor-not-allowed" : "text-[#007AFF] hover:underline cursor-pointer"
                       }`}
                     >
-                      {resendTimer > 0 ? `Resend OTP in ${resendTimer}s ⏳` : "Resend OTP Code 🔄"}
+                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
                     </button>
                     <button
                       type="button"
                       onClick={() => { setOtpSent(false); setOtp(""); }}
-                      className="text-[11px] uppercase tracking-wider text-white/50 hover:text-white"
+                      className="uppercase tracking-wider text-white/50 hover:text-white"
                     >
                       Change Number
                     </button>
@@ -423,23 +420,23 @@ export default function Login() {
               {!otpSent ? (
                 <button
                   type="submit"
-                  className="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
                 >
-                  Send 6-Digit OTP Code 📩
+                  Send 6-Digit OTP Code
                 </button>
               ) : (
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#34C759] hover:bg-[#2fb24f] text-black py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full bg-[#34C759] hover:bg-[#2fb24f] text-black py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
                 >
-                  {loading ? "Verifying OTP..." : "Verify & Sign In ⚡"}
+                  {loading ? "Verifying OTP..." : "Verify & Sign In"}
                 </button>
               )}
             </form>
           )}
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-center font-mono text-xs opacity-60">
+          <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center font-sans text-[10px] opacity-60">
             <Link to="/register" className="hover:text-white">Need an account? Register here →</Link>
           </div>
         </motion.div>

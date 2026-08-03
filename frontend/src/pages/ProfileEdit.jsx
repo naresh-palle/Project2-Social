@@ -1042,7 +1042,7 @@ function PasswordChangeSection() {
         <F label="Current Password">
           <input 
             type="password" 
-            className="inp font-mono" 
+            className="inp"
             placeholder="••••••••" 
             autoComplete="current-password"
             value={pwdForm.current_password} 
@@ -1050,11 +1050,11 @@ function PasswordChangeSection() {
           />
         </F>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <F label="New Password (Min 8 chars, Alphanumeric)">
             <input 
               type="password" 
-              className="inp font-mono" 
+              className="inp"
               placeholder="••••••••" 
               autoComplete="new-password"
               value={pwdForm.new_password} 
@@ -1064,7 +1064,7 @@ function PasswordChangeSection() {
           <F label="Confirm New Password">
             <input 
               type="password" 
-              className="inp font-mono" 
+              className="inp"
               placeholder="••••••••" 
               autoComplete="new-password"
               value={pwdForm.confirm_password} 
