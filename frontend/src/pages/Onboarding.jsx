@@ -548,10 +548,13 @@ const toggleCategory = (c) => {
 
           <div>
               <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Current Availability *</h4>
-              <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
-                  <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
-                  {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
-              </select>
+              <MultiSelectDropdown 
+                 options={AVAILABILITIES}
+                 selected={f.availability ? [f.availability] : []}
+                 onChange={(vals) => setF({...f, availability: vals[0] || ""})}
+                 placeholder="Select Availability..."
+                 single={true}
+              />
           </div>
 
           <div>
