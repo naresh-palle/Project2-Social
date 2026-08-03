@@ -481,11 +481,11 @@ export default function Register() {
           {/* Same top gradient bar as Sign In */}
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
-          <div className="flex items-center justify-between mb-8">
-            <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">
+          <div className="flex items-center justify-between mb-6 gap-4">
+            <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold">
               § Apply for access
             </p>
-            <Link to="/register" className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors">
+            <Link to="/register" className="font-sans text-[11px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold">
               ← Change Door
             </Link>
           </div>
@@ -506,11 +506,11 @@ export default function Register() {
 
           <div className="flex items-center gap-4 mt-8 opacity-60">
             <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
-            <span className="font-mono text-[10px] tracking-widest uppercase">Or fill manually</span>
+            <span className="font-sans text-[11px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
             <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
@@ -528,7 +528,7 @@ export default function Register() {
 
             {role === "agent" && (
               <div className="col-span-1 md:col-span-2 space-y-2 pt-2">
-                <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-70">
+                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-70 font-medium">
                   Select Talent Agent Type *
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -572,37 +572,37 @@ export default function Register() {
             
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
-              {emailStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
+              {emailStatus === "available" && <CheckCircle2 className="absolute right-3 top-7 w-4 h-4 text-green-500" />}
+              {emailStatus === "taken" && <XCircle className="absolute right-3 top-7 w-4 h-4 text-[#FF3B30]" />}
             </div>
 
             <div className="relative">
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
-              {mobileStatus === "available" && <CheckCircle2 className="absolute right-3 top-10 w-4 h-4 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-3 top-10 w-4 h-4 text-[#FF3B30]" />}
+              {mobileStatus === "available" && <CheckCircle2 className="absolute right-3 top-7 w-4 h-4 text-green-500" />}
+              {mobileStatus === "taken" && <XCircle className="absolute right-3 top-7 w-4 h-4 text-[#FF3B30]" />}
             </div>
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
             {/* Locked Non-Editable City Badge */}
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+              <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
                 City (Auto-filled)
               </label>
-              <div className="mt-2 py-3 border-b border-white/10 font-mono text-base text-white/90 bg-white/[0.02] px-2 rounded-xs flex items-center justify-between min-h-[46px]">
-                <span data-testid="reg-city">{form.city || "Auto-prompted via Pincode"}</span>
-                {form.city && <span className="text-[9px] uppercase font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded-xs border border-green-400/20">Auto-filled ✓</span>}
+              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center justify-between min-h-[40px]">
+                <span data-testid="reg-city" className={!form.city ? "opacity-40" : ""}>{form.city || "Auto-prompted via Pincode"}</span>
+                {form.city && <span className="text-[10px] uppercase font-sans font-semibold tracking-wider text-green-400 bg-green-400/10 px-2 py-0.5 border border-green-400/20">Auto-filled ✓</span>}
               </div>
             </div>
 
             {/* Locked Non-Editable State Badge */}
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+              <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
                 State (Auto-filled)
               </label>
-              <div className="mt-2 py-3 border-b border-white/10 font-mono text-base text-white/90 bg-white/[0.02] px-2 rounded-xs flex items-center justify-between min-h-[46px]">
-                <span data-testid="reg-state">{form.state || "Auto-prompted via Pincode"}</span>
-                {form.state && <span className="text-[9px] uppercase font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded-xs border border-green-400/20">Auto-filled ✓</span>}
+              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center justify-between min-h-[40px]">
+                <span data-testid="reg-state" className={!form.state ? "opacity-40" : ""}>{form.state || "Auto-prompted via Pincode"}</span>
+                {form.state && <span className="text-[10px] uppercase font-sans font-semibold tracking-wider text-green-400 bg-green-400/10 px-2 py-0.5 border border-green-400/20">Auto-filled ✓</span>}
               </div>
             </div>
 
@@ -747,20 +747,20 @@ export default function Register() {
 
 function Field({ label, testid, error, prefix, disabled, ...props }) {
   return (
-    <div>
-      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+    <div className="space-y-0">
+      <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
         {label}
       </label>
-      <div className={`mt-2 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
-        {prefix && <span className="text-lg opacity-60 mr-2 flex-shrink-0">{prefix}</span>}
+      <div className={`mt-1 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
+        {prefix && <span className="font-sans text-base opacity-60 mr-2 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
           disabled={disabled}
           {...props}
-          className={`w-full py-3 focus:outline-none text-lg bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
+          className={`w-full py-2 focus:outline-none font-sans text-base bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
       </div>
-      {error && <p className="text-[#FF3B30] text-[10px] mt-2 uppercase tracking-widest font-mono">{error}</p>}
+      {error && <p className="text-[#FF3B30] text-[11px] mt-1.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }

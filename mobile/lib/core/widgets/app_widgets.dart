@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
 
@@ -48,6 +50,89 @@ class Cr8SectionLabel extends StatelessWidget {
     return Text(
       text.toUpperCase(),
       style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.muted),
+    );
+  }
+}
+
+/// Label sits tightly above the underline field — matches web Register spacing.
+class Cr8LabeledField extends StatelessWidget {
+  const Cr8LabeledField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.obscureText = false,
+    this.keyboardType,
+    this.maxLength,
+    this.prefixText,
+    this.validator,
+    this.enabled = true,
+    this.textInputAction,
+    this.onChanged,
+    this.inputFormatters,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final int? maxLength;
+  final String? prefixText;
+  final FormFieldValidator<String>? validator;
+  final bool enabled;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+
+  @override
+  Widget build(BuildContext context) {
+    final labelStyle = GoogleFonts.manrope(
+      color: Cr8Colors.muted,
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 1.4,
+      height: 1.1,
+    );
+    final valueStyle = GoogleFonts.manrope(
+      color: Cr8Colors.text,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      height: 1.25,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(label.toUpperCase(), style: labelStyle),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: controller,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            maxLength: maxLength,
+            enabled: enabled,
+            textInputAction: textInputAction,
+            onChanged: onChanged,
+            inputFormatters: inputFormatters,
+            style: valueStyle,
+            cursorColor: Cr8Colors.accent,
+            validator: validator,
+            decoration: InputDecoration(
+              isDense: true,
+              counterText: '',
+              prefixText: prefixText,
+              prefixStyle: valueStyle.copyWith(color: Cr8Colors.muted),
+              contentPadding: const EdgeInsets.only(top: 2, bottom: 8),
+              border: const UnderlineInputBorder(borderSide: BorderSide(color: Cr8Colors.hairline)),
+              enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Cr8Colors.hairline)),
+              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Cr8Colors.accent)),
+              errorBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Cr8Colors.accent)),
+              errorStyle: GoogleFonts.manrope(fontSize: 11, color: Cr8Colors.accent),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

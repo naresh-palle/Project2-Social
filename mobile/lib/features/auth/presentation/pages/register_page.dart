@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/network/cr8_api.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -31,12 +33,23 @@ class RegisterSplashPage extends StatelessWidget {
                   const Cr8BackButton(fallback: '/'),
                   Text(
                     'CR8 × STUDIO',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent, letterSpacing: 3),
+                    style: GoogleFonts.manrope(
+                      color: Cr8Colors.accent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 3,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  Text('Choose your door.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
+                  Text(
+                    'Choose your door.',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic),
+                  ),
                   const SizedBox(height: 8),
-                  const Text('Pick a role to start onboarding.', style: TextStyle(color: Colors.white70)),
+                  Text(
+                    'Pick a role to start onboarding.',
+                    style: GoogleFonts.manrope(color: Colors.white70, fontSize: 14),
+                  ),
                   const Spacer(),
                   ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
                   const SizedBox(height: 12),
@@ -148,48 +161,198 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final roleLabel = widget.role == 'owner' ? 'Brand' : widget.role == 'agent' ? 'Agent' : 'Creator';
+    final metaStyle = GoogleFonts.manrope(
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.8,
+      color: Cr8Colors.accent.withValues(alpha: 0.9),
+    );
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register as $roleLabel'),
-        leading: const Cr8BackButton(fallback: '/register'),
-      ),
+      backgroundColor: Colors.transparent,
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) cr8Back(context, fallback: '/register');
         },
-        child: Form(
-          key: _form,
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              TextFormField(controller: firstName, decoration: const InputDecoration(labelText: 'First name'), validator: _req),
-              TextFormField(controller: lastName, decoration: const InputDecoration(labelText: 'Last name'), validator: _req),
-              if (widget.role != 'influencer')
-                TextFormField(controller: company, decoration: InputDecoration(labelText: widget.role == 'owner' ? 'Company' : 'Agency'), validator: _req),
-              if (widget.role == 'agent')
-                DropdownButtonFormField<String>(
-                  value: agentType,
-                  items: const [
-                    DropdownMenuItem(value: 'company_agent', child: Text('Company Agent')),
-                    DropdownMenuItem(value: 'influencer_agent', child: Text('Influencer Agent')),
-                  ],
-                  onChanged: (v) => setState(() => agentType = v ?? agentType),
-                  decoration: const InputDecoration(labelText: 'Agent type'),
-                ),
-              TextFormField(controller: email, decoration: const InputDecoration(labelText: 'Email'), validator: _req),
-              TextFormField(controller: username, decoration: const InputDecoration(labelText: 'Username'), validator: _req),
-              TextFormField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password'), validator: _req),
-              TextFormField(controller: mobile, keyboardType: TextInputType.phone, maxLength: 10, decoration: const InputDecoration(labelText: 'Mobile', prefixText: '+91 '), validator: _req),
-              TextFormField(controller: pincode, keyboardType: TextInputType.number, maxLength: 6, decoration: const InputDecoration(labelText: 'Pincode (optional)')),
-              const SizedBox(height: 16),
-              Cr8Button(label: 'Continue with OTP', onPressed: _submit, loading: busy && !otpOpen),
-              if (otpOpen) ...[
-                const SizedBox(height: 16),
-                TextField(controller: otp, maxLength: 6, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'SMS OTP')),
-                Cr8Button(label: 'Verify & Create Account', onPressed: _verify, loading: busy),
-              ],
-            ],
+        child: StudioBackdrop(
+          dim: 0.28,
+          child: SafeArea(
+            child: Form(
+              key: _form,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                children: [
+                  Row(
+                    children: [
+                      const Cr8BackButton(fallback: '/register'),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () => context.go('/register'),
+                        child: Text('← CHANGE DOOR', style: metaStyle.copyWith(color: Cr8Colors.muted)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Cr8Colors.surface.withValues(alpha: 0.92),
+                      border: Border.all(color: Cr8Colors.hairline),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const StudioAccentBar(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('§ APPLY FOR ACCESS', style: metaStyle),
+                              const SizedBox(height: 10),
+                              Text.rich(
+                                TextSpan(
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 34,
+                                    height: 1.15,
+                                    color: Cr8Colors.text,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'Register as '),
+                                    TextSpan(
+                                      text: '$roleLabel.',
+                                      style: const TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Cr8Colors.accent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 22),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Cr8LabeledField(
+                                      label: 'First name',
+                                      controller: firstName,
+                                      validator: _req,
+                                      textInputAction: TextInputAction.next,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Cr8LabeledField(
+                                      label: 'Last name',
+                                      controller: lastName,
+                                      validator: _req,
+                                      textInputAction: TextInputAction.next,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (widget.role != 'influencer')
+                                Cr8LabeledField(
+                                  label: widget.role == 'owner' ? 'Company' : 'Agency',
+                                  controller: company,
+                                  validator: _req,
+                                  textInputAction: TextInputAction.next,
+                                ),
+                              if (widget.role == 'agent') ...[
+                                Text(
+                                  'AGENT TYPE',
+                                  style: GoogleFonts.manrope(
+                                    color: Cr8Colors.muted,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                DropdownButtonFormField<String>(
+                                  value: agentType,
+                                  items: const [
+                                    DropdownMenuItem(value: 'company_agent', child: Text('Company Agent')),
+                                    DropdownMenuItem(value: 'influencer_agent', child: Text('Influencer Agent')),
+                                  ],
+                                  onChanged: (v) => setState(() => agentType = v ?? agentType),
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.only(bottom: 8),
+                                  ),
+                                  style: GoogleFonts.manrope(color: Cr8Colors.text, fontSize: 16),
+                                ),
+                                const SizedBox(height: 14),
+                              ],
+                              Cr8LabeledField(
+                                label: 'Email',
+                                controller: email,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: _req,
+                                textInputAction: TextInputAction.next,
+                              ),
+                              Cr8LabeledField(
+                                label: 'Username',
+                                controller: username,
+                                validator: _req,
+                                textInputAction: TextInputAction.next,
+                              ),
+                              Cr8LabeledField(
+                                label: 'Mobile',
+                                controller: mobile,
+                                keyboardType: TextInputType.phone,
+                                maxLength: 10,
+                                prefixText: '+91 ',
+                                validator: _req,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                textInputAction: TextInputAction.next,
+                              ),
+                              Cr8LabeledField(
+                                label: 'Pincode (optional)',
+                                controller: pincode,
+                                keyboardType: TextInputType.number,
+                                maxLength: 6,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                textInputAction: TextInputAction.next,
+                              ),
+                              Cr8LabeledField(
+                                label: 'Password',
+                                controller: password,
+                                obscureText: true,
+                                validator: _req,
+                                textInputAction: TextInputAction.done,
+                              ),
+                              const SizedBox(height: 8),
+                              Cr8Button(
+                                label: 'Continue with OTP',
+                                onPressed: _submit,
+                                loading: busy && !otpOpen,
+                              ),
+                              if (otpOpen) ...[
+                                const SizedBox(height: 18),
+                                Cr8LabeledField(
+                                  label: 'SMS OTP',
+                                  controller: otp,
+                                  maxLength: 6,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                  validator: _req,
+                                ),
+                                Cr8Button(
+                                  label: 'Verify & Create Account',
+                                  onPressed: _verify,
+                                  loading: busy,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

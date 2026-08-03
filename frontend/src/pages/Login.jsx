@@ -273,9 +273,9 @@ export default function Login() {
                 </div>
               </div>
 
-              <form onSubmit={submitPassword} className="mt-6 space-y-6" data-testid="login-form">
+              <form onSubmit={submitPassword} className="mt-6 space-y-4" data-testid="login-form">
               <div>
-                <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
                   Email or Username
                 </label>
                 <input
@@ -284,13 +284,13 @@ export default function Login() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-base"
+                  className="mt-1 w-full bg-transparent hairline-b py-2 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
                   placeholder=""
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
                   Password
                 </label>
                 <div className="relative">
@@ -300,19 +300,19 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-2 w-full bg-transparent hairline-b py-3 pr-10 focus:outline-none focus:border-[#FF3B30] text-base"
+                    className="mt-1 w-full bg-transparent hairline-b py-2 pr-10 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
                     placeholder=""
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-white/50 hover:text-white"
+                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-2 text-white/50 hover:text-white"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider cursor-pointer">
+                  <label className="flex items-center gap-2 font-sans text-[11px] uppercase tracking-wider cursor-pointer font-medium">
                     <input
                       type="checkbox"
                       checked={rememberMe}
@@ -321,7 +321,7 @@ export default function Login() {
                     />
                     Remember Me
                   </label>
-                  <Link to="/forgot-password" className="font-mono text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline">
+                  <Link to="/forgot-password" className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -329,7 +329,7 @@ export default function Login() {
 
               {requires2fa && (
                 <div>
-                  <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
+                  <label className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#34C759] font-semibold leading-none block">
                     2FA Authentication Code
                   </label>
                   <input
@@ -338,7 +338,7 @@ export default function Login() {
                     maxLength={6}
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
-                    className="mt-2 w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-2xl tracking-[0.5em] text-[#34C759] focus:outline-none rounded-xs"
+                    className="mt-1 w-full bg-black/80 border-2 border-[#34C759] p-3 font-sans text-center text-2xl tracking-[0.4em] text-[#34C759] focus:outline-none"
                     placeholder="000000"
                   />
                 </div>
@@ -348,20 +348,20 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 data-testid="login-submit"
-                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-4 font-sans text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {loading ? "Authenticating..." : "Sign In to Studio"} <ArrowRight className="w-4 h-4" />
               </button>
             </form>
             </>
           ) : (
-            <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-6 space-y-6">
+            <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-6 space-y-4">
               <div>
-                <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+                <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
                   Mobile Number (+91 India)
                 </label>
-                <div className="flex gap-2 mt-2">
-                  <span className="bg-white/5 border border-white/10 px-3 py-3 font-mono text-sm flex items-center text-white/60">+91</span>
+                <div className="flex gap-2 mt-1">
+                  <span className="bg-white/5 border border-white/10 px-3 py-2 font-sans text-sm flex items-center text-white/60">+91</span>
                   <input
                     type="tel"
                     required
@@ -369,7 +369,7 @@ export default function Login() {
                     disabled={otpSent}
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-base"
+                    className="w-full bg-transparent hairline-b py-2 focus:outline-none focus:border-[#FF3B30] font-sans text-base"
                     placeholder=""
                   />
                 </div>
@@ -379,10 +379,10 @@ export default function Login() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#34C759] font-bold">
+                      <label className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#34C759] font-semibold">
                         Enter 6-Digit Verification Code
                       </label>
-                      <span className="font-mono text-[9px] text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 rounded-xs border border-[#34C759]/30">
+                      <span className="font-sans text-[10px] text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 tracking-wider uppercase font-medium">
                         Code Sent ✓
                       </span>
                     </div>
@@ -393,10 +393,10 @@ export default function Login() {
                       maxLength={6}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="w-full bg-black/80 border-2 border-[#34C759] p-3 font-mono text-center text-3xl tracking-[0.6em] text-[#34C759] focus:outline-none rounded-xs shadow-xl"
+                      className="w-full bg-black/80 border-2 border-[#34C759] p-3 font-sans text-center text-3xl tracking-[0.5em] text-[#34C759] focus:outline-none shadow-xl"
                       placeholder="123456"
                     />
-                    <p className="font-mono text-[10px] text-white/50 mt-1.5 text-center">
+                    <p className="font-sans text-[11px] text-white/50 mt-1.5 text-center">
                       Verification code sent via SMS. Enter your 6-digit code above.
                     </p>
                   </div>

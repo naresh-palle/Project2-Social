@@ -949,7 +949,7 @@ export default function ProfileEdit() {
           onComplete={onCropComplete}
         />
       )}
-      <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
+      <style>{`.inp { margin-top: 0.25rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.5rem 0; outline: none; font-size: 1rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
       .inp:focus { border-color: #FF3B30; }
       input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }`}</style>
     </div>
@@ -1055,8 +1055,8 @@ function PasswordChangeSection() {
 
 function F({ label, children }) {
   return (
-    <div>
-      <label className="font-sans text-[11px] tracking-[0.18em] uppercase opacity-60 font-medium">{label}</label>
+    <div className="space-y-0">
+      <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">{label}</label>
       {children}
     </div>
   );

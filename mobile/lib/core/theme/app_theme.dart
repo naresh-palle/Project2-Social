@@ -62,8 +62,21 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: false,
-        hintStyle: TextStyle(color: Cr8Colors.muted),
-        labelStyle: mono.labelSmall?.copyWith(letterSpacing: 2),
+        isDense: true,
+        hintStyle: GoogleFonts.manrope(color: Cr8Colors.muted, fontSize: 14 * fontScale),
+        labelStyle: GoogleFonts.manrope(
+          color: Cr8Colors.muted,
+          fontSize: 11 * fontScale,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.4,
+        ),
+        floatingLabelStyle: GoogleFonts.manrope(
+          color: Cr8Colors.accent,
+          fontSize: 11 * fontScale,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.4,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 8),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Cr8Colors.hairline),
         ),
@@ -76,10 +89,11 @@ class AppTheme {
           backgroundColor: Cr8Colors.accent,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          textStyle: mono.labelSmall?.copyWith(
+          textStyle: GoogleFonts.manrope(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             letterSpacing: 1.6,
+            fontSize: 12 * fontScale,
           ),
         ),
       ),
