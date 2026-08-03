@@ -93,6 +93,10 @@ const DOCS = {
         h: "10. Children",
         p: "The Platform is not directed at children under 16. We delete accounts of underage users upon discovery.",
       },
+      {
+        h: "11. Third-Party Social Media Integrations & API Usage",
+        p: "When you connect your social media accounts (e.g., YouTube, Instagram, Facebook, X), we access your data via their official APIs to display your analytics and metrics. We do not store your passwords. Your data is not sold to third parties. By connecting YouTube, you agree to the Google Privacy Policy (https://policies.google.com/privacy) and YouTube Terms of Service (https://www.youtube.com/t/terms). You may revoke access to your data at any time via the Google Security Settings page (https://security.google.com/settings/security/permissions). Similar revocations can be managed directly on Meta and X platform settings.",
+      },
     ],
   },
   cookies: {
