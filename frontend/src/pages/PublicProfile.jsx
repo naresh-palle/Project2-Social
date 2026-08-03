@@ -118,15 +118,20 @@ export default function PublicProfile() {
               <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E]" />
             ) : (
               <div className="w-28 h-28 rounded-full bg-white/10 border-4 border-[#0B0B0E] flex items-center justify-center font-editorial text-4xl">
-                {(profile.name || "?")[0]}
+                {(profile.username || profile.name || "?")[0]?.toUpperCase()}
               </div>
             )}
             <div className="flex-1 pb-2">
-              <h1 className="font-editorial text-4xl md:text-5xl">{profile.name}</h1>
-              <p className="font-mono text-[10px] text-[#FF3B30] uppercase tracking-widest mt-1">
-                @{profile.handle || profile.username}
-                {profile.online && <span className="ml-2 text-[#34C759]">● Online</span>}
-              </p>
+              <h1 className="font-editorial text-2xl md:text-3xl">
+                {profile.username
+                  ? `@${String(profile.username).replace(/^@/, "")}`
+                  : (profile.handle
+                      ? (String(profile.handle).startsWith("@") ? profile.handle : `@${profile.handle}`)
+                      : (profile.name || "Profile"))}
+              </h1>
+              {(profile.role === "owner" || profile.role === "agent") && profile.company && (
+                <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>
+              )}
             </div>
           </div>
 

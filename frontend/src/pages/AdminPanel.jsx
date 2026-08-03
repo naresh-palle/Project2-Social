@@ -409,7 +409,7 @@ export function AdminPanel() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
-                                    <th className="p-4 font-normal">User</th><th className="p-4 font-normal">Role / Category</th><th className="p-4 font-normal">Joined</th><th className="p-4 font-normal">Status</th><th className="p-4 font-normal text-right">Actions</th>
+                                    <th className="p-4 font-normal">Username</th><th className="p-4 font-normal">Role / Category</th><th className="p-4 font-normal">Joined</th><th className="p-4 font-normal">Status</th><th className="p-4 font-normal text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -418,7 +418,12 @@ export function AdminPanel() {
                                 ) : (
                                     usersList.map((u) => (
                                         <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                            <td className="p-4"><div className="font-editorial text-xl">{u.name}</div><div className="font-mono text-[10px] opacity-60 mt-1">{u.email}</div></td>
+                                            <td className="p-4">
+                                              <div className="font-editorial text-xl">
+                                                {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
+                                              </div>
+                                              <div className="font-sans text-[10px] opacity-60 mt-1">{u.email}</div>
+                                            </td>
                                             <td className="p-4"><div className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</div><div className="text-xs opacity-60 mt-1">{u.category || "—"}</div></td>
                                             <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
                                             <td className="p-4">
@@ -516,7 +521,13 @@ export function AdminPanel() {
                                         <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-60">
                                             {new Date(a.time).toLocaleString()}
                                         </td>
-                                        <td className="p-4 text-sm opacity-90">{a.user}</td>
+                                        <td className="p-4 text-sm opacity-90">
+                                          {a.username
+                                            ? `@${String(a.username).replace(/^@/, "")}`
+                                            : (a.user?.startsWith?.("@")
+                                                ? a.user
+                                                : (a.user || "—"))}
+                                        </td>
                                         <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-80">{a.type}</td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-mono rounded-sm border ${

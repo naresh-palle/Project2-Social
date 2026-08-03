@@ -1744,6 +1744,17 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
     audit_logs = await db.audit_logs.find({}, {"_id": 0}).sort("created_at", -1).limit(20).to_list(20)
     if audit_logs:
+        # Prefer username for display when we can resolve it
+        user_ids = [a.get("user_id") for a in audit_logs if a.get("user_id")]
+        uname_by_id = {}
+        if user_ids:
+            docs = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "username": 1}).to_list(50)
+            uname_by_id = {d["id"]: d.get("username") for d in docs if d.get("username")}
+        for a in audit_logs:
+            uname = a.get("username") or uname_by_id.get(a.get("user_id"))
+            if uname:
+                a["username"] = uname
+                a["user"] = f"@{str(uname).lstrip('@')}"
         return audit_logs
     
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).limit(5).to_list(5)
@@ -1751,9 +1762,11 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
     
     activity = []
     for u in users:
+        uname = (u.get("username") or "").strip()
         activity.append({
             "type": f"{u.get('role', 'user').title()} Signup",
-            "user": u.get("name", "User"),
+            "user": f"@{uname}" if uname else (u.get("email") or "User"),
+            "username": uname or None,
             "status": "Completed",
             "time": u.get("created_at", now_iso())
         })
@@ -1811,9 +1824,10 @@ async def admin_users(
         filt["$or"] = [{"category": category}, {"industry": category}]
     if q:
         filt["$or"] = [
+            {"username": {"$regex": q, "$options": "i"}},
             {"name": {"$regex": q, "$options": "i"}},
             {"email": {"$regex": q, "$options": "i"}},
-            {"handle": {"$regex": q, "$options": "i"}}
+            {"handle": {"$regex": q, "$options": "i"}},
         ]
     if status == "pending":
         filt["role"] = "agent"
@@ -3288,7 +3302,7 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
     handle_str = inp.handle or (f"@{inp.username}" if inp.username else "the creator")
     name_str = inp.name or handle_str or "the creator"
     lang_str = ", ".join(inp.languages) if inp.languages else "the languages they listed"
-    loc_str = f"{inp.city or ''}, {inp.state || ''}".strip(", ") or "their location"
+    loc_str = f"{inp.city or ''}, {inp.state or ''}".strip(", ") or "their location"
     exp_str = inp.experience or "their experience level"
     types_str = ", ".join(inp.content_types) if inp.content_types else "the content formats they create"
     

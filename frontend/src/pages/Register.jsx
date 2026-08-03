@@ -256,17 +256,18 @@ export default function Register() {
         if (isTaken) {
           setUsernameStatus("taken");
           const surg1 = `${u}_cr8`;
-          const surg2 = `${u}2026`;
+          const surg2 = `${u}${Math.floor(10 + Math.random() * 89)}`;
           setUsernameSuggestions([surg1, surg2]);
-          setFieldErrors(e => ({ ...e, username: `Username "${form.username}" is taken.` }));
+          setFieldErrors(e => ({ ...e, username: "Username not available" }));
         } else {
           setUsernameStatus("available");
           setUsernameSuggestions([]);
           setFieldErrors(e => ({ ...e, username: "" }));
         }
       } catch (e) {
-        setUsernameStatus("available");
-        setFieldErrors(e => ({ ...e, username: "" }));
+        setUsernameStatus("typing");
+        setUsernameSuggestions([]);
+        setFieldErrors(e => ({ ...e, username: "Could not verify username. Try again." }));
       }
     };
     const t = setTimeout(checkUsername, 400);
@@ -343,7 +344,7 @@ export default function Register() {
     } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9_]{6,}$/.test(form.username.trim())) {
       errs.username = "Username must contain a combination of letters and numbers (e.g. user123)";
     } else if (usernameStatus === "taken") {
-      errs.username = `Username "${form.username}" is taken.`;
+      errs.username = "Username not available";
     }
 
     // 2. Email format validation
@@ -568,10 +569,27 @@ export default function Register() {
                 </div>
               </div>
             )}
-            <div className="relative">
+            <div className="relative col-span-2 md:col-span-1">
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
+              {usernameStatus === "checking" && (
+                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-white/50">Checking…</span>
+              )}
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
               {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
+              {usernameStatus === "taken" && usernameSuggestions.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {usernameSuggestions.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, username: s }))}
+                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#FF3B30] hover:text-[#FF3B30] transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div className="relative">

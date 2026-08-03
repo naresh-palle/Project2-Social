@@ -144,10 +144,10 @@ export default function ProfileView() {
                 {completionScore}%
               </div>
               <div>
-                <div className="font-editorial text-xl font-bold flex items-center gap-2">
-                  <span>Profile Strength &amp; Verification</span>
+                <div className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold flex items-center gap-2">
+                  Profile strength
                   <span className="font-sans text-[10px] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] rounded-xs font-bold">
-                    {completionScore === 100 ? "Verified Tier 1" : "In Progress"}
+                    {completionScore === 100 ? "Verified" : "In progress"}
                   </span>
                 </div>
                 {missingFields.length > 0 ? (
@@ -178,10 +178,12 @@ export default function ProfileView() {
           <div className="mt-4 flex flex-col md:flex-row gap-5 items-start md:items-end border-b border-white/10 pb-5 justify-between">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
               {profile.avatar ? (
-                <img src={profile.avatar} alt={profile.name} className="w-20 h-20 md:w-28 md:h-28 object-cover border border-white/20 p-2 rounded-sm shadow-2xl shrink-0" />
+                <img src={profile.avatar} alt={profile.username || profile.name || "Profile"} className="w-20 h-20 md:w-28 md:h-28 object-cover border border-white/20 p-2 rounded-sm shadow-2xl shrink-0" />
               ) : (
                 <div className="w-20 h-20 md:w-28 md:h-28 border border-white/20 p-2 flex items-center justify-center bg-white/5 rounded-sm shrink-0">
-                  <span className="font-editorial text-3xl italic text-white/50">{profile.name?.[0]}</span>
+                  <span className="font-editorial text-3xl italic text-white/50">
+                    {(profile.username || profile.name || "?")[0]?.toUpperCase()}
+                  </span>
                 </div>
               )}
               <div>
@@ -207,12 +209,17 @@ export default function ProfileView() {
                     </Tip>
                   )}
                 </div>
-                <h1 className="font-editorial text-xl md:text-2xl leading-none font-medium">
-                  {profile.company || profile.name}
+                <h1 className="font-editorial text-2xl md:text-3xl leading-none font-medium">
+                  {profile.role === "owner" || profile.role === "agent"
+                    ? (profile.company || (profile.username ? `@${String(profile.username).replace(/^@/, "")}` : profile.name))
+                    : (profile.username
+                        ? `@${String(profile.username).replace(/^@/, "")}`
+                        : (profile.handle || profile.name || "Profile"))}
                 </h1>
                 <div className="font-sans text-xs opacity-75 mt-3 flex items-center gap-3 flex-wrap">
-                  {profile.name && <span>{profile.name}</span>}
-                  {(profile.handle || profile.username) && <span className="text-white/60">· {profile.handle || `@${profile.username}`}</span>}
+                  {(profile.role === "owner" || profile.role === "agent") && profile.username && (
+                    <span className="text-white/70">@{String(profile.username).replace(/^@/, "")}</span>
+                  )}
                   {profile.city && (
                     <span className="flex items-center gap-1 opacity-60">
                       <MapPin className="w-3 h-3 text-[#FF3B30]" /> {profile.city}
@@ -392,8 +399,8 @@ export default function ProfileView() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="font-editorial text-xl md:text-2xl">📱 Verified Social Presence</h2>
-                      <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Live Audience Reach &amp; Channel Metrics</p>
+                      <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Social presence</h2>
+                      <p className="font-sans text-[10px] tracking-widest uppercase opacity-50 mt-1">Audience reach &amp; channel metrics</p>
                     </div>
                     {totalReach > 0 && (
                       <div className="text-right font-sans text-xs uppercase tracking-wider text-[#FF3B30] font-semibold bg-[#FF3B30]/10 px-3.5 py-1 border border-[#FF3B30]/30 rounded-xs">
@@ -470,8 +477,8 @@ export default function ProfileView() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
-                      <h2 className="font-editorial text-xl md:text-2xl">📜 Past Campaigns &amp; Track Record</h2>
-                      <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Verified Brand Collaborations &amp; Post Links</p>
+                      <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Past campaigns</h2>
+                      <p className="font-sans text-[10px] tracking-widest uppercase opacity-50 mt-1">Brand collaborations &amp; post links</p>
                     </div>
                     <span className="font-sans text-xs uppercase tracking-wider text-[#FF3B30] font-bold">
                       {pastCampaigns.length} / 5 Campaigns
@@ -515,8 +522,8 @@ export default function ProfileView() {
                 {/* 3. FEATURED PORTFOLIO MEDIA (Images & Videos) */}
                 <div className="space-y-8">
                   <div className="border-b border-white/10 pb-4">
-                    <h2 className="font-editorial text-xl md:text-2xl">🎨 Featured Portfolio Deliverables</h2>
-                    <p className="font-sans text-[11px] tracking-widest uppercase opacity-50 mt-1">Categorized Media Assets &amp; Portfolio Showcase</p>
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Portfolio</h2>
+                    <p className="font-sans text-[10px] tracking-widest uppercase opacity-50 mt-1">Media assets &amp; showcase</p>
                   </div>
 
                   {/* 📷 Featured Images Category */}

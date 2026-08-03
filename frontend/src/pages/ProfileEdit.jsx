@@ -118,25 +118,15 @@ export default function ProfileEdit() {
     e.target.value = "";
   };
 
-  // Past Campaigns (Max 5 Limit with Full Details Requirement)
+  // Past Campaigns (optional, max 5)
   const addCampaign = () => {
     if (f.past_campaigns.length >= 5) {
       toast.error("Maximum limit reached: You can add at most 5 past campaigns.");
       return;
     }
-
-    const incompleteIndex = f.past_campaigns.findIndex(
-      c => !c.brand?.trim() || !c.title?.trim() || !c.date?.trim() || !c.result?.trim() || !c.post_url?.trim()
-    );
-
-    if (incompleteIndex !== -1) {
-      toast.error(`Please enter full details (Brand, Title, Date, Result, Post Link) for Campaign #${incompleteIndex + 1} before adding a new row.`);
-      return;
-    }
-
-    setF({ 
-      ...f, 
-      past_campaigns: [...f.past_campaigns, { brand: "", title: "", date: "", result: "", post_url: "" }] 
+    setF({
+      ...f,
+      past_campaigns: [...f.past_campaigns, { brand: "", title: "", date: "", result: "", post_url: "" }],
     });
   };
   const setCampaign = (i, key, v) => {
@@ -238,8 +228,9 @@ export default function ProfileEdit() {
     }
 
     if (isCreator) {
-      if (!f.handle?.trim()) {
-        toast.error("Missing Data: Creator Handle is required in Section 1.");
+      // Username comes from account signup; keep handle synced for profile display
+      if (!(f.username || f.handle)?.toString().trim()) {
+        toast.error("Missing Data: Username is missing from your account.");
         document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
@@ -263,19 +254,7 @@ export default function ProfileEdit() {
         return;
       }
 
-      const validPast = f.past_campaigns.filter(c => c.brand?.trim() || c.title?.trim() || c.post_url?.trim());
-      if (validPast.length === 0) {
-        toast.error("Missing Data: Past Campaigns are required. Please add at least 1 Past Campaign in Section 6.");
-        document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      const incomplete = validPast.find(c => !c.brand?.trim() || !c.title?.trim() || !c.date?.trim() || !c.result?.trim() || !c.post_url?.trim());
-      if (incomplete) {
-        toast.error("Incomplete Campaign Details: Please enter full details (Brand, Title, Date, Result, Post Link) for all past campaigns.");
-        document.getElementById("sec-campaigns")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
+      // Past campaigns are optional — empty rows are ignored on save
 
       if (!f.experience?.trim()) {
         toast.error("Missing Data: Years of Experience is required in Section 7.");
@@ -304,7 +283,9 @@ export default function ProfileEdit() {
         handle: handleValue,
         base_rate: Number(f.base_rate) || 0,
         portfolio: f.portfolio.filter(Boolean),
-        past_campaigns: f.past_campaigns.filter(c => c.brand || c.title)
+        past_campaigns: (f.past_campaigns || []).filter(
+          (c) => c.brand?.trim() || c.title?.trim() || c.post_url?.trim() || c.result?.trim() || c.date?.trim()
+        ),
       });
       await refresh();
       toast.success("Profile saved.");
@@ -412,11 +393,11 @@ export default function ProfileEdit() {
     if (f.city?.trim()) score += 10; else missing.push("Location / City");
 
     if (isCreator) {
-      if (f.handle?.trim()) score += 10; else missing.push("Handle");
+      if (f.handle?.trim() || f.username?.trim()) score += 10; else missing.push("Username");
       const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
       if (cats.length > 0) score += 10; else missing.push("Category / Niche");
       if (Number(f.base_rate) > 0) score += 10; else missing.push("Base Rate");
-      if (f.past_campaigns?.length > 0) score += 10; else missing.push("Past Campaigns");
+      if (f.past_campaigns?.some((c) => c.brand?.trim() || c.title?.trim())) score += 10;
       if (Object.values(f.platform_metrics || {}).some(p => p && p.handle)) score += 10; else missing.push("Social Handle");
     } else {
       if (f.company?.trim()) score += 20; else missing.push("Company Name");
@@ -434,41 +415,38 @@ export default function ProfileEdit() {
       <Nav />
       <Toaster theme="dark" position="top-center" />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-12 relative">
-        {/* Floating Close Button */}
-        <button 
-          type="button" 
-          onClick={() => nav("/profile")} 
-          className="fixed top-24 right-6 md:right-12 p-3 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 z-50 group"
-          title="Close (Esc)"
-          data-testid="profile-edit-close-btn"
-        >
-          <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-        </button>
-
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-                <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
-                <h1 className="font-editorial text-3xl md:text-4xl leading-[1.15] mt-1">
+            <div className="pr-12 md:pr-0">
+                <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
+                <h1 className="font-editorial text-2xl md:text-3xl leading-[1.15] mt-1">
                 Your <span className="italic">file</span><span className="tick">.</span>
                 </h1>
             </div>
             
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center gap-3 bg-white/5 px-3 py-2 border border-white/10">
-                  <div className="text-right">
-                      <div className="font-editorial text-2xl font-bold text-[#FF3B30]">{completion}%</div>
-                      <div className="font-sans text-[9px] tracking-widest uppercase opacity-70">Completion</div>
-                  </div>
-                  <div className="w-10 h-10 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
+                  <div className="w-9 h-9 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
                       <div className="absolute inset-0 bg-[#FF3B30] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
                       <span className="font-sans text-[10px] font-bold z-10 text-white">{completion}%</span>
                   </div>
+                  <div className="text-right">
+                      <div className="font-sans text-[10px] tracking-widest uppercase opacity-70">Complete</div>
+                      {missingFields.length > 0 && (
+                        <div className="font-sans text-[9px] uppercase tracking-wider text-orange-400 max-w-[140px] truncate">
+                          {missingFields.slice(0, 2).join(" · ")}
+                        </div>
+                      )}
+                  </div>
               </div>
-              {missingFields.length > 0 && (
-                <div className="font-sans text-[9px] uppercase tracking-wider text-orange-400">
-                  Missing: {missingFields.slice(0, 3).join(" · ")}
-                </div>
-              )}
+              <button 
+                type="button" 
+                onClick={() => nav("/profile")} 
+                className="p-2.5 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-lg transition-all duration-300 shrink-0"
+                title="Close (Esc)"
+                data-testid="profile-edit-close-btn"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
         </div>
 
@@ -476,9 +454,9 @@ export default function ProfileEdit() {
           
           {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
           <section id="sec-basic" className="space-y-3">
-              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">01</span>
-                Basic &amp; Brand Details
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                <span className="mr-2">01</span>
+                Basic details
               </h2>
               <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
               
@@ -520,26 +498,15 @@ export default function ProfileEdit() {
               )}
 
               {isCreator && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <F label="Username (from account)">
-                    <input
-                      className="inp opacity-80"
-                      value={f.username || ""}
-                      readOnly
-                      disabled
-                      data-testid="reg-username-readonly"
-                    />
-                  </F>
-                  <F label="Creator Handle *">
-                    <input
-                      required
-                      className="inp"
-                      value={f.handle || ""}
-                      onChange={(e) => setF({ ...f, handle: e.target.value })}
-                      placeholder={f.username ? `@${f.username}` : "@handle"}
-                    />
-                  </F>
-                </div>
+                <F label="Username">
+                  <input
+                    className="inp opacity-80"
+                    value={f.username ? `@${String(f.username).replace(/^@/, "")}` : ""}
+                    readOnly
+                    disabled
+                    data-testid="reg-username-readonly"
+                  />
+                </F>
               )}
               <F label="Bio / About *">
                   <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
@@ -624,8 +591,8 @@ export default function ProfileEdit() {
 
           {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
           <section className="space-y-3">
-              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                Languages You Speak
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                Languages
               </h2>
               <div className="space-y-4">
                   <F label="Select Languages (Multi-Select)">
@@ -664,9 +631,9 @@ export default function ProfileEdit() {
 
           {/* SECTION 2: LOCATION & REGION (Available for all roles) */}
           <section id="sec-location" className="space-y-3">
-              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">02</span>
-                Location &amp; Region Details
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                <span className="mr-2">02</span>
+                Location
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <F label="City / Location *">
@@ -691,27 +658,25 @@ export default function ProfileEdit() {
 
           {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
           <section id="sec-social" className="space-y-3">
-              <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">03</span>
-                Social Presence &amp; Brand Accounts
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                <span className="mr-2">03</span>
+                Social accounts
               </h2>
-              <p className="font-sans text-sm opacity-60">Enter official social handles and audience reach (Instagram, YouTube, Twitter/X, Facebook).</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     {PLATFORMS.map(plat => {
                         const isConnected = !!f.platform_metrics[plat]?.handle;
                         return (
                         <div key={plat} className={`p-4 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
-                            <div className="flex justify-between items-center mb-3">
-                                <div className="flex items-center gap-1.5 font-editorial text-2xl capitalize text-[#FF3B30]">
+                            <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
                                     {plat} {plat === "instagram" && "*"}
-                                    {isConnected && <CheckCircle2 className="w-4 h-4 text-[#34C759]" />}
+                                    {isConnected && <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" />}
                                 </div>
-                                <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">{plat}</span>
                             </div>
                             
-                            <F label={`${plat} Handle`}>
-                                <input required={plat==="instagram"} className="inp font-mono text-xs py-1" 
+                            <div>
+                                <input required={plat==="instagram"} className="inp font-sans text-xs py-1" 
                                        placeholder={`@${plat}_handle`}
                                        value={f.platform_metrics[plat]?.handle || ""} 
                                        onChange={e=>setF({
@@ -721,7 +686,7 @@ export default function ProfileEdit() {
                                                [plat]: {...(f.platform_metrics[plat] || {}), handle: e.target.value}
                                            }
                                        })} />
-                            </F>
+                            </div>
                             <div className="grid grid-cols-2 gap-3 mt-4 font-mono">
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
@@ -755,9 +720,9 @@ export default function ProfileEdit() {
 
               {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
               <section id="sec-niche" className="space-y-3">
-                  <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                    <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">04</span>
-                    Content Niche / Category *
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    <span className="mr-2">04</span>
+                    Niches *
                   </h2>
                   
                   <div className="space-y-4">
@@ -809,12 +774,12 @@ export default function ProfileEdit() {
 
               {isCreator && (
                 <section id="sec-rate" className="space-y-3">
-                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">05</span>
-                      Pricing &amp; Rates
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                      <span className="mr-2">05</span>
+                      Pricing &amp; rates
                     </h2>
                     <F label="Base Rate (INR) *">
-                        <input type="number" required min={1} className="inp font-editorial text-3xl" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
+                        <input type="number" required min={1} className="inp font-sans text-lg" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
                     </F>
                 </section>
               )}
@@ -822,9 +787,9 @@ export default function ProfileEdit() {
               {/* SECTION 6: PORTFOLIO & PAST WORK (Creators Only) */}
               {isCreator && (
                 <section className="space-y-3 lg:col-span-2">
-                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">06</span>
-                      Portfolio &amp; Past Work
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                      <span className="mr-2">06</span>
+                      Portfolio
                     </h2>
                     
                     <F label="Portfolio Images and Videos">
@@ -851,7 +816,7 @@ export default function ProfileEdit() {
                     </F>
 
                     <div className="mt-8" id="sec-campaigns">
-                        <F label="Past Campaigns * (Full Details Required for Each Entry, Max 5)">
+                        <F label="Past Campaigns (optional, max 5)">
                             <div className="space-y-3 mt-3">
                                 <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
                                     <div className="col-span-2">Brand *</div>
@@ -865,19 +830,19 @@ export default function ProfileEdit() {
                                 {f.past_campaigns.map((c, i) => (
                                     <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-3">
-                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <DateField required value={c.date || ""} onChange={(v)=>setCampaign(i, 'date', v)} placeholder="Campaign date" />
+                                            <DateField value={c.date || ""} onChange={(v)=>setCampaign(i, 'date', v)} placeholder="Campaign date" />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input required type="url" className="inp text-xs py-1.5 font-mono" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
+                                            <input type="url" className="inp text-xs py-1.5 font-mono" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-1 text-right">
                                             <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
@@ -904,9 +869,9 @@ export default function ProfileEdit() {
 
               {isCreator && (
                 <section className="space-y-3 lg:col-span-2" id="sec-content-types">
-                    <h2 className="font-editorial text-2xl md:text-3xl border-b border-white/10 pb-2">
-                      <span className="text-[#FF3B30] font-sans text-sm tracking-[0.2em] uppercase mr-3">07</span>
-                      Additional Information
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                      <span className="mr-2">07</span>
+                      Additional
                     </h2>
                     
                     <F label="Years of Experience *">
@@ -1034,8 +999,8 @@ function PasswordChangeSection() {
 
   return (
     <section id="sec-security" className="space-y-3 pt-2">
-      <h2 className="font-editorial text-lg md:text-xl border-b border-white/10 pb-1.5">
-        Security &amp; Modify Password
+      <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+        Security
       </h2>
       <div className="bg-white/[0.02] p-4 border border-white/10 space-y-3">
         <p className="font-sans text-sm opacity-60">Password changes are saved separately from your profile. Leave blank if you only want to update profile details.</p>
@@ -1093,7 +1058,7 @@ function PasswordChangeSection() {
 function F({ label, children }) {
   return (
     <div className="space-y-0">
-      <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">{label}</label>
+      <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">{label}</label>
       {children}
     </div>
   );
