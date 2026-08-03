@@ -231,6 +231,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ),
                               const SizedBox(height: 22),
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Cr8LabeledField(
@@ -238,6 +239,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                       controller: firstName,
                                       validator: _req,
                                       textInputAction: TextInputAction.next,
+                                      autofocus: true,
                                     ),
                                   ),
                                   const SizedBox(width: 14),

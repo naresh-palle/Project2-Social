@@ -69,6 +69,7 @@ class Cr8LabeledField extends StatelessWidget {
     this.textInputAction,
     this.onChanged,
     this.inputFormatters,
+    this.autofocus = false,
   });
 
   final String label;
@@ -82,6 +83,7 @@ class Cr8LabeledField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onChanged;
   final List<TextInputFormatter>? inputFormatters;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +114,7 @@ class Cr8LabeledField extends StatelessWidget {
             keyboardType: keyboardType,
             maxLength: maxLength,
             enabled: enabled,
+            autofocus: autofocus,
             textInputAction: textInputAction,
             onChanged: onChanged,
             inputFormatters: inputFormatters,

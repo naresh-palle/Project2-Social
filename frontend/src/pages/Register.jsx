@@ -39,7 +39,7 @@ export default function Register() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [termsAgreed, setTermsAgreed] = useState(true);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
   const [mobileStatus, setMobileStatus] = useState("typing");
@@ -65,6 +65,15 @@ export default function Register() {
 
     return () => clearTimeout(timer);
   }, [googleImportTime]);
+
+  // Land focus on First name (not the terms checkbox)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const el = document.querySelector('[data-testid="reg-firstname"]');
+      if (el && typeof el.focus === "function") el.focus();
+    }, 50);
+    return () => clearTimeout(t);
+  }, [role]);
 
   // Prevent data leakage / "cache saving" when switching between categories
   useEffect(() => {
@@ -511,7 +520,7 @@ export default function Register() {
           </div>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-            <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required />
+            <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
             {(role === "owner" || role === "agent") && (
@@ -584,25 +593,22 @@ export default function Register() {
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
             
-            {/* Locked Non-Editable City Badge */}
+            {/* City / State from pincode — plain values, no autofill badges */}
             <div className="select-none pointer-events-none opacity-80">
               <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
-                City (Auto-filled)
+                City
               </label>
-              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center justify-between min-h-[40px]">
-                <span data-testid="reg-city" className={!form.city ? "opacity-40" : ""}>{form.city || "Auto-prompted via Pincode"}</span>
-                {form.city && <span className="text-[10px] uppercase font-sans font-semibold tracking-wider text-green-400 bg-green-400/10 px-2 py-0.5 border border-green-400/20">Auto-filled ✓</span>}
+              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[40px]">
+                <span data-testid="reg-city">{form.city || ""}</span>
               </div>
             </div>
 
-            {/* Locked Non-Editable State Badge */}
             <div className="select-none pointer-events-none opacity-80">
               <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none">
-                State (Auto-filled)
+                State
               </label>
-              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center justify-between min-h-[40px]">
-                <span data-testid="reg-state" className={!form.state ? "opacity-40" : ""}>{form.state || "Auto-prompted via Pincode"}</span>
-                {form.state && <span className="text-[10px] uppercase font-sans font-semibold tracking-wider text-green-400 bg-green-400/10 px-2 py-0.5 border border-green-400/20">Auto-filled ✓</span>}
+              <div className="mt-1 py-2 border-b border-white/10 font-sans text-base text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[40px]">
+                <span data-testid="reg-state">{form.state || ""}</span>
               </div>
             </div>
 
@@ -652,9 +658,10 @@ export default function Register() {
               required
               checked={termsAgreed}
               onChange={(e) => setTermsAgreed(e.target.checked)}
+              tabIndex={0}
               className="accent-[#FF3B30] w-5 h-5 cursor-pointer shrink-0"
             />
-            <label htmlFor="terms-check" className="font-mono text-xs text-white/90 cursor-pointer select-none leading-snug">
+            <label htmlFor="terms-check" className="font-sans text-xs text-white/90 cursor-pointer select-none leading-snug">
               I agree to <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
@@ -745,7 +752,7 @@ export default function Register() {
   );
 }
 
-function Field({ label, testid, error, prefix, disabled, ...props }) {
+function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) {
   return (
     <div className="space-y-0">
       <label className="font-sans text-[11px] tracking-[0.16em] uppercase opacity-60 font-medium leading-none block">
@@ -756,6 +763,7 @@ function Field({ label, testid, error, prefix, disabled, ...props }) {
         <input
           data-testid={testid}
           disabled={disabled}
+          autoFocus={autoFocus}
           {...props}
           className={`w-full py-2 focus:outline-none font-sans text-base bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
