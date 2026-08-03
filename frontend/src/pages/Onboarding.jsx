@@ -64,7 +64,10 @@ const MultiSelectDropdown = ({ options, selected, onChange, placeholder, single 
           <span className="text-xs opacity-50 group-hover:opacity-100 transition-opacity ml-4">▼</span>
        </div>
        {open && (
-         <div className="absolute top-full left-0 w-full max-h-60 overflow-y-auto bg-[#0B0B0E] border border-white/10 z-50 shadow-2xl">
+         <div 
+            className="absolute top-full left-0 w-full max-h-48 overflow-y-auto bg-[#0B0B0E] border border-white/10 z-50 shadow-2xl"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}
+         >
            {options.map(opt => {
               const isSel = selected.includes(opt);
               return (
@@ -76,9 +79,9 @@ const MultiSelectDropdown = ({ options, selected, onChange, placeholder, single 
                          if (isSel) onChange(selected.filter(x => x !== opt));
                          else onChange([...selected, opt]);
                      }
-                 }} className={`p-4 cursor-pointer hover:bg-white/5 border-b border-white/5 flex justify-between items-center transition-colors ${isSel ? "text-[#FF3B30]" : "opacity-70 hover:opacity-100"}`}>
-                    <span className="font-editorial text-xl">{opt}</span>
-                    {isSel && <X className="w-5 h-5" />}
+                 }} className={`p-3 cursor-pointer hover:bg-white/5 border-b border-white/5 flex justify-between items-center transition-colors ${isSel ? "text-[#FF3B30] bg-white/[0.02]" : "opacity-70 hover:opacity-100"}`}>
+                    <span className="font-sans text-sm">{opt}</span>
+                    {isSel && <X className="w-4 h-4" />}
                  </div>
               )
            })}
