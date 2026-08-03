@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/network/cr8_api.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/studio_backdrop.dart';
@@ -142,7 +143,8 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
-      context.go('/dashboard');
+      final user = ref.read(authProvider).user;
+      context.go(postAuthHome(user));
     } else {
       showCr8Snack(context, ref.read(authProvider).error ?? 'OTP failed', error: true);
     }

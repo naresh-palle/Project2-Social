@@ -89,7 +89,8 @@ export function AuthProvider({ children }) {
       idleTimer = setTimeout(() => {
         logout();
         alert("You have been automatically logged out due to 30 minutes of inactivity.");
-        window.location.href = "/#/login";
+        const base = (process.env.PUBLIC_URL || "").replace(/\/$/, "");
+        window.location.href = `${base}/#/login`;
       }, IDLE_TIMEOUT_MS);
     };
 
@@ -205,6 +206,33 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const mobileOtpLogin = async (mobile, code, opts = {}) => {
+    const { remember_me = false } = opts;
+    try {
+      const cleanMobile = String(mobile || "").replace(/\D/g, "");
+      const { data } = await api.post("/auth/mobile/verify-otp", {
+        mobile: cleanMobile,
+        code: String(code || "").trim(),
+      });
+      if (data?.token && data?.user) {
+        storeSession(data, remember_me);
+        return { ok: true, user: data.user };
+      }
+      return {
+        ok: false,
+        error: data?.detail || data?.message || "No account found for this mobile number. Please register first.",
+        notRegistered: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: formatApiError(e.response?.data?.detail) || e.message || "Invalid or expired OTP code.",
+        status: e.response?.status,
+        notRegistered: e.response?.status === 404,
+      };
+    }
+  };
+
   return (
     <AuthCtx.Provider
       value={{
@@ -216,6 +244,7 @@ export function AuthProvider({ children }) {
         register,
         firebaseRegister,
         mobileRegister,
+        mobileOtpLogin,
         logout,
         refresh,
         applyUserSettings,

@@ -11,7 +11,7 @@ import { api, formatApiError } from "@/lib/api";
 import { ensureAppleAuth } from "@/lib/appleAuth";
 
 export default function Login() {
-  const { login, googleLogin, appleLogin } = useAuth();
+  const { login, googleLogin, appleLogin, mobileOtpLogin } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   
@@ -188,17 +188,14 @@ export default function Login() {
     setLoading(true);
     try {
       const cleanMobile = (mobile || "").replace(/\D/g, "");
-      const { data } = await api.post("/auth/mobile/verify-otp", { mobile: cleanMobile, code: otp });
-
-      if (data.ok && data.token) {
-        localStorage.setItem("cr8_token", data.token);
-        localStorage.setItem("cr8_user", JSON.stringify(data.user));
+      const r = await mobileOtpLogin(cleanMobile, otp, { remember_me: rememberMe });
+      if (r.ok) {
         toast.success("Mobile OTP verified. Welcome back.");
-        window.location.href = "/#/dashboard";
-      } else if (data.ok && data.verified && !data.token) {
+        nav("/dashboard");
+      } else if (r.notRegistered) {
         setErr("No account found for this mobile number. Please register first.");
       } else {
-        setErr(data.detail || data.message || "OTP Verification failed");
+        setErr(r.error || "OTP Verification failed");
       }
     } catch (err) {
       setErr(formatApiError(err.response?.data?.detail) || err.message || "Invalid or expired OTP code.");

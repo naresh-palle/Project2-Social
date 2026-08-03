@@ -302,6 +302,44 @@ def clean(doc: Optional[dict]) -> Optional[dict]:
     return c
 
 
+def normalize_mobile(raw: Optional[str]) -> str:
+    """Normalize Indian mobile to 10 digits when possible."""
+    digits = "".join(ch for ch in str(raw or "") if ch.isdigit())
+    if len(digits) >= 10:
+        # Prefer last 10 digits (handles 91XXXXXXXXXX / +91…)
+        return digits[-10:]
+    return digits
+
+
+async def find_user_by_mobile(raw_mobile: Optional[str]) -> Optional[dict]:
+    """Locate a user by mobile across legacy storage formats."""
+    mobile = normalize_mobile(raw_mobile)
+    if not mobile or len(mobile) != 10:
+        return None
+
+    user = await db.users.find_one({"$or": [
+        {"mobile": mobile},
+        {"mobile": f"+91{mobile}"},
+        {"mobile": f"+91 {mobile}"},
+        {"mobile": f"91{mobile}"},
+        {"phone": mobile},
+        {"phone": f"+91{mobile}"},
+        {"phone": f"+91 {mobile}"},
+    ]})
+    if user:
+        return user
+
+    cursor = db.users.find({"$or": [
+        {"mobile": {"$regex": f"{re.escape(mobile)}$"}},
+        {"phone": {"$regex": f"{re.escape(mobile)}$"}},
+    ]})
+    async for row in cursor:
+        digits = normalize_mobile(row.get("mobile") or row.get("phone"))
+        if digits == mobile:
+            return row
+    return None
+
+
 async def get_current_user(request: Request) -> dict:
     auth = request.headers.get("Authorization", "")
     token = auth[7:] if auth.startswith("Bearer ") else None
@@ -577,12 +615,7 @@ async def check_availability(inp: CheckInput):
         if await db.users.find_one({"email": inp.email.lower().strip()}):
             return {"available": False, "field": "email"}
     if inp.mobile:
-        clean_mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
-        if await db.users.find_one({"$or": [
-            {"mobile": clean_mobile},
-            {"mobile": f"+91{clean_mobile}"},
-            {"mobile": f"+91 {clean_mobile}"},
-        ]}):
+        if await find_user_by_mobile(inp.mobile):
             return {"available": False, "field": "mobile"}
     if inp.username:
         if await db.users.find_one({"username": inp.username.lower().strip()}):
@@ -885,8 +918,8 @@ async def mobile_send_otp(inp: OTPRequest):
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
     
-    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
-    if len(mobile) != 10 or not mobile.isdigit():
+    mobile = normalize_mobile(inp.mobile)
+    if len(mobile) != 10:
         raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
 
     existing = await db.otps.find_one({"mobile": mobile})
@@ -928,24 +961,13 @@ async def mobile_verify_otp(inp: OTPVerify):
     if not inp.mobile:
         raise HTTPException(status_code=400, detail="Mobile number is required")
 
-    mobile = inp.mobile.strip().replace(" ", "").replace("+91", "")
+    mobile = normalize_mobile(inp.mobile)
+    if len(mobile) != 10:
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
     target_code = (inp.code or inp.otp or "").strip()
     await consume_mobile_otp(mobile, target_code)
 
-    user = await db.users.find_one({"$or": [
-        {"mobile": mobile},
-        {"mobile": f"+91{mobile}"},
-        {"mobile": f"+91 {mobile}"},
-    ]})
-    # Fallback: match trailing 10 digits for legacy rows
-    if not user:
-        cursor = db.users.find({"mobile": {"$regex": f"{mobile}$"}})
-        async for row in cursor:
-            digits = "".join(ch for ch in str(row.get("mobile") or "") if ch.isdigit())
-            if digits.endswith(mobile) or digits[-10:] == mobile:
-                user = row
-                break
-
+    user = await find_user_by_mobile(mobile)
     if user:
         user_id = user.get("id") or str(user["_id"])
         token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
@@ -1214,9 +1236,8 @@ async def firebase_login(inp: FirebaseLoginInput):
         if not mobile:
             raise HTTPException(status_code=400, detail="Firebase token does not contain a phone number")
         
-        # Look up user by mobile number (either with or without +91)
-        clean_mobile = mobile.replace("+91", "")
-        user = await db.users.find_one({"$or": [{"mobile": clean_mobile}, {"mobile": f"+91{clean_mobile}"}]})
+        # Look up user by mobile number across legacy formats
+        user = await find_user_by_mobile(mobile)
         
         if not user:
             raise HTTPException(status_code=404, detail="No account found for this mobile number")
@@ -1248,7 +1269,7 @@ async def _create_registered_user(
 ) -> dict:
     email = email.lower().strip()
     username = username.lower().strip()
-    clean_mobile = (mobile or "").replace("+91", "").replace(" ", "").strip()
+    clean_mobile = normalize_mobile(mobile)
 
     if await db.users.find_one({"$or": [
         {"email": email},
