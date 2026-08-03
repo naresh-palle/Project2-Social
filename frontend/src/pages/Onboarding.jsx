@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter, Facebook } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
+import { toast } from "sonner";
 import { Nav } from "@/components/Nav";
 
 const CATEGORIES = [
@@ -569,7 +570,7 @@ const toggleCategory = (c) => {
           </div>
         </div>
         <div className="pt-12 flex justify-end">
-          <button onClick={() => setStep(4)} disabled={currentCats.length === 0 || f.languages.length === 0 ||  !f.availability} className="btn-solid disabled:opacity-50">
+          <button onClick={() => setStep(4)} disabled={currentCats.length === 0 || f.languages.length === 0 ||  !f.availability || !user?.oauth_connections?.length} className="btn-solid disabled:opacity-50">
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         </div>
