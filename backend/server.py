@@ -3305,7 +3305,7 @@ PLATFORM_MOCK_DATA = {
     "youtube": {"followers": 150000, "er": "8.50", "views": "15M", "posts": 120, "handle": "Creator Channel"}
 }
 
-@app.get("/oauth/{platform}/login")
+@api_router.get("/oauth/{platform}/login")
 async def oauth_login(platform: str, user=Depends(get_current_user)):
     if platform not in PLATFORM_MOCK_DATA:
         raise HTTPException(400, "Unsupported platform")
@@ -3321,7 +3321,7 @@ async def oauth_login(platform: str, user=Depends(get_current_user)):
     backend_url = os.environ.get("BACKEND_URL", "http://localhost:8000")
     return {"url": f"{backend_url}{callback_url}"}
 
-@app.get("/oauth/{platform}/callback")
+@api_router.get("/oauth/{platform}/callback")
 async def oauth_callback(platform: str, code: str, state: str):
     # state is the user_id for this mock
     user_id = state
