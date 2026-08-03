@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter } from "lucide-react";
@@ -22,7 +22,7 @@ const LANGUAGES = [
 
 const CITIES = ["Mumbai", "Bangalore", "Hyderabad", "Delhi", "Pune", "Chennai", "Kolkata", "Pan-India", "Other"];
 const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
-const PLATFORMS = ["instagram", "youtube", "twitter"];
+const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
 
 
 const MultiSelectDropdown = ({ options, selected, onChange, placeholder, single = false }) => {
@@ -69,8 +69,11 @@ export default function Onboarding() {
   const [error, setError] = useState("");
 
   // Influencer State
-  const [f, setF] = useState({
-      category: "",
+  const [f, setF] = useState(() => {
+    const saved = localStorage.getItem("onboarding_f");
+    if (saved) return JSON.parse(saved);
+    return {
+      category: [],
       languages: [],
       city: "",
       availability: "",
@@ -79,7 +82,12 @@ export default function Onboarding() {
         youtube: { handle: "", followers: 0, engagement: 0, views: 0 },
         twitter: { handle: "", followers: 0, engagement: 0, views: 0 }
       }
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem("onboarding_f", JSON.stringify(f));
+  }, [f]);
 
   // Owner State
   const [industry, setIndustry] = useState("");
@@ -414,7 +422,18 @@ export default function Onboarding() {
     );
   }
 
-  const toggleCategory = (c) => {
+  
+  const connectAccount = async (platformId) => {
+    try {
+      const res = await api.get(`/oauth/${platformId}/login`);
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (e) {
+      toast.error(`Failed to connect ${platformId}`);
+    }
+  };
+const toggleCategory = (c) => {
     const currentCats = Array.isArray(f.category) 
       ? f.category 
       : (typeof f.category === "string" && f.category ? f.category.split(", ").filter(Boolean) : []);
@@ -506,44 +525,24 @@ export default function Onboarding() {
 
           <div>
             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Connect your audience.</h4>
-            <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
-            {PLATFORMS.map(plat => {
-                const handle = f.platform_metrics[plat]?.handle;
-                let link = "";
-                if (plat === "instagram") link = handle ? `https://instagram.com/${handle.replace("@","")}` : "https://instagram.com";
-                if (plat === "youtube") link = handle ? `https://youtube.com/${handle.replace("@","")}` : "https://youtube.com";
-                if (plat === "twitter") link = handle ? `https://twitter.com/${handle.replace("@","")}` : "https://twitter.com";
-                
-                return (
-                <div key={plat} className="p-4 border border-white/10 bg-white/[0.02] mb-4">
-                    <div className="font-editorial text-2xl capitalize mb-4 text-[#FF3B30] flex items-center gap-3">
-                      <a href={link} target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
-                         {plat === "instagram" && <Instagram className="w-6 h-6" />}
-                         {plat === "youtube" && <Youtube className="w-6 h-6" />}
-                         {plat === "twitter" && <Twitter className="w-6 h-6" />}
-                      </a>
-                      {plat} {plat === "instagram" && "*"}
-                    </div>
-                    <div>
-                        <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Handle / Link</label>
-                        <input className="w-full bg-transparent border-b border-white/10 py-2 focus:outline-none focus:border-[#FF3B30] text-lg mt-2" 
-                               value={f.platform_metrics[plat]?.handle || ""} 
-                               onChange={e=>setF({
-                                   ...f, 
-                                   platform_metrics: {
-                                       ...f.platform_metrics, 
-                                       [plat]: {...f.platform_metrics[plat], handle: e.target.value}
-                                   }
-                               })} />
-                    </div>
-                </div>
-                )
-            })}
+            <p className="text-sm opacity-60 mb-6">Securely connect your social accounts via official OAuth.</p>
+            <div className="flex flex-wrap gap-4 mb-4">
+               {PLATFORMS.map(plat => {
+                   const isConnected = user?.oauth_connections?.some(c => c.platform === plat);
+                   return (
+                      <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#34C759] text-[#34C759] bg-[#34C759]/10" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                          {plat === "instagram" && <Instagram className="w-8 h-8" />}
+                          {plat === "facebook" && <Facebook className="w-8 h-8" />}
+                          {plat === "twitter" && <Twitter className="w-8 h-8" />}
+                          {plat === "youtube" && <Youtube className="w-8 h-8" />}
+                      </button>
+                   );
+               })}
+            </div>
           </div>
-
         </div>
         <div className="pt-12 flex justify-end">
-          <button onClick={() => setStep(4)} disabled={currentCats.length === 0 || f.languages.length === 0 ||  !f.availability || !f.platform_metrics.instagram.handle} className="btn-solid disabled:opacity-50">
+          <button onClick={() => setStep(4)} disabled={currentCats.length === 0 || f.languages.length === 0 ||  !f.availability} className="btn-solid disabled:opacity-50">
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         </div>
