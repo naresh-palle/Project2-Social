@@ -440,22 +440,24 @@ export default function Onboarding() {
         <div className="space-y-12">
           
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Content Category * (Multi-Select)</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {CATEGORIES.map(c => {
-                    const isSelected = currentCats.includes(c);
-                    return (
-                      <label key={c} className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${isSelected ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold" : "border-white/10 hover:border-white/30 text-white/70"}`}>
-                          <input type="checkbox" checked={isSelected} onChange={() => toggleCategory(c)} className="accent-[#FF3B30] w-4 h-4" />
-                          <span className="text-xs font-mono uppercase tracking-widest">{c}</span>
-                      </label>
-                    );
-                })}
-            </div>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Content Category * (Multi-Select)</h4>
+            <p className="text-xs opacity-50 mb-2">Hold Ctrl (Windows) or Command (Mac) to select multiple.</p>
+            <select 
+              multiple
+              value={currentCats} 
+              onChange={e => {
+                  const options = [...e.target.selectedOptions];
+                  const values = options.map(o => o.value);
+                  setF({...f, category: values});
+              }}
+              className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial min-h-[160px]"
+            >
+              {CATEGORIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E] p-2 mb-1">{c}</option>)}
+            </select>
           </div>
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Languages You Speak * Dropdown select</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Languages You Speak *</h4>
             <select 
               value={f.languages[0] || ""} 
               onChange={e => setF({...f, languages: [e.target.value]})} 
@@ -469,14 +471,14 @@ export default function Onboarding() {
           </div>
 
           <div>
-             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Base City *</h4>
+             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Base City *</h4>
              <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.city} onChange={e=>setF({...f,city:e.target.value})}>
                  <option value="" className="bg-[#0B0B0E]">Select City...</option>
                  {CITIES.map(c => <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>)}
              </select>
           </div>
           <div>
-              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Current Availability *</h4>
+              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Current Availability *</h4>
               <select className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial" value={f.availability} onChange={e=>setF({...f,availability:e.target.value})}>
                   <option value="" className="bg-[#0B0B0E]">Select Availability...</option>
                   {AVAILABILITIES.map(a => <option key={a} value={a} className="bg-[#0B0B0E]">{a}</option>)}
@@ -484,7 +486,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-4">Connect your audience.</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Connect your audience.</h4>
             <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
             {PLATFORMS.map(plat => (
                 <div key={plat} className="p-4 border border-white/10 bg-white/[0.02] mb-4">
