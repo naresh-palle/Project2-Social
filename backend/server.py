@@ -1056,6 +1056,8 @@ class MobileRegisterInput(BaseModel):
     company: Optional[str] = None
     agent_type: Optional[str] = None
     pincode: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     platform: Optional[str] = None
     handle: Optional[str] = None
 
@@ -1263,6 +1265,8 @@ async def _create_registered_user(
     company: Optional[str] = None,
     agent_type: Optional[str] = None,
     pincode: Optional[str] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
     platform: Optional[str] = None,
     handle: Optional[str] = None,
     verified: bool = True,
@@ -1286,11 +1290,15 @@ async def _create_registered_user(
         raise HTTPException(status_code=400, detail="Password must be alphanumeric")
 
     user_id = str(uuid.uuid4())
-    city, state = None, None
-    if pincode:
+    # Prefer city/state captured at signup (pincode lookup on client); fall back to server lookup
+    city_val = (city or "").strip() or None
+    state_val = (state or "").strip() or None
+    if pincode and (not city_val or not state_val):
         loc = await fetch_pincode_details(pincode)
-        city = loc.get("city") if loc.get("city") != "Unknown" else None
-        state = loc.get("state") if loc.get("state") != "Unknown" else None
+        if not city_val:
+            city_val = loc.get("city") if loc.get("city") != "Unknown" else None
+        if not state_val:
+            state_val = loc.get("state") if loc.get("state") != "Unknown" else None
 
     social_accounts = []
     platforms = []
@@ -1306,7 +1314,7 @@ async def _create_registered_user(
         "name": name, "role": role, "handle": handle, "company": company,
         "mobile": clean_mobile, "pincode": pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
-        "location": None, "city": city, "state": state, "industry": None, "website": None,
+        "location": city_val, "city": city_val, "state": state_val, "industry": None, "website": None,
         "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
         "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
@@ -1348,6 +1356,8 @@ async def mobile_register(inp: MobileRegisterInput):
         company=inp.company,
         agent_type=inp.agent_type,
         pincode=inp.pincode,
+        city=inp.city,
+        state=inp.state,
         platform=inp.platform,
         handle=inp.handle,
         verified=True,

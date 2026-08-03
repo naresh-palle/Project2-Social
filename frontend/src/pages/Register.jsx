@@ -441,8 +441,6 @@ export default function Register() {
       };
       delete payload.firstName;
       delete payload.lastName;
-      delete payload.city;
-      delete payload.state;
       if (role === "influencer") delete payload.company;
 
       const r = await mobileRegister(payload);

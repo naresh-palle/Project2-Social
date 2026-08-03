@@ -70,15 +70,15 @@ export default function ProfileView() {
     if (profile.name?.trim()) score += 10; else missing.push("Name");
     if (profile.avatar) score += 10; else missing.push("Profile Picture");
     if (profile.bio?.trim()) score += 15; else missing.push("Bio / About");
-    if (profile.city?.trim()) score += 10; else missing.push("Location");
+    if (profile.city?.trim()) score += 10;
 
     if (isCreator) {
-      if ((profile.handle || profile.username)?.trim()) score += 10; else missing.push("Handle");
+      if ((profile.handle || profile.username)?.trim()) score += 10; else missing.push("Username");
       const cats = Array.isArray(profile.category) ? profile.category : (profile.category ? profile.category.split(", ") : []);
-      if (cats.length > 0) score += 10; else missing.push("Niche");
+      if (cats.length > 0) score += 10;
       if (Number(profile.base_rate) > 0) score += 10; else missing.push("Base Rate");
       if (profile.languages?.length > 0) score += 5; else missing.push("Languages");
-      if (profile.past_campaigns?.length > 0) score += 10; else missing.push("Past Campaigns");
+      if (profile.past_campaigns?.length > 0) score += 10;
       if (Object.values(profile.platform_metrics || {}).some(p => p && p.handle)) score += 10; else missing.push("Social Channel Metrics");
     } else {
       if (profile.company?.trim()) score += 25; else missing.push("Company Name");

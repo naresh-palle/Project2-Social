@@ -55,6 +55,7 @@ export default function ProfileEdit() {
         handle: handleFromDb,
         bio: user.bio || "",
         avatar: user.avatar || "",
+        pincode: user.pincode || "",
         city: user.city || "",
         state: user.state || "",
         availability: user.availability || "Immediately",
@@ -85,6 +86,41 @@ export default function ProfileEdit() {
       });
     }
   }, [user]);
+
+  // Backfill city/state from signup pincode when missing on the account
+  useEffect(() => {
+    if (!user) return;
+    const pin = (user.pincode || "").toString().trim();
+    if (!pin || pin.length !== 6) return;
+    if (user.city && user.state) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.get(`/location/pincode/${pin}`);
+        if (cancelled) return;
+        const city = data?.city && data.city !== "Unknown" ? data.city : "";
+        const state = data?.state && data.state !== "Unknown" ? data.state : "";
+        if (!city && !state) return;
+        setF((prev) => prev ? {
+          ...prev,
+          city: prev.city || city,
+          state: prev.state || state,
+          pincode: prev.pincode || pin,
+        } : prev);
+        // Persist so later visits load from account
+        await api.patch("/auth/me", {
+          city: user.city || city || undefined,
+          state: user.state || state || undefined,
+          location: user.city || city || undefined,
+        });
+        await refresh();
+      } catch (_) {
+        /* ignore lookup failures */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, refresh]);
 
   // Handle Escape key to cancel editing
   useEffect(() => {
@@ -203,11 +239,7 @@ export default function ProfileEdit() {
       return;
     }
 
-    if (!f.city || f.city.trim() === "") {
-      toast.error("Missing Data: Please enter your City / Location in Section 2.");
-      document.getElementById("sec-location")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
+    // City / state come from signup (pincode) — not required to re-enter here
 
     if (!isCreator) {
       if (!f.company?.trim()) {
@@ -241,12 +273,7 @@ export default function ProfileEdit() {
         return;
       }
 
-      const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
-      if (cats.length === 0) {
-        toast.error("Missing Data: Please select at least one Content Niche / Category in Section 4.");
-        document.getElementById("sec-niche")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
+      // Content niche is optional
 
       if (!f.base_rate || Number(f.base_rate) <= 0) {
         toast.error("Missing Data: Please specify your Pricing & Rates in Section 5.");
@@ -390,12 +417,12 @@ export default function ProfileEdit() {
     if (f.name?.trim()) score += 10; else missing.push("Name");
     if (f.avatar) score += 15; else missing.push("Profile Picture");
     if (f.bio?.trim()) score += 15; else missing.push("Bio / About");
-    if (f.city?.trim()) score += 10; else missing.push("Location / City");
+    if (f.city?.trim()) score += 10;
 
     if (isCreator) {
       if (f.handle?.trim() || f.username?.trim()) score += 10; else missing.push("Username");
       const cats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
-      if (cats.length > 0) score += 10; else missing.push("Category / Niche");
+      if (cats.length > 0) score += 10;
       if (Number(f.base_rate) > 0) score += 10; else missing.push("Base Rate");
       if (f.past_campaigns?.some((c) => c.brand?.trim() || c.title?.trim())) score += 10;
       if (Object.values(f.platform_metrics || {}).some(p => p && p.handle)) score += 10; else missing.push("Social Handle");
@@ -629,30 +656,32 @@ export default function ProfileEdit() {
               </div>
           </section>
 
-          {/* SECTION 2: LOCATION & REGION (Available for all roles) */}
+          {/* SECTION 2: LOCATION from signup */}
           <section id="sec-location" className="space-y-3">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">02</span>
                 Location
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <F label="City / Location *">
-                      <input 
-                        required
-                        className="inp" 
-                        value={f.city || ""} 
-                        onChange={e=>setF({...f, city: e.target.value})} 
-                        placeholder=""
-                      />
-                  </F>
-                  <F label="State / Region">
-                      <input 
-                        className="inp" 
-                        value={f.state || ""} 
-                        onChange={e=>setF({...f, state: e.target.value})} 
-                        placeholder=""
-                      />
-                  </F>
+              <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">From signup pincode</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="select-none pointer-events-none opacity-80">
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">Pincode</label>
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center">
+                      {f.pincode || "—"}
+                    </div>
+                  </div>
+                  <div className="select-none pointer-events-none opacity-80">
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">City</label>
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
+                      {f.city || "—"}
+                    </div>
+                  </div>
+                  <div className="select-none pointer-events-none opacity-80">
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">State</label>
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
+                      {f.state || "—"}
+                    </div>
+                  </div>
               </div>
           </section>
 
@@ -722,7 +751,7 @@ export default function ProfileEdit() {
               <section id="sec-niche" className="space-y-3">
                   <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                     <span className="mr-2">04</span>
-                    Niches *
+                    Niches (optional)
                   </h2>
                   
                   <div className="space-y-4">
