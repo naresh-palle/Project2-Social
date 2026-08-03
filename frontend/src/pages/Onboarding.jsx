@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter } from "lucide-react";
+import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter, Facebook } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { Nav } from "@/components/Nav";
@@ -27,13 +27,40 @@ const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
 
 const MultiSelectDropdown = ({ options, selected, onChange, placeholder, single = false }) => {
   const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative">
-       <div onClick={() => setOpen(!open)} className="w-full bg-transparent hairline-b py-4 cursor-pointer text-xl font-editorial flex justify-between items-center group focus:border-[#FF3B30] border-b border-white/10 hover:border-white/30 transition-colors">
-          <span className={selected.length > 0 ? "" : "opacity-50"}>
-             {selected.length > 0 ? selected.join(", ") : placeholder}
-          </span>
-          <span className="text-xs opacity-50 group-hover:opacity-100 transition-opacity">?</span>
+    <div className="relative" ref={ref}>
+       <div onClick={() => setOpen(!open)} className="w-full bg-transparent hairline-b py-4 cursor-pointer text-xl font-editorial flex justify-between items-center group focus:border-[#FF3B30] border-b border-white/10 hover:border-white/30 transition-colors min-h-[60px]">
+          <div className="flex flex-wrap gap-2 items-center flex-1">
+             {selected.length > 0 ? (
+                 selected.map(sel => (
+                     <span key={sel} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm font-mono flex items-center gap-2">
+                         {sel}
+                         <button 
+                             onClick={(e) => { 
+                                 e.stopPropagation(); 
+                                 onChange(selected.filter(x => x !== sel)); 
+                             }} 
+                             className="opacity-50 hover:opacity-100 transition-opacity"
+                         >
+                             <X className="w-3 h-3" />
+                         </button>
+                     </span>
+                 ))
+             ) : (
+                 <span className="opacity-50">{placeholder}</span>
+             )}
+          </div>
+          <span className="text-xs opacity-50 group-hover:opacity-100 transition-opacity ml-4">▼</span>
        </div>
        {open && (
          <div className="absolute top-full left-0 w-full max-h-60 overflow-y-auto bg-[#0B0B0E] border border-white/10 z-50 shadow-2xl">
@@ -50,7 +77,7 @@ const MultiSelectDropdown = ({ options, selected, onChange, placeholder, single 
                      }
                  }} className={`p-4 cursor-pointer hover:bg-white/5 border-b border-white/5 flex justify-between items-center transition-colors ${isSel ? "text-[#FF3B30]" : "opacity-70 hover:opacity-100"}`}>
                     <span className="font-editorial text-xl">{opt}</span>
-                    {isSel && <span>?</span>}
+                    {isSel && <X className="w-5 h-5" />}
                  </div>
               )
            })}
