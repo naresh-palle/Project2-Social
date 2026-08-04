@@ -306,15 +306,26 @@ export default function ProfileEdit() {
     setBusy(true);
     try {
       const handleValue = (f.handle || (f.username ? `@${f.username}` : "")).trim();
+      const platformHandlesOnly = {};
+      PLATFORMS.forEach((plat) => {
+        platformHandlesOnly[plat] = { handle: f.platform_metrics?.[plat]?.handle || "" };
+      });
       await api.patch("/auth/me", {
         ...f,
         handle: handleValue,
+        platform_metrics: platformHandlesOnly,
         base_rate: Number(f.base_rate) || 0,
         portfolio: f.portfolio.filter(Boolean),
         past_campaigns: (f.past_campaigns || []).filter(
           (c) => c.brand?.trim() || c.title?.trim() || c.post_url?.trim() || c.result?.trim() || c.date?.trim()
         ),
       });
+      // Auto-fetch metrics for saved handles
+      if (isCreator && Object.values(platformHandlesOnly).some((p) => p.handle?.trim())) {
+        try {
+          await api.post("/creators/sync-analytics", { platform_metrics: platformHandlesOnly });
+        } catch {}
+      }
       await refresh();
       toast.success("Profile saved.");
       nav("/profile");
@@ -494,12 +505,12 @@ export default function ProfileEdit() {
       
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-20 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
+      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="pr-12 md:pr-0">
-                <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
-                <h1 className="font-editorial text-2xl md:text-3xl leading-[1.15] mt-1">
-                Your <span className="italic">file</span><span className="tick">.</span>
+                <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
+                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-[1.15] mt-1">
+                Your file<span className="text-[#FF3B30]">.</span>
                 </h1>
             </div>
             
@@ -607,7 +618,7 @@ export default function ProfileEdit() {
                       }}
                     >
                       <option value="" className="bg-[#0B0B0E]">Add a niche…</option>
-                      {CATEGORIES.map((c) => (
+                      {PLATFORM_CATEGORIES.map((c) => (
                         <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
                       ))}
                     </select>
@@ -882,7 +893,7 @@ export default function ProfileEdit() {
                             }}
                           >
                             <option value="" className="bg-[#0B0B0E]">Select a category to add...</option>
-                            {CATEGORIES.map(c => (
+                            {PLATFORM_CATEGORIES.map(c => (
                               <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
                             ))}
                           </select>
