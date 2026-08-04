@@ -10,20 +10,15 @@ import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { DateField } from "@/components/DateField";
+import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
+import { PLATFORM_CATEGORIES } from "@/lib/categories";
 
-const CATEGORIES = [
-  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
-  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
-  "Travel & Adventure", "Business & Entrepreneurship", 
-  "Entertainment & Gaming", "Education & Learning", "Other"
-];
 const LANGUAGES = [
   "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
   "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili", 
   "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia", 
   "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu"
 ];
-const CITIES = ["Mumbai", "Bangalore", "Hyderabad", "Delhi", "Pune", "Chennai", "Kolkata", "Pan-India", "Other"];
 const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
 const EXPERIENCES = ["0-6 months", "6-12 months", "1-2 years", "2-5 years", "5+ years"];
 const CONTENT_TYPES = [
@@ -32,6 +27,12 @@ const CONTENT_TYPES = [
 ];
 const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
 const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
+
+function toList(val) {
+  if (Array.isArray(val)) return val.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
+  if (!val) return [];
+  return String(val).split(",").map((x) => x.trim()).filter(Boolean);
+}
 
 export default function ProfileEdit() {
   const { user, refresh } = useAuth();
@@ -66,13 +67,13 @@ export default function ProfileEdit() {
           twitter: { handle: "", followers: 0, engagement: 0, views: 0 },
           facebook: { handle: "", followers: 0, engagement: 0, views: 0 }
         },
-        category: user.category || user.niches || "",
-        languages: user.languages || [],
+        category: toList(user.category || user.niches),
+        languages: toList(user.languages),
         base_rate: user.base_rate || 0,
         portfolio: user.portfolio || [],
         past_campaigns: user.past_campaigns || [],
         experience: user.experience || "",
-        content_types: user.content_types || [],
+        content_types: toList(user.content_types),
         response_time: user.response_time || "",
         
         // for owners/agents
@@ -403,15 +404,23 @@ export default function ProfileEdit() {
     }
   };
 
-  const refreshAnalytics = async () => {
+  const refreshAnalytics = async (silent = false, metricsOverride = null) => {
     setSyncBusy(true);
     try {
-      const { data } = await api.post("/creators/sync-analytics");
+      const source = metricsOverride || f?.platform_metrics || {};
+      const handlesOnly = {};
+      PLATFORMS.forEach((plat) => {
+        const h = source?.[plat]?.handle || "";
+        handlesOnly[plat] = { handle: h };
+      });
+      const { data } = await api.post("/creators/sync-analytics", { platform_metrics: handlesOnly });
       
-      if (data.message.includes("No social media platforms connected")) {
-          toast.info(data.message);
-      } else {
-          toast.success(data.message);
+      if (!silent) {
+        if (data.message?.includes("No social media platforms connected")) {
+            toast.info(data.message);
+        } else {
+            toast.success(data.message || "Metrics auto-fetched");
+        }
       }
       
       setF(prev => ({ 
@@ -419,11 +428,32 @@ export default function ProfileEdit() {
           platform_metrics: data.metrics || prev.platform_metrics,
           monthly_analytics: data.monthly_analytics || prev.monthly_analytics
       }));
+      try { await refresh?.(); } catch {}
     } catch (e) {
-      toast.error("Failed to sync analytics.");
+      if (!silent) toast.error("Failed to sync analytics.");
     } finally {
       setSyncBusy(false);
     }
+  };
+
+  const setPlatformHandle = (plat, handle) => {
+    setF((prev) => ({
+      ...prev,
+      platform_metrics: {
+        ...prev.platform_metrics,
+        [plat]: {
+          ...(prev.platform_metrics?.[plat] || {}),
+          handle,
+        },
+      },
+    }));
+  };
+
+  const formatMetric = (n) => {
+    const v = Number(n) || 0;
+    if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
+    if (v >= 1000) return `${(v / 1000).toFixed(1)}K`;
+    return String(v);
   };
 
   const INDUSTRIES = [
@@ -742,16 +772,33 @@ export default function ProfileEdit() {
               </div>
           </section>
 
-          {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
+          {/* SECTION 3: SOCIAL ACCOUNTS — handle/ID editable; metrics auto-fetched */}
           <section id="sec-social" className="space-y-2">
-              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-                <span className="mr-2">03</span>
-                Social accounts
-              </h2>
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
+                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
+                  <span className="mr-2">03</span>
+                  Social accounts
+                </h2>
+                {isCreator && (
+                  <button
+                    type="button"
+                    onClick={() => refreshAnalytics(false)}
+                    disabled={syncBusy}
+                    className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5 font-sans uppercase tracking-wider"
+                  >
+                    {syncBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                    {syncBusy ? "Fetching…" : "Auto-fetch metrics"}
+                  </button>
+                )}
+              </div>
+              <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">
+                Enter platform ID / handle only. Followers, ER, views &amp; posts auto-fetch.
+              </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     {PLATFORMS.map(plat => {
-                        const isConnected = !!f.platform_metrics[plat]?.handle;
+                        const metrics = f.platform_metrics?.[plat] || {};
+                        const isConnected = !!metrics.handle;
                         return (
                         <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
                             <div className="flex justify-between items-center mb-2">
@@ -762,41 +809,46 @@ export default function ProfileEdit() {
                             </div>
                             
                             <div>
-                                <input required={plat==="instagram"} className="inp font-sans text-xs py-1" 
+                                <label className="font-sans text-[9px] opacity-50 uppercase tracking-widest block mb-0.5">ID / Handle</label>
+                                <input required={plat==="instagram" && isCreator} className="inp font-sans text-xs py-1" 
                                        placeholder={`@${plat}_handle`}
-                                       value={f.platform_metrics[plat]?.handle || ""} 
-                                       onChange={e=>setF({
-                                           ...f, 
-                                           platform_metrics: {
-                                               ...f.platform_metrics, 
-                                               [plat]: {...(f.platform_metrics[plat] || {}), handle: e.target.value}
-                                           }
-                                       })} />
+                                       value={metrics.handle || ""} 
+                                       onChange={(e) => setPlatformHandle(plat, e.target.value)}
+                                       onBlur={(e) => {
+                                         const handle = e.target.value;
+                                         if (!isCreator || !String(handle || "").trim()) return;
+                                         const nextPm = {
+                                           ...(f.platform_metrics || {}),
+                                           [plat]: { ...(f.platform_metrics?.[plat] || {}), handle },
+                                         };
+                                         refreshAnalytics(true, nextPm);
+                                       }}
+                                />
                             </div>
-                            <div className="grid grid-cols-2 gap-2 mt-2 font-sans">
-                                <div>
+                            <div className="grid grid-cols-2 gap-2 mt-2 font-sans select-none">
+                                <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
-                                           value={f.platform_metrics[plat]?.followers || ""}
-                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), followers: Number(e.target.value)}}})} />
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                      {isConnected ? formatMetric(metrics.followers || metrics.subscribers) : "—"}
+                                    </div>
                                 </div>
-                                <div>
+                                <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
-                                    <input type="number" step="0.1" className="inp text-sm py-0.5" placeholder=""
-                                           value={f.platform_metrics[plat]?.engagement || ""}
-                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), engagement: Number(e.target.value)}}})} />
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                      {isConnected && metrics.engagement != null && metrics.engagement !== "" ? Number(metrics.engagement).toFixed(1) : "—"}
+                                    </div>
                                 </div>
-                                <div>
+                                <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
-                                           value={f.platform_metrics[plat]?.views || ""}
-                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), views: Number(e.target.value)}}})} />
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                      {isConnected ? formatMetric(metrics.views) : "—"}
+                                    </div>
                                 </div>
-                                <div>
+                                <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
-                                    <input type="number" className="inp text-sm py-0.5" placeholder=""
-                                           value={f.platform_metrics[plat]?.posts || ""}
-                                           onChange={e=>setF({...f, platform_metrics: {...f.platform_metrics, [plat]: {...(f.platform_metrics[plat] || {}), posts: Number(e.target.value)}}})} />
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                      {isConnected ? formatMetric(metrics.posts) : "—"}
+                                    </div>
                                 </div>
                             </div>
                         </div>

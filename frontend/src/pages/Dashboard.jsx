@@ -66,7 +66,7 @@ export default function Dashboard() {
                 <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">
                   § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
-                <h1 className="font-sans text-5xl md:text-7xl leading-[1.15] mt-2">
+                <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
                   {user?.name || user?.username || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span>
                 </h1>
                 <p className="font-sans text-sm opacity-65 mt-2">

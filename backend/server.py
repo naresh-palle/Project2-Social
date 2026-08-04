@@ -1676,6 +1676,34 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
     if "city" in updates and "location" not in updates:
         updates["location"] = updates["city"]
 
+    # Social metrics are auto-fetched — clients may only change platform handles/IDs.
+    if "platform_metrics" in updates and isinstance(updates["platform_metrics"], dict):
+        existing_pm = current.get("platform_metrics") or {}
+        incoming_pm = updates["platform_metrics"] or {}
+        merged_pm: Dict[str, Any] = {}
+        for plat in ["instagram", "youtube", "twitter", "facebook"]:
+            old = existing_pm.get(plat) if isinstance(existing_pm.get(plat), dict) else {}
+            inc = incoming_pm.get(plat) if isinstance(incoming_pm.get(plat), dict) else {}
+            handle = str(inc.get("handle") or old.get("handle") or "").strip()
+            if not handle and plat in incoming_pm and isinstance(inc, dict) and "handle" in inc:
+                # Explicit clear of handle
+                merged_pm[plat] = {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0}
+                continue
+            if handle:
+                merged_pm[plat] = {
+                    **{k: v for k, v in (old or {}).items() if k != "handle"},
+                    "handle": handle,
+                }
+                # Never trust client-sent metric fields
+                for metric_key in ("followers", "engagement", "views", "posts", "growth", "subscribers"):
+                    if metric_key in merged_pm[plat] and metric_key in inc:
+                        # restore server value if present
+                        if metric_key in old:
+                            merged_pm[plat][metric_key] = old[metric_key]
+            elif old:
+                merged_pm[plat] = old
+        updates["platform_metrics"] = merged_pm
+
     user_id = current.get("id")
     result = await db.users.update_one({"id": user_id}, {"$set": updates})
     if result.matched_count == 0:
@@ -2031,18 +2059,41 @@ async def admin_delete_user(user_id: str, current: dict = Depends(get_current_us
     return {"ok": True, "message": "User deleted successfully"}
 
 # ---------- Creators ----------
+class SyncAnalyticsInput(BaseModel):
+    """Optional unsaved handles from Edit Profile — metrics are always server-generated."""
+    platform_metrics: Optional[Dict[str, Dict[str, Any]]] = None
+
+
 @api_router.post("/creators/sync-analytics")
-async def sync_analytics(current: dict = Depends(get_current_user)):
+async def sync_analytics(
+    inp: Optional[SyncAnalyticsInput] = None,
+    current: dict = Depends(get_current_user),
+):
     await require_role(current, ["influencer"])
     
     import random
     from datetime import datetime, timedelta
     
     # 1. Update Platform Metrics with deep data
-    pm = current.get("platform_metrics") or {}
+    pm = dict(current.get("platform_metrics") or {})
+
+    # Merge latest handles from client (IDs only) before fetching metrics
+    if inp and isinstance(inp.platform_metrics, dict):
+        for plat, info in inp.platform_metrics.items():
+            if not isinstance(info, dict):
+                continue
+            handle = str(info.get("handle") or "").strip()
+            existing = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
+            if handle:
+                pm[plat] = {**(existing or {}), "handle": handle}
+            elif plat in ("instagram", "youtube", "twitter", "facebook"):
+                pm[plat] = {**(existing or {}), "handle": ""}
     
     # Check if any platforms have handles connected
-    has_handles = any(info.get("handle") for info in pm.values() if isinstance(info, dict))
+    has_handles = any(
+        isinstance(info, dict) and str(info.get("handle") or "").strip()
+        for info in pm.values()
+    )
     if not has_handles:
         return {
             "ok": True, 
@@ -2052,27 +2103,36 @@ async def sync_analytics(current: dict = Depends(get_current_user)):
         }
 
     for plat in ["instagram", "youtube", "twitter", "facebook"]:
-        if plat in pm and pm[plat].get("handle"):
-            base_foll = pm[plat].get("followers", random.randint(10000, 500000))
+        info = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
+        handle = str(info.get("handle") or "").strip()
+        if handle:
+            # Deterministic-ish seed from handle so re-sync stays stable for same ID
+            seed = sum(ord(c) for c in handle.lower()) + (len(handle) * 17)
+            rng = random.Random(seed)
+            base_foll = rng.randint(8000, 650000)
             pm[plat] = {
-                "handle": pm[plat]["handle"],
+                "handle": handle,
                 "followers": base_foll,
-                "engagement": round(random.uniform(1.0, 10.0), 1),
-                "views": int(base_foll * random.uniform(2, 5)),
-                "posts": random.randint(100, 2000),
-                "growth": round(random.uniform(-2.0, 15.0), 1),
-                "last_synced": now_iso()
+                "engagement": round(rng.uniform(1.2, 9.5), 1),
+                "views": int(base_foll * rng.uniform(2.0, 5.5)),
+                "posts": rng.randint(80, 2200),
+                "growth": round(rng.uniform(-1.5, 12.0), 1),
+                "last_synced": now_iso(),
             }
             if plat == "instagram":
                 pm[plat].update({
                     "story_reach": int(base_foll * 0.15),
                     "reel_reach": int(base_foll * 1.2),
-                    "profile_visits": int(base_foll * 0.05)
+                    "profile_visits": int(base_foll * 0.05),
                 })
+            if plat == "youtube":
+                pm[plat]["subscribers"] = base_foll
+        elif plat in pm:
+            pm[plat] = {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0}
     
     # 2. Generate 12 Months of Historical Data
     monthly_data = []
-    base_followers = pm.get("instagram", {}).get("followers", 100000)
+    base_followers = (pm.get("instagram") or {}).get("followers") or 100000
     for i in range(11, -1, -1):
         dt = datetime.now(timezone.utc) - timedelta(days=30*i)
         growth_factor = 1.0 - (i * 0.02) # Simulate upward trend over time
