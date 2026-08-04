@@ -382,7 +382,7 @@ export function AdminPanel() {
                 <div className="flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                         <Search className="w-4 h-4 opacity-50" />
-                        <input type="text" placeholder="" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50" />
+                        <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50" />
                     </div>
                     <div className="h-6 w-px bg-white/10 hidden md:block" />
                     <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-widest">
