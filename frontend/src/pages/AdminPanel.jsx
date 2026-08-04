@@ -9,7 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, 
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
-import { PLATFORM_CATEGORIES } from "@/lib/categories";
+import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 
 const USER_ROLE_OPTIONS = ["Creators", "Brands", "Agencies"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
@@ -23,6 +23,26 @@ const ROLE_DB_MAP = {
   Brands: "owner",
   Agencies: "agent",
 };
+
+function userCategoryText(u) {
+  return []
+    .concat(u?.category || [])
+    .concat(u?.niches || [])
+    .concat(u?.industry || [])
+    .flatMap((x) => (Array.isArray(x) ? x : String(x).split(",")))
+    .map((x) => String(x).trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
+function userMatchesCategories(u, selected = []) {
+  if (!selected?.length) return true;
+  const cats = []
+    .concat(u?.category || [])
+    .concat(u?.niches || [])
+    .concat(u?.industry || []);
+  return matchesCategoryFilter(cats, selected);
+}
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
         <div className="p-4 xl:p-5 border border-white/10 bg-white/[0.02] relative overflow-hidden group min-w-0">
@@ -64,6 +84,9 @@ export function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [platformCategoryFilter, setPlatformCategoryFilter] = useState([]); // [] = All
+  const [categoryUsers, setCategoryUsers] = useState([]);
+  const [categoryUsersLoading, setCategoryUsersLoading] = useState(false);
   const [platformStats, setPlatformStats] = useState(null);
   const [broadcastText, setBroadcastText] = useState("");
   const [broadcastRole, setBroadcastRole] = useState("");
@@ -156,7 +179,15 @@ export function AdminPanel() {
         api.get("/admin/reports").then(r => setReports(r.data || [])).catch(() => toast.error("Failed to load reports"));
       }
       if (tab === "categories") {
-        api.get("/admin/categories").then(r => setCategories(r.data || [])).catch(() => toast.error("Failed to load categories"));
+        api.get("/admin/categories").then(r => setCategories(r.data || [])).catch(() => {});
+        setCategoryUsersLoading(true);
+        api.get("/admin/users")
+          .then((r) => {
+            const list = (Array.isArray(r.data) ? r.data : []).filter((u) => u?.role !== "admin");
+            setCategoryUsers(list);
+          })
+          .catch(() => toast.error("Failed to load category results"))
+          .finally(() => setCategoryUsersLoading(false));
       }
       if (tab === "audit") {
         api.get("/admin/recent-activity").then(r => setActivity(r.data || [])).catch(() => toast.error("Failed to load audit logs"));
@@ -290,7 +321,7 @@ export function AdminPanel() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
                 <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ Super Admin Console</p>
-                <h1 className="font-sans text-5xl md:text-6xl leading-none mt-2">Platform Console<span className="text-[#FF3B30]">.</span></h1>
+                <h1 className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-none mt-2">Platform Console<span className="text-[#FF3B30]">.</span></h1>
                 <div className="flex gap-6 mt-8 font-sans text-xs uppercase tracking-widest flex-wrap">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
                     <button onClick={() => setTab("agent_approvals")} className={`pb-2 border-b-2 transition-colors ${tab === "agent_approvals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
@@ -577,16 +608,116 @@ export function AdminPanel() {
         )}
 
         {/* TAB: CATEGORIES */}
-        {tab === "categories" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02]">
-                <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Platform Categories</h3>
-                <div className="flex flex-wrap gap-2">
-                    {(categories.length ? categories : PLATFORM_CATEGORIES.map((name) => ({ name }))).map((c, i) => (
-                        <span key={c.id || i} className="px-3 py-1.5 bg-white/5 border border-white/10 font-sans text-xs rounded-xs">{c.name || c}</span>
-                    ))}
+        {tab === "categories" && (() => {
+            const catalog = (categories.length
+              ? categories.map((c) => c.name || c).filter(Boolean)
+              : PLATFORM_CATEGORIES);
+            const filteredUsers = categoryUsers.filter((u) => userMatchesCategories(u, platformCategoryFilter));
+            const counts = Object.fromEntries(
+              catalog.map((name) => [
+                name,
+                categoryUsers.filter((u) => userMatchesCategories(u, [name])).length,
+              ])
+            );
+            const visibleCats = platformCategoryFilter.length
+              ? catalog.filter((c) => platformCategoryFilter.includes(c))
+              : catalog;
+
+            return (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-6">
+                <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-wrap items-end gap-4">
+                  <div className="min-w-[240px] max-w-md flex-1">
+                    <MultiSelectDropdown
+                      options={catalog}
+                      selected={platformCategoryFilter}
+                      onChange={setPlatformCategoryFilter}
+                      placeholder="All"
+                      allowAll
+                      compact
+                      label="Platform Categories"
+                    />
+                  </div>
+                  <div className="font-sans text-[10px] uppercase tracking-wider opacity-50 pb-2">
+                    {platformCategoryFilter.length === 0
+                      ? `All · ${filteredUsers.length} users`
+                      : `${platformCategoryFilter.length} selected · ${filteredUsers.length} users`}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                  {visibleCats.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => {
+                        if (platformCategoryFilter.includes(name)) {
+                          setPlatformCategoryFilter(platformCategoryFilter.filter((c) => c !== name));
+                        } else if (platformCategoryFilter.length === 0) {
+                          setPlatformCategoryFilter([name]);
+                        } else {
+                          setPlatformCategoryFilter([...platformCategoryFilter, name]);
+                        }
+                      }}
+                      className={`p-3 border text-left transition-colors ${
+                        platformCategoryFilter.length === 0 || platformCategoryFilter.includes(name)
+                          ? "border-[#FF3B30]/40 bg-[#FF3B30]/5"
+                          : "border-white/10 bg-white/[0.02] opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="font-sans text-[10px] uppercase tracking-wider opacity-60 leading-snug">{name}</div>
+                      <div className="font-sans text-2xl font-bold tabular-nums mt-2">{counts[name] || 0}</div>
+                      <div className="font-sans text-[9px] uppercase tracking-wider opacity-40 mt-1">Users</div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                  {categoryUsersLoading ? (
+                    <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
+                          <th className="p-4 font-normal">Username</th>
+                          <th className="p-4 font-normal">Role</th>
+                          <th className="p-4 font-normal">Categories</th>
+                          <th className="p-4 font-normal">Email</th>
+                          <th className="p-4 font-normal">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">
+                              No users found for selected categories
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredUsers.map((u) => (
+                            <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                              <td className="p-4 font-sans text-sm font-medium">
+                                {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
+                              </td>
+                              <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</td>
+                              <td className="p-4 font-sans text-sm opacity-80">{userCategoryText(u) || "—"}</td>
+                              <td className="p-4 font-sans text-sm break-all opacity-80">{u.email || "—"}</td>
+                              <td className="p-4">
+                                {u.onboarding_status === "pending" ? (
+                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span>
+                                ) : (
+                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
             </motion.div>
-        )}
+            );
+        })()}
 
         {/* TAB: BROADCAST */}
         {tab === "broadcast" && (
@@ -865,7 +996,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
     <div className="mt-8 space-y-8">
       <div className="border-b border-white/10 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="font-sans text-3xl">📋 Agent Verification &amp; Approval Desk</h2>
+          <h2 className="font-sans text-3xl font-bold tracking-tight">Agent Verification &amp; Approval Desk</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-widest">
             Review agency credentials, website portfolios, and grant or decline studio access
           </p>
@@ -1217,7 +1348,7 @@ function BriefModerationDesk() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
       <div className="border-b border-white/10 pb-4 flex items-center justify-between">
         <div>
-          <h2 className="font-sans text-3xl">🎯 Campaign Brief Moderation &amp; AI Compliance Desk</h2>
+          <h2 className="font-sans text-3xl font-bold tracking-tight">Campaign Brief Moderation &amp; AI Compliance Desk</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-widest">
             Review incoming brand campaign briefs, AI logo checks, and copyright compliance
           </p>
