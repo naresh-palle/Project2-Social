@@ -13,14 +13,14 @@ import { PLATFORM_CATEGORIES } from "@/lib/categories";
 
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-5 border border-white/10 bg-white/[0.02] relative overflow-hidden group">
-            <div className="flex justify-between items-start">
-                <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">{title}</div>
-                <div className="p-2 bg-white/5 rounded-sm">{icon}</div>
+        <div className="p-4 xl:p-5 border border-white/10 bg-white/[0.02] relative overflow-hidden group min-w-0">
+            <div className="flex justify-between items-start gap-2">
+                <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
+                <div className="p-2 bg-white/5 rounded-sm shrink-0">{icon}</div>
             </div>
-            <div className="font-sans font-bold text-3xl md:text-4xl mt-3 mb-1 tracking-tight tabular-nums text-white">{value}</div>
+            <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-white truncate">{value}</div>
             <div className="flex justify-between items-center mt-3 gap-2">
-                <div className="font-sans text-[10px] tracking-wider uppercase opacity-50">{sub}</div>
+                <div className="font-sans text-[10px] tracking-wider uppercase opacity-50 leading-snug min-w-0">{sub}</div>
                 <div className={`flex items-center gap-1 font-sans text-[10px] shrink-0 ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
                     {pos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                     {trend}
@@ -277,7 +277,7 @@ export function AdminPanel() {
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Creators · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
@@ -359,7 +359,7 @@ export function AdminPanel() {
 
                     <div className="space-y-6">
                         <div className="p-6 border border-white/10 bg-white/[0.02]">
-                            <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6 flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
+                            <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
                             <div className="space-y-4">
                                 {notifications.map(n => (
                                     <div key={n.id} className="flex items-start gap-3">
@@ -367,8 +367,8 @@ export function AdminPanel() {
                                         {n.type === 'error' && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
                                         {n.type === 'warning' && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
                                         <div>
-                                            <p className="text-sm opacity-90 leading-snug">{n.text}</p>
-                                            <p className="font-mono text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
+                                            <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
+                                            <p className="font-sans text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -996,65 +996,65 @@ function EscrowTreasuryDesk() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
-      <div className="border-b border-white/10 pb-4 flex items-center justify-between">
+      <div className="border-b border-white/10 pb-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="font-editorial text-3xl">💰 Platform Escrow Treasury &amp; Revenue Desk</h2>
-          <p className="font-mono text-xs opacity-60 mt-1 uppercase tracking-widest">
+          <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Platform Escrow Treasury &amp; Revenue Desk</h2>
+          <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-[0.16em]">
             Audit live escrow locks, Escrow verification policy, and manual override releases
           </p>
         </div>
-        <span className="font-mono text-xs px-3 py-1 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 rounded-xs font-bold">
+        <span className="font-sans text-xs px-3 py-1 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 rounded-xs font-bold uppercase tracking-wider">
           100% Funds Held Secure
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6 border border-white/10 bg-white/[0.02]">
-          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Total Escrow Volume</div>
-          <div className="font-editorial text-4xl text-white font-bold mt-3">₹48,50,000</div>
-          <div className="font-mono text-[9px] text-[#34C759] uppercase tracking-widest mt-2">100% Escrow Protected</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-5 border border-white/10 bg-white/[0.02]">
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
+          <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹48,50,000</div>
+          <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
-        <div className="p-6 border border-white/10 bg-white/[0.02]">
-          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Escrow Protection Status</div>
-          <div className="font-editorial text-4xl text-[#FF3B30] font-bold mt-3">₹6,30,500</div>
-          <div className="font-mono text-[9px] text-white/50 uppercase tracking-widest mt-2">Zero Agency Cuts</div>
+        <div className="p-5 border border-white/10 bg-white/[0.02]">
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Protection Status</div>
+          <div className="font-sans text-3xl text-[#FF3B30] font-bold mt-3 tracking-tight tabular-nums">₹6,30,500</div>
+          <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Zero Agency Cuts</div>
         </div>
-        <div className="p-6 border border-white/10 bg-white/[0.02]">
-          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Completed Payouts</div>
-          <div className="font-editorial text-4xl text-[#34C759] font-bold mt-3">₹42,19,500</div>
-          <div className="font-mono text-[9px] text-[#34C759] uppercase tracking-widest mt-2">Direct Wallet Transfer</div>
+        <div className="p-5 border border-white/10 bg-white/[0.02]">
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
+          <div className="font-sans text-3xl text-[#34C759] font-bold mt-3 tracking-tight tabular-nums">₹42,19,500</div>
+          <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
         </div>
-        <div className="p-6 border border-white/10 bg-white/[0.02]">
-          <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Disputed Claims</div>
-          <div className="font-editorial text-4xl text-orange-400 font-bold mt-3">₹1,20,000</div>
-          <div className="font-mono text-[9px] text-orange-400 uppercase tracking-widest mt-2">&lt;30m Support Resolution</div>
+        <div className="p-5 border border-white/10 bg-white/[0.02]">
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Disputed Claims</div>
+          <div className="font-sans text-3xl text-orange-400 font-bold mt-3 tracking-tight tabular-nums">₹1,20,000</div>
+          <div className="font-sans text-[9px] text-orange-400 uppercase tracking-wider mt-2">&lt;30m Support Resolution</div>
         </div>
       </div>
 
       <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
-        <div className="p-4 border-b border-white/10 font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold">
-          § Live Escrow Ledger &amp; Manual Override Control
+        <div className="p-4 border-b border-white/10 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF3B30] font-bold">
+          Live Escrow Ledger &amp; Manual Override Control
         </div>
-        <table className="w-full text-left border-collapse font-mono text-xs">
+        <table className="w-full text-left border-collapse font-sans text-sm">
           <thead>
             <tr className="border-b border-white/10 text-[9px] tracking-widest uppercase opacity-50">
-              <th className="p-4">Escrow ID</th>
-              <th className="p-4">Campaign &amp; Brand</th>
-              <th className="p-4">Creator</th>
-              <th className="p-4">Total Amount</th>
-              <th className="p-4">Escrow Status</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Admin Control</th>
+              <th className="p-4 font-normal">Escrow ID</th>
+              <th className="p-4 font-normal">Campaign &amp; Brand</th>
+              <th className="p-4 font-normal">Creator</th>
+              <th className="p-4 font-normal">Total Amount</th>
+              <th className="p-4 font-normal">Escrow Fee</th>
+              <th className="p-4 font-normal">Status</th>
+              <th className="p-4 font-normal text-right">Admin Control</th>
             </tr>
           </thead>
           <tbody>
             {escrows.map((e) => (
               <tr key={e.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                <td className="p-4 font-bold text-white">{e.id}</td>
-                <td className="p-4"><div className="font-editorial text-base text-white">{e.campaign}</div><div className="opacity-50 text-[10px]">{e.brand}</div></td>
+                <td className="p-4 font-bold text-white tabular-nums">{e.id}</td>
+                <td className="p-4"><div className="font-sans text-base text-white font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
                 <td className="p-4 text-white">{e.creator}</td>
-                <td className="p-4 text-[#34C759] font-bold">₹{e.amount.toLocaleString()}</td>
-                <td className="p-4 text-[#FF3B30] font-bold">₹{e.fee.toLocaleString()}</td>
+                <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{e.amount.toLocaleString()}</td>
+                <td className="p-4 text-[#FF3B30] font-bold tabular-nums">₹{e.fee.toLocaleString()}</td>
                 <td className="p-4">
                   <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${
                     e.status === "Released to Wallet" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" : "bg-orange-400/10 text-orange-400 border-orange-400/30"
@@ -1064,11 +1064,11 @@ function EscrowTreasuryDesk() {
                 </td>
                 <td className="p-4 text-right">
                   {e.status === "Locked in Escrow" ? (
-                    <button onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#34C759] text-white">
-                      Force Release ⚡
+                    <button onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#34C759] text-white font-sans uppercase tracking-wider">
+                      Force Release
                     </button>
                   ) : (
-                    <span className="opacity-50 text-[10px]">Payout Complete ✓</span>
+                    <span className="opacity-50 text-[10px] font-sans uppercase tracking-wider">Payout Complete</span>
                   )}
                 </td>
               </tr>
