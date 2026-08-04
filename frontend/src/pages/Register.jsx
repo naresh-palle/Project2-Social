@@ -470,14 +470,11 @@ export default function Register() {
       <Nav />
       
       <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
-        <motion.form
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          onSubmit={handleInitialSubmit}
           className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#121212]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-sm shadow-2xl relative overflow-hidden"
-          data-testid={`register-form-${role}`}
-          autoComplete="off"
         >
           {/* Same top gradient bar as Sign In */}
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
@@ -511,7 +508,13 @@ export default function Register() {
             <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
           </div>
 
-          <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 min-h-0">
+          <form
+            onSubmit={handleInitialSubmit}
+            className="mt-1.5 flex flex-col min-h-0 flex-1"
+            data-testid={`register-form-${role}`}
+            autoComplete="off"
+          >
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1 min-h-0">
             <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
@@ -676,6 +679,7 @@ export default function Register() {
           </div>
 
           <button
+            type="submit"
             data-testid="register-submit"
             disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed}
             className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF3B30] text-white font-bold text-sm hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
@@ -689,7 +693,8 @@ export default function Register() {
               Login
             </Link>
           </p>
-        </motion.form>
+        </form>
+        </motion.div>
       </div>
 
       {/* OTP Verification Modal */}

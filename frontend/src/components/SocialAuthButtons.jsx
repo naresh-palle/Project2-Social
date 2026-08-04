@@ -34,7 +34,7 @@ export function SocialAuthButtons({
       <div className="grid grid-cols-2 gap-2 w-full">
         {/* Google slot */}
         <div
-          className="relative h-9 rounded-md overflow-hidden border border-white/15 bg-[#111]"
+          className="relative h-9 rounded-md overflow-hidden border border-white/15 bg-[#111] isolate"
           data-testid="google-signin-button"
         >
           <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center gap-2 text-white text-xs font-medium">
@@ -42,7 +42,7 @@ export function SocialAuthButtons({
             <span>Google</span>
           </div>
           {/* Real clickable Google control — only covers THIS cell */}
-          <div className="absolute inset-0 z-10 opacity-0 cursor-pointer [&>div]:!w-full [&>div]:!h-full [&_iframe]:!w-full [&_iframe]:!min-w-full [&_iframe]:!h-[36px]">
+          <div className="absolute inset-0 z-10 opacity-0 cursor-pointer overflow-hidden [&>div]:!w-full [&>div]:!h-full [&_iframe]:!w-full [&_iframe]:!min-w-0 [&_iframe]:!max-w-full [&_iframe]:!h-[36px]">
             <GoogleLogin
               onSuccess={(res) => {
                 if (res?.credential) onGoogleCredential?.(res.credential);
@@ -61,14 +61,15 @@ export function SocialAuthButtons({
           </div>
         </div>
 
-        {/* Apple slot — always a real button */}
+        {/* Apple slot — never a submit button; no focus ring steal from password form */}
         <button
           type="button"
           disabled={loading}
           onClick={handleApple}
+          onMouseDown={(e) => e.preventDefault()}
           data-testid="apple-signin-button"
           aria-label={mode === "signup" ? "Continue with Apple" : "Sign in with Apple"}
-          className="h-9 rounded-md border border-black/10 bg-white hover:bg-neutral-100 text-black text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 relative z-20"
+          className="h-9 rounded-md border border-black/10 bg-white hover:bg-neutral-100 text-black text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60 relative z-20 outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
         >
           <AppleIcon className="w-3.5 h-3.5 text-black shrink-0" />
           <span>Apple</span>

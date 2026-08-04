@@ -30,6 +30,14 @@ export default function Login() {
 
   const submitPassword = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    // Keep focus on the password submit path — never activate Apple/Google
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      const tag = document.activeElement.getAttribute("data-testid");
+      if (tag === "apple-signin-button" || tag === "google-signin-button") {
+        document.activeElement.blur();
+      }
+    }
     setErr("");
     setLoading(true);
     const r = await login(identifier, password, { remember_me: rememberMe, totp_code: totpCode || undefined });
@@ -254,23 +262,7 @@ export default function Login() {
 
           {mode === "password" ? (
             <>
-              {/* Social outside <form> so Apple/Google never steal Login submit */}
-              <div className="mt-3 space-y-2">
-                <SocialAuthButtons
-                  mode="signin"
-                  loading={loading}
-                  onGoogleCredential={handleGoogleCredential}
-                  onGoogleError={() => setErr("Google Sign In Failed")}
-                  onAppleClick={handleAppleSignIn}
-                />
-                <div className="flex items-center gap-3 opacity-50">
-                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
-                  <span className="font-sans text-[10px] tracking-widest uppercase">Or use password</span>
-                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
-                </div>
-              </div>
-
-              <form onSubmit={submitPassword} className="mt-3 space-y-2.5" data-testid="login-form">
+              <form onSubmit={submitPassword} className="mt-3 space-y-2.5" data-testid="login-form" id="login-form">
               <div>
                 <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
                   Email or Username
@@ -279,6 +271,7 @@ export default function Login() {
                   data-testid="login-email"
                   type="text"
                   required
+                  autoComplete="username"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   className="mt-0.5 w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
@@ -295,6 +288,7 @@ export default function Login() {
                     data-testid="login-password"
                     type={showPassword ? "text" : "password"}
                     required
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-0.5 w-full bg-transparent hairline-b py-1.5 pr-10 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
@@ -302,6 +296,7 @@ export default function Login() {
                   />
                   <button
                     type="button"
+                    tabIndex={-1}
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-1.5 text-white/50 hover:text-white"
                   >
@@ -345,11 +340,27 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 data-testid="login-submit"
-                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {loading ? "Authenticating..." : "Sign In to Studio"} <ArrowRight className="w-4 h-4" />
               </button>
             </form>
+
+              {/* Social AFTER password form so Apple never steals submit focus/click */}
+              <div className={`mt-3 space-y-2 ${loading ? "pointer-events-none opacity-50" : ""}`}>
+                <div className="flex items-center gap-3 opacity-50">
+                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                  <span className="font-sans text-[10px] tracking-widest uppercase">Or continue with</span>
+                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                </div>
+                <SocialAuthButtons
+                  mode="signin"
+                  loading={loading}
+                  onGoogleCredential={handleGoogleCredential}
+                  onGoogleError={() => setErr("Google Sign In Failed")}
+                  onAppleClick={handleAppleSignIn}
+                />
+              </div>
             </>
           ) : (
             <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-3 space-y-2.5">

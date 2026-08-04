@@ -54,7 +54,7 @@ export default function ProfileEdit() {
         name: user.name || "",
         username: uname,
         handle: handleFromDb,
-        bio: user.bio || "",
+        bio: (/curating high-end aesthetics|focus on luxury and design/i.test(user.bio || "") ? "" : (user.bio || "")),
         avatar: user.avatar || "",
         pincode: user.pincode || "",
         city: user.city || "",
@@ -329,19 +329,39 @@ export default function ProfileEdit() {
     const city = (f.city || "").trim();
     const state = (f.state || "").trim();
 
-    if (!niches.length && !city) {
-      toast.error("Select at least one niche (section 04) or wait for city from signup before AI Curation.");
+    if (!niches.length) {
+      toast.error("Select at least one niche below, then run AI Curation.");
       document.getElementById("sec-niche")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
+    const who = f.name || (f.username ? `@${f.username}` : "Creator");
+    const loc = [city, state].filter(Boolean).join(", ") || "India";
+    const localBio = niches.length === 1
+      ? `${who} — specializing in ${niches[0]}, based in ${loc}.`
+      : niches.length === 2
+        ? `${who} — specializing in ${niches[0]} and ${niches[1]}, based in ${loc}.`
+        : `${who} — specializing in ${niches.slice(0, -1).join(", ")}, and ${niches[niches.length - 1]}, based in ${loc}.`;
+
+    const looksHardcoded = (bio) => {
+      const t = (bio || "").toLowerCase();
+      return (
+        t.includes("curating high-end aesthetics") ||
+        t.includes("focus on luxury and design") ||
+        t.includes("luxury, design, and editorial")
+      );
+    };
+
+    // Instant local bio from niches + location (never luxury filler)
+    setF((prev) => ({ ...prev, bio: localBio }));
     setAiBusy(true);
+
     try {
       const { data } = await api.post("/ai/suggest-profile", {
         handle: f.handle || (f.username ? `@${f.username}` : ""),
         name: f.name,
         username: f.username,
-        bio: f.bio,
+        bio: localBio,
         niches,
         city: city || undefined,
         state: state || undefined,
@@ -354,31 +374,16 @@ export default function ProfileEdit() {
         availability: f.availability,
       });
 
-      const looksHardcoded = (bio) => {
-        const t = (bio || "").toLowerCase();
-        return t.includes("curating high-end aesthetics") || t.includes("focus on luxury and design");
-      };
-
-      const localBio = (() => {
-        const who = f.name || (f.username ? `@${f.username}` : "Creator");
-        const loc = [city, state].filter(Boolean).join(", ") || "India";
-        if (!niches.length) return `${who} — creating authentic content from ${loc}.`;
-        if (niches.length === 1) return `${who} — specializing in ${niches[0]}, based in ${loc}.`;
-        if (niches.length === 2) return `${who} — specializing in ${niches[0]} and ${niches[1]}, based in ${loc}.`;
-        return `${who} — specializing in ${niches.slice(0, -1).join(", ")}, and ${niches[niches.length - 1]}, based in ${loc}.`;
-      })();
-
       let bio = (data?.bio || "").trim();
       if (!bio || looksHardcoded(bio)) bio = localBio;
+      // Must mention at least one niche keyword
+      const lowered = bio.toLowerCase();
+      if (!niches.some((n) => lowered.includes(String(n).split("&")[0].trim().toLowerCase().slice(0, 5)))) {
+        bio = localBio;
+      }
 
       setF((prev) => {
         const next = { ...prev, bio };
-        const prevCats = Array.isArray(prev.category)
-          ? prev.category
-          : (prev.category ? String(prev.category).split(", ").filter(Boolean) : []);
-        if ((!prevCats.length) && data?.category) {
-          next.category = Array.isArray(data.category) ? data.category : [data.category];
-        }
         if ((!prev.languages || !prev.languages.length) && Array.isArray(data?.languages) && data.languages.length) {
           next.languages = data.languages;
         }
@@ -387,15 +392,12 @@ export default function ProfileEdit() {
           next.content_types = data.content_types;
         }
         if (!prev.response_time && data?.response_time) next.response_time = data.response_time;
-        if ((!prev.base_rate || Number(prev.base_rate) <= 0) && data?.base_rate) next.base_rate = data.base_rate;
-        if (!prev.availability && data?.availability) next.availability = data.availability;
         return next;
       });
-      toast.success(niches.length
-        ? `Bio generated from ${niches.slice(0, 2).join(" · ")}${city ? ` · ${city}` : ""}.`
-        : `Bio generated from your location (${city}).`);
+      toast.success(`Bio updated from ${niches.slice(0, 2).join(" · ")}${city ? ` · ${city}` : ""}.`);
     } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "AI curation failed.");
+      // Local bio already applied
+      toast.success(`Bio set from your niches · ${loc}.`);
     } finally {
       setAiBusy(false);
     }
@@ -462,7 +464,7 @@ export default function ProfileEdit() {
       
       <Nav />
       <Toaster theme="dark" position="top-center" />
-      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-12 relative">
+      <div className="pt-20 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="pr-12 md:pr-0">
                 <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">§ Edit profile</p>
@@ -498,10 +500,10 @@ export default function ProfileEdit() {
             </div>
         </div>
 
-        <motion.form onSubmit={submit} className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5 items-start" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+        <motion.form onSubmit={submit} className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           
           {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
-          <section id="sec-basic" className="space-y-3">
+          <section id="sec-basic" className="space-y-2">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">01</span>
                 Basic details
@@ -509,7 +511,7 @@ export default function ProfileEdit() {
               <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
               
               {!isCreator && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2" id="sec-company">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1" id="sec-company">
                   <F label="Company / Brand Name *">
                     <input 
                       required 
@@ -556,60 +558,94 @@ export default function ProfileEdit() {
                   />
                 </F>
               )}
+              {isCreator && (
+                <div id="sec-niche" className="space-y-1.5">
+                  <F label="Niches (for AI bio)">
+                    <select
+                      className="inp cursor-pointer bg-[#0B0B0E]"
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const currentCats = Array.isArray(f.category)
+                            ? f.category
+                            : (f.category ? f.category.split(", ") : []);
+                          if (!currentCats.includes(val)) {
+                            setF({ ...f, category: [...currentCats, val] });
+                          }
+                        }
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" className="bg-[#0B0B0E]">Add a niche…</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
+                      ))}
+                    </select>
+                  </F>
+                  {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map((c) => (
+                        <span key={c} className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/10 border border-white/20 text-white text-[10px] font-sans rounded-sm">
+                          {c}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
+                              setF({ ...f, category: currentCats.filter((x) => x !== c) });
+                            }}
+                            className="hover:text-[#FF3B30]"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <F label="Bio / About *">
-                  <textarea required rows={4} className="inp resize-none" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
-                  <div className="flex justify-between items-center mt-2">
+                  <textarea required rows={2} className="inp resize-none text-sm" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
+                  <div className="flex justify-between items-center mt-1 gap-2 flex-wrap">
                       {isCreator && (
-                          <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1.5 text-[10px]">
+                          <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1 text-[10px]">
                               {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                              {aiBusy ? "Curating…" : "AI Curation"}
+                              {aiBusy ? "Curating…" : "AI from niches + location"}
                           </button>
                       )}
                       <div className="text-right text-[10px] opacity-40 flex-1">{f.bio.length}/500</div>
                   </div>
               </F>
-              <F label="Profile Picture *">
-                <div className="flex items-center gap-4 mt-2 flex-wrap">
-                  {f.avatar && <img src={f.avatar} alt="Profile Avatar" className="w-16 h-16 object-cover border border-white/20 p-1 rounded-sm" />}
-                  <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                  <button 
-                      type="button"
-                      onClick={()=>avatarRef.current?.click()}
-                      className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2.5 text-xs flex items-center gap-2 cursor-pointer transition"
-                  >
-                      <Upload className="w-4 h-4" />
-                      <span>{f.avatar ? "Replace Profile Pic" : "Upload Profile Pic"}</span>
-                  </button>
-                  {f.avatar && (
-                    <button
-                      type="button"
-                      onClick={recropAvatar}
-                      className="btn-solid bg-white/5 hover:bg-white/15 text-white px-4 py-2.5 text-xs flex items-center gap-2"
-                    >
-                      <Crop className="w-4 h-4" /> Edit crop
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <F label="Profile Picture *">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-sm" />}
+                    <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
+                    <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" /> {f.avatar ? "Replace" : "Upload"}
                     </button>
-                  )}
-                </div>
-              </F>
-              <F label="Cover Photo">
-                <div className="mt-2 space-y-2">
-                  {f.cover_photo && (
-                    <img src={f.cover_photo} alt="Cover" className="w-full h-32 object-cover border border-white/20 rounded-xs" />
-                  )}
-                  <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-4 py-2 text-xs flex items-center gap-2">
-                      <Upload className="w-4 h-4" /> {f.cover_photo ? "Replace Cover" : "Upload Cover"}
-                    </button>
-                    {f.cover_photo && (
-                      <button type="button" onClick={recropCover} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-4 py-2 text-xs flex items-center gap-2">
-                        <Crop className="w-4 h-4" /> Edit crop
+                    {f.avatar && (
+                      <button type="button" onClick={recropAvatar} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-2 py-1.5 text-[10px] flex items-center gap-1">
+                        <Crop className="w-3.5 h-3.5" /> Crop
                       </button>
                     )}
                   </div>
-                </div>
-              </F>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                </F>
+                <F label="Cover Photo">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-sm" />}
+                    <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
+                    <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" /> {f.cover_photo ? "Replace" : "Upload"}
+                    </button>
+                    {f.cover_photo && (
+                      <button type="button" onClick={recropCover} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-2 py-1.5 text-[10px] flex items-center gap-1">
+                        <Crop className="w-3.5 h-3.5" /> Crop
+                      </button>
+                    )}
+                  </div>
+                </F>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <F label="Date of Birth">
                   <DateField value={f.date_of_birth || ""} onChange={(v) => setF({ ...f, date_of_birth: v })} placeholder="Select date of birth" />
                 </F>
@@ -623,10 +659,10 @@ export default function ProfileEdit() {
                   </select>
                 </F>
               </div>
-              <label className="flex items-center justify-between py-3 border border-white/10 px-4 rounded-xs cursor-pointer">
+              <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer">
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 block">Private Account</span>
-                  <span className="font-mono text-xs opacity-50">Only approved followers see your posts</span>
+                  <span className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 block">Private account</span>
+                  <span className="font-sans text-[10px] opacity-40">Approved followers only</span>
                 </div>
                 <input
                   type="checkbox"
@@ -638,11 +674,11 @@ export default function ProfileEdit() {
           </section>
 
           {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
-          <section className="space-y-3">
+          <section className="space-y-2">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 Languages
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-2">
                   <F label="Select Languages (Multi-Select)">
                       <select 
                         className="inp cursor-pointer bg-[#0B0B0E]"
@@ -678,7 +714,7 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 2: LOCATION from signup */}
-          <section id="sec-location" className="space-y-3">
+          <section id="sec-location" className="space-y-2">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">02</span>
                 Location
@@ -707,17 +743,17 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 3: OUR SOCIAL PRESENCE (Available for Creators & Brands, 4 in a Row) */}
-          <section id="sec-social" className="space-y-3">
+          <section id="sec-social" className="space-y-2">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">03</span>
                 Social accounts
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     {PLATFORMS.map(plat => {
                         const isConnected = !!f.platform_metrics[plat]?.handle;
                         return (
-                        <div key={plat} className={`p-4 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
+                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
                             <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
                                     {plat} {plat === "instagram" && "*"}
@@ -737,7 +773,7 @@ export default function ProfileEdit() {
                                            }
                                        })} />
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mt-4 font-mono">
+                            <div className="grid grid-cols-2 gap-2 mt-2 font-sans">
                                 <div>
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
                                     <input type="number" className="inp text-sm py-0.5" placeholder=""
@@ -768,14 +804,15 @@ export default function ProfileEdit() {
                   </div>
               </section>
 
-              {/* SECTION 4: CONTENT NICHE / CATEGORY (Multi-Select Dropdown & Pills) */}
-              <section id="sec-niche" className="space-y-3">
+              {/* Niches already edited in Basic for creators — keep compact section for brands */}
+              {!isCreator && (
+              <section id="sec-niche" className="space-y-2">
                   <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                     <span className="mr-2">04</span>
                     Niches (optional)
                   </h2>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                       <F label="Select Niches / Categories">
                           <select 
                             className="inp cursor-pointer bg-[#0B0B0E]"
@@ -799,7 +836,6 @@ export default function ProfileEdit() {
                           </select>
                       </F>
 
-                      {/* Selected Category Pills */}
                       {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
                           <div className="flex flex-wrap gap-2 pt-1">
                               {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map(c => (
@@ -821,9 +857,10 @@ export default function ProfileEdit() {
                       )}
                   </div>
               </section>
+              )}
 
               {isCreator && (
-                <section id="sec-rate" className="space-y-3">
+                <section id="sec-rate" className="space-y-2">
                     <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">05</span>
                       Pricing &amp; rates
@@ -859,13 +896,13 @@ export default function ProfileEdit() {
                       </div>
                       <div className="flex mt-6">
                         <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
-                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-4 px-6 text-sm flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-2 px-4 text-xs flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
                           <Upload className="w-4 h-4" /> Add Image/s and Upload Videos
                         </button>
                       </div>
                     </F>
 
-                    <div className="mt-8" id="sec-campaigns">
+                    <div className="mt-3" id="sec-campaigns">
                         <F label="Past Campaigns (optional, max 5)">
                             <div className="space-y-3 mt-3">
                                 <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
@@ -978,7 +1015,7 @@ export default function ProfileEdit() {
                   never block Save profile via HTML5 required validation. */}
 
           <div className="pt-2 lg:col-span-2">
-            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-3.5 bg-[#FF3B30] text-white text-base">
+            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-2.5 bg-[#FF3B30] text-white text-sm">
               <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
             </button>
           </div>
