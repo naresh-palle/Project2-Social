@@ -44,6 +44,7 @@ export default function ProfileEdit() {
   const avatarRef = useRef(null);
   const coverRef = useRef(null);
   const portfolioRef = useRef(null);
+  const locationBackfillRef = useRef(false);
 
   useEffect(() => {
     if (user) {
@@ -89,11 +90,12 @@ export default function ProfileEdit() {
 
   // Backfill city/state from signup pincode when missing on the account
   useEffect(() => {
-    if (!user) return;
+    if (!user || locationBackfillRef.current) return;
     const pin = (user.pincode || "").toString().trim();
     if (!pin || pin.length !== 6) return;
     if (user.city && user.state) return;
 
+    locationBackfillRef.current = true;
     let cancelled = false;
     (async () => {
       try {
@@ -108,11 +110,9 @@ export default function ProfileEdit() {
           state: prev.state || state,
           pincode: prev.pincode || pin,
         } : prev);
-        // Persist so later visits load from account
         await api.patch("/auth/me", {
-          city: user.city || city || undefined,
-          state: user.state || state || undefined,
-          location: user.city || city || undefined,
+          ...(city ? { city, location: city } : {}),
+          ...(state ? { state } : {}),
         });
         await refresh();
       } catch (_) {
@@ -323,19 +323,28 @@ export default function ProfileEdit() {
   };
 
   const runAiCuration = async () => {
+    const niches = Array.isArray(f.category)
+      ? f.category.filter(Boolean)
+      : (f.category ? String(f.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
+    const city = (f.city || "").trim();
+    const state = (f.state || "").trim();
+
+    if (!niches.length && !city) {
+      toast.error("Select at least one niche (section 04) or wait for city from signup before AI Curation.");
+      document.getElementById("sec-niche")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     setAiBusy(true);
     try {
-      const niches = Array.isArray(f.category)
-        ? f.category.filter(Boolean)
-        : (f.category ? String(f.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
       const { data } = await api.post("/ai/suggest-profile", {
         handle: f.handle || (f.username ? `@${f.username}` : ""),
         name: f.name,
         username: f.username,
         bio: f.bio,
-        niches: niches.length ? niches : ["Lifestyle"],
-        city: f.city,
-        state: f.state,
+        niches,
+        city: city || undefined,
+        state: state || undefined,
         languages: f.languages,
         experience: f.experience,
         content_types: f.content_types,
@@ -344,37 +353,49 @@ export default function ProfileEdit() {
         response_time: f.response_time,
         availability: f.availability,
       });
+
+      const looksHardcoded = (bio) => {
+        const t = (bio || "").toLowerCase();
+        return t.includes("curating high-end aesthetics") || t.includes("focus on luxury and design");
+      };
+
+      const localBio = (() => {
+        const who = f.name || (f.username ? `@${f.username}` : "Creator");
+        const loc = [city, state].filter(Boolean).join(", ") || "India";
+        if (!niches.length) return `${who} — creating authentic content from ${loc}.`;
+        if (niches.length === 1) return `${who} — specializing in ${niches[0]}, based in ${loc}.`;
+        if (niches.length === 2) return `${who} — specializing in ${niches[0]} and ${niches[1]}, based in ${loc}.`;
+        return `${who} — specializing in ${niches.slice(0, -1).join(", ")}, and ${niches[niches.length - 1]}, based in ${loc}.`;
+      })();
+
+      let bio = (data?.bio || "").trim();
+      if (!bio || looksHardcoded(bio)) bio = localBio;
+
       setF((prev) => {
-        const next = { ...prev };
-        // Always refresh bio from AI using current profile context
-        if (data.bio) next.bio = data.bio;
-        // Only fill empty fields — never overwrite user-entered values with hardcoded defaults
+        const next = { ...prev, bio };
         const prevCats = Array.isArray(prev.category)
           ? prev.category
           : (prev.category ? String(prev.category).split(", ").filter(Boolean) : []);
-        if ((!prevCats.length) && data.category) {
+        if ((!prevCats.length) && data?.category) {
           next.category = Array.isArray(data.category) ? data.category : [data.category];
         }
-        if ((!prev.languages || !prev.languages.length) && Array.isArray(data.languages) && data.languages.length) {
+        if ((!prev.languages || !prev.languages.length) && Array.isArray(data?.languages) && data.languages.length) {
           next.languages = data.languages;
         }
-        if (!prev.experience && data.experience) next.experience = data.experience;
-        if ((!prev.content_types || !prev.content_types.length) && Array.isArray(data.content_types) && data.content_types.length) {
+        if (!prev.experience && data?.experience) next.experience = data.experience;
+        if ((!prev.content_types || !prev.content_types.length) && Array.isArray(data?.content_types) && data.content_types.length) {
           next.content_types = data.content_types;
         }
-        if (!prev.response_time && data.response_time) next.response_time = data.response_time;
-        if ((!prev.base_rate || Number(prev.base_rate) <= 0) && data.base_rate) next.base_rate = data.base_rate;
-        if (!prev.availability && data.availability) next.availability = data.availability;
-        if (Array.isArray(data.portfolio) && data.portfolio.length) {
-          const existing = (prev.portfolio || []).filter(Boolean);
-          const incoming = data.portfolio.filter((u) => u && !existing.includes(u));
-          next.portfolio = [...existing, ...incoming].slice(0, 12);
-        }
+        if (!prev.response_time && data?.response_time) next.response_time = data.response_time;
+        if ((!prev.base_rate || Number(prev.base_rate) <= 0) && data?.base_rate) next.base_rate = data.base_rate;
+        if (!prev.availability && data?.availability) next.availability = data.availability;
         return next;
       });
-      toast.success("AI Curation applied from your profile details.");
+      toast.success(niches.length
+        ? `Bio generated from ${niches.slice(0, 2).join(" · ")}${city ? ` · ${city}` : ""}.`
+        : `Bio generated from your location (${city}).`);
     } catch (e) {
-      toast.error("AI curation failed.");
+      toast.error(formatApiError(e.response?.data?.detail) || "AI curation failed.");
     } finally {
       setAiBusy(false);
     }

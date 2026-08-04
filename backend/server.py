@@ -2719,42 +2719,100 @@ async def root():
 
 
 # ---------- AI ----------
+HARDCODED_BIO_MARKERS = (
+    "curating high-end aesthetics",
+    "focus on luxury and design",
+    "luxury, design, and editorial storytelling",
+)
+
+
+def is_hardcoded_luxury_bio(bio: Optional[str]) -> bool:
+    text = (bio or "").strip().lower()
+    if not text:
+        return False
+    return any(m in text for m in HARDCODED_BIO_MARKERS)
+
+
+def build_local_profile_bio(
+    *,
+    niches: Optional[List[str]] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    name: Optional[str] = None,
+    username: Optional[str] = None,
+    handle: Optional[str] = None,
+) -> str:
+    """Deterministic bio from category + location — never luxury fashion filler."""
+    clean_niches = [str(n).strip() for n in (niches or []) if n and str(n).strip()]
+    loc_parts = [p for p in [(city or "").strip(), (state or "").strip()] if p]
+    loc = ", ".join(loc_parts) if loc_parts else "India"
+    who = (name or "").strip() or (handle or "").strip() or (f"@{username}" if username else "Creator")
+
+    if not clean_niches:
+        return f"{who} — creating authentic content from {loc}."
+    if len(clean_niches) == 1:
+        focus = f"specializing in {clean_niches[0]}"
+    elif len(clean_niches) == 2:
+        focus = f"specializing in {clean_niches[0]} and {clean_niches[1]}"
+    else:
+        focus = f"specializing in {', '.join(clean_niches[:-1])}, and {clean_niches[-1]}"
+    return f"{who} — {focus}, based in {loc}."
+
+
 async def call_llm(system: str, prompt: str) -> str:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY missing")
-        
+    """Try Anthropic first, then Gemini (GEMINI_API_KEY / EMERGENT_LLM_KEY)."""
     import httpx
-    
-    headers = {
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json"
-    }
-    
-    payload = {
-        "model": "claude-3-haiku-20240307",
-        "max_tokens": 1000,
-        "system": system,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ]
-    }
-    
-    async with httpx.AsyncClient() as client:
+
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
+    if anthropic_key:
+        headers = {
+            "x-api-key": anthropic_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        }
+        payload = {
+            "model": "claude-3-haiku-20240307",
+            "max_tokens": 1000,
+            "system": system,
+            "messages": [{"role": "user", "content": prompt}],
+        }
         try:
-            response = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers=headers,
-                json=payload,
-                timeout=30.0
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data["content"][0]["text"]
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers=headers,
+                    json=payload,
+                    timeout=30.0,
+                )
+                response.raise_for_status()
+                data = response.json()
+                text = (data.get("content") or [{}])[0].get("text") or ""
+                if text.strip():
+                    return text
         except Exception as e:
-            logger.warning(f"Anthropic API error: {e}")
-            raise HTTPException(status_code=500, detail=f"AI generation failed: {repr(e)}")
+            logger.warning("Anthropic API error: %s", e)
+
+    gemini_key = EMERGENT_LLM_KEY or os.environ.get("GEMINI_API_KEY")
+    if gemini_key:
+        try:
+            import google.generativeai as genai
+
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel(
+                "gemini-1.5-flash",
+                system_instruction=system,
+            )
+            result = await asyncio.to_thread(
+                model.generate_content,
+                prompt,
+            )
+            text = getattr(result, "text", None) or ""
+            if text.strip():
+                return text
+        except Exception as e:
+            logger.warning("Gemini API error: %s", e)
+
+    raise HTTPException(status_code=500, detail="AI generation unavailable (no working LLM key)")
 
 
 def parse_json(text: str) -> dict:
@@ -3287,7 +3345,7 @@ async def ai_review_deliverable(deliverable_id: str, camp: dict) -> None:
 
 
 class ProfileSuggestInput(BaseModel):
-    niches: List[str]
+    niches: Optional[List[str]] = None
     handle: Optional[str] = None
     name: Optional[str] = None
     username: Optional[str] = None
@@ -3305,80 +3363,104 @@ class ProfileSuggestInput(BaseModel):
 @api_router.post("/ai/suggest-profile")
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
-    system = "You are a creative director writing profile copy from the creator's real inputs only. Never invent unrelated niches."
-    
-    niches = [n for n in (inp.niches or []) if n and str(n).strip() and str(n).strip().lower() != "general"]
+
+    # Prefer request niches; fall back to saved account niches/category
+    niches = [n for n in (inp.niches or []) if n and str(n).strip() and str(n).strip().lower() not in ("general", "lifestyle")]
+    if not niches:
+        saved = current.get("category") or current.get("niches") or []
+        if isinstance(saved, str):
+            saved = [s.strip() for s in saved.split(",") if s.strip()]
+        niches = [n for n in saved if n and str(n).strip().lower() not in ("general", "lifestyle")]
+
+    city = (inp.city or current.get("city") or "").strip() or None
+    state = (inp.state or current.get("state") or "").strip() or None
+    if not niches and not city:
+        raise HTTPException(
+            status_code=400,
+            detail="Select at least one Content Niche or ensure City is set from signup before using AI Curation.",
+        )
+
+    handle_str = inp.handle or (f"@{inp.username}" if inp.username else current.get("handle") or "the creator")
+    name_str = inp.name or current.get("name") or handle_str
+    lang_str = ", ".join(inp.languages or current.get("languages") or []) or "the languages they listed"
+    loc_str = ", ".join([p for p in [city, state] if p]) or "their location"
     niches_str = ", ".join(niches) if niches else "their stated specialty"
-    handle_str = inp.handle or (f"@{inp.username}" if inp.username else "the creator")
-    name_str = inp.name or handle_str or "the creator"
-    lang_str = ", ".join(inp.languages) if inp.languages else "the languages they listed"
-    loc_str = f"{inp.city or ''}, {inp.state or ''}".strip(", ") or "their location"
-    exp_str = inp.experience or "their experience level"
-    types_str = ", ".join(inp.content_types) if inp.content_types else "the content formats they create"
-    
+    exp_str = inp.experience or current.get("experience") or "their experience level"
+    types_str = ", ".join(inp.content_types or current.get("content_types") or []) or "the content formats they create"
+
     platforms = []
-    if inp.platform_metrics:
-        for p, d in inp.platform_metrics.items():
-            if d and d.get("handle"):
+    pm = inp.platform_metrics or current.get("platform_metrics") or {}
+    if isinstance(pm, dict):
+        for p, d in pm.items():
+            if d and isinstance(d, dict) and d.get("handle"):
                 platforms.append(f"{p} ({d.get('handle')})")
     plat_str = ", ".join(platforms) if platforms else "their connected platforms"
-    
+
+    local_bio = build_local_profile_bio(
+        niches=niches,
+        city=city,
+        state=state,
+        name=name_str,
+        username=inp.username or current.get("username"),
+        handle=handle_str,
+    )
+
+    system = (
+        "You write short creator bios from the user's niches and location only. "
+        "Never invent Fashion, luxury, or high-end aesthetics unless those niches were provided."
+    )
     prompt = (
-        f"Write profile suggestions using ONLY this creator's data.\n"
-        f"Name: {name_str}\nHandle: {handle_str}\nUsername: {inp.username or 'n/a'}\n"
-        f"Niches: {niches_str}\nLocation: {loc_str}\nLanguages: {lang_str}\n"
-        f"Experience: {exp_str}\nContent types: {types_str}\nPlatforms: {plat_str}\n"
-        f"Existing bio (refine, do not ignore): {inp.bio or 'none yet'}\n\n"
-        f"Return ONLY JSON:\n"
+        f"Generate a profile bio using ONLY this data.\n"
+        f"Name: {name_str}\nHandle: {handle_str}\n"
+        f"Niches/Categories: {niches_str}\nLocation: {loc_str}\nLanguages: {lang_str}\n"
+        f"Experience: {exp_str}\nContent types: {types_str}\nPlatforms: {plat_str}\n\n"
+        "Return ONLY JSON:\n"
         "{\n"
-        '  "bio": "1-2 punchy sentences grounded in the niches/location/platforms above",\n'
-        '  "category": ["niche1","niche2"],\n'
+        '  "bio": "1-2 sentences that MUST mention the niches and the location",\n'
+        '  "category": ["same niches as input"],\n'
         '  "languages": ["..."],\n'
         '  "experience": "...",\n'
         '  "content_types": ["..."],\n'
         '  "response_time": "Within 24 hours",\n'
-        '  "availability": "Immediately",\n'
-        '  "portfolio": ["https://images.unsplash.com/photo-..."]\n'
+        '  "availability": "Immediately"\n'
         "}\n"
-        "Rules: category/languages/content_types must reflect the user inputs when provided; "
-        "do not default to Fashion unless Fashion is in niches."
+        "Forbidden phrases: 'Curating high-end aesthetics', 'luxury and design', "
+        "'editorial storytelling' unless luxury/fashion niches were listed."
     )
 
+    data: dict = {}
     try:
         text = await call_llm(system, prompt)
         data = parse_json(text)
-        # Prefer user-provided fields over model guesses when present
-        if niches:
-            data["category"] = niches
-        if inp.languages:
-            data["languages"] = inp.languages
-        if inp.experience:
-            data["experience"] = inp.experience
-        if inp.content_types:
-            data["content_types"] = inp.content_types
-        if inp.response_time:
-            data["response_time"] = inp.response_time
-        if inp.availability:
-            data["availability"] = inp.availability
-        return data
+        if not isinstance(data, dict):
+            data = {}
     except Exception as e:
         logger.warning("AI profile suggestion failed: %s", repr(e))
-        name_str = inp.name or inp.handle or inp.username or "creator"
-        niche_focus = niches_str if niches else "authentic creator storytelling"
-        fallback_bio = (
-            f"{name_str} — crafting {niche_focus} from {loc_str}. "
-            f"Active on {plat_str}."
-        )
-        return {
-            "bio": fallback_bio,
-            "category": niches or None,
-            "languages": inp.languages or None,
-            "experience": inp.experience or None,
-            "content_types": inp.content_types or None,
-            "response_time": inp.response_time or "Within 24 hours",
-            "availability": inp.availability or "Immediately",
-            "portfolio": [],
-        }
+        data = {}
+
+    bio = (data.get("bio") or "").strip() if isinstance(data, dict) else ""
+    # Drop hard-coded / off-brief luxury filler and anything that ignores niches
+    if is_hardcoded_luxury_bio(bio) or not bio or bio == data.get("raw"):
+        bio = local_bio
+    else:
+        # Soft check: if niches provided, at least one niche keyword should appear
+        if niches:
+            lowered = bio.lower()
+            if not any(str(n).split("&")[0].strip().lower()[:6] in lowered for n in niches):
+                bio = local_bio
+
+    out = {
+        "bio": bio,
+        "category": niches or data.get("category"),
+        "languages": inp.languages or data.get("languages") or current.get("languages"),
+        "experience": inp.experience or data.get("experience") or current.get("experience"),
+        "content_types": inp.content_types or data.get("content_types") or current.get("content_types"),
+        "response_time": inp.response_time or data.get("response_time") or "Within 24 hours",
+        "availability": inp.availability or data.get("availability") or "Immediately",
+        "portfolio": [],
+        "source": "ai" if bio != local_bio else "local",
+    }
+    return out
 
 # ---------- Startup ----------
 async def seed_admin():
