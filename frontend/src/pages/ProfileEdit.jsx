@@ -516,14 +516,8 @@ export default function ProfileEdit() {
       <Nav />
       <Toaster theme="dark" position="top-center" />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="pr-12 md:pr-0">
-                <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
-                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-[1.15] mt-1">
-                Your file<span className="text-[#FF3B30]">.</span>
-                </h1>
-            </div>
-            
+        <div className="flex items-center justify-between gap-3">
+            <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
                   <div className="w-9 h-9 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
