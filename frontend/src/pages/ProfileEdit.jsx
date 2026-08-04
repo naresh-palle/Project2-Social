@@ -337,34 +337,38 @@ export default function ProfileEdit() {
   const runAiCuration = async () => {
     const niches = Array.isArray(f.category)
       ? f.category.filter(Boolean)
-      : (f.category ? String(f.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
+      : toList(f.category);
     const city = (f.city || "").trim();
     const state = (f.state || "").trim();
 
     if (!niches.length) {
-      toast.error("Select at least one niche below, then run AI Curation.");
+      toast.error("Select at least 1 niche first, then click AI.");
       document.getElementById("sec-niche")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
+    }
+    if (!city && !state) {
+      toast.message("Tip: City/state from signup improves AI location wording.", { duration: 3500 });
     }
 
     const who = f.name || (f.username ? `@${f.username}` : "Creator");
     const loc = [city, state].filter(Boolean).join(", ") || "India";
-    const localBio = niches.length === 1
-      ? `${who} — specializing in ${niches[0]}, based in ${loc}.`
+    const nicheText = niches.length === 1
+      ? niches[0]
       : niches.length === 2
-        ? `${who} — specializing in ${niches[0]} and ${niches[1]}, based in ${loc}.`
-        : `${who} — specializing in ${niches.slice(0, -1).join(", ")}, and ${niches[niches.length - 1]}, based in ${loc}.`;
+        ? `${niches[0]} and ${niches[1]}`
+        : `${niches.slice(0, -1).join(", ")}, and ${niches[niches.length - 1]}`;
+    const localBio = `Based in ${loc}, ${who} creates content around ${nicheText}.`;
 
     const looksHardcoded = (bio) => {
       const t = (bio || "").toLowerCase();
       return (
         t.includes("curating high-end aesthetics") ||
         t.includes("focus on luxury and design") ||
+        t.includes("luxury and design") ||
         t.includes("luxury, design, and editorial")
       );
     };
 
-    // Instant local bio from niches + location (never luxury filler)
     setF((prev) => ({ ...prev, bio: localBio }));
     setAiBusy(true);
 
@@ -377,9 +381,9 @@ export default function ProfileEdit() {
         niches,
         city: city || undefined,
         state: state || undefined,
-        languages: f.languages,
+        languages: Array.isArray(f.languages) ? f.languages : toList(f.languages),
         experience: f.experience,
-        content_types: f.content_types,
+        content_types: Array.isArray(f.content_types) ? f.content_types : toList(f.content_types),
         platform_metrics: f.platform_metrics,
         base_rate: f.base_rate,
         response_time: f.response_time,
@@ -388,11 +392,12 @@ export default function ProfileEdit() {
 
       let bio = (data?.bio || "").trim();
       if (!bio || looksHardcoded(bio)) bio = localBio;
-      // Must mention at least one niche keyword
       const lowered = bio.toLowerCase();
-      if (!niches.some((n) => lowered.includes(String(n).split("&")[0].trim().toLowerCase().slice(0, 5)))) {
-        bio = localBio;
-      }
+      const nicheHit = niches.some((n) => {
+        const token = String(n).split("&")[0].trim().toLowerCase().slice(0, 5);
+        return token && lowered.includes(token);
+      });
+      if (!nicheHit) bio = localBio;
 
       setF((prev) => {
         const next = { ...prev, bio };
@@ -406,10 +411,15 @@ export default function ProfileEdit() {
         if (!prev.response_time && data?.response_time) next.response_time = data.response_time;
         return next;
       });
-      toast.success(`Bio updated from ${niches.slice(0, 2).join(" · ")}${city ? ` · ${city}` : ""}.`);
+      if (data?.source === "ai" && bio !== localBio) {
+        toast.success(`AI bio from ${niches.slice(0, 2).join(" · ")}${city ? ` · ${city}` : ""}`);
+      } else {
+        toast.success(`Bio from your niches + location${city ? ` (${city})` : ""}`);
+      }
     } catch (e) {
-      // Local bio already applied
-      toast.success(`Bio set from your niches · ${loc}.`);
+      const detail = e?.response?.data?.detail;
+      toast.success(`Bio set from niches + ${loc}.`);
+      if (detail) toast.message(String(detail), { duration: 4000 });
     } finally {
       setAiBusy(false);
     }
@@ -541,34 +551,38 @@ export default function ProfileEdit() {
             </div>
         </div>
 
-        <motion.form onSubmit={submit} className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+        <motion.form onSubmit={submit} className="mt-4 space-y-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           
-          {/* SECTION 1: BASIC & BRAND COMPANY DETAILS */}
-          <section id="sec-basic" className="space-y-2">
+          {/* SECTION 1: BASIC */}
+          <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">01</span>
                 Basic details
               </h2>
-              <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
-              
-              {!isCreator && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1" id="sec-company">
-                  <F label="Company / Brand Name *">
-                    <input 
-                      required 
-                      className="inp" 
-                      value={f.company || ""} 
-                      onChange={e=>setF({...f, company: e.target.value})} 
-                      placeholder=""
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
+                {isCreator ? (
+                  <F label="Username">
+                    <input
+                      className="inp opacity-80"
+                      value={f.username ? `@${String(f.username).replace(/^@/, "")}` : ""}
+                      readOnly
+                      disabled
+                      data-testid="reg-username-readonly"
                     />
                   </F>
+                ) : (
+                  <F label="Company / Brand Name *">
+                    <input required className="inp" value={f.company || ""} onChange={e=>setF({...f, company: e.target.value})} />
+                  </F>
+                )}
+              </div>
+
+              {!isCreator && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="sec-company">
                   <F label="Brand Industry Category *">
-                    <select 
-                      required 
-                      className="inp bg-[#0B0B0E] cursor-pointer" 
-                      value={f.industry || ""} 
-                      onChange={e=>setF({...f, industry: e.target.value})}
-                    >
+                    <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
                       <option value="" className="bg-[#0B0B0E]">Select Industry Category...</option>
                       {INDUSTRIES.map(ind => (
                         <option key={ind} value={ind} className="bg-[#0B0B0E]">{ind}</option>
@@ -576,86 +590,53 @@ export default function ProfileEdit() {
                     </select>
                   </F>
                   <F label="Official Website URL *">
-                    <input 
-                      type="url"
-                      required 
-                      className="inp font-mono text-sm" 
-                      value={f.website || ""} 
-                      onChange={e=>setF({...f, website: e.target.value})} 
-                      placeholder=""
-                    />
+                    <input type="url" required className="inp font-sans text-sm" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
                   </F>
                 </div>
               )}
 
-              {isCreator && (
-                <F label="Username">
-                  <input
-                    className="inp opacity-80"
-                    value={f.username ? `@${String(f.username).replace(/^@/, "")}` : ""}
-                    readOnly
-                    disabled
-                    data-testid="reg-username-readonly"
-                  />
-                </F>
-              )}
-              {isCreator && (
-                <div id="sec-niche" className="space-y-1.5">
-                  <F label="Niches (for AI bio)">
-                    <select
-                      className="inp cursor-pointer bg-[#0B0B0E]"
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val) {
-                          const currentCats = Array.isArray(f.category)
-                            ? f.category
-                            : (f.category ? f.category.split(", ") : []);
-                          if (!currentCats.includes(val)) {
-                            setF({ ...f, category: [...currentCats, val] });
-                          }
-                        }
-                        e.target.value = "";
-                      }}
-                    >
-                      <option value="" className="bg-[#0B0B0E]">Add a niche…</option>
-                      {PLATFORM_CATEGORIES.map((c) => (
-                        <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
-                      ))}
-                    </select>
-                  </F>
-                  {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map((c) => (
-                        <span key={c} className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/10 border border-white/20 text-white text-[10px] font-sans rounded-sm">
-                          {c}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
-                              setF({ ...f, category: currentCats.filter((x) => x !== c) });
-                            }}
-                            className="hover:text-[#FF3B30]"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="sec-niche">
+                <MultiSelectDropdown
+                  options={PLATFORM_CATEGORIES}
+                  selected={Array.isArray(f.category) ? f.category : toList(f.category)}
+                  onChange={(vals) => setF({ ...f, category: vals })}
+                  placeholder="Select niches…"
+                  compact
+                  label={isCreator ? "Niches (required for AI bio)" : "Niches (optional)"}
+                />
+                <MultiSelectDropdown
+                  options={LANGUAGES}
+                  selected={Array.isArray(f.languages) ? f.languages : toList(f.languages)}
+                  onChange={(vals) => setF({ ...f, languages: vals })}
+                  placeholder="Select languages…"
+                  compact
+                  label="Languages"
+                />
+              </div>
+
               <F label="Bio / About *">
-                  <textarea required rows={2} className="inp resize-none text-sm" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
-                  <div className="flex justify-between items-center mt-1 gap-2 flex-wrap">
-                      {isCreator && (
-                          <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1 text-[10px]">
-                              {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                              {aiBusy ? "Curating…" : "AI from niches + location"}
-                          </button>
-                      )}
-                      <div className="text-right text-[10px] opacity-40 flex-1">{f.bio.length}/500</div>
+                  <textarea required rows={3} className="inp resize-none text-sm" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2">
+                      <div className="min-w-0">
+                        {isCreator && (
+                          <p className="font-sans text-[10px] opacity-50 leading-snug">
+                            AI needs: <span className="text-white/80">1+ niche</span> selected above
+                            {f.city ? <> · location <span className="text-white/80">{f.city}{f.state ? `, ${f.state}` : ""}</span></> : " · city from signup (optional)"}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {isCreator && (
+                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1.5 text-[10px]">
+                                {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                {aiBusy ? "Curating…" : "AI from niches + location"}
+                            </button>
+                        )}
+                        <div className="text-[10px] opacity-40">{(f.bio || "").length}/500</div>
+                      </div>
                   </div>
               </F>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <F label="Profile Picture *">
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -686,7 +667,8 @@ export default function ProfileEdit() {
                   </div>
                 </F>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                 <F label="Date of Birth">
                   <DateField value={f.date_of_birth || ""} onChange={(v) => setF({ ...f, date_of_birth: v })} placeholder="Select date of birth" />
                 </F>
@@ -699,82 +681,42 @@ export default function ProfileEdit() {
                     <option value="other" className="bg-[#0B0B0E]">Other</option>
                   </select>
                 </F>
-              </div>
-              <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer">
-                <div>
-                  <span className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 block">Private account</span>
-                  <span className="font-sans text-[10px] opacity-40">Approved followers only</span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={!!f.is_private}
-                  onChange={(e) => setF({ ...f, is_private: e.target.checked })}
-                  className="accent-[#FF3B30] w-5 h-5"
-                />
-              </label>
-          </section>
-
-          {/* LANGUAGES YOU SPEAK (Multi-Select Dropdown & Pills for All Users) */}
-          <section className="space-y-2">
-              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-                Languages
-              </h2>
-              <div className="space-y-2">
-                  <F label="Select Languages (Multi-Select)">
-                      <select 
-                        className="inp cursor-pointer bg-[#0B0B0E]"
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val && !f.languages.includes(val)) {
-                            setF({ ...f, languages: [...f.languages, val] });
-                          }
-                          e.target.value = "";
-                        }}
-                      >
-                        <option value="" className="bg-[#0B0B0E]">Select a language to add...</option>
-                        {LANGUAGES.filter(lang => !f.languages.includes(lang)).map(lang => (
-                          <option key={lang} value={lang} className="bg-[#0B0B0E]">{lang}</option>
-                        ))}
-                      </select>
-                  </F>
-                  
-                  {/* Selected Languages Pills */}
-                  {f.languages?.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                          {f.languages.map(lang => (
-                              <span key={lang} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
-                                  {lang}
-                                  <button type="button" onClick={() => toggleArray("languages", lang)} className="hover:text-white transition-colors">
-                                      <X className="w-3.5 h-3.5" />
-                                  </button>
-                              </span>
-                          ))}
-                      </div>
-                  )}
+                <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer min-h-[48px]">
+                  <div>
+                    <span className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 block">Private account</span>
+                    <span className="font-sans text-[10px] opacity-40">Approved followers only</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={!!f.is_private}
+                    onChange={(e) => setF({ ...f, is_private: e.target.checked })}
+                    className="accent-[#FF3B30] w-5 h-5"
+                  />
+                </label>
               </div>
           </section>
 
-          {/* SECTION 2: LOCATION from signup */}
-          <section id="sec-location" className="space-y-2">
+          {/* SECTION 2: LOCATION */}
+          <section id="sec-location" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
               <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">02</span>
                 Location
               </h2>
-              <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">From signup pincode</p>
+              <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">From signup pincode · used by AI bio</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="select-none pointer-events-none opacity-80">
+                  <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">Pincode</label>
                     <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center">
                       {f.pincode || "—"}
                     </div>
                   </div>
-                  <div className="select-none pointer-events-none opacity-80">
+                  <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">City</label>
                     <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
                       {f.city || "—"}
                     </div>
                   </div>
-                  <div className="select-none pointer-events-none opacity-80">
+                  <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">State</label>
                     <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
                       {f.state || "—"}
@@ -784,7 +726,7 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 3: SOCIAL ACCOUNTS — handle/ID editable; metrics auto-fetched */}
-          <section id="sec-social" className="space-y-2">
+          <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
                 <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
                   <span className="mr-2">03</span>
@@ -867,63 +809,10 @@ export default function ProfileEdit() {
                   </div>
               </section>
 
-              {/* Niches already edited in Basic for creators — keep compact section for brands */}
-              {!isCreator && (
-              <section id="sec-niche" className="space-y-2">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-                    <span className="mr-2">04</span>
-                    Niches (optional)
-                  </h2>
-                  
-                  <div className="space-y-2">
-                      <F label="Select Niches / Categories">
-                          <select 
-                            className="inp cursor-pointer bg-[#0B0B0E]"
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val) {
-                                const currentCats = Array.isArray(f.category) 
-                                  ? f.category 
-                                  : (f.category ? f.category.split(", ") : []);
-                                if (!currentCats.includes(val)) {
-                                  setF({ ...f, category: [...currentCats, val] });
-                                }
-                              }
-                              e.target.value = "";
-                            }}
-                          >
-                            <option value="" className="bg-[#0B0B0E]">Select a category to add...</option>
-                            {PLATFORM_CATEGORIES.map(c => (
-                              <option key={c} value={c} className="bg-[#0B0B0E]">{c}</option>
-                            ))}
-                          </select>
-                      </F>
-
-                      {((Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).length > 0) && (
-                          <div className="flex flex-wrap gap-2 pt-1">
-                              {(Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : [])).map(c => (
-                                  <span key={c} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 text-white text-xs font-mono rounded-sm">
-                                      {c}
-                                      <button 
-                                        type="button" 
-                                        onClick={() => {
-                                          const currentCats = Array.isArray(f.category) ? f.category : (f.category ? f.category.split(", ") : []);
-                                          setF({ ...f, category: currentCats.filter(x => x !== c) });
-                                        }} 
-                                        className="hover:text-[#FF3B30] transition-colors"
-                                      >
-                                          <X className="w-3.5 h-3.5" />
-                                      </button>
-                                  </span>
-                              ))}
-                          </div>
-                      )}
-                  </div>
-              </section>
-              )}
-
               {isCreator && (
-                <section id="sec-rate" className="space-y-2">
+                <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <section id="sec-rate" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
                     <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">05</span>
                       Pricing &amp; rates
@@ -932,93 +821,8 @@ export default function ProfileEdit() {
                         <input type="number" required min={1} className="inp font-sans text-lg" value={f.base_rate || ""} onChange={e=>setF({...f,base_rate:Number(e.target.value)})} />
                     </F>
                 </section>
-              )}
 
-              {/* SECTION 6: PORTFOLIO & PAST WORK (Creators Only) */}
-              {isCreator && (
-                <section className="space-y-3 lg:col-span-2">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-                      <span className="mr-2">06</span>
-                      Portfolio
-                    </h2>
-                    
-                    <F label="Portfolio Images and Videos">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                        {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10">
-                            {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
-                                <video src={p} className="w-full h-full object-cover" controls />
-                            ) : (
-                                <img src={p} alt="" className="w-full h-full object-cover" />
-                            ))}
-                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <X className="w-3 h-3 text-white" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex mt-6">
-                        <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
-                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-2 px-4 text-xs flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
-                          <Upload className="w-4 h-4" /> Add Image/s and Upload Videos
-                        </button>
-                      </div>
-                    </F>
-
-                    <div className="mt-3" id="sec-campaigns">
-                        <F label="Past Campaigns (optional, max 5)">
-                            <div className="space-y-3 mt-3">
-                                <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-mono uppercase tracking-widest opacity-50">
-                                    <div className="col-span-2">Brand *</div>
-                                    <div className="col-span-3">Campaign Scope *</div>
-                                    <div className="col-span-2">Date *</div>
-                                    <div className="col-span-2">Result *</div>
-                                    <div className="col-span-2">Post Link *</div>
-                                    <div className="col-span-1 text-right">Action</div>
-                                </div>
-
-                                {f.past_campaigns.map((c, i) => (
-                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
-                                        <div className="md:col-span-2">
-                                            <input className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
-                                        </div>
-                                        <div className="md:col-span-3">
-                                            <input className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <DateField value={c.date || ""} onChange={(v)=>setCampaign(i, 'date', v)} placeholder="Campaign date" />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <input className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <input type="url" className="inp text-xs py-1.5 font-mono" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
-                                        </div>
-                                        <div className="md:col-span-1 text-right">
-                                            <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {f.past_campaigns.length < 5 ? (
-                                    <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
-                                      <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
-                                    </button>
-                                ) : (
-                                    <div className="font-mono text-xs text-orange-400 mt-2">
-                                        Maximum limit reached (5/5 past campaigns added)
-                                    </div>
-                                )}
-                            </div>
-                        </F>
-                    </div>
-                </section>
-              )}
-
-              {isCreator && (
-                <section className="space-y-3 lg:col-span-2" id="sec-content-types">
+                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-content-types">
                     <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">07</span>
                       Additional
@@ -1038,46 +842,103 @@ export default function ProfileEdit() {
                         </select>
                     </F>
 
-                    <div className="pt-4">
-                        <F label="Content Types You Create * (Multi-Select)">
-                            <select 
-                              className="inp cursor-pointer bg-[#0B0B0E]"
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val && !f.content_types.includes(val)) {
-                                  setF({ ...f, content_types: [...f.content_types, val] });
-                                }
-                                e.target.value = "";
-                              }}
-                            >
-                              <option value="" className="bg-[#0B0B0E]">Select content type to add...</option>
-                              {CONTENT_TYPES.filter(t => !f.content_types.includes(t)).map(t => (
-                                <option key={t} value={t} className="bg-[#0B0B0E]">{t}</option>
-                              ))}
-                            </select>
+                    <MultiSelectDropdown
+                      options={CONTENT_TYPES}
+                      selected={Array.isArray(f.content_types) ? f.content_types : toList(f.content_types)}
+                      onChange={(vals) => setF({ ...f, content_types: vals })}
+                      placeholder="Select content types…"
+                      compact
+                      label="Content types *"
+                    />
+                </section>
+                </div>
 
-                            {/* Selected Content Types Pills */}
-                            {f.content_types?.length > 0 && (
-                                <div className="flex flex-wrap gap-2 pt-3">
-                                    {f.content_types.map(type => (
-                                        <span key={type} className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] text-xs font-mono rounded-sm">
-                                            {type}
-                                            <button type="button" onClick={() => toggleArray("content_types", type)} className="hover:text-white transition-colors">
-                                                <X className="w-3.5 h-3.5" />
-                                            </button>
-                                        </span>
-                                    ))}
+                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                      <span className="mr-2">06</span>
+                      Portfolio
+                    </h2>
+                    
+                    <F label="Portfolio Images and Videos">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                        {f.portfolio.map((p, i) => (
+                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10">
+                            {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
+                                <video src={p} className="w-full h-full object-cover" controls />
+                            ) : (
+                                <img src={p} alt="" className="w-full h-full object-cover" />
+                            ))}
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex mt-4">
+                        <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-2 px-4 text-xs flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                          <Upload className="w-4 h-4" /> Add images / videos
+                        </button>
+                      </div>
+                    </F>
+
+                    <div className="mt-3" id="sec-campaigns">
+                        <F label="Past Campaigns (optional, max 5)">
+                            <div className="space-y-3 mt-3">
+                                <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-sans uppercase tracking-widest opacity-50">
+                                    <div className="col-span-2">Brand</div>
+                                    <div className="col-span-3">Campaign Scope</div>
+                                    <div className="col-span-2">Date</div>
+                                    <div className="col-span-2">Result</div>
+                                    <div className="col-span-2">Post Link</div>
+                                    <div className="col-span-1 text-right">Action</div>
                                 </div>
-                            )}
+
+                                {f.past_campaigns.map((c, i) => (
+                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
+                                        <div className="md:col-span-2">
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.title || ""} onChange={e=>setCampaign(i, 'title', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <DateField value={c.date || ""} onChange={(v)=>setCampaign(i, 'date', v)} placeholder="Campaign date" />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <input className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <input type="url" className="inp text-xs py-1.5 font-sans" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
+                                        </div>
+                                        <div className="md:col-span-1 text-right">
+                                            <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {f.past_campaigns.length < 5 ? (
+                                    <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
+                                      <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
+                                    </button>
+                                ) : (
+                                    <div className="font-sans text-xs text-orange-400 mt-2">
+                                        Maximum limit reached (5/5)
+                                    </div>
+                                )}
+                            </div>
                         </F>
                     </div>
                 </section>
+                </>
               )}
 
               {/* Password lives outside the profile form so empty password fields
                   never block Save profile via HTML5 required validation. */}
 
-          <div className="pt-2 lg:col-span-2">
+          <div className="pt-2">
             <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-2.5 bg-[#FF3B30] text-white text-sm">
               <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
             </button>

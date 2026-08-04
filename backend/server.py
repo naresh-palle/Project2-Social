@@ -2982,14 +2982,27 @@ def build_local_profile_bio(
     who = (name or "").strip() or (handle or "").strip() or (f"@{username}" if username else "Creator")
 
     if not clean_niches:
-        return f"{who} — creating authentic content from {loc}."
+        return f"{who} creates authentic content from {loc}."
+
     if len(clean_niches) == 1:
-        focus = f"specializing in {clean_niches[0]}"
+        focus = clean_niches[0]
+        focus_phrase = focus
     elif len(clean_niches) == 2:
-        focus = f"specializing in {clean_niches[0]} and {clean_niches[1]}"
+        focus = f"{clean_niches[0]} and {clean_niches[1]}"
+        focus_phrase = focus
     else:
-        focus = f"specializing in {', '.join(clean_niches[:-1])}, and {clean_niches[-1]}"
-    return f"{who} — {focus}, based in {loc}."
+        focus = f"{', '.join(clean_niches[:-1])}, and {clean_niches[-1]}"
+        focus_phrase = focus
+
+    seed = sum(ord(c) for c in f"{who}|{focus}|{loc}".lower())
+    variants = [
+        f"{who} — specializing in {focus_phrase}, based in {loc}.",
+        f"Based in {loc}, {who} creates content around {focus_phrase}.",
+        f"{who} is a {focus_phrase} creator sharing work from {loc}.",
+        f"From {loc}, {who} focuses on {focus_phrase} for brands and audiences.",
+        f"{who} builds {focus_phrase} stories and collaborations out of {loc}.",
+    ]
+    return variants[seed % len(variants)]
 
 
 async def call_llm(system: str, prompt: str) -> str:
@@ -3031,17 +3044,25 @@ async def call_llm(system: str, prompt: str) -> str:
             import google.generativeai as genai
 
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel(
-                "gemini-1.5-flash",
-                system_instruction=system,
-            )
-            result = await asyncio.to_thread(
-                model.generate_content,
-                prompt,
-            )
-            text = getattr(result, "text", None) or ""
-            if text.strip():
-                return text
+            last_err = None
+            for model_name in ("gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest"):
+                try:
+                    model = genai.GenerativeModel(
+                        model_name,
+                        system_instruction=system,
+                    )
+                    result = await asyncio.to_thread(
+                        model.generate_content,
+                        prompt,
+                    )
+                    text = getattr(result, "text", None) or ""
+                    if text.strip():
+                        return text
+                except Exception as e:
+                    last_err = e
+                    logger.warning("Gemini model %s failed: %s", model_name, e)
+            if last_err:
+                raise last_err
         except Exception as e:
             logger.warning("Gemini API error: %s", e)
 
@@ -3597,13 +3618,18 @@ class ProfileSuggestInput(BaseModel):
 async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
 
-    # Prefer request niches; fall back to saved account niches/category
-    niches = [n for n in (inp.niches or []) if n and str(n).strip() and str(n).strip().lower() not in ("general", "lifestyle")]
+    # Prefer request niches; fall back to saved account niches/category.
+    # Keep real platform categories (incl. Lifestyle & Home). Only drop empty/vague placeholders.
+    def _keep_niche(n) -> bool:
+        t = str(n or "").strip().lower()
+        return bool(t) and t not in ("general", "n/a", "na", "none", "null")
+
+    niches = [str(n).strip() for n in (inp.niches or []) if _keep_niche(n)]
     if not niches:
         saved = current.get("category") or current.get("niches") or []
         if isinstance(saved, str):
             saved = [s.strip() for s in saved.split(",") if s.strip()]
-        niches = [n for n in saved if n and str(n).strip().lower() not in ("general", "lifestyle")]
+        niches = [str(n).strip() for n in saved if _keep_niche(n)]
 
     city = (inp.city or current.get("city") or "").strip() or None
     state = (inp.state or current.get("state") or "").strip() or None
