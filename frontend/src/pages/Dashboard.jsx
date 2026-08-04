@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
+import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast, Toaster } from "sonner";
@@ -188,7 +190,7 @@ function OwnerPanel() {
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("work-feed");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategories, setSelectedCategories] = useState([]); // [] = All
 
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => setItems([]));
@@ -208,9 +210,9 @@ function OwnerPanel() {
     { k: "Verified Roster", v: `${safeMatches.length} Creators`, tail: "ai vetted" },
   ];
 
-  const filteredFeed = selectedCategory === "All"
-    ? FEATURED_CREATOR_WORK_FEED
-    : FEATURED_CREATOR_WORK_FEED.filter(f => f.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+  const filteredFeed = FEATURED_CREATOR_WORK_FEED.filter((f) =>
+    matchesCategoryFilter(f.category, selectedCategories)
+  );
 
   return (
     <div className="space-y-10">
@@ -270,25 +272,21 @@ function OwnerPanel() {
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid Layout Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category:
+            <div className="flex flex-wrap gap-3 items-center flex-1 min-w-[220px] max-w-lg">
+              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
               </span>
-              {["All", "Fashion & Style", "Beauty & Cosmetics", "Technology & SaaS", "Fitness & Wellness"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
-                    selectedCategory === cat
-                      ? "bg-[#FF3B30] text-white shadow-md font-bold"
-                      : "border border-white/10 hover:border-white/30 text-white/70"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+              <div className="flex-1 min-w-[180px]">
+                <MultiSelectDropdown
+                  options={PLATFORM_CATEGORIES}
+                  selected={selectedCategories}
+                  onChange={setSelectedCategories}
+                  placeholder="All categories"
+                  allowAll
+                  compact
+                />
+              </div>
             </div>
-
           </div>
 
           {/* Reel & Content Showcase Grid */}
@@ -477,7 +475,7 @@ function InfluencerPanel() {
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("campaigns-feed");
-  const [selectedNiche, setSelectedNiche] = useState("All");
+  const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
 
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
@@ -499,9 +497,9 @@ function InfluencerPanel() {
 
   const campaignList = safeMatches.length > 0 ? safeMatches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
-  const filteredCampaigns = selectedNiche === "All"
-    ? campaignList
-    : campaignList.filter(c => (c?.niche || (Array.isArray(c?.niches) ? c.niches.join(" ") : c?.niches) || "").toLowerCase().includes(selectedNiche.toLowerCase()));
+  const filteredCampaigns = campaignList.filter((c) =>
+    matchesCategoryFilter(c?.niche || c?.niches || c?.category, selectedNiches)
+  );
 
   return (
     <div className="space-y-10">
@@ -551,25 +549,21 @@ function InfluencerPanel() {
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid View Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 mr-2 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Niche Filter:
+            <div className="flex flex-wrap gap-3 items-center flex-1 min-w-[220px] max-w-lg">
+              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
               </span>
-              {["All", "Fashion & Style", "Technology & SaaS", "Beauty & Cosmetics", "Fitness & Wellness"].map((niche) => (
-                <button
-                  key={niche}
-                  onClick={() => setSelectedNiche(niche)}
-                  className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-all ${
-                    selectedNiche === niche
-                      ? "bg-[#FF3B30] text-white shadow-md font-bold"
-                      : "border border-white/10 hover:border-white/30 text-white/70"
-                  }`}
-                >
-                  {niche}
-                </button>
-              ))}
+              <div className="flex-1 min-w-[180px]">
+                <MultiSelectDropdown
+                  options={PLATFORM_CATEGORIES}
+                  selected={selectedNiches}
+                  onChange={setSelectedNiches}
+                  placeholder="All categories"
+                  allowAll
+                  compact
+                />
+              </div>
             </div>
-
           </div>
 
           {/* Campaign Brief Grid */}

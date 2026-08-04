@@ -8,25 +8,20 @@ import {
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-
-const CATEGORIES = [
-  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
-  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
-  "Travel & Adventure", "Business & Entrepreneurship", 
-  "Entertainment & Gaming", "Education & Learning", "Other"
-];
+import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
+import { PLATFORM_CATEGORIES } from "@/lib/categories";
 
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-6 border border-white/10 bg-white/[0.02] relative overflow-hidden group">
+        <div className="p-5 border border-white/10 bg-white/[0.02] relative overflow-hidden group">
             <div className="flex justify-between items-start">
-                <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">{title}</div>
+                <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">{title}</div>
                 <div className="p-2 bg-white/5 rounded-sm">{icon}</div>
             </div>
-            <div className="font-editorial font-bold text-4xl md:text-5xl mt-4 mb-1 tracking-tight">{value}</div>
-            <div className="flex justify-between items-center mt-4">
-                <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{sub}</div>
-                <div className={`flex items-center gap-1 font-mono text-[10px] ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+            <div className="font-sans font-bold text-3xl md:text-4xl mt-3 mb-1 tracking-tight tabular-nums text-white">{value}</div>
+            <div className="flex justify-between items-center mt-3 gap-2">
+                <div className="font-sans text-[10px] tracking-wider uppercase opacity-50">{sub}</div>
+                <div className={`flex items-center gap-1 font-sans text-[10px] shrink-0 ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
                     {pos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                     {trend}
                 </div>
@@ -52,7 +47,7 @@ export function AdminPanel() {
   const [loading, setLoading] = useState(true);
   
   const [roleFilter, setRoleFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState([]); // [] = All
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [reports, setReports] = useState([]);
@@ -97,12 +92,27 @@ export function AdminPanel() {
       try {
           const params = new URLSearchParams();
           if (roleFilter) params.append("role", roleFilter);
-          if (categoryFilter) params.append("category", categoryFilter);
+          if (categoryFilter?.length === 1) params.append("category", categoryFilter[0]);
           if (statusFilter) params.append("status", statusFilter);
           if (searchQuery) params.append("q", searchQuery);
           
           const { data } = await api.get(`/admin/users?${params.toString()}`);
-          setUsersList(data);
+          // Admins are never listed — prevents ban/delete access from User Management.
+          let list = (Array.isArray(data) ? data : []).filter((u) => u?.role !== "admin");
+          if (categoryFilter?.length > 1) {
+            const set = new Set(categoryFilter.map((c) => c.toLowerCase()));
+            list = list.filter((u) => {
+              const cats = []
+                .concat(u.category || [])
+                .concat(u.niches || [])
+                .concat(u.industry || [])
+                .flatMap((x) => (Array.isArray(x) ? x : String(x).split(",")))
+                .map((x) => String(x).trim().toLowerCase())
+                .filter(Boolean);
+              return cats.some((c) => set.has(c) || [...set].some((s) => c.includes(s)));
+            });
+          }
+          setUsersList(list);
       } catch (e) {
           toast.error("Failed to load users");
       } finally {
@@ -120,7 +130,11 @@ export function AdminPanel() {
       }
   }, [tab, roleFilter, categoryFilter, statusFilter, searchQuery]);
 
-  const deleteUser = async (userId) => {
+  const deleteUser = async (userId, role) => {
+      if (role === "admin") {
+          toast.error("Admin users cannot be deleted");
+          return;
+      }
       if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
       try {
           await api.delete(`/admin/users/${userId}`);
@@ -129,19 +143,23 @@ export function AdminPanel() {
           const stRes = await api.get("/admin/dashboard-stats");
           setStats(stRes.data);
       } catch (e) {
-          toast.error("Failed to delete user");
+          toast.error(e?.response?.data?.detail || "Failed to delete user");
       }
   };
 
-  const banUser = async (userId) => {
+  const banUser = async (userId, role) => {
+      if (role === "admin") {
+          toast.error("Admin users cannot be banned");
+          return;
+      }
       const reason = window.prompt("Ban reason (optional):") || "Policy violation";
       if (!window.confirm("Ban this user?")) return;
       try {
           await api.post(`/admin/users/${userId}/ban`, { reason });
           toast.success("User banned");
           fetchUsers();
-      } catch {
-          toast.error("Ban failed");
+      } catch (e) {
+          toast.error(e?.response?.data?.detail || "Ban failed");
       }
   };
 
@@ -269,7 +287,7 @@ export function AdminPanel() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
                     <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
-                        <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6">Revenue &amp; GMV Growth Stream</h3>
+                        <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium">Revenue &amp; GMV Growth Stream</h3>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={revenueData}>
@@ -287,7 +305,7 @@ export function AdminPanel() {
                     </div>
                     
                     <div className="p-6 border border-white/10 bg-white/[0.02] flex flex-col">
-                        <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-6">Platform Activity</h3>
+                        <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium">Platform Activity</h3>
                         <div className="flex-1 flex justify-center items-center">
                             <ResponsiveContainer width="100%" height={200}>
                                 <PieChart>
@@ -298,7 +316,7 @@ export function AdminPanel() {
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className="flex justify-center gap-6 mt-4 font-mono text-[10px] tracking-widest uppercase opacity-80">
+                        <div className="flex justify-center gap-6 mt-4 font-sans text-[10px] tracking-wider uppercase opacity-80">
                             <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#34C759]" /> Active</div>
                             <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#FF3B30]" /> Inactive</div>
                         </div>
@@ -308,12 +326,12 @@ export function AdminPanel() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
                     <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60">Recent Escrow Payments</h3>
+                            <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Recent Escrow Payments</h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
+                                    <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
                                         <th className="p-3 font-normal">ID</th><th className="p-3 font-normal">Creator</th><th className="p-3 font-normal">Brand</th><th className="p-3 font-normal">Amount</th><th className="p-3 font-normal">Status</th>
                                     </tr>
                                 </thead>
@@ -325,12 +343,12 @@ export function AdminPanel() {
                                       { id: "ESC-804", creator: "Neha Gupta", brand: "PulseFit Global", amount: 200000, status: "Escrow Locked" },
                                     ]).slice(0, 5).map((p, i) => (
                                         <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                            <td className="p-3 font-mono text-xs opacity-60">#{p.id}</td>
-                                            <td className="p-3 text-sm">{p.creator}</td>
-                                            <td className="p-3 text-sm opacity-80">{p.brand}</td>
-                                            <td className="p-3 font-mono text-sm text-[#34C759] font-bold">₹{(p.amount || 0).toLocaleString()}</td>
+                                            <td className="p-3 font-sans text-sm opacity-60">#{p.id}</td>
+                                            <td className="p-3 font-sans text-sm">{p.creator}</td>
+                                            <td className="p-3 font-sans text-sm opacity-80">{p.brand}</td>
+                                            <td className="p-3 font-sans text-sm text-[#34C759] font-bold tabular-nums">₹{(p.amount || 0).toLocaleString()}</td>
                                             <td className="p-3">
-                                                <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm font-bold">{p.status}</span>
+                                                <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm font-bold">{p.status}</span>
                                             </td>
                                         </tr>
                                     ))}
@@ -382,20 +400,30 @@ export function AdminPanel() {
                 <div className="flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                         <Search className="w-4 h-4 opacity-50" />
-                        <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50" />
+                        <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
                     </div>
                     <div className="h-6 w-px bg-white/10 hidden md:block" />
-                    <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-widest">
+                    <div className="flex flex-wrap items-center gap-4 font-sans text-[10px] uppercase tracking-wider">
                         <div className="flex items-center gap-2">
                             <Filter className="w-3 h-3 opacity-50" />
-                            <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer">
+                            <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer font-sans">
                                 <option value="" className="bg-[#0B0B0E]">All Roles</option>
                                 <option value="creator" className="bg-[#0B0B0E]">Creators</option>
                                 <option value="brand" className="bg-[#0B0B0E]">Brands</option>
                                 <option value="agency" className="bg-[#0B0B0E]">Agencies</option>
                             </select>
                         </div>
-                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer">
+                        <div className="min-w-[200px] max-w-xs flex-1">
+                          <MultiSelectDropdown
+                            options={PLATFORM_CATEGORIES}
+                            selected={categoryFilter}
+                            onChange={setCategoryFilter}
+                            placeholder="All categories"
+                            allowAll
+                            compact
+                          />
+                        </div>
+                        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-transparent outline-none cursor-pointer font-sans">
                             <option value="" className="bg-[#0B0B0E]">All Status</option>
                             <option value="active" className="bg-[#0B0B0E]">Active</option>
                             <option value="pending" className="bg-[#0B0B0E]">Pending</option>
@@ -410,6 +438,7 @@ export function AdminPanel() {
                             <thead>
                                 <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
                                     <th className="p-4 font-normal">Username</th>
+                                    <th className="p-4 font-normal">Email</th>
                                     <th className="p-4 font-normal">Mobile</th>
                                     <th className="p-4 font-normal">Role / Category</th>
                                     <th className="p-4 font-normal">Joined</th>
@@ -419,7 +448,7 @@ export function AdminPanel() {
                             </thead>
                             <tbody>
                                 {usersList.length === 0 ? (
-                                    <tr><td colSpan={6} className="p-12 text-center font-editorial italic text-2xl opacity-40">No users found</td></tr>
+                                    <tr><td colSpan={7} className="p-12 text-center font-editorial italic text-2xl opacity-40">No users found</td></tr>
                                 ) : (
                                     usersList.map((u) => (
                                         <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -427,7 +456,9 @@ export function AdminPanel() {
                                               <div className="font-editorial text-xl">
                                                 {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
                                               </div>
-                                              <div className="font-sans text-[10px] opacity-60 mt-1">{u.email}</div>
+                                            </td>
+                                            <td className="p-4 font-sans text-sm break-all">
+                                              {u.email || "—"}
                                             </td>
                                             <td className="p-4 font-sans text-sm whitespace-nowrap">
                                               {u.mobile
@@ -441,9 +472,15 @@ export function AdminPanel() {
                                             <td className="p-4">
                                                 {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-mono bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>}
                                             </td>
-                                            <td className="p-4 text-right flex items-center justify-end gap-1">
-                                                <button onClick={() => banUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Ban User"><Lock className="w-4 h-4" /></button>
-                                                <button onClick={() => deleteUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
+                                            <td className="p-4 text-right">
+                                              {u.role === "admin" ? (
+                                                <span className="font-mono text-[9px] uppercase tracking-widest opacity-40">Protected</span>
+                                              ) : (
+                                                <div className="flex items-center justify-end gap-1">
+                                                  <button onClick={() => banUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Ban User"><Lock className="w-4 h-4" /></button>
+                                                  <button onClick={() => deleteUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                              )}
                                             </td>
                                         </tr>
                                     ))
@@ -489,7 +526,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02]">
                 <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Platform Categories</h3>
                 <div className="flex flex-wrap gap-2">
-                    {(categories.length ? categories : CATEGORIES.map((name) => ({ name }))).map((c, i) => (
+                    {(categories.length ? categories : PLATFORM_CATEGORIES.map((name) => ({ name }))).map((c, i) => (
                         <span key={c.id || i} className="px-3 py-1.5 bg-white/5 border border-white/10 font-mono text-xs rounded-xs">{c.name || c}</span>
                     ))}
                 </div>

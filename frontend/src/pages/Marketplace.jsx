@@ -4,15 +4,10 @@ import { motion } from "framer-motion";
 import { Search, ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
+import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { api } from "@/lib/api";
 import { useLenis } from "@/lib/useLenis";
-
-const CATEGORIES = [
-  "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
-  "Technology & Gadgets", "Fitness & Health", "Lifestyle & Home",
-  "Travel & Adventure", "Business & Entrepreneurship", 
-  "Entertainment & Gaming", "Education & Learning", "Other"
-];
 
 export default function Marketplace() {
   useLenis();
@@ -20,22 +15,34 @@ export default function Marketplace() {
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [q, setQ] = useState("");
-  const [niche, setNiche] = useState("");
+  const [categories, setCategories] = useState([]); // [] = All
 
   const load = async () => {
-    const params = { q: q || undefined, niche: niche || undefined };
+    const nicheParam = categories.length === 1 ? categories[0] : undefined;
+    const params = { q: q || undefined, niche: nicheParam };
     const [c, cp] = await Promise.all([
       api.get("/creators", { params }),
       api.get("/campaigns", { params }),
     ]);
-    setCreators(c.data);
-    setCampaigns(cp.data);
+    const creatorList = Array.isArray(c.data) ? c.data : [];
+    const campaignList = Array.isArray(cp.data) ? cp.data : [];
+    // Client-side multi-category filter when more than one selected (or refine API results)
+    setCreators(
+      categories.length <= 1
+        ? creatorList
+        : creatorList.filter((x) => matchesCategoryFilter(x.category || x.niches || x.niche, categories))
+    );
+    setCampaigns(
+      categories.length <= 1
+        ? campaignList
+        : campaignList.filter((x) => matchesCategoryFilter(x.niche || x.niches || x.category, categories))
+    );
   };
 
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [niche]);
+  }, [categories]);
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
@@ -84,12 +91,16 @@ export default function Marketplace() {
           </form>
         </div>
 
-        {/* Niche pills */}
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Pill active={niche === ""} onClick={() => setNiche("")} label="All" />
-          {CATEGORIES.map((n) => (
-            <Pill key={n} active={niche === n} onClick={() => setNiche(n)} label={n} />
-          ))}
+        <div className="mt-6 max-w-md">
+          <MultiSelectDropdown
+            options={PLATFORM_CATEGORIES}
+            selected={categories}
+            onChange={setCategories}
+            placeholder="All categories"
+            allowAll
+            compact
+            label="Platform categories"
+          />
         </div>
       </div>
 
@@ -179,19 +190,5 @@ export default function Marketplace() {
       </div>
       <Footer />
     </div>
-  );
-}
-
-function Pill({ label, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      data-testid={`niche-${label}`}
-      className={`px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.22em] uppercase transition-colors ${
-        active ? "bg-[#FF3B30] text-[#F4F4F0]" : "hairline-t hairline-b hairline-l hairline-r hover:bg-white/5"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

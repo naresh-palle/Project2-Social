@@ -1827,9 +1827,21 @@ async def admin_users(
     current: dict = Depends(get_current_user)
 ):
     await require_role(current, ["admin"])
-    filt: Dict[str, Any] = {}
+    # Never expose admin accounts in User Management (cannot be banned/deleted via UI).
+    filt: Dict[str, Any] = {"role": {"$ne": "admin"}}
+    role_aliases = {
+        "creator": "influencer",
+        "brand": "owner",
+        "agency": "agent",
+        "influencer": "influencer",
+        "owner": "owner",
+        "agent": "agent",
+    }
     if role:
-        filt["role"] = role
+        mapped = role_aliases.get(role.strip().lower())
+        if not mapped or mapped == "admin":
+            return []
+        filt["role"] = mapped
     if category:
         filt["$or"] = [{"category": category}, {"industry": category}]
     if q:
@@ -1850,7 +1862,14 @@ async def admin_users(
 @api_router.delete("/admin/users/{user_id}")
 async def admin_delete_user(user_id: str, current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
-    res = await db.users.delete_one({"id": user_id})
+    target = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1, "id": 1})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.get("role") == "admin":
+        raise HTTPException(status_code=403, detail="Admin users cannot be deleted")
+    if target.get("id") == current.get("id"):
+        raise HTTPException(status_code=403, detail="Cannot delete your own account")
+    res = await db.users.delete_one({"id": user_id, "role": {"$ne": "admin"}})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     # Also delete associated campaigns, applications, reviews, etc.

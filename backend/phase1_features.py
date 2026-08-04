@@ -1467,10 +1467,17 @@ def setup_phase1(
     @api_router.post("/admin/users/{user_id}/ban")
     async def admin_ban(user_id: str, inp: AdminBanInput, current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
+        target = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1, "id": 1})
+        if not target:
+            raise HTTPException(status_code=404, detail="User not found")
+        if target.get("role") == "admin":
+            raise HTTPException(status_code=403, detail="Admin users cannot be banned")
+        if target.get("id") == current.get("id"):
+            raise HTTPException(status_code=403, detail="Cannot ban your own account")
         until = None
         if inp.days:
             until = (datetime.now(timezone.utc) + timedelta(days=inp.days)).isoformat()
-        await db.users.update_one({"id": user_id}, {"$set": {
+        await db.users.update_one({"id": user_id, "role": {"$ne": "admin"}}, {"$set": {
             "banned": True, "ban_reason": inp.reason, "banned_until": until, "banned_at": now_iso(),
         }})
         await db.sessions.update_many({"user_id": user_id}, {"$set": {"revoked": True}})
@@ -1479,7 +1486,10 @@ def setup_phase1(
     @api_router.post("/admin/users/{user_id}/unban")
     async def admin_unban(user_id: str, current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
-        await db.users.update_one({"id": user_id}, {"$set": {"banned": False}, "$unset": {"ban_reason": "", "banned_until": ""}})
+        target = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1})
+        if target and target.get("role") == "admin":
+            raise HTTPException(status_code=403, detail="Admin users cannot be modified here")
+        await db.users.update_one({"id": user_id, "role": {"$ne": "admin"}}, {"$set": {"banned": False}, "$unset": {"ban_reason": "", "banned_until": ""}})
         return {"ok": True}
 
     @api_router.post("/admin/notifications/broadcast")
