@@ -409,12 +409,17 @@ export function AdminPanel() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/10 font-mono text-[9px] tracking-widest uppercase opacity-50">
-                                    <th className="p-4 font-normal">Username</th><th className="p-4 font-normal">Role / Category</th><th className="p-4 font-normal">Joined</th><th className="p-4 font-normal">Status</th><th className="p-4 font-normal text-right">Actions</th>
+                                    <th className="p-4 font-normal">Username</th>
+                                    <th className="p-4 font-normal">Mobile</th>
+                                    <th className="p-4 font-normal">Role / Category</th>
+                                    <th className="p-4 font-normal">Joined</th>
+                                    <th className="p-4 font-normal">Status</th>
+                                    <th className="p-4 font-normal text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {usersList.length === 0 ? (
-                                    <tr><td colSpan={5} className="p-12 text-center font-editorial italic text-2xl opacity-40">No users found</td></tr>
+                                    <tr><td colSpan={6} className="p-12 text-center font-editorial italic text-2xl opacity-40">No users found</td></tr>
                                 ) : (
                                     usersList.map((u) => (
                                         <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -423,6 +428,13 @@ export function AdminPanel() {
                                                 {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
                                               </div>
                                               <div className="font-sans text-[10px] opacity-60 mt-1">{u.email}</div>
+                                            </td>
+                                            <td className="p-4 font-sans text-sm whitespace-nowrap">
+                                              {u.mobile
+                                                ? (String(u.mobile).startsWith("+")
+                                                    ? u.mobile
+                                                    : `+91 ${String(u.mobile).replace(/\D/g, "").slice(-10)}`)
+                                                : "—"}
                                             </td>
                                             <td className="p-4"><div className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</div><div className="text-xs opacity-60 mt-1">{u.category || "—"}</div></td>
                                             <td className="p-4 font-mono text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>

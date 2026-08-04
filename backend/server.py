@@ -1838,6 +1838,7 @@ async def admin_users(
             {"name": {"$regex": q, "$options": "i"}},
             {"email": {"$regex": q, "$options": "i"}},
             {"handle": {"$regex": q, "$options": "i"}},
+            {"mobile": {"$regex": q, "$options": "i"}},
         ]
     if status == "pending":
         filt["role"] = "agent"
