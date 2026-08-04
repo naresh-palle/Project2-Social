@@ -3016,27 +3016,37 @@ async def call_llm(system: str, prompt: str) -> str:
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         }
-        payload = {
-            "model": "claude-3-haiku-20240307",
-            "max_tokens": 1000,
-            "system": system,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers=headers,
-                    json=payload,
-                    timeout=30.0,
-                )
-                response.raise_for_status()
-                data = response.json()
-                text = (data.get("content") or [{}])[0].get("text") or ""
-                if text.strip():
-                    return text
-        except Exception as e:
-            logger.warning("Anthropic API error: %s", e)
+        last_err = None
+        for model_name in (
+            "claude-haiku-4-5-20251001",
+            "claude-haiku-4-5",
+            "claude-3-5-haiku-latest",
+            "claude-3-haiku-20240307",
+        ):
+            payload = {
+                "model": model_name,
+                "max_tokens": 1000,
+                "system": system,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers=headers,
+                        json=payload,
+                        timeout=30.0,
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    text = (data.get("content") or [{}])[0].get("text") or ""
+                    if text.strip():
+                        return text
+            except Exception as e:
+                last_err = e
+                logger.warning("Anthropic model %s failed: %s", model_name, e)
+        if last_err:
+            logger.warning("Anthropic API error: %s", last_err)
 
     gemini_key = EMERGENT_LLM_KEY or os.environ.get("GEMINI_API_KEY")
     if gemini_key:
