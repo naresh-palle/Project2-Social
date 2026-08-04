@@ -62,8 +62,19 @@ export function MultiSelectDropdown({
       >
         <div className="flex flex-wrap gap-1.5 items-center flex-1 min-w-0">
           {showAll || values.length === 0 ? (
-            <span className={`opacity-60 font-sans ${compact ? "text-sm" : "text-base"}`}>
-              {placeholder || "All"}
+            <span
+              className={`font-sans inline-flex items-center gap-1.5 ${
+                allowAll ? "text-white" : "opacity-60"
+              } ${compact ? "text-sm" : "text-base"}`}
+            >
+              {allowAll ? (
+                <span className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-sm text-[11px] inline-flex items-center gap-1.5">
+                  All
+                  <Check className="w-3 h-3 text-[#FF3B30]" />
+                </span>
+              ) : (
+                placeholder || "Select…"
+              )}
             </span>
           ) : (
             values.map((sel) => (

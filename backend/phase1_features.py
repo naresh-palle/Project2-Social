@@ -52,12 +52,17 @@ def setup_phase1(
     JWT_ALGORITHM,
     logger,
     call_llm=None,
+    write_audit_log=None,
 ):
     import jwt
     import mimetypes
     import aiofiles
     from pathlib import Path as PathLib
     from fastapi.responses import StreamingResponse
+
+    async def _audit(**kwargs):
+        if write_audit_log:
+            await write_audit_log(**kwargs)
 
     # ---------- Models ----------
     class LoginExInput(BaseModel):
@@ -1481,6 +1486,14 @@ def setup_phase1(
             "banned": True, "ban_reason": inp.reason, "banned_until": until, "banned_at": now_iso(),
         }})
         await db.sessions.update_many({"user_id": user_id}, {"$set": {"revoked": True}})
+        await _audit(
+            action="User Banned",
+            user_id=current.get("id"),
+            username=current.get("username"),
+            details=f"Banned user {user_id}: {inp.reason or 'Policy violation'}",
+            status="Completed",
+            meta={"target_user_id": user_id, "reason": inp.reason, "days": inp.days},
+        )
         return {"ok": True}
 
     @api_router.post("/admin/users/{user_id}/unban")
@@ -1490,6 +1503,14 @@ def setup_phase1(
         if target and target.get("role") == "admin":
             raise HTTPException(status_code=403, detail="Admin users cannot be modified here")
         await db.users.update_one({"id": user_id, "role": {"$ne": "admin"}}, {"$set": {"banned": False}, "$unset": {"ban_reason": "", "banned_until": ""}})
+        await _audit(
+            action="User Unbanned",
+            user_id=current.get("id"),
+            username=current.get("username"),
+            details=f"Unbanned user {user_id}",
+            status="Completed",
+            meta={"target_user_id": user_id},
+        )
         return {"ok": True}
 
     @api_router.post("/admin/notifications/broadcast")
@@ -1499,6 +1520,14 @@ def setup_phase1(
         users = await db.users.find(q, {"id": 1}).to_list(2000)
         for u in users:
             await push_notification(u["id"], inp.kind, inp.text, {"broadcast": True})
+        await _audit(
+            action="Broadcast Sent",
+            user_id=current.get("id"),
+            username=current.get("username"),
+            details=f"Broadcast to {len(users)} users" + (f" ({inp.role})" if inp.role else ""),
+            status="Completed",
+            meta={"role": inp.role, "sent": len(users)},
+        )
         return {"ok": True, "sent": len(users)}
 
     @api_router.get("/admin/categories")

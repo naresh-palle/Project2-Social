@@ -27,7 +27,7 @@ export default function Dashboard() {
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
-        <div className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] animate-pulse">Opening the studio…</div>
+        <div className="font-sans text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] animate-pulse">Opening the studio…</div>
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function Dashboard() {
                   <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
                 ) : (
                   <div 
-                    className="w-full h-full flex items-center justify-center font-editorial italic text-3xl text-white"
+                    className="w-full h-full flex items-center justify-center font-sans italic text-3xl text-white"
                     style={{ backgroundColor: `hsl(${((user?.name || user?.username || "Creator").length) * 45}, 65%, 40%)` }}
                   >
                     {(user?.name || user?.username || "C")[0]?.toUpperCase()}
@@ -66,7 +66,7 @@ export default function Dashboard() {
                 <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">
                   § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
-                <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
+                <h1 className="font-sans text-5xl md:text-7xl leading-[1.15] mt-2">
                   {user?.name || user?.username || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span>
                 </h1>
                 <p className="font-sans text-sm opacity-65 mt-2">
@@ -226,16 +226,16 @@ function OwnerPanel() {
             transition={{ duration: 0.5, delay: i * 0.05 }}
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
-            <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-editorial font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
-            <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+            <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
+            <div className="font-sans font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
       </div>
 
       {/* Primary Tab Navigation for Brands */}
       <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
-        <div className="flex gap-6 font-mono text-[11px] tracking-[0.28em] uppercase">
+        <div className="flex gap-6 font-sans text-[11px] tracking-[0.28em] uppercase">
           <button
             onClick={() => setActiveTab("work-feed")}
             className={`kinetic-underline py-2 flex items-center gap-2 ${
@@ -281,7 +281,7 @@ function OwnerPanel() {
                   options={PLATFORM_CATEGORIES}
                   selected={selectedCategories}
                   onChange={setSelectedCategories}
-                  placeholder="All categories"
+                  placeholder="All"
                   allowAll
                   compact
                 />
@@ -305,13 +305,13 @@ function OwnerPanel() {
                     <img src={work.avatar} alt={work.creatorName} className="w-10 h-10 rounded-full object-cover border border-white/20" />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h4 className="font-editorial text-xl font-bold">{work.creatorName}</h4>
+                        <h4 className="font-sans text-xl font-bold">{work.creatorName}</h4>
                         {work.verified && <ShieldCheck className="w-4 h-4 text-[#FF3B30]" />}
                       </div>
-                      <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">{work.handle}</p>
+                      <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">{work.handle}</p>
                     </div>
                   </div>
-                  <span className="font-mono text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs">
+                  <span className="font-sans text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs">
                     {work.aiAuthenticity}
                   </span>
                 </div>
@@ -322,10 +322,10 @@ function OwnerPanel() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                     <div>
-                      <span className="font-mono text-[9px] tracking-[0.2em] uppercase bg-[#FF3B30] text-white px-2 py-0.5 font-bold mb-1 inline-block">
+                      <span className="font-sans text-[9px] tracking-[0.2em] uppercase bg-[#FF3B30] text-white px-2 py-0.5 font-bold mb-1 inline-block">
                         {work.category}
                       </span>
-                      <h3 className="font-editorial text-2xl text-white font-medium leading-tight">{work.workTitle}</h3>
+                      <h3 className="font-sans text-2xl text-white font-medium leading-tight">{work.workTitle}</h3>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white group-hover/media:bg-[#FF3B30] transition-colors shrink-0">
                       <Play className="w-4 h-4 fill-current ml-0.5" />
@@ -334,7 +334,7 @@ function OwnerPanel() {
                 </div>
 
                 {/* Metrics & Performance Bar */}
-                <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/10 font-mono text-[10px] tracking-[0.2em] uppercase opacity-80 mb-4">
+                <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/10 font-sans text-[10px] tracking-[0.2em] uppercase opacity-80 mb-4">
                   <div>
                     <span className="opacity-50 block">Audience Reach</span>
                     <span className="text-white font-bold">{work.reach}</span>
@@ -355,7 +355,7 @@ function OwnerPanel() {
 
                 {/* Bottom Action CTAs */}
                 <div className="flex items-center justify-between pt-2">
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-3">
+                  <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-3">
                     <span>❤️ {work.likes}</span>
                     <span>💬 {work.comments}</span>
                   </div>
@@ -382,11 +382,11 @@ function OwnerPanel() {
                 </div>
                 <div className="flex flex-col justify-between flex-1">
                   <div>
-                    <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.category || c.city || "Verified Creator"}</div>
-                    <h3 className="font-editorial text-2xl leading-tight mt-1">{c.name || c.creatorName}</h3>
-                    <p className="text-xs font-mono uppercase opacity-70 mt-2">{c.handle || "@creator"}</p>
+                    <div className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.category || c.city || "Verified Creator"}</div>
+                    <h3 className="font-sans text-2xl leading-tight mt-1">{c.name || c.creatorName}</h3>
+                    <p className="text-xs font-sans uppercase opacity-70 mt-2">{c.handle || "@creator"}</p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-mono text-[10px] tracking-[0.2em] uppercase">
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-sans text-[10px] tracking-[0.2em] uppercase">
                     <span className="text-[#34C759]">Verified ✓</span>
                     <span className="text-[#FF3B30]">View Profile →</span>
                   </div>
@@ -513,16 +513,16 @@ function InfluencerPanel() {
             transition={{ duration: 0.5, delay: i * 0.05 }}
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
-            <div className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-editorial font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
-            <div className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+            <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
+            <div className="font-sans font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
       </div>
 
       {/* Primary Navigation Tabs for Creators */}
       <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
-        <div className="flex gap-6 font-mono text-[11px] tracking-[0.28em] uppercase flex-wrap">
+        <div className="flex gap-6 font-sans text-[11px] tracking-[0.28em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("campaigns-feed")}
             className={`kinetic-underline py-2 flex items-center gap-2 ${
@@ -558,7 +558,7 @@ function InfluencerPanel() {
                   options={PLATFORM_CATEGORIES}
                   selected={selectedNiches}
                   onChange={setSelectedNiches}
-                  placeholder="All categories"
+                  placeholder="All"
                   allowAll
                   compact
                 />
@@ -579,25 +579,25 @@ function InfluencerPanel() {
                 <div>
                   {/* Top Badges */}
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-[10px] tracking-[0.22em] uppercase px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+                    <span className="font-sans text-[10px] tracking-[0.22em] uppercase px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
                       <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
                     </span>
-                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
+                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
                       <Lock className="w-3 h-3" /> Escrow Locked
                     </span>
                   </div>
 
                   {/* Brand & Title */}
-                  <p className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
-                  <h3 className="font-editorial text-3xl font-bold leading-tight group-hover:text-[#FF3B30] transition-colors">
+                  <p className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
+                  <h3 className="font-sans text-3xl font-bold leading-tight group-hover:text-[#FF3B30] transition-colors">
                     {c.title}
                   </h3>
-                  <p className="font-mono text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
+                  <p className="font-sans text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
                     {c.description}
                   </p>
 
                   {/* Deliverables Info */}
-                  <div className="mt-4 pt-4 border-t border-white/10 space-y-2 font-mono text-[11px] opacity-80">
+                  <div className="mt-4 pt-4 border-t border-white/10 space-y-2 font-sans text-[11px] opacity-80">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#FF3B30]" />
                       <span>Deliverables: {c.deliverables || "2x Reels + 4x Stories"}</span>
@@ -612,8 +612,8 @@ function InfluencerPanel() {
                 {/* Bottom Budget & Pitch CTA */}
                 <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
                   <div>
-                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
-                    <span className="font-editorial italic text-3xl text-white font-bold">
+                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
+                    <span className="font-sans italic text-3xl text-white font-bold">
                        ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
                     </span>
                   </div>
@@ -641,12 +641,12 @@ function InfluencerPanel() {
               {safeApps.map((a) => (
                 <div key={a.id} className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
-                    <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
-                    <h4 className="font-editorial text-2xl font-bold">{a.campaign_title || "Campaign Brief"}</h4>
-                    <p className="font-mono text-xs opacity-60 mt-1">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
+                    <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
+                    <h4 className="font-sans text-2xl font-bold">{a.campaign_title || "Campaign Brief"}</h4>
+                    <p className="font-sans text-xs opacity-60 mt-1">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`font-mono text-[11px] tracking-[0.2em] uppercase px-3 py-1 border rounded-xs font-bold ${
+                    <span className={`font-sans text-[11px] tracking-[0.2em] uppercase px-3 py-1 border rounded-xs font-bold ${
                       a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]" : "bg-white/5 border-white/20 text-white/70"
                     }`}>
                       Status: {a.status}
@@ -691,10 +691,10 @@ function AgentPanel() {
     <div className="space-y-10">
       <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
         <div>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+          <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console
           </span>
-          <h2 className="font-editorial text-3xl md:text-5xl mt-1">
+          <h2 className="font-sans text-3xl md:text-5xl mt-1">
             {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
@@ -702,22 +702,22 @@ function AgentPanel() {
 
       {isInfluencerAgent ? (
         <div className="space-y-8">
-          <h3 className="font-editorial text-2xl">Scouted Creator Roster ({creators.length})</h3>
+          <h3 className="font-sans text-2xl">Scouted Creator Roster ({creators.length})</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {creators.map((c) => (
               <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 border border-white/15">
                 <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4">
                   <img src={c.avatar} alt={c.name} className="w-full h-full object-cover  transition duration-500" />
                 </div>
-                <h4 className="font-editorial text-2xl">{c.name}</h4>
-                <p className="text-xs font-mono uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
+                <h4 className="font-sans text-2xl">{c.name}</h4>
+                <p className="text-xs font-sans uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
               </Link>
             ))}
           </div>
         </div>
       ) : (
         <div className="space-y-8">
-          <h3 className="font-editorial text-2xl">Client Campaigns ({campaigns.length})</h3>
+          <h3 className="font-sans text-2xl">Client Campaigns ({campaigns.length})</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {campaigns.map((c) => (
               <CampaignRow key={c.id} c={c} />
@@ -747,15 +747,15 @@ function CampaignRow({ c }) {
       className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-[220px] hover:border-[#FF3B30]/50 transition-all"
     >
       <div>
-        <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
-        <h3 className="font-editorial text-3xl leading-tight mt-1">{c.title}</h3>
-        <p className="text-xs font-mono opacity-70 mt-3 line-clamp-3 leading-relaxed">{c.description}</p>
+        <div className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
+        <h3 className="font-sans text-3xl leading-tight mt-1">{c.title}</h3>
+        <p className="text-xs font-sans opacity-70 mt-3 line-clamp-3 leading-relaxed">{c.description}</p>
       </div>
       <div className="mt-6 flex items-baseline justify-between border-t border-white/10 pt-4">
-        <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
+        <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
           Budget:
         </div>
-        <div className="font-editorial italic text-2xl text-white font-bold">₹{c.budget}</div>
+        <div className="font-sans italic text-2xl text-white font-bold">₹{c.budget}</div>
       </div>
     </motion.div>
   );
@@ -764,7 +764,7 @@ function CampaignRow({ c }) {
 function Empty({ label }) {
   return (
     <div className="border border-white/10 py-20 text-center rounded-sm bg-white/[0.01]">
-      <div className="font-editorial italic text-3xl opacity-60">{label}</div>
+      <div className="font-sans italic text-3xl opacity-60">{label}</div>
     </div>
   );
 }

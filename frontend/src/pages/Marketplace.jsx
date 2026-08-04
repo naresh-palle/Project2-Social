@@ -53,19 +53,19 @@ export default function Marketplace() {
       <div className="pt-28 pb-8 max-w-[1600px] mx-auto px-6 md:px-10">
         <div className="hairline-b pb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
-            <h1 className="font-editorial text-6xl md:text-8xl leading-[1.15] mt-2">
+            <p className="font-sans text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
+            <h1 className="font-sans text-6xl md:text-8xl leading-[1.15] mt-2">
               The <span className="italic">file</span> on record<span className="tick">.</span>
             </h1>
           </div>
-          <Link to="/dashboard" data-testid="back-to-dashboard-btn" className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline flex items-center gap-2 mb-2 text-[#FF3B30]">
+          <Link to="/dashboard" data-testid="back-to-dashboard-btn" className="font-sans text-[11px] tracking-[0.28em] uppercase kinetic-underline flex items-center gap-2 mb-2 text-[#FF3B30]">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
         </div>
 
         {/* Filters */}
         <div className="mt-8 flex flex-wrap items-center gap-4 justify-between">
-          <div className="flex gap-8 font-mono text-[11px] tracking-[0.28em] uppercase">
+          <div className="flex gap-8 font-sans text-[11px] tracking-[0.28em] uppercase">
             {["creators", "campaigns"].map((t) => (
               <button
                 key={t}
@@ -84,7 +84,7 @@ export default function Marketplace() {
                 data-testid="search-input"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="bg-transparent focus:outline-none w-40 md:w-64 font-mono text-sm"
+                className="bg-transparent focus:outline-none w-40 md:w-64 font-sans text-sm"
               />
             </div>
             <button type="submit" className="btn-pill" data-testid="search-submit">Search</button>
@@ -96,7 +96,7 @@ export default function Marketplace() {
             options={PLATFORM_CATEGORIES}
             selected={categories}
             onChange={setCategories}
-            placeholder="All categories"
+            placeholder="All"
             allowAll
             compact
             label="Platform categories"
@@ -121,30 +121,30 @@ export default function Marketplace() {
                     {c.avatar ? (
                       <img src={c.avatar} alt={c.name} className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]" />
                     ) : (
-                      <div className="h-full w-full bg-white/5 flex items-center justify-center font-editorial text-6xl italic opacity-40">
+                      <div className="h-full w-full bg-white/5 flex items-center justify-center font-sans text-6xl italic opacity-40">
                         {c.name?.[0]}
                       </div>
                     )}
                   </div>
                   <div className="mt-3 flex items-baseline justify-between">
                     <div>
-                      <div className="font-editorial text-2xl leading-tight">{c.name}</div>
-                      <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">
+                      <div className="font-sans text-2xl leading-tight">{c.name}</div>
+                      <div className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-60">
                         {c.handle}
                       </div>
                     </div>
-                    <div className="font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
+                    <div className="font-sans text-[11px] tracking-[0.2em] uppercase opacity-70">
                       {c.followers ? `${Math.round(c.followers / 1000)}K` : "—"}
                     </div>
                   </div>
-                  <div className="mt-2 font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">
+                  <div className="mt-2 font-sans text-[10px] tracking-[0.2em] uppercase opacity-50">
                     {(c.niches || []).slice(0, 3).join(" · ")}
                   </div>
                 </Link>
               </motion.div>
             ))}
             {creators.length === 0 && (
-              <div className="col-span-full py-24 text-center font-editorial italic text-3xl opacity-60">
+              <div className="col-span-full py-24 text-center font-sans italic text-3xl opacity-60">
                 No creators on file for this filter.
               </div>
             )}
@@ -161,27 +161,27 @@ export default function Marketplace() {
                 data-testid={`campaign-row-${c.id}`}
               >
                 <Link to={`/campaigns/${c.id}`} className="group block hairline-b py-6 grid grid-cols-12 gap-6 items-baseline">
-                  <div className="col-span-12 md:col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">
+                  <div className="col-span-12 md:col-span-1 font-sans text-[10px] tracking-[0.25em] uppercase opacity-60">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <div className="col-span-12 md:col-span-5">
-                    <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.brand}</div>
-                    <div className="font-editorial text-3xl md:text-4xl leading-tight mt-1 group-hover:italic transition-all">
+                    <div className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60">{c.brand}</div>
+                    <div className="font-sans text-3xl md:text-4xl leading-tight mt-1 group-hover:italic transition-all">
                       {c.title}
                     </div>
                   </div>
-                  <div className="col-span-6 md:col-span-3 font-mono text-[11px] tracking-[0.2em] uppercase opacity-70">
+                  <div className="col-span-6 md:col-span-3 font-sans text-[11px] tracking-[0.2em] uppercase opacity-70">
                     {(c.niches || []).join(" · ")}
                   </div>
-                  <div className="col-span-3 md:col-span-2 font-editorial italic text-2xl">₹{c.budget}</div>
-                  <div className="col-span-3 md:col-span-1 text-right font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] group-hover:translate-x-1 transition-transform">
+                  <div className="col-span-3 md:col-span-2 font-sans italic text-2xl">₹{c.budget}</div>
+                  <div className="col-span-3 md:col-span-1 text-right font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] group-hover:translate-x-1 transition-transform">
                     View →
                   </div>
                 </Link>
               </motion.div>
             ))}
             {campaigns.length === 0 && (
-              <div className="py-24 text-center font-editorial italic text-3xl opacity-60">
+              <div className="py-24 text-center font-sans italic text-3xl opacity-60">
                 No briefs on file for this filter.
               </div>
             )}

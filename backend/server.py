@@ -83,6 +83,50 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+async def write_audit_log(
+    *,
+    action: str,
+    user_id: Optional[str] = None,
+    username: Optional[str] = None,
+    user: Optional[str] = None,
+    details: str = "",
+    status: str = "Completed",
+    meta: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Append a live audit trail entry for Admin Console → Audit Logs."""
+    try:
+        uname = (username or "").strip().lstrip("@") or None
+        display = user
+        if not display and uname:
+            display = f"@{uname}"
+        elif not display:
+            display = "System"
+        now = now_iso()
+        doc = {
+            "id": f"audit_{uuid.uuid4().hex[:10]}",
+            "action": action,
+            "type": action,
+            "user_id": user_id,
+            "username": uname,
+            "user": display,
+            "details": details,
+            "status": status,
+            "time": now,
+            "created_at": now,
+            "meta": meta or {},
+        }
+        await db.audit_logs.insert_one(doc)
+    except Exception as e:
+        logger.warning("Failed to write audit log (%s): %s", action, e)
+
+
+ROLE_AUDIT_LABELS = {
+    "influencer": "Creator",
+    "owner": "Brand",
+    "agent": "Agency",
+    "admin": "Admin",
+}
+
 _brevo_account_email: Optional[str] = None
 
 async def get_brevo_verified_sender(api_key: str) -> str:
@@ -1246,7 +1290,14 @@ async def firebase_login(inp: FirebaseLoginInput):
             
         user_id = user.get("id") or str(user["_id"])
         token = create_access_token(user_id, user.get("email"), user.get("role", "influencer"))
-        
+        await write_audit_log(
+            action="User Login",
+            user_id=user_id,
+            username=user.get("username"),
+            details="Signed in via mobile OTP",
+            status="Completed",
+            meta={"method": "firebase"},
+        )
         return {"ok": True, "token": token, "user": clean(dict(user))}
         
     except ValueError as e:
@@ -1323,6 +1374,16 @@ async def _create_registered_user(
     }
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, role)
+    role_label = ROLE_AUDIT_LABELS.get(role, (role or "user").title())
+    await write_audit_log(
+        action=f"{role_label} Signup",
+        user_id=user_id,
+        username=username,
+        user=f"@{username}",
+        details=f"Registered new {role_label.lower()} account",
+        status="Completed",
+        meta={"role": role, "email": email},
+    )
     return {"ok": True, "token": token, "user": clean(doc)}
 
 
@@ -1448,6 +1509,16 @@ async def register_old(inp: RegisterInput):
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, inp.role)
     await db.otps.delete_one({"email": email})
+    role_label = ROLE_AUDIT_LABELS.get(inp.role, (inp.role or "user").title())
+    await write_audit_log(
+        action=f"{role_label} Signup",
+        user_id=user_id,
+        username=username,
+        user=f"@{username}",
+        details=f"Registered new {role_label.lower()} account",
+        status="Completed",
+        meta={"role": inp.role, "email": email},
+    )
     return {"token": token, "user": clean(doc)}
 
 GOOGLE_CLIENT_ID = os.environ.get(
@@ -1496,6 +1567,14 @@ async def google_login(inp: GoogleLoginInput):
         user["id"] = user_id
 
     token = create_access_token(user_id, email, user.get("role", "influencer"))
+    await write_audit_log(
+        action="User Login",
+        user_id=user_id,
+        username=user.get("username"),
+        details="Signed in with Google",
+        status="Completed",
+        meta={"method": "google", "email": email},
+    )
     return {"token": token, "user": clean(dict(user))}
 
 
@@ -1506,8 +1585,23 @@ async def login(inp: LoginInput, request: Request):
         "$or": [{"email": identifier}, {"username": identifier}, {"mobile": identifier}]
     })
     if not user or not verify_password(inp.password, user["password_hash"]):
+        await write_audit_log(
+            action="Login Failed",
+            username=identifier if "@" not in identifier or "." not in identifier else None,
+            user=identifier,
+            details="Invalid login credentials",
+            status="Failed",
+            meta={"identifier": identifier},
+        )
         raise HTTPException(status_code=401, detail="Invalid login credentials")
     if user.get("banned"):
+        await write_audit_log(
+            action="Login Failed",
+            user_id=user.get("id"),
+            username=user.get("username"),
+            details="Banned account attempted login",
+            status="Failed",
+        )
         raise HTTPException(status_code=403, detail="Account suspended")
 
     # Optional 2FA gate (TOTP)
@@ -1552,6 +1646,14 @@ async def login(inp: LoginInput, request: Request):
         "created_at": now_iso(), "success": True,
     })
     await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen": now_iso(), "online": True}})
+    await write_audit_log(
+        action="User Login",
+        user_id=user["id"],
+        username=user.get("username"),
+        details="Signed in with password",
+        status="Completed",
+        meta={"method": "password", "remember_me": bool(inp.remember_me), "ip": ip},
+    )
     return {"token": token, "user": clean(dict(user)), "session_id": session_id, "remember_me": inp.remember_me}
 
 
@@ -1588,6 +1690,14 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
 
     user["id"] = user.get("id") or str(user.get("_id", ""))
     user.pop("_id", None)
+    await write_audit_log(
+        action="Profile Update",
+        user_id=user.get("id"),
+        username=user.get("username"),
+        details=f"Updated profile fields: {', '.join(sorted(updates.keys())[:8])}",
+        status="Completed",
+        meta={"fields": list(updates.keys())},
+    )
     return clean(dict(user))
 
 
@@ -1610,6 +1720,13 @@ async def change_password(inp: ChangePasswordInput, current: dict = Depends(get_
 
     new_hash = hash_password(inp.new_password)
     await db.users.update_one({"id": current["id"]}, {"$set": {"password_hash": new_hash}})
+    await write_audit_log(
+        action="Password Changed",
+        user_id=current.get("id"),
+        username=current.get("username"),
+        details="User changed account password",
+        status="Completed",
+    )
     return {"ok": True, "message": "Password updated successfully"}
 
 
@@ -1667,6 +1784,14 @@ async def approve_agent(agent_id: str, current: dict = Depends(get_current_user)
         "🎉 Congratulations! Your Agent Application has been APPROVED by Super Admin. You now have full access to the CR8 Talent Agent Console.",
         {"status": "approved"}
     )
+    await write_audit_log(
+        action="Agency Approved",
+        user_id=current.get("id"),
+        username=current.get("username"),
+        details=f"Approved agency application {agent_id}",
+        status="Completed",
+        meta={"agent_id": agent_id},
+    )
     return {"ok": True, "message": "Agent approved successfully"}
 
 @api_router.post("/admin/decline-agent/{agent_id}")
@@ -1684,6 +1809,14 @@ async def decline_agent(agent_id: str, inp: Optional[AgentDeclineInput] = None, 
         agent_id, "agent_declined", 
         f"⚠️ Your Agent Application requires revision. Reason: {reason}",
         {"status": "declined", "reason": reason}
+    )
+    await write_audit_log(
+        action="Agency Declined",
+        user_id=current.get("id"),
+        username=current.get("username"),
+        details=f"Declined agency application {agent_id}: {reason}",
+        status="Completed",
+        meta={"agent_id": agent_id, "reason": reason},
     )
     return {"ok": True, "message": "Agent application declined"}
 
@@ -1752,19 +1885,30 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
 @api_router.get("/admin/recent-activity")
 async def admin_recent_activity(current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
-    audit_logs = await db.audit_logs.find({}, {"_id": 0}).sort("created_at", -1).limit(20).to_list(20)
+    audit_logs = await db.audit_logs.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
     if audit_logs:
         # Prefer username for display when we can resolve it
         user_ids = [a.get("user_id") for a in audit_logs if a.get("user_id")]
         uname_by_id = {}
         if user_ids:
-            docs = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "username": 1}).to_list(50)
+            docs = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "username": 1}).to_list(200)
             uname_by_id = {d["id"]: d.get("username") for d in docs if d.get("username")}
+        status_map = {
+            "success": "Completed",
+            "info": "Info",
+            "failed": "Failed",
+            "error": "Failed",
+            "warning": "Warning",
+        }
         for a in audit_logs:
             uname = a.get("username") or uname_by_id.get(a.get("user_id"))
             if uname:
                 a["username"] = uname
                 a["user"] = f"@{str(uname).lstrip('@')}"
+            a["type"] = a.get("type") or a.get("action") or "Activity"
+            a["time"] = a.get("time") or a.get("created_at") or now_iso()
+            raw_status = str(a.get("status") or "Completed")
+            a["status"] = status_map.get(raw_status.lower(), raw_status)
         return audit_logs
     
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).limit(5).to_list(5)
@@ -1773,8 +1917,9 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
     activity = []
     for u in users:
         uname = (u.get("username") or "").strip()
+        role_label = ROLE_AUDIT_LABELS.get(u.get("role"), (u.get("role") or "user").title())
         activity.append({
-            "type": f"{u.get('role', 'user').title()} Signup",
+            "type": f"{role_label} Signup",
             "user": f"@{uname}" if uname else (u.get("email") or "User"),
             "username": uname or None,
             "status": "Completed",
@@ -1875,6 +2020,14 @@ async def admin_delete_user(user_id: str, current: dict = Depends(get_current_us
     # Also delete associated campaigns, applications, reviews, etc.
     await db.campaigns.delete_many({"owner_id": user_id})
     await db.applications.delete_many({"influencer_id": user_id})
+    await write_audit_log(
+        action="User Deleted",
+        user_id=current.get("id"),
+        username=current.get("username"),
+        details=f"Admin deleted user {user_id}",
+        status="Completed",
+        meta={"target_user_id": user_id, "target_role": target.get("role")},
+    )
     return {"ok": True, "message": "User deleted successfully"}
 
 # ---------- Creators ----------
@@ -3700,6 +3853,7 @@ _phase1_ensure_indexes = setup_phase1(
     JWT_ALGORITHM=JWT_ALGORITHM,
     logger=logger,
     call_llm=call_llm,
+    write_audit_log=write_audit_log,
 )
 
 app.include_router(api_router)
