@@ -619,9 +619,9 @@ export default function ProfileEdit() {
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         {isCreator && (
-                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="btn-solid bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white px-3 py-1.5 text-[10px]">
+                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white">
                                 {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                                 {aiBusy ? "Curating…" : "AI from niches + location"}
                             </button>
@@ -633,29 +633,29 @@ export default function ProfileEdit() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <F label="Profile Picture *">
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-sm" />}
                     <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                    <button type="button" onClick={()=>avatarRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5">
-                      <Upload className="w-3.5 h-3.5" /> {f.avatar ? "Replace" : "Upload"}
+                    <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                      <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
                     </button>
                     {f.avatar && (
-                      <button type="button" onClick={recropAvatar} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-2 py-1.5 text-[10px] flex items-center gap-1">
-                        <Crop className="w-3.5 h-3.5" /> Crop
+                      <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                        <Crop className="w-3 h-3" /> Crop
                       </button>
                     )}
                   </div>
                 </F>
                 <F label="Cover Photo">
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-sm" />}
                     <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                    <button type="button" onClick={() => coverRef.current?.click()} className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5">
-                      <Upload className="w-3.5 h-3.5" /> {f.cover_photo ? "Replace" : "Upload"}
+                    <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                      <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
                     </button>
                     {f.cover_photo && (
-                      <button type="button" onClick={recropCover} className="btn-solid bg-white/5 hover:bg-white/15 text-white px-2 py-1.5 text-[10px] flex items-center gap-1">
-                        <Crop className="w-3.5 h-3.5" /> Crop
+                      <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                        <Crop className="w-3 h-3" /> Crop
                       </button>
                     )}
                   </div>
@@ -731,9 +731,9 @@ export default function ProfileEdit() {
                     type="button"
                     onClick={() => refreshAnalytics(false)}
                     disabled={syncBusy}
-                    className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-1.5 text-[10px] flex items-center gap-1.5 font-sans uppercase tracking-wider"
+                    className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white"
                   >
-                    {syncBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                    {syncBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {syncBusy ? "Fetching…" : "Auto-fetch metrics"}
                   </button>
                 )}
@@ -847,14 +847,15 @@ export default function ProfileEdit() {
                 </section>
                 </div>
 
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
                     <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">06</span>
                       Portfolio
                     </h2>
                     
-                    <F label="Portfolio Images and Videos">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                    <F label="Images and Videos">
+                      <div className="grid grid-cols-2 gap-2">
                         {f.portfolio.map((p, i) => (
                           <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
@@ -862,23 +863,30 @@ export default function ProfileEdit() {
                             ) : (
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
-                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-2 right-2 p-1.5 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <X className="w-3 h-3 text-white" />
                             </button>
                           </div>
                         ))}
                       </div>
-                      <div className="flex mt-4">
+                      <div className="mt-3">
                         <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
-                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="btn-solid py-2 px-4 text-xs flex-1 justify-center bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
-                          <Upload className="w-4 h-4" /> Add images / videos
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="edit-btn bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                          <Upload className="w-3 h-3" /> Add images / videos
                         </button>
                       </div>
                     </F>
+                </section>
 
-                    <div className="mt-3" id="sec-campaigns">
-                        <F label="Past Campaigns (optional, max 5)">
-                            <div className="space-y-3 mt-3">
+                <PasswordChangeSection />
+                </div>
+
+                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-campaigns">
+                        <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                          Past campaigns
+                        </h2>
+                        <F label="Optional · max 5">
+                            <div className="space-y-3">
                                 <div className="hidden md:grid grid-cols-12 gap-2 px-2 text-[10px] font-sans uppercase tracking-widest opacity-50">
                                     <div className="col-span-2">Brand</div>
                                     <div className="col-span-3">Campaign Scope</div>
@@ -914,34 +922,32 @@ export default function ProfileEdit() {
                                 ))}
 
                                 {f.past_campaigns.length < 5 ? (
-                                    <button type="button" onClick={addCampaign} className="btn-pill text-xs mt-2">
-                                      <Plus className="w-3.5 h-3.5" /> Add Past Campaign Row ({f.past_campaigns.length}/5)
+                                    <button type="button" onClick={addCampaign} className="edit-btn bg-white/5 hover:bg-white/10 text-white">
+                                      <Plus className="w-3 h-3" /> Add campaign ({f.past_campaigns.length}/5)
                                     </button>
                                 ) : (
-                                    <div className="font-sans text-xs text-orange-400 mt-2">
+                                    <div className="font-sans text-xs text-orange-400">
                                         Maximum limit reached (5/5)
                                     </div>
                                 )}
                             </div>
                         </F>
-                    </div>
                 </section>
                 </>
               )}
 
-              {/* Password lives outside the profile form so empty password fields
-                  never block Save profile via HTML5 required validation. */}
-
           <div className="pt-2">
-            <button type="submit" disabled={busy} className="btn-solid w-full justify-center py-2.5 bg-[#FF3B30] text-white text-sm">
-              <Save className="w-5 h-5" /> {busy ? "Saving…" : "Save profile"}
+            <button type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+              <Save className="w-3.5 h-3.5" /> {busy ? "Saving…" : "Save profile"}
             </button>
           </div>
         </motion.form>
 
-        <div className="mt-6">
-          <PasswordChangeSection />
-        </div>
+        {!isCreator && (
+          <div className="mt-6">
+            <PasswordChangeSection />
+          </div>
+        )}
       </div>
       <Footer />
       {cropState && (
@@ -956,8 +962,12 @@ export default function ProfileEdit() {
           onComplete={onCropComplete}
         />
       )}
-      <style>{`.inp { margin-top: 0.25rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.5rem 0; outline: none; font-size: 1rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
+      <style>{`.inp { margin-top: 0; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.5rem 0; outline: none; font-size: 1rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
       .inp:focus { border-color: #FF3B30; }
+      .edit-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.4rem 0.75rem; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'Manrope', sans-serif; font-weight: 600; border: none; cursor: pointer; transition: background-color 200ms ease, color 200ms ease, transform 200ms ease; line-height: 1.2; }
+      .edit-btn:hover { transform: translateY(-1px); }
+      .edit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+      .edit-btn svg { flex-shrink: 0; width: 0.75rem; height: 0.75rem; }
       input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }`}</style>
     </div>
   );
@@ -1003,12 +1013,12 @@ function PasswordChangeSection() {
   };
 
   return (
-    <section id="sec-security" className="space-y-3 pt-2">
+    <section id="sec-security" className="space-y-3 border border-white/10 bg-white/[0.02] p-4 h-full">
       <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
         Security
       </h2>
-      <div className="bg-white/[0.02] p-4 border border-white/10 space-y-3">
-        <p className="font-sans text-sm opacity-60">Password changes are saved separately from your profile. Leave blank if you only want to update profile details.</p>
+      <div className="space-y-3">
+        <p className="font-sans text-[11px] opacity-50 leading-snug">Saved separately from profile. Leave blank to skip.</p>
         <F label="Current Password">
           <input 
             type="password" 
@@ -1016,44 +1026,45 @@ function PasswordChangeSection() {
             placeholder="••••••••" 
             autoComplete="current-password"
             value={pwdForm.current_password} 
-            onChange={e => setPwdForm({ ...pwdForm, current_password: e.target.value })} 
+            onChange={e => setPwdForm({ ...pwdForm, current_password: e.target.value })}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
           />
         </F>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <F label="New Password (Min 8 chars, Alphanumeric)">
-            <input 
-              type="password" 
-              className="inp"
-              placeholder="••••••••" 
-              autoComplete="new-password"
-              value={pwdForm.new_password} 
-              onChange={e => setPwdForm({ ...pwdForm, new_password: e.target.value })} 
-            />
-          </F>
-          <F label="Confirm New Password">
-            <input 
-              type="password" 
-              className="inp"
-              placeholder="••••••••" 
-              autoComplete="new-password"
-              value={pwdForm.confirm_password} 
-              onChange={e => setPwdForm({ ...pwdForm, confirm_password: e.target.value })} 
-            />
-          </F>
-        </div>
+        <F label="New Password (8+ chars, letters + numbers)">
+          <input 
+            type="password" 
+            className="inp"
+            placeholder="••••••••" 
+            autoComplete="new-password"
+            value={pwdForm.new_password} 
+            onChange={e => setPwdForm({ ...pwdForm, new_password: e.target.value })}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
+          />
+        </F>
+        <F label="Confirm New Password">
+          <input 
+            type="password" 
+            className="inp"
+            placeholder="••••••••" 
+            autoComplete="new-password"
+            value={pwdForm.confirm_password} 
+            onChange={e => setPwdForm({ ...pwdForm, confirm_password: e.target.value })}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
+          />
+        </F>
 
         {pwdErr && (
-          <p className="text-[#FF3B30] text-xs font-mono tracking-wider uppercase">{pwdErr}</p>
+          <p className="text-[#FF3B30] text-[10px] font-mono tracking-wider uppercase">{pwdErr}</p>
         )}
 
         <button 
           type="button" 
           onClick={handlePasswordChange}
           disabled={pwdBusy} 
-          className="btn-solid text-xs bg-white/10 hover:bg-[#FF3B30] hover:text-white transition-colors py-3 px-8"
+          className="edit-btn bg-white/10 hover:bg-[#FF3B30] hover:text-white text-white"
         >
-          {pwdBusy ? "Updating Password…" : "Update Password"}
+          {pwdBusy ? "Updating…" : "Update password"}
         </button>
       </div>
     </section>
@@ -1062,8 +1073,8 @@ function PasswordChangeSection() {
 
 function F({ label, children }) {
   return (
-    <div className="space-y-0">
-      <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">{label}</label>
+    <div className="space-y-1.5">
+      <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-normal block mb-0">{label}</label>
       {children}
     </div>
   );
