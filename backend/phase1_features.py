@@ -184,6 +184,7 @@ def setup_phase1(
         language: Optional[str] = None
         theme: Optional[Literal["dark", "light", "system"]] = None
         high_contrast: Optional[bool] = None
+        reduced_motion: Optional[bool] = None
         font_scale: Optional[float] = None
         notification_prefs: Optional[NotifPrefsInput] = None
         privacy: Optional[Dict[str, Any]] = None
@@ -592,18 +593,30 @@ def setup_phase1(
             else:
                 updates[k] = v
         if updates:
-            await db.users.update_one({"id": current["id"]}, {"$set": updates})
+            res = await db.users.update_one({"id": current["id"]}, {"$set": updates})
+            # Fallback for legacy accounts that may lack a stable string id
+            if getattr(res, "matched_count", 0) == 0 and current.get("email"):
+                await db.users.update_one(
+                    {"email": str(current["email"]).lower().strip()},
+                    {"$set": updates},
+                )
         # Always return the settings-shaped payload so mobile toggles stay in sync
         return await get_settings(current)
 
     @api_router.get("/settings")
     async def get_settings(current: dict = Depends(get_current_user)):
         u = await db.users.find_one({"id": current["id"]}, {"password_hash": 0, "two_fa_secret": 0})
+        if not u and current.get("email"):
+            u = await db.users.find_one(
+                {"email": str(current["email"]).lower().strip()},
+                {"password_hash": 0, "two_fa_secret": 0},
+            )
         u = clean(dict(u)) if u else current
         return {
             "language": u.get("language") or "en",
             "theme": u.get("theme") or "dark",
             "high_contrast": bool(u.get("high_contrast")),
+            "reduced_motion": bool(u.get("reduced_motion")),
             "font_scale": u.get("font_scale") or 1,
             "notification_prefs": u.get("notification_prefs") or {},
             "privacy": u.get("privacy") or {},

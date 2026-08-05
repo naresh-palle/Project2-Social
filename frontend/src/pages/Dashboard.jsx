@@ -73,6 +73,24 @@ export default function Dashboard() {
                     return <>{user?.email?.split("@")[0] || "User"}<span className="tick text-[#FF3B30]">.</span></>;
                   })()}
                 </h1>
+                {(() => {
+                  const niches = user?.niches || user?.category;
+                  let category = null;
+                  if (Array.isArray(niches) && niches.length) {
+                    category = niches.filter(Boolean).slice(0, 2).join(" · ");
+                  } else if (typeof niches === "string" && niches.trim()) {
+                    category = niches.trim();
+                  } else if (user?.industry?.trim()) {
+                    category = user.industry.trim();
+                  }
+                  const city = (user?.city || user?.location || "").trim() || null;
+                  if (!category && !city) return null;
+                  return (
+                    <p className="font-sans text-sm md:text-base text-[#F4F4F0]/70 mt-2 tracking-wide">
+                      {[category, city].filter(Boolean).join(" · ")}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
 

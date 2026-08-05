@@ -96,34 +96,49 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _patch(Map<String, dynamic> body) async {
-    if (saving) return;
-    setState(() => saving = true);
-    // Optimistic local update so toggles feel instant
+    final prev = settings == null ? null : Map<String, dynamic>.from(settings!);
+    // Optimistic local update so toggles feel instant and survive rapid taps
+    final optimistic = {
+      ...?settings,
+      ...body,
+      if (body['notification_prefs'] is Map)
+        'notification_prefs': {
+          ...Map<String, dynamic>.from(settings?['notification_prefs'] as Map? ?? {}),
+          ...Map<String, dynamic>.from(body['notification_prefs'] as Map),
+        },
+    };
     setState(() {
-      settings = {
-        ...?settings,
-        ...body,
-        if (body['notification_prefs'] is Map)
-          'notification_prefs': {
-            ...Map<String, dynamic>.from(settings?['notification_prefs'] as Map? ?? {}),
-            ...Map<String, dynamic>.from(body['notification_prefs'] as Map),
-          },
-      };
+      settings = optimistic;
+      saving = true;
     });
+    _syncAppearance(optimistic);
+    final storage = ref.read(sessionStorageProvider);
+    if (body['theme'] != null) await storage.saveTheme('${body['theme']}');
+    if (body['high_contrast'] != null) await storage.saveHighContrast(body['high_contrast'] == true);
+    if (body['font_scale'] != null) await storage.saveFontScale((body['font_scale'] as num).toDouble());
     try {
-      await ref.read(cr8ApiProvider).patchSettings(body);
-      settings = await ref.read(cr8ApiProvider).settings();
-      final storage = ref.read(sessionStorageProvider);
-      if (body['theme'] != null) await storage.saveTheme('${body['theme']}');
-      if (body['high_contrast'] != null) await storage.saveHighContrast(body['high_contrast'] == true);
-      if (body['font_scale'] != null) await storage.saveFontScale((body['font_scale'] as num).toDouble());
-      _syncAppearance(settings);
-      if (mounted) showCr8Snack(context, 'Saved');
+      final saved = await ref.read(cr8ApiProvider).patchSettings(body);
+      if (!mounted) return;
+      setState(() {
+        settings = saved;
+        saving = false;
+      });
+      _syncAppearance(saved);
+      if (body['theme'] != null) await storage.saveTheme('${saved['theme'] ?? body['theme']}');
+      if (body['high_contrast'] != null) {
+        await storage.saveHighContrast(saved['high_contrast'] == true);
+      }
+      if (body['font_scale'] != null) {
+        await storage.saveFontScale((saved['font_scale'] as num?)?.toDouble() ?? (body['font_scale'] as num).toDouble());
+      }
     } catch (e) {
-      await _load();
-      if (mounted) showCr8Snack(context, e.toString(), error: true);
-    } finally {
-      if (mounted) setState(() => saving = false);
+      if (!mounted) return;
+      setState(() {
+        settings = prev;
+        saving = false;
+      });
+      _syncAppearance(prev);
+      showCr8Snack(context, e.toString(), error: true);
     }
   }
 
@@ -174,13 +189,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 DropdownMenuItem(value: 'light', child: Text('Light')),
                 DropdownMenuItem(value: 'system', child: Text('System')),
               ],
-              onChanged: saving ? null : (v) => _patch({'theme': v}),
+              onChanged: (v) => _patch({'theme': v}),
             ),
           ),
           SwitchListTile(
             title: const Text('High contrast'),
             value: settings?['high_contrast'] == true,
-            onChanged: saving ? null : (v) => _patch({'high_contrast': v}),
+            onChanged: (v) => _patch({'high_contrast': v}),
           ),
           ListTile(
             title: const Text('Font scale'),
@@ -188,34 +203,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               value: ((settings?['font_scale'] as num?)?.toDouble() ?? 1).clamp(0.85, 1.5),
               min: 0.85,
               max: 1.5,
-              onChanged: saving
-                  ? null
-                  : (v) => setState(() => settings = {...?settings, 'font_scale': v}),
-              onChangeEnd: saving ? null : (v) => _patch({'font_scale': v}),
+              onChanged: (v) => setState(() => settings = {...?settings, 'font_scale': v}),
+              onChangeEnd: (v) => _patch({'font_scale': v}),
             ),
           ),
           const ListTile(title: Cr8SectionLabel('Privacy')),
           SwitchListTile(
             title: const Text('Private profile'),
             value: settings?['is_private'] == true,
-            onChanged: saving ? null : (v) => _patch({'is_private': v}),
+            onChanged: (v) => _patch({'is_private': v}),
           ),
           SwitchListTile(
             title: const Text('Show online status'),
             value: settings?['show_online_status'] != false,
-            onChanged: saving ? null : (v) => _patch({'show_online_status': v}),
+            onChanged: (v) => _patch({'show_online_status': v}),
           ),
           SwitchListTile(
             title: const Text('Show last seen'),
             value: settings?['show_last_seen'] != false,
-            onChanged: saving ? null : (v) => _patch({'show_last_seen': v}),
+            onChanged: (v) => _patch({'show_last_seen': v}),
           ),
           const ListTile(title: Cr8SectionLabel('Notifications')),
           ..._notifLabels.entries.map((e) {
             return SwitchListTile(
               title: Text(e.value),
               value: prefs[e.key] != false,
-              onChanged: saving ? null : (v) => _patch({'notification_prefs': {e.key: v}}),
+              onChanged: (v) => _patch({'notification_prefs': {e.key: v}}),
             );
           }),
           const ListTile(title: Cr8SectionLabel('Security')),

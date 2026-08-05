@@ -180,23 +180,71 @@ html.theme-light .bg-\[\#121212\] { background-color: #E8E8E4 !important; }
 html.theme-light .text-\[\#F4F4F0\] { color: #0A0A0A !important; }
 
 html.high-contrast {
-    --hairline: rgba(244, 244, 240, 0.45);
-    filter: contrast(1.15);
+    --hairline: rgba(244, 244, 240, 0.7);
+    filter: contrast(1.35) saturate(1.05);
+}
+html.high-contrast body,
+html.high-contrast #root {
+    background: #000 !important;
+    color: #fff !important;
+}
+html.high-contrast .bg-\[\#0B0B0E\],
+html.high-contrast .bg-\[\#121212\],
+html.high-contrast .bg-\[\#0A0A0A\],
+html.high-contrast .bg-\[\#050505\] {
+    background-color: #000 !important;
+}
+html.high-contrast .text-\[\#F4F4F0\],
+html.high-contrast .opacity-60,
+html.high-contrast .opacity-50,
+html.high-contrast .opacity-70 {
+    color: #fff !important;
+    opacity: 1 !important;
 }
 html.high-contrast * {
-    border-color: rgba(244, 244, 240, 0.45) !important;
+    border-color: rgba(255, 255, 255, 0.65) !important;
+}
+html.high-contrast a,
+html.high-contrast button,
+html.high-contrast [role="switch"] {
+    outline-offset: 2px;
 }
 html.high-contrast .btn-solid,
 html.high-contrast button[class*="bg-[#FF3B30]"] {
-    outline: 2px solid #F4F4F0;
+    outline: 2px solid #fff;
 }
-html.high-contrast input[type="checkbox"] {
-    outline: 1px solid #F4F4F0;
-    outline-offset: 2px;
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+    border-width: 2px !important;
+    border-color: #fff !important;
+    background: #000 !important;
+    color: #fff !important;
 }
 html.theme-light.high-contrast {
-    filter: contrast(1.2);
+    filter: contrast(1.4);
+}
+html.theme-light.high-contrast body,
+html.theme-light.high-contrast #root {
+    background: #fff !important;
+    color: #000 !important;
+}
+html.theme-light.high-contrast .bg-\[\#0B0B0E\],
+html.theme-light.high-contrast .bg-\[\#121212\],
+html.theme-light.high-contrast .bg-\[\#0A0A0A\],
+html.theme-light.high-contrast .bg-\[\#050505\] {
+    background-color: #fff !important;
+}
+html.theme-light.high-contrast .text-\[\#F4F4F0\] {
+    color: #000 !important;
 }
 html.theme-light.high-contrast * {
-    border-color: rgba(10, 10, 10, 0.45) !important;
+    border-color: rgba(0, 0, 0, 0.75) !important;
+}
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
 }

@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  User, Shield, Bell, Lock, Trash2, Download, Ban, VolumeX, UserX,
-  Monitor, Globe, Eye, EyeOff, LogOut, ChevronRight, Loader2
+  User, Bell, Lock, Trash2, Download, Ban, VolumeX, UserX,
+  Monitor, Sun, Moon, Eye, Loader2, ChevronRight
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth, applyUserSettings } from "@/lib/auth";
@@ -21,8 +21,14 @@ const NOTIF_KEYS = [
   { key: "email", label: "Email Notifications" },
 ];
 
+const THEME_OPTIONS = [
+  { id: "light", label: "Light", Icon: Sun },
+  { id: "dark", label: "Dark", Icon: Moon },
+  { id: "system", label: "System", Icon: Monitor },
+];
+
 export default function Settings() {
-  const { user, logout } = useAuth();
+  const { user, logout, mergeUserSettings } = useAuth();
   const nav = useNavigate();
   const [settings, setSettings] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -35,6 +41,7 @@ export default function Settings() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const fontTimer = useRef(null);
   const settingsRef = useRef(null);
+  const saveSeq = useRef(0);
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -52,6 +59,7 @@ export default function Settings() {
       ]);
       setSettings(sRes.data);
       applyUserSettings({ ...user, ...sRes.data });
+      mergeUserSettings?.(sRes.data);
       setSessions(sessRes.data || []);
       setLoginHistory(histRes.data || []);
       setBlocks(blockRes.data || []);
@@ -60,7 +68,7 @@ export default function Settings() {
     } catch {
       toast.error("Failed to load settings");
     }
-  }, [user]);
+  }, [user, mergeUserSettings]);
 
   // Load once per logged-in user — do NOT reload on every auth refresh (that was resetting toggles)
   useEffect(() => {
@@ -70,18 +78,7 @@ export default function Settings() {
 
   const patch = async (payload) => {
     const prev = settingsRef.current;
-    setSettings((s) => {
-      const next = { ...(s || {}), ...payload };
-      if (payload.notification_prefs) {
-        next.notification_prefs = {
-          ...(s?.notification_prefs || {}),
-          ...payload.notification_prefs,
-        };
-      }
-      return next;
-    });
-    applyUserSettings({
-      ...user,
+    const optimistic = {
       ...(prev || {}),
       ...payload,
       ...(payload.notification_prefs
@@ -92,23 +89,39 @@ export default function Settings() {
             },
           }
         : {}),
-    });
+    };
+    setSettings(optimistic);
+    settingsRef.current = optimistic;
+    applyUserSettings({ ...user, ...optimistic });
+    mergeUserSettings?.(optimistic);
+
+    const seq = ++saveSeq.current;
     try {
       const { data } = await api.patch("/settings", payload);
-      setSettings((s) => {
-        const merged = { ...s, ...data };
-        if (data?.notification_prefs) {
-          merged.notification_prefs = {
-            ...(s?.notification_prefs || {}),
-            ...data.notification_prefs,
-          };
-        }
-        return merged;
-      });
-      applyUserSettings({ ...user, ...data });
+      // Ignore stale responses if a newer patch finished first
+      if (seq !== saveSeq.current) return;
+      const merged = {
+        ...(settingsRef.current || {}),
+        ...data,
+        ...(data?.notification_prefs
+          ? {
+              notification_prefs: {
+                ...(settingsRef.current?.notification_prefs || {}),
+                ...data.notification_prefs,
+              },
+            }
+          : {}),
+      };
+      setSettings(merged);
+      settingsRef.current = merged;
+      applyUserSettings({ ...user, ...merged });
+      mergeUserSettings?.(merged);
     } catch (e) {
+      if (seq !== saveSeq.current) return;
       setSettings(prev);
+      settingsRef.current = prev;
       applyUserSettings({ ...user, ...(prev || {}) });
+      mergeUserSettings?.(prev || {});
       toast.error(formatApiError(e.response?.data?.detail) || "Save failed");
     }
   };
@@ -119,8 +132,10 @@ export default function Settings() {
 
   const onFontScale = (val) => {
     const font_scale = parseFloat(val);
-    setSettings((s) => ({ ...s, font_scale }));
-    applyUserSettings({ ...user, ...(settingsRef.current || {}), font_scale });
+    const next = { ...(settingsRef.current || {}), font_scale };
+    setSettings(next);
+    settingsRef.current = next;
+    applyUserSettings({ ...user, ...next });
     if (fontTimer.current) clearTimeout(fontTimer.current);
     fontTimer.current = setTimeout(() => {
       patch({ font_scale });
@@ -205,7 +220,7 @@ export default function Settings() {
 
   const deleteAccount = async () => {
     if (deleteConfirm !== "DELETE") {
-      toast.error('Type DELETE to confirm');
+      toast.error("Type DELETE to confirm");
       return;
     }
     try {
@@ -243,32 +258,45 @@ export default function Settings() {
             </Section>
 
             <Section title="Account" icon={Monitor} dense>
-              <div className="grid grid-cols-2 gap-2">
-                <Field label="Language">
-                  <select
-                    value={settings.language || "en"}
-                    onChange={(e) => patch({ language: e.target.value })}
-                    className="inp-select"
-                  >
-                    <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                  </select>
-                </Field>
-                <Field label="Theme">
-                  <select
-                    value={settings.theme || "dark"}
-                    onChange={(e) => patch({ theme: e.target.value })}
-                    className="inp-select"
-                  >
-                    <option value="dark">Dark</option>
-                    <option value="light">Light</option>
-                    <option value="system">System</option>
-                  </select>
-                </Field>
-              </div>
+              <Field label="Language">
+                <select
+                  value={settings.language || "en"}
+                  onChange={(e) => patch({ language: e.target.value })}
+                  className="inp-select"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                </select>
+              </Field>
+              <Field label="Theme">
+                <div className="mt-2 flex gap-2">
+                  {THEME_OPTIONS.map(({ id, label, Icon }) => {
+                    const active = (settings.theme || "dark") === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        title={label}
+                        aria-label={label}
+                        aria-pressed={active}
+                        onClick={() => patch({ theme: id })}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 border transition-colors ${
+                          active
+                            ? "border-[#FF3B30] bg-[#FF3B30]/15 text-white"
+                            : "border-white/15 bg-black/30 text-white/60 hover:text-white hover:border-white/30"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="font-mono text-[10px] uppercase tracking-widest">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
               <Toggle label="High Contrast" checked={!!settings.high_contrast} onChange={(v) => patch({ high_contrast: v })} />
+              <Toggle label="Reduce Motion" checked={!!settings.reduced_motion} onChange={(v) => patch({ reduced_motion: v })} />
               <Field label={`Font Scale (${Number(settings.font_scale || 1).toFixed(2)}x)`}>
                 <input
                   type="range"
@@ -413,7 +441,7 @@ export default function Settings() {
               <p className="font-mono text-[11px] opacity-60 mb-2">Permanently delete your account and all data.</p>
               <input
                 type="text"
-                placeholder='Type DELETE to confirm'
+                placeholder="Type DELETE to confirm"
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 className="inp-field mb-2"
@@ -579,4 +607,3 @@ function DraftsAndAnalytics() {
     </>
   );
 }
-

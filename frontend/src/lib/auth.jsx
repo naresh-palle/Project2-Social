@@ -5,15 +5,44 @@ const AuthCtx = createContext(null);
 
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 
-export function applyUserSettings(user) {
-  const root = document.documentElement;
-  const theme = user?.theme || localStorage.getItem("cr8_theme") || "dark";
-  const highContrast = Boolean(
-    user?.high_contrast ?? localStorage.getItem("cr8_high_contrast") === "true"
+function readAppearance(source = {}) {
+  const nested = source?.settings && typeof source.settings === "object" ? source.settings : {};
+  const theme =
+    source?.theme ??
+    nested?.theme ??
+    localStorage.getItem("cr8_theme") ??
+    "dark";
+  const highRaw = source?.high_contrast ?? nested?.high_contrast;
+  const highContrast =
+    highRaw === undefined || highRaw === null
+      ? localStorage.getItem("cr8_high_contrast") === "true"
+      : Boolean(highRaw);
+  const fontRaw = source?.font_scale ?? nested?.font_scale;
+  const fontScale = Number(
+    fontRaw ?? localStorage.getItem("cr8_font_scale") ?? 1
   );
-  const fontScale = Number(user?.font_scale || localStorage.getItem("cr8_font_scale") || 1);
+  const reducedRaw = source?.reduced_motion ?? nested?.reduced_motion;
+  const reducedMotion =
+    reducedRaw === undefined || reducedRaw === null
+      ? localStorage.getItem("cr8_reduced_motion") === "true"
+      : Boolean(reducedRaw);
+  return {
+    theme: String(theme || "dark"),
+    high_contrast: highContrast,
+    font_scale: Number.isFinite(fontScale) ? fontScale : 1,
+    reduced_motion: reducedMotion,
+  };
+}
 
-  root.classList.remove("theme-light", "theme-dark", "high-contrast");
+export function applyUserSettings(prefsOrUser) {
+  const root = document.documentElement;
+  const s = readAppearance(prefsOrUser || {});
+  const theme = s.theme;
+  const highContrast = s.high_contrast;
+  const fontScale = Math.min(1.5, Math.max(0.85, s.font_scale));
+  const reducedMotion = s.reduced_motion;
+
+  root.classList.remove("theme-light", "theme-dark", "high-contrast", "reduced-motion");
   if (theme === "light") root.classList.add("theme-light");
   else if (theme === "dark") root.classList.add("theme-dark");
   else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -23,11 +52,31 @@ export function applyUserSettings(user) {
   }
 
   if (highContrast) root.classList.add("high-contrast");
-  root.style.fontSize = `${Math.min(1.5, Math.max(0.85, fontScale)) * 100}%`;
+  if (reducedMotion) root.classList.add("reduced-motion");
+  root.style.fontSize = `${fontScale * 100}%`;
 
-  if (user?.theme) localStorage.setItem("cr8_theme", user.theme);
+  localStorage.setItem("cr8_theme", theme);
   localStorage.setItem("cr8_high_contrast", String(highContrast));
   localStorage.setItem("cr8_font_scale", String(fontScale));
+  localStorage.setItem("cr8_reduced_motion", String(reducedMotion));
+
+  // Keep cached session user in sync so reloads don't wipe appearance prefs
+  try {
+    const raw = localStorage.getItem("cr8_user");
+    if (raw) {
+      const cached = JSON.parse(raw);
+      const next = {
+        ...cached,
+        theme,
+        high_contrast: highContrast,
+        font_scale: fontScale,
+        reduced_motion: reducedMotion,
+      };
+      localStorage.setItem("cr8_user", JSON.stringify(next));
+    }
+  } catch {}
+
+  return s;
 }
 
 export function AuthProvider({ children }) {
@@ -51,13 +100,14 @@ export function AuthProvider({ children }) {
     }
     try {
       const { data } = await api.get("/auth/me");
-      localStorage.setItem("cr8_user", JSON.stringify(data));
-      setUser(data);
-      applyUserSettings(data);
+      let merged = data;
       try {
         const { data: settings } = await api.get("/settings");
-        applyUserSettings({ ...data, ...settings });
+        merged = { ...data, ...settings };
       } catch {}
+      localStorage.setItem("cr8_user", JSON.stringify(merged));
+      setUser(merged);
+      applyUserSettings(merged);
     } catch (e) {
       if (e?.response?.status === 401) {
         localStorage.removeItem("cr8_token");
@@ -233,6 +283,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const mergeUserSettings = useCallback((payload) => {
+    setUser((prev) => {
+      if (!prev) {
+        applyUserSettings(payload);
+        return prev;
+      }
+      const next = { ...prev, ...payload };
+      localStorage.setItem("cr8_user", JSON.stringify(next));
+      applyUserSettings(next);
+      return next;
+    });
+  }, []);
+
   return (
     <AuthCtx.Provider
       value={{
@@ -248,6 +311,7 @@ export function AuthProvider({ children }) {
         logout,
         refresh,
         applyUserSettings,
+        mergeUserSettings,
       }}
     >
       {children}
