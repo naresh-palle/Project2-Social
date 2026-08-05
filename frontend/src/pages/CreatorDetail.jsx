@@ -85,7 +85,7 @@ export default function CreatorDetail() {
                     <img src={creator.avatar} alt={creator.name} className="w-32 h-32 md:w-48 md:h-48 object-cover  border border-white/20 p-2" />
                 ) : (
                     <div className="w-32 h-32 md:w-48 md:h-48 border border-white/20 p-2 flex items-center justify-center bg-white/5">
-                        <span className="font-editorial text-4xl opacity-50">{creator.name[0]}</span>
+                        <span className="font-editorial text-4xl opacity-50">{(formatUsername(creator.handle, creator.username) || creator.name || "?")[0]}</span>
                     </div>
                 )}
                 <div className="flex-1">
@@ -93,15 +93,13 @@ export default function CreatorDetail() {
                         {creator.category || "Creator"} · {creator.city || "Global"}
                     </div>
                     <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-none">
-                        {creator.name}
+                        {formatUsername(creator.handle, creator.username) || creator.name || "Creator"}
                     </h1>
                     <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4">
-                        <span>{formatUsername(creator.handle, creator.username) || "creator"}</span>
+                        {creator.company ? <span>{creator.company}</span> : null}
+                        {creator.company && creator.languages?.length > 0 && <span>·</span>}
                         {creator.languages?.length > 0 && (
-                            <>
-                                <span>·</span>
-                                <span>{creator.languages.join(", ")}</span>
-                            </>
+                            <span>{creator.languages.join(", ")}</span>
                         )}
                     </div>
                 </div>
@@ -113,7 +111,7 @@ export default function CreatorDetail() {
                         <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Total {bestPlatform.key} Audience</div>
                     </div>
                 )}
-                {user && user.role !== "influencer" && (
+                {user && String(user.id) !== String(creator.id) && (
                     <button onClick={handleMessage} className="btn-solid w-full md:w-auto flex justify-center bg-[#FF3B30] text-white py-4">
                         <MessageSquare className="w-4 h-4 mr-2" /> Open Conversation
                     </button>

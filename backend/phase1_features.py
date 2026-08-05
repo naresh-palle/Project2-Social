@@ -307,6 +307,7 @@ def setup_phase1(
             "name": u.get("name"),
             "username": handle or None,
             "handle": handle or None,
+            "company": u.get("company") or None,
             "avatar": avatar,
             "verified": bool(u.get("verified")),
             "role": u.get("role"),
@@ -502,7 +503,7 @@ def setup_phase1(
 
     # ---------- Privacy: block / mute / restrict / report ----------
     @api_router.post("/privacy/block")
-    async def block_user(inp: BlockInput, current: dict = Depends(get_current_user)):
+    async def block_user(inp: BlockInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot block yourself")
         await db.blocks.update_one(
@@ -518,7 +519,7 @@ def setup_phase1(
         return {"ok": True}
 
     @api_router.post("/privacy/unblock")
-    async def unblock_user(inp: BlockInput, current: dict = Depends(get_current_user)):
+    async def unblock_user(inp: BlockInput = Body(...), current: dict = Depends(get_current_user)):
         await db.blocks.delete_one({"blocker_id": current["id"], "blocked_id": inp.user_id})
         return {"ok": True}
 
@@ -531,7 +532,7 @@ def setup_phase1(
         return [{"block": b, "user": umap.get(b["blocked_id"])} for b in blocks]
 
     @api_router.post("/privacy/mute")
-    async def mute_user(inp: MuteInput, current: dict = Depends(get_current_user)):
+    async def mute_user(inp: MuteInput = Body(...), current: dict = Depends(get_current_user)):
         await db.mutes.update_one(
             {"user_id": current["id"], "muted_id": inp.user_id},
             {"$set": {"id": str(uuid.uuid4()), "user_id": current["id"], "muted_id": inp.user_id, "created_at": now_iso()}},
@@ -567,7 +568,7 @@ def setup_phase1(
         return await db.restricted.find({"user_id": current["id"]}, {"_id": 0}).to_list(200)
 
     @api_router.post("/reports")
-    async def create_report(inp: ReportInput, current: dict = Depends(get_current_user)):
+    async def create_report(inp: ReportInput = Body(...), current: dict = Depends(get_current_user)):
         doc = {
             "id": str(uuid.uuid4()),
             "reporter_id": current["id"],
@@ -998,8 +999,10 @@ def setup_phase1(
         return {"ok": True}
 
     # ---------- Follow graph ----------
+    # NOTE: Canonical /follow + /unfollow + /conversations/dm live in server.py
+    # (module-level Pydantic models) so Render treats JSON bodies correctly.
     @api_router.post("/follow")
-    async def follow_user(inp: FollowInput, current: dict = Depends(get_current_user)):
+    async def follow_user(inp: FollowInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot follow yourself")
         if await is_blocked(current["id"], inp.user_id):
@@ -1024,7 +1027,7 @@ def setup_phase1(
         return {"ok": True, "status": status}
 
     @api_router.post("/unfollow")
-    async def unfollow_user(inp: FollowInput, current: dict = Depends(get_current_user)):
+    async def unfollow_user(inp: FollowInput = Body(...), current: dict = Depends(get_current_user)):
         await db.follows.delete_one({"follower_id": current["id"], "following_id": inp.user_id})
         return {"ok": True}
 

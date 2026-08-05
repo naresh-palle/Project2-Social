@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function PublicProfile() {
   const { userId } = useParams();
@@ -16,6 +17,7 @@ export default function PublicProfile() {
   const [loading, setLoading] = useState(true);
   const [reportReason, setReportReason] = useState("");
   const [showReport, setShowReport] = useState(false);
+  const [actionBusy, setActionBusy] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -31,57 +33,73 @@ export default function PublicProfile() {
 
   useEffect(() => {
     if (userId) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const follow = async () => {
+    setActionBusy("follow");
     try {
       const { data } = await api.post("/follow", { user_id: userId });
       toast.success(data.status === "pending" ? "Follow request sent" : "Following");
-      load();
+      await load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail) || "Failed");
+    } finally {
+      setActionBusy(null);
     }
   };
 
   const unfollow = async () => {
+    setActionBusy("unfollow");
     try {
       await api.post("/unfollow", { user_id: userId });
-      toast.success("Unfollowed");
-      load();
+      toast.success(profile?.follow_pending ? "Request cancelled" : "Unfollowed");
+      await load();
     } catch {
       toast.error("Failed to unfollow");
+    } finally {
+      setActionBusy(null);
     }
   };
 
   const block = async () => {
     if (!window.confirm("Block this user?")) return;
+    setActionBusy("block");
     try {
       await api.post("/privacy/block", { user_id: userId });
       toast.success("User blocked");
       nav(-1);
-    } catch {
-      toast.error("Block failed");
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Block failed");
+    } finally {
+      setActionBusy(null);
     }
   };
 
   const report = async () => {
     if (!reportReason.trim()) return;
+    setActionBusy("report");
     try {
       await api.post("/reports", { target_type: "user", target_id: userId, reason: reportReason });
       toast.success("Report submitted");
       setShowReport(false);
       setReportReason("");
-    } catch {
-      toast.error("Report failed");
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Report failed");
+    } finally {
+      setActionBusy(null);
     }
   };
 
   const dm = async () => {
+    setActionBusy("dm");
     try {
       const { data } = await api.post("/conversations/dm", { user_id: userId });
       nav(`/messages?id=${data.id}`);
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail) || "Could not open DM");
+    } finally {
+      setActionBusy(null);
     }
   };
 
@@ -97,16 +115,24 @@ export default function PublicProfile() {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
         <Nav />
+        <ThemeToaster />
         <div className="pt-32 text-center font-sans text-2xl font-medium opacity-40">User not found</div>
       </div>
     );
   }
 
-  const isMe = me?.id === userId;
+  const isMe = String(me?.id || "") === String(userId || "");
+  const displayName =
+    formatUsername(profile.username, profile.handle) ||
+    profile.company ||
+    profile.name ||
+    "Profile";
+  const busy = !!actionBusy;
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <Nav />
+      <ThemeToaster />
       <div className="pt-24 flex-1">
         {profile.cover_photo && (
           <div className="h-48 md:h-64 w-full overflow-hidden">
@@ -119,13 +145,11 @@ export default function PublicProfile() {
               <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E]" />
             ) : (
               <div className="w-28 h-28 rounded-full bg-white/10 border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold">
-                {(profile.username || profile.name || "?")[0]?.toUpperCase()}
+                {(displayName || "?")[0]?.toUpperCase()}
               </div>
             )}
             <div className="flex-1 pb-2">
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">
-                {formatUsername(profile.username, profile.handle) || profile.name || "Profile"}
-              </h1>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
               {(profile.role === "owner" || profile.role === "agent") && profile.company && (
                 <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>
               )}
@@ -143,23 +167,29 @@ export default function PublicProfile() {
           {!isMe && (
             <div className="mt-8 flex flex-wrap gap-3">
               {profile.is_following ? (
-                <button type="button" onClick={unfollow} className="btn-action bg-white/10">
-                  <UserMinus className="w-4 h-4" /> Unfollow
+                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
+                  {actionBusy === "unfollow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
+                  Unfollow
                 </button>
               ) : profile.follow_pending ? (
-                <button type="button" disabled className="btn-action bg-white/5 opacity-60">Request Pending</button>
+                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50" title="Cancel follow request">
+                  {actionBusy === "unfollow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
+                  Cancel request
+                </button>
               ) : (
-                <button type="button" onClick={follow} className="btn-action bg-[#FF3B30]">
-                  <UserPlus className="w-4 h-4" /> Follow
+                <button type="button" onClick={follow} disabled={busy} className="btn-action bg-[#FF3B30] disabled:opacity-50">
+                  {actionBusy === "follow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                  Follow
                 </button>
               )}
-              <button type="button" onClick={dm} className="btn-action bg-white/10">
-                <MessageCircle className="w-4 h-4" /> Message
+              <button type="button" onClick={dm} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
+                {actionBusy === "dm" ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
+                Message
               </button>
-              <button type="button" onClick={() => setShowReport(true)} className="btn-action bg-white/10">
+              <button type="button" onClick={() => setShowReport(true)} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
                 <Flag className="w-4 h-4" /> Report
               </button>
-              <button type="button" onClick={block} className="btn-action border border-[#FF3B30]/40 text-[#FF3B30]">
+              <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#FF3B30]/40 text-[#FF3B30] disabled:opacity-50">
                 <Ban className="w-4 h-4" /> Block
               </button>
             </div>
@@ -183,14 +213,14 @@ export default function PublicProfile() {
             />
             <div className="flex justify-end gap-3">
               <button type="button" onClick={() => setShowReport(false)} className="font-mono text-xs uppercase px-4 py-2 border border-white/20">Cancel</button>
-              <button type="button" onClick={report} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF3B30] font-bold">Submit</button>
+              <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF3B30] font-bold disabled:opacity-50">Submit</button>
             </div>
           </div>
         </div>
       )}
 
       <Footer />
-      <style>{`.btn-action { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; }`}</style>
+      <style>{`.btn-action { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; cursor: pointer; }`}</style>
     </div>
   );
 }

@@ -107,9 +107,10 @@ export default function ProfileView() {
   const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
 
   const displayName =
-    profile.role === "owner" || profile.role === "agent"
-      ? (profile.company || formatUsername(profile.username, profile.handle) || profile.name)
-      : (formatUsername(profile.username, profile.handle) || profile.name || "Profile");
+    formatUsername(profile.username, profile.handle) ||
+    profile.company ||
+    profile.name ||
+    "Profile";
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
@@ -186,6 +187,9 @@ export default function ProfileView() {
                 <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1 break-all">
                   {displayName}
                 </h1>
+                {(profile.role === "owner" || profile.role === "agent") && profile.company && profile.company !== displayName && (
+                  <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>
+                )}
                 <div className="font-sans text-xs opacity-70 mt-1.5 flex items-center gap-2 flex-wrap">
                   {profile.city && (
                     <span className="inline-flex items-center gap-1">

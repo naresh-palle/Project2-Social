@@ -304,7 +304,7 @@ function OwnerPanel() {
       {activeTab === "work-feed" && (
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid Layout Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-end gap-4">
             <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
               <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
                 <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
@@ -580,7 +580,7 @@ function InfluencerPanel() {
       {activeTab === "campaigns-feed" && (
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid View Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-end gap-4">
             <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
               <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
                 <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category

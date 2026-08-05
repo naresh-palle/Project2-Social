@@ -196,6 +196,11 @@ export default function SearchPage() {
 
 function SearchResult({ tab, item }) {
   if (tab === "users" || tab === "location") {
+    const username = formatUsername(item.handle, item.username) || null;
+    const subtitle =
+      item.role === "owner" || item.role === "agent"
+        ? (item.company || item.name || null)
+        : (item.name && username && item.name !== username ? item.name : null);
     return (
       <Link
         to={`/u/${item.id}`}
@@ -203,8 +208,12 @@ function SearchResult({ tab, item }) {
       >
         {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/20" />}
         <div>
-          <div className="font-editorial text-xl">{item.name}</div>
-          <div className="font-mono text-[10px] text-[#FF3B30] uppercase">{formatUsername(item.handle, item.username) || "user"}</div>
+          <div className="font-editorial text-xl">{username || item.company || item.name || "user"}</div>
+          {subtitle ? (
+            <div className="font-mono text-[10px] text-[#FF3B30] uppercase mt-0.5">{subtitle}</div>
+          ) : username ? (
+            <div className="font-mono text-[10px] opacity-50 uppercase mt-0.5">{item.role || "member"}</div>
+          ) : null}
         </div>
       </Link>
     );
@@ -212,7 +221,9 @@ function SearchResult({ tab, item }) {
   if (tab === "posts") {
     return (
       <div className="p-4 border border-white/10 bg-[#121212] rounded-xs">
-        <div className="font-mono text-[10px] opacity-60">{item.author?.name}</div>
+        <div className="font-mono text-[10px] opacity-60">
+          {formatUsername(item.author?.handle, item.author?.username) || item.author?.name || "user"}
+        </div>
         <p className="font-mono text-sm mt-1 line-clamp-3">{item.text || item.title}</p>
       </div>
     );

@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { api } from "@/lib/api";
+import { formatUsername } from "@/lib/username";
 import { useLenis } from "@/lib/useLenis";
 
 export default function Marketplace() {
@@ -91,7 +92,7 @@ export default function Marketplace() {
           </form>
         </div>
 
-        <div className="mt-6 max-w-md">
+        <div className="mt-6 max-w-md ml-auto">
           <MultiSelectDropdown
             options={PLATFORM_CATEGORIES}
             selected={categories}
@@ -119,19 +120,23 @@ export default function Marketplace() {
                 <Link to={`/creators/${c.id}`} className="group block">
                   <div className="aspect-[4/5] overflow-hidden hairline-b relative">
                     {c.avatar ? (
-                      <img src={c.avatar} alt={c.name} className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]" />
+                      <img src={c.avatar} alt={formatUsername(c.handle, c.username) || c.name || "creator"} className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]" />
                     ) : (
                       <div className="h-full w-full bg-white/5 flex items-center justify-center font-sans text-6xl italic opacity-40">
-                        {c.name?.[0]}
+                        {(formatUsername(c.handle, c.username) || c.name || "?")[0]}
                       </div>
                     )}
                   </div>
                   <div className="mt-3 flex items-baseline justify-between">
                     <div>
-                      <div className="font-sans text-2xl leading-tight">{c.name}</div>
-                      <div className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-60">
-                        {c.handle}
+                      <div className="font-sans text-2xl leading-tight">
+                        {formatUsername(c.handle, c.username) || c.name || "creator"}
                       </div>
+                      {c.company ? (
+                        <div className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-60">
+                          {c.company}
+                        </div>
+                      ) : null}
                     </div>
                     <div className="font-sans text-[11px] tracking-[0.2em] uppercase opacity-70">
                       {c.followers ? `${Math.round(c.followers / 1000)}K` : "—"}
