@@ -83,9 +83,9 @@ export function MultiSelectDropdown({
             values.map((sel) => (
               <span
                 key={sel}
-                className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-sm text-[11px] font-sans inline-flex items-center gap-1.5 max-w-full"
+                className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-sm text-[11px] font-sans inline-flex w-fit items-center gap-1.5 whitespace-nowrap"
               >
-                <span className="truncate">{sel}</span>
+                <span>{sel}</span>
                 {!single && (
                   <span
                     role="button"

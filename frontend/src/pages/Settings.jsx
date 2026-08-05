@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User, Shield, Bell, Lock, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Globe, Eye, EyeOff, LogOut, ChevronRight, Loader2
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -23,7 +22,7 @@ const NOTIF_KEYS = [
 ];
 
 export default function Settings() {
-  const { user, logout, refresh } = useAuth();
+  const { user, logout } = useAuth();
   const nav = useNavigate();
   const [settings, setSettings] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -34,9 +33,14 @@ export default function Settings() {
   const [twoFa, setTwoFa] = useState({ setup: null, code: "" });
   const [disable2fa, setDisable2fa] = useState({ password: "", code: "" });
   const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [busy, setBusy] = useState(false);
+  const fontTimer = useRef(null);
+  const settingsRef = useRef(null);
 
-  const load = async () => {
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  const load = useCallback(async () => {
     try {
       const [sRes, sessRes, histRes, blockRes, muteRes, restrRes] = await Promise.all([
         api.get("/settings"),
@@ -47,6 +51,7 @@ export default function Settings() {
         api.get("/privacy/restricted").catch(() => ({ data: [] })),
       ]);
       setSettings(sRes.data);
+      applyUserSettings({ ...user, ...sRes.data });
       setSessions(sessRes.data || []);
       setLoginHistory(histRes.data || []);
       setBlocks(blockRes.data || []);
@@ -55,15 +60,16 @@ export default function Settings() {
     } catch {
       toast.error("Failed to load settings");
     }
-  };
-
-  useEffect(() => {
-    if (user) load();
   }, [user]);
 
+  // Load once per logged-in user — do NOT reload on every auth refresh (that was resetting toggles)
+  useEffect(() => {
+    if (user?.id) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   const patch = async (payload) => {
-    const prev = settings;
-    // Optimistic update so toggles feel instant (merge nested prefs correctly)
+    const prev = settingsRef.current;
     setSettings((s) => {
       const next = { ...(s || {}), ...payload };
       if (payload.notification_prefs) {
@@ -87,23 +93,38 @@ export default function Settings() {
           }
         : {}),
     });
-    setBusy(true);
     try {
       const { data } = await api.patch("/settings", payload);
-      setSettings((s) => ({ ...s, ...data }));
+      setSettings((s) => {
+        const merged = { ...s, ...data };
+        if (data?.notification_prefs) {
+          merged.notification_prefs = {
+            ...(s?.notification_prefs || {}),
+            ...data.notification_prefs,
+          };
+        }
+        return merged;
+      });
       applyUserSettings({ ...user, ...data });
-      await refresh();
     } catch (e) {
       setSettings(prev);
       applyUserSettings({ ...user, ...(prev || {}) });
       toast.error(formatApiError(e.response?.data?.detail) || "Save failed");
-    } finally {
-      setBusy(false);
     }
   };
 
   const updateNotif = (key, val) => {
     patch({ notification_prefs: { [key]: val } });
+  };
+
+  const onFontScale = (val) => {
+    const font_scale = parseFloat(val);
+    setSettings((s) => ({ ...s, font_scale }));
+    applyUserSettings({ ...user, ...(settingsRef.current || {}), font_scale });
+    if (fontTimer.current) clearTimeout(fontTimer.current);
+    fontTimer.current = setTimeout(() => {
+      patch({ font_scale });
+    }, 350);
   };
 
   const setup2fa = async () => {
@@ -208,213 +229,207 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <Nav />
-      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-12 flex-1 w-full">
+      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
-        <h1 className="font-editorial text-5xl md:text-6xl mt-2">Settings<span className="tick">.</span></h1>
+        <h1 className="font-editorial text-3xl md:text-4xl mt-1">Settings<span className="tick">.</span></h1>
 
-        <div className="mt-8 space-y-6">
-          {/* Profile quick links */}
-          <Section title="Profile" icon={User} dense>
-            <div className="space-y-0.5">
-              <QuickLink to="/profile" label="View Profile" />
-              <QuickLink to="/profile/edit" label="Edit Profile" />
-            </div>
-          </Section>
-
-          {/* Account */}
-          <Section title="Account" icon={Monitor} dense>
-            <Field label="Language">
-              <select
-                value={settings.language || "en"}
-                onChange={(e) => patch({ language: e.target.value })}
-                className="inp-select"
-              >
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-              </select>
-            </Field>
-            <Field label="Theme">
-              <select
-                value={settings.theme || "dark"}
-                onChange={(e) => patch({ theme: e.target.value })}
-                className="inp-select"
-              >
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="system">System</option>
-              </select>
-            </Field>
-            <Toggle label="High Contrast" checked={!!settings.high_contrast} onChange={(v) => patch({ high_contrast: v })} />
-            <Field label={`Font Scale (${settings.font_scale || 1}x)`}>
-              <input
-                type="range"
-                min="0.85"
-                max="1.5"
-                step="0.05"
-                value={settings.font_scale || 1}
-                onChange={(e) => patch({ font_scale: parseFloat(e.target.value) })}
-                className="w-full accent-[#FF3B30]"
-              />
-            </Field>
-          </Section>
-
-          {/* Privacy */}
-          <Section title="Privacy" icon={Eye} dense>
-            <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
-            <Toggle label="Show Online Status" checked={settings.show_online_status !== false} onChange={(v) => patch({ show_online_status: v })} />
-            <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
-          </Section>
-
-          {/* Notifications */}
-          <Section title="Notifications" icon={Bell} dense>
-            {NOTIF_KEYS.map(({ key, label }) => (
-              <Toggle
-                key={key}
-                label={label}
-                checked={settings.notification_prefs?.[key] !== false}
-                onChange={(v) => updateNotif(key, v)}
-              />
-            ))}
-          </Section>
-
-          {/* Security */}
-          <Section title="Security" icon={Lock} dense>
-            <QuickLink to="/profile/edit#sec-security" label="Change Password" />
-            {settings.two_fa_enabled ? (
-              <div className="mt-4 p-4 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-3">
-                <p className="font-mono text-xs text-[#34C759]">2FA is enabled</p>
-                <input
-                  type="password"
-                  placeholder="Current password"
-                  value={disable2fa.password}
-                  onChange={(e) => setDisable2fa({ ...disable2fa, password: e.target.value })}
-                  className="inp-field"
-                />
-                <input
-                  type="text"
-                  placeholder="2FA code"
-                  value={disable2fa.code}
-                  onChange={(e) => setDisable2fa({ ...disable2fa, code: e.target.value })}
-                  className="inp-field"
-                />
-                <button type="button" onClick={handleDisable2fa} className="btn-sm-outline">Disable 2FA</button>
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+          <div className="space-y-3">
+            <Section title="Profile" icon={User} dense>
+              <div className="space-y-0.5">
+                <QuickLink to="/profile" label="View Profile" />
+                <QuickLink to="/profile/edit" label="Edit Profile" />
               </div>
-            ) : twoFa.setup ? (
-              <div className="mt-4 p-4 border border-white/10 rounded-xs space-y-3">
-                <p className="font-mono text-xs break-all">Secret: {twoFa.setup.secret}</p>
-                <p className="font-mono text-[10px] opacity-60 break-all">{twoFa.setup.otpauth_uri}</p>
-                <input
-                  type="text"
-                  placeholder="6-digit code"
-                  value={twoFa.code}
-                  onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value })}
-                  className="inp-field"
-                />
-                <button type="button" onClick={enable2fa} className="btn-sm-solid">Enable 2FA</button>
-              </div>
-            ) : (
-              <button type="button" onClick={setup2fa} className="btn-sm-solid mt-2">Set Up 2FA</button>
-            )}
+            </Section>
 
-            <div className="mt-6">
-              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-3">Active Sessions</h4>
-              {sessions.length === 0 ? (
-                <p className="font-mono text-xs opacity-40">No sessions</p>
+            <Section title="Account" icon={Monitor} dense>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="Language">
+                  <select
+                    value={settings.language || "en"}
+                    onChange={(e) => patch({ language: e.target.value })}
+                    className="inp-select"
+                  >
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                  </select>
+                </Field>
+                <Field label="Theme">
+                  <select
+                    value={settings.theme || "dark"}
+                    onChange={(e) => patch({ theme: e.target.value })}
+                    className="inp-select"
+                  >
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="system">System</option>
+                  </select>
+                </Field>
+              </div>
+              <Toggle label="High Contrast" checked={!!settings.high_contrast} onChange={(v) => patch({ high_contrast: v })} />
+              <Field label={`Font Scale (${Number(settings.font_scale || 1).toFixed(2)}x)`}>
+                <input
+                  type="range"
+                  min="0.85"
+                  max="1.5"
+                  step="0.05"
+                  value={settings.font_scale || 1}
+                  onChange={(e) => onFontScale(e.target.value)}
+                  className="w-full accent-[#FF3B30]"
+                />
+              </Field>
+            </Section>
+
+            <Section title="Privacy" icon={Eye} dense>
+              <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
+              <Toggle label="Show Online Status" checked={settings.show_online_status !== false} onChange={(v) => patch({ show_online_status: v })} />
+              <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
+            </Section>
+
+            <Section title="Notifications" icon={Bell} dense>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
+                {NOTIF_KEYS.map(({ key, label }) => (
+                  <Toggle
+                    key={key}
+                    label={label}
+                    checked={settings.notification_prefs?.[key] !== false}
+                    onChange={(v) => updateNotif(key, v)}
+                  />
+                ))}
+              </div>
+            </Section>
+          </div>
+
+          <div className="space-y-3">
+            <Section title="Security" icon={Lock} dense>
+              <QuickLink to="/profile/edit#sec-security" label="Change Password" />
+              {settings.two_fa_enabled ? (
+                <div className="mt-2 p-3 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-2">
+                  <p className="font-mono text-xs text-[#34C759]">2FA is enabled</p>
+                  <input
+                    type="password"
+                    placeholder="Current password"
+                    value={disable2fa.password}
+                    onChange={(e) => setDisable2fa({ ...disable2fa, password: e.target.value })}
+                    className="inp-field"
+                  />
+                  <input
+                    type="text"
+                    placeholder="2FA code"
+                    value={disable2fa.code}
+                    onChange={(e) => setDisable2fa({ ...disable2fa, code: e.target.value })}
+                    className="inp-field"
+                  />
+                  <button type="button" onClick={handleDisable2fa} className="btn-sm-outline">Disable 2FA</button>
+                </div>
+              ) : twoFa.setup ? (
+                <div className="mt-2 p-3 border border-white/10 rounded-xs space-y-2">
+                  <p className="font-mono text-xs break-all">Secret: {twoFa.setup.secret}</p>
+                  <input
+                    type="text"
+                    placeholder="6-digit code"
+                    value={twoFa.code}
+                    onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value })}
+                    className="inp-field"
+                  />
+                  <button type="button" onClick={enable2fa} className="btn-sm-solid">Enable 2FA</button>
+                </div>
               ) : (
-                sessions.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between py-2 border-b border-white/5">
-                    <div>
-                      <div className="font-mono text-sm">{s.device_name || "Device"}</div>
-                      <div className="font-mono text-[10px] opacity-50">{s.ip} · {s.last_active?.slice(0, 16)}</div>
+                <button type="button" onClick={setup2fa} className="btn-sm-solid mt-1">Set Up 2FA</button>
+              )}
+
+              <details className="mt-2 group">
+                <summary className="font-mono text-[10px] uppercase tracking-widest opacity-60 cursor-pointer hover:opacity-100">
+                  Sessions &amp; login history
+                </summary>
+                <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                  {sessions.slice(0, 5).map((s) => (
+                    <div key={s.id} className="flex items-center justify-between py-1 border-b border-white/5">
+                      <div className="min-w-0">
+                        <div className="font-mono text-xs truncate">{s.device_name || "Device"}</div>
+                        <div className="font-mono text-[10px] opacity-50">{s.ip}</div>
+                      </div>
+                      <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF3B30] font-mono text-[10px] uppercase shrink-0">
+                        Revoke
+                      </button>
                     </div>
-                    <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF3B30] font-mono text-[10px] uppercase">
-                      Revoke
+                  ))}
+                  {loginHistory.slice(0, 5).map((h) => (
+                    <div key={h.id} className="py-1 border-b border-white/5 font-mono text-[10px]">
+                      <span className={h.success ? "text-[#34C759]" : "text-[#FF3B30]"}>{h.success ? "✓" : "✗"}</span>
+                      {" "}{h.ip} · {h.created_at?.slice(0, 16)}
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </Section>
+
+            {blocks.length > 0 && (
+              <Section title="Blocked Users" icon={Ban} dense>
+                {blocks.map((b) => (
+                  <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
+                    <span className="font-editorial text-sm">{b.user?.username ? `@${b.user.username}` : (b.user?.name || b.block?.blocked_id)}</span>
+                    <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
+                      Unblock
                     </button>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </Section>
+            )}
 
-            <div className="mt-6">
-              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-3">Login History</h4>
-              {loginHistory.slice(0, 10).map((h) => (
-                <div key={h.id} className="py-2 border-b border-white/5 font-mono text-xs">
-                  <span className={h.success ? "text-[#34C759]" : "text-[#FF3B30]"}>{h.success ? "✓" : "✗"}</span>
-                  {" "}{h.ip} · {h.created_at?.slice(0, 16)}
-                </div>
-              ))}
-            </div>
-          </Section>
+            {mutes.length > 0 && (
+              <Section title="Muted Users" icon={VolumeX} dense>
+                {mutes.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between py-1">
+                    <span className="font-mono text-sm">{m.muted_id}</span>
+                    <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unmute</button>
+                  </div>
+                ))}
+              </Section>
+            )}
 
-          {/* Block list — only when non-empty to avoid empty gap blocks */}
-          {blocks.length > 0 && (
-          <Section title="Blocked Users" icon={Ban} dense>
-            {blocks.map((b) => (
-              <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
-                <span className="font-editorial">{b.user?.name || b.block?.blocked_id}</span>
-                <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
-                  Unblock
-                </button>
-              </div>
-            ))}
-          </Section>
-          )}
+            {restricted.length > 0 && (
+              <Section title="Restricted Users" icon={UserX} dense>
+                {restricted.map((r) => (
+                  <div key={r.id} className="flex items-center justify-between py-1">
+                    <span className="font-mono text-sm">{r.restricted_id}</span>
+                    <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unrestrict</button>
+                  </div>
+                ))}
+              </Section>
+            )}
 
-          {mutes.length > 0 && (
-          <Section title="Muted Users" icon={VolumeX} dense>
-            {mutes.map((m) => (
-              <div key={m.id} className="flex items-center justify-between py-1">
-                <span className="font-mono text-sm">{m.muted_id}</span>
-                <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unmute</button>
-              </div>
-            ))}
-          </Section>
-          )}
+            <DraftsAndAnalytics />
 
-          {restricted.length > 0 && (
-          <Section title="Restricted Users" icon={UserX} dense>
-            {restricted.map((r) => (
-              <div key={r.id} className="flex items-center justify-between py-1">
-                <span className="font-mono text-sm">{r.restricted_id}</span>
-                <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unrestrict</button>
-              </div>
-            ))}
-          </Section>
-          )}
+            <Section title="Your Data" icon={Download} dense>
+              <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
+                <Download className="w-4 h-4" /> Download My Data (JSON)
+              </button>
+            </Section>
 
-          {/* Drafts & Creator analytics */}
-          <DraftsAndAnalytics />
-
-          {/* Data & Delete */}
-          <Section title="Your Data" icon={Download} dense>
-            <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
-              <Download className="w-4 h-4" /> Download My Data (JSON)
-            </button>
-          </Section>
-
-          <Section title="Danger Zone" icon={Trash2} dense>
-            <p className="font-mono text-xs opacity-60 mb-3">Permanently delete your account and all associated data.</p>
-            <input
-              type="text"
-              placeholder='Type DELETE to confirm'
-              value={deleteConfirm}
-              onChange={(e) => setDeleteConfirm(e.target.value)}
-              className="inp-field mb-3"
-            />
-            <button type="button" onClick={deleteAccount} className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold">
-              Delete Account
-            </button>
-          </Section>
+            <Section title="Danger Zone" icon={Trash2} dense>
+              <p className="font-mono text-[11px] opacity-60 mb-2">Permanently delete your account and all data.</p>
+              <input
+                type="text"
+                placeholder='Type DELETE to confirm'
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                className="inp-field mb-2"
+              />
+              <button type="button" onClick={deleteAccount} className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold">
+                Delete Account
+              </button>
+            </Section>
+          </div>
         </div>
       </div>
-      <Footer />
       <style>{`
-        .inp-select, .inp-field { width: 100%; background: #121212; border: 1px solid rgba(255,255,255,0.15); padding: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #F4F4F0; border-radius: 2px; margin-top: 0.25rem; }
+        .inp-select, .inp-field { width: 100%; background: #121212; border: 1px solid rgba(255,255,255,0.15); padding: 0.45rem 0.55rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #F4F4F0; border-radius: 2px; margin-top: 0.2rem; }
         .inp-select:focus, .inp-field:focus { outline: none; border-color: #FF3B30; }
-        .btn-sm-solid { padding: 0.5rem 1rem; background: #FF3B30; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; color: white; }
-        .btn-sm-outline { padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; }
+        .btn-sm-solid { padding: 0.4rem 0.85rem; background: #FF3B30; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; color: white; }
+        .btn-sm-outline { padding: 0.4rem 0.85rem; border: 1px solid rgba(255,255,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; }
       `}</style>
     </div>
   );
@@ -442,10 +457,26 @@ function Field({ label, children }) {
 
 function Toggle({ label, checked, onChange }) {
   return (
-    <label className="flex items-center justify-between py-1 cursor-pointer min-h-[36px]">
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="flex items-center justify-between py-1 cursor-pointer min-h-[34px] w-full text-left"
+    >
       <span className="font-mono text-sm">{label}</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="accent-[#FF3B30] w-4 h-4" />
-    </label>
+      <span
+        className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors ${
+          checked ? "bg-[#FF3B30]" : "bg-white/20"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+            checked ? "translate-x-4" : "translate-x-0"
+          }`}
+        />
+      </span>
+    </button>
   );
 }
 
@@ -491,46 +522,42 @@ function DraftsAndAnalytics() {
 
   return (
     <>
+      {(drafts.length > 0 || scheduled.length > 0) && (
       <Section title="Drafts & Scheduled" icon={Monitor} dense>
-        {(drafts.length === 0 && scheduled.length === 0) ? (
-          <p className="font-mono text-xs opacity-40">No drafts or scheduled posts</p>
-        ) : (
+        {drafts.length > 0 && (
           <>
-            {drafts.length > 0 && (
-              <>
-                <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
-                {drafts.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
-                    <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
-                    <div className="flex gap-2 shrink-0">
-                      <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
-                      <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-            {scheduled.length > 0 && (
-              <>
-                <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Scheduled</h4>
-                {scheduled.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
-                    <div className="truncate">
-                      <span className="font-editorial text-sm">{p.title || p.text || "Untitled"}</span>
-                      <div className="font-mono text-[10px] opacity-50">{p.scheduled_at}</div>
-                    </div>
-                    <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
-                  </div>
-                ))}
-              </>
-            )}
+            <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
+            {drafts.map((p) => (
+              <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
+                <div className="flex gap-2 shrink-0">
+                  <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
+                  <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+        {scheduled.length > 0 && (
+          <>
+            <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Scheduled</h4>
+            {scheduled.map((p) => (
+              <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                <div className="truncate">
+                  <span className="font-editorial text-sm">{p.title || p.text || "Untitled"}</span>
+                  <div className="font-mono text-[10px] opacity-50">{p.scheduled_at}</div>
+                </div>
+                <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
+              </div>
+            ))}
           </>
         )}
       </Section>
+      )}
 
       {analytics && (
-        <Section title="Social Analytics" icon={Eye}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Section title="Social Analytics" icon={Eye} dense>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {[
               ["Profile Views", analytics.profile_views],
               ["Post Views", analytics.post_views],
@@ -541,9 +568,9 @@ function DraftsAndAnalytics() {
               ["Engagement %", analytics.engagement_rate],
               ["Posts", analytics.posts_count],
             ].map(([label, val]) => (
-              <div key={label} className="p-3 border border-white/10 bg-black/30">
+              <div key={label} className="p-2 border border-white/10 bg-black/30">
                 <div className="font-mono text-[9px] uppercase tracking-widest opacity-50">{label}</div>
-                <div className="font-editorial text-2xl mt-1">{val ?? 0}</div>
+                <div className="font-editorial text-xl mt-0.5">{val ?? 0}</div>
               </div>
             ))}
           </div>

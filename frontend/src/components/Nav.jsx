@@ -37,8 +37,6 @@ export function Nav({ variant = "dark" }) {
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
-        // Feed is a primary dashboard button; keep in menu for access from other pages
-        { to: "/feed", label: "Feed", emphasize: true },
         { to: "/search", label: "Search" },
         { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
@@ -93,7 +91,7 @@ export function Nav({ variant = "dark" }) {
                   <span className="font-bold text-white tracking-wider">
                     {user.username
                       ? `@${String(user.username).replace(/^@/, "")}`
-                      : (user.name || user.email || "User").split(" ")[0]}
+                      : (user.handle || user.email || "User").replace(/^@/, "").split(" ")[0]}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
                 </button>
@@ -113,7 +111,9 @@ export function Nav({ variant = "dark" }) {
                       >
                         <div className="p-4 hairline-b bg-white/[0.03]">
                           <div className="font-editorial text-xl">
-                            {user.username ? `@${String(user.username).replace(/^@/, "")}` : (user.name || user.email)}
+                            {user.username
+                              ? `@${String(user.username).replace(/^@/, "")}`
+                              : (user.handle || user.email || "User")}
                           </div>
                           <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
                         </div>
@@ -124,11 +124,7 @@ export function Nav({ variant = "dark" }) {
                               to={it.to}
                               onClick={() => setOpen(false)}
                               data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                              className={`block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase transition-colors ${
-                                it.emphasize
-                                  ? "bg-[#FF3B30]/15 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white font-bold rounded-sm my-0.5"
-                                  : "hover:bg-white/10 text-white/90 hover:text-white"
-                              }`}
+                              className="block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/10 text-white/90 hover:text-white transition-colors"
                             >
                               {it.label}
                             </Link>

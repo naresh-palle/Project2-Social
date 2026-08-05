@@ -70,30 +70,41 @@ export default function Dashboard() {
                   {(() => {
                     const uname = String(user?.username || user?.handle || "").replace(/^@/, "").trim();
                     if (uname) return <>@{uname}<span className="tick text-[#FF3B30]">.</span></>;
-                    return <>{user?.name || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span></>;
+                    return <>{user?.email?.split("@")[0] || "User"}<span className="tick text-[#FF3B30]">.</span></>;
                   })()}
                 </h1>
-                <p className="font-sans text-sm opacity-65 mt-2">
-                  {user?.name ? <span className="opacity-90">{user.name}</span> : null}
-                  {user?.name && (user?.role === "admin" || user?.role === "owner" || user?.role === "agent" || user?.email) ? " · " : null}
-                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : null}
-                  {user?.email ? `${user?.name || user?.role === "admin" || user?.role === "owner" || user?.role === "agent" ? " · " : ""}${user.email}` : ""}
-                </p>
               </div>
             </div>
 
             {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
-              <div className="flex items-center gap-3">
-                <Link to="/feed" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
-                  <Newspaper className="w-4 h-4" /> Feed
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/feed"
+                  title="Feed"
+                  aria-label="Feed"
+                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] !px-3 !py-3"
+                >
+                  <Newspaper className="w-5 h-5" />
                 </Link>
-                <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
-                  <Compass className="w-4 h-4" /> Browse Briefs
+                <Link
+                  to="/marketplace"
+                  title="Browse Briefs"
+                  aria-label="Browse Briefs"
+                  data-testid="browse-campaigns-btn"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-3 !py-3"
+                >
+                  <Compass className="w-5 h-5" />
                 </Link>
               </div>
             ) : (
-              <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
-                <Compass className="w-4 h-4" /> Browse Briefs
+              <Link
+                to="/marketplace"
+                title="Browse Briefs"
+                aria-label="Browse Briefs"
+                data-testid="browse-campaigns-btn"
+                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-3 !py-3"
+              >
+                <Compass className="w-5 h-5" />
               </Link>
             )}
 

@@ -274,9 +274,14 @@ export default function ProfileView() {
             {categoriesList.length > 0 && (
               <div className="border border-white/10 bg-white/[0.02] p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Niches</h3>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 items-start">
                   {categoriesList.map((c) => (
-                    <span key={c} className="px-2 py-1 bg-white/5 border border-white/10 text-[11px] font-sans">{c}</span>
+                    <span
+                      key={c}
+                      className="inline-flex w-fit max-w-full whitespace-nowrap px-2.5 py-1 bg-white/5 border border-white/10 text-[11px] font-sans leading-tight"
+                    >
+                      {c}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -285,9 +290,14 @@ export default function ProfileView() {
             {languagesList.length > 0 && (
               <div className="border border-white/10 bg-white/[0.02] p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Languages</h3>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 items-start">
                   {languagesList.map((l) => (
-                    <span key={l} className="px-2 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[11px] font-sans text-[#FF3B30]">{l}</span>
+                    <span
+                      key={l}
+                      className="inline-flex w-fit max-w-full whitespace-nowrap px-2.5 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[11px] font-sans text-[#FF3B30] leading-tight"
+                    >
+                      {l}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -296,9 +306,14 @@ export default function ProfileView() {
             {isCreator && contentTypesList.length > 0 && (
               <div className="border border-white/10 bg-white/[0.02] p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Content types</h3>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 items-start">
                   {contentTypesList.map((t) => (
-                    <span key={t} className="px-2 py-1 bg-white/5 border border-white/10 text-[11px] font-sans text-white/85">{t}</span>
+                    <span
+                      key={t}
+                      className="inline-flex w-fit max-w-full whitespace-nowrap px-2.5 py-1 bg-white/5 border border-white/10 text-[11px] font-sans text-white/85 leading-tight"
+                    >
+                      {t}
+                    </span>
                   ))}
                 </div>
               </div>
