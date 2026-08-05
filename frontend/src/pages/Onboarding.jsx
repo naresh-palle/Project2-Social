@@ -102,7 +102,7 @@ export default function Onboarding() {
 
               <div>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold">
-                  Your Agency File is Submitted<span className="tick">.</span>
+                  Your Agency File is Submitted
                 </h1>
                 <p className="font-mono text-xs opacity-70 mt-2 leading-relaxed">
                   Super Admin is currently verifying your agency credentials. Once approved, your dedicated Agent Console will unlock automatically.
@@ -188,7 +188,7 @@ export default function Onboarding() {
 
               <div>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-white">
-                  Application Revision Needed<span className="tick">.</span>
+                  Application Revision Needed
                 </h1>
                 <div className="mt-4 p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs text-white">
                   <span className="text-[#FF3B30] font-bold uppercase block mb-1">Admin Feedback:</span>
@@ -225,7 +225,7 @@ export default function Onboarding() {
                 § Talent Agent Application
               </span>
               <h1 className="font-sans text-3xl md:text-5xl font-bold tracking-tight mt-1">
-                Agency <span className="italic text-[#FF3B30]">Credentials.</span>
+                Agency <span className="italic text-[#FF3B30]">Credentials</span>
               </h1>
               <p className="font-mono text-xs opacity-70 mt-2">
                 Enter your complete agency details below. Your file will be submitted to Super Admin for verification.

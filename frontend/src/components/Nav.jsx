@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { formatUsername } from "@/lib/username";
+import { displayAccountName } from "@/lib/username";
 
 export function Nav({ variant = "dark" }) {
   const { user, logout } = useAuth();
@@ -90,7 +90,7 @@ export function Nav({ variant = "dark" }) {
                   className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
                 >
                   <span className="font-bold text-white tracking-wider">
-                    {formatUsername(user.username, user.handle, user.email) || "User"}
+                    {displayAccountName(user)}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
                 </button>
@@ -109,8 +109,8 @@ export function Nav({ variant = "dark" }) {
                         className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-2xl rounded-sm overflow-hidden"
                       >
                         <div className="p-4 hairline-b bg-white/[0.03]">
-                          <div className="font-editorial text-xl">
-                            {formatUsername(user.username, user.handle, user.email) || "User"}
+                          <div className="font-sans text-base font-semibold truncate">
+                            {displayAccountName(user)}
                           </div>
                           <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
                         </div>

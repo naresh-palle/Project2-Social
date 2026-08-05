@@ -235,7 +235,7 @@ export default function Feed() {
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" /> § Community Feed
             </p>
-            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mt-2">Feed<span className="italic text-[#FF3B30]">.</span></h1>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Feed</h1>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={refresh} disabled={refreshing} className="p-3 border border-white/20 hover:border-[#FF3B30] rounded-xs">

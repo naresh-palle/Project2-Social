@@ -16,7 +16,7 @@ import {
   socialOrNA,
   socialMetricOrNA,
 } from "@/lib/platforms";
-import { formatUsername } from "@/lib/username";
+import { formatUsername, displayAccountName } from "@/lib/username";
 
 export default function ProfileView() {
   const nav = useNavigate();
@@ -106,11 +106,7 @@ export default function ProfileView() {
   const portfolioImages = portfolioItems.filter((item) => item && !/\.(mp4|webm|ogg)$/i.test(item));
   const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
 
-  const displayName =
-    formatUsername(profile.username, profile.handle) ||
-    profile.company ||
-    profile.name ||
-    "Profile";
+  const displayName = displayAccountName(profile, "Profile");
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
@@ -174,7 +170,7 @@ export default function ProfileView() {
               ) : (
                 <div className="w-20 h-20 md:w-24 md:h-24 border-2 border-[#0B0B0E] bg-white/5 flex items-center justify-center shrink-0 shadow-xl">
                   <span className="font-sans text-2xl font-bold text-white/50">
-                    {(profile.username || profile.name || "?")[0]?.toUpperCase()}
+                    {(displayName || "?")[0]?.toUpperCase()}
                   </span>
                 </div>
               )}

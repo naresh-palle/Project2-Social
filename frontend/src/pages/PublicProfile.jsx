@@ -5,7 +5,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
-import { formatUsername } from "@/lib/username";
+import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 
@@ -122,11 +122,7 @@ export default function PublicProfile() {
   }
 
   const isMe = String(me?.id || "") === String(userId || "");
-  const displayName =
-    formatUsername(profile.username, profile.handle) ||
-    profile.company ||
-    profile.name ||
-    "Profile";
+  const displayName = displayAccountName(profile, "Profile");
   const busy = !!actionBusy;
 
   return (

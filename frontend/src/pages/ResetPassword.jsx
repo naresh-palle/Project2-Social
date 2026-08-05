@@ -58,7 +58,7 @@ export default function ResetPassword() {
         >
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Set New Password</p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">
-            Reset <span className="italic text-[#FF3B30]">password.</span>
+            Reset <span className="italic text-[#FF3B30]">password</span>
           </h1>
 
           {!token ? (

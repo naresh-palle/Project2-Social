@@ -2855,9 +2855,16 @@ async def list_conversations(current: dict = Depends(get_current_user)):
         other = users_map.get(other_id)
         if other:
             uname = (other.get("username") or other.get("handle") or "").lstrip("@").rstrip(".,")
-            c["other_name"] = uname or other.get("company") or other.get("name") or "User"
-            c["other_handle"] = uname or other.get("company") or "partner"
-            c["other_company"] = other.get("company")
+            role = other.get("role")
+            company = (other.get("company") or "").strip() or None
+            if role in ("owner", "agent") and company:
+                display = company
+            else:
+                display = uname or company or other.get("name") or "User"
+            c["other_name"] = display
+            c["other_handle"] = uname or company or "partner"
+            c["other_company"] = company
+            c["other_role"] = role
             c["other_avatar"] = other.get("avatar")
         else:
             c["other_name"] = c.get("campaign_brand") or "Platform Partner"
@@ -3843,6 +3850,37 @@ async def ai_bio(inp: AIBioInput, current: dict = Depends(get_current_user)):
     )
     text = await call_llm(system, prompt)
     return {"bio": text.strip().strip('"')}
+
+
+@api_router.post("/ai/data-report")
+async def ai_data_report(current: dict = Depends(get_current_user)):
+    """Short narrative summary for the Your Data PDF export (any role)."""
+    role = current.get("role") or "member"
+    company = (current.get("company") or "").strip()
+    name = current.get("name") or current.get("username") or current.get("handle") or "User"
+    primary = company if role in ("owner", "agent") and company else name
+    niches = current.get("niches") or current.get("category") or []
+    if isinstance(niches, str):
+        niches = [s.strip() for s in niches.split(",") if s.strip()]
+    city = ", ".join([p for p in [current.get("city"), current.get("state")] if p]) or current.get("location") or "unspecified"
+    industry = current.get("industry") or ""
+    bio = (current.get("bio") or "")[:280]
+    system = (
+        "You write polished personal-data report executive summaries for CR8 Studio. "
+        "2-3 sentences, professional, no JSON, no bullet lists, no invented metrics."
+    )
+    prompt = (
+        f"Write an executive summary for a data-export PDF.\n"
+        f"Primary label: {primary}\nRole: {role}\nCompany/Brand: {company or 'n/a'}\n"
+        f"Niches/Category: {niches or 'n/a'}\nIndustry: {industry or 'n/a'}\n"
+        f"Location: {city}\nExisting bio: {bio or 'n/a'}\n"
+        "Return ONLY the summary paragraph."
+    )
+    try:
+        text = await call_llm(system, prompt)
+        return {"summary": (text or "").strip().strip('"')}
+    except Exception:
+        return {"summary": ""}
 
 
 @api_router.post("/ai/pricing")

@@ -55,8 +55,8 @@ export default function Marketplace() {
         <div className="hairline-b pb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="font-sans text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
-            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-              The <span className="italic">file</span> on record<span className="tick">.</span>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-tight mt-2">
+              The <span className="italic">file</span> on record
             </h1>
           </div>
           <Link to="/dashboard" data-testid="back-to-dashboard-btn" className="font-sans text-[11px] tracking-[0.28em] uppercase kinetic-underline flex items-center gap-2 mb-2 text-[#FF3B30]">

@@ -125,7 +125,7 @@ function Hero() {
               }`}
                 style={{ fontSize: "clamp(30px, 4.5vw, 64px)" }}
               >
-                {line}{i === 1 && <span className="tick text-[#F4F4F0]" />}
+                {line}
               </span>
             </MaskLine>
           ))}
@@ -224,7 +224,7 @@ function QuickValue() {
                 § Slide 02 · Quick Value
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
-                WHY CREATORS &amp; BRANDS <span className="italic text-[#FF3B30]">CHOOSE CR8<span className="tick text-[#F4F4F0]">.</span></span>
+                WHY CREATORS &amp; BRANDS <span className="italic text-[#FF3B30]">CHOOSE CR8</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
@@ -373,7 +373,7 @@ function Manifesto() {
               § Slide 03 · Studio Manifesto
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
-              Four Principles <span className="italic text-[#FF3B30]">of Intent<span className="tick text-[#F4F4F0]">.</span></span>
+              Four Principles <span className="italic text-[#FF3B30]">of Intent</span>
             </h2>
           </div>
         </FadeUp>
@@ -458,7 +458,7 @@ function HowItWorks() {
                 § Slide 04 · Journey
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                HOW IT WORKS <span className="italic">· Two Doors · One Studio<span className="tick">.</span></span>
+                HOW IT WORKS <span className="italic">· Two Doors · One Studio</span>
               </h2>
             </div>
             <div className="hidden md:flex gap-4 font-mono text-[11px] tracking-[0.2em] uppercase font-bold">
@@ -574,7 +574,7 @@ function SocialProof() {
               § Slide 05 · Credibility &amp; Proof
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-              “Trusted by creators &amp; brands who <span className="italic text-[#FF3B30]">actually move metrics<span className="tick text-white">.</span></span>”
+              “Trusted by creators &amp; brands who <span className="italic text-[#FF3B30]">actually move metrics</span>”
             </h2>
           </div>
         </FadeUp>
@@ -727,7 +727,7 @@ function FeaturedGrid() {
                 § Slide 06 · Portfolio &amp; Signal
               </span>
               <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-                SELECTED WORK <span className="italic text-[#FF3B30]">SHOWCASE<span className="tick text-white">.</span></span>
+                SELECTED WORK <span className="italic text-[#FF3B30]">SHOWCASE</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from CR8 Creators (Auto-Expanding Grid)</span>
@@ -794,7 +794,7 @@ function PricingSection() {
               § Slide 07 · Transparent Pricing
             </span>
             <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-              PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#34C759]">ACTUALLY PAY<span className="tick text-white">.</span></span>
+              PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#34C759]">ACTUALLY PAY</span>
             </h2>
           </div>
         </FadeUp>
@@ -923,7 +923,7 @@ function FAQ() {
                 § Slide 08 · FAQ
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                Questions? We have <span className="italic text-[#FF3B30]">straightforward answers<span className="tick text-white">.</span></span>
+                Questions? We have <span className="italic text-[#FF3B30]">straightforward answers</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/70 font-bold hidden md:block">
@@ -962,7 +962,7 @@ function FinalCTA() {
             § Slide 09 · Final Conversion
           </span>
           <h2 className="font-editorial text-5xl md:text-7xl font-bold mt-2">
-            Ready to Bridge <span className="italic text-[#FF3B30]">the Gap?<span className="tick text-white">.</span></span>
+            Ready to Bridge <span className="italic text-[#FF3B30]">the Gap?</span>
           </h2>
         </FadeUp>
 

@@ -33,7 +33,7 @@ export default function RegisterSplash() {
               <Sparkles className="w-3.5 h-3.5" /> Studio Entry Gate
             </div>
             <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15]">
-              Choose your <span className="italic text-[#FF3B30]">door.</span>
+              Choose your <span className="italic text-[#FF3B30]">door</span>
             </h1>
             <p className="font-mono text-xs opacity-60 uppercase tracking-widest mt-3 max-w-md mx-auto">
               {googleState

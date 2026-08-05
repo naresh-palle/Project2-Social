@@ -110,8 +110,8 @@ export default function NewCampaign() {
         <div className="flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ New brief</p>
-            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-              Write the <span className="italic">brief</span><span className="tick">.</span>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-tight mt-2">
+              Write the <span className="italic">brief</span>
             </h1>
           </div>
           <button onClick={() => setAiOpen(v => !v)} data-testid="ai-toggle" className="btn-pill">

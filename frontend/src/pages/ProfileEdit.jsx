@@ -196,7 +196,11 @@ export default function ProfileEdit() {
         agent_type: user.agent_type || "company_agent",
         cover_photo: user.cover_photo || "",
         date_of_birth: toIsoDate(user.date_of_birth) || "",
-        gender: user.gender || "",
+        gender: ["male", "female", "other"].includes(user.gender)
+          ? user.gender
+          : user.gender
+            ? "other"
+            : "",
         is_private: user.is_private || false,
       });
     }
@@ -363,6 +367,17 @@ export default function ProfileEdit() {
     }
 
     // City / state come from signup (pincode) — not required to re-enter here
+
+    if (!f.gender?.trim() || !["male", "female", "other"].includes(f.gender)) {
+      toast.error("Missing Data: Please select Gender (Male, Female, or Others).");
+      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (!toIsoDate(f.date_of_birth)) {
+      toast.error("Missing Data: Please select your Date of Birth.");
+      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
 
     if (!isCreator) {
       if (!f.company?.trim()) {
@@ -694,9 +709,9 @@ export default function ProfileEdit() {
       
       <Nav />
       <ThemeToaster />
-      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
+      <div className="pt-20 max-w-4xl mx-auto px-3 md:px-5 pb-8 relative">
         <div className="flex items-center justify-between gap-3">
-            <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
+            <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
                   <div className="w-9 h-9 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
@@ -734,21 +749,35 @@ export default function ProfileEdit() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
                 {isCreator ? (
-                  <F label="Username">
-                    <input
-                      className="inp opacity-80"
-                      value={formatUsername(f.username) || ""}
-                      readOnly
-                      disabled
-                      data-testid="reg-username-readonly"
-                    />
-                  </F>
+                  <>
+                    <F label="Full Name *"><input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} /></F>
+                    <F label="Username">
+                      <input
+                        className="inp opacity-80"
+                        value={formatUsername(f.username) || ""}
+                        readOnly
+                        disabled
+                        data-testid="reg-username-readonly"
+                      />
+                    </F>
+                  </>
                 ) : (
-                  <F label="Company / Brand Name *">
-                    <input required className="inp" value={f.company || ""} onChange={e=>setF({...f, company: e.target.value})} />
-                  </F>
+                  <>
+                    <F label="Company / Brand Name">
+                      <input
+                        className="inp opacity-80 cursor-not-allowed"
+                        value={f.company || ""}
+                        readOnly
+                        disabled
+                        title="Brand / company name cannot be changed"
+                        data-testid="company-name-readonly"
+                      />
+                    </F>
+                    <F label="Contact name *">
+                      <input required className="inp" value={f.name} onChange={e=>setF({...f,name:e.target.value})} />
+                    </F>
+                  </>
                 )}
               </div>
 
@@ -842,21 +871,21 @@ export default function ProfileEdit() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-                <F label="Date of Birth">
+                <F label="Date of Birth *">
                   <DateField
                     birthDate
+                    required
                     value={f.date_of_birth || ""}
                     onChange={(v) => setF({ ...f, date_of_birth: v })}
                     placeholder="Select day, month, and year"
                   />
                 </F>
-                <F label="Gender">
-                  <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                    <option value="" className="bg-[#0B0B0E]">Prefer not to say</option>
-                    <option value="female" className="bg-[#0B0B0E]">Female</option>
+                <F label="Gender *">
+                  <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                    <option value="" className="bg-[#0B0B0E]">Select gender…</option>
                     <option value="male" className="bg-[#0B0B0E]">Male</option>
-                    <option value="non-binary" className="bg-[#0B0B0E]">Non-binary</option>
-                    <option value="other" className="bg-[#0B0B0E]">Other</option>
+                    <option value="female" className="bg-[#0B0B0E]">Female</option>
+                    <option value="other" className="bg-[#0B0B0E]">Others</option>
                   </select>
                 </F>
                 <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer min-h-[48px]">

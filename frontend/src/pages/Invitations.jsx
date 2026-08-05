@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Check, X, Send } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -71,84 +70,83 @@ export default function Invitations() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <Nav />
       <ThemeToaster />
-      <div className="pt-28 max-w-[1400px] mx-auto px-6 md:px-10 pb-20">
-        <div className="hairline-b pb-6 flex items-baseline justify-between gap-4 flex-wrap">
+      <div className="pt-24 max-w-4xl mx-auto px-4 md:px-6 pb-16">
+        <div className="pb-4 flex items-center justify-between gap-3 border-b border-white/10">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {subtitle}</p>
-            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-              {title}<span className="tick text-[#FF3B30]">.</span>
-            </h1>
+            <p className="font-sans text-[10px] tracking-widest uppercase opacity-50">{subtitle}</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
           </div>
-          <Link to="/dashboard" className="font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline">
+          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
             ← Dashboard
           </Link>
         </div>
 
         {loading ? (
-          <div className="space-y-4 mt-8 animate-pulse">
+          <div className="space-y-3 mt-5 animate-pulse">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="hairline-t hairline-b hairline-l hairline-r p-6 h-36 bg-white/[0.02]" />
+              <div key={n} className="border border-white/10 p-4 h-24 bg-white/[0.02] rounded-sm" />
             ))}
           </div>
         ) : invs.length === 0 ? (
-          <div className="py-24 text-center space-y-3">
-            <div className="font-sans text-2xl font-semibold tracking-tight opacity-60">
+          <div className="py-16 text-center space-y-2">
+            <div className="font-sans text-base font-medium opacity-60">
               {isCreator ? "No campaign invitations yet." : isCompany ? "No creator invitations yet." : "No invitations on file."}
             </div>
-            <p className="font-mono text-xs opacity-40 uppercase tracking-widest">
+            <p className="font-sans text-xs opacity-40">
               {isCompany ? "Invite creators from a campaign brief" : "Brands will appear here when they invite you"}
             </p>
           </div>
         ) : (
-          <div className="space-y-6 mt-8">
+          <div className="space-y-3 mt-5">
             {invs.map((i, idx) => (
-              <motion.div
+              <div
                 key={i.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.04 }}
                 data-testid={`inv-${i.id}`}
-                className="hairline-t hairline-b hairline-l hairline-r p-6 grid grid-cols-12 gap-6"
+                className="border border-white/10 bg-white/[0.02] rounded-sm p-4 grid grid-cols-12 gap-3"
               >
-                <div className="col-span-12 md:col-span-2 font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">
-                  #{String(idx + 1).padStart(2, "0")}
-                  {i.mock ? <div className="mt-2 text-[#FF3B30] normal-case tracking-widest">Demo</div> : null}
-                </div>
-                <div className="col-span-12 md:col-span-5">
-                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{i.campaign_brand}</div>
-                  <div className="font-editorial text-3xl leading-tight mt-1">{i.campaign_title}</div>
-                  <div className="mt-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">
-                    {isCompany ? "→ Creator " : "→ "}
-                    {i.creator_name}{" "}
-                    {formatUsername(i.creator_handle, i.creator_name)}
+                <div className="col-span-12 md:col-span-7 min-w-0">
+                  <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-50">
+                    <span>#{String(idx + 1).padStart(2, "0")}</span>
+                    {i.mock ? <span className="text-[#FF3B30]">Demo</span> : null}
+                    <span>· {i.campaign_brand}</span>
                   </div>
-                  <p className="mt-3 italic opacity-80">&ldquo;{i.message}&rdquo;</p>
+                  <div className="font-sans text-base md:text-lg font-semibold mt-1 leading-snug">{i.campaign_title}</div>
+                  <div className="mt-1 font-sans text-xs opacity-60">
+                    {isCompany ? "Creator: " : ""}
+                    {formatUsername(i.creator_handle, i.creator_name) || i.creator_name}
+                  </div>
+                  {i.message ? (
+                    <p className="mt-2 font-sans text-sm opacity-75 leading-snug">&ldquo;{i.message}&rdquo;</p>
+                  ) : null}
                 </div>
-                <div className="col-span-6 md:col-span-2 font-editorial">
-                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">Offer</div>
-                  <div className="text-3xl italic text-[#FF3B30]">₹{Number(i.offer || i.budget || 15000).toLocaleString()}</div>
-                  {i.counter_offer && (
+                <div className="col-span-6 md:col-span-2">
+                  <div className="font-sans text-[10px] uppercase tracking-wider opacity-50">Offer</div>
+                  <div className="font-sans text-lg font-semibold text-[#FF3B30] mt-0.5">
+                    ₹{Number(i.offer || i.budget || 15000).toLocaleString()}
+                  </div>
+                  {i.counter_offer ? (
                     <>
-                      <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 mt-2">Counter Offer</div>
-                      <div className="text-2xl font-editorial italic text-white">₹{Number(i.counter_offer).toLocaleString()}</div>
+                      <div className="font-sans text-[10px] uppercase tracking-wider opacity-50 mt-2">Counter</div>
+                      <div className="font-sans text-base font-semibold mt-0.5">
+                        ₹{Number(i.counter_offer).toLocaleString()}
+                      </div>
                     </>
-                  )}
+                  ) : null}
                 </div>
-                <div className="col-span-6 md:col-span-3 flex flex-col items-end justify-between">
+                <div className="col-span-6 md:col-span-3 flex flex-col items-end justify-between gap-2">
                   <div
-                    className={`font-mono text-[10px] tracking-[0.3em] uppercase ${
-                      i.status === "accepted" ? "text-[#34C759]" : i.status === "rejected" ? "opacity-40" : "opacity-80"
+                    className={`font-sans text-[10px] tracking-wider uppercase ${
+                      i.status === "accepted" ? "text-[#34C759]" : i.status === "rejected" ? "opacity-40" : "opacity-70"
                     }`}
                   >
                     {i.status}
                   </div>
                   {isCreator && i.status === "pending" && (
-                    <div className="flex gap-2 mt-4">
-                      <button data-testid={`inv-accept-${i.id}`} onClick={() => act(i.id, "accept")} className="btn-solid text-xs">
+                    <div className="flex gap-2">
+                      <button data-testid={`inv-accept-${i.id}`} onClick={() => act(i.id, "accept")} className="btn-solid text-xs !py-2 !px-3">
                         <Check className="w-3 h-3" /> Accept
                       </button>
-                      <button data-testid={`inv-reject-${i.id}`} onClick={() => act(i.id, "reject")} className="btn-pill text-xs">
+                      <button data-testid={`inv-reject-${i.id}`} onClick={() => act(i.id, "reject")} className="btn-pill text-xs !py-2 !px-3">
                         <X className="w-3 h-3" /> Decline
                       </button>
                     </div>
@@ -157,31 +155,31 @@ export default function Invitations() {
                 {isCreator && i.status === "pending" && (
                   <div className="col-span-12">
                     {counterId === i.id ? (
-                      <div className="hairline-t pt-4 grid grid-cols-12 gap-3 items-end">
-                        <div className="col-span-3">
-                          <label className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Counter offer</label>
+                      <div className="border-t border-white/10 pt-3 grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-12 sm:col-span-3">
+                          <label className="font-sans text-[10px] uppercase tracking-wider opacity-50">Counter offer</label>
                           <input
                             type="number"
                             data-testid={`inv-counter-input-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-2"
+                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-1.5 font-sans text-sm"
                             value={counter}
                             onChange={(e) => setCounter(e.target.value)}
                           />
                         </div>
-                        <div className="col-span-7">
-                          <label className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Note</label>
+                        <div className="col-span-12 sm:col-span-7">
+                          <label className="font-sans text-[10px] uppercase tracking-wider opacity-50">Note</label>
                           <input
                             data-testid={`inv-note-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-2"
+                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-1.5 font-sans text-sm"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                           />
                         </div>
-                        <div className="col-span-2 flex gap-2">
+                        <div className="col-span-12 sm:col-span-2">
                           <button
                             onClick={() => act(i.id, "counter", { counter_offer: Number(counter), note })}
                             data-testid={`inv-send-counter-${i.id}`}
-                            className="btn-solid text-xs"
+                            className="btn-solid text-xs w-full justify-center !py-2"
                           >
                             <Send className="w-3 h-3" /> Send
                           </button>
@@ -189,7 +187,7 @@ export default function Invitations() {
                       </div>
                     ) : (
                       <button
-                        className="mt-2 font-mono text-[11px] tracking-[0.28em] uppercase kinetic-underline text-[#FF3B30]"
+                        className="mt-1 font-sans text-xs uppercase tracking-wider text-[#FF3B30]"
                         data-testid={`inv-counter-btn-${i.id}`}
                         onClick={() => setCounterId(i.id)}
                       >
@@ -198,7 +196,7 @@ export default function Invitations() {
                     )}
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

@@ -491,7 +491,7 @@ export default function Register() {
           </div>
 
           <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0">
-            Register as <span className="italic text-[#FF3B30]">{roleLabel}.</span>
+            Register as <span className="italic text-[#FF3B30]">{roleLabel}</span>
           </h1>
 
           <div className="mt-1.5 w-full shrink-0">

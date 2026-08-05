@@ -231,7 +231,7 @@ export default function Login() {
             § Studio Sign In
           </p>
           <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
-            Return to <span className="italic text-[#FF3B30]">the studio.</span>
+            Return to <span className="italic text-[#FF3B30]">the studio</span>
           </h1>
 
           {/* LOGIN METHOD SWITCHER (Password vs Mobile OTP) */}

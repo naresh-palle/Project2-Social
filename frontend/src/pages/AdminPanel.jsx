@@ -342,7 +342,7 @@ export function AdminPanel() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
                 <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ Super Admin Console</p>
-                <h1 className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-none mt-2">Platform Console<span className="text-[#FF3B30]">.</span></h1>
+                <h1 className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-none mt-2">Platform Console</h1>
                 <div className="flex gap-6 mt-8 font-sans text-xs uppercase tracking-widest flex-wrap">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
                     <button onClick={() => setTab("agent_approvals")} className={`pb-2 border-b-2 transition-colors ${tab === "agent_approvals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>

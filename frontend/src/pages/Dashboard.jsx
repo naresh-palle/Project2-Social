@@ -12,7 +12,7 @@ import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
-import { formatUsername } from "@/lib/username";
+import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
@@ -49,27 +49,27 @@ export default function Dashboard() {
       <div className="relative z-10">
         <Nav />
         <ThemeToaster />
-        <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
-          <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border border-white/20 shadow-2xl relative">
+        <div className="pt-24 max-w-[1400px] mx-auto px-4 md:px-8 pb-16">
+          <div className="border-b border-white/10 pb-5 mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 border border-white/20 relative">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
+                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover" />
                 ) : (
                   <div 
-                    className="w-full h-full flex items-center justify-center font-sans italic text-3xl text-white"
-                    style={{ backgroundColor: `hsl(${((user?.name || user?.username || "Creator").length) * 45}, 65%, 40%)` }}
+                    className="w-full h-full flex items-center justify-center font-sans text-xl text-white"
+                    style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
                   >
-                    {(user?.name || user?.username || "C")[0]?.toUpperCase()}
+                    {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                   </div>
                 )}
               </div>
               <div>
-                <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-[#FF3B30] font-semibold">
-                  § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
+                <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
+                  {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Creator desk"}
                 </p>
-                <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-                  {formatUsername(user?.username, user?.handle, user?.email) || "User"}
+                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-tight mt-1">
+                  {displayAccountName(user)}
                 </h1>
                 {(() => {
                   const niches = user?.niches || user?.category;
@@ -84,7 +84,7 @@ export default function Dashboard() {
                   const city = (user?.city || user?.location || "").trim() || null;
                   if (!category && !city) return null;
                   return (
-                    <p className="font-sans text-sm md:text-base text-[#F4F4F0]/70 mt-2 tracking-wide">
+                    <p className="font-sans text-xs opacity-60 mt-1">
                       {[category, city].filter(Boolean).join(" · ")}
                     </p>
                   );
@@ -260,7 +260,7 @@ function OwnerPanel() {
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans font-bold text-xl md:text-2xl leading-tight mt-2 text-white tracking-tight">{t.v}</div>
             <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
@@ -339,7 +339,7 @@ function OwnerPanel() {
                     <img src={work.avatar} alt={work.creatorName} className="w-10 h-10 rounded-full object-cover border border-white/20" />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h4 className="font-sans text-xl font-bold">{work.creatorName}</h4>
+                        <h4 className="font-sans text-sm font-semibold">{work.creatorName}</h4>
                         {work.verified && <ShieldCheck className="w-4 h-4 text-[#FF3B30]" />}
                       </div>
                       <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">{work.handle}</p>
@@ -417,7 +417,7 @@ function OwnerPanel() {
                 <div className="flex flex-col justify-between flex-1">
                   <div>
                     <div className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.category || c.city || "Verified Creator"}</div>
-                    <h3 className="font-sans text-2xl leading-tight mt-1">{c.name || c.creatorName}</h3>
+                    <h3 className="font-sans text-base md:text-lg leading-tight font-semibold mt-1">{c.name || c.creatorName}</h3>
                     <p className="text-xs font-sans uppercase opacity-70 mt-2">{formatUsername(c.handle, c.username) || "creator"}</p>
                   </div>
                   <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-sans text-[10px] tracking-[0.2em] uppercase">
@@ -548,7 +548,7 @@ function InfluencerPanel() {
             className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-3xl md:text-4xl leading-[1.15] mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans font-bold text-xl md:text-2xl leading-tight mt-2 text-white tracking-tight">{t.v}</div>
             <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
@@ -622,7 +622,7 @@ function InfluencerPanel() {
 
                   {/* Brand & Title */}
                   <p className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
-                  <h3 className="font-sans text-3xl font-bold leading-tight group-hover:text-[#FF3B30] transition-colors">
+                  <h3 className="font-sans text-base font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
                     {c.title}
                   </h3>
                   <p className="font-sans text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
@@ -646,7 +646,7 @@ function InfluencerPanel() {
                 <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
                   <div>
                     <span className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
-                    <span className="font-sans italic text-3xl text-white font-bold">
+                    <span className="font-sans italic text-xl text-white font-bold">
                        ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
                     </span>
                   </div>
@@ -727,7 +727,7 @@ function AgentPanel() {
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console
           </span>
-          <h2 className="font-sans text-3xl md:text-5xl mt-1">
+          <h2 className="font-sans text-xl md:text-2xl mt-1">
             {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
@@ -777,18 +777,18 @@ function CampaignRow({ c }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-[220px] hover:border-[#FF3B30]/50 transition-all"
+      className="p-4 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-[180px] hover:border-[#FF3B30]/50 transition-all"
     >
       <div>
-        <div className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
-        <h3 className="font-sans text-3xl leading-tight mt-1">{c.title}</h3>
-        <p className="text-xs font-sans opacity-70 mt-3 line-clamp-3 leading-relaxed">{c.description}</p>
+        <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
+        <h3 className="font-sans text-base leading-snug font-semibold mt-1">{c.title}</h3>
+        <p className="text-xs font-sans opacity-70 mt-2 line-clamp-3 leading-relaxed">{c.description}</p>
       </div>
-      <div className="mt-6 flex items-baseline justify-between border-t border-white/10 pt-4">
+      <div className="mt-4 flex items-baseline justify-between border-t border-white/10 pt-3">
         <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
           Budget:
         </div>
-        <div className="font-sans italic text-2xl text-white font-bold">₹{c.budget}</div>
+        <div className="font-sans text-base text-white font-semibold">₹{c.budget}</div>
       </div>
     </motion.div>
   );
@@ -797,7 +797,7 @@ function CampaignRow({ c }) {
 function Empty({ label }) {
   return (
     <div className="border border-white/10 py-20 text-center rounded-sm bg-white/[0.01]">
-      <div className="font-sans italic text-3xl opacity-60">{label}</div>
+      <div className="font-sans italic text-xl opacity-60">{label}</div>
     </div>
   );
 }

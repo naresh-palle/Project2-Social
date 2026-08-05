@@ -7,6 +7,7 @@ import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
+import { displayPartnerName } from "@/lib/username";
 
 function formatMsgTime(iso) {
   if (!iso) return "";
@@ -321,7 +322,7 @@ export default function Messages() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-sans text-sm font-semibold truncate">{c.other_name}</div>
+                    <div className="font-sans text-sm font-semibold truncate">{displayPartnerName(c)}</div>
                     {c.mock ? <span className="font-sans text-[9px] text-[#FF3B30] uppercase shrink-0">Demo</span> : null}
                   </div>
                   <div className="font-sans text-[10px] opacity-50 truncate mt-0.5">
@@ -339,7 +340,7 @@ export default function Messages() {
                 <div className="px-3 py-2.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
                   <div className="min-w-0">
                     <div className="font-sans text-sm font-semibold truncate flex items-center gap-2">
-                      {active.other_name}
+                      {displayPartnerName(active)}
                       {otherOnline && <span className="font-sans text-[9px] text-[#34C759] uppercase">Online</span>}
                     </div>
                     <div className="font-sans text-[10px] opacity-50 truncate">

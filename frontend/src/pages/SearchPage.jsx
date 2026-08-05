@@ -4,7 +4,7 @@ import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone 
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
-import { formatUsername } from "@/lib/username";
+import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 
@@ -78,7 +78,7 @@ export default function SearchPage() {
       <Nav />
       <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
-        <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mt-2">Search<span className="tick">.</span></h1>
+        <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
 
         <form
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}
@@ -196,11 +196,11 @@ export default function SearchPage() {
 
 function SearchResult({ tab, item }) {
   if (tab === "users" || tab === "location") {
-    const username = formatUsername(item.handle, item.username) || null;
+    const primary = displayAccountName(item, formatUsername(item.handle, item.username) || item.name || "user");
     const subtitle =
       item.role === "owner" || item.role === "agent"
-        ? (item.company || item.name || null)
-        : (item.name && username && item.name !== username ? item.name : null);
+        ? formatUsername(item.handle, item.username) || null
+        : (item.name && primary !== item.name ? item.name : null);
     return (
       <Link
         to={`/u/${item.id}`}
@@ -208,12 +208,12 @@ function SearchResult({ tab, item }) {
       >
         {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/20" />}
         <div>
-          <div className="font-editorial text-xl">{username || item.company || item.name || "user"}</div>
+          <div className="font-sans text-base md:text-lg font-semibold">{primary}</div>
           {subtitle ? (
-            <div className="font-mono text-[10px] text-[#FF3B30] uppercase mt-0.5">{subtitle}</div>
-          ) : username ? (
-            <div className="font-mono text-[10px] opacity-50 uppercase mt-0.5">{item.role || "member"}</div>
-          ) : null}
+            <div className="font-sans text-[10px] text-[#FF3B30] uppercase mt-0.5">{subtitle}</div>
+          ) : (
+            <div className="font-sans text-[10px] opacity-50 uppercase mt-0.5">{item.role || "member"}</div>
+          )}
         </div>
       </Link>
     );

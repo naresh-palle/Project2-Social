@@ -10,7 +10,7 @@ import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
-import { exportPdf } from "@/lib/exportFormats";
+import { exportProfileReportPdf } from "@/lib/exportFormats";
 import { formatUsername } from "@/lib/username";
 
 const NOTIF_KEYS = [
@@ -221,43 +221,48 @@ export default function Settings() {
   const exportData = async () => {
     try {
       const { data } = await api.get("/auth/export-data");
-      const userRow = data?.user && typeof data.user === "object" ? data.user : {};
-      const rows = [
-        {
-          section: "Account",
-          key: "exported_at",
-          value: data?.exported_at || new Date().toISOString(),
-        },
-        ...Object.entries(userRow)
-          .filter(([k]) => !["password_hash", "two_fa_secret", "two_fa_secret_pending"].includes(k))
-          .map(([key, value]) => ({
-            section: "Profile",
-            key,
-            value: value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value),
-          })),
-        ...((data?.posts || []).slice(0, 100).map((p, i) => ({
-          section: "Posts",
-          key: p.id || `post_${i + 1}`,
-          value: p.title || p.text || "",
-        }))),
-        ...((data?.follows || []).slice(0, 100).map((f, i) => ({
-          section: "Follows",
-          key: f.id || `follow_${i + 1}`,
-          value: `${f.follower_id || ""} → ${f.following_id || ""} (${f.status || ""})`,
-        }))),
-        ...((data?.messages || []).slice(0, 50).map((m, i) => ({
-          section: "Messages",
-          key: m.id || `msg_${i + 1}`,
-          value: (m.text || m.body || "").slice(0, 200),
-        }))),
-      ];
-      exportPdf({
-        rows,
-        filename: `cr8-export-${new Date().toISOString().slice(0, 10)}`,
-        title: "CR8 Studio — My Data Export",
-        meta: `User ${user?.username || user?.email || user?.id || ""} · PDF only`,
+      const userRow = data?.user && typeof data.user === "object" ? data.user : (user || {});
+      let aiSummary = "";
+      try {
+        const { data: report } = await api.post("/ai/data-report");
+        if (report?.summary) aiSummary = String(report.summary);
+      } catch {
+        /* optional AI endpoint may be unavailable on older deploys */
+      }
+      if (!aiSummary && (userRow.role === "influencer" || userRow.role === "creator")) {
+        try {
+          const niches = Array.isArray(userRow.niches)
+            ? userRow.niches
+            : Array.isArray(userRow.category)
+              ? userRow.category
+              : String(userRow.category || "")
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+          const { data: ai } = await api.post("/ai/suggest-profile", {
+            niches: niches.slice(0, 6),
+            name: userRow.name,
+            username: userRow.username,
+            handle: userRow.handle,
+            city: userRow.city,
+            state: userRow.state,
+            languages: userRow.languages,
+          });
+          if (ai?.bio) aiSummary = String(ai.bio);
+        } catch {
+          /* local narrative fallback in exportProfileReportPdf */
+        }
+      }
+      exportProfileReportPdf({
+        filename: `cr8-profile-${new Date().toISOString().slice(0, 10)}`,
+        user: userRow,
+        posts: data?.posts || [],
+        follows: data?.follows || [],
+        messages: data?.messages || [],
+        exportedAt: data?.exported_at || new Date().toISOString(),
+        aiSummary,
       });
-      toast.success("PDF downloaded");
+      toast.success("AI profile PDF downloaded");
     } catch {
       toast.error("Export failed");
     }
@@ -321,7 +326,7 @@ export default function Settings() {
       <Nav />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
-        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings<span className="tick text-[#FF3B30]">.</span></h1>
+        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings</h1>
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
           <div className="space-y-3">
@@ -454,7 +459,7 @@ export default function Settings() {
 
             <Section title="Your Data" icon={Download} dense>
               <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
-                <Download className="w-4 h-4" /> Download My Data (PDF)
+                <Download className="w-4 h-4" /> Download My Data (AI PDF)
               </button>
             </Section>
 
