@@ -365,7 +365,7 @@ export default function Settings() {
                         onClick={() => patch({ theme: id })}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 border transition-colors ${
                           active
-                            ? "border-[#FF3B30] bg-[#FF3B30]/15 text-white"
+                            ? "border-[#FF3B30] bg-[#FF3B30]/15 text-[color:var(--fg)]"
                             : "border-white/15 bg-black/30 text-white/60 hover:text-white hover:border-white/30"
                         }`}
                       >
@@ -598,12 +598,7 @@ export default function Settings() {
         </div>
       )}
 
-      <style>{`
-        .inp-select, .inp-field { width: 100%; background: #121212; border: 1px solid rgba(255,255,255,0.15); padding: 0.45rem 0.55rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #F4F4F0; border-radius: 2px; margin-top: 0.2rem; }
-        .inp-select:focus, .inp-field:focus { outline: none; border-color: #FF3B30; }
-        .btn-sm-solid { padding: 0.4rem 0.85rem; background: #FF3B30; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; color: white; }
-        .btn-sm-outline { padding: 0.4rem 0.85rem; border: 1px solid rgba(255,255,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; }
-      `}</style>
+      {/* theme-aware .inp-field / .btn-sm-* live in index.css */}
     </div>
   );
 }

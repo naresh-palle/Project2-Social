@@ -44,13 +44,14 @@ export function applyUserSettings(prefsOrUser) {
   const reducedMotion = s.reduced_motion;
 
   root.classList.remove("theme-light", "theme-dark", "high-contrast", "reduced-motion");
-  if (theme === "light") root.classList.add("theme-light");
-  else if (theme === "dark") root.classList.add("theme-dark");
-  else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-    root.classList.add("theme-light");
-  } else {
-    root.classList.add("theme-dark");
-  }
+  let resolved = "dark";
+  if (theme === "light") resolved = "light";
+  else if (theme === "dark") resolved = "dark";
+  else if (window.matchMedia("(prefers-color-scheme: light)").matches) resolved = "light";
+
+  if (resolved === "light") root.classList.add("theme-light");
+  else root.classList.add("theme-dark");
+  root.style.colorScheme = resolved;
 
   if (highContrast) root.classList.add("high-contrast");
   if (reducedMotion) root.classList.add("reduced-motion");

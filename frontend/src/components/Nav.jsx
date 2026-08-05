@@ -51,8 +51,8 @@ export function Nav({ variant = "dark" }) {
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl ${
-        isPaper ? "bg-[#F4F4F0]/70 text-[#0A0A0A] hairline-b" : "bg-black/50 text-[#F4F4F0] hairline-b"
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl hairline-b ${
+        isPaper ? "bg-[#F4F4F0]/70 text-[#0A0A0A]" : "app-nav-surface"
       }`}
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-10 py-4">

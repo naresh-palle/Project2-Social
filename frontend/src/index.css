@@ -13,11 +13,26 @@
         --hairline: rgba(244, 244, 240, 0.14);
         --hairline-dark: rgba(10, 10, 10, 0.14);
 
+        /* App surfaces (dark default) */
+        --surface-0: #0B0B0E;
+        --surface-1: #121212;
+        --surface-2: #1A1A1A;
+        --surface-3: #2A2A2A;
+        --fg: #F4F4F0;
+        --fg-muted: rgba(244, 244, 240, 0.62);
+        --fg-subtle: rgba(244, 244, 240, 0.42);
+        --border-soft: rgba(244, 244, 240, 0.14);
+        --border-strong: rgba(244, 244, 240, 0.28);
+        --overlay-soft: rgba(255, 255, 255, 0.05);
+        --overlay-mid: rgba(255, 255, 255, 0.10);
+        --overlay-strong: rgba(255, 255, 255, 0.15);
+        --scrim: rgba(0, 0, 0, 0.55);
+
         --background: 0 0% 3.9%;
         --foreground: 60 5% 96%;
-        --card: 0 0% 3.9%;
+        --card: 0 0% 7%;
         --card-foreground: 60 5% 96%;
-        --popover: 0 0% 3.9%;
+        --popover: 0 0% 7%;
         --popover-foreground: 60 5% 96%;
         --primary: 60 5% 96%;
         --primary-foreground: 0 0% 3.9%;
@@ -33,19 +48,62 @@
         --input: 60 5% 96% / 0.14;
         --ring: 4 100% 59%;
         --radius: 0px;
+        color-scheme: dark;
+    }
+
+    html.theme-light {
+        --ink: #F4F4F0;
+        --paper: #0A0A0A;
+        --muted-ink: #5C5C56;
+        --hairline: rgba(10, 10, 10, 0.12);
+        --hairline-dark: rgba(10, 10, 10, 0.12);
+
+        --surface-0: #F4F4F0;
+        --surface-1: #FFFFFF;
+        --surface-2: #ECECE6;
+        --surface-3: #E0E0D8;
+        --fg: #0A0A0A;
+        --fg-muted: rgba(10, 10, 10, 0.62);
+        --fg-subtle: rgba(10, 10, 10, 0.42);
+        --border-soft: rgba(10, 10, 10, 0.12);
+        --border-strong: rgba(10, 10, 10, 0.24);
+        --overlay-soft: rgba(10, 10, 10, 0.04);
+        --overlay-mid: rgba(10, 10, 10, 0.08);
+        --overlay-strong: rgba(10, 10, 10, 0.12);
+        --scrim: rgba(244, 244, 240, 0.72);
+
+        --background: 60 11% 95%;
+        --foreground: 0 0% 4%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 4%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 4%;
+        --primary: 0 0% 4%;
+        --primary-foreground: 60 11% 95%;
+        --secondary: 60 8% 92%;
+        --secondary-foreground: 0 0% 4%;
+        --muted: 60 8% 90%;
+        --muted-foreground: 0 0% 32%;
+        --accent: 4 100% 59%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 4 100% 59%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 4% / 0.12;
+        --input: 0 0% 4% / 0.12;
+        color-scheme: light;
     }
 }
 
-* { border-color: rgba(244, 244, 240, 0.14); }
+* { border-color: var(--border-soft); }
 
 html, body, #root {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--surface-0);
+    color: var(--fg);
 }
 
 body {
-  background-color: #0B0B0E !important;
-
+    background-color: var(--surface-0) !important;
+    color: var(--fg);
     margin: 0;
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -172,12 +230,148 @@ a, button { cursor: pointer; }
 html.theme-light,
 html.theme-light body,
 html.theme-light #root {
-    background: #F4F4F0 !important;
-    color: #0A0A0A;
+    background: var(--surface-0) !important;
+    color: var(--fg) !important;
 }
-html.theme-light .bg-\[\#0B0B0E\] { background-color: #F4F4F0 !important; }
-html.theme-light .bg-\[\#121212\] { background-color: #E8E8E4 !important; }
-html.theme-light .text-\[\#F4F4F0\] { color: #0A0A0A !important; }
+
+/* Hardcoded dark page / panel backgrounds → light surfaces */
+html.theme-light .bg-\[\#0B0B0E\],
+html.theme-light .bg-\[\#0A0A0A\],
+html.theme-light .bg-\[\#050505\],
+html.theme-light .bg-\[\#000\],
+html.theme-light .bg-black {
+    background-color: var(--surface-0) !important;
+}
+html.theme-light .bg-\[\#121212\] {
+    background-color: var(--surface-1) !important;
+}
+html.theme-light .bg-\[\#1A1A1A\],
+html.theme-light .bg-\[\#1a1a1a\] {
+    background-color: var(--surface-2) !important;
+}
+html.theme-light .bg-\[\#2A2A2A\],
+html.theme-light .bg-\[\#2a2a2a\] {
+    background-color: var(--surface-3) !important;
+}
+
+/* Soft white overlays on dark → soft black overlays on light */
+html.theme-light .bg-white\/\[0\.02\],
+html.theme-light .bg-white\/\[0\.03\] { background-color: var(--overlay-soft) !important; }
+html.theme-light .bg-white\/5 { background-color: rgba(10, 10, 10, 0.04) !important; }
+html.theme-light .bg-white\/10 { background-color: rgba(10, 10, 10, 0.08) !important; }
+html.theme-light .bg-white\/15 { background-color: rgba(10, 10, 10, 0.12) !important; }
+html.theme-light .bg-white\/20 { background-color: rgba(10, 10, 10, 0.14) !important; }
+html.theme-light .hover\:bg-white\/5:hover { background-color: rgba(10, 10, 10, 0.05) !important; }
+html.theme-light .hover\:bg-white\/10:hover { background-color: rgba(10, 10, 10, 0.09) !important; }
+html.theme-light .hover\:bg-white\/15:hover { background-color: rgba(10, 10, 10, 0.12) !important; }
+html.theme-light .hover\:bg-\[\#2A2A2A\]:hover { background-color: var(--surface-3) !important; }
+
+html.theme-light .bg-black\/20 { background-color: rgba(10, 10, 10, 0.06) !important; }
+html.theme-light .bg-black\/30 { background-color: rgba(10, 10, 10, 0.08) !important; }
+html.theme-light .bg-black\/40 { background-color: rgba(10, 10, 10, 0.10) !important; }
+html.theme-light .bg-black\/50 { background-color: rgba(10, 10, 10, 0.12) !important; }
+html.theme-light .bg-black\/60 { background-color: rgba(255, 255, 255, 0.85) !important; }
+html.theme-light .bg-black\/70,
+html.theme-light .bg-black\/80 { background-color: rgba(244, 244, 240, 0.88) !important; }
+html.theme-light .bg-\[\#0B0B0E\]\/80,
+html.theme-light .bg-\[\#0B0B0E\]\/90 { background-color: rgba(244, 244, 240, 0.92) !important; }
+
+/* Foreground / font colors */
+html.theme-light .text-\[\#F4F4F0\],
+html.theme-light .text-white {
+    color: var(--fg) !important;
+}
+html.theme-light .text-white\/90,
+html.theme-light .text-\[\#F4F4F0\]\/90 { color: rgba(10, 10, 10, 0.92) !important; }
+html.theme-light .text-white\/80 { color: rgba(10, 10, 10, 0.8) !important; }
+html.theme-light .text-white\/70 { color: rgba(10, 10, 10, 0.7) !important; }
+html.theme-light .text-white\/60 { color: rgba(10, 10, 10, 0.6) !important; }
+html.theme-light .text-white\/50 { color: rgba(10, 10, 10, 0.5) !important; }
+html.theme-light .text-white\/40 { color: rgba(10, 10, 10, 0.4) !important; }
+html.theme-light .text-white\/30 { color: rgba(10, 10, 10, 0.3) !important; }
+html.theme-light .hover\:text-white:hover { color: var(--fg) !important; }
+html.theme-light .placeholder\:opacity-50::placeholder { color: var(--fg-subtle); }
+
+/* Keep white text on solid brand fills */
+html.theme-light .bg-\[\#FF3B30\],
+html.theme-light .bg-\[\#FF3B30\] .text-white,
+html.theme-light .bg-\[\#FF3B30\].text-white,
+html.theme-light .bg-\[\#e03126\],
+html.theme-light .bg-\[\#34C759\],
+html.theme-light .bg-\[\#34C759\].text-white,
+html.theme-light .bg-\[\#007AFF\],
+html.theme-light .bg-\[\#007AFF\].text-white,
+html.theme-light .btn-solid,
+html.theme-light .btn-sm-solid,
+html.theme-light .hover\:bg-\[\#FF3B30\]:hover,
+html.theme-light .hover\:bg-\[\#FF3B30\]:hover.text-white,
+html.theme-light button.bg-\[\#FF3B30\],
+html.theme-light a.bg-\[\#FF3B30\] {
+    color: #FFFFFF !important;
+}
+html.theme-light .hover\:bg-\[\#FF3B30\]:hover {
+    color: #FFFFFF !important;
+}
+html.theme-light .hover\:text-white:hover.bg-\[\#FF3B30\],
+html.theme-light .bg-\[\#FF3B30\]:hover {
+    color: #FFFFFF !important;
+}
+
+/* Borders */
+html.theme-light .border-white\/5 { border-color: rgba(10, 10, 10, 0.06) !important; }
+html.theme-light .border-white\/10 { border-color: rgba(10, 10, 10, 0.10) !important; }
+html.theme-light .border-white\/15 { border-color: rgba(10, 10, 10, 0.14) !important; }
+html.theme-light .border-white\/20 { border-color: rgba(10, 10, 10, 0.18) !important; }
+html.theme-light .border-white\/30 { border-color: rgba(10, 10, 10, 0.28) !important; }
+html.theme-light .border-white\/40 { border-color: rgba(10, 10, 10, 0.36) !important; }
+html.theme-light .hover\:border-white\/30:hover { border-color: rgba(10, 10, 10, 0.28) !important; }
+html.theme-light .hover\:border-white\/40:hover { border-color: rgba(10, 10, 10, 0.36) !important; }
+html.theme-light .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(10, 10, 10, 0.10) !important;
+}
+
+/* Soft light paper chips that become dark-on-light */
+html.theme-light .bg-\[\#F4F4F0\].text-\[\#0A0A0A\],
+html.theme-light .bg-\[\#F4F4F0\] {
+    background-color: var(--surface-2) !important;
+    color: var(--fg) !important;
+}
+
+/* Form controls */
+html.theme-light input,
+html.theme-light select,
+html.theme-light textarea {
+    color: var(--fg);
+    border-color: var(--border-soft);
+}
+html.theme-light .inp,
+html.theme-light .inp-field,
+html.theme-light .inp-select {
+    background: var(--surface-1) !important;
+    color: var(--fg) !important;
+    border-color: var(--border-soft) !important;
+}
+html.theme-light .inp {
+    background: transparent !important;
+    border-bottom-color: var(--border-soft) !important;
+}
+html.theme-light option {
+    background: var(--surface-1);
+    color: var(--fg);
+}
+
+/* Nav / sticky bars often use translucent black */
+html.theme-light nav,
+html.theme-light header,
+html.theme-light [class*="backdrop-blur"] {
+    color: var(--fg);
+}
+
+/* Grain softer on light */
+html.theme-light .grain {
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+}
 
 html.high-contrast {
     --hairline: rgba(244, 244, 240, 0.7);
@@ -232,10 +426,12 @@ html.theme-light.high-contrast #root {
 html.theme-light.high-contrast .bg-\[\#0B0B0E\],
 html.theme-light.high-contrast .bg-\[\#121212\],
 html.theme-light.high-contrast .bg-\[\#0A0A0A\],
-html.theme-light.high-contrast .bg-\[\#050505\] {
+html.theme-light.high-contrast .bg-\[\#050505\],
+html.theme-light.high-contrast .bg-black {
     background-color: #fff !important;
 }
-html.theme-light.high-contrast .text-\[\#F4F4F0\] {
+html.theme-light.high-contrast .text-\[\#F4F4F0\],
+html.theme-light.high-contrast .text-white {
     color: #000 !important;
 }
 html.theme-light.high-contrast * {
@@ -247,4 +443,60 @@ html.reduced-motion *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+}
+
+/* Shared form control helpers (theme-aware) */
+.app-nav-surface {
+    background-color: color-mix(in srgb, var(--surface-0) 82%, transparent);
+    color: var(--fg);
+}
+
+.inp-select,
+.inp-field {
+    width: 100%;
+    background: var(--surface-1);
+    border: 1px solid var(--border-soft);
+    padding: 0.45rem 0.55rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--fg);
+    border-radius: 2px;
+    margin-top: 0.2rem;
+}
+.inp-select:focus,
+.inp-field:focus {
+    outline: none;
+    border-color: var(--vermilion);
+}
+.btn-sm-solid {
+    padding: 0.4rem 0.85rem;
+    background: var(--vermilion);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: bold;
+    color: #fff !important;
+}
+.btn-sm-outline {
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--border-strong);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--fg);
+}
+.inp {
+    margin-top: 0;
+    width: 100%;
+    background: transparent;
+    border-bottom: 1px solid var(--border-soft);
+    padding: 0.5rem 0;
+    outline: none;
+    font-size: 1rem;
+    color: var(--fg);
+    font-family: 'Manrope', sans-serif;
+}
+.inp:focus {
+    border-color: var(--vermilion);
 }

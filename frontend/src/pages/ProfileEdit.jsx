@@ -325,6 +325,7 @@ export default function ProfileEdit() {
       await api.patch("/auth/me", {
         ...f,
         handle: handleValue,
+        date_of_birth: toIsoDate(f.date_of_birth) || null,
         platform_metrics: platformHandlesOnly,
         base_rate: Number(f.base_rate) || 0,
         portfolio: f.portfolio.filter(Boolean),
@@ -1079,13 +1080,14 @@ export default function ProfileEdit() {
           onComplete={onCropComplete}
         />
       )}
-      <style>{`.inp { margin-top: 0; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.5rem 0; outline: none; font-size: 1rem; color: #F4F4F0; font-family: 'Manrope', sans-serif; }
-      .inp:focus { border-color: #FF3B30; }
+      <style>{`
       .edit-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.4rem 0.75rem; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'Manrope', sans-serif; font-weight: 600; border: none; cursor: pointer; transition: background-color 200ms ease, color 200ms ease, transform 200ms ease; line-height: 1.2; }
       .edit-btn:hover { transform: translateY(-1px); }
       .edit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
       .edit-btn svg { flex-shrink: 0; width: 0.75rem; height: 0.75rem; }
-      input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }`}</style>
+      input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }
+      html.theme-light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; opacity: 0.7; }
+      `}</style>
     </div>
   );
 }

@@ -27,6 +27,24 @@
         Learn how to configure a non-root public URL by running `npm run build`.
         -->
         <title>CR8 Studio</title>
+        <script>
+          (function () {
+            try {
+              var theme = localStorage.getItem("cr8_theme") || "dark";
+              var resolved = theme;
+              if (theme === "system") {
+                resolved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+              }
+              var root = document.documentElement;
+              root.classList.add(resolved === "light" ? "theme-light" : "theme-dark");
+              root.style.colorScheme = resolved;
+              if (localStorage.getItem("cr8_high_contrast") === "true") root.classList.add("high-contrast");
+              if (localStorage.getItem("cr8_reduced_motion") === "true") root.classList.add("reduced-motion");
+              var scale = parseFloat(localStorage.getItem("cr8_font_scale") || "1");
+              if (isFinite(scale)) root.style.fontSize = Math.min(1.5, Math.max(0.85, scale)) * 100 + "%";
+            } catch (e) {}
+          })();
+        </script>
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
     </head>
