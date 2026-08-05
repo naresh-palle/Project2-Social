@@ -28,6 +28,11 @@ const CONTENT_TYPES = [
 const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
 const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
 
+function normalizeHandle(raw) {
+  const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
+  return s ? `@${s}` : "";
+}
+
 function toList(val) {
   if (Array.isArray(val)) return val.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
   if (!val) return [];
@@ -462,11 +467,6 @@ export default function ProfileEdit() {
     } finally {
       setSyncBusy(false);
     }
-  };
-
-  const normalizeHandle = (raw) => {
-    const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
-    return s ? `@${s}` : "";
   };
 
   const startEditPlatform = (plat) => {
@@ -997,8 +997,6 @@ export default function ProfileEdit() {
                       </div>
                     </F>
                 </section>
-
-                <PasswordChangeSection />
                 </div>
 
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-campaigns">
@@ -1062,12 +1060,6 @@ export default function ProfileEdit() {
             </button>
           </div>
         </motion.form>
-
-        {!isCreator && (
-          <div className="mt-6">
-            <PasswordChangeSection />
-          </div>
-        )}
       </div>
       <Footer />
       {cropState && (
@@ -1090,104 +1082,6 @@ export default function ProfileEdit() {
       .edit-btn svg { flex-shrink: 0; width: 0.75rem; height: 0.75rem; }
       input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.7; }`}</style>
     </div>
-  );
-}
-
-function PasswordChangeSection() {
-  const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
-  const [pwdBusy, setPwdBusy] = useState(false);
-  const [pwdErr, setPwdErr] = useState("");
-
-  const handlePasswordChange = async (e) => {
-    e.preventDefault();
-    setPwdErr("");
-
-    if (!pwdForm.current_password) {
-      setPwdErr("Current password is required");
-      return;
-    }
-    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(pwdForm.new_password)) {
-      setPwdErr("New password must be at least 8 characters long and contain both letters and numbers.");
-      return;
-    }
-    if (pwdForm.new_password !== pwdForm.confirm_password) {
-      setPwdErr("New password and confirm password do not match");
-      return;
-    }
-
-    setPwdBusy(true);
-    try {
-      await api.post("/auth/change-password", {
-        current_password: pwdForm.current_password,
-        new_password: pwdForm.new_password
-      });
-      toast.success("Password updated successfully!");
-      setPwdForm({ current_password: "", new_password: "", confirm_password: "" });
-    } catch (err) {
-      const msg = err.response?.data?.detail || "Failed to change password";
-      setPwdErr(msg);
-      toast.error(msg);
-    } finally {
-      setPwdBusy(false);
-    }
-  };
-
-  return (
-    <section id="sec-security" className="space-y-3 border border-white/10 bg-white/[0.02] p-4 h-full">
-      <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-        Security
-      </h2>
-      <div className="space-y-3">
-        <p className="font-sans text-[11px] opacity-50 leading-snug">Saved separately from profile. Leave blank to skip.</p>
-        <F label="Current Password">
-          <input 
-            type="password" 
-            className="inp"
-            placeholder="••••••••" 
-            autoComplete="current-password"
-            value={pwdForm.current_password} 
-            onChange={e => setPwdForm({ ...pwdForm, current_password: e.target.value })}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
-          />
-        </F>
-
-        <F label="New Password (8+ chars, letters + numbers)">
-          <input 
-            type="password" 
-            className="inp"
-            placeholder="••••••••" 
-            autoComplete="new-password"
-            value={pwdForm.new_password} 
-            onChange={e => setPwdForm({ ...pwdForm, new_password: e.target.value })}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
-          />
-        </F>
-        <F label="Confirm New Password">
-          <input 
-            type="password" 
-            className="inp"
-            placeholder="••••••••" 
-            autoComplete="new-password"
-            value={pwdForm.confirm_password} 
-            onChange={e => setPwdForm({ ...pwdForm, confirm_password: e.target.value })}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePasswordChange(e); } }}
-          />
-        </F>
-
-        {pwdErr && (
-          <p className="text-[#FF3B30] text-[10px] font-mono tracking-wider uppercase">{pwdErr}</p>
-        )}
-
-        <button 
-          type="button" 
-          onClick={handlePasswordChange}
-          disabled={pwdBusy} 
-          className="edit-btn bg-white/10 hover:bg-[#FF3B30] hover:text-white text-white"
-        >
-          {pwdBusy ? "Updating…" : "Update password"}
-        </button>
-      </div>
-    </section>
   );
 }
 

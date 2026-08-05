@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  User, Bell, Lock, Trash2, Download, Ban, VolumeX, UserX,
+  User, Bell, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Sun, Moon, Eye, Loader2, ChevronRight
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
@@ -41,6 +41,9 @@ export default function Settings() {
   const [twoFa, setTwoFa] = useState({ setup: null, code: "" });
   const [disable2fa, setDisable2fa] = useState({ password: "", code: "" });
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [securityOpen, setSecurityOpen] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
+  const [pwdBusy, setPwdBusy] = useState(false);
   const fontTimer = useRef(null);
   const settingsRef = useRef(null);
   const saveSeq = useRef(0);
@@ -258,6 +261,35 @@ export default function Settings() {
     }
   };
 
+  const changePassword = async (e) => {
+    e?.preventDefault?.();
+    if (!pwdForm.current_password) {
+      toast.error("Current password is required");
+      return;
+    }
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(pwdForm.new_password)) {
+      toast.error("New password must be at least 8 characters with letters and numbers");
+      return;
+    }
+    if (pwdForm.new_password !== pwdForm.confirm_password) {
+      toast.error("New password and confirm password do not match");
+      return;
+    }
+    setPwdBusy(true);
+    try {
+      await api.post("/auth/change-password", {
+        current_password: pwdForm.current_password,
+        new_password: pwdForm.new_password,
+      });
+      toast.success("Password updated");
+      setPwdForm({ current_password: "", new_password: "", confirm_password: "" });
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || "Failed to change password");
+    } finally {
+      setPwdBusy(false);
+    }
+  };
+
   const deleteAccount = async () => {
     if (deleteConfirm !== "DELETE") {
       toast.error("Type DELETE to confirm");
@@ -294,6 +326,15 @@ export default function Settings() {
               <div className="space-y-0.5">
                 <QuickLink to="/profile" label="View Profile" />
                 <QuickLink to="/profile/edit" label="Edit Profile" />
+                <button
+                  type="button"
+                  onClick={() => setSecurityOpen(true)}
+                  className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px] w-full text-left"
+                  data-testid="settings-reset-password"
+                >
+                  Reset Password
+                  <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100" />
+                </button>
               </div>
             </Section>
 
@@ -371,69 +412,6 @@ export default function Settings() {
           </div>
 
           <div className="space-y-3">
-            <Section title="Security" icon={Lock} dense>
-              <QuickLink to="/profile/edit#sec-security" label="Change Password" />
-              {settings.two_fa_enabled ? (
-                <div className="mt-2 p-3 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-2">
-                  <p className="font-mono text-xs text-[#34C759]">2FA is enabled</p>
-                  <input
-                    type="password"
-                    placeholder="Current password"
-                    value={disable2fa.password}
-                    onChange={(e) => setDisable2fa({ ...disable2fa, password: e.target.value })}
-                    className="inp-field"
-                  />
-                  <input
-                    type="text"
-                    placeholder="2FA code"
-                    value={disable2fa.code}
-                    onChange={(e) => setDisable2fa({ ...disable2fa, code: e.target.value })}
-                    className="inp-field"
-                  />
-                  <button type="button" onClick={handleDisable2fa} className="btn-sm-outline">Disable 2FA</button>
-                </div>
-              ) : twoFa.setup ? (
-                <div className="mt-2 p-3 border border-white/10 rounded-xs space-y-2">
-                  <p className="font-mono text-xs break-all">Secret: {twoFa.setup.secret}</p>
-                  <input
-                    type="text"
-                    placeholder="6-digit code"
-                    value={twoFa.code}
-                    onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value })}
-                    className="inp-field"
-                  />
-                  <button type="button" onClick={enable2fa} className="btn-sm-solid">Enable 2FA</button>
-                </div>
-              ) : (
-                <button type="button" onClick={setup2fa} className="btn-sm-solid mt-1">Set Up 2FA</button>
-              )}
-
-              <details className="mt-2 group">
-                <summary className="font-mono text-[10px] uppercase tracking-widest opacity-60 cursor-pointer hover:opacity-100">
-                  Sessions &amp; login history
-                </summary>
-                <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                  {sessions.slice(0, 5).map((s) => (
-                    <div key={s.id} className="flex items-center justify-between py-1 border-b border-white/5">
-                      <div className="min-w-0">
-                        <div className="font-mono text-xs truncate">{s.device_name || "Device"}</div>
-                        <div className="font-mono text-[10px] opacity-50">{s.ip}</div>
-                      </div>
-                      <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF3B30] font-mono text-[10px] uppercase shrink-0">
-                        Revoke
-                      </button>
-                    </div>
-                  ))}
-                  {loginHistory.slice(0, 5).map((h) => (
-                    <div key={h.id} className="py-1 border-b border-white/5 font-mono text-[10px]">
-                      <span className={h.success ? "text-[#34C759]" : "text-[#FF3B30]"}>{h.success ? "✓" : "✗"}</span>
-                      {" "}{h.ip} · {h.created_at?.slice(0, 16)}
-                    </div>
-                  ))}
-                </div>
-              </details>
-            </Section>
-
             {blocks.length > 0 && (
               <Section title="Blocked Users" icon={Ban} dense>
                 {blocks.map((b) => (
@@ -493,6 +471,133 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {securityOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setSecurityOpen(false)}
+          data-testid="security-modal-backdrop"
+        >
+          <div
+            className="bg-[#121212] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-sm shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            data-testid="security-modal"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">Security</p>
+                <h3 className="font-sans text-xl font-bold mt-0.5">Reset password &amp; account security</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSecurityOpen(false)}
+                className="text-white/60 hover:text-white text-xl leading-none px-2"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Change password</h4>
+              <input
+                type="password"
+                placeholder="Current password"
+                autoComplete="current-password"
+                value={pwdForm.current_password}
+                onChange={(e) => setPwdForm({ ...pwdForm, current_password: e.target.value })}
+                className="inp-field"
+              />
+              <input
+                type="password"
+                placeholder="New password (8+ chars, letters + numbers)"
+                autoComplete="new-password"
+                value={pwdForm.new_password}
+                onChange={(e) => setPwdForm({ ...pwdForm, new_password: e.target.value })}
+                className="inp-field"
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                autoComplete="new-password"
+                value={pwdForm.confirm_password}
+                onChange={(e) => setPwdForm({ ...pwdForm, confirm_password: e.target.value })}
+                className="inp-field"
+              />
+              <button type="button" disabled={pwdBusy} onClick={changePassword} className="btn-sm-solid">
+                {pwdBusy ? "Updating…" : "Update password"}
+              </button>
+            </div>
+
+            <div className="border-t border-white/10 pt-4 space-y-2">
+              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Two-factor authentication</h4>
+              {settings.two_fa_enabled ? (
+                <div className="p-3 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-2">
+                  <p className="font-mono text-xs text-[#34C759]">2FA is enabled</p>
+                  <input
+                    type="password"
+                    placeholder="Current password"
+                    value={disable2fa.password}
+                    onChange={(e) => setDisable2fa({ ...disable2fa, password: e.target.value })}
+                    className="inp-field"
+                  />
+                  <input
+                    type="text"
+                    placeholder="2FA code"
+                    value={disable2fa.code}
+                    onChange={(e) => setDisable2fa({ ...disable2fa, code: e.target.value })}
+                    className="inp-field"
+                  />
+                  <button type="button" onClick={handleDisable2fa} className="btn-sm-outline">Disable 2FA</button>
+                </div>
+              ) : twoFa.setup ? (
+                <div className="p-3 border border-white/10 rounded-xs space-y-2">
+                  <p className="font-mono text-xs break-all">Secret: {twoFa.setup.secret}</p>
+                  <input
+                    type="text"
+                    placeholder="6-digit code"
+                    value={twoFa.code}
+                    onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value })}
+                    className="inp-field"
+                  />
+                  <button type="button" onClick={enable2fa} className="btn-sm-solid">Enable 2FA</button>
+                </div>
+              ) : (
+                <button type="button" onClick={setup2fa} className="btn-sm-solid">Set Up 2FA</button>
+              )}
+            </div>
+
+            <details className="border-t border-white/10 pt-4 group">
+              <summary className="font-mono text-[10px] uppercase tracking-widest opacity-60 cursor-pointer hover:opacity-100">
+                Sessions &amp; login history
+              </summary>
+              <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                {sessions.slice(0, 5).map((s) => (
+                  <div key={s.id} className="flex items-center justify-between py-1 border-b border-white/5">
+                    <div className="min-w-0">
+                      <div className="font-mono text-xs truncate">{s.device_name || "Device"}</div>
+                      <div className="font-mono text-[10px] opacity-50">{s.ip}</div>
+                    </div>
+                    <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF3B30] font-mono text-[10px] uppercase shrink-0">
+                      Revoke
+                    </button>
+                  </div>
+                ))}
+                {loginHistory.slice(0, 5).map((h) => (
+                  <div key={h.id} className="py-1 border-b border-white/5 font-mono text-[10px]">
+                    <span className={h.success ? "text-[#34C759]" : "text-[#FF3B30]"}>{h.success ? "✓" : "✗"}</span>
+                    {" "}{h.ip} · {h.created_at?.slice(0, 16)}
+                  </div>
+                ))}
+                {!sessions.length && !loginHistory.length && (
+                  <p className="font-mono text-[10px] opacity-40 py-2">No sessions on file.</p>
+                )}
+              </div>
+            </details>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .inp-select, .inp-field { width: 100%; background: #121212; border: 1px solid rgba(255,255,255,0.15); padding: 0.45rem 0.55rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #F4F4F0; border-radius: 2px; margin-top: 0.2rem; }
         .inp-select:focus, .inp-field:focus { outline: none; border-color: #FF3B30; }
