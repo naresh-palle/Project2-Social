@@ -86,3 +86,7 @@ android-sdk/
 credentials.json
 *.key
 .credentials
+
+# Local/release APK binaries (served via GitHub Pages deploy)
+*.apk
+frontend/public/*.apk
