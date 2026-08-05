@@ -46,7 +46,7 @@ export default function Invitations() {
         <div className="hairline-b pb-6 flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Invitations</p>
-            <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-2">
+            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
               {user?.role === "owner" ? "You extended…" : "You were named…"}<span className="tick">.</span>
             </h1>
           </div>
@@ -60,7 +60,7 @@ export default function Invitations() {
             ))}
           </div>
         ) : invs.length === 0 ? (
-          <div className="py-24 text-center font-editorial italic text-3xl opacity-60">
+          <div className="py-24 text-center font-sans text-2xl font-semibold tracking-tight opacity-60">
             No invitations on file.
           </div>
         ) : (

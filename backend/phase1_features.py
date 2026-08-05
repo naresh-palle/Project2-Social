@@ -593,13 +593,29 @@ def setup_phase1(
             else:
                 updates[k] = v
         if updates:
-            res = await db.users.update_one({"id": current["id"]}, {"$set": updates})
-            # Fallback for legacy accounts that may lack a stable string id
-            if getattr(res, "matched_count", 0) == 0 and current.get("email"):
-                await db.users.update_one(
-                    {"email": str(current["email"]).lower().strip()},
-                    {"$set": updates},
-                )
+            or_filters = [{"id": current["id"]}]
+            if current.get("email"):
+                or_filters.append({"email": str(current["email"]).lower().strip()})
+            # Dual-write nested settings.* for older clients / partial docs
+            nested = {}
+            for k, v in list(updates.items()):
+                if k.startswith("notification_prefs.") or k.startswith("privacy."):
+                    continue
+                if "." not in k:
+                    nested[f"settings.{k}"] = v
+            updates_all = {**updates, **nested}
+            res = await db.users.update_one({"$or": or_filters}, {"$set": updates_all})
+            if getattr(res, "matched_count", 0) == 0:
+                # Last-resort: match by Mongo _id when JWT sub was an ObjectId string
+                try:
+                    from bson import ObjectId
+                    if len(str(current.get("id") or "")) == 24:
+                        await db.users.update_one(
+                            {"_id": ObjectId(current["id"])},
+                            {"$set": updates_all},
+                        )
+                except Exception:
+                    pass
         # Always return the settings-shaped payload so mobile toggles stay in sync
         return await get_settings(current)
 
@@ -612,21 +628,28 @@ def setup_phase1(
                 {"password_hash": 0, "two_fa_secret": 0},
             )
         u = clean(dict(u)) if u else current
+        nested = u.get("settings") if isinstance(u.get("settings"), dict) else {}
+        def pick(key, default=None):
+            if u.get(key) is not None:
+                return u.get(key)
+            if nested.get(key) is not None:
+                return nested.get(key)
+            return default
         return {
-            "language": u.get("language") or "en",
-            "theme": u.get("theme") or "dark",
-            "high_contrast": bool(u.get("high_contrast")),
-            "reduced_motion": bool(u.get("reduced_motion")),
-            "font_scale": u.get("font_scale") or 1,
-            "notification_prefs": u.get("notification_prefs") or {},
-            "privacy": u.get("privacy") or {},
-            "is_private": bool(u.get("is_private")),
-            "show_online_status": u.get("show_online_status", True),
-            "show_last_seen": u.get("show_last_seen", True),
+            "language": pick("language") or "en",
+            "theme": pick("theme") or "dark",
+            "high_contrast": bool(pick("high_contrast", False)),
+            "reduced_motion": bool(pick("reduced_motion", False)),
+            "font_scale": pick("font_scale") or 1,
+            "notification_prefs": pick("notification_prefs") or {},
+            "privacy": pick("privacy") or {},
+            "is_private": bool(pick("is_private", False)),
+            "show_online_status": pick("show_online_status", True),
+            "show_last_seen": pick("show_last_seen", True),
             "two_fa_enabled": bool(u.get("two_fa_enabled")),
-            "cover_photo": u.get("cover_photo"),
-            "date_of_birth": u.get("date_of_birth"),
-            "gender": u.get("gender"),
+            "cover_photo": pick("cover_photo"),
+            "date_of_birth": pick("date_of_birth"),
+            "gender": pick("gender"),
         }
 
     # ---------- Posts / Feed ----------

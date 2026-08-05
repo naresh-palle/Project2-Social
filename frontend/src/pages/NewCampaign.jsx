@@ -85,7 +85,7 @@ export default function NewCampaign() {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10">
         <Nav />
-        <h1 className="font-editorial italic text-5xl">Brand Owners, Agents &amp; Admins only, please.</h1>
+        <h1 className="font-sans text-4xl font-bold tracking-tight">Brand Owners, Agents &amp; Admins only, please.</h1>
       </div>
     );
   }
@@ -109,7 +109,7 @@ export default function NewCampaign() {
         <div className="flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ New brief</p>
-            <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
+            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
               Write the <span className="italic">brief</span><span className="tick">.</span>
             </h1>
           </div>

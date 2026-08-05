@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { api, formatApiError } from "./api";
+import { readLocalSettings, mergeSettings, writeLocalSettings } from "./settingsStore";
 
 const AuthCtx = createContext(null);
 
@@ -103,8 +104,14 @@ export function AuthProvider({ children }) {
       let merged = data;
       try {
         const { data: settings } = await api.get("/settings");
-        merged = { ...data, ...settings };
-      } catch {}
+        const local = readLocalSettings();
+        const prefs = mergeSettings(settings, local);
+        writeLocalSettings(prefs);
+        merged = { ...data, ...prefs };
+      } catch {
+        const local = readLocalSettings();
+        if (local) merged = { ...data, ...local };
+      }
       localStorage.setItem("cr8_user", JSON.stringify(merged));
       setUser(merged);
       applyUserSettings(merged);
@@ -127,6 +134,7 @@ export function AuthProvider({ children }) {
     api.post("/auth/presence", { online: false }).catch(() => {});
     localStorage.removeItem("cr8_token");
     localStorage.removeItem("cr8_user");
+    localStorage.removeItem("cr8_settings");
     setUser(null);
   }, []);
 

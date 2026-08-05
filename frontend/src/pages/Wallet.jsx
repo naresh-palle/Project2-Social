@@ -64,7 +64,7 @@ export default function Wallet() {
         <div className="hairline-b pb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Financial Ledger</p>
-            <h1 className="font-editorial text-6xl md:text-7xl leading-[1.15] mt-2">
+            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
               Wallet Vault<span className="tick">.</span>
             </h1>
           </div>
@@ -81,7 +81,7 @@ export default function Wallet() {
               <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Available Balance</span>
               <WalletIcon className="w-5 h-5 text-[#FF3B30]" />
             </div>
-            <div className="font-editorial italic text-5xl md:text-6xl leading-[1.1] mt-4 text-[#F4F4F0]">
+            <div className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mt-4 text-[#F4F4F0]">
               ₹{w.balance.toLocaleString()}
             </div>
             <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50 mt-3">
@@ -95,7 +95,7 @@ export default function Wallet() {
               <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Total Income / Deposited</span>
               <TrendingUp className="w-5 h-5 text-[#34C759]" />
             </div>
-            <div className="font-editorial italic text-5xl md:text-6xl leading-[1.1] mt-4 text-[#34C759]">
+            <div className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mt-4 text-[#34C759]">
               +₹{totalIncome.toLocaleString()}
             </div>
             <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50 mt-3">
@@ -109,7 +109,7 @@ export default function Wallet() {
               <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Total Withdrawn / Payouts</span>
               <TrendingDown className="w-5 h-5 text-[#FF9500]" />
             </div>
-            <div className="font-editorial italic text-5xl md:text-6xl leading-[1.1] mt-4 text-[#F4F4F0]/90">
+            <div className="font-sans text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mt-4 text-[#F4F4F0]/90">
               -₹{totalWithdrawn.toLocaleString()}
             </div>
             <div className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50 mt-3">
@@ -125,7 +125,7 @@ export default function Wallet() {
             <div className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30]">
               {isOwner ? "Deposit Funds (Escrow Account)" : "Payout Request (Bank Transfer)"}
             </div>
-            <h3 className="font-editorial text-3xl md:text-4xl mt-2 leading-tight">
+            <h3 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2 leading-tight">
               {isOwner ? "Add funds to your campaign vault." : "Withdraw earnings to your registered account."}
             </h3>
             <p className="font-mono text-[11px] uppercase tracking-[0.1em] opacity-60 mt-2">
@@ -135,14 +135,14 @@ export default function Wallet() {
 
           <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-editorial italic text-2xl opacity-60">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-sans text-2xl font-semibold opacity-60">₹</span>
               <input 
                 type="number" 
                 data-testid="wallet-amount" 
                 value={amount} 
                 onChange={e => setAmount(e.target.value)}
                 placeholder=""
-                className="w-full bg-[#0B0B0E]/40 hairline-b pl-9 pr-4 py-3 focus:outline-none focus:border-[#FF3B30] text-2xl font-editorial italic" 
+                className="w-full bg-[#0B0B0E]/40 hairline-b pl-9 pr-4 py-3 focus:outline-none focus:border-[#FF3B30] text-2xl font-sans font-semibold" 
               />
             </div>
             <div className="flex gap-3">
@@ -222,7 +222,7 @@ export default function Wallet() {
             <tbody>
               {filteredTx.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-16 text-center font-editorial italic text-2xl opacity-40">
+                  <td colSpan={5} className="p-16 text-center font-sans text-xl font-medium opacity-40">
                     No matching transactions on file.
                   </td>
                 </tr>
@@ -243,7 +243,7 @@ export default function Wallet() {
                         Completed
                       </span>
                     </td>
-                    <td className={`p-4 text-right font-editorial italic text-2xl ${t.amount >= 0 ? "text-[#34C759]" : "text-[#F4F4F0]/80"}`}>
+                    <td className={`p-4 text-right font-sans text-xl font-semibold ${t.amount >= 0 ? "text-[#34C759]" : "text-[#F4F4F0]/80"}`}>
                       {t.amount >= 0 ? "+" : "-"}₹{Math.abs(t.amount).toLocaleString()}
                     </td>
                   </tr>

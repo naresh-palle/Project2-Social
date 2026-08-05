@@ -104,7 +104,7 @@ export default function Onboarding() {
               </div>
 
               <div>
-                <h1 className="font-editorial text-3xl md:text-4xl font-bold">
+                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold">
                   Your Agency File is Submitted<span className="tick">.</span>
                 </h1>
                 <p className="font-mono text-xs opacity-70 mt-2 leading-relaxed">
@@ -190,7 +190,7 @@ export default function Onboarding() {
               </div>
 
               <div>
-                <h1 className="font-editorial text-3xl md:text-4xl font-bold text-white">
+                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-white">
                   Application Revision Needed<span className="tick">.</span>
                 </h1>
                 <div className="mt-4 p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs text-white">
@@ -227,7 +227,7 @@ export default function Onboarding() {
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
                 § Talent Agent Application
               </span>
-              <h1 className="font-editorial text-4xl md:text-5xl mt-1">
+              <h1 className="font-sans text-3xl md:text-5xl font-bold tracking-tight mt-1">
                 Agency <span className="italic text-[#FF3B30]">Credentials.</span>
               </h1>
               <p className="font-mono text-xs opacity-70 mt-2">
@@ -631,7 +631,7 @@ function Layout({ step, title, subtitle, children }) {
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#FF3B30]">
             {subtitle}
           </div>
-          <h1 className="font-editorial text-5xl md:text-6xl mb-12 leading-[1.15] italic">
+          <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mb-12 leading-[1.15] italic">
             {title}
           </h1>
           {children}

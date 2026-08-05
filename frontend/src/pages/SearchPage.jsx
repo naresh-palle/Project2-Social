@@ -75,7 +75,7 @@ export default function SearchPage() {
       <Nav />
       <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
-        <h1 className="font-editorial text-5xl md:text-6xl mt-2">Search<span className="tick">.</span></h1>
+        <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mt-2">Search<span className="tick">.</span></h1>
 
         <form
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}
@@ -177,7 +177,7 @@ export default function SearchPage() {
         {results && (
           <div className="mt-10 space-y-3">
             {items.length === 0 ? (
-              <p className="font-editorial italic text-2xl opacity-40 text-center py-12">No results found</p>
+              <p className="font-sans text-xl font-medium tracking-tight opacity-40 text-center py-12">No results found</p>
             ) : (
               items.map((item, i) => (
                 <SearchResult key={item.id || item.tag || i} tab={tab} item={item} />

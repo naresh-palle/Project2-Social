@@ -8,6 +8,7 @@ import { Nav } from "@/components/Nav";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
 
 const NOTIF_KEYS = [
   { key: "likes", label: "Likes" },
@@ -48,6 +49,12 @@ export default function Settings() {
   }, [settings]);
 
   const load = useCallback(async () => {
+    const local = readLocalSettings();
+    if (local) {
+      const seeded = mergeSettings({}, local);
+      setSettings(seeded);
+      applyUserSettings({ ...user, ...seeded });
+    }
     try {
       const [sRes, sessRes, histRes, blockRes, muteRes, restrRes] = await Promise.all([
         api.get("/settings"),
@@ -57,16 +64,29 @@ export default function Settings() {
         api.get("/privacy/mutes").catch(() => ({ data: [] })),
         api.get("/privacy/restricted").catch(() => ({ data: [] })),
       ]);
-      setSettings(sRes.data);
-      applyUserSettings({ ...user, ...sRes.data });
-      mergeUserSettings?.(sRes.data);
+      const merged = mergeSettings(sRes.data, local);
+      setSettings(merged);
+      writeLocalSettings(merged);
+      applyUserSettings({ ...user, ...merged });
+      mergeUserSettings?.(merged);
+      // Re-push any local prefs the API has not stored yet
+      const diff = settingsDiff(local, sRes.data);
+      if (diff && Object.keys(diff).length) {
+        api.patch("/settings", diff).then(({ data }) => {
+          const synced = mergeSettings(data, readLocalSettings());
+          writeLocalSettings(synced);
+          setSettings(synced);
+          applyUserSettings({ ...user, ...synced });
+          mergeUserSettings?.(synced);
+        }).catch(() => {});
+      }
       setSessions(sessRes.data || []);
       setLoginHistory(histRes.data || []);
       setBlocks(blockRes.data || []);
       setMutes(muteRes.data || []);
       setRestricted(restrRes.data || []);
     } catch {
-      toast.error("Failed to load settings");
+      if (!local) toast.error("Failed to load settings");
     }
   }, [user, mergeUserSettings]);
 
@@ -92,6 +112,7 @@ export default function Settings() {
     };
     setSettings(optimistic);
     settingsRef.current = optimistic;
+    writeLocalSettings(optimistic);
     applyUserSettings({ ...user, ...optimistic });
     mergeUserSettings?.(optimistic);
 
@@ -100,29 +121,18 @@ export default function Settings() {
       const { data } = await api.patch("/settings", payload);
       // Ignore stale responses if a newer patch finished first
       if (seq !== saveSeq.current) return;
-      const merged = {
-        ...(settingsRef.current || {}),
-        ...data,
-        ...(data?.notification_prefs
-          ? {
-              notification_prefs: {
-                ...(settingsRef.current?.notification_prefs || {}),
-                ...data.notification_prefs,
-              },
-            }
-          : {}),
-      };
+      // Keep local optimistic values — never let a stale/partial API payload wipe toggles
+      const merged = mergeSettings(data, settingsRef.current);
       setSettings(merged);
       settingsRef.current = merged;
+      writeLocalSettings(merged);
       applyUserSettings({ ...user, ...merged });
       mergeUserSettings?.(merged);
     } catch (e) {
       if (seq !== saveSeq.current) return;
-      setSettings(prev);
-      settingsRef.current = prev;
-      applyUserSettings({ ...user, ...(prev || {}) });
-      mergeUserSettings?.(prev || {});
-      toast.error(formatApiError(e.response?.data?.detail) || "Save failed");
+      // Keep optimistic local state; only toast — localStorage already has the choice
+      toast.message("Saved on this device. Syncing to server when available.");
+      console.warn("settings patch failed", e);
     }
   };
 
@@ -246,7 +256,7 @@ export default function Settings() {
       <Nav />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
-        <h1 className="font-editorial text-3xl md:text-4xl mt-1">Settings<span className="tick">.</span></h1>
+        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings<span className="tick text-[#FF3B30]">.</span></h1>
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
           <div className="space-y-3">

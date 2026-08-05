@@ -229,7 +229,7 @@ export default function Login() {
           <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
             § Studio Sign In
           </p>
-          <h1 className="font-editorial text-xl md:text-2xl mt-0.5 leading-[1.15]">
+          <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
             Return to <span className="italic text-[#FF3B30]">the studio.</span>
           </h1>
 

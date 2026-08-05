@@ -96,7 +96,7 @@ export default function PublicProfile() {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
         <Nav />
-        <div className="pt-32 text-center font-editorial text-3xl opacity-40">User not found</div>
+        <div className="pt-32 text-center font-sans text-2xl font-medium opacity-40">User not found</div>
       </div>
     );
   }
@@ -117,12 +117,12 @@ export default function PublicProfile() {
             {profile.avatar ? (
               <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E]" />
             ) : (
-              <div className="w-28 h-28 rounded-full bg-white/10 border-4 border-[#0B0B0E] flex items-center justify-center font-editorial text-4xl">
+              <div className="w-28 h-28 rounded-full bg-white/10 border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold">
                 {(profile.username || profile.name || "?")[0]?.toUpperCase()}
               </div>
             )}
             <div className="flex-1 pb-2">
-              <h1 className="font-editorial text-2xl md:text-3xl">
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">
                 {profile.username
                   ? `@${String(profile.username).replace(/^@/, "")}`
                   : (profile.handle

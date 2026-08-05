@@ -39,7 +39,7 @@ export default function ForgotPassword() {
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] to-purple-500 absolute top-0 left-0" />
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Account Recovery</p>
-          <h1 className="font-editorial text-4xl mt-2 leading-[1.15]">
+          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">
             Forgot <span className="italic text-[#FF3B30]">password?</span>
           </h1>
 

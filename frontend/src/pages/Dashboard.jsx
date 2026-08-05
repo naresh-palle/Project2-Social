@@ -307,11 +307,11 @@ function OwnerPanel() {
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid Layout Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-3 items-center flex-1 min-w-[220px] max-w-lg">
+            <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
               <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
                 <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
               </span>
-              <div className="flex-1 min-w-[180px]">
+              <div className="w-[13.5rem] max-w-full">
                 <MultiSelectDropdown
                   options={PLATFORM_CATEGORIES}
                   selected={selectedCategories}
@@ -583,11 +583,11 @@ function InfluencerPanel() {
         <div className="space-y-8">
           {/* Niche Filter Pills & Grid View Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-3 items-center flex-1 min-w-[220px] max-w-lg">
+            <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
               <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
                 <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
               </span>
-              <div className="flex-1 min-w-[180px]">
+              <div className="w-[13.5rem] max-w-full">
                 <MultiSelectDropdown
                   options={PLATFORM_CATEGORIES}
                   selected={selectedNiches}

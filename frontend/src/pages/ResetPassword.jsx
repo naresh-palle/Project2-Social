@@ -55,7 +55,7 @@ export default function ResetPassword() {
           className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl"
         >
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Set New Password</p>
-          <h1 className="font-editorial text-4xl mt-2 leading-[1.15]">
+          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">
             Reset <span className="italic text-[#FF3B30]">password.</span>
           </h1>
 

@@ -104,7 +104,7 @@ export default function CampaignDetail() {
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || "Failed"); }
   };
 
-  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-editorial italic text-5xl">Brief not on file.</h1></div>;
+  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-sans text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
   if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = user?.role === "owner" && c.owner_id === user?.id;
@@ -132,7 +132,7 @@ export default function CampaignDetail() {
           <div className="col-span-12 md:col-span-7">
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
               className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {c.brand}</motion.p>
-            <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15] mt-3">{c.title}</h1>
+            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-3">{c.title}</h1>
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
               <Meta label="Budget" value={`₹${c.budget}`} accent />
               <Meta label="Niches" value={(c.niches || []).join(" · ") || "—"} />
@@ -164,7 +164,7 @@ export default function CampaignDetail() {
                         <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{a.influencer_handle}</div>
                       </div>
                       <div className="col-span-4 opacity-80 text-sm italic">"{a.pitch}"</div>
-                      <div className="col-span-2 font-editorial italic text-2xl">₹{a.rate}</div>
+                      <div className="col-span-2 font-sans text-xl font-medium tracking-tight">₹{a.rate}</div>
                       <div className="col-span-2 text-right">
                         {a.status === "pending" ? (
                           <button onClick={() => acceptApp(a.id)} data-testid={`accept-${a.id}`} className="btn-solid text-xs">
@@ -410,7 +410,7 @@ function ReviewBlock({ campaignId, targetId }) {
   return (
     <div className="mt-14">
       <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 hairline-b pb-3">§ Leave a review</h3>
-      {done ? <p className="mt-4 font-editorial italic text-2xl">Thank you.</p> : (
+      {done ? <p className="mt-4 font-sans text-xl font-medium tracking-tight">Thank you.</p> : (
         <div className="mt-4">
           <div className="flex gap-2">
             {[1,2,3,4,5].map(i => (

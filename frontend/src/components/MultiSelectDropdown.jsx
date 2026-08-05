@@ -115,19 +115,19 @@ export function MultiSelectDropdown({
 
       {open && (
         <div
-          className="absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-[#121212] border border-white/15 z-50 shadow-2xl"
+          className="absolute top-full left-0 mt-1 w-max min-w-full max-w-[min(100vw-2rem,18rem)] max-h-56 overflow-y-auto bg-[#121212] border border-white/15 z-50 shadow-2xl"
           style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.2) transparent" }}
         >
           {allowAll && (
             <button
               type="button"
               onClick={clearAll}
-              className={`w-full p-2.5 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center font-sans text-sm ${
+              className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap ${
                 showAll ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
               }`}
             >
               <span>All</span>
-              {showAll && <Check className="w-3.5 h-3.5" />}
+              {showAll && <Check className="w-3.5 h-3.5 shrink-0" />}
             </button>
           )}
           {options.map((opt) => {
@@ -137,12 +137,12 @@ export function MultiSelectDropdown({
                 type="button"
                 key={opt}
                 onClick={() => toggle(opt)}
-                className={`w-full p-2.5 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center font-sans text-sm transition-colors ${
+                className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap transition-colors ${
                   isSel ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
                 }`}
               >
                 <span>{opt}</span>
-                {isSel && <Check className="w-3.5 h-3.5" />}
+                {isSel && <Check className="w-3.5 h-3.5 shrink-0" />}
               </button>
             );
           })}

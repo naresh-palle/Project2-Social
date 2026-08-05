@@ -202,7 +202,7 @@ export default function Messages() {
         <div className="hairline-b pb-4 flex items-baseline justify-between">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Correspondence</p>
-            <h1 className="font-editorial text-5xl md:text-6xl leading-[1.15] mt-1">Messages<span className="tick">.</span></h1>
+            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight leading-[1.15] mt-1">Messages<span className="tick">.</span></h1>
           </div>
           <Link to="/dashboard" className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline">
             ← Dashboard
@@ -235,7 +235,7 @@ export default function Messages() {
                 {[1, 2, 3].map((n) => <div key={n} className="h-20 bg-white/[0.03] border border-white/5 rounded-xs" />)}
               </div>
             ) : convos.length === 0 ? (
-              <div className="p-10 font-editorial italic text-2xl opacity-60">No conversations yet.</div>
+              <div className="p-10 font-sans text-xl font-medium tracking-tight opacity-60">No conversations yet.</div>
             ) : (
               convos.map((c) => (
                 <button
@@ -349,7 +349,7 @@ export default function Messages() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center font-editorial italic text-3xl opacity-40">
+              <div className="flex-1 flex items-center justify-center font-sans text-2xl font-semibold tracking-tight opacity-40">
                 Select a conversation
               </div>
             )}

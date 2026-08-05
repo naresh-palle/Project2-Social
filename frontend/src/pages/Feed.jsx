@@ -232,7 +232,7 @@ export default function Feed() {
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" /> § Community Feed
             </p>
-            <h1 className="font-editorial text-4xl md:text-6xl mt-2">Feed<span className="italic text-[#FF3B30]">.</span></h1>
+            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mt-2">Feed<span className="italic text-[#FF3B30]">.</span></h1>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={refresh} disabled={refreshing} className="p-3 border border-white/20 hover:border-[#FF3B30] rounded-xs">
@@ -264,7 +264,7 @@ export default function Feed() {
             {loading ? (
               <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin opacity-50" /></div>
             ) : posts.length === 0 ? (
-              <p className="font-editorial italic text-2xl opacity-40 text-center py-20">No posts yet. Be the first to share!</p>
+              <p className="font-sans text-xl font-medium tracking-tight opacity-40 text-center py-20">No posts yet. Be the first to share!</p>
             ) : (
               posts.map((post) => (
                 <PostCard

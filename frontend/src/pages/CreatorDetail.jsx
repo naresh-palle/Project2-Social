@@ -89,7 +89,7 @@ export default function CreatorDetail() {
                     <div className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2 text-[#FF3B30]">
                         {creator.category || "Creator"} · {creator.city || "Global"}
                     </div>
-                    <h1 className="font-editorial text-5xl md:text-7xl leading-none">
+                    <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-none">
                         {creator.name}
                     </h1>
                     <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4">
@@ -106,7 +106,7 @@ export default function CreatorDetail() {
             <div className="md:col-span-4 flex flex-col items-start md:items-end gap-6 w-full">
                 {bestPlatform.key && (
                     <div className="text-left md:text-right w-full">
-                        <div className="font-editorial text-4xl md:text-5xl">{bestPlatform.val.followers.toLocaleString()}</div>
+                        <div className="font-sans text-3xl md:text-5xl font-bold tracking-tight">{bestPlatform.val.followers.toLocaleString()}</div>
                         <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">Total {bestPlatform.key} Audience</div>
                     </div>
                 )}

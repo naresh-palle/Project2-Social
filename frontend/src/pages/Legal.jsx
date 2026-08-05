@@ -185,7 +185,7 @@ export default function Legal() {
         ) : (
           <>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Legal</p>
-            <h1 className="font-editorial text-5xl md:text-6xl mt-2 leading-[1.15]">{content.title}</h1>
+            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mt-2 leading-[1.15]">{content.title}</h1>
             <p className="font-mono text-xs opacity-50 mt-2">Last updated: {content.updated}</p>
             <div className="mt-12 space-y-8">
               {content.sections.map((s, i) => (
