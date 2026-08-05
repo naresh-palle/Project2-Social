@@ -160,7 +160,7 @@ export default function Login() {
 
       const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
       setOtpSent(true);
-      setResendTimer(30);
+      setResendTimer(60);
       toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}.`);
 
       const interval = setInterval(() => {
@@ -173,7 +173,8 @@ export default function Login() {
         });
       }, 1000);
     } catch (err) {
-      setErr(formatApiError(err.response?.data?.detail) || err.message || "Failed to send verification code");
+      const detail = formatApiError(err.response?.data?.detail) || err.message || "Failed to send verification code";
+      setErr(detail);
     } finally {
       setLoading(false);
     }

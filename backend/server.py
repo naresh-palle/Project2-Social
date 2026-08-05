@@ -777,73 +777,116 @@ class Fast2SMSSmsProvider(SmsProvider):
         if not api_key:
             raise HTTPException(status_code=502, detail="SMS provider is not configured (FAST2SMS_API_KEY missing)")
 
+        # Transactional OTP route bypasses DND. Quick SMS (q) is promotional and fails for most Indian numbers.
+        route = (os.environ.get("FAST2SMS_ROUTE") or "otp").strip().lower() or "otp"
         message = (
             f"CR8 Studio verification code is {otp}. "
             f"Valid for {OTP_EXPIRY_MINUTES} minutes. Do not share this code."
         )
-        # Prefer Quick SMS (route q) — OTP route often requires Fast2SMS website/DLT verification
-        route = (os.environ.get("FAST2SMS_ROUTE") or "q").strip() or "q"
-        payload = {
+
+        def _otp_payload() -> dict:
+            payload = {
+                "route": "otp",
+                "variables_values": str(otp),
+                "numbers": clean_mobile,
+            }
+            # Optional DLT template id if account requires it
+            msg_id = (os.environ.get("FAST2SMS_MESSAGE_ID") or os.environ.get("FAST2SMS_TEMPLATE_ID") or "").strip()
+            if msg_id:
+                payload["message"] = msg_id
+            flash = (os.environ.get("FAST2SMS_FLASH") or "").strip()
+            if flash in ("0", "1"):
+                payload["flash"] = flash
+            return payload
+
+        def _quick_payload() -> dict:
+            return {
+                "route": "q",
+                "numbers": clean_mobile,
+                "language": "english",
+                "message": message,
+            }
+
+        def _friendly_error(raw: str) -> str:
+            low = (raw or "").lower()
+            if "dnd" in low:
+                return (
+                    "SMS blocked by DND on promotional route. "
+                    "Set FAST2SMS_ROUTE=otp on the API (transactional OTP) and redeploy."
+                )
+            if "kyc" in low:
+                return "Fast2SMS KYC is required before OTP SMS can be sent. Complete KYC in the Fast2SMS dashboard."
+            if "wallet" in low or "balance" in low:
+                return "Fast2SMS wallet balance is insufficient. Top up the wallet and try again."
+            if "website verification" in low or "dlt" in low:
+                return (
+                    "Fast2SMS OTP/DLT setup incomplete. Complete website/DLT verification, "
+                    "or set FAST2SMS_MESSAGE_ID to your approved template id."
+                )
+            return raw[:220] if raw else "Unknown SMS provider error"
+
+        async def _post(client: httpx.AsyncClient, payload: dict):
+            res = await client.post(
+                "https://www.fast2sms.com/dev/bulkV2",
+                headers={"authorization": api_key, "Content-Type": "application/json"},
+                json=payload,
+            )
+            data = {}
+            try:
+                data = res.json()
+            except Exception:
+                pass
+            ok = res.status_code == 200 and data.get("return") is not False
+            err = str(data.get("message") or res.text or "")
+            return ok, res.status_code, err, data
+
+        primary = _otp_payload() if route == "otp" else (_quick_payload() if route == "q" else {
             "route": route,
             "numbers": clean_mobile,
             "language": "english",
             "message": message,
-        }
-        # Legacy OTP template route support
-        if route.lower() == "otp":
-            payload = {
-                "route": "otp",
-                "variables_values": otp,
-                "numbers": clean_mobile,
-            }
+        })
+        # If custom DLT route (e.g. dlt), include sender/message id when present
+        if route not in ("otp", "q"):
+            sender = (os.environ.get("FAST2SMS_SENDER_ID") or "").strip()
+            msg_id = (os.environ.get("FAST2SMS_MESSAGE_ID") or os.environ.get("FAST2SMS_TEMPLATE_ID") or "").strip()
+            if sender:
+                primary["sender_id"] = sender
+            if msg_id:
+                primary["message"] = msg_id
+            primary["variables_values"] = str(otp)
 
         try:
             async with httpx.AsyncClient(timeout=15) as c:
-                res = await c.post(
-                    "https://www.fast2sms.com/dev/bulkV2",
-                    headers={"authorization": api_key, "Content-Type": "application/json"},
-                    json=payload,
-                )
-                data = {}
-                try:
-                    data = res.json()
-                except Exception:
-                    pass
-
-                if res.status_code == 200 and data.get("return") is not False:
-                    logger.info("Fast2SMS OTP dispatched via route=%s to +91 %s", route, clean_mobile)
+                ok, status, err, _ = await _post(c, primary)
+                if ok:
+                    logger.info("Fast2SMS OTP dispatched via route=%s to +91 %s", primary.get("route"), clean_mobile)
                     return
 
-                # Auto-fallback: OTP route blocked → Quick SMS
-                err_msg = str(data.get("message") or res.text or "")
-                if route.lower() == "otp" or "website verification" in err_msg.lower() or "dlt" in err_msg.lower():
-                    logger.warning("Fast2SMS route=%s failed (%s). Retrying with Quick SMS route=q", route, err_msg[:200])
-                    res2 = await c.post(
-                        "https://www.fast2sms.com/dev/bulkV2",
-                        headers={"authorization": api_key, "Content-Type": "application/json"},
-                        json={
-                            "route": "q",
-                            "numbers": clean_mobile,
-                            "language": "english",
-                            "message": message,
-                        },
-                    )
-                    data2 = {}
-                    try:
-                        data2 = res2.json()
-                    except Exception:
-                        pass
-                    if res2.status_code == 200 and data2.get("return") is not False:
+                err_low = err.lower()
+                # Promotional Quick SMS blocked by DND → retry transactional OTP route
+                if primary.get("route") == "q" and "dnd" in err_low:
+                    logger.warning("Fast2SMS Quick SMS DND-blocked for +91 %s; retrying OTP route", clean_mobile)
+                    ok2, status2, err2, _ = await _post(c, _otp_payload())
+                    if ok2:
+                        logger.info("Fast2SMS OTP dispatched via route=otp (DND fallback) to +91 %s", clean_mobile)
+                        return
+                    raise HTTPException(status_code=502, detail=f"SMS provider error: {_friendly_error(err2)}")
+
+                # OTP route needs website/DLT verification → last-resort Quick SMS (may still hit DND)
+                if primary.get("route") == "otp" and (
+                    "website verification" in err_low or "dlt" in err_low or "kyc" in err_low
+                ):
+                    logger.warning("Fast2SMS OTP route failed (%s). Retrying Quick SMS route=q", err[:200])
+                    ok2, status2, err2, _ = await _post(c, _quick_payload())
+                    if ok2:
                         logger.info("Fast2SMS OTP dispatched via Quick SMS to +91 %s", clean_mobile)
                         return
-                    raise HTTPException(
-                        status_code=502,
-                        detail=f"SMS provider error: {data2.get('message') or res2.text[:200]}",
-                    )
+                    raise HTTPException(status_code=502, detail=f"SMS provider error: {_friendly_error(err2 or err)}")
 
                 raise HTTPException(
                     status_code=502,
-                    detail=f"SMS provider error {res.status_code}: {err_msg[:200]}",
+                    detail=f"SMS provider error {status}: {_friendly_error(err)}",
                 )
         except HTTPException:
             raise
@@ -984,6 +1027,14 @@ async def mobile_send_otp(inp: OTPRequest):
     now_utc = datetime.now(timezone.utc)
     expires_at = now_utc + timedelta(minutes=OTP_EXPIRY_MINUTES)
 
+    # Deliver SMS first — only persist OTP after provider accepts the send
+    if not os.environ.get("FAST2SMS_API_KEY"):
+        raise HTTPException(
+            status_code=502,
+            detail="SMS OTP is not configured. Set FAST2SMS_API_KEY on the server to enable live mobile verification.",
+        )
+    await sms_provider.send_sms_otp(mobile, otp_code)
+
     doc = {
         "mobile": mobile,
         "hashed_otp": hashed,
@@ -996,7 +1047,6 @@ async def mobile_send_otp(inp: OTPRequest):
     await db.otps.update_one({"mobile": mobile}, {"$set": doc}, upsert=True)
     _otp_store[mobile] = {"code": otp_code, "expires_at": expires_at, "hashed_otp": hashed, "attempts": 0}
 
-    await sms_provider.send_sms_otp(mobile, otp_code)
     return {"ok": True, "message": f"Verification code sent to +91 {mobile}. Valid for {OTP_EXPIRY_MINUTES} minutes."}
 
 
@@ -1044,10 +1094,11 @@ async def email_provider_status():
         "brevo_sender_resolved": detected,
         "gmail_smtp_configured": gmail,
         "fast2sms_configured": bool(os.environ.get("FAST2SMS_API_KEY")),
+        "fast2sms_route": (os.environ.get("FAST2SMS_ROUTE") or "otp").strip() or "otp",
         "ntfy_base_url": NTFY_BASE_URL,
         "hint": (
-            "Live signup OTP is sent by SMS (FAST2SMS_API_KEY). "
-            "Set FAST2SMS_ROUTE=q for Quick SMS if OTP route needs DLT/website verification."
+            "Live mobile OTP uses Fast2SMS transactional route by default (FAST2SMS_ROUTE=otp). "
+            "Avoid FAST2SMS_ROUTE=q — Quick SMS is blocked by DND for most Indian numbers."
         ),
     }
 
