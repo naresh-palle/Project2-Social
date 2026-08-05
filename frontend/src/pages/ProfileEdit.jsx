@@ -118,7 +118,7 @@ function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
     company: asStr(f.company).trim() || null,
     industry: asStr(f.industry).trim() || null,
     website: normalizeWebsite(f.website) || null,
-    // Production API expects category as a string; niches stays a list.
+    // Niches multi-select lives in UI state as an array; API field `category` must be a string.
     category: category.length ? category.join(", ") : null,
     niches: category,
     languages,

@@ -8,13 +8,28 @@ export const api = axios.create({ baseURL: API });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("cr8_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // Production PATCH /auth/me types `category` as a string. Niches UI is multi-select
+  // (array) — coerce before the request so a selected niche never 422s as "Category".
+  const method = String(config.method || "").toLowerCase();
+  const url = String(config.url || "");
+  if (method === "patch" && url.includes("/auth/me") && config.data && typeof config.data === "object" && !Array.isArray(config.data)) {
+    const data = { ...config.data };
+    if (Array.isArray(data.category)) {
+      data.category = data.category.map((x) => String(x || "").trim()).filter(Boolean).join(", ") || null;
+    } else if (data.category != null && typeof data.category !== "string") {
+      data.category = String(data.category);
+    }
+    if (data.category === "") data.category = null;
+    config.data = data;
+  }
   return config;
 });
 
 /** Friendlier labels for API field names shown in toasts. */
 const FIELD_LABELS = {
-  category: "Niches",
-  niches: "Niches",
+  category: "Niches / Category",
+  niches: "Niches / Category",
   platform_metrics: "Social accounts",
   base_rate: "Base rate",
   content_types: "Content types",
