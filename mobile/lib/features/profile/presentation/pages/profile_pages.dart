@@ -130,10 +130,11 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
         'company': company.text.trim(),
         'is_private': isPrivate,
       });
-      if (mounted) {
-        showCr8Snack(context, 'Profile saved');
-        context.pop();
-      }
+      if (!mounted) return;
+      showCr8Snack(context, 'Profile saved');
+      // Explicitly go to profile (same as web nav("/profile")) —
+      // pop() is unreliable after auth refreshListenable updates.
+      context.go('/profile');
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
     } finally {
