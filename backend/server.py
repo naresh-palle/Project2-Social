@@ -2531,6 +2531,17 @@ async def my_invitations(current: dict = Depends(get_current_user)):
         invs = await db.invitations.find({"$or": [{"owner_id": user_id}, {"brand_id": user_id}]}, {"_id": 0}).sort("created_at", -1).to_list(200)
     else:
         invs = []
+
+    if not invs:
+        try:
+            from mock_comms import seed_mock_comms
+            await seed_mock_comms(db, logger=logger)
+        except Exception as e:
+            logger.warning("mock invitation seed failed: %s", e)
+        if current["role"] == "influencer":
+            invs = await db.invitations.find({"creator_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
+        elif current["role"] == "owner":
+            invs = await db.invitations.find({"$or": [{"owner_id": user_id}, {"brand_id": user_id}]}, {"_id": 0}).sort("created_at", -1).to_list(200)
         
     if not invs:
         return []
@@ -2648,6 +2659,14 @@ async def list_conversations(current: dict = Depends(get_current_user)):
             ]
         }
     convos = await db.conversations.find(q, {"_id": 0}).sort("last_at", -1).to_list(200)
+    if not convos:
+        try:
+            from mock_comms import ensure_mock_comms_if_empty
+            seeded = await ensure_mock_comms_if_empty(db, current, logger=logger)
+            if seeded:
+                convos = await db.conversations.find(q, {"_id": 0}).sort("last_at", -1).to_list(200)
+        except Exception as e:
+            logger.warning("mock conversation seed failed: %s", e)
     if not convos:
         return []
 
@@ -3962,6 +3981,24 @@ async def seed_demo():
             "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
         })
 
+@api_router.post("/admin/seed-mock-comms")
+async def admin_seed_mock_comms(current: dict = Depends(get_current_user)):
+    """Reseed mock DMs + invitations for creator / company / admin demo desks."""
+    await require_role(current, ["admin"])
+    from mock_comms import clear_mock_comms, seed_mock_comms
+    cleared = await clear_mock_comms(db)
+    result = await seed_mock_comms(db, logger=logger)
+    return {"ok": True, "cleared": cleared, "seed": result}
+
+
+@api_router.post("/seed/mock-comms")
+async def seed_mock_comms_me(current: dict = Depends(get_current_user)):
+    """Any signed-in user can ensure demo conversations/invitations exist."""
+    from mock_comms import seed_mock_comms
+    result = await seed_mock_comms(db, logger=logger)
+    return {"ok": True, "seed": result}
+
+
 @api_router.get("/test-users")
 async def get_test_users():
     users = await db.users.find({}, {"email": 1, "role": 1, "mobile": 1, "name": 1, "_id": 0}).to_list(None)
@@ -4058,6 +4095,11 @@ async def on_startup():
     await db.contracts.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
     await seed_admin()
     await seed_demo()
+    try:
+        from mock_comms import seed_mock_comms
+        await seed_mock_comms(db, logger=logger)
+    except Exception as e:
+        logger.warning("mock_comms seed on startup failed: %s", e)
     if _phase1_ensure_indexes:
         await _phase1_ensure_indexes()
     logger.info("CR8 API ready.")

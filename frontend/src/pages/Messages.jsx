@@ -31,13 +31,19 @@ export default function Messages() {
   const loadConvos = async () => {
     setLoadingConvos(true);
     try {
-      const { data } = await api.get("/conversations");
-      setConvos(data);
+      let { data } = await api.get("/conversations");
+      if (!data?.length) {
+        try {
+          await api.post("/seed/mock-comms");
+          ({ data } = await api.get("/conversations"));
+        } catch {}
+      }
+      setConvos(data || []);
       const openId = sp.get("id");
       if (openId) {
-        const c = data.find((c) => c.id === openId);
+        const c = (data || []).find((c) => c.id === openId);
         if (c) setActive(c);
-      } else if (data.length && !active) {
+      } else if (data?.length && !active) {
         setActive(data[0]);
       }
     } catch (e) {
@@ -201,8 +207,10 @@ export default function Messages() {
       <div className="pt-24 max-w-[1600px] mx-auto px-6 md:px-10 pb-8">
         <div className="hairline-b pb-4 flex items-baseline justify-between">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Correspondence</p>
-            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight leading-[1.15] mt-1">Messages<span className="tick">.</span></h1>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
+              § {user?.role === "owner" ? "Brand desk inbox" : user?.role === "admin" ? "Admin desk inbox" : user?.role === "agent" ? "Agency inbox" : "Creator inbox"}
+            </p>
+            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight leading-[1.15] mt-1">Messages<span className="tick text-[#FF3B30]">.</span></h1>
           </div>
           <Link to="/dashboard" className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline">
             ← Dashboard
@@ -235,7 +243,10 @@ export default function Messages() {
                 {[1, 2, 3].map((n) => <div key={n} className="h-20 bg-white/[0.03] border border-white/5 rounded-xs" />)}
               </div>
             ) : convos.length === 0 ? (
-              <div className="p-10 font-sans text-xl font-medium tracking-tight opacity-60">No conversations yet.</div>
+              <div className="p-8 space-y-2">
+                <div className="font-sans text-xl font-medium tracking-tight opacity-60">No conversations yet.</div>
+                <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">Open a campaign or creator profile to start a DM</p>
+              </div>
             ) : (
               convos.map((c) => (
                 <button
@@ -244,7 +255,10 @@ export default function Messages() {
                   data-testid={`convo-${c.id}`}
                   className={`w-full text-left p-4 hairline-b hover:bg-white/5 transition-colors ${active?.id === c.id ? "bg-white/[0.04]" : ""}`}
                 >
-                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60">{c.campaign_brand}</div>
+                  <div className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-60 flex items-center gap-2">
+                    <span>{c.campaign_brand}</span>
+                    {c.mock ? <span className="text-[#FF3B30]">Demo</span> : null}
+                  </div>
                   <div className="font-editorial text-xl leading-tight mt-1 truncate">{c.other_name}</div>
                   {c.last_message && <div className="text-xs opacity-70 mt-2 truncate">{c.last_message}</div>}
                 </button>

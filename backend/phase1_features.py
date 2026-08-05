@@ -13,7 +13,7 @@ from collections import Counter
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, UploadFile, File
 from pydantic import BaseModel, Field, EmailStr
 
 try:
@@ -1110,7 +1110,7 @@ def setup_phase1(
 
     # ---------- Messaging extras (no group chat) ----------
     @api_router.post("/conversations/dm")
-    async def open_dm(inp: DMOpenInput, current: dict = Depends(get_current_user)):
+    async def open_dm(inp: DMOpenInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot DM yourself")
         if await is_blocked(current["id"], inp.user_id):
@@ -1123,7 +1123,7 @@ def setup_phase1(
             existing.pop("_id", None)
             return existing
         cid = str(uuid.uuid4())
-        other = await db.users.find_one({"id": inp.user_id}, {"name": 1, "company": 1})
+        other = await db.users.find_one({"id": inp.user_id}, {"name": 1, "company": 1, "username": 1})
         doc = {
             "id": cid,
             "kind": "dm",
@@ -1131,7 +1131,7 @@ def setup_phase1(
             "owner_id": current["id"],
             "creator_id": inp.user_id,
             "campaign_title": "Direct Message",
-            "campaign_brand": (other or {}).get("name") or "DM",
+            "campaign_brand": (other or {}).get("name") or (other or {}).get("company") or "DM",
             "created_at": now_iso(),
             "last_at": now_iso(),
             "pinned": False,
