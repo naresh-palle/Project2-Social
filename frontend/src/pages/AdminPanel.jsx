@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { EXPORT_FORMATS, runExport } from "@/lib/exportFormats";
+import { formatUsername } from "@/lib/username";
 
 const USER_ROLE_OPTIONS = ["Creators", "Brands", "Agencies"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
@@ -560,7 +561,7 @@ export function AdminPanel() {
                                         <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                                             <td className="p-4">
                                               <div className="font-sans text-xl">
-                                                {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
+                                                {formatUsername(u.username, u.handle) || "—"}
                                               </div>
                                             </td>
                                             <td className="p-4 font-sans text-sm break-all">
@@ -716,7 +717,7 @@ export function AdminPanel() {
                           filteredUsers.map((u) => (
                             <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                               <td className="p-4 font-sans text-sm font-medium">
-                                {u.username ? `@${String(u.username).replace(/^@/, "")}` : (u.handle || "—")}
+                                {formatUsername(u.username, u.handle) || "—"}
                               </td>
                               <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</td>
                               <td className="p-4 font-sans text-sm opacity-80">{userCategoryText(u) || "—"}</td>
@@ -777,11 +778,7 @@ export function AdminPanel() {
                                             {new Date(a.time).toLocaleString()}
                                         </td>
                                         <td className="p-4 text-sm opacity-90">
-                                          {a.username
-                                            ? `@${String(a.username).replace(/^@/, "")}`
-                                            : (a.user?.startsWith?.("@")
-                                                ? a.user
-                                                : (a.user || "—"))}
+                                          {formatUsername(a.username, a.user) || "—"}
                                         </td>
                                         <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-80">{a.type}</td>
                                         <td className="p-4">

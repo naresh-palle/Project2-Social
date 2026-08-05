@@ -8,6 +8,8 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { toast, Toaster } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { formatUsername } from "@/lib/username";
+import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
 
 export default function CreatorDetail() {
   const { id } = useParams();
@@ -93,7 +95,7 @@ export default function CreatorDetail() {
                         {creator.name}
                     </h1>
                     <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4">
-                        <span>{creator.handle || "@creator"}</span>
+                        <span>{formatUsername(creator.handle, creator.username) || "creator"}</span>
                         {creator.languages?.length > 0 && (
                             <>
                                 <span>·</span>
@@ -168,12 +170,12 @@ export default function CreatorDetail() {
               <section>
                   <h3 className="font-mono text-[10px] tracking-widest uppercase opacity-60 border-b border-white/10 pb-4 mb-6">Audience Insights</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {["instagram", "youtube", "twitter", "facebook"].map(plat => {
-                          const pm = creator.platform_metrics?.[plat];
-                          if (!pm || !pm.handle) return null;
-                          
+                      {SOCIAL_PLATFORMS.map(plat => {
+                          const pm = creator.platform_metrics?.[plat] || {};
+                          const connected = hasPlatformHandle(pm);
                           const Icon = plat === "instagram" ? Instagram : plat === "youtube" ? Youtube : plat === "twitter" ? Twitter : Facebook;
-                          const isGrowthPos = pm.growth >= 0;
+                          const growth = Number(pm.growth) || 0;
+                          const isGrowthPos = growth >= 0;
 
                           return (
                               <div key={plat} className="p-6 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors relative overflow-hidden group">
@@ -186,27 +188,37 @@ export default function CreatorDetail() {
                                               <Icon className="w-5 h-5" />
                                           </div>
                                           <div>
-                                              <div className="font-mono text-[10px] tracking-widest uppercase capitalize opacity-60">{plat}</div>
-                                              <div className="font-mono text-sm">{pm.handle}</div>
+                                              <div className="font-mono text-[10px] tracking-widest uppercase opacity-60">{SOCIAL_PLATFORM_LABELS[plat] || plat}</div>
+                                              <div className="font-mono text-sm">{socialOrNA(pm.handle)}</div>
                                           </div>
                                       </div>
-                                      <div className={`flex items-center gap-1 font-mono text-xs ${isGrowthPos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
-                                          {isGrowthPos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                          {Math.abs(pm.growth)}%
-                                      </div>
+                                      {connected ? (
+                                        <div className={`flex items-center gap-1 font-mono text-xs ${isGrowthPos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+                                            {isGrowthPos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                                            {Math.abs(growth)}%
+                                        </div>
+                                      ) : (
+                                        <div className="font-mono text-xs opacity-40">N/A</div>
+                                      )}
                                   </div>
 
                                   <div className="grid grid-cols-3 gap-4 mt-8 relative z-10">
                                       <div>
-                                          <div className="font-editorial text-2xl">{pm.followers.toLocaleString()}</div>
+                                          <div className="font-editorial text-2xl">
+                                            {connected ? socialMetricOrNA(pm.followers ?? pm.subscribers, (n) => n.toLocaleString()) : "N/A"}
+                                          </div>
                                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50 mt-1">Audience</div>
                                       </div>
                                       <div>
-                                          <div className="font-editorial text-2xl">{pm.engagement}%</div>
+                                          <div className="font-editorial text-2xl">
+                                            {connected ? socialMetricOrNA(pm.engagement, (n) => `${n}%`) : "N/A"}
+                                          </div>
                                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50 mt-1">Engagement</div>
                                       </div>
                                       <div>
-                                          <div className="font-editorial text-2xl">{(pm.views / 1000).toFixed(1)}K</div>
+                                          <div className="font-editorial text-2xl">
+                                            {connected ? socialMetricOrNA(pm.views, (n) => `${(n / 1000).toFixed(1)}K`) : "N/A"}
+                                          </div>
                                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50 mt-1">Avg Views</div>
                                       </div>
                                   </div>

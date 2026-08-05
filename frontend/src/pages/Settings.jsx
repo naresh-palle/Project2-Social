@@ -10,6 +10,7 @@ import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
 import { exportPdf } from "@/lib/exportFormats";
+import { formatUsername } from "@/lib/username";
 
 const NOTIF_KEYS = [
   { key: "likes", label: "Likes" },
@@ -416,7 +417,7 @@ export default function Settings() {
               <Section title="Blocked Users" icon={Ban} dense>
                 {blocks.map((b) => (
                   <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
-                    <span className="font-editorial text-sm">{b.user?.username ? `@${b.user.username}` : (b.user?.name || b.block?.blocked_id)}</span>
+                    <span className="font-editorial text-sm">{formatUsername(b.user?.username, b.user?.handle, b.user?.name) || b.block?.blocked_id}</span>
                     <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
                       Unblock
                     </button>

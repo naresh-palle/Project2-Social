@@ -146,12 +146,14 @@ async def write_audit_log(
 ) -> None:
     """Append a live audit trail entry for Admin Console → Audit Logs."""
     try:
-        uname = (username or "").strip().lstrip("@") or None
+        uname = (username or "").strip().lstrip("@").rstrip(".,")
         display = user
         if not display and uname:
-            display = f"@{uname}"
+            display = uname
         elif not display:
             display = "System"
+        if isinstance(display, str):
+            display = display.strip().lstrip("@").rstrip(".,") or display
         now = now_iso()
         doc = {
             "id": f"audit_{uuid.uuid4().hex[:10]}",
@@ -1481,7 +1483,7 @@ async def _create_registered_user(
         action=f"{role_label} Signup",
         user_id=user_id,
         username=username,
-        user=f"@{username}",
+        user=username,
         details=f"Registered new {role_label.lower()} account",
         status="Completed",
         meta={"role": role, "email": email},
@@ -1616,7 +1618,7 @@ async def register_old(inp: RegisterInput):
         action=f"{role_label} Signup",
         user_id=user_id,
         username=username,
-        user=f"@{username}",
+        user=username,
         details=f"Registered new {role_label.lower()} account",
         status="Completed",
         meta={"role": inp.role, "email": email},
@@ -1783,7 +1785,7 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
         existing_pm = current.get("platform_metrics") or {}
         incoming_pm = updates["platform_metrics"] or {}
         merged_pm: Dict[str, Any] = {}
-        for plat in ["instagram", "youtube", "twitter", "facebook"]:
+        for plat in ["facebook", "instagram", "twitter", "youtube"]:
             old = existing_pm.get(plat) if isinstance(existing_pm.get(plat), dict) else {}
             inc = incoming_pm.get(plat) if isinstance(incoming_pm.get(plat), dict) else {}
             handle = str(inc.get("handle") or old.get("handle") or "").strip()
@@ -2033,8 +2035,9 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
         for a in audit_logs:
             uname = a.get("username") or uname_by_id.get(a.get("user_id"))
             if uname:
-                a["username"] = uname
-                a["user"] = f"@{str(uname).lstrip('@')}"
+                clean_uname = str(uname).lstrip("@").rstrip(".,")
+                a["username"] = clean_uname
+                a["user"] = clean_uname
             a["type"] = a.get("type") or a.get("action") or "Activity"
             a["time"] = a.get("time") or a.get("created_at") or now_iso()
             raw_status = str(a.get("status") or "Completed")
@@ -2050,8 +2053,8 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
         role_label = ROLE_AUDIT_LABELS.get(u.get("role"), (u.get("role") or "user").title())
         activity.append({
             "type": f"{role_label} Signup",
-            "user": f"@{uname}" if uname else (u.get("email") or "User"),
-            "username": uname or None,
+            "user": uname.lstrip("@").rstrip(".,") if uname else (u.get("email") or "User"),
+            "username": (uname.lstrip("@").rstrip(".,") if uname else None),
             "status": "Completed",
             "time": u.get("created_at", now_iso())
         })
@@ -2204,7 +2207,7 @@ async def sync_analytics(
             "monthly_analytics": current.get("monthly_analytics", [])
         }
 
-    for plat in ["instagram", "youtube", "twitter", "facebook"]:
+    for plat in ["facebook", "instagram", "twitter", "youtube"]:
         info = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
         handle = str(info.get("handle") or "").strip()
         if handle:
@@ -3081,7 +3084,7 @@ def build_local_profile_bio(
     clean_niches = [str(n).strip() for n in (niches or []) if n and str(n).strip()]
     loc_parts = [p for p in [(city or "").strip(), (state or "").strip()] if p]
     loc = ", ".join(loc_parts) if loc_parts else "India"
-    who = (name or "").strip() or (handle or "").strip() or (f"@{username}" if username else "Creator")
+    who = (name or "").strip() or (handle or "").strip().lstrip("@").rstrip(".,") or ((username or "").strip().lstrip("@").rstrip(".,") or "Creator")
 
     if not clean_niches:
         return f"{who} creates authentic content from {loc}."

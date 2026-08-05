@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
+import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
 
 const MODES = [
@@ -295,10 +296,7 @@ export default function Feed() {
                 <p className="font-mono text-xs opacity-40">No suggestions</p>
               ) : (
                 suggested.map((u) => {
-                  const uname = String(u.username || u.handle || "")
-                    .replace(/^@+/, "")
-                    .trim();
-                  const label = uname ? `@${uname}` : "@user";
+                  const label = formatUsername(u.username, u.handle) || "user";
                   return (
                     <Link
                       key={u.id}
@@ -360,7 +358,7 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
           {author.avatar && <img src={author.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20" />}
           <div>
             <div className="font-editorial text-lg font-bold">{author.name}</div>
-            <div className="font-mono text-[10px] text-[#FF3B30] uppercase">@{author.handle} · {post.created_at?.slice(0, 10)}</div>
+            <div className="font-mono text-[10px] text-[#FF3B30] uppercase">{formatUsername(author.handle, author.username) || "user"} · {post.created_at?.slice(0, 10)}</div>
           </div>
         </Link>
         <div className="relative">

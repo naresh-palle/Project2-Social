@@ -533,7 +533,7 @@ function SocialProof() {
     {
       role: "Creator",
       name: "Arjun Sharma",
-      handle: "@arjun.creates",
+      handle: "arjun.creates",
       niche: "Fashion & Style",
       followers: "150K followers",
       photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",

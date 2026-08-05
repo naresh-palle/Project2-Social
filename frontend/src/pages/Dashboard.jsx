@@ -12,6 +12,7 @@ import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
+import { formatUsername } from "@/lib/username";
 import { toast, Toaster } from "sonner";
 import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -67,11 +68,7 @@ export default function Dashboard() {
                   § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
                 <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-                  {(() => {
-                    const uname = String(user?.username || user?.handle || "").replace(/^@/, "").trim();
-                    if (uname) return <>@{uname}<span className="tick text-[#FF3B30]">.</span></>;
-                    return <>{user?.email?.split("@")[0] || "User"}<span className="tick text-[#FF3B30]">.</span></>;
-                  })()}
+                  {formatUsername(user?.username, user?.handle, user?.email) || "User"}
                 </h1>
                 {(() => {
                   const niches = user?.niches || user?.category;
@@ -153,7 +150,7 @@ const FEATURED_CREATOR_WORK_FEED = [
   {
     id: "feed-1",
     creatorName: "Aarav Sharma",
-    handle: "@aarav.style",
+    handle: "aarav.style",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
     workTitle: "Cyberpunk Streetwear Editorial Reel",
     workImage: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
@@ -170,7 +167,7 @@ const FEATURED_CREATOR_WORK_FEED = [
   {
     id: "feed-2",
     creatorName: "Priya Varma",
-    handle: "@priya.tech.reviews",
+    handle: "priya.tech.reviews",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400",
     workTitle: "AI Creator Studio Workstation Review",
     workImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800",
@@ -187,7 +184,7 @@ const FEATURED_CREATOR_WORK_FEED = [
   {
     id: "feed-3",
     creatorName: "Rohan Kapoor",
-    handle: "@rohan.aesthetic",
+    handle: "rohan.aesthetic",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
     workTitle: "Organic Skin Glow Serum Campaign",
     workImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
@@ -204,7 +201,7 @@ const FEATURED_CREATOR_WORK_FEED = [
   {
     id: "feed-4",
     creatorName: "Neha Gupta",
-    handle: "@neha.fitness.pro",
+    handle: "neha.fitness.pro",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
     workTitle: "High-Intensity Pro Performance Workout",
     workImage: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
@@ -420,7 +417,7 @@ function OwnerPanel() {
                   <div>
                     <div className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{c.category || c.city || "Verified Creator"}</div>
                     <h3 className="font-sans text-2xl leading-tight mt-1">{c.name || c.creatorName}</h3>
-                    <p className="text-xs font-sans uppercase opacity-70 mt-2">{c.handle || "@creator"}</p>
+                    <p className="text-xs font-sans uppercase opacity-70 mt-2">{formatUsername(c.handle, c.username) || "creator"}</p>
                   </div>
                   <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-sans text-[10px] tracking-[0.2em] uppercase">
                     <span className="text-[#34C759]">Verified ✓</span>

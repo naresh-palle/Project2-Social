@@ -12,6 +12,15 @@ import { ImageCropModal } from "@/components/ImageCropModal";
 import { DateField, toIsoDate } from "@/components/DateField";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES } from "@/lib/categories";
+import {
+  SOCIAL_PLATFORMS,
+  SOCIAL_PLATFORM_LABELS,
+  emptyPlatformMetrics,
+  hasPlatformHandle,
+  socialOrNA,
+  socialMetricOrNA,
+} from "@/lib/platforms";
+import { formatUsername } from "@/lib/username";
 
 const LANGUAGES = [
   "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
@@ -26,7 +35,7 @@ const CONTENT_TYPES = [
   "YouTube Shorts", "YouTube Long-form", "Twitter/X Threads", "Blog Posts / Articles", "Podcasts"
 ];
 const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
-const PLATFORMS = ["instagram", "youtube", "twitter", "facebook"];
+const PLATFORMS = SOCIAL_PLATFORMS;
 
 function normalizeHandle(raw) {
   const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
@@ -58,7 +67,7 @@ export default function ProfileEdit() {
   useEffect(() => {
     if (user) {
       const uname = user.username || "";
-      const handleFromDb = user.handle || (uname ? `@${uname}` : "");
+      const handleFromDb = formatUsername(user.handle, uname);
       setF({
         name: user.name || "",
         username: uname,
@@ -69,11 +78,9 @@ export default function ProfileEdit() {
         city: user.city || "",
         state: user.state || "",
         availability: user.availability || "Immediately",
-        platform_metrics: user.platform_metrics || {
-          instagram: { handle: "", followers: 0, engagement: 0, views: 0 },
-          youtube: { handle: "", followers: 0, engagement: 0, views: 0 },
-          twitter: { handle: "", followers: 0, engagement: 0, views: 0 },
-          facebook: { handle: "", followers: 0, engagement: 0, views: 0 }
+        platform_metrics: {
+          ...emptyPlatformMetrics(),
+          ...(user.platform_metrics || {}),
         },
         category: toList(user.category || user.niches),
         languages: toList(user.languages),
@@ -317,7 +324,7 @@ export default function ProfileEdit() {
 
     setBusy(true);
     try {
-      const handleValue = (f.handle || (f.username ? `@${f.username}` : "")).trim();
+      const handleValue = formatUsername(f.handle, f.username);
       const platformHandlesOnly = {};
       PLATFORMS.forEach((plat) => {
         platformHandlesOnly[plat] = { handle: normalizeHandle(f.platform_metrics?.[plat]?.handle || "") };
@@ -363,7 +370,7 @@ export default function ProfileEdit() {
       toast.message("Tip: City/state from signup improves AI location wording.", { duration: 3500 });
     }
 
-    const who = f.name || (f.username ? `@${f.username}` : "Creator");
+    const who = f.name || formatUsername(f.username) || "Creator";
     const loc = [city, state].filter(Boolean).join(", ") || "India";
     const nicheText = niches.length === 1
       ? niches[0]
@@ -387,7 +394,7 @@ export default function ProfileEdit() {
 
     try {
       const { data } = await api.post("/ai/suggest-profile", {
-        handle: f.handle || (f.username ? `@${f.username}` : ""),
+        handle: formatUsername(f.handle, f.username),
         name: f.name,
         username: f.username,
         bio: localBio,
@@ -635,7 +642,7 @@ export default function ProfileEdit() {
                   <F label="Username">
                     <input
                       className="inp opacity-80"
-                      value={f.username ? `@${String(f.username).replace(/^@/, "")}` : ""}
+                      value={formatUsername(f.username) || ""}
                       readOnly
                       disabled
                       data-testid="reg-username-readonly"
@@ -826,14 +833,14 @@ export default function ProfileEdit() {
                     {PLATFORMS.map(plat => {
                         const metrics = f.platform_metrics?.[plat] || {};
                         const savedHandle = normalizeHandle(metrics.handle || "");
-                        const isConnected = !!savedHandle;
+                        const isConnected = hasPlatformHandle({ handle: savedHandle });
                         const isEditing = editingPlat === plat;
                         const isSaving = savingPlat === plat;
                         return (
                         <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
                             <div className="flex justify-between items-center mb-2 gap-2">
                                 <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
-                                    {plat} {plat === "instagram" && isCreator && "*"}
+                                    {SOCIAL_PLATFORM_LABELS[plat] || plat} {plat === "instagram" && isCreator && "*"}
                                     {isConnected && !isEditing && <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" />}
                                 </div>
                                 {!isEditing ? (
@@ -894,7 +901,7 @@ export default function ProfileEdit() {
                                   </div>
                                 ) : (
                                   <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center truncate">
-                                    {savedHandle || <span className="opacity-40">Not connected</span>}
+                                    {socialOrNA(savedHandle)}
                                   </div>
                                 )}
                             </div>
@@ -902,25 +909,25 @@ export default function ProfileEdit() {
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
                                     <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
-                                      {isConnected ? formatMetric(metrics.followers || metrics.subscribers) : "—"}
+                                      {isConnected ? socialMetricOrNA(metrics.followers ?? metrics.subscribers, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
                                     <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
-                                      {isConnected && metrics.engagement != null && metrics.engagement !== "" ? Number(metrics.engagement).toFixed(1) : "—"}
+                                      {isConnected ? socialMetricOrNA(metrics.engagement, (n) => n.toFixed(1)) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
                                     <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
-                                      {isConnected ? formatMetric(metrics.views) : "—"}
+                                      {isConnected ? socialMetricOrNA(metrics.views, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
                                     <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
-                                      {isConnected ? formatMetric(metrics.posts) : "—"}
+                                      {isConnected ? socialMetricOrNA(metrics.posts, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                             </div>

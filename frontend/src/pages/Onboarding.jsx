@@ -5,6 +5,7 @@ import { ChevronRight, Loader2, Plus, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { Nav } from "@/components/Nav";
+import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, emptyPlatformMetrics } from "@/lib/platforms";
 
 const CATEGORIES = [
   "Fashion & Style", "Food & Cooking", "Beauty & Makeup", 
@@ -22,7 +23,7 @@ const LANGUAGES = [
 
 const CITIES = ["Mumbai", "Bangalore", "Hyderabad", "Delhi", "Pune", "Chennai", "Kolkata", "Pan-India", "Other"];
 const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
-const PLATFORMS = ["instagram", "youtube", "twitter"];
+const PLATFORMS = SOCIAL_PLATFORMS;
 
 export default function Onboarding() {
   const { user, refresh } = useAuth();
@@ -38,11 +39,7 @@ export default function Onboarding() {
       languages: [],
       city: "",
       availability: "",
-      platform_metrics: {
-        instagram: { handle: "", followers: 0, engagement: 0, views: 0 },
-        youtube: { handle: "", followers: 0, engagement: 0, views: 0 },
-        twitter: { handle: "", followers: 0, engagement: 0, views: 0 }
-      }
+      platform_metrics: emptyPlatformMetrics(),
   });
 
   // Owner State
@@ -513,7 +510,7 @@ export default function Onboarding() {
             <p className="text-sm opacity-60 mb-6">Enter your primary handles. These can be updated later in your profile.</p>
             {PLATFORMS.map(plat => (
                 <div key={plat} className="p-4 border border-white/10 bg-white/[0.02]">
-                    <div className="font-editorial text-2xl capitalize mb-4 text-[#FF3B30]">{plat} {plat === "instagram" && "*"}</div>
+                    <div className="font-editorial text-2xl mb-4 text-[#FF3B30]">{SOCIAL_PLATFORM_LABELS[plat] || plat} {plat === "instagram" && "*"}</div>
                     <div>
                         <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Handle / Link</label>
                         <input className="w-full bg-transparent border-b border-white/10 py-2 focus:outline-none focus:border-[#FF3B30] text-lg mt-2" 

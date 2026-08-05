@@ -8,6 +8,14 @@ import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { toast, Toaster } from "sonner";
+import {
+  SOCIAL_PLATFORMS,
+  SOCIAL_PLATFORM_LABELS,
+  hasPlatformHandle,
+  socialOrNA,
+  socialMetricOrNA,
+} from "@/lib/platforms";
+import { formatUsername } from "@/lib/username";
 
 export default function ProfileView() {
   const nav = useNavigate();
@@ -78,13 +86,14 @@ export default function ProfileView() {
 
   const { score: completionScore, missing: missingFields } = getCompletionDetails();
 
-  const rawPlatforms = profile.platform_metrics && Object.keys(profile.platform_metrics).length > 0
+  const rawPlatforms = profile.platform_metrics && typeof profile.platform_metrics === "object"
     ? profile.platform_metrics
     : {};
-  const displayPlatforms = Object.entries(rawPlatforms).filter(
-    ([, data]) => data && data.handle && String(data.handle).trim() !== ""
-  );
-  const totalReach = displayPlatforms.reduce((acc, [, p]) => acc + (p?.followers || 0), 0);
+  const displayPlatforms = SOCIAL_PLATFORMS.map((key) => [key, rawPlatforms[key] || {}]);
+  const totalReach = displayPlatforms.reduce((acc, [, p]) => {
+    if (!hasPlatformHandle(p)) return acc;
+    return acc + (Number(p?.followers || p?.subscribers) || 0);
+  }, 0);
 
   const categoriesList = Array.isArray(profile.category)
     ? profile.category
@@ -98,10 +107,8 @@ export default function ProfileView() {
 
   const displayName =
     profile.role === "owner" || profile.role === "agent"
-      ? (profile.company || (profile.username ? `@${String(profile.username).replace(/^@/, "")}` : profile.name))
-      : (profile.username
-          ? `@${String(profile.username).replace(/^@/, "")}`
-          : (profile.handle || profile.name || "Profile"));
+      ? (profile.company || formatUsername(profile.username, profile.handle) || profile.name)
+      : (formatUsername(profile.username, profile.handle) || profile.name || "Profile");
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
@@ -205,7 +212,7 @@ export default function ProfileView() {
         </div>
 
         <div className="py-5 grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className={isCreator ? "md:col-span-4 space-y-3" : "md:col-span-12 space-y-3"}>
+          <div className="md:col-span-4 space-y-3">
             <div className="border border-white/10 bg-white/[0.02] p-3">
               <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Bio</h3>
               <p className="font-sans text-sm leading-relaxed text-white/90 break-words">
@@ -320,8 +327,7 @@ export default function ProfileView() {
             )}
           </div>
 
-          {isCreator && (
-            <div className="md:col-span-8 space-y-5">
+          <div className="md:col-span-8 space-y-5">
               <div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3 gap-3">
                   <h2 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Social accounts</h2>
@@ -331,54 +337,53 @@ export default function ProfileView() {
                     </span>
                   )}
                 </div>
-                {displayPlatforms.length === 0 ? (
-                  <div className="p-4 border border-white/10 bg-white/[0.02] text-center font-sans text-xs opacity-50">
-                    No social handles connected yet.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                     {displayPlatforms.map(([key, data]) => {
-                      const labels = {
-                        instagram: "Instagram",
-                        youtube: "YouTube",
-                        twitter: "Twitter / X",
-                        facebook: "Facebook",
-                      };
+                      const connected = hasPlatformHandle(data);
                       return (
-                        <div key={key} className="p-3 border border-white/10 bg-white/[0.02]">
+                        <div key={key} className={`p-3 border ${connected ? "border-white/10 bg-white/[0.02]" : "border-white/10 bg-white/[0.02] opacity-90"}`}>
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] font-semibold">
-                              {labels[key] || key}
+                              {SOCIAL_PLATFORM_LABELS[key] || key}
                             </span>
-                            <span className="font-sans text-[10px] opacity-60 truncate max-w-[45%]">{data.handle}</span>
+                            <span className={`font-sans text-[10px] truncate max-w-[45%] ${connected ? "opacity-60" : "opacity-45"}`}>
+                              {socialOrNA(data?.handle)}
+                            </span>
                           </div>
                           <div className="grid grid-cols-2 gap-2 mt-3 pt-2 border-t border-white/10 font-sans">
                             <div>
                               <div className="text-[9px] uppercase tracking-wider opacity-45">{key === "youtube" ? "Subs" : "Followers"}</div>
-                              <div className="text-base font-bold tabular-nums mt-0.5">{formatNumber(data.followers || data.subscribers || 0)}</div>
+                              <div className="text-base font-bold tabular-nums mt-0.5">
+                                {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "N/A"}
+                              </div>
                             </div>
                             <div>
                               <div className="text-[9px] uppercase tracking-wider opacity-45">ER %</div>
-                              <div className="text-base font-bold tabular-nums mt-0.5 text-[#34C759]">
-                                {data.engagement != null && data.engagement !== "" ? `${Number(data.engagement).toFixed(1)}%` : "—"}
+                              <div className={`text-base font-bold tabular-nums mt-0.5 ${connected ? "text-[#34C759]" : ""}`}>
+                                {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "N/A"}
                               </div>
                             </div>
                             <div>
                               <div className="text-[9px] uppercase tracking-wider opacity-45">Views</div>
-                              <div className="text-base font-bold tabular-nums mt-0.5">{data.views ? formatNumber(data.views) : "—"}</div>
+                              <div className="text-base font-bold tabular-nums mt-0.5">
+                                {connected ? socialMetricOrNA(data.views, formatNumber) : "N/A"}
+                              </div>
                             </div>
                             <div>
                               <div className="text-[9px] uppercase tracking-wider opacity-45">Posts</div>
-                              <div className="text-base font-bold tabular-nums mt-0.5">{data.posts ? formatNumber(data.posts) : "—"}</div>
+                              <div className="text-base font-bold tabular-nums mt-0.5">
+                                {connected ? socialMetricOrNA(data.posts, formatNumber) : "N/A"}
+                              </div>
                             </div>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                )}
               </div>
 
+              {isCreator && (
+              <>
               <div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
                   <h2 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Past campaigns</h2>
@@ -449,8 +454,9 @@ export default function ProfileView() {
                   </div>
                 )}
               </div>
-            </div>
-          )}
+              </>
+              )}
+          </div>
         </div>
       </div>
       <Footer />

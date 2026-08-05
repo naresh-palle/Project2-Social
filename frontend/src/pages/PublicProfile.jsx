@@ -5,6 +5,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
+import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
 
 export default function PublicProfile() {
@@ -123,11 +124,7 @@ export default function PublicProfile() {
             )}
             <div className="flex-1 pb-2">
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">
-                {profile.username
-                  ? `@${String(profile.username).replace(/^@/, "")}`
-                  : (profile.handle
-                      ? (String(profile.handle).startsWith("@") ? profile.handle : `@${profile.handle}`)
-                      : (profile.name || "Profile"))}
+                {formatUsername(profile.username, profile.handle) || profile.name || "Profile"}
               </h1>
               {(profile.role === "owner" || profile.role === "agent") && profile.company && (
                 <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>

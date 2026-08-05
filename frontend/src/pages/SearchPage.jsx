@@ -4,6 +4,7 @@ import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone 
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
+import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
 
 const TABS = [
@@ -201,7 +202,7 @@ function SearchResult({ tab, item }) {
         {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/20" />}
         <div>
           <div className="font-editorial text-xl">{item.name}</div>
-          <div className="font-mono text-[10px] text-[#FF3B30] uppercase">@{item.handle || item.username}</div>
+          <div className="font-mono text-[10px] text-[#FF3B30] uppercase">{formatUsername(item.handle, item.username) || "user"}</div>
         </div>
       </Link>
     );
