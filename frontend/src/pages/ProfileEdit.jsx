@@ -5,7 +5,7 @@ import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
-import { api, formatApiError } from "@/lib/api";
+import { api, formatApiError, firstErrorField } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 import { ImageCropModal } from "@/components/ImageCropModal";
@@ -22,6 +22,17 @@ import {
 } from "@/lib/platforms";
 import { formatUsername } from "@/lib/username";
 
+function normalizeHandle(raw) {
+  const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
+  return s ? `@${s}` : "";
+}
+
+function toList(val) {
+  if (Array.isArray(val)) return val.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
+  if (!val) return [];
+  return String(val).split(",").map((x) => x.trim()).filter(Boolean);
+}
+
 const LANGUAGES = [
   "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
   "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili", 
@@ -37,16 +48,101 @@ const CONTENT_TYPES = [
 const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
 const PLATFORMS = SOCIAL_PLATFORMS;
 
-function normalizeHandle(raw) {
-  const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
-  return s ? `@${s}` : "";
+function asStr(v) {
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  return "";
 }
 
-function toList(val) {
-  if (Array.isArray(val)) return val.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
-  if (!val) return [];
-  return String(val).split(",").map((x) => x.trim()).filter(Boolean);
+function normalizeWebsite(raw) {
+  const s = asStr(raw).trim();
+  if (!s) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s}`;
 }
+
+/** Map API field names → Edit Profile section anchors. */
+const FIELD_SECTION = {
+  name: "sec-basic",
+  bio: "sec-basic",
+  avatar: "sec-basic",
+  cover_photo: "sec-basic",
+  handle: "sec-basic",
+  date_of_birth: "sec-basic",
+  gender: "sec-basic",
+  company: "sec-company",
+  industry: "sec-company",
+  website: "sec-company",
+  category: "sec-niche",
+  niches: "sec-niche",
+  languages: "sec-niche",
+  city: "sec-location",
+  state: "sec-location",
+  location: "sec-location",
+  platform_metrics: "sec-social",
+  base_rate: "sec-rate",
+  experience: "sec-content-types",
+  response_time: "sec-content-types",
+  content_types: "sec-content-types",
+  past_campaigns: "sec-campaigns",
+  portfolio: "sec-campaigns",
+};
+
+function scrollToFieldError(field) {
+  const section = FIELD_SECTION[field] || "sec-basic";
+  document.getElementById(section)?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
+  const category = Array.isArray(f.category) ? f.category.map(asStr).filter(Boolean) : toList(f.category);
+  const languages = Array.isArray(f.languages) ? f.languages.map(asStr).filter(Boolean) : toList(f.languages);
+  const content_types = Array.isArray(f.content_types) ? f.content_types.map(asStr).filter(Boolean) : toList(f.content_types);
+  const portfolio = (Array.isArray(f.portfolio) ? f.portfolio : []).map(asStr).filter(Boolean);
+  const past_campaigns = (f.past_campaigns || [])
+    .filter((c) => c.brand?.trim() || c.title?.trim() || c.post_url?.trim() || c.result?.trim() || c.date?.trim())
+    .map((c) => ({
+      brand: asStr(c.brand).trim(),
+      title: asStr(c.title).trim(),
+      date: asStr(c.date).trim(),
+      result: asStr(c.result).trim(),
+      post_url: asStr(c.post_url).trim(),
+    }));
+
+  const payload = {
+    name: asStr(f.name).trim(),
+    bio: asStr(f.bio).trim(),
+    avatar: asStr(f.avatar).trim() || null,
+    cover_photo: asStr(f.cover_photo).trim() || null,
+    handle: asStr(handleValue).trim() || null,
+    company: asStr(f.company).trim() || null,
+    industry: asStr(f.industry).trim() || null,
+    website: normalizeWebsite(f.website) || null,
+    category,
+    niches: category,
+    languages,
+    content_types,
+    city: asStr(f.city).trim() || null,
+    state: asStr(f.state).trim() || null,
+    location: asStr(f.city).trim() || asStr(f.location).trim() || null,
+    availability: asStr(f.availability).trim() || null,
+    experience: asStr(f.experience).trim() || null,
+    response_time: asStr(f.response_time).trim() || null,
+    base_rate: Number(f.base_rate) || 0,
+    date_of_birth: toIsoDate(f.date_of_birth) || null,
+    gender: asStr(f.gender).trim() || null,
+    is_private: !!f.is_private,
+    agent_type: asStr(f.agent_type).trim() || null,
+    portfolio,
+    past_campaigns,
+    platform_metrics: platformHandlesOnly,
+  };
+
+  // Drop nulls so we don't wipe optional fields unintentionally on backend exclude_unset...
+  // Backend already drops nulls; keep explicit nulls only for optional clears we want.
+  return payload;
+}
+
 
 export default function ProfileEdit() {
   const { user, refresh } = useAuth();
@@ -211,19 +307,24 @@ export default function ProfileEdit() {
   const onCropComplete = async (file) => {
     const target = cropState?.target;
     const prevSrc = cropState?.src;
-    setCropState(null);
-    if (prevSrc) URL.revokeObjectURL(prevSrc);
-    const url = await uploadImage(file);
-    if (!url) {
-      toast.error("Upload failed.");
-      return;
-    }
-    if (target === "avatar") {
-      setF((prev) => ({ ...prev, avatar: url }));
-      toast.success("Avatar uploaded. You can re-crop anytime before saving.");
-    } else {
-      setF((prev) => ({ ...prev, cover_photo: url }));
-      toast.success("Cover photo uploaded.");
+    try {
+      const url = await uploadImage(file);
+      if (!url) {
+        toast.error("Upload failed.");
+        throw new Error("Upload failed");
+      }
+      if (target === "avatar") {
+        setF((prev) => ({ ...prev, avatar: url }));
+        toast.success("Avatar uploaded. You can re-crop anytime before saving.");
+      } else {
+        setF((prev) => ({ ...prev, cover_photo: url }));
+        toast.success("Cover photo uploaded.");
+      }
+      if (prevSrc?.startsWith("blob:")) URL.revokeObjectURL(prevSrc);
+      setCropState(null);
+    } catch (err) {
+      // Keep modal open so user can retry; ImageCropModal resets busy state
+      throw err;
     }
   };
 
@@ -329,17 +430,8 @@ export default function ProfileEdit() {
       PLATFORMS.forEach((plat) => {
         platformHandlesOnly[plat] = { handle: normalizeHandle(f.platform_metrics?.[plat]?.handle || "") };
       });
-      await api.patch("/auth/me", {
-        ...f,
-        handle: handleValue,
-        date_of_birth: toIsoDate(f.date_of_birth) || null,
-        platform_metrics: platformHandlesOnly,
-        base_rate: Number(f.base_rate) || 0,
-        portfolio: f.portfolio.filter(Boolean),
-        past_campaigns: (f.past_campaigns || []).filter(
-          (c) => c.brand?.trim() || c.title?.trim() || c.post_url?.trim() || c.result?.trim() || c.date?.trim()
-        ),
-      });
+      const payload = buildProfilePayload(f, { handleValue, platformHandlesOnly });
+      await api.patch("/auth/me", payload);
       // Auto-fetch metrics for saved handles
       if (isCreator && Object.values(platformHandlesOnly).some((p) => p.handle?.trim())) {
         try {
@@ -350,7 +442,10 @@ export default function ProfileEdit() {
       toast.success("Profile saved.");
       nav("/profile");
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || "Failed");
+      const detail = err.response?.data?.detail;
+      const field = firstErrorField(detail);
+      if (field) scrollToFieldError(field);
+      toast.error(formatApiError(detail) || "Failed to save profile");
     } finally { setBusy(false); }
   };
 
@@ -627,7 +722,7 @@ export default function ProfileEdit() {
             </div>
         </div>
 
-        <motion.form onSubmit={submit} className="mt-4 space-y-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+        <motion.form noValidate onSubmit={submit} className="mt-4 space-y-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           
           {/* SECTION 1: BASIC */}
           <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
@@ -666,7 +761,7 @@ export default function ProfileEdit() {
                     </select>
                   </F>
                   <F label="Official Website URL *">
-                    <input type="url" required className="inp font-sans text-sm" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
+                    <input type="text" inputMode="url" required className="inp font-sans text-sm" placeholder="https://example.com" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
                   </F>
                 </div>
               )}
@@ -1042,7 +1137,7 @@ export default function ProfileEdit() {
                                             <input className="inp text-xs py-1.5" placeholder="" value={c.result || ""} onChange={e=>setCampaign(i, 'result', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <input type="url" className="inp text-xs py-1.5 font-sans" placeholder="" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
+                                            <input type="text" inputMode="url" className="inp text-xs py-1.5 font-sans" placeholder="https://" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-1 text-right">
                                             <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
@@ -1080,6 +1175,7 @@ export default function ProfileEdit() {
           imageSrc={cropState.src}
           aspect={cropState.aspect}
           title={cropState.title}
+          target={cropState.target || "default"}
           onCancel={() => {
             if (cropState.src?.startsWith("blob:")) URL.revokeObjectURL(cropState.src);
             setCropState(null);
