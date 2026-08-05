@@ -11,13 +11,27 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+/** Friendlier labels for API field names shown in toasts. */
+const FIELD_LABELS = {
+  category: "Niches",
+  niches: "Niches",
+  platform_metrics: "Social accounts",
+  base_rate: "Base rate",
+  content_types: "Content types",
+  past_campaigns: "Past campaigns",
+  date_of_birth: "Date of birth",
+  cover_photo: "Cover photo",
+  response_time: "Response time",
+};
+
 /** Human-readable label for a FastAPI / Pydantic field path. */
 export function fieldLabelFromLoc(loc) {
   if (!Array.isArray(loc) || !loc.length) return null;
-  const parts = loc.filter((p) => p !== "body" && typeof p === "string");
-  const key = parts[parts.length - 1] || parts[0];
+  const parts = loc.filter((p) => p !== "body" && (typeof p === "string" || typeof p === "number"));
+  const key = parts.length ? String(parts[parts.length - 1]) : null;
   if (!key) return null;
-  return String(key).replace(/_/g, " ");
+  if (FIELD_LABELS[key]) return FIELD_LABELS[key];
+  return key.replace(/_/g, " ");
 }
 
 /**

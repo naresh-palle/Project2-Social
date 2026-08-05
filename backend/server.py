@@ -547,6 +547,7 @@ class UserUpdate(BaseModel):
     company: Optional[str] = None
     industry: Optional[str] = None
     website: Optional[str] = None
+    # UI niches multi-select: production historically typed this as str; accept either.
     category: Optional[Any] = None
     followers: Optional[int] = None
     platforms: Optional[List[str]] = None
@@ -1779,6 +1780,15 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
     # Keep location in sync when city is set during onboarding
     if "city" in updates and "location" not in updates:
         updates["location"] = updates["city"]
+
+    # Niches UI sends category as a list; older schemas store it as a string.
+    if "category" in updates and isinstance(updates["category"], list):
+        cat_list = [str(x).strip() for x in updates["category"] if x and str(x).strip()]
+        updates["category"] = ", ".join(cat_list) if cat_list else None
+        if "niches" not in updates:
+            updates["niches"] = cat_list
+        if updates["category"] is None:
+            updates.pop("category", None)
 
     # Social metrics are auto-fetched — clients may only change platform handles/IDs.
     if "platform_metrics" in updates and isinstance(updates["platform_metrics"], dict):

@@ -118,7 +118,8 @@ function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
     company: asStr(f.company).trim() || null,
     industry: asStr(f.industry).trim() || null,
     website: normalizeWebsite(f.website) || null,
-    category,
+    // Production API expects category as a string; niches stays a list.
+    category: category.length ? category.join(", ") : null,
     niches: category,
     languages,
     content_types,
@@ -773,7 +774,7 @@ export default function ProfileEdit() {
                   onChange={(vals) => setF({ ...f, category: vals })}
                   placeholder="Select niches…"
                   compact
-                  label={isCreator ? "Niches (required for AI bio)" : "Niches (optional)"}
+                  label={isCreator ? "Niches / Category (required for AI bio)" : "Niches / Category (optional)"}
                 />
                 <MultiSelectDropdown
                   options={LANGUAGES}
