@@ -296,11 +296,18 @@ def setup_phase1(
                     pass
 
     def author_public(u: dict) -> dict:
+        handle = (u.get("username") or u.get("handle") or "").strip()
+        if handle.startswith("@"):
+            handle = handle.lstrip("@")
+        avatar = u.get("avatar")
+        if isinstance(avatar, str):
+            avatar = avatar.strip() or None
         return {
             "id": u.get("id"),
             "name": u.get("name"),
-            "handle": u.get("handle") or u.get("username"),
-            "avatar": u.get("avatar"),
+            "username": handle or None,
+            "handle": handle or None,
+            "avatar": avatar,
             "verified": bool(u.get("verified")),
             "role": u.get("role"),
             "is_private": bool(u.get("is_private")),

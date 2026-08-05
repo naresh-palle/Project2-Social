@@ -294,15 +294,33 @@ export default function Feed() {
               {suggested.length === 0 ? (
                 <p className="font-mono text-xs opacity-40">No suggestions</p>
               ) : (
-                suggested.map((u) => (
-                  <Link key={u.id} to={`/u/${u.id}`} className="flex items-center gap-3 py-2 hover:bg-white/5 rounded-xs px-2 -mx-2">
-                    {u.avatar && <img src={u.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />}
-                    <div>
-                      <div className="font-editorial">{u.name}</div>
-                      <div className="font-mono text-[9px] text-[#FF3B30]">@{u.handle}</div>
-                    </div>
-                  </Link>
-                ))
+                suggested.map((u) => {
+                  const uname = String(u.username || u.handle || "")
+                    .replace(/^@+/, "")
+                    .trim();
+                  const label = uname ? `@${uname}` : "@user";
+                  return (
+                    <Link
+                      key={u.id}
+                      to={`/u/${u.id}`}
+                      className="flex items-center gap-3 py-2 hover:bg-white/5 rounded-xs px-2 -mx-2"
+                    >
+                      <div className="w-10 h-10 rounded-full border border-white/15 bg-white/[0.03] overflow-hidden shrink-0">
+                        {u.avatar ? (
+                          <img
+                            src={u.avatar}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                      <span className="font-sans text-sm text-[#FF3B30] truncate">{label}</span>
+                    </Link>
+                  );
+                })
               )}
             </div>
           </aside>
