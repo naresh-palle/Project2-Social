@@ -9,6 +9,7 @@ import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
+import { exportPdf } from "@/lib/exportFormats";
 
 const NOTIF_KEYS = [
   { key: "likes", label: "Likes" },
@@ -215,14 +216,43 @@ export default function Settings() {
   const exportData = async () => {
     try {
       const { data } = await api.get("/auth/export-data");
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `cr8-export-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("Data exported");
+      const userRow = data?.user && typeof data.user === "object" ? data.user : {};
+      const rows = [
+        {
+          section: "Account",
+          key: "exported_at",
+          value: data?.exported_at || new Date().toISOString(),
+        },
+        ...Object.entries(userRow)
+          .filter(([k]) => !["password_hash", "two_fa_secret", "two_fa_secret_pending"].includes(k))
+          .map(([key, value]) => ({
+            section: "Profile",
+            key,
+            value: value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value),
+          })),
+        ...((data?.posts || []).slice(0, 100).map((p, i) => ({
+          section: "Posts",
+          key: p.id || `post_${i + 1}`,
+          value: p.title || p.text || "",
+        }))),
+        ...((data?.follows || []).slice(0, 100).map((f, i) => ({
+          section: "Follows",
+          key: f.id || `follow_${i + 1}`,
+          value: `${f.follower_id || ""} → ${f.following_id || ""} (${f.status || ""})`,
+        }))),
+        ...((data?.messages || []).slice(0, 50).map((m, i) => ({
+          section: "Messages",
+          key: m.id || `msg_${i + 1}`,
+          value: (m.text || m.body || "").slice(0, 200),
+        }))),
+      ];
+      exportPdf({
+        rows,
+        filename: `cr8-export-${new Date().toISOString().slice(0, 10)}`,
+        title: "CR8 Studio — My Data Export",
+        meta: `User ${user?.username || user?.email || user?.id || ""} · PDF only`,
+      });
+      toast.success("PDF downloaded");
     } catch {
       toast.error("Export failed");
     }
@@ -443,7 +473,7 @@ export default function Settings() {
 
             <Section title="Your Data" icon={Download} dense>
               <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
-                <Download className="w-4 h-4" /> Download My Data (JSON)
+                <Download className="w-4 h-4" /> Download My Data (PDF)
               </button>
             </Section>
 

@@ -144,31 +144,94 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _downloadData() async {
     try {
-      showCr8Snack(context, 'Preparing export…');
+      showCr8Snack(context, 'Preparing PDF…');
       final data = await ref.read(cr8ApiProvider).exportData();
-      final json = const JsonEncoder.withIndent('  ').convert(data);
+      final lines = <String>[
+        'CR8 Studio — My Data Export',
+        'Exported: ${data['exported_at'] ?? DateTime.now().toIso8601String()}',
+        '',
+      ];
+      final user = data['user'];
+      if (user is Map) {
+        lines.add('Profile');
+        user.forEach((k, v) {
+          if (k == 'password_hash' || k == 'two_fa_secret' || k == 'two_fa_secret_pending') return;
+          lines.add('$k: $v');
+        });
+        lines.add('');
+      }
+      final posts = data['posts'];
+      if (posts is List && posts.isNotEmpty) {
+        lines.add('Posts (${posts.length})');
+        for (final p in posts.take(80)) {
+          if (p is Map) {
+            lines.add('- ${p['title'] ?? p['text'] ?? p['id'] ?? ''}');
+          }
+        }
+        lines.add('');
+      }
+      final follows = data['follows'];
+      if (follows is List && follows.isNotEmpty) {
+        lines.add('Follows (${follows.length})');
+        for (final f in follows.take(80)) {
+          if (f is Map) {
+            lines.add('- ${f['follower_id']} → ${f['following_id']}');
+          }
+        }
+      }
+      final pdfBytes = _simpleTextPdf(lines);
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/cr8-studio-data-export.json');
-      await file.writeAsString(json);
+      final file = File('${dir.path}/cr8-studio-data-export.pdf');
+      await file.writeAsBytes(pdfBytes, flush: true);
       await SharePlus.instance.share(
         ShareParams(
-          files: [XFile(file.path, mimeType: 'application/json')],
-          subject: 'CR8 Studio data export',
-          text: 'Your CR8 Studio account data export',
+          files: [XFile(file.path, mimeType: 'application/pdf')],
+          subject: 'CR8 Studio data export (PDF)',
+          text: 'Your CR8 Studio account data export (PDF)',
         ),
       );
     } catch (e) {
-      if (mounted) {
-        // Fallback: copy JSON to clipboard if share fails
-        try {
-          final data = await ref.read(cr8ApiProvider).exportData();
-          await Clipboard.setData(ClipboardData(text: const JsonEncoder.withIndent('  ').convert(data)));
-          if (mounted) showCr8Snack(context, 'Export copied to clipboard');
-        } catch (_) {
-          if (mounted) showCr8Snack(context, e.toString(), error: true);
-        }
-      }
+      if (mounted) showCr8Snack(context, e.toString(), error: true);
     }
+  }
+
+  /// Minimal single-page Helvetica PDF from plain text lines.
+  Uint8List _simpleTextPdf(List<String> lines) {
+    final content = StringBuffer();
+    var y = 750.0;
+    for (final raw in lines.take(55)) {
+      final safe = raw
+          .replaceAll('\\', '\\\\')
+          .replaceAll('(', '\\(')
+          .replaceAll(')', '\\)')
+          .replaceAllMapped(RegExp(r'[^\x20-\x7E]'), (_) => '?');
+      final clipped = safe.length > 95 ? safe.substring(0, 95) : safe;
+      content.writeln('BT /F1 10 Tf 40 ${y.toStringAsFixed(1)} Td ($clipped) Tj ET');
+      y -= 12;
+      if (y < 40) break;
+    }
+    final stream = content.toString();
+    final objs = <String>[
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+      '<< /Length ${stream.length} >>\nstream\n$stream\nendstream',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    ];
+    final buf = StringBuffer('%PDF-1.4\n');
+    final offsets = <int>[0];
+    for (var i = 0; i < objs.length; i++) {
+      offsets.add(buf.length);
+      buf.write('${i + 1} 0 obj\n${objs[i]}\nendobj\n');
+    }
+    final xref = buf.length;
+    buf.write('xref\n0 ${objs.length + 1}\n');
+    buf.write('0000000000 65535 f \n');
+    for (var i = 1; i <= objs.length; i++) {
+      buf.write('${offsets[i].toString().padLeft(10, '0')} 00000 n \n');
+    }
+    buf.write('trailer<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n$xref\n%%EOF');
+    return Uint8List.fromList(utf8.encode(buf.toString()));
   }
 
   @override
@@ -335,8 +398,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const ListTile(title: Cr8SectionLabel('Data')),
           ListTile(
             title: const Text('Download my data'),
-            subtitle: const Text('Export account JSON and share/save the file'),
-            leading: const Icon(Icons.download),
+            subtitle: const Text('Export account data as PDF'),
+            leading: const Icon(Icons.picture_as_pdf),
             onTap: _downloadData,
           ),
           ListTile(
