@@ -489,6 +489,18 @@ class MessageCreate(BaseModel):
     reply_to_id: Optional[str] = None
 
 
+class SocialUserRef(BaseModel):
+    """Body for follow / unfollow / block / DM — module-level so Render accepts JSON body."""
+    user_id: str
+
+
+class SocialReportIn(BaseModel):
+    target_type: Literal["user", "post", "comment", "message", "content"] = "user"
+    target_id: str
+    reason: str
+    details: Optional[str] = None
+
+
 class DeliverableCreate(BaseModel):
     campaign_id: str
     kind: Literal["reel", "story", "post", "video", "other"] = "post"
@@ -2226,6 +2238,116 @@ async def open_conversation(campaign_id: str, creator_id: str, current: dict = D
     else:
         raise HTTPException(status_code=403, detail="Forbidden")
     return {"id": cid}
+
+
+# ---------- Social actions (module-level models → reliable JSON body on Render) ----------
+@api_router.post("/follow")
+async def follow_user_core(inp: SocialUserRef, current: dict = Depends(get_current_user)):
+    if inp.user_id == current["id"]:
+        raise HTTPException(status_code=400, detail="Cannot follow yourself")
+    target = await db.users.find_one({"id": inp.user_id})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    status = "pending" if target.get("is_private") else "accepted"
+    await db.follows.update_one(
+        {"follower_id": current["id"], "following_id": inp.user_id},
+        {"$set": {
+            "id": str(uuid.uuid4()),
+            "follower_id": current["id"],
+            "following_id": inp.user_id,
+            "status": status,
+            "created_at": now_iso(),
+        }},
+        upsert=True,
+    )
+    return {"ok": True, "status": status}
+
+
+@api_router.post("/unfollow")
+async def unfollow_user_core(inp: SocialUserRef, current: dict = Depends(get_current_user)):
+    await db.follows.delete_one({"follower_id": current["id"], "following_id": inp.user_id})
+    return {"ok": True}
+
+
+@api_router.post("/conversations/dm")
+async def open_dm_core(inp: SocialUserRef, current: dict = Depends(get_current_user)):
+    if inp.user_id == current["id"]:
+        raise HTTPException(status_code=400, detail="Cannot DM yourself")
+    existing = await db.conversations.find_one({
+        "kind": "dm",
+        "participant_ids": {"$all": [current["id"], inp.user_id]},
+    })
+    if existing:
+        existing.pop("_id", None)
+        return existing
+    other = await db.users.find_one(
+        {"id": inp.user_id},
+        {"name": 1, "company": 1, "username": 1, "handle": 1},
+    )
+    label = (
+        (other or {}).get("username")
+        or (other or {}).get("handle")
+        or (other or {}).get("company")
+        or (other or {}).get("name")
+        or "DM"
+    )
+    if isinstance(label, str):
+        label = label.lstrip("@").rstrip(".,")
+    cid = str(uuid.uuid4())
+    doc = {
+        "id": cid,
+        "kind": "dm",
+        "participant_ids": [current["id"], inp.user_id],
+        "owner_id": current["id"],
+        "creator_id": inp.user_id,
+        "campaign_title": "Direct Message",
+        "campaign_brand": label,
+        "created_at": now_iso(),
+        "last_at": now_iso(),
+        "pinned": False,
+        "archived_by": [],
+    }
+    await db.conversations.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.post("/privacy/block")
+async def block_user_core(inp: SocialUserRef, current: dict = Depends(get_current_user)):
+    if inp.user_id == current["id"]:
+        raise HTTPException(status_code=400, detail="Cannot block yourself")
+    await db.blocks.update_one(
+        {"blocker_id": current["id"], "blocked_id": inp.user_id},
+        {"$set": {
+            "id": str(uuid.uuid4()),
+            "blocker_id": current["id"],
+            "blocked_id": inp.user_id,
+            "created_at": now_iso(),
+        }},
+        upsert=True,
+    )
+    await db.follows.delete_many({"$or": [
+        {"follower_id": current["id"], "following_id": inp.user_id},
+        {"follower_id": inp.user_id, "following_id": current["id"]},
+    ]})
+    return {"ok": True}
+
+
+@api_router.post("/reports")
+async def create_report_core(inp: SocialReportIn, current: dict = Depends(get_current_user)):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "reporter_id": current["id"],
+        "target_type": inp.target_type,
+        "target_id": inp.target_id,
+        "reason": inp.reason,
+        "details": inp.details,
+        "status": "open",
+        "created_at": now_iso(),
+    }
+    await db.reports.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
 
 
 @api_router.get("/conversations")

@@ -13,7 +13,7 @@ from collections import Counter
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, UploadFile, File
 from pydantic import BaseModel, Field, EmailStr
 
 try:
@@ -465,7 +465,7 @@ def setup_phase1(
 
     # ---------- Privacy: block / mute / restrict / report ----------
     @api_router.post("/privacy/block")
-    async def block_user(inp: BlockInput, current: dict = Depends(get_current_user)):
+    async def block_user(inp: BlockInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot block yourself")
         await db.blocks.update_one(
@@ -530,7 +530,7 @@ def setup_phase1(
         return await db.restricted.find({"user_id": current["id"]}, {"_id": 0}).to_list(200)
 
     @api_router.post("/reports")
-    async def create_report(inp: ReportInput, current: dict = Depends(get_current_user)):
+    async def create_report(inp: ReportInput = Body(...), current: dict = Depends(get_current_user)):
         doc = {
             "id": str(uuid.uuid4()),
             "reporter_id": current["id"],
@@ -927,7 +927,7 @@ def setup_phase1(
 
     # ---------- Follow graph ----------
     @api_router.post("/follow")
-    async def follow_user(inp: FollowInput, current: dict = Depends(get_current_user)):
+    async def follow_user(inp: FollowInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot follow yourself")
         if await is_blocked(current["id"], inp.user_id):
@@ -952,7 +952,7 @@ def setup_phase1(
         return {"ok": True, "status": status}
 
     @api_router.post("/unfollow")
-    async def unfollow_user(inp: FollowInput, current: dict = Depends(get_current_user)):
+    async def unfollow_user(inp: FollowInput = Body(...), current: dict = Depends(get_current_user)):
         await db.follows.delete_one({"follower_id": current["id"], "following_id": inp.user_id})
         return {"ok": True}
 
@@ -1038,7 +1038,7 @@ def setup_phase1(
 
     # ---------- Messaging extras (no group chat) ----------
     @api_router.post("/conversations/dm")
-    async def open_dm(inp: DMOpenInput, current: dict = Depends(get_current_user)):
+    async def open_dm(inp: DMOpenInput = Body(...), current: dict = Depends(get_current_user)):
         if inp.user_id == current["id"]:
             raise HTTPException(status_code=400, detail="Cannot DM yourself")
         if await is_blocked(current["id"], inp.user_id):
