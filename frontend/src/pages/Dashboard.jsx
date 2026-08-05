@@ -13,7 +13,8 @@ import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -47,7 +48,7 @@ export default function Dashboard() {
 
       <div className="relative z-10">
         <Nav />
-        <Toaster theme="dark" position="top-center" />
+        <ThemeToaster />
         <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24">
           <div className="hairline-b pb-8 mb-10 flex flex-wrap items-end justify-between gap-6">
             <div className="flex items-center gap-6">

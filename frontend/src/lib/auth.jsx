@@ -56,6 +56,7 @@ export function applyUserSettings(prefsOrUser) {
   if (highContrast) root.classList.add("high-contrast");
   if (reducedMotion) root.classList.add("reduced-motion");
   root.style.fontSize = `${fontScale * 100}%`;
+  root.style.setProperty("--font-scale", String(fontScale));
 
   localStorage.setItem("cr8_theme", theme);
   localStorage.setItem("cr8_high_contrast", String(highContrast));

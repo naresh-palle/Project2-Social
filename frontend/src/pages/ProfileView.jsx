@@ -7,7 +7,8 @@ import {
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import {
   SOCIAL_PLATFORMS,
   SOCIAL_PLATFORM_LABELS,
@@ -113,7 +114,7 @@ export default function ProfileView() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
 
       <div className="pt-24 px-4 md:px-8 max-w-6xl mx-auto pb-12">
         <button

@@ -8,6 +8,7 @@ import { Nav } from "@/components/Nav";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
 import { exportPdf } from "@/lib/exportFormats";
 import { formatUsername } from "@/lib/username";
@@ -309,6 +310,7 @@ export default function Settings() {
   if (!user || !settings) {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
+      <ThemeToaster />
         <Loader2 className="w-6 h-6 animate-spin opacity-50" />
       </div>
     );

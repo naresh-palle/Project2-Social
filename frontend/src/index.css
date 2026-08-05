@@ -208,8 +208,8 @@ a, button { cursor: pointer; }
     text-transform: uppercase;
     transition: background-color 250ms ease, color 250ms ease, transform 250ms ease;
 }
-.btn-pill:hover { background: currentColor; color: var(--ink); }
-.paper .btn-pill:hover { color: var(--paper); }
+.btn-pill:hover { background: currentColor; color: var(--surface-0); }
+.paper .btn-pill:hover { color: var(--fg); }
 
 .btn-solid {
     display: inline-flex;
@@ -217,7 +217,7 @@ a, button { cursor: pointer; }
     gap: 0.6rem;
     padding: 0.95rem 1.5rem;
     background: var(--vermilion);
-    color: var(--paper);
+    color: #F4F4F0;
     border-radius: 0;
     font-size: 0.75rem;
     letter-spacing: 0.16em;
@@ -225,6 +225,20 @@ a, button { cursor: pointer; }
     transition: transform 250ms ease, background-color 250ms ease;
 }
 .btn-solid:hover { transform: translateY(-2px); background: #ff5548; }
+
+/* ---- Appearance: font scale for rem + fixed px labels ---- */
+html {
+    --font-scale: 1;
+}
+/* Arbitrary px labels used across the app (do not scale via rem) */
+.text-\[8px\]  { font-size: calc(8px  * var(--font-scale, 1)) !important; }
+.text-\[9px\]  { font-size: calc(9px  * var(--font-scale, 1)) !important; }
+.text-\[10px\] { font-size: calc(10px * var(--font-scale, 1)) !important; }
+.text-\[11px\] { font-size: calc(11px * var(--font-scale, 1)) !important; }
+.text-\[12px\] { font-size: calc(12px * var(--font-scale, 1)) !important; }
+.text-\[13px\] { font-size: calc(13px * var(--font-scale, 1)) !important; }
+.text-\[14px\] { font-size: calc(14px * var(--font-scale, 1)) !important; }
+.text-\[15px\] { font-size: calc(15px * var(--font-scale, 1)) !important; }
 
 /* Theme & accessibility preferences */
 html.theme-light,
@@ -238,6 +252,8 @@ html.theme-light #root {
 html.theme-light .bg-\[\#0B0B0E\],
 html.theme-light .bg-\[\#0A0A0A\],
 html.theme-light .bg-\[\#050505\],
+html.theme-light .bg-\[\#0D0D0D\],
+html.theme-light .bg-\[\#111\],
 html.theme-light .bg-\[\#000\],
 html.theme-light .bg-black {
     background-color: var(--surface-0) !important;
@@ -255,8 +271,10 @@ html.theme-light .bg-\[\#2a2a2a\] {
 }
 
 /* Soft white overlays on dark → soft black overlays on light */
+html.theme-light .bg-white\/\[0\.01\],
 html.theme-light .bg-white\/\[0\.02\],
-html.theme-light .bg-white\/\[0\.03\] { background-color: var(--overlay-soft) !important; }
+html.theme-light .bg-white\/\[0\.03\],
+html.theme-light .bg-white\/\[0\.04\] { background-color: var(--overlay-soft) !important; }
 html.theme-light .bg-white\/5 { background-color: rgba(10, 10, 10, 0.04) !important; }
 html.theme-light .bg-white\/10 { background-color: rgba(10, 10, 10, 0.08) !important; }
 html.theme-light .bg-white\/15 { background-color: rgba(10, 10, 10, 0.12) !important; }
@@ -273,32 +291,57 @@ html.theme-light .bg-black\/50 { background-color: rgba(10, 10, 10, 0.12) !impor
 html.theme-light .bg-black\/60 { background-color: rgba(255, 255, 255, 0.85) !important; }
 html.theme-light .bg-black\/70,
 html.theme-light .bg-black\/80 { background-color: rgba(244, 244, 240, 0.88) !important; }
+html.theme-light .bg-\[\#0B0B0E\]\/40,
+html.theme-light .bg-\[\#0B0B0E\]\/60,
+html.theme-light .bg-\[\#0B0B0E\]\/70,
 html.theme-light .bg-\[\#0B0B0E\]\/80,
-html.theme-light .bg-\[\#0B0B0E\]\/90 { background-color: rgba(244, 244, 240, 0.92) !important; }
+html.theme-light .bg-\[\#0B0B0E\]\/90,
+html.theme-light .bg-\[\#121212\]\/90,
+html.theme-light .bg-\[\#121212\]\/95 {
+    background-color: rgba(244, 244, 240, 0.92) !important;
+}
 
-/* Foreground / font colors */
+/* Foreground / font colors — cover all common white / paper variants */
 html.theme-light .text-\[\#F4F4F0\],
 html.theme-light .text-white {
     color: var(--fg) !important;
 }
 html.theme-light .text-white\/90,
-html.theme-light .text-\[\#F4F4F0\]\/90 { color: rgba(10, 10, 10, 0.92) !important; }
-html.theme-light .text-white\/80 { color: rgba(10, 10, 10, 0.8) !important; }
-html.theme-light .text-white\/70 { color: rgba(10, 10, 10, 0.7) !important; }
-html.theme-light .text-white\/60 { color: rgba(10, 10, 10, 0.6) !important; }
-html.theme-light .text-white\/50 { color: rgba(10, 10, 10, 0.5) !important; }
-html.theme-light .text-white\/40 { color: rgba(10, 10, 10, 0.4) !important; }
-html.theme-light .text-white\/30 { color: rgba(10, 10, 10, 0.3) !important; }
+html.theme-light .text-\[\#F4F4F0\]\/90,
+html.theme-light .text-\[\#F4F4F0\]\/85 { color: rgba(10, 10, 10, 0.92) !important; }
+html.theme-light .text-white\/85 { color: rgba(10, 10, 10, 0.88) !important; }
+html.theme-light .text-white\/80,
+html.theme-light .text-\[\#F4F4F0\]\/80,
+html.theme-light .text-\[\#F4F4F0\]\/75 { color: rgba(10, 10, 10, 0.8) !important; }
+html.theme-light .text-white\/70,
+html.theme-light .text-\[\#F4F4F0\]\/70 { color: rgba(10, 10, 10, 0.72) !important; }
+html.theme-light .text-white\/60,
+html.theme-light .text-\[\#F4F4F0\]\/60 { color: rgba(10, 10, 10, 0.62) !important; }
+html.theme-light .text-white\/50,
+html.theme-light .text-\[\#F4F4F0\]\/50,
+html.theme-light .text-\[\#F4F4F0\]\/45 { color: rgba(10, 10, 10, 0.55) !important; }
+html.theme-light .text-white\/40 { color: rgba(10, 10, 10, 0.48) !important; }
+html.theme-light .text-white\/30 { color: rgba(10, 10, 10, 0.4) !important; }
 html.theme-light .hover\:text-white:hover { color: var(--fg) !important; }
-html.theme-light .placeholder\:opacity-50::placeholder { color: var(--fg-subtle); }
+html.theme-light .placeholder\:opacity-50::placeholder,
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder {
+    color: var(--fg-subtle) !important;
+    opacity: 1 !important;
+}
+
+/* Muted labels: opacity utilities alone wash out on light paper — boost readability */
+html.theme-light .opacity-30 { opacity: 0.52 !important; }
+html.theme-light .opacity-40 { opacity: 0.58 !important; }
+html.theme-light .opacity-50 { opacity: 0.66 !important; }
+html.theme-light .opacity-60 { opacity: 0.74 !important; }
+html.theme-light .opacity-70 { opacity: 0.82 !important; }
 
 /* Keep white text on solid brand fills */
 html.theme-light .bg-\[\#FF3B30\],
 html.theme-light .bg-\[\#FF3B30\] .text-white,
 html.theme-light .bg-\[\#FF3B30\].text-white,
 html.theme-light .bg-\[\#e03126\],
-html.theme-light .bg-\[\#34C759\],
-html.theme-light .bg-\[\#34C759\].text-white,
 html.theme-light .bg-\[\#007AFF\],
 html.theme-light .bg-\[\#007AFF\].text-white,
 html.theme-light .btn-solid,
@@ -308,6 +351,15 @@ html.theme-light .hover\:bg-\[\#FF3B30\]:hover.text-white,
 html.theme-light button.bg-\[\#FF3B30\],
 html.theme-light a.bg-\[\#FF3B30\] {
     color: #FFFFFF !important;
+}
+/* Green success fills: keep intended text-black when present */
+html.theme-light .bg-\[\#34C759\]:not(.text-black),
+html.theme-light .bg-\[\#34C759\].text-white {
+    color: #FFFFFF !important;
+}
+html.theme-light .bg-\[\#34C759\].text-black,
+html.theme-light .bg-\[\#34C759\] .text-black {
+    color: #0A0A0A !important;
 }
 html.theme-light .hover\:bg-\[\#FF3B30\]:hover {
     color: #FFFFFF !important;
@@ -329,6 +381,10 @@ html.theme-light .hover\:border-white\/40:hover { border-color: rgba(10, 10, 10,
 html.theme-light .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
     border-color: rgba(10, 10, 10, 0.10) !important;
 }
+html.theme-light .border-\[\#F4F4F0\]\/10,
+html.theme-light .border-\[\#F4F4F0\]\/20 {
+    border-color: rgba(10, 10, 10, 0.14) !important;
+}
 
 /* Soft light paper chips that become dark-on-light */
 html.theme-light .bg-\[\#F4F4F0\].text-\[\#0A0A0A\],
@@ -341,8 +397,9 @@ html.theme-light .bg-\[\#F4F4F0\] {
 html.theme-light input,
 html.theme-light select,
 html.theme-light textarea {
-    color: var(--fg);
+    color: var(--fg) !important;
     border-color: var(--border-soft);
+    caret-color: var(--fg);
 }
 html.theme-light .inp,
 html.theme-light .inp-field,
@@ -360,17 +417,77 @@ html.theme-light option {
     color: var(--fg);
 }
 
-/* Nav / sticky bars often use translucent black */
+/* Nav / sticky bars */
 html.theme-light nav,
 html.theme-light header,
 html.theme-light [class*="backdrop-blur"] {
     color: var(--fg);
 }
 
+/* Lucide icons inherit readable ink */
+html.theme-light svg {
+    color: inherit;
+}
+
 /* Grain softer on light */
 html.theme-light .grain {
     opacity: 0.05;
     mix-blend-mode: multiply;
+}
+
+/*
+ * Cinematic / media sections that intentionally stay dark in light theme
+ * (hero, marquee, manifesto). Preserve light type on dark plates.
+ */
+html.theme-light .theme-keep-dark,
+html.theme-light .theme-keep-dark.bg-\[\#0B0B0E\],
+html.theme-light .theme-keep-dark.bg-\[\#0A0A0A\],
+html.theme-light .theme-keep-dark.bg-black {
+    background-color: #0A0A0A !important;
+    color: #F4F4F0 !important;
+}
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\],
+html.theme-light .theme-keep-dark .text-white,
+html.theme-light .theme-keep-dark .text-white\/90,
+html.theme-light .theme-keep-dark .text-white\/80,
+html.theme-light .theme-keep-dark .text-white\/70,
+html.theme-light .theme-keep-dark .text-white\/60,
+html.theme-light .theme-keep-dark .text-white\/50,
+html.theme-light .theme-keep-dark .text-white\/40,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/90,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/80,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/75,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/70,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/60,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/50,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/45 {
+    color: #F4F4F0 !important;
+}
+html.theme-light .theme-keep-dark .opacity-30,
+html.theme-light .theme-keep-dark .opacity-40,
+html.theme-light .theme-keep-dark .opacity-50,
+html.theme-light .theme-keep-dark .opacity-60,
+html.theme-light .theme-keep-dark .opacity-70 {
+    opacity: revert !important;
+}
+html.theme-light .theme-keep-dark .bg-white\/\[0\.02\],
+html.theme-light .theme-keep-dark .bg-white\/\[0\.03\],
+html.theme-light .theme-keep-dark .bg-white\/\[0\.04\],
+html.theme-light .theme-keep-dark .bg-white\/5,
+html.theme-light .theme-keep-dark .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+}
+html.theme-light .theme-keep-dark .border-white\/10,
+html.theme-light .theme-keep-dark .border-white\/15,
+html.theme-light .theme-keep-dark .border-white\/20 {
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Sonner toasts follow theme surfaces */
+html.theme-light [data-sonner-toaster] [data-sonner-toast] {
+    background: var(--surface-1) !important;
+    color: var(--fg) !important;
+    border-color: var(--border-soft) !important;
 }
 
 html.high-contrast {

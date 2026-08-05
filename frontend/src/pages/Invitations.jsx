@@ -7,7 +7,8 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function Invitations() {
   const { user } = useAuth();
@@ -69,7 +70,7 @@ export default function Invitations() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       <div className="pt-28 max-w-[1400px] mx-auto px-6 md:px-10 pb-20">
         <div className="hairline-b pb-6 flex items-baseline justify-between gap-4 flex-wrap">
           <div>

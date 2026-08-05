@@ -7,7 +7,8 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError, firstErrorField } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { DateField, toIsoDate } from "@/components/DateField";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -692,7 +693,7 @@ export default function ProfileEdit() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-10 relative">
         <div className="flex items-center justify-between gap-3">
             <p className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>

@@ -6,6 +6,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <ThemeToaster />
       <Nav />
       <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-6">
         <motion.div

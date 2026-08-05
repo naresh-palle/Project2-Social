@@ -5,7 +5,8 @@ import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness", "lifestyle"];
 const PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
@@ -94,7 +95,7 @@ export default function NewCampaign() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24 relative">
         {/* Floating Cancel / Close Button */}
         <button 
@@ -178,7 +179,7 @@ export default function NewCampaign() {
           </button>
         </form>
       </div>
-      <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid rgba(244,244,240,0.14); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: #F4F4F0; }
+      <style>{`.inp { margin-top: 0.5rem; width: 100%; background: transparent; border-bottom: 1px solid var(--border-soft); padding: 0.75rem 0; outline: none; font-size: 1.05rem; color: var(--fg); }
       .inp:focus { border-color: #FF3B30; }`}</style>
     </div>
   );

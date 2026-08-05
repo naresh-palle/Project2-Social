@@ -6,7 +6,8 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function Wallet() {
   const { user, refresh } = useAuth();
@@ -57,7 +58,7 @@ export default function Wallet() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]" data-testid="wallet-page">
       
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       
       <div className="pt-28 max-w-[1400px] mx-auto px-6 md:px-10 pb-24">
         {/* Header */}

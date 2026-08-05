@@ -6,7 +6,8 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatUsername } from "@/lib/username";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
@@ -70,7 +71,7 @@ export default function CreatorDetail() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       
       {/* HEADER SECTION */}
       <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">

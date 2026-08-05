@@ -52,7 +52,7 @@ function Hero() {
   const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
+    <section ref={ref} className="theme-keep-dark relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
       {/* 1. Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
@@ -185,7 +185,7 @@ function EditorialMarquee() {
   ];
   return (
     <div
-      className="w-full overflow-hidden border-t border-b"
+      className="theme-keep-dark w-full overflow-hidden border-t border-b"
       style={{
         background: "#0A0A0A",
         borderColor: "rgba(255,59,48,0.25)",
@@ -363,7 +363,7 @@ const CHAPTERS_WITH_MEANS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden" style={{
+    <section id="manifesto" className="theme-keep-dark relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden" style={{
       background: 'linear-gradient(135deg, #0D0221 0%, #0A0A1A 30%, #110D2E 60%, #0D0221 100%)'
     }} data-testid="slide-manifesto">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">

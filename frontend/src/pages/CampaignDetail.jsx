@@ -6,7 +6,8 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { uploadDocument } from "@/lib/upload";
 
 export default function CampaignDetail() {
@@ -148,7 +149,7 @@ export default function CampaignDetail() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       <Nav />
-      <Toaster theme="dark" position="top-center" />
+      <ThemeToaster />
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-16">
         <div className="hairline-b pb-6 flex flex-wrap items-baseline justify-between">
           <Link to={backTarget} className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline hover:text-[#FF3B30] transition-colors">{backLabel}</Link>

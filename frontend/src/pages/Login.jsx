@@ -7,6 +7,7 @@ import { Nav } from "@/components/Nav";
 import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { api, formatApiError } from "@/lib/api";
 import { ensureAppleAuth } from "@/lib/appleAuth";
 
@@ -263,6 +264,7 @@ export default function Login() {
 
           {mode === "password" ? (
             <>
+      <ThemeToaster />
               <form onSubmit={submitPassword} className="mt-3 space-y-2.5" data-testid="login-form" id="login-form">
               <div>
                 <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">

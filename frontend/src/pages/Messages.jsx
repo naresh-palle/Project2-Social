@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function Messages() {
   const { user } = useAuth();
@@ -203,6 +204,7 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
+      <ThemeToaster />
       <Nav />
       <div className="pt-24 max-w-[1600px] mx-auto px-6 md:px-10 pb-8">
         <div className="hairline-b pb-4 flex items-baseline justify-between">

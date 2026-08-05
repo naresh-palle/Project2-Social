@@ -8,6 +8,7 @@ import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { ThemeToaster } from "@/components/ThemeToaster";
 import { ensureAppleAuth } from "@/lib/appleAuth";
 
 export default function Register() {
@@ -468,6 +469,7 @@ export default function Register() {
   return (
     <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative">
       <Nav />
+      <ThemeToaster />
       
       <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
         <motion.div
