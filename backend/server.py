@@ -33,7 +33,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, 
 from fastapi.responses import StreamingResponse, FileResponse, Response
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 
 
 # ---------- Setup ----------
@@ -560,6 +560,19 @@ class UserUpdate(BaseModel):
     agent_approved: Optional[bool] = None
     niches: Optional[List[str]] = None
     roster_size: Optional[str] = None
+
+    @field_validator("category", mode="before")
+    @classmethod
+    def coerce_category(cls, v):
+        """Niches UI sends a list; older clients/API expect a comma-separated string."""
+        if v is None:
+            return None
+        if isinstance(v, list):
+            parts = [str(x).strip() for x in v if x is not None and str(x).strip()]
+            return ", ".join(parts) if parts else None
+        if isinstance(v, str):
+            return v.strip() or None
+        return str(v)
     
     # New Comprehensive Profile Fields
     availability: Optional[str] = None
