@@ -180,12 +180,23 @@ html.theme-light .bg-\[\#121212\] { background-color: #E8E8E4 !important; }
 html.theme-light .text-\[\#F4F4F0\] { color: #0A0A0A !important; }
 
 html.high-contrast {
-    --hairline: rgba(244, 244, 240, 0.35);
+    --hairline: rgba(244, 244, 240, 0.45);
+    filter: contrast(1.15);
 }
 html.high-contrast * {
-    border-color: rgba(244, 244, 240, 0.35) !important;
+    border-color: rgba(244, 244, 240, 0.45) !important;
 }
 html.high-contrast .btn-solid,
 html.high-contrast button[class*="bg-[#FF3B30]"] {
     outline: 2px solid #F4F4F0;
+}
+html.high-contrast input[type="checkbox"] {
+    outline: 1px solid #F4F4F0;
+    outline-offset: 2px;
+}
+html.theme-light.high-contrast {
+    filter: contrast(1.2);
+}
+html.theme-light.high-contrast * {
+    border-color: rgba(10, 10, 10, 0.45) !important;
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
-  ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText
+  ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -67,11 +67,17 @@ export default function Dashboard() {
                   § {user?.role === "admin" ? "Super Admin Console" : user?.role === "owner" ? "Brand Desk · Influencer Work & Feed" : user?.role === "agent" ? "Talent Agent Desk" : "Creator Desk · Live Campaigns"}
                 </p>
                 <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-2">
-                  {user?.name || user?.username || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span>
+                  {(() => {
+                    const uname = String(user?.username || user?.handle || "").replace(/^@/, "").trim();
+                    if (uname) return <>@{uname}<span className="tick text-[#FF3B30]">.</span></>;
+                    return <>{user?.name || "Creator Partner"}<span className="tick text-[#FF3B30]">.</span></>;
+                  })()}
                 </h1>
                 <p className="font-sans text-sm opacity-65 mt-2">
-                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : user?.handle || user?.username || "Creator Partner"}
-                  {user?.email ? ` · ${user.email}` : ""}
+                  {user?.name ? <span className="opacity-90">{user.name}</span> : null}
+                  {user?.name && (user?.role === "admin" || user?.role === "owner" || user?.role === "agent" || user?.email) ? " · " : null}
+                  {user?.role === "admin" ? "Platform Console" : user?.role === "owner" ? user?.company || "Brand Owner" : user?.role === "agent" ? "Agent Representative" : null}
+                  {user?.email ? `${user?.name || user?.role === "admin" || user?.role === "owner" || user?.role === "agent" ? " · " : ""}${user.email}` : ""}
                 </p>
               </div>
             </div>
@@ -79,15 +85,15 @@ export default function Dashboard() {
             {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
               <div className="flex items-center gap-3">
                 <Link to="/feed" className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126]">
-                  <Sparkles className="w-4 h-4" /> Feed 📰
+                  <Newspaper className="w-4 h-4" /> Feed
                 </Link>
                 <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
-                  <Send className="w-4 h-4" /> Browse Briefs 🚀
+                  <Compass className="w-4 h-4" /> Browse Briefs
                 </Link>
               </div>
             ) : (
               <Link to="/marketplace" data-testid="browse-campaigns-btn" className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white">
-                <Send className="w-4 h-4" /> Browse Briefs 🚀
+                <Compass className="w-4 h-4" /> Browse Briefs
               </Link>
             )}
 
@@ -284,6 +290,7 @@ function OwnerPanel() {
                   placeholder="All"
                   allowAll
                   compact
+                  noUnderline
                 />
               </div>
             </div>
@@ -491,7 +498,7 @@ function InfluencerPanel() {
     { k: "Accepted", v: `${stats?.acceptances ?? 0} Signed`, tail: "signed & live" },
     { k: "Invitations", v: `${stats?.invitations ?? 0} Invites`, tail: "extended to you" },
     { k: "Deliverables", v: `${stats?.approved ?? 0}/${stats?.deliverables ?? 0}`, tail: "approved / total" },
-    { k: "Rating Score", v: stats?.reviews_count ? `${stats.avg_rating} ★` : "New Profile", tail: `${stats?.reviews_count || 0} reviews` },
+    { k: "Rating Score", v: stats?.reviews_count ? `${stats.avg_rating} ★` : "—", tail: `${stats?.reviews_count || 0} reviews` },
     { k: "Wallet Balance", v: `₹${(stats?.earned ?? user?.wallet ?? 0).toLocaleString()}`, tail: "escrow ready" },
   ];
 
@@ -521,7 +528,7 @@ function InfluencerPanel() {
       </div>
 
       {/* Primary Navigation Tabs for Creators */}
-      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex gap-6 font-sans text-[11px] tracking-[0.28em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("campaigns-feed")}
@@ -540,8 +547,6 @@ function InfluencerPanel() {
             <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({safeApps.length})
           </button>
         </div>
-
-        
       </div>
 
             {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
@@ -561,6 +566,7 @@ function InfluencerPanel() {
                   placeholder="All"
                   allowAll
                   compact
+                  noUnderline
                 />
               </div>
             </div>

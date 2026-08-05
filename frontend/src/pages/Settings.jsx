@@ -62,14 +62,40 @@ export default function Settings() {
   }, [user]);
 
   const patch = async (payload) => {
+    const prev = settings;
+    // Optimistic update so toggles feel instant (merge nested prefs correctly)
+    setSettings((s) => {
+      const next = { ...(s || {}), ...payload };
+      if (payload.notification_prefs) {
+        next.notification_prefs = {
+          ...(s?.notification_prefs || {}),
+          ...payload.notification_prefs,
+        };
+      }
+      return next;
+    });
+    applyUserSettings({
+      ...user,
+      ...(prev || {}),
+      ...payload,
+      ...(payload.notification_prefs
+        ? {
+            notification_prefs: {
+              ...(prev?.notification_prefs || {}),
+              ...payload.notification_prefs,
+            },
+          }
+        : {}),
+    });
     setBusy(true);
     try {
       const { data } = await api.patch("/settings", payload);
-      setSettings((prev) => ({ ...prev, ...data }));
+      setSettings((s) => ({ ...s, ...data }));
       applyUserSettings({ ...user, ...data });
       await refresh();
-      toast.success("Settings saved");
     } catch (e) {
+      setSettings(prev);
+      applyUserSettings({ ...user, ...(prev || {}) });
       toast.error(formatApiError(e.response?.data?.detail) || "Save failed");
     } finally {
       setBusy(false);
@@ -77,8 +103,6 @@ export default function Settings() {
   };
 
   const updateNotif = (key, val) => {
-    const prefs = { ...(settings?.notification_prefs || {}), [key]: val };
-    setSettings((s) => ({ ...s, notification_prefs: prefs }));
     patch({ notification_prefs: { [key]: val } });
   };
 
@@ -184,21 +208,21 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <Nav />
-      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24 flex-1 w-full">
+      <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-12 flex-1 w-full">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
         <h1 className="font-editorial text-5xl md:text-6xl mt-2">Settings<span className="tick">.</span></h1>
 
-        <div className="mt-12 space-y-10">
+        <div className="mt-8 space-y-6">
           {/* Profile quick links */}
-          <Section title="Profile" icon={User}>
-            <div className="space-y-2">
+          <Section title="Profile" icon={User} dense>
+            <div className="space-y-0.5">
               <QuickLink to="/profile" label="View Profile" />
-              <QuickLink to="/profile/edit" label="Edit Profile & Change Password" />
+              <QuickLink to="/profile/edit" label="Edit Profile" />
             </div>
           </Section>
 
           {/* Account */}
-          <Section title="Account" icon={Monitor}>
+          <Section title="Account" icon={Monitor} dense>
             <Field label="Language">
               <select
                 value={settings.language || "en"}
@@ -222,15 +246,7 @@ export default function Settings() {
                 <option value="system">System</option>
               </select>
             </Field>
-            <label className="flex items-center justify-between py-2 cursor-pointer">
-              <span className="font-mono text-sm">High Contrast</span>
-              <input
-                type="checkbox"
-                checked={!!settings.high_contrast}
-                onChange={(e) => patch({ high_contrast: e.target.checked })}
-                className="accent-[#FF3B30] w-4 h-4"
-              />
-            </label>
+            <Toggle label="High Contrast" checked={!!settings.high_contrast} onChange={(v) => patch({ high_contrast: v })} />
             <Field label={`Font Scale (${settings.font_scale || 1}x)`}>
               <input
                 type="range"
@@ -245,14 +261,14 @@ export default function Settings() {
           </Section>
 
           {/* Privacy */}
-          <Section title="Privacy" icon={Eye}>
+          <Section title="Privacy" icon={Eye} dense>
             <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
             <Toggle label="Show Online Status" checked={settings.show_online_status !== false} onChange={(v) => patch({ show_online_status: v })} />
             <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
           </Section>
 
           {/* Notifications */}
-          <Section title="Notifications" icon={Bell}>
+          <Section title="Notifications" icon={Bell} dense>
             {NOTIF_KEYS.map(({ key, label }) => (
               <Toggle
                 key={key}
@@ -264,7 +280,7 @@ export default function Settings() {
           </Section>
 
           {/* Security */}
-          <Section title="Security" icon={Lock}>
+          <Section title="Security" icon={Lock} dense>
             <QuickLink to="/profile/edit#sec-security" label="Change Password" />
             {settings.two_fa_enabled ? (
               <div className="mt-4 p-4 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-3">
@@ -332,60 +348,53 @@ export default function Settings() {
             </div>
           </Section>
 
-          {/* Block list */}
-          <Section title="Blocked Users" icon={Ban}>
-            {blocks.length === 0 ? (
-              <p className="font-mono text-xs opacity-40">No blocked users</p>
-            ) : (
-              blocks.map((b) => (
-                <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-2">
-                  <span className="font-editorial">{b.user?.name || b.block?.blocked_id}</span>
-                  <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
-                    Unblock
-                  </button>
-                </div>
-              ))
-            )}
+          {/* Block list — only when non-empty to avoid empty gap blocks */}
+          {blocks.length > 0 && (
+          <Section title="Blocked Users" icon={Ban} dense>
+            {blocks.map((b) => (
+              <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
+                <span className="font-editorial">{b.user?.name || b.block?.blocked_id}</span>
+                <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
+                  Unblock
+                </button>
+              </div>
+            ))}
           </Section>
+          )}
 
-          {/* Mute / Restrict */}
-          <Section title="Muted Users" icon={VolumeX}>
-            {mutes.length === 0 ? (
-              <p className="font-mono text-xs opacity-40">No muted users</p>
-            ) : (
-              mutes.map((m) => (
-                <div key={m.id} className="flex items-center justify-between py-2">
-                  <span className="font-mono text-sm">{m.muted_id}</span>
-                  <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unmute</button>
-                </div>
-              ))
-            )}
+          {mutes.length > 0 && (
+          <Section title="Muted Users" icon={VolumeX} dense>
+            {mutes.map((m) => (
+              <div key={m.id} className="flex items-center justify-between py-1">
+                <span className="font-mono text-sm">{m.muted_id}</span>
+                <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unmute</button>
+              </div>
+            ))}
           </Section>
+          )}
 
-          <Section title="Restricted Users" icon={UserX}>
-            {restricted.length === 0 ? (
-              <p className="font-mono text-xs opacity-40">No restricted users</p>
-            ) : (
-              restricted.map((r) => (
-                <div key={r.id} className="flex items-center justify-between py-2">
-                  <span className="font-mono text-sm">{r.restricted_id}</span>
-                  <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unrestrict</button>
-                </div>
-              ))
-            )}
+          {restricted.length > 0 && (
+          <Section title="Restricted Users" icon={UserX} dense>
+            {restricted.map((r) => (
+              <div key={r.id} className="flex items-center justify-between py-1">
+                <span className="font-mono text-sm">{r.restricted_id}</span>
+                <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unrestrict</button>
+              </div>
+            ))}
           </Section>
+          )}
 
           {/* Drafts & Creator analytics */}
           <DraftsAndAnalytics />
 
           {/* Data & Delete */}
-          <Section title="Your Data" icon={Download}>
+          <Section title="Your Data" icon={Download} dense>
             <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
               <Download className="w-4 h-4" /> Download My Data (JSON)
             </button>
           </Section>
 
-          <Section title="Danger Zone" icon={Trash2}>
+          <Section title="Danger Zone" icon={Trash2} dense>
             <p className="font-mono text-xs opacity-60 mb-3">Permanently delete your account and all associated data.</p>
             <input
               type="text"
@@ -411,20 +420,20 @@ export default function Settings() {
   );
 }
 
-function Section({ title, icon: Icon, children }) {
+function Section({ title, icon: Icon, children, dense = false }) {
   return (
-    <section className="p-6 border border-white/10 bg-[#121212] rounded-xs">
-      <h2 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 mb-4">
+    <section className={`border border-white/10 bg-[#121212] rounded-xs ${dense ? "p-4" : "p-6"}`}>
+      <h2 className={`font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 ${dense ? "mb-2" : "mb-4"}`}>
         <Icon className="w-4 h-4" /> {title}
       </h2>
-      <div className="space-y-4">{children}</div>
+      <div className={dense ? "space-y-1" : "space-y-4"}>{children}</div>
     </section>
   );
 }
 
 function Field({ label, children }) {
   return (
-    <div>
+    <div className="py-1">
       <label className="font-mono text-[10px] uppercase tracking-widest opacity-60">{label}</label>
       {children}
     </div>
@@ -433,7 +442,7 @@ function Field({ label, children }) {
 
 function Toggle({ label, checked, onChange }) {
   return (
-    <label className="flex items-center justify-between py-2 cursor-pointer">
+    <label className="flex items-center justify-between py-1 cursor-pointer min-h-[36px]">
       <span className="font-mono text-sm">{label}</span>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="accent-[#FF3B30] w-4 h-4" />
     </label>
@@ -442,7 +451,7 @@ function Toggle({ label, checked, onChange }) {
 
 function QuickLink({ to, label }) {
   return (
-    <Link to={to} className="flex items-center justify-between py-2 font-mono text-sm hover:text-[#FF3B30] transition-colors group">
+    <Link to={to} className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px]">
       {label}
       <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100" />
     </Link>
@@ -482,34 +491,40 @@ function DraftsAndAnalytics() {
 
   return (
     <>
-      <Section title="Drafts & Scheduled" icon={Monitor}>
-        <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
-        {drafts.length === 0 ? (
-          <p className="font-mono text-xs opacity-40">No drafts</p>
+      <Section title="Drafts & Scheduled" icon={Monitor} dense>
+        {(drafts.length === 0 && scheduled.length === 0) ? (
+          <p className="font-mono text-xs opacity-40">No drafts or scheduled posts</p>
         ) : (
-          drafts.map((p) => (
-            <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 gap-2">
-              <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
-              <div className="flex gap-2 shrink-0">
-                <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
-                <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
-              </div>
-            </div>
-          ))
-        )}
-        <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-4">Scheduled</h4>
-        {scheduled.length === 0 ? (
-          <p className="font-mono text-xs opacity-40">No scheduled posts</p>
-        ) : (
-          scheduled.map((p) => (
-            <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 gap-2">
-              <div className="truncate">
-                <span className="font-editorial text-sm">{p.title || p.text || "Untitled"}</span>
-                <div className="font-mono text-[10px] opacity-50">{p.scheduled_at}</div>
-              </div>
-              <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
-            </div>
-          ))
+          <>
+            {drafts.length > 0 && (
+              <>
+                <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
+                {drafts.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                    <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
+                    <div className="flex gap-2 shrink-0">
+                      <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
+                      <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {scheduled.length > 0 && (
+              <>
+                <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Scheduled</h4>
+                {scheduled.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                    <div className="truncate">
+                      <span className="font-editorial text-sm">{p.title || p.text || "Untitled"}</span>
+                      <div className="font-mono text-[10px] opacity-50">{p.scheduled_at}</div>
+                    </div>
+                    <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
+                  </div>
+                ))}
+              </>
+            )}
+          </>
         )}
       </Section>
 
