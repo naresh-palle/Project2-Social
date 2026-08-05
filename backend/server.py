@@ -3259,15 +3259,52 @@ async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_
 # ---------- Uploads ----------
 ALLOWED_IMAGE = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 ALLOWED_VIDEO = {"video/mp4", "video/webm", "video/quicktime"}
-ALLOWED_UPLOAD = ALLOWED_IMAGE | ALLOWED_VIDEO
-MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB (images + short video)
+ALLOWED_DOC = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv",
+    "text/plain",
+}
+ALLOWED_UPLOAD = ALLOWED_IMAGE | ALLOWED_VIDEO | ALLOWED_DOC
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB (images + short video + office docs)
 
 
 @api_router.post("/uploads")
 async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_current_user)):
-    if file.content_type not in ALLOWED_UPLOAD:
-        raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif/mp4/webm allowed")
-    ext = mimetypes.guess_extension(file.content_type) or ".bin"
+    ctype = (file.content_type or "").split(";")[0].strip().lower()
+    # Some browsers send empty/octet-stream for office docs — infer from filename
+    name = (file.filename or "").lower()
+    if ctype not in ALLOWED_UPLOAD:
+        if name.endswith(".pdf"):
+            ctype = "application/pdf"
+        elif name.endswith(".doc"):
+            ctype = "application/msword"
+        elif name.endswith(".docx"):
+            ctype = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        elif name.endswith(".xls"):
+            ctype = "application/vnd.ms-excel"
+        elif name.endswith(".xlsx"):
+            ctype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        elif name.endswith(".csv"):
+            ctype = "text/csv"
+        elif name.endswith(".txt"):
+            ctype = "text/plain"
+    if ctype not in ALLOWED_UPLOAD:
+        raise HTTPException(
+            status_code=400,
+            detail="Only images, video, PDF, Word, Excel, or CSV up to 50MB",
+        )
+    ext = mimetypes.guess_extension(ctype) or (
+        ".pdf" if ctype == "application/pdf" else
+        ".docx" if "wordprocessingml" in ctype else
+        ".xlsx" if "spreadsheetml" in ctype else
+        ".doc" if ctype == "application/msword" else
+        ".xls" if ctype == "application/vnd.ms-excel" else
+        ".bin"
+    )
     fid = f"{uuid.uuid4().hex}{ext}"
     chunks = []
     size = 0
@@ -3277,9 +3314,14 @@ async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_
             raise HTTPException(status_code=413, detail="File too large (max 50MB)")
         chunks.append(chunk)
     raw = b"".join(chunks)
-    await store_upload_bytes(fid, raw, file.content_type)
-    media_type = "video" if file.content_type in ALLOWED_VIDEO else "image"
-    return {"id": fid, "url": f"/api/uploads/{fid}", "media_type": media_type, "size": size}
+    await store_upload_bytes(fid, raw, ctype)
+    if ctype in ALLOWED_VIDEO:
+        media_type = "video"
+    elif ctype in ALLOWED_IMAGE:
+        media_type = "image"
+    else:
+        media_type = "document"
+    return {"id": fid, "url": f"/api/uploads/{fid}", "media_type": media_type, "size": size, "content_type": ctype, "filename": file.filename}
 
 
 @api_router.get("/uploads/{file_id}")

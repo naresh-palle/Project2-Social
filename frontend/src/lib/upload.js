@@ -36,6 +36,41 @@ export async function uploadImage(file) {
 }
 
 const MEDIA_TYPES = /^(image|video|audio)\//;
+const DOC_TYPES = /^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet)|application\/vnd\.ms-excel|text\/(csv|plain))$/;
+const DOC_EXT = /\.(pdf|doc|docx|xls|xlsx|csv|txt)$/i;
+
+/**
+ * Upload PDF / Word / Excel / CSV / TXT to /api/uploads.
+ * Returns { url, media_type: "document", filename }.
+ */
+export async function uploadDocument(file) {
+  if (!file) return null;
+  const okType = DOC_TYPES.test(file.type) || DOC_EXT.test(file.name || "");
+  if (!okType) {
+    toast.error("Only PDF, Word, Excel, or CSV up to 50MB.");
+    return null;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    toast.error("File too large (max 50MB).");
+    return null;
+  }
+  const fd = new FormData();
+  fd.append("file", file);
+  try {
+    const { data } = await api.post("/uploads", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return {
+      url: resolveUrl(data.url),
+      media_type: data.media_type || "document",
+      filename: data.filename || file.name,
+      content_type: data.content_type,
+    };
+  } catch (e) {
+    toast.error(e.response?.data?.detail || "Upload failed");
+    return null;
+  }
+}
 
 /**
  * Upload image/video/audio to /api/media/upload (fallback /api/uploads).

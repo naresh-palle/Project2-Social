@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { toast, Toaster } from "sonner";
+import { uploadDocument } from "@/lib/upload";
 
 export default function CampaignDetail() {
   const { id } = useParams();
@@ -20,6 +21,8 @@ export default function CampaignDetail() {
   const [apps, setApps] = useState([]);
   const [delivs, setDelivs] = useState([]);
   const [delivForm, setDelivForm] = useState({ url: "", caption: "", kind: "post" });
+  const [delivUploading, setDelivUploading] = useState(false);
+  const delivFileRef = useRef(null);
   const [topMatches, setTopMatches] = useState(null);
   const [matchesBusy, setMatchesBusy] = useState(false);
   const [inviteForCreator, setInviteForCreator] = useState(null);
@@ -64,12 +67,36 @@ export default function CampaignDetail() {
   };
   const submitDeliv = async (e) => {
     e.preventDefault();
+    if (!delivForm.url?.trim()) {
+      toast.error("Add a link or upload a PDF / Word / Excel file");
+      return;
+    }
     try {
       await api.post("/deliverables", { ...delivForm, campaign_id: id });
       setDelivForm({ url: "", caption: "", kind: "post" });
       toast.success("Deliverable submitted.");
       load();
     } catch (err) { toast.error(formatApiError(err.response?.data?.detail)); }
+  };
+  const onDelivFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setDelivUploading(true);
+    try {
+      const result = await uploadDocument(file);
+      if (result?.url) {
+        setDelivForm((prev) => ({
+          ...prev,
+          url: result.url,
+          kind: prev.kind === "post" ? "document" : prev.kind,
+          caption: prev.caption || result.filename || file.name,
+        }));
+        toast.success("Document uploaded");
+      }
+    } finally {
+      setDelivUploading(false);
+    }
   };
   const reviewDeliv = async (did, status) => {
     try {
@@ -295,12 +322,34 @@ export default function CampaignDetail() {
                 <form onSubmit={submitDeliv} className="mt-4 space-y-4" data-testid="deliv-form">
                   <select data-testid="deliv-kind" value={delivForm.kind} onChange={e=>setDelivForm({...delivForm,kind:e.target.value})}
                     className="w-full bg-[#0B0B0E] hairline-b py-3 focus:outline-none">
-                    {["reel","story","post","video","other"].map(k => <option key={k} value={k}>{k}</option>)}
+                    {["reel","story","post","video","document","other"].map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
-                  <input required data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}
+                  <input data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}
+                    placeholder="https://… or upload a file below"
                     className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <input
+                      ref={delivFileRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+                      hidden
+                      onChange={onDelivFile}
+                    />
+                    <button
+                      type="button"
+                      data-testid="deliv-upload-doc"
+                      disabled={delivUploading}
+                      onClick={() => delivFileRef.current?.click()}
+                      className="btn-solid bg-white/5 border border-white/20 text-white hover:bg-white/10 !px-4 !py-2"
+                    >
+                      {delivUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                      {delivUploading ? "Uploading…" : "Upload PDF / Word / Excel"}
+                    </button>
+                    <span className="font-mono text-[10px] uppercase tracking-widest opacity-50">Max 50MB</span>
+                  </div>
                   <textarea data-testid="deliv-caption" value={delivForm.caption} onChange={e=>setDelivForm({...delivForm,caption:e.target.value})}
                     rows={2}
+                    placeholder="Caption / notes"
                     className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                   <button data-testid="deliv-submit" className="btn-solid"><Upload className="w-4 h-4" /> Submit</button>
                 </form>

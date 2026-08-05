@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
+import { EXPORT_FORMATS, runExport } from "@/lib/exportFormats";
 
 const USER_ROLE_OPTIONS = ["Creators", "Brands", "Agencies"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
@@ -66,6 +67,7 @@ export function AdminPanel() {
   const [tab, setTab] = useState("overview");
   const [exportModal, setExportModal] = useState(false);
   const [exportRange, setExportRange] = useState("monthly");
+  const [exportFormat, setExportFormat] = useState("csv");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState(""); 
   
@@ -262,25 +264,43 @@ export function AdminPanel() {
       }
   };
 
-    const exportCSV = () => {
-      const data = tab === "users" ? usersList : [stats];
-      if (!data || !data.length) return;
-      const headers = Object.keys(data[0] || {}).join(",");
-      const csv = [
-          `# Export Timeframe: ${exportRange.toUpperCase()}${exportRange === 'custom' ? ` (${startDate} to ${endDate || 'Unlimited'})` : ''}`,
-          headers,
-          ...data.map(row => Object.values(row || {}).map(v => `"${v}"`).join(","))
-      ].join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setExportModal(false);
-      toast.success(`Export successful (${exportRange.toUpperCase()} timeframe)`);
+    const exportData = () => {
+      const raw = tab === "users" ? usersList : [stats].filter(Boolean);
+      if (!raw || !raw.length) {
+        toast.error("Nothing to export on this tab");
+        return;
+      }
+      // Flatten nested objects for tabular formats
+      const data = raw.map((row) => {
+        const out = {};
+        Object.entries(row || {}).forEach(([k, v]) => {
+          if (v != null && typeof v === "object" && !Array.isArray(v)) {
+            Object.entries(v).forEach(([sk, sv]) => {
+              out[`${k}.${sk}`] = Array.isArray(sv) ? sv.join("; ") : sv;
+            });
+          } else if (Array.isArray(v)) {
+            out[k] = v.join("; ");
+          } else {
+            out[k] = v;
+          }
+        });
+        return out;
+      });
+      const meta = `Export Timeframe: ${exportRange.toUpperCase()}${exportRange === "custom" ? ` (${startDate} to ${endDate || "Unlimited"})` : ""} · Tab: ${tab}`;
+      const base = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
+      try {
+        runExport(exportFormat, {
+          rows: data,
+          filename: base,
+          title: `CR8 Studio — ${tab === "users" ? "Users" : "Platform"} Export`,
+          meta,
+          sheetName: tab === "users" ? "Users" : "Stats",
+        });
+        setExportModal(false);
+        toast.success(`Export ready (${exportFormat.toUpperCase()} · ${exportRange})`);
+      } catch (e) {
+        toast.error(e?.message || "Export failed");
+      }
   };
 
   if (loading) return (
@@ -795,13 +815,31 @@ export function AdminPanel() {
             </div>
 
             <div className="space-y-4">
-              <label className="font-sans text-xs text-white/70 block uppercase tracking-wider">Timeframe Preset</label>
+              <label className="font-sans text-xs text-white/70 block uppercase tracking-wider">New Format</label>
+              <div className="grid grid-cols-2 gap-2 font-sans text-xs">
+                {EXPORT_FORMATS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setExportFormat(opt.id)}
+                    className={`p-3 text-left border rounded-xs transition-all ${
+                      exportFormat === opt.id
+                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <label className="font-sans text-xs text-white/70 block uppercase tracking-wider pt-2">Timeframe Preset</label>
               <div className="grid grid-cols-2 gap-2 font-sans text-xs">
                 {[
-                  { id: "weekly", label: "📅 Weekly (7 Days)" },
-                  { id: "monthly", label: "🗓️ Monthly (30 Days)" },
-                  { id: "6months", label: "📊 6 Months (180 Days)" },
-                  { id: "1year", label: "📈 1 Year (365 Days)" },
+                  { id: "weekly", label: "Weekly (7 Days)" },
+                  { id: "monthly", label: "Monthly (30 Days)" },
+                  { id: "6months", label: "6 Months (180 Days)" },
+                  { id: "1year", label: "1 Year (365 Days)" },
                 ].map((opt) => (
                   <button
                     key={opt.id}
@@ -827,7 +865,7 @@ export function AdminPanel() {
                     : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
                 }`}
               >
-                ♾️ Customized (No Limit - Custom Range)
+                Customized (No Limit - Custom Range)
               </button>
 
               {exportRange === "custom" && (
@@ -862,7 +900,9 @@ export function AdminPanel() {
 
             <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-sans text-xs">
               <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
-              <button type="button" onClick={exportCSV} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Generate CSV Export 📥</button>
+              <button type="button" onClick={exportData} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">
+                Generate {EXPORT_FORMATS.find((f) => f.id === exportFormat)?.label || "Export"}
+              </button>
             </div>
           </motion.div>
         </div>
