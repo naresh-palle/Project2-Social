@@ -9,7 +9,7 @@ import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast, Toaster } from "sonner";
 import { ImageCropModal } from "@/components/ImageCropModal";
-import { DateField } from "@/components/DateField";
+import { DateField, toIsoDate } from "@/components/DateField";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES } from "@/lib/categories";
 
@@ -90,7 +90,7 @@ export default function ProfileEdit() {
         website: user.website || "",
         agent_type: user.agent_type || "company_agent",
         cover_photo: user.cover_photo || "",
-        date_of_birth: user.date_of_birth || "",
+        date_of_birth: toIsoDate(user.date_of_birth) || "",
         gender: user.gender || "",
         is_private: user.is_private || false,
       });
@@ -738,7 +738,12 @@ export default function ProfileEdit() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                 <F label="Date of Birth">
-                  <DateField value={f.date_of_birth || ""} onChange={(v) => setF({ ...f, date_of_birth: v })} placeholder="Select date of birth" />
+                  <DateField
+                    birthDate
+                    value={f.date_of_birth || ""}
+                    onChange={(v) => setF({ ...f, date_of_birth: v })}
+                    placeholder="Select day, month, and year"
+                  />
                 </F>
                 <F label="Gender">
                   <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>

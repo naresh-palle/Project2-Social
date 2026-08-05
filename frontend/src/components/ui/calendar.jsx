@@ -18,8 +18,14 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
+        caption: "flex justify-center pt-1 relative items-center gap-1",
         caption_label: "text-sm font-medium",
+        caption_dropdowns: "flex items-center justify-center gap-2",
+        dropdown_month: "relative inline-flex",
+        dropdown_year: "relative inline-flex",
+        dropdown:
+          "appearance-none bg-[#0B0B0E] text-[#F4F4F0] border border-white/20 rounded-sm px-2 py-1 text-xs font-medium cursor-pointer focus:outline-none focus:border-[#FF3B30] max-w-[7.5rem]",
+        vhidden: "sr-only",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
