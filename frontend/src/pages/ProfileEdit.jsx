@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop } from "lucide-react";
+import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop, Pencil } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
@@ -41,6 +41,9 @@ export default function ProfileEdit() {
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [editingPlat, setEditingPlat] = useState(null);
+  const [draftHandle, setDraftHandle] = useState("");
+  const [savingPlat, setSavingPlat] = useState(null);
   const [cropState, setCropState] = useState(null); // { src, aspect, target: 'avatar'|'cover' }
   const avatarRef = useRef(null);
   const coverRef = useRef(null);
@@ -123,16 +126,20 @@ export default function ProfileEdit() {
     return () => { cancelled = true; };
   }, [user, refresh]);
 
-  // Handle Escape key to cancel editing
+  // Escape: cancel social ID edit first, otherwise leave editor
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        nav("/profile");
+      if (e.key !== "Escape") return;
+      if (editingPlat) {
+        setEditingPlat(null);
+        setDraftHandle("");
+        return;
       }
+      nav("/profile");
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [nav]);
+  }, [nav, editingPlat]);
 
   if (!user || !f) return null;
   const isCreator = user.role === "influencer";
@@ -308,7 +315,7 @@ export default function ProfileEdit() {
       const handleValue = (f.handle || (f.username ? `@${f.username}` : "")).trim();
       const platformHandlesOnly = {};
       PLATFORMS.forEach((plat) => {
-        platformHandlesOnly[plat] = { handle: f.platform_metrics?.[plat]?.handle || "" };
+        platformHandlesOnly[plat] = { handle: normalizeHandle(f.platform_metrics?.[plat]?.handle || "") };
       });
       await api.patch("/auth/me", {
         ...f,
@@ -454,6 +461,73 @@ export default function ProfileEdit() {
       if (!silent) toast.error("Failed to sync analytics.");
     } finally {
       setSyncBusy(false);
+    }
+  };
+
+  const normalizeHandle = (raw) => {
+    const s = String(raw || "").trim().replace(/^@+/, "").replace(/\s+/g, "");
+    return s ? `@${s}` : "";
+  };
+
+  const startEditPlatform = (plat) => {
+    const current = f?.platform_metrics?.[plat]?.handle || "";
+    setEditingPlat(plat);
+    setDraftHandle(current);
+  };
+
+  const cancelEditPlatform = () => {
+    setEditingPlat(null);
+    setDraftHandle("");
+  };
+
+  const savePlatformAccount = async (plat) => {
+    const handle = normalizeHandle(draftHandle);
+    if (plat === "instagram" && isCreator && !handle) {
+      toast.error("Instagram handle is required");
+      return;
+    }
+    setSavingPlat(plat);
+    try {
+      const nextPm = {
+        ...(f.platform_metrics || {}),
+        [plat]: {
+          ...(f.platform_metrics?.[plat] || {}),
+          handle,
+        },
+      };
+      // Persist handles only (metrics come from auto-fetch)
+      const handlesOnly = {};
+      PLATFORMS.forEach((p) => {
+        handlesOnly[p] = { handle: normalizeHandle(nextPm?.[p]?.handle || "") };
+      });
+      await api.patch("/auth/me", { platform_metrics: handlesOnly });
+      setF((prev) => ({
+        ...prev,
+        platform_metrics: {
+          ...(prev.platform_metrics || {}),
+          [plat]: { ...(prev.platform_metrics?.[plat] || {}), handle },
+        },
+      }));
+      setEditingPlat(null);
+      setDraftHandle("");
+      toast.success(`${plat} ID saved`);
+
+      if (isCreator && handle) {
+        await refreshAnalytics(false, handlesOnly);
+      } else if (!handle) {
+        setF((prev) => ({
+          ...prev,
+          platform_metrics: {
+            ...(prev.platform_metrics || {}),
+            [plat]: { handle: "", followers: 0, engagement: 0, views: 0, posts: 0 },
+          },
+        }));
+      }
+      try { await refresh?.(); } catch {}
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Failed to save social ID");
+    } finally {
+      setSavingPlat(null);
     }
   };
 
@@ -719,7 +793,7 @@ export default function ProfileEdit() {
               </div>
           </section>
 
-          {/* SECTION 3: SOCIAL ACCOUNTS — handle/ID editable; metrics auto-fetched */}
+          {/* SECTION 3: SOCIAL ACCOUNTS — edit/rename ID, Save auto-fetches metrics */}
           <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
                 <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
@@ -730,70 +804,116 @@ export default function ProfileEdit() {
                   <button
                     type="button"
                     onClick={() => refreshAnalytics(false)}
-                    disabled={syncBusy}
+                    disabled={syncBusy || !!savingPlat}
                     className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white"
                   >
                     {syncBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                    {syncBusy ? "Fetching…" : "Auto-fetch metrics"}
+                    {syncBusy ? "Fetching…" : "Refresh all metrics"}
                   </button>
                 )}
               </div>
               <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">
-                Enter platform ID / handle only. Followers, ER, views &amp; posts auto-fetch.
+                Edit or rename each platform ID, then Save — followers, ER, views &amp; posts fetch automatically.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     {PLATFORMS.map(plat => {
                         const metrics = f.platform_metrics?.[plat] || {};
-                        const isConnected = !!metrics.handle;
+                        const savedHandle = normalizeHandle(metrics.handle || "");
+                        const isConnected = !!savedHandle;
+                        const isEditing = editingPlat === plat;
+                        const isSaving = savingPlat === plat;
                         return (
                         <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
-                            <div className="flex justify-between items-center mb-2">
+                            <div className="flex justify-between items-center mb-2 gap-2">
                                 <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
-                                    {plat} {plat === "instagram" && "*"}
-                                    {isConnected && <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" />}
+                                    {plat} {plat === "instagram" && isCreator && "*"}
+                                    {isConnected && !isEditing && <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" />}
                                 </div>
+                                {!isEditing ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => startEditPlatform(plat)}
+                                    className="inline-flex items-center gap-1 font-sans text-[9px] uppercase tracking-widest text-white/60 hover:text-white border border-white/15 hover:border-white/40 px-2 py-1"
+                                    data-testid={`social-edit-${plat}`}
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                    {isConnected ? "Rename" : "Add"}
+                                  </button>
+                                ) : null}
                             </div>
                             
                             <div>
                                 <label className="font-sans text-[9px] opacity-50 uppercase tracking-widest block mb-0.5">ID / Handle</label>
-                                <input required={plat==="instagram" && isCreator} className="inp font-sans text-xs py-1" 
-                                       placeholder={`@${plat}_handle`}
-                                       value={metrics.handle || ""} 
-                                       onChange={(e) => setPlatformHandle(plat, e.target.value)}
-                                       onBlur={(e) => {
-                                         const handle = e.target.value;
-                                         if (!isCreator || !String(handle || "").trim()) return;
-                                         const nextPm = {
-                                           ...(f.platform_metrics || {}),
-                                           [plat]: { ...(f.platform_metrics?.[plat] || {}), handle },
-                                         };
-                                         refreshAnalytics(true, nextPm);
-                                       }}
-                                />
+                                {isEditing ? (
+                                  <div className="space-y-2">
+                                    <input
+                                      autoFocus
+                                      className="inp font-sans text-xs py-1"
+                                      placeholder={`@${plat}_handle`}
+                                      value={draftHandle}
+                                      onChange={(e) => setDraftHandle(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+                                          savePlatformAccount(plat);
+                                        }
+                                        if (e.key === "Escape") {
+                                          e.preventDefault();
+                                          cancelEditPlatform();
+                                        }
+                                      }}
+                                      data-testid={`social-input-${plat}`}
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="button"
+                                        disabled={isSaving}
+                                        onClick={() => savePlatformAccount(plat)}
+                                        className="edit-btn bg-[#FF3B30] text-white flex-1 justify-center"
+                                        data-testid={`social-save-${plat}`}
+                                      >
+                                        {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                        {isSaving ? "Saving…" : "Save"}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={isSaving}
+                                        onClick={cancelEditPlatform}
+                                        className="edit-btn bg-white/10 text-white"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center truncate">
+                                    {savedHandle || <span className="opacity-40">Not connected</span>}
+                                  </div>
+                                )}
                             </div>
                             <div className="grid grid-cols-2 gap-2 mt-2 font-sans select-none">
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? formatMetric(metrics.followers || metrics.subscribers) : "—"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected && metrics.engagement != null && metrics.engagement !== "" ? Number(metrics.engagement).toFixed(1) : "—"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? formatMetric(metrics.views) : "—"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? formatMetric(metrics.posts) : "—"}
                                     </div>
                                 </div>
