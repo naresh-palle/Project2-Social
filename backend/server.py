@@ -15,6 +15,7 @@ import logging
 import mimetypes
 import secrets
 import re
+import io
 from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
@@ -29,9 +30,9 @@ except ImportError:
     aiosmtplib = None
 from email.message import EmailMessage
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, UploadFile, File
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse, FileResponse, Response
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 
@@ -39,6 +40,7 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict
 mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'cr8_social')]
+upload_fs = AsyncIOMotorGridFSBucket(db, bucket_name="file_uploads")
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'cr8_super_secret_jwt_key_2026')
 JWT_ALGORITHM = "HS256"
@@ -58,6 +60,55 @@ logger = logging.getLogger("cr8")
 
 # in-memory pub/sub queues for SSE, keyed by conversation_id
 _sse_channels: Dict[str, List[asyncio.Queue]] = {}
+
+
+async def store_upload_bytes(fid: str, data: bytes, content_type: Optional[str] = None) -> None:
+    """Persist upload to disk cache + Mongo GridFS (survives Render ephemeral disk)."""
+    safe = PathLib(fid).name
+    dest = UPLOAD_DIR / safe
+    try:
+        async with aiofiles.open(dest, "wb") as f:
+            await f.write(data)
+    except Exception as e:
+        logger.warning("Disk write failed for %s: %s", safe, e)
+    try:
+        cursor = upload_fs.find({"filename": safe})
+        async for doc in cursor:
+            await upload_fs.delete(doc["_id"])
+        await upload_fs.upload_from_stream(
+            safe,
+            io.BytesIO(data),
+            metadata={"content_type": content_type or "application/octet-stream"},
+        )
+    except Exception as e:
+        logger.warning("GridFS persist failed for %s: %s", safe, e)
+
+
+async def load_upload_bytes(fid: str):
+    """Load upload from disk, falling back to GridFS and warming the disk cache."""
+    safe = PathLib(fid).name
+    dest = UPLOAD_DIR / safe
+    if dest.exists():
+        try:
+            async with aiofiles.open(dest, "rb") as f:
+                data = await f.read()
+            ct = mimetypes.guess_type(str(dest))[0] or "application/octet-stream"
+            return data, ct
+        except Exception as e:
+            logger.warning("Disk read failed for %s: %s", safe, e)
+    try:
+        stream = await upload_fs.open_download_stream_by_name(safe)
+        data = await stream.read()
+        meta = stream.metadata or {}
+        ct = meta.get("content_type") or mimetypes.guess_type(safe)[0] or "application/octet-stream"
+        try:
+            async with aiofiles.open(dest, "wb") as f:
+                await f.write(data)
+        except Exception:
+            pass
+        return data, ct
+    except Exception:
+        return None, None
 
 async def sse_publish(conversation_id: str, event: dict):
     for q in list(_sse_channels.get(conversation_id, [])):
@@ -3218,27 +3269,29 @@ async def upload_file(file: UploadFile = File(...), current: dict = Depends(get_
         raise HTTPException(status_code=400, detail="Only jpeg/png/webp/gif/mp4/webm allowed")
     ext = mimetypes.guess_extension(file.content_type) or ".bin"
     fid = f"{uuid.uuid4().hex}{ext}"
-    dest = UPLOAD_DIR / fid
+    chunks = []
     size = 0
-    async with aiofiles.open(dest, "wb") as f:
-        while chunk := await file.read(1024 * 64):
-            size += len(chunk)
-            if size > MAX_UPLOAD_BYTES:
-                await f.close()
-                dest.unlink(missing_ok=True)
-                raise HTTPException(status_code=413, detail="File too large (max 50MB)")
-            await f.write(chunk)
+    while chunk := await file.read(1024 * 64):
+        size += len(chunk)
+        if size > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="File too large (max 50MB)")
+        chunks.append(chunk)
+    raw = b"".join(chunks)
+    await store_upload_bytes(fid, raw, file.content_type)
     media_type = "video" if file.content_type in ALLOWED_VIDEO else "image"
     return {"id": fid, "url": f"/api/uploads/{fid}", "media_type": media_type, "size": size}
 
 
 @api_router.get("/uploads/{file_id}")
 async def get_upload(file_id: str):
-    safe = PathLib(file_id).name  # prevent traversal
-    p = UPLOAD_DIR / safe
-    if not p.exists():
+    data, content_type = await load_upload_bytes(file_id)
+    if data is None:
         raise HTTPException(status_code=404, detail="Not found")
-    return FileResponse(p, media_type=mimetypes.guess_type(str(p))[0] or "application/octet-stream")
+    return Response(
+        content=data,
+        media_type=content_type or "application/octet-stream",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 # ---------- Analytics ----------
@@ -4001,6 +4054,7 @@ _phase1_ensure_indexes = setup_phase1(
     logger=logger,
     call_llm=call_llm,
     write_audit_log=write_audit_log,
+    store_upload_bytes=store_upload_bytes,
 )
 
 app.include_router(api_router)

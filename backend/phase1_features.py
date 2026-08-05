@@ -53,6 +53,7 @@ def setup_phase1(
     logger,
     call_llm=None,
     write_audit_log=None,
+    store_upload_bytes=None,
 ):
     import jwt
     import mimetypes
@@ -63,6 +64,14 @@ def setup_phase1(
     async def _audit(**kwargs):
         if write_audit_log:
             await write_audit_log(**kwargs)
+
+    async def _persist_upload(fid: str, data: bytes, content_type: Optional[str] = None):
+        if store_upload_bytes:
+            await store_upload_bytes(fid, data, content_type)
+            return
+        dest = UPLOAD_DIR / PathLib(fid).name
+        async with aiofiles.open(dest, "wb") as f:
+            await f.write(data)
 
     # ---------- Models ----------
     class LoginExInput(BaseModel):
@@ -437,12 +446,27 @@ def setup_phase1(
         return {"ok": True}
 
     @api_router.post("/auth/presence")
-    async def set_presence(inp: PresenceInput, current: dict = Depends(get_current_user)):
+    async def set_presence(request: Request, current: dict = Depends(get_current_user)):
+        """Heartbeat / online status. Accepts empty or partial JSON without 422."""
+        online = True
+        try:
+            body = await request.json()
+            if isinstance(body, dict) and "online" in body:
+                val = body.get("online")
+                if isinstance(val, str):
+                    online = val.strip().lower() in ("1", "true", "yes", "on")
+                elif val is None:
+                    online = True
+                else:
+                    online = bool(val)
+        except Exception:
+            online = True
+        ts = now_iso()
         await db.users.update_one({"id": current["id"]}, {"$set": {
-            "online": inp.online,
-            "last_seen": now_iso(),
+            "online": online,
+            "last_seen": ts,
         }})
-        return {"ok": True, "online": inp.online, "last_seen": now_iso()}
+        return {"ok": True, "online": online, "last_seen": ts}
 
     @api_router.post("/auth/delete-account")
     async def delete_account(current: dict = Depends(get_current_user)):
@@ -1260,7 +1284,6 @@ def setup_phase1(
             raise HTTPException(status_code=400, detail="Unsupported media type")
         ext = mimetypes.guess_extension(file.content_type) or ".bin"
         fid = f"{uuid.uuid4().hex}{ext}"
-        dest = UPLOAD_DIR / fid
         raw = await file.read()
         if len(raw) > MAX_MEDIA:
             raise HTTPException(status_code=413, detail="File too large (max 50MB)")
@@ -1278,19 +1301,21 @@ def setup_phase1(
                 img.save(buf, format="JPEG", quality=82, optimize=True)
                 raw = buf.getvalue()
                 fid = f"{uuid.uuid4().hex}.jpg"
-                dest = UPLOAD_DIR / fid
+                content_type = "image/jpeg"
             except Exception as e:
                 logger.warning("Image compress failed: %s", e)
+                content_type = file.content_type
+        else:
+            content_type = file.content_type
 
-        async with aiofiles.open(dest, "wb") as f:
-            await f.write(raw)
+        await _persist_upload(fid, raw, content_type)
 
         doc = {
             "id": str(uuid.uuid4()),
             "file_id": fid,
             "url": f"/api/uploads/{fid}",
             "owner_id": current["id"],
-            "content_type": file.content_type,
+            "content_type": content_type,
             "media_type": media_type,
             "size": len(raw),
             "created_at": now_iso(),
