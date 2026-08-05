@@ -171,12 +171,6 @@ function Hero() {
             <Clock className="w-3 h-3 text-[#FF3B30]" /> ⏱️ Takes 2 minutes. No credit card required.
           </motion.p>
         </div>
-
-        <div className="pt-3 border-t border-white/10">
-          <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#FF3B30]/70 font-bold">
-            ◎ Use floating arrows (&lt; &gt;) or keyboard arrows to navigate slides
-          </span>
-        </div>
       </div>
     </section>
   );
