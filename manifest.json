@@ -1,0 +1,17 @@
+{
+  "name": "CR8 Studio",
+  "short_name": "CR8",
+  "description": "Connect brands with creators. Collaborate, negotiate, and grow on CR8 Studio.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0B0E",
+  "theme_color": "#FF3B30",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
