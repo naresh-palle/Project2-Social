@@ -17,6 +17,7 @@ import {
   socialMetricOrNA,
 } from "@/lib/platforms";
 import { formatUsername, displayAccountName } from "@/lib/username";
+import { withBrandDisplayDefaults } from "@/lib/brandProfileDefaults";
 
 export default function ProfileView() {
   const nav = useNavigate();
@@ -27,7 +28,7 @@ export default function ProfileView() {
     async function load() {
       try {
         const { data } = await api.get("/auth/me");
-        setProfile(data);
+        setProfile(withBrandDisplayDefaults(data));
       } catch (e) {
         toast.error("Failed to load profile");
         nav("/dashboard");
@@ -233,19 +234,30 @@ export default function ProfileView() {
                     <dt className="opacity-50 uppercase tracking-wider">Industry</dt>
                     <dd className="text-[#FF3B30] font-semibold text-right">{profile.industry || "—"}</dd>
                   </div>
-                  {profile.website && (
+                  <div className="flex justify-between gap-3 border-b border-white/10 pb-2">
+                    <dt className="opacity-50 uppercase tracking-wider">Size · Employees</dt>
+                    <dd className="font-semibold text-right">{profile.company_size || profile.employees || "—"}</dd>
+                  </div>
+                  {(profile.website || profile.linkedin) && (
                     <div className="flex justify-between gap-3 border-b border-white/10 pb-2">
-                      <dt className="opacity-50 uppercase tracking-wider">Website</dt>
-                      <dd>
-                        <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline inline-flex items-center gap-1">
-                          Visit <ExternalLink className="w-3 h-3" />
-                        </a>
+                      <dt className="opacity-50 uppercase tracking-wider">Links</dt>
+                      <dd className="text-right space-y-1">
+                        {profile.website && (
+                          <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline inline-flex items-center gap-1">
+                            Website <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                        {profile.linkedin && (
+                          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="text-[#FF3B30] hover:underline inline-flex items-center gap-1 ml-2">
+                            LinkedIn <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
                       </dd>
                     </div>
                   )}
                   <div className="flex justify-between gap-3">
                     <dt className="opacity-50 uppercase tracking-wider">Location</dt>
-                    <dd className="font-semibold text-right">{profile.city || "—"}</dd>
+                    <dd className="font-semibold text-right">{[profile.city, profile.state].filter(Boolean).join(", ") || profile.location || "—"}</dd>
                   </div>
                 </dl>
               </div>
@@ -332,11 +344,23 @@ export default function ProfileView() {
               <div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3 gap-3">
                   <h2 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Social accounts</h2>
-                  {totalReach > 0 && (
-                    <span className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] shrink-0">
-                      Reach · {formatNumber(totalReach)}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {profile.website && (
+                      <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline inline-flex items-center gap-1">
+                        Website <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                    {profile.linkedin && (
+                      <a href={profile.linkedin} target="_blank" rel="noreferrer" className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline inline-flex items-center gap-1">
+                        LinkedIn <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                    {totalReach > 0 && (
+                      <span className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30]">
+                        Reach · {formatNumber(totalReach)}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                     {displayPlatforms.map(([key, data]) => {
@@ -383,8 +407,6 @@ export default function ProfileView() {
                   </div>
               </div>
 
-              {isCreator && (
-              <>
               <div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
                   <h2 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Past campaigns</h2>
@@ -417,6 +439,8 @@ export default function ProfileView() {
                 )}
               </div>
 
+              {isCreator && (
+              <>
               <div>
                 <div className="border-b border-white/10 pb-2 mb-3">
                   <h2 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Portfolio</h2>

@@ -139,6 +139,19 @@ export default function CampaignDetail() {
   const isAcceptedCreator = user?.role === "influencer" && c.accepted_creator_id === user?.id;
   const canReview = c.status === "completed";
 
+  // Display fallbacks for older briefs missing the new requirement fields
+  const brief = {
+    ...c,
+    location: c.location || "Major metros · India",
+    influencer_type: c.influencer_type || "Micro",
+    min_reach: c.min_reach || "50K+",
+    min_followers: c.min_followers || 10000,
+    min_engagement: c.min_engagement || "3%+",
+    influencer_experience: c.influencer_experience || "1+ years",
+    timeline: c.timeline || c.deadline || "2–3 weeks",
+    influencer_location: c.influencer_location || c.location || "Mumbai · Delhi NCR",
+  };
+
   const searchParams = new URLSearchParams(location.search);
   const fromMessages = searchParams.get("from") === "messages" || location.state?.from === "/messages";
   const convoId = searchParams.get("convoId") || location.state?.convoId;
@@ -150,29 +163,39 @@ export default function CampaignDetail() {
       
       <Nav />
       <ThemeToaster />
-      <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-16">
-        <div className="hairline-b pb-6 flex flex-wrap items-baseline justify-between">
+      <div className="pt-24 max-w-[1600px] mx-auto px-4 md:px-8 pb-16">
+        <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
           <Link to={backTarget} className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline hover:text-[#FF3B30] transition-colors">{backLabel}</Link>
-          <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {c.id.slice(0, 6)} · {c.status}</span>
+          <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {brief.id.slice(0, 6)} · {brief.status}</span>
         </div>
 
-        <div className="grid grid-cols-12 gap-10 mt-12">
+        <div className="grid grid-cols-12 gap-8 mt-6">
           <div className="col-span-12 md:col-span-7">
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-              className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {c.brand}</motion.p>
-            <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-[1.15] mt-3">{c.title}</h1>
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Meta label="Budget" value={`₹${c.budget}`} accent />
-              <Meta label="Niches" value={(c.niches || []).join(" · ") || "—"} />
-              <Meta label="Platforms" value={(c.platforms || []).join(" · ") || "—"} />
-              <Meta label="Escrow" value={c.escrow_funded ? `₹${c.escrow_funded} held` : "not funded"} />
+              className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {brief.brand}</motion.p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-snug mt-2">{brief.title}</h1>
+            <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Meta label="Budget" value={`₹${brief.budget}`} accent />
+              <Meta label="Niches" value={(brief.niches || []).join(" · ") || "—"} />
+              <Meta label="Platforms" value={(brief.platforms || []).join(" · ") || "—"} />
+              <Meta label="Escrow" value={brief.escrow_funded ? `₹${brief.escrow_funded} held` : "not funded"} />
             </div>
-            <div className="mt-10 hairline-t pt-8">
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+              <Meta label="Location" value={brief.location} />
+              <Meta label="Type of influencers" value={brief.influencer_type} />
+              <Meta label="Influencer reach" value={brief.min_reach} />
+              <Meta label="Min followers" value={Number(brief.min_followers).toLocaleString()} />
+              <Meta label="Engagement" value={brief.min_engagement} />
+              <Meta label="Experience" value={brief.influencer_experience} />
+              <Meta label="Timeline" value={brief.timeline} />
+              <Meta label="Creators from" value={brief.influencer_location} />
+            </div>
+            <div className="mt-8 hairline-t pt-6">
               <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Brief</h3>
-              <p className="font-editorial text-2xl md:text-3xl italic leading-[1.3] mt-3">{c.description}</p>
-              <div className="mt-8">
+              <p className="font-sans text-base md:text-lg leading-relaxed mt-2 opacity-90">{brief.description}</p>
+              <div className="mt-5">
                 <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Deliverables</h3>
-                <p className="mt-2 text-base opacity-80">{c.deliverables}</p>
+                <p className="mt-2 text-sm opacity-80">{brief.deliverables}</p>
               </div>
             </div>
 
@@ -440,8 +463,8 @@ export default function CampaignDetail() {
 function Meta({ label, value, accent }) {
   return (
     <div>
-      <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">{label}</div>
-      <div className={`font-editorial mt-1 ${accent ? "italic text-3xl text-[#FF3B30]" : "text-xl"}`}>{value}</div>
+      <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{label}</div>
+      <div className={`font-sans mt-1 ${accent ? "text-xl font-semibold text-[#FF3B30]" : "text-sm md:text-base font-medium"}`}>{value}</div>
     </div>
   );
 }

@@ -547,6 +547,9 @@ class UserUpdate(BaseModel):
     company: Optional[str] = None
     industry: Optional[str] = None
     website: Optional[str] = None
+    linkedin: Optional[str] = None
+    company_size: Optional[str] = None
+    employees: Optional[str] = None
     # UI niches multi-select: production historically typed this as str; accept either.
     category: Optional[Any] = None
     followers: Optional[int] = None
@@ -610,6 +613,14 @@ class CampaignCreate(BaseModel):
     deliverables: str
     deadline: Optional[str] = None
     cover: Optional[str] = None
+    location: Optional[str] = None
+    timeline: Optional[str] = None
+    min_followers: Optional[int] = None
+    influencer_location: Optional[str] = None
+    influencer_experience: Optional[str] = None
+    influencer_type: Optional[str] = None
+    min_reach: Optional[str] = None
+    min_engagement: Optional[str] = None
 
 
 class ApplicationCreate(BaseModel):
@@ -2362,6 +2373,9 @@ async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_curre
         "platforms": inp.platforms or ["instagram"], "deliverables": inp.deliverables, "deadline": inp.deadline,
         "cover": cover_url, "status": "open", "escrow_funded": 0, "escrow_released": 0,
         "accepted_creator_id": None, "created_at": now_iso(), "applications_count": 0,
+        "location": inp.location, "timeline": inp.timeline, "min_followers": inp.min_followers,
+        "influencer_location": inp.influencer_location, "influencer_experience": inp.influencer_experience,
+        "influencer_type": inp.influencer_type, "min_reach": inp.min_reach, "min_engagement": inp.min_engagement,
     }
     await db.campaigns.insert_one(doc)
     doc.pop("_id", None)
@@ -4144,16 +4158,45 @@ async def seed_demo():
             "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
         })
     
+    company_enrich = {
+        "company": "Acme Brand",
+        "bio": (
+            "Acme Brand is a fashion-forward apparel house building seasonal capsule collections "
+            "for metro audiences across India. We partner with creators for product drops, lookbook "
+            "reels, and city takeover stories — with escrow-backed briefs and clear brand guidelines."
+        ),
+        "industry": "Fashion",
+        "website": "https://acmebrand.example",
+        "linkedin": "https://www.linkedin.com/company/acme-brand",
+        "company_size": "51–200 employees",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "location": "Mumbai, Maharashtra",
+        "verified": True,
+        "platform_metrics": {
+            "facebook": {"handle": "acmebrand", "followers": 128000, "engagement": 3.4, "views": 920000, "posts": 214},
+            "instagram": {"handle": "acme.brand", "followers": 412000, "engagement": 5.8, "views": 2800000, "posts": 486},
+            "twitter": {"handle": "acmebrand", "followers": 64000, "engagement": 2.1, "views": 410000, "posts": 1203},
+            "youtube": {"handle": "AcmeBrandOfficial", "followers": 88000, "engagement": 4.2, "views": 5600000, "posts": 96},
+        },
+        "past_campaigns": [
+            {"brand": "Acme Brand", "title": "Summer Wearables City Drop", "date": "2025-04", "result": "+18% store traffic", "post_url": "https://instagram.com"},
+            {"brand": "Acme Brand", "title": "Festive Edit Creator Series", "date": "2025-10", "result": "2.1M reach", "post_url": "https://instagram.com"},
+            {"brand": "Acme Brand", "title": "Workwear Essentials Launch", "date": "2026-01", "result": "42K engagements", "post_url": "https://youtube.com"},
+        ],
+    }
     if await db.users.count_documents({"email": "company@cr8.studio"}) == 0:
         await db.users.insert_one({
             "id": str(uuid.uuid4()), "email": "company@cr8.studio",
             "password_hash": demo_password_hash, "name": "Company Demo", "username": "companydemo",
-            "role": "owner", "handle": None, "company": "Acme Brand", "bio": "Brand account.",
-            "avatar": None, "niches": [], "followers": None, "mobile": None,
-            "platforms": [], "location": "Remote", "industry": "Fashion",
-            "website": None, "portfolio": [], "rate_card": {},
-            "verified": True, "wallet": 50000, "created_at": now_iso(), "onboarding_status": "completed"
+            "role": "owner", "handle": None, "company": "Acme Brand",
+            "avatar": None, "niches": ["Fashion & Style"], "followers": None, "mobile": None,
+            "platforms": ["instagram", "youtube", "facebook", "twitter"], "portfolio": [], "rate_card": {},
+            "wallet": 50000, "created_at": now_iso(), "onboarding_status": "completed",
+            **company_enrich,
         })
+    else:
+        await db.users.update_one({"email": "company@cr8.studio"}, {"$set": company_enrich})
 
     if await db.users.count_documents({"email": "agent@cr8.studio"}) == 0:
         await db.users.insert_one({

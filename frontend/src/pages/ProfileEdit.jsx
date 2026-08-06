@@ -119,6 +119,8 @@ function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
     company: asStr(f.company).trim() || null,
     industry: asStr(f.industry).trim() || null,
     website: normalizeWebsite(f.website) || null,
+    linkedin: normalizeWebsite(f.linkedin) || null,
+    company_size: asStr(f.company_size).trim() || null,
     // Niches multi-select lives in UI state as an array; API field `category` must be a string.
     category: category.length ? category.join(", ") : null,
     niches: category,
@@ -193,6 +195,8 @@ export default function ProfileEdit() {
         company: user.company || "",
         industry: user.industry || "",
         website: user.website || "",
+        linkedin: user.linkedin || "",
+        company_size: user.company_size || user.employees || "",
         agent_type: user.agent_type || "company_agent",
         cover_photo: user.cover_photo || "",
         date_of_birth: toIsoDate(user.date_of_birth) || "",
@@ -793,6 +797,17 @@ export default function ProfileEdit() {
                   </F>
                   <F label="Official Website URL *">
                     <input type="text" inputMode="url" required className="inp font-sans text-sm" placeholder="https://example.com" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
+                  </F>
+                  <F label="LinkedIn">
+                    <input type="text" inputMode="url" className="inp font-sans text-sm" placeholder="https://linkedin.com/company/…" value={f.linkedin || ""} onChange={e=>setF({...f, linkedin: e.target.value})} />
+                  </F>
+                  <F label="Size · Employees">
+                    <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
+                      <option value="" className="bg-[#0B0B0E]">Select company size…</option>
+                      {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => (
+                        <option key={s} value={s} className="bg-[#0B0B0E]">{s}</option>
+                      ))}
+                    </select>
                   </F>
                 </div>
               )}

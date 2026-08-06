@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { Link } from "react-router-dom";
@@ -363,9 +363,7 @@ const CHAPTERS_WITH_MEANS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="theme-keep-dark relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden" style={{
-      background: 'linear-gradient(135deg, #0D0221 0%, #0A0A1A 30%, #110D2E 60%, #0D0221 100%)'
-    }} data-testid="slide-manifesto">
+    <section id="manifesto" className="theme-keep-dark relative text-[#F4F4F0] py-12 md:py-16 overflow-hidden bg-[#0B0B0E]" data-testid="slide-manifesto">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
@@ -1004,6 +1002,8 @@ function FinalCTA() {
 export default function Landing() {
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
+  const [autoPaused, setAutoPaused] = useState(false);
+  const resumeTimerRef = useRef(null);
 
   const slides = [
     { id: "hero", component: <><Hero /><EditorialMarquee /><Footer /></> },
@@ -1017,21 +1017,39 @@ export default function Landing() {
     { id: "final-cta", component: <><FinalCTA /><Footer /></> },
   ];
 
-  const prevDeck = () => {
-    setDeckIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const goToDeck = useCallback((updater) => {
+    setDeckIndex((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      return ((next % slides.length) + slides.length) % slides.length;
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [slides.length]);
 
-  const nextDeck = () => {
-    setDeckIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const prevDeck = useCallback(() => {
+    goToDeck((prev) => prev - 1);
+  }, [goToDeck]);
+
+  const nextDeck = useCallback(() => {
+    goToDeck((prev) => prev + 1);
+  }, [goToDeck]);
+
+  const pauseAutoThenResume = useCallback(() => {
+    setAutoPaused(true);
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => setAutoPaused(false), 12000);
+  }, []);
 
   useEffect(() => {
     document.body.style.background = "#0B0B0E";
     const handleKeyDown = (e) => {
-      if (e.key === "ArrowLeft") prevDeck();
-      if (e.key === "ArrowRight") nextDeck();
+      if (e.key === "ArrowLeft") {
+        pauseAutoThenResume();
+        prevDeck();
+      }
+      if (e.key === "ArrowRight") {
+        pauseAutoThenResume();
+        nextDeck();
+      }
     };
     const onReset = () => setDeckIndex(0);
 
@@ -1040,8 +1058,18 @@ export default function Landing() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resetHomeDeck", onReset);
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     };
-  }, []);
+  }, [prevDeck, nextDeck, pauseAutoThenResume]);
+
+  // Auto-advance slides; pause briefly after manual navigation
+  useEffect(() => {
+    if (autoPaused) return undefined;
+    const id = setInterval(() => {
+      nextDeck();
+    }, 7000);
+    return () => clearInterval(id);
+  }, [autoPaused, nextDeck, deckIndex]);
 
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
@@ -1055,23 +1083,29 @@ export default function Landing() {
       {/* FLOATING FAR-LEFT CHEVRON ARROW BUTTON (<) */}
       <button
         type="button"
-        onClick={prevDeck}
+        onClick={() => {
+          pauseAutoThenResume();
+          prevDeck();
+        }}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-4 md:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0B0B0E]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-[#0B0B0E]/80 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
-        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-0.5 transition-transform" />
+        <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:-translate-x-0.5 transition-transform" />
       </button>
 
       {/* FLOATING FAR-RIGHT CHEVRON ARROW BUTTON (>) */}
       <button
         type="button"
-        onClick={nextDeck}
+        onClick={() => {
+          pauseAutoThenResume();
+          nextDeck();
+        }}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 md:w-13 md:h-13 bg-[#0B0B0E]/90 border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-2xl transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-[#0B0B0E]/80 border border-white/15 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
-        <ChevronRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
       {/* PRESENTATION SLIDES (Only active slide rendered to ensure zero blank space below footer and unclipped borders) */}
