@@ -1,3 +1,6 @@
+
+import { SocialConnect } from "@/components/SocialConnect";
+import { SocialAnalyticsCards } from "@/components/SocialAnalyticsCards";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +27,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!loading && !user) nav("/login");
+    else if (!loading && user) {
+        if (user.role === "agent" && !user.agent_approved) nav("/onboarding/agent");
+        else if (user.role !== "admin" && user.onboarding_status !== "completed") nav(`/onboarding/${user.role}`);
+    }
   }, [user, loading, nav]);
 
   if (loading || !user) {
@@ -532,12 +539,24 @@ const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
 ];
 
 function InfluencerPanel() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const [apps, setApps] = useState([]);
   const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
+  const [syncing, setSyncing] = useState(false);
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await api.post("/oauth/sync");
+      await refresh();
+    } catch (e) {
+      console.error(e);
+    }
+    setSyncing(false);
+  };
 
   useEffect(() => {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
@@ -607,6 +626,16 @@ function InfluencerPanel() {
             {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
       {activeTab === "campaigns-feed" && (
         <div className="space-y-8">
+        <SocialAnalyticsCards 
+          connections={user?.oauth_connections || []} 
+          onSync={handleSync} 
+          isSyncing={syncing} 
+        />
+        
+        <SocialConnect 
+          connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)} 
+        />
+
           {/* Niche Filter Pills & Grid View Controls */}
           <div className="flex flex-wrap items-center justify-end gap-4">
             <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">

@@ -38,6 +38,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/legal/:doc" element={<Legal />} />
+            <Route path="/privacy-policy" element={<Navigate to="/legal/privacy" replace />} />
             <Route path="/register" element={<RegisterSplash />} />
             <Route path="/register/:role" element={<Register />} />
             <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
