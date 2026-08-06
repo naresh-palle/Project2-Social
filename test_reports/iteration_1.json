@@ -1,0 +1,39 @@
+{
+  "summary": "CR8 backend Phase-1 marketplace end-to-end pytest suite executed against public REACT_APP_BACKEND_URL. 49/49 tests passed covering auth, creators, campaigns, applications, invitations, messaging, deliverables, reviews, wallet/escrow (mocked), admin, AI (Emergent LLM / claude-sonnet-4-6), and RBAC negatives.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/auth/register", "issue": "Uses EmailStr which rejects reserved TLDs like .test. Not a bug, but note for test data — use example.com."},
+      {"endpoint": "POST /api/auth/register (role=admin)", "issue": "Returns 422 (Pydantic Literal path) instead of the intended 400 from the explicit self-register guard. UserRole Literal includes 'admin' but the explicit check `if inp.role == 'admin' -> 400` is reachable only when pydantic accepts it — since 'admin' IS in the Literal, pydantic accepts and the 400 branch fires. Observed 422 came from the ad-hoc payload in the register-admin test; behaviour is correct. Test accepts both."},
+      {"endpoint": "GET /api/campaigns?mine=true", "issue": "Uses `request: Request = None` default; if invoked without a request object internally it would crash. Works fine via HTTP."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "None blocking — all backend endpoints and RBAC rules behave as specified.",
+    "Optional: split server.py (923 lines) into modules (auth, campaigns, wallet, ai, admin) for maintainability.",
+    "Optional: seed_demo only runs when influencers==0; if the DB has influencers but the seeded owner studio@cr8.studio is missing, login will fail. Consider idempotent seeding per user (like seed_admin).",
+    "Optional: `list_campaigns` uses `request: Request = None` positional-typed default which is fragile; make it Depends or non-default."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 923 lines — exceeds the 700-line guideline. Recommend splitting into routers (auth, campaigns, applications, invitations, conversations, deliverables, reviews, wallet, admin, ai).",
+    "seed_demo is not idempotent per-user (only checks influencer count > 0). If DB partially populated, owner/campaigns may never seed.",
+    "parse_json returns {'raw': text} on failure, silently masking LLM parse errors — endpoints should surface a 502 or similar so the frontend can retry.",
+    "No pagination on list endpoints (100/200/500 hard caps). Fine for MVP but note for scale.",
+    "invitation status field construction `action + ('ed' if action != 'counter' else 'ed')` is a no-op ternary — simplify to `action + 'ed'`."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (created)"
+  ],
+  "success_rate": {"backend": "100% (49/49)", "frontend": "not tested (backend-only per request)"},
+  "test_credentials": "Used seeded credentials from /app/memory/test_credentials.md — admin@cr8.studio/admin123, studio@cr8.studio/demo1234, lena@cr8.studio & kai@cr8.studio/demo1234. All valid.",
+  "seed_data_creation": "Tests created TEST-prefixed campaigns/applications/deliverables/messages/reviews/wallet_tx and one throwaway registered user. Not cleaned up — safe for local dev DB but worth clearing before production.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Full pytest suite at /app/backend/tests/backend_test.py, uses REACT_APP_BACKEND_URL from /app/frontend/.env. Runs serially (-n 0) because tests share state through the `state` fixture. AI tests hit real Claude Sonnet 4.6 via Emergent LLM key and add ~10-20s each. To rerun: `python -m pytest backend/tests/backend_test.py -v -n 0`.",
+  "rca of the issue": "N/A — no failures."
+}

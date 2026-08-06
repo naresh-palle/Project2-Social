@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+motor
+passlib[bcrypt]
+PyJWT
+pydantic[email]
+python-multipart
+python-dotenv
+httpx
+aiofiles
+bcrypt
+aiosmtplib
+google-generativeai
+google-auth
+pyotp
+Pillow
