@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -221,7 +221,7 @@ export default function Wallet() {
           </table>
         </div>
       </div>
-      <Footer />
+
     </div>
   );
 }

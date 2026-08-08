@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import {
@@ -150,16 +150,26 @@ export default function ProfileView() {
         </div>
 
         <div className="mt-4 relative">
-          {profile.cover_photo && (
-            <div className="w-full h-28 md:h-36 overflow-hidden border border-white/10">
+          <div className="w-full h-28 md:h-36 overflow-hidden border border-white/10">
+            {profile.cover_photo ? (
               <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
-            </div>
-          )}
+            ) : (
+              <div
+                className="w-full h-full"
+                style={{
+                  background: "linear-gradient(135deg, #0B0B0E 0%, #1a0a0a 30%, #2d0505 55%, #1a0505 75%, #0B0B0E 100%)",
+                  borderBottom: "1px solid rgba(255,59,48,0.15)",
+                }}
+              >
+                <div className="w-full h-full flex items-center justify-center opacity-10">
+                  <span className="font-editorial italic text-6xl md:text-8xl font-bold text-[#FF3B30] select-none">CR8</span>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div
-            className={`flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between border-b border-white/10 pb-5 ${
-              profile.cover_photo ? "-mt-10 md:-mt-12 relative z-[1] px-1" : "mt-4"
-            }`}
+            className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between border-b border-white/10 pb-5 -mt-10 md:-mt-12 relative z-[1] px-1"
           >
             <div className="flex gap-3 items-end min-w-0">
               {profile.avatar ? (
@@ -169,8 +179,11 @@ export default function ProfileView() {
                   className="w-20 h-20 md:w-24 md:h-24 object-cover border-2 border-[#0B0B0E] shadow-xl shrink-0 bg-[#0B0B0E]"
                 />
               ) : (
-                <div className="w-20 h-20 md:w-24 md:h-24 border-2 border-[#0B0B0E] bg-white/5 flex items-center justify-center shrink-0 shadow-xl">
-                  <span className="font-sans text-2xl font-bold text-white/50">
+                <div
+                  className="w-20 h-20 md:w-24 md:h-24 border-2 border-[#0B0B0E] flex items-center justify-center shrink-0 shadow-xl"
+                  style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                >
+                  <span className="font-sans text-2xl font-bold text-white">
                     {(displayName || "?")[0]?.toUpperCase()}
                   </span>
                 </div>
@@ -484,7 +497,7 @@ export default function ProfileView() {
           </div>
         </div>
       </div>
-      <Footer />
+
     </div>
   );
 }

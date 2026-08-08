@@ -87,9 +87,19 @@ export function Nav({ variant = "dark" }) {
                 <button
                   onClick={() => setOpen(v => !v)}
                   data-testid="nav-user-menu"
-                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
+                  className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
                 >
-                  <span className="font-bold text-white tracking-wider">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20" />
+                  ) : (
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-white border border-white/20"
+                      style={{ backgroundColor: `hsl(${((displayAccountName(user) || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                    >
+                      {(displayAccountName(user) || "C")[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <span className="font-bold text-white tracking-wider hidden sm:inline">
                     {displayAccountName(user)}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
@@ -108,11 +118,23 @@ export function Nav({ variant = "dark" }) {
                         transition={{ duration: 0.15 }}
                         className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-2xl rounded-sm overflow-hidden"
                       >
-                        <div className="p-4 hairline-b bg-white/[0.03]">
-                          <div className="font-sans text-base font-semibold truncate">
-                            {displayAccountName(user)}
+                        <div className="p-4 hairline-b bg-white/[0.03] flex items-center gap-3">
+                          {user?.avatar ? (
+                            <img src={user.avatar} alt="" className="w-9 h-9 rounded-full object-cover shrink-0 border border-white/20" />
+                          ) : (
+                            <div
+                              className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-base text-white border border-white/20"
+                              style={{ backgroundColor: `hsl(${((displayAccountName(user) || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                            >
+                              {(displayAccountName(user) || "C")[0]?.toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-sans text-base font-semibold truncate">
+                              {displayAccountName(user)}
+                            </div>
+                            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
                           </div>
-                          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
                         </div>
                         <div className="p-2">
                           {items.map(it => (

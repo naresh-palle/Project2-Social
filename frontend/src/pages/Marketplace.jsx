@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowLeft, Play } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
@@ -295,7 +295,7 @@ export default function Marketplace() {
           </div>
         )}
       </div>
-      <Footer />
+
     </div>
   );
 }

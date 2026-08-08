@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, X, Send } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
@@ -201,7 +201,7 @@ export default function Invitations() {
           </div>
         )}
       </div>
-      <Footer />
+
     </div>
   );
 }

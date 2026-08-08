@@ -7,7 +7,7 @@ import {
   MoreHorizontal, ArrowLeft
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
@@ -343,7 +343,7 @@ export default function Feed() {
           onDeleteComment={deleteComment}
         />
       )}
-      <Footer />
+
     </div>
   );
 }

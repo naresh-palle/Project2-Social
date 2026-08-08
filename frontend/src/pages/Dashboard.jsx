@@ -10,7 +10,7 @@ import {
   ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
@@ -156,7 +156,7 @@ export default function Dashboard() {
             <InfluencerPanel />
           )}
         </div>
-        <Footer />
+
       </div>
     </div>
     </ErrorBoundary>

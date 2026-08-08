@@ -5,7 +5,7 @@ import { ArrowLeft, MessageSquare, Instagram, Youtube, Twitter, Facebook, ArrowU
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -311,7 +311,7 @@ export default function CreatorDetail() {
 
           </div>
       </div>
-      <Footer />
+
     </div>
   );
 }

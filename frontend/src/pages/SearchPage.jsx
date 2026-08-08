@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { api } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
@@ -189,7 +189,7 @@ export default function SearchPage() {
           </div>
         )}
       </div>
-      <Footer />
+
     </div>
   );
 }

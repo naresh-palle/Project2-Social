@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { api, formatApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -455,7 +455,7 @@ export default function CampaignDetail() {
           </div>
         </div>
       </div>
-      <Footer />
+
     </div>
   );
 }

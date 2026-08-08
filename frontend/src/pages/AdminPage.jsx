@@ -1,5 +1,5 @@
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { AdminPanel } from "./AdminPanel";
 
 export default function AdminPage() {
@@ -10,7 +10,7 @@ export default function AdminPage() {
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-20">
         <AdminPanel />
       </div>
-      <Footer />
+
     </div>
   );
 }

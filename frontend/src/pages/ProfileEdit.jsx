@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop, Pencil } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError, firstErrorField } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
@@ -1215,7 +1215,7 @@ export default function ProfileEdit() {
           </div>
         </motion.form>
       </div>
-      <Footer />
+
       {cropState && (
         <ImageCropModal
           imageSrc={cropState.src}

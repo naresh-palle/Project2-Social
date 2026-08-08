@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
@@ -130,17 +130,31 @@ export default function PublicProfile() {
       <Nav />
       <ThemeToaster />
       <div className="pt-24 flex-1">
-        {profile.cover_photo && (
-          <div className="h-48 md:h-64 w-full overflow-hidden">
-            <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
+        <div className="h-48 md:h-64 w-full overflow-hidden">
+            {profile.cover_photo ? (
+              <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div
+                className="w-full h-full"
+                style={{
+                  background: "linear-gradient(135deg, #0B0B0E 0%, #1a0a0a 30%, #2d0505 55%, #1a0505 75%, #0B0B0E 100%)",
+                }}
+              >
+                <div className="w-full h-full flex items-center justify-center opacity-10">
+                  <span className="font-editorial italic text-8xl md:text-9xl font-bold text-[#FF3B30] select-none">CR8</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
         <div className="max-w-3xl mx-auto px-6 md:px-10 pb-24 -mt-16 relative">
           <div className="flex items-end gap-6">
             {profile.avatar ? (
               <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E]" />
             ) : (
-              <div className="w-28 h-28 rounded-full bg-white/10 border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold">
+              <div
+                className="w-28 h-28 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
+                style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+              >
                 {(displayName || "?")[0]?.toUpperCase()}
               </div>
             )}
@@ -215,7 +229,7 @@ export default function PublicProfile() {
         </div>
       )}
 
-      <Footer />
+
       <style>{`.btn-action { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; cursor: pointer; }`}</style>
     </div>
   );
