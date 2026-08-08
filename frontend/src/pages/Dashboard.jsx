@@ -616,7 +616,7 @@ function InfluencerPanel() {
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-3">
       {/* Influencer Analytics Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="creator-analytics">
         {tiles.map((t, i) => (
@@ -625,157 +625,140 @@ function InfluencerPanel() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            className={`p-2.5 md:p-3 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-xl md:text-2xl leading-tight mt-2 text-white tracking-tight">{t.v}</div>
-            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
+            <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
           </motion.div>
         ))}
       </div>
 
+      {/* Platform Analytics & Social Connect — always visible above tabs */}
+      <SocialAnalyticsCards
+        connections={user?.oauth_connections || []}
+        onSync={handleSync}
+        isSyncing={syncing}
+      />
+      <SocialConnect
+        connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
+      />
+
       {/* Primary Navigation Tabs for Influencers */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-6 font-sans text-[11px] tracking-[0.28em] uppercase flex-wrap">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+        <div className="flex gap-4 font-sans text-[11px] tracking-[0.22em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("campaigns-feed")}
-            className={`kinetic-underline py-2 flex items-center gap-2 ${
+            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
               activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
+            <Zap className="w-3.5 h-3.5 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
           </button>
           <button
             onClick={() => setActiveTab("my-pitches")}
-            className={`kinetic-underline py-2 flex items-center gap-2 ${
+            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
               activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({safeApps.length})
+            <FileText className="w-3.5 h-3.5" /> My Pitches & Applications ({safeApps.length})
           </button>
         </div>
-      </div>
-
-            {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Influencers) */}
-      {activeTab === "campaigns-feed" && (
-        <div className="space-y-8">
-        <SocialAnalyticsCards 
-          connections={user?.oauth_connections || []} 
-          onSync={handleSync} 
-          isSyncing={syncing} 
-        />
-        
-        <SocialConnect 
-          connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)} 
-        />
-
-          {/* Niche Filter Pills & Grid View Controls */}
-          <div className="flex flex-wrap items-center justify-end gap-4">
-            <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
-              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
-              </span>
-              <div className="w-[13.5rem] max-w-full">
-                <MultiSelectDropdown
-                  options={PLATFORM_CATEGORIES}
-                  selected={selectedNiches}
-                  onChange={setSelectedNiches}
-                  placeholder="All"
-                  allowAll
-                  compact
-                  noUnderline
-                />
-              </div>
+        {activeTab === "campaigns-feed" && (
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
+              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
+            </span>
+            <div className="w-[13rem] max-w-full">
+              <MultiSelectDropdown
+                options={PLATFORM_CATEGORIES}
+                selected={selectedNiches}
+                onChange={setSelectedNiches}
+                placeholder="All"
+                allowAll
+                compact
+                noUnderline
+              />
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Campaign Brief Grid */}
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredCampaigns.map((c, idx) => (
-              <motion.div
-                key={c.id || idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
-                className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm shadow-2xl relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
-              >
+      {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY */}
+      {activeTab === "campaigns-feed" && (
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredCampaigns.map((c, idx) => (
+            <motion.div
+              key={c.id || idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-sans text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
+                  </span>
+                  <span className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
+                    <Lock className="w-3 h-3" /> Escrow
+                  </span>
+                </div>
+                <p className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-60 mb-0.5">{c.brand}</p>
+                <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
+                  {c.title}
+                </h3>
+                <p className="font-sans text-xs opacity-70 mt-2 leading-relaxed line-clamp-2">
+                  {c.description}
+                </p>
+                <div className="mt-2 pt-2 border-t border-white/10 space-y-1 font-sans text-[10px] opacity-75">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3 h-3 text-[#FF3B30] shrink-0" />
+                    <span className="truncate">{c.deliverables || "2x Reels + 4x Stories"}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
                 <div>
-                  {/* Top Badges */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-sans text-[10px] tracking-[0.22em] uppercase px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
-                    </span>
-                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
-                      <Lock className="w-3 h-3" /> Escrow Locked
-                    </span>
-                  </div>
-
-                  {/* Brand & Title */}
-                  <p className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
-                  <h3 className="font-sans text-base font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
-                    {c.title}
-                  </h3>
-                  <p className="font-sans text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
-                    {c.description}
-                  </p>
-
-                  {/* Deliverables Info */}
-                  <div className="mt-4 pt-4 border-t border-white/10 space-y-2 font-sans text-[11px] opacity-80">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#FF3B30]" />
-                      <span>Deliverables: {c.deliverables || "2x Reels + 4x Stories"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[#34C759]">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>AI Compliance Audit: Automated Caption &amp; Logo Check</span>
-                    </div>
-                  </div>
+                  <span className="font-sans text-[8px] tracking-[0.18em] uppercase opacity-50 block">Budget</span>
+                  <span className="font-sans text-base text-white font-bold">
+                    ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
+                  </span>
                 </div>
-
-                {/* Bottom Budget & Pitch CTA */}
-                <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
-                  <div>
-                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
-                    <span className="font-sans italic text-xl text-white font-bold">
-                       ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
-                    </span>
-                  </div>
-
-                  <Link
-                    to={`/campaigns/${c.id}`}
-                    className="btn-solid py-2.5 px-5 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2 shadow-lg"
-                  >
-                    Pitch Brief <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                <Link
+                  to={`/campaigns/${c.id}`}
+                  className="btn-solid py-1.5 px-3 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1"
+                >
+                  Pitch <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </motion.div>
+          ))}
         </div>
       )}
 
       {/* VIEW 2: MY PITCHES & APPLICATION TRACKER */}
       {activeTab === "my-pitches" && (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {safeApps.length === 0 ? (
             <Empty label="No pitches submitted yet. Pitch live briefs above." />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {safeApps.map((a) => (
-                <div key={a.id} className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                   <div>
-                    <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
-                    <h4 className="font-sans text-2xl font-bold">{a.campaign_title || "Campaign Brief"}</h4>
-                    <p className="font-sans text-xs opacity-60 mt-1">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
+                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
+                    <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
+                    <p className="font-sans text-xs opacity-60 mt-0.5">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`font-sans text-[11px] tracking-[0.2em] uppercase px-3 py-1 border rounded-xs font-bold ${
+                  <div className="flex items-center gap-3">
+                    <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
                       a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]" : "bg-white/5 border-white/20 text-white/70"
                     }`}>
-                      Status: {a.status}
+                      {a.status}
                     </span>
-                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-2 px-4 text-xs bg-white/10 hover:bg-[#FF3B30] text-white">
-                      View Details ↗
+                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-white/10 hover:bg-[#FF3B30] text-white">
+                      View ↗
                     </Link>
                   </div>
                 </div>
@@ -811,37 +794,37 @@ function AgentPanel() {
   const isInfluencerAgent = user?.agent_type === "influencer_agent";
 
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console
           </span>
-          <h2 className="font-sans text-xl md:text-2xl mt-1">
+          <h2 className="font-sans text-base font-bold mt-0.5">
             {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
       </div>
 
       {isInfluencerAgent ? (
-        <div className="space-y-8">
-          <h3 className="font-sans text-2xl">Scouted Influencer Roster ({creators.length})</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-3">
+          <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creators.length})</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {creators.map((c) => (
-              <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 border border-white/15">
-                <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4">
-                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover  transition duration-500" />
+              <Link key={c.id} to={`/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-sm">
+                <div className="h-24 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
+                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
                 </div>
-                <h4 className="font-sans text-2xl">{c.name}</h4>
-                <p className="text-xs font-sans uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
+                <h4 className="font-sans text-xs font-semibold truncate">{c.name}</h4>
+                <p className="text-[9px] font-sans uppercase opacity-70 text-[#FF3B30] mt-0.5 truncate">{c.niches?.join(", ")}</p>
               </Link>
             ))}
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
-          <h3 className="font-sans text-2xl">Client Campaigns ({campaigns.length})</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-3">
+          <h3 className="font-sans text-sm font-semibold opacity-70">Client Campaigns ({campaigns.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {campaigns.map((c) => (
               <CampaignRow key={c.id} c={c} />
             ))}
