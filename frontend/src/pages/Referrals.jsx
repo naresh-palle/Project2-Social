@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 import { Copy, Share2, Check, Send, Users, Sparkles } from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";

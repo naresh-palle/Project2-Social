@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Coins, IndianRupee, Medal, Star } from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";
