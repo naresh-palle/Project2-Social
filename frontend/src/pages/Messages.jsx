@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar } from "lucide-react";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
