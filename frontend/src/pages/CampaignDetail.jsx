@@ -470,8 +470,10 @@ export default function CampaignDetail() {
             )}
 
             {c.cover && (
-              <div className="aspect-[4/5] overflow-hidden">
-                <img src={c.cover} alt={c.title} className="h-full w-full object-cover" />
+              <div className="w-full rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] p-2 mt-8">
+                <div className="aspect-square overflow-hidden rounded-xl bg-[#0B0B0E]">
+                  <img src={c.cover} alt={c.title} className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
+                </div>
               </div>
             )}
           </div>
