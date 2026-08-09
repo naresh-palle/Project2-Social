@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, Bot, Sparkles, User, ExternalLink } from "lucide-react";
+import { Send, Bot, Sparkles, User, ExternalLink, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function HelpChat() {
@@ -41,8 +41,10 @@ export default function HelpChat() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-32 pb-8 px-6 flex flex-col">
       <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col h-[calc(100vh-140px)]">
-        
         {/* Header */}
+        <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
+          <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

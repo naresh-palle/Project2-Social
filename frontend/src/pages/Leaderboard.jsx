@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Coins, IndianRupee, Medal, Star } from "lucide-react";
+import { Trophy, Coins, IndianRupee, Medal, Star, ChevronLeft } from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";
+import { Link } from "react-router-dom";
 import { Nav } from "@/components/Nav";
 import { toast } from "sonner";
 
@@ -49,7 +50,11 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <Nav />
       <ThemeToaster />
-      <div className="pt-24 max-w-[1000px] mx-auto px-4 pb-12">
+      <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
+        {/* Header */}
+        <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
+          <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
         <header className="mb-12 text-center">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}

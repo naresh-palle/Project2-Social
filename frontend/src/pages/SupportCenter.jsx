@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Plus, ChevronDown, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 
 const FAQ_DATA = [
@@ -58,8 +59,11 @@ export default function SupportCenter() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4"
+          className="text-center space-y-4 relative"
         >
+          <Link to="/dashboard" className="absolute left-0 top-2 flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+            <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
           <h1 className="font-editorial text-5xl md:text-7xl font-bold tracking-tight">Help & Support</h1>
           <p className="font-sans text-white/60 max-w-2xl mx-auto text-lg">
             We're here to help you navigate CR8 Studio. Find answers below or raise a ticket.

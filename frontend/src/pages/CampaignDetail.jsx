@@ -191,13 +191,13 @@ export default function CampaignDetail() {
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
               className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {brief.brand}</motion.p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-snug mt-2">{brief.title}</h1>
-            <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
               <Meta label="Budget" value={`₹${brief.budget}`} accent />
               <Meta label="Niches" value={(brief.niches || []).join(" · ") || "—"} />
               <Meta label="Platforms" value={(brief.platforms || []).join(" · ") || "—"} />
               <Meta label="Escrow" value={brief.escrow_funded ? `₹${brief.escrow_funded} held` : "not funded"} />
             </div>
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
               <Meta label="Location" value={brief.location} />
               <Meta label="Type of influencers" value={brief.influencer_type} />
               <Meta label="Influencer reach" value={brief.min_reach} />
@@ -436,15 +436,9 @@ export default function CampaignDetail() {
           </div>
 
           <div className="col-span-12 md:col-span-5">
-            {c.cover && (
-              <div className="aspect-[4/5] overflow-hidden">
-                <img src={c.cover} alt={c.title} className="h-full w-full object-cover" />
-              </div>
-            )}
-
             {/* Application (creator) */}
             {!isOwner && (
-              <div className="mt-8 hairline-t hairline-b hairline-l hairline-r p-6">
+              <div className="mb-8 hairline-t hairline-b hairline-l hairline-r p-6 bg-white/[0.02]">
                 <h3 className="font-editorial text-3xl italic">Pitch this brief.</h3>
                 {!user ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">
@@ -460,18 +454,24 @@ export default function CampaignDetail() {
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your pitch</label>
                       <textarea required data-testid="apply-pitch" value={pitch} onChange={(e) => setPitch(e.target.value)}
                         rows={5}
-                        className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+                        className="mt-2 w-full bg-[#0B0B0E] border border-white/10 p-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
                     </div>
                     <div>
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your rate (INR ₹)</label>
                       <input required data-testid="apply-rate" type="number" value={rate} onChange={(e) => setRate(e.target.value)}
-                        className="mt-2 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] text-lg" />
+                        className="mt-2 w-full bg-[#0B0B0E] border border-white/10 p-3 focus:outline-none focus:border-[#FF3B30] text-lg" />
                     </div>
                     <button data-testid="apply-submit" className="btn-solid w-full justify-center">
                       Deliver pitch <ArrowRight className="w-4 h-4" />
                     </button>
                   </form>
                 )}
+              </div>
+            )}
+
+            {c.cover && (
+              <div className="aspect-[4/5] overflow-hidden">
+                <img src={c.cover} alt={c.title} className="h-full w-full object-cover" />
               </div>
             )}
           </div>
@@ -508,9 +508,11 @@ export default function CampaignDetail() {
 
 function Meta({ label, value, accent }) {
   return (
-    <div>
-      <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{label}</div>
-      <div className={`font-sans mt-1 ${accent ? "text-xl font-semibold text-[#FF3B30]" : "text-sm md:text-base font-medium"}`}>{value}</div>
+    <div className="flex flex-col">
+      <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 mb-2">{label}</div>
+      <div className={`font-sans uppercase tracking-[0.05em] leading-snug ${accent ? "text-xl font-bold text-[#FF3B30]" : "text-sm font-semibold text-white/90"}`}>
+        {value}
+      </div>
     </div>
   );
 }
