@@ -368,6 +368,7 @@ export default function Messages({ miniWidget = false }) {
                       {active.campaign_title ? ` · ${active.campaign_title}` : ""}
                     </div>
                   </div>
+                  </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button type="button" onClick={pinConvo} title="Pin" className="p-1.5 opacity-60 hover:opacity-100">
                       <Pin className="w-3.5 h-3.5" />
