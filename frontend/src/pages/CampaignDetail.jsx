@@ -173,7 +173,7 @@ export default function CampaignDetail() {
   const fromMessages = searchParams.get("from") === "messages" || location.state?.from === "/messages";
   const convoId = searchParams.get("convoId") || location.state?.convoId;
   const backTarget = fromMessages ? (convoId ? `/messages?id=${convoId}` : "/messages") : "/marketplace";
-  const backLabel = fromMessages ? "← Back to Messages" : "← Back to file";
+  const backLabel = fromMessages ? "Back to Messages" : "Back";
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">

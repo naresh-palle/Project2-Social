@@ -73,7 +73,7 @@ export default function Referrals() {
       <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
         {/* Header */}
         <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
-          <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+          <ChevronLeft className="w-4 h-4" /> Back
         </Link>
         <header className="mb-12 text-center">
           <motion.h1 

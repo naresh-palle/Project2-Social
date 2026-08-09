@@ -62,7 +62,7 @@ export default function SupportCenter() {
           className="text-center space-y-4 relative"
         >
           <Link to="/dashboard" className="absolute left-0 top-2 flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
-            <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+            <ChevronLeft className="w-4 h-4" /> Back
           </Link>
           <h1 className="font-editorial text-5xl md:text-7xl font-bold tracking-tight">Help & Support</h1>
           <p className="font-sans text-white/60 max-w-2xl mx-auto text-lg">

@@ -43,7 +43,7 @@ export default function HelpChat() {
       <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col h-[calc(100vh-140px)]">
         {/* Header */}
         <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
-          <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+          <ChevronLeft className="w-4 h-4" /> Back
         </Link>
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
