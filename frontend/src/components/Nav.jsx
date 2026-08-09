@@ -178,23 +178,6 @@ export function Nav({ variant = "dark" }) {
       </div>
     </motion.header>
 
-      {/* Floating Chat Button (Bottom Right) */}
-      {user && location.pathname !== "/messages" && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="fixed bottom-6 right-6 z-50"
-        >
-          <Link
-            to="/messages"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-[#FF3B30] text-white shadow-[0_8px_30px_rgb(255,59,48,0.3)] hover:shadow-[0_8px_40px_rgb(255,59,48,0.5)] hover:-translate-y-1 transition-all duration-300"
-            title="Messages"
-          >
-            <MessageSquare className="w-6 h-6" />
-          </Link>
-        </motion.div>
-      )}
     </>
   );
 }
