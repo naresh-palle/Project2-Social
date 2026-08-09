@@ -47,7 +47,7 @@ function upsertMsg(prev, msg) {
   return [...prev, msg];
 }
 
-export default function Messages() {
+export default function Messages({ miniWidget = false }) {
   const { user } = useAuth();
   const [sp] = useSearchParams();
   const [convos, setConvos] = useState([]);
@@ -273,34 +273,39 @@ export default function Messages() {
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <ThemeToaster />
-      <Nav />
-      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-6 pb-8">
-        <div className="pb-4 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Messages</h1>
-            <p className="font-sans text-xs opacity-50 mt-0.5">Inbox</p>
+  return (
+    <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
+      {!miniWidget && <ThemeToaster />}
+      {!miniWidget && <Nav />}
+      <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-6xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
+        {!miniWidget && (
+          <div className="pb-4 flex items-center justify-between gap-3 shrink-0">
+            <div>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Messages</h1>
+              <p className="font-sans text-xs opacity-50 mt-0.5">Inbox</p>
+            </div>
+            <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
+              ← Dashboard
+            </Link>
           </div>
-          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
-            ← Dashboard
-          </Link>
-        </div>
+        )}
 
-        <div className="mb-3 flex gap-2 max-w-sm">
-          <input
-            value={searchQ}
-            onChange={(e) => setSearchQ(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && searchMessages()}
-            placeholder="Search messages…"
-            className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
-          />
-          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
-            <Search className="w-4 h-4" />
-          </button>
-        </div>
-        {searchResults.length > 0 && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] max-w-sm rounded-sm space-y-1.5">
+        {!miniWidget && (
+          <div className="mb-3 flex gap-2 max-w-sm shrink-0">
+            <input
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && searchMessages()}
+              placeholder="Search messages…"
+              className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
+            />
+            <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        {!miniWidget && searchResults.length > 0 && (
+          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] max-w-sm rounded-sm space-y-1.5 shrink-0">
             {searchResults.map((m) => (
               <div key={m.id} className="font-sans text-xs opacity-80 truncate">{m.content}</div>
             ))}
@@ -310,8 +315,8 @@ export default function Messages() {
           </div>
         )}
 
-        <div className="grid grid-cols-12 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]">
-          <aside className="col-span-12 md:col-span-4 lg:col-span-3 border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto max-h-[40vh] md:max-h-none">
+        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "grid grid-cols-12 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
+          <aside className={miniWidget ? (active ? "hidden" : "flex-1 overflow-y-auto") : "col-span-12 md:col-span-4 lg:col-span-3 border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto max-h-[40vh] md:max-h-none"}>
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
@@ -346,10 +351,14 @@ export default function Messages() {
             )}
           </aside>
 
-          <section className="col-span-12 md:col-span-8 lg:col-span-9 flex flex-col min-h-0">
+          <section className={miniWidget ? (!active ? "hidden" : "flex-1 flex flex-col min-h-0 bg-[#0B0B0E]") : "col-span-12 md:col-span-8 lg:col-span-9 flex flex-col min-h-0"}>
             {active ? (
-              <>
-                <div className="px-3 py-2.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
+              <div className="flex flex-col h-full relative">
+                <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <button onClick={() => setActive(null)} className={`${miniWidget ? "block" : "md:hidden"} p-2 -ml-2 opacity-60 hover:opacity-100`}>
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
                   <div className="min-w-0">
                     <div className="font-sans text-sm font-semibold truncate flex items-center gap-2">
                       {displayPartnerName(active)}

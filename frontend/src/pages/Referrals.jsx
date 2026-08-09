@@ -70,46 +70,46 @@ export default function Referrals() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       <Nav />
       <ThemeToaster />
-      <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
+      <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
         <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
           <ChevronLeft className="w-4 h-4" /> Back
         </Link>
-        <header className="mb-12 text-center">
+        <header className="mb-8 text-center">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-editorial text-5xl md:text-6xl text-white mb-4"
+            className="font-editorial text-4xl md:text-5xl text-white mb-3"
           >
             Refer & Earn
           </motion.h1>
-          <p className="font-sans text-white/60 max-w-lg mx-auto">
+          <p className="font-sans text-white/60 text-sm max-w-lg mx-auto">
             Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Main Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 bg-gradient-to-br from-white/10 to-transparent border border-white/10 rounded-2xl p-8 relative overflow-hidden"
+            className="lg:col-span-2 bg-gradient-to-br from-white/10 to-transparent border border-white/10 rounded-2xl p-6 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[#FF3B30]/20 blur-[100px] rounded-full pointer-events-none" />
             
-            <h2 className="font-mono text-sm tracking-widest uppercase text-white/60 mb-6">Your Referral Code</h2>
+            <h2 className="font-mono text-xs tracking-widest uppercase text-white/60 mb-4">Your Referral Code</h2>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
-              <div className="bg-black/50 border border-white/20 px-8 py-4 rounded-xl flex-1 text-center sm:text-left">
-                <span className="font-mono text-3xl md:text-4xl tracking-wider text-white">
+            <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+              <div className="bg-black/50 border border-white/20 px-6 py-3 rounded-xl flex-1 text-center sm:text-left">
+                <span className="font-mono text-2xl md:text-3xl tracking-wider text-white">
                   {loading ? "..." : refData?.code || "CR8-CODE"}
                 </span>
               </div>
               <button 
                 onClick={handleCopy}
-                className="w-full sm:w-auto px-8 py-4 bg-[#FF3B30] hover:bg-[#FF3B30]/90 text-white rounded-xl font-mono text-sm tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 bg-[#FF3B30] hover:bg-[#FF3B30]/90 text-white rounded-xl font-mono text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
               >
-                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? "Copied" : "Copy"}
               </button>
             </div>
@@ -149,25 +149,25 @@ export default function Referrals() {
             transition={{ delay: 0.1 }}
             className="space-y-4"
           >
-            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center justify-between">
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between">
               <div>
-                <div className="font-mono text-xs tracking-widest uppercase text-white/50 mb-1">Total Referrals</div>
-                <div className="font-sans text-3xl font-bold">{status?.summary?.total || 0}</div>
+                <div className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-1">Total Referrals</div>
+                <div className="font-sans text-2xl font-bold">{status?.summary?.total || 0}</div>
               </div>
-              <Users className="w-8 h-8 text-white/20" />
+              <Users className="w-6 h-6 text-white/20" />
             </div>
             
-            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-center justify-between">
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between">
               <div>
-                <div className="font-mono text-xs tracking-widest uppercase text-white/50 mb-1">Potential Earnings</div>
-                <div className="font-sans text-3xl font-bold text-[#FF3B30]">
+                <div className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-1">Potential Earnings</div>
+                <div className="font-sans text-2xl font-bold text-[#FF3B30]">
                   ₹{status?.summary?.potential_reward?.toLocaleString() || 0}
                 </div>
               </div>
-              <Sparkles className="w-8 h-8 text-[#FF3B30]/20" />
+              <Sparkles className="w-6 h-6 text-[#FF3B30]/20" />
             </div>
 
-            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-2">
               <div className="flex justify-between mb-2">
                 <span className="font-mono text-xs tracking-widest uppercase text-white/50">Qualified</span>
                 <span className="font-mono text-xs text-white">{status?.summary?.qualified || 0}</span>
@@ -184,11 +184,11 @@ export default function Referrals() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-12 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6"
+            className="mb-8 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4"
           >
             <div>
-              <h3 className="font-editorial text-2xl mb-2">Were you referred by a friend?</h3>
-              <p className="font-sans text-white/70 text-sm">Enter their code below to claim your sign-up bonus.</p>
+              <h3 className="font-editorial text-xl mb-1">Were you referred by a friend?</h3>
+              <p className="font-sans text-white/70 text-xs">Enter their code below to claim your sign-up bonus.</p>
             </div>
             <div className="flex w-full md:w-auto gap-2">
               <input 
@@ -196,12 +196,12 @@ export default function Referrals() {
                 placeholder="Enter Code"
                 value={applyCode}
                 onChange={e => setApplyCode(e.target.value)}
-                className="bg-black/50 border border-white/20 rounded-xl px-4 py-3 font-mono text-sm uppercase flex-1 md:w-48 focus:outline-none focus:border-[#FF3B30]"
+                className="bg-black/50 border border-white/20 rounded-xl px-4 py-2 font-mono text-xs uppercase flex-1 md:w-40 focus:outline-none focus:border-[#FF3B30]"
               />
               <button
                 onClick={handleApply}
                 disabled={applying || !applyCode.trim()}
-                className="px-6 py-3 bg-[#FF3B30] disabled:opacity-50 text-white rounded-xl font-mono text-sm tracking-widest uppercase transition-colors"
+                className="px-5 py-2 bg-[#FF3B30] disabled:opacity-50 text-white rounded-xl font-mono text-[10px] tracking-widest uppercase transition-colors"
               >
                 {applying ? "..." : "Apply"}
               </button>
@@ -209,8 +209,8 @@ export default function Referrals() {
           </motion.div>
         )}
 
-        <div className="mt-16">
-          <h3 className="font-editorial text-3xl mb-8">Referral History</h3>
+        <div className="mt-8">
+          <h3 className="font-editorial text-2xl mb-4">Referral History</h3>
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left font-sans text-sm">
