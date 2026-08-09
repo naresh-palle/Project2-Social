@@ -628,7 +628,7 @@ def setup_phase2(
     # ── referral code generator ───────────────────────────────────────────────
 
     def _gen_referral_code(user_id: str) -> str:
-        base = hashlib.md5(user_id.encode()).hexdigest()[:6].upper()
+        base = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         return f"CR8-{base}"
 
     # ═════════════════════════════════════════════════════════════════════════
