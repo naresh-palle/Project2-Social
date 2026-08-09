@@ -26,6 +26,10 @@ import { Navigate } from "react-router-dom";
 
 import Onboarding from "@/pages/Onboarding";
 import { RequireAuth } from "@/components/RequireAuth";
+import SupportCenter from "@/pages/SupportCenter";
+import HelpChat from "@/pages/HelpChat";
+import Leaderboard from "@/pages/Leaderboard";
+import Referrals from "@/pages/Referrals";
 
 function App() {
   return (
@@ -54,10 +58,14 @@ function App() {
             <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
 
             <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
+            <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
+            <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />
             <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
             <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
             <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
+            <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />
+            <Route path="/help" element={<RequireAuth><HelpChat /></RequireAuth>} />
           </Routes>
         </AuthProvider>
       </HashRouter>

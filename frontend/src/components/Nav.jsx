@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LifeBuoy, Bot } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 
@@ -39,6 +39,8 @@ export function Nav({ variant = "dark" }) {
     ? [
         { to: "/dashboard", label: "Dashboard" },
         { to: "/search", label: "Search" },
+        { to: "/leaderboard", label: "Leaderboard" },
+        { to: "/referrals", label: "Referrals" },
         { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
@@ -77,6 +79,8 @@ export function Nav({ variant = "dark" }) {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <Link to="/support" className="text-white/60 hover:text-white transition-colors flex items-center justify-center p-1.5" title="Support"><LifeBuoy className="w-5 h-5" /></Link>
+              <Link to="/help" className="text-white/60 hover:text-white transition-colors flex items-center justify-center p-1.5" title="AI Help"><Bot className="w-5 h-5" /></Link>
               <NotificationBell />
               <div 
                 ref={menuRef} 

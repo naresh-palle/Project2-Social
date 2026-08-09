@@ -359,6 +359,8 @@ export function AdminPanel() {
                     <button onClick={() => setTab("categories")} className={`pb-2 border-b-2 transition-colors ${tab === "categories" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Categories</button>
                     <button onClick={() => setTab("broadcast")} className={`pb-2 border-b-2 transition-colors ${tab === "broadcast" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Broadcast</button>
                     <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit Logs</button>
+                    <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match Config</button>
+                    <button onClick={() => setTab("referrals")} className={`pb-2 border-b-2 transition-colors ${tab === "referrals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Referrals</button>
                 </div>
             </div>
             
@@ -797,6 +799,16 @@ export function AdminPanel() {
                     </table>
                 </div>
             </motion.div>
+        )}
+
+        {/* TAB 7: MATCH ALGORITHM CONFIG */}
+        {tab === "algorithm" && (
+            <MatchAlgorithmConfig />
+        )}
+
+        {/* TAB 8: REFERRAL CONFIG */}
+        {tab === "referrals" && (
+            <ReferralConfig />
         )}
 
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
@@ -1434,6 +1446,58 @@ function BriefModerationDesk() {
           </div>
         ))}
       </div>
+    </motion.div>
+  );
+}
+
+function MatchAlgorithmConfig() {
+  const [config, setConfig] = useState(null);
+  useEffect(() => {
+    api.get("/admin/match-config").then(r => setConfig(r.data)).catch(() => {});
+  }, []);
+  const handleSave = () => {
+    api.put("/admin/match-config", config).then(() => toast.success("Config saved")).catch(() => toast.error("Failed to save config"));
+  };
+  if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl">
+       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Match Algorithm Configuration</h3>
+       <div className="space-y-4">
+         {Object.entries(config).map(([key, val]) => (
+           <div key={key} className="flex flex-col gap-1">
+             <label className="font-sans text-[10px] uppercase opacity-70">{key.replace(/_/g, " ")}</label>
+             <input type="number" step="0.1" value={val} onChange={e => setConfig({...config, [key]: parseFloat(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+           </div>
+         ))}
+       </div>
+       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#e03126]">Save Configuration</button>
+    </motion.div>
+  );
+}
+
+function ReferralConfig() {
+  const [config, setConfig] = useState(null);
+  useEffect(() => {
+    api.get("/admin/referral-config").then(r => setConfig(r.data)).catch(() => {});
+  }, []);
+  const handleSave = () => {
+    api.put("/admin/referral-config", config).then(() => toast.success("Config saved")).catch(() => toast.error("Failed to save config"));
+  };
+  if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl">
+       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Referral Configuration</h3>
+       <div className="space-y-4">
+         <div className="flex flex-col gap-1">
+           <label className="font-sans text-[10px] uppercase opacity-70">Referrer Reward</label>
+           <input type="number" value={config.referrer_reward || 0} onChange={e => setConfig({...config, referrer_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+         </div>
+         <div className="flex flex-col gap-1">
+           <label className="font-sans text-[10px] uppercase opacity-70">Referee Reward</label>
+           <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+         </div>
+       </div>
+       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#e03126]">Save Configuration</button>
     </motion.div>
   );
 }

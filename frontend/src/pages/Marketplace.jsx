@@ -106,6 +106,14 @@ function CreatorDirectoryCard({ creator, index }) {
               {top.label}
             </span>
           ) : null}
+          {c.match_score != null ? (
+            <span 
+              className="absolute top-1.5 right-1.5 bg-[#34C759]/20 text-[#34C759] px-2 py-0.5 font-sans text-[10px] tracking-wide uppercase font-semibold rounded-sm border border-[#34C759]/30"
+              title={c.match_reasons ? c.match_reasons.join('\n') : ''}
+            >
+              {c.match_score}% Match
+            </span>
+          ) : null}
         </div>
         <div className="mt-2 flex items-baseline justify-between gap-1.5">
           <div className="min-w-0">

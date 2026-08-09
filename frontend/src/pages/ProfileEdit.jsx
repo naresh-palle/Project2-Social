@@ -159,6 +159,11 @@ export default function ProfileEdit() {
   const [draftHandle, setDraftHandle] = useState("");
   const [savingPlat, setSavingPlat] = useState(null);
   const [cropState, setCropState] = useState(null); // { src, aspect, target: 'avatar'|'cover' }
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  useEffect(() => {
+    api.get('/categories').then(res => setCategoriesList(res.data)).catch(console.error);
+  }, []);
   const avatarRef = useRef(null);
   const coverRef = useRef(null);
   const portfolioRef = useRef(null);
@@ -814,7 +819,7 @@ export default function ProfileEdit() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="sec-niche">
                 <MultiSelectDropdown
-                  options={PLATFORM_CATEGORIES}
+                  options={categoriesList.map(c => typeof c === 'string' ? c : c.name)}
                   selected={Array.isArray(f.category) ? f.category : toList(f.category)}
                   onChange={(vals) => setF({ ...f, category: vals })}
                   placeholder="Select niches…"

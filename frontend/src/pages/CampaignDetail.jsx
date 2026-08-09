@@ -29,6 +29,8 @@ export default function CampaignDetail() {
   const [inviteForCreator, setInviteForCreator] = useState(null);
   const [inviteOffer, setInviteOffer] = useState("");
   const [inviteMsg, setInviteMsg] = useState("");
+  const [showRehire, setShowRehire] = useState(false);
+  const [rehireBusy, setRehireBusy] = useState(false);
 
   const load = async () => {
     try {
@@ -131,6 +133,19 @@ export default function CampaignDetail() {
       setInviteForCreator(null); setInviteOffer(""); setInviteMsg("");
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail) || "Failed"); }
   };
+  const confirmRehire = async () => {
+    setRehireBusy(true);
+    try {
+      const { data } = await api.post(`/campaigns/${id}/rehire`);
+      toast.success("Campaign created.");
+      setShowRehire(false);
+      nav(`/campaigns/${data.id}`);
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Failed to rehire");
+    } finally {
+      setRehireBusy(false);
+    }
+  };
 
   if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-sans text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
   if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
@@ -138,6 +153,8 @@ export default function CampaignDetail() {
   const isOwner = user?.role === "owner" && c.owner_id === user?.id;
   const isAcceptedInfluencer = user?.role === "influencer" && c.accepted_creator_id === user?.id;
   const canReview = c.status === "completed";
+  const acceptedApp = apps.find(a => a.status === "accepted");
+  const creatorName = acceptedApp ? acceptedApp.influencer_name : "Creator";
 
   // Display fallbacks for older briefs missing the new requirement fields
   const brief = {
@@ -237,7 +254,7 @@ export default function CampaignDetail() {
                 </div>
 
                 {c.accepted_creator_id && (
-                  <div className="mt-8 flex flex-wrap gap-3">
+                  <div className="mt-8 flex flex-wrap gap-3 items-center">
                     {!c.escrow_funded ? (
                       <button onClick={fund} data-testid="fund-btn" className="btn-solid">
                         <IndianRupee className="w-4 h-4" /> Fund escrow · ₹{c.budget}
@@ -247,6 +264,11 @@ export default function CampaignDetail() {
                     ) : (
                       <button onClick={release} disabled={c.status !== "completed"} data-testid="release-btn" className="btn-solid">
                         <Check className="w-4 h-4" /> Release ₹{c.escrow_funded}
+                      </button>
+                    )}
+                    {c.status === "completed" && (
+                      <button onClick={() => setShowRehire(true)} className="btn-solid bg-transparent border border-white/20 hover:border-white/50 text-white">
+                        <RotateCw className="w-4 h-4" /> Rehire {creatorName}
                       </button>
                     )}
                   </div>
@@ -455,6 +477,30 @@ export default function CampaignDetail() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showRehire && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#0B0B0E] border border-white/10 p-6 max-w-md w-full relative"
+            >
+              <h3 className="font-editorial text-2xl italic">Rehire {creatorName}</h3>
+              <p className="mt-4 font-sans text-sm opacity-80">
+                Create a new campaign with {creatorName} based on this completed campaign. A loyalty discount will be applied automatically.
+              </p>
+              <div className="mt-8 flex gap-3 justify-end">
+                <button onClick={() => setShowRehire(false)} className="px-4 py-2 text-sm opacity-60 hover:opacity-100">Cancel</button>
+                <button onClick={confirmRehire} disabled={rehireBusy} className="btn-solid text-sm">
+                  {rehireBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCw className="w-4 h-4" />} Confirm Rehire
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -34,6 +34,11 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  useEffect(() => {
+    api.get('/categories').then(res => setCategoriesList(res.data)).catch(console.error);
+  }, []);
 
   // Influencer State
   const [f, setF] = useState(() => {
@@ -478,7 +483,7 @@ const toggleCategory = (c) => {
           <div>
             <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Content Category *</h4>
             <MultiSelectDropdown 
-               options={CATEGORIES}
+               options={categoriesList.map(c => typeof c === 'string' ? c : c.name)}
                selected={currentCats}
                onChange={(vals) => setF({...f, category: vals})}
                placeholder="Select Categories..."
@@ -611,7 +616,7 @@ const toggleCategory = (c) => {
               className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF3B30] text-xl font-editorial"
             >
               <option value="" className="bg-[#0B0B0E]" disabled>Select your primary industry</option>
-              {CATEGORIES.map(p => <option key={p} className="bg-[#0B0B0E]" value={p}>{p}</option>)}
+              {categoriesList.map(c => typeof c === 'string' ? c : c.name).map(p => <option key={p} className="bg-[#0B0B0E]" value={p}>{p}</option>)}
             </select>
           <div className="pt-8 flex justify-end">
             <button 

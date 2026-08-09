@@ -13,10 +13,16 @@ export default function Wallet() {
   const [w, setW] = useState({ balance: 0, transactions: [] });
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
+  const [bonus, setBonus] = useState(null);
   const [filterType, setFilterType] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const load = () => api.get("/wallet").then((r) => setW(r.data)).catch(() => {});
+  const load = () => {
+    api.get("/wallet").then((r) => setW(r.data)).catch(() => {});
+    if (user && user.role === "influencer") {
+      api.get("/bonus/my-progress").then((r) => setBonus(r.data)).catch(() => {});
+    }
+  };
   useEffect(() => {
     if (user) load();
   }, [user]);
@@ -94,6 +100,20 @@ export default function Wallet() {
             <div className="font-sans text-2xl font-bold mt-2 tabular-nums">-₹{totalWithdrawn.toLocaleString()}</div>
           </div>
         </div>
+
+        {bonus && (
+          <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-sans text-[11px] uppercase tracking-wider opacity-55 text-[#FF3B30] font-bold">Bonus Progress</span>
+            </div>
+            <div className="mt-3 bg-white/5 h-2 rounded-full overflow-hidden">
+              <div className="bg-[#34C759] h-full transition-all" style={{ width: `${Math.min(100, (bonus.completed / (bonus.required || 1)) * 100)}%` }}></div>
+            </div>
+            <p className="font-sans text-sm mt-3 opacity-80">
+              {bonus.completed} / {bonus.required} eligible campaigns. Complete {bonus.remaining} more to unlock ₹{bonus.potential_bonus}.
+            </p>
+          </div>
+        )}
 
         <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-sm grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-7">
@@ -200,7 +220,12 @@ export default function Wallet() {
                     </td>
                     <td className="px-3 py-2.5 font-sans text-xs text-[#FF3B30]">{t.kind || "Transaction"}</td>
                     <td className="px-3 py-2.5 font-sans text-sm opacity-80 max-w-[220px] truncate">
-                      {t.note || "—"}
+                      <div>{t.note || "—"}</div>
+                      {t.platform_fee ? (
+                        <div className="text-[10px] mt-1 opacity-60">
+                          Campaign: ₹{t.campaign_amount?.toLocaleString()} | Platform Fee: -₹{t.platform_fee?.toLocaleString()} | GST: -₹{t.gst_amount?.toLocaleString()} | Net: ₹{t.final_amount?.toLocaleString() || t.creator_earning?.toLocaleString()}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-3 py-2.5">
                       <span className="px-1.5 py-0.5 text-[10px] uppercase font-sans rounded-sm border bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20">

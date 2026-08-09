@@ -580,6 +580,10 @@ function InfluencerPanel() {
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
 
+  const [levelInfo, setLevelInfo] = useState(null);
+  const [badges, setBadges] = useState([]);
+  const [leaderboard, setLeaderboard] = useState(null);
+
   const handleSync = async () => {
     setSyncing(true);
     try {
@@ -595,6 +599,10 @@ function InfluencerPanel() {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
     api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
     api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
+
+    api.get("/levels/my-progress").then((r) => setLevelInfo(r.data)).catch(() => setLevelInfo(null));
+    api.get("/badges/mine").then((r) => setBadges(Array.isArray(r.data) ? r.data : [])).catch(() => setBadges([]));
+    api.get("/leaderboard/my-rank?type=top_performer&period=weekly").then((r) => setLeaderboard(r.data)).catch(() => setLeaderboard(null));
   }, []);
 
   const safeApps = Array.isArray(apps) ? apps : [];
@@ -632,6 +640,55 @@ function InfluencerPanel() {
             <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Gamification / Progression Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Level */}
+        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden group">
+           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Creator Level</div>
+           {levelInfo ? (
+             <>
+               <div className="text-2xl font-bold mt-1 group-hover:text-[#FF3B30] transition-colors">{levelInfo.current_level || "Beginner"}</div>
+               {levelInfo.next_level && (
+                 <div className="mt-2 w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                   <div className="bg-[#FF3B30] h-full transition-all duration-1000 ease-out" style={{ width: `${levelInfo.progress_pct || 0}%` }}></div>
+                 </div>
+               )}
+               <div className="font-sans text-[9px] uppercase opacity-50 mt-1">{levelInfo.progress_pct || 0}% to {levelInfo.next_level || "Max"}</div>
+             </>
+           ) : (
+             <div className="text-sm opacity-50 mt-1">Loading level...</div>
+           )}
+        </div>
+
+        {/* Badges */}
+        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden">
+           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Earned Badges</div>
+           <div className="flex flex-wrap gap-2 mt-2">
+             {badges.length > 0 ? badges.map((b, i) => (
+               <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-sm hover:border-white/30 transition-colors cursor-default" title={b.badge_name}>
+                 <span className="text-base">{b.badge_icon || "🏆"}</span>
+                 <span className="font-sans text-[10px] font-bold" style={{ color: b.badge_color || "#F4F4F0" }}>{b.badge_name}</span>
+               </div>
+             )) : (
+               <div className="text-xs opacity-50 mt-1">No badges yet. Complete tasks to earn them!</div>
+             )}
+           </div>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden">
+           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Leaderboard Position</div>
+           {leaderboard ? (
+             <div className="mt-2 flex items-end gap-2">
+               <div className="text-3xl font-bold text-[#34C759]">#{leaderboard.rank}</div>
+               <div className="font-sans text-xs opacity-60 pb-1">in Top Performers</div>
+             </div>
+           ) : (
+             <div className="text-sm opacity-50 mt-2">Unranked</div>
+           )}
+        </div>
       </div>
 
       {/* Platform Analytics & Social Connect — always visible above tabs */}

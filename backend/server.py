@@ -4682,6 +4682,23 @@ _phase1_ensure_indexes = setup_phase1(
     store_upload_bytes=store_upload_bytes,
 )
 
+# ── Phase 2: Categories, Matching, Levels, Badges, Leaderboard, Referrals ──
+from phase2_features import setup_phase2  # noqa: E402
+
+setup_phase2(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    clean=clean,
+    now_iso=now_iso,
+    send_email=send_email,
+    email_template=email_template,
+    push_notification=push_notification,
+    write_audit_log=write_audit_log,
+    logger=logger,
+)
+
 app.include_router(api_router)
 
 # Serve the built SPA from backend/web when present (Render fallback while GitHub Pages is stuck).
