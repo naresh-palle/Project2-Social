@@ -1,14 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, LifeBuoy, Bot } from "lucide-react";
+import { ChevronDown, LifeBuoy, Bot, MessageSquare } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 
 export function Nav({ variant = "dark" }) {
   const { user, logout } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const isPaper = variant === "paper";
@@ -41,7 +42,6 @@ export function Nav({ variant = "dark" }) {
         { to: "/search", label: "Search" },
         { to: "/leaderboard", label: "Leaderboard" },
         { to: "/referrals", label: "Referrals" },
-        { to: "/messages", label: "Messages" },
         { to: "/invitations", label: "Invitations" },
         { to: "/wallet", label: "Wallet" },
         { to: "/profile", label: "Profile" },
@@ -50,6 +50,7 @@ export function Nav({ variant = "dark" }) {
     : [];
 
   return (
+    <>
     <motion.header
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -176,5 +177,24 @@ export function Nav({ variant = "dark" }) {
         </div>
       </div>
     </motion.header>
+
+      {/* Floating Chat Button (Bottom Right) */}
+      {user && location.pathname !== "/messages" && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          className="fixed bottom-6 right-6 z-50"
+        >
+          <Link
+            to="/messages"
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-[#FF3B30] text-white shadow-[0_8px_30px_rgb(255,59,48,0.3)] hover:shadow-[0_8px_40px_rgb(255,59,48,0.5)] hover:-translate-y-1 transition-all duration-300"
+            title="Messages"
+          >
+            <MessageSquare className="w-6 h-6" />
+          </Link>
+        </motion.div>
+      )}
+    </>
   );
 }
