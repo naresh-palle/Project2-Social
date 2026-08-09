@@ -120,19 +120,57 @@ export default function SearchPage() {
         </div>
 
         {!results && (
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-10 space-y-12">
+            
+            {/* Trending Section */}
+            <div>
+              <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 mb-4">
+                <TrendingUp className="w-3.5 h-3.5" /> Trending
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-sans text-[10px] uppercase opacity-40 mb-2 tracking-widest">Top Hashtags</h4>
+                  {(trending.hashtags || []).slice(0, 5).map((h) => (
+                    <button
+                      key={h.tag}
+                      type="button"
+                      onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
+                      className="w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 rounded-xs transition-colors"
+                    >
+                      <span className="font-editorial text-lg">#{h.tag}</span>
+                      <span className="font-mono text-[10px] opacity-50 ml-2">{h.count} posts</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-sans text-[10px] uppercase opacity-40 mb-2 tracking-widest">Top Searches</h4>
+                  {(trending.searches || []).slice(0, 5).map((s) => (
+                    <button
+                      key={s.query}
+                      type="button"
+                      onClick={() => { setQ(s.query); runSearch(s.query); }}
+                      className="w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs transition-colors"
+                    >
+                      {s.query}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Section */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5" /> Recent
                 </h3>
                 {recent.length > 0 && (
-                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-white uppercase">
+                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-white uppercase transition-colors">
                     Clear
                   </button>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {recent.length === 0 ? (
                   <p className="font-mono text-xs opacity-40">No recent searches</p>
                 ) : (
@@ -141,42 +179,20 @@ export default function SearchPage() {
                       key={r.id}
                       type="button"
                       onClick={() => { setQ(r.query); runSearch(r.query, r.kind || tab); }}
-                      className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs"
+                      className="w-full flex items-center justify-between p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs transition-colors"
                     >
-                      {r.query}
+                      <span className="truncate pr-2">{r.query}</span>
+                      {r.kind && (
+                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-white/60 rounded-sm">
+                          {r.kind}
+                        </span>
+                      )}
                     </button>
                   ))
                 )}
               </div>
             </div>
-            <div>
-              <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 mb-4">
-                <TrendingUp className="w-3.5 h-3.5" /> Trending
-              </h3>
-              <div className="space-y-2">
-                {(trending.hashtags || []).slice(0, 5).map((h) => (
-                  <button
-                    key={h.tag}
-                    type="button"
-                    onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
-                    className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 rounded-xs"
-                  >
-                    <span className="font-editorial text-lg">#{h.tag}</span>
-                    <span className="font-mono text-[10px] opacity-50 ml-2">{h.count} posts</span>
-                  </button>
-                ))}
-                {(trending.searches || []).slice(0, 5).map((s) => (
-                  <button
-                    key={s.query}
-                    type="button"
-                    onClick={() => { setQ(s.query); runSearch(s.query); }}
-                    className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs"
-                  >
-                    {s.query}
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </div>
         )}
 
