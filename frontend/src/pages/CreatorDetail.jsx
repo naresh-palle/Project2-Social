@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, MessageSquare, Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, TrendingUp, Users, ChevronLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Nav } from "@/components/Nav";
@@ -76,9 +76,9 @@ export default function CreatorDetail() {
       
       {/* HEADER SECTION */}
       <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">
-        <button onClick={() => nav(-1)} className="absolute top-28 left-6 md:left-12 opacity-50 hover:opacity-100 flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase transition-opacity">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <Link to="/marketplace" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-6">
+            <ChevronLeft className="w-4 h-4" /> Back
+        </Link>
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-12 gap-12 items-end border-b border-white/10 pb-16">
             <div className="md:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-end">

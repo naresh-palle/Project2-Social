@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft, Edit2, Image as ImageIcon, Video as VideoIcon,
-  ExternalLink, ShieldCheck, MapPin,
+  ExternalLink, ShieldCheck, MapPin, ChevronLeft,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Nav } from "@/components/Nav";
@@ -115,13 +115,9 @@ export default function ProfileView() {
       <ThemeToaster />
 
       <div className="pt-24 px-4 md:px-8 max-w-6xl mx-auto pb-12">
-        <button
-          type="button"
-          onClick={() => nav(-1)}
-          className="opacity-60 hover:opacity-100 inline-flex items-center gap-2 font-sans text-[11px] tracking-widest uppercase"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#FF3B30]" /> Back
-        </button>
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4">
+            <ChevronLeft className="w-4 h-4" /> Back
+        </Link>
 
         <div className="mt-4 border border-white/10 bg-white/[0.02] p-3 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">

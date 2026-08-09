@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone } from "lucide-react";
+import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { api } from "@/lib/api";
@@ -77,6 +77,9 @@ export default function SearchPage() {
       <ThemeToaster />
       <Nav />
       <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 flex-1 w-full">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4">
+            <ChevronLeft className="w-4 h-4" /> Back
+        </Link>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
         <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
 

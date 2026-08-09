@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText } from "lucide-react";
+import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { api, formatApiError } from "@/lib/api";
@@ -182,7 +182,9 @@ export default function CampaignDetail() {
       <ThemeToaster />
       <div className="pt-24 max-w-[1600px] mx-auto px-4 md:px-8 pb-16">
         <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
-          <Link to={backTarget} className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60 kinetic-underline hover:text-[#FF3B30] transition-colors">{backLabel}</Link>
+          <Link to={backTarget} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
           <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {brief.id.slice(0, 6)} · {brief.status}</span>
         </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ArrowLeft, Play } from "lucide-react";
+import { Search, ArrowLeft, Play, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { IconTip } from "@/components/IconTip";
@@ -186,17 +186,9 @@ export default function Marketplace() {
               The <span className="italic">file</span> on record
             </h1>
           </div>
-          <IconTip label="Back">
-            <Link
-              to="/dashboard"
-              data-testid="back-to-dashboard-btn"
-              title="Back"
-              aria-label="Back"
-              className="inline-flex items-center justify-center w-9 h-9 border border-white/20 bg-white/5 hover:bg-white/15 text-[#FF3B30] mb-0.5"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-          </IconTip>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
         </div>
 
         {/* Tabs + search in bordered box */}
