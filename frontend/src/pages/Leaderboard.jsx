@@ -21,8 +21,8 @@ export default function Leaderboard() {
       setLoading(true);
       try {
         const [boardRes, rankRes] = await Promise.all([
-          api.get(`/api/leaderboard?type=${category}&period=${period}`),
-          api.get(`/api/leaderboard/my-rank?type=${category}&period=${period}`).catch(() => null)
+          api.get(`/leaderboard?type=${category}&period=${period}`),
+          api.get(`/leaderboard/my-rank?type=${category}&period=${period}`).catch(() => null)
         ]);
         setData(boardRes.data);
         if (rankRes && rankRes.data) {

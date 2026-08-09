@@ -22,8 +22,8 @@ export default function Referrals() {
       setLoading(true);
       try {
         const [codeRes, statusRes] = await Promise.all([
-          api.get("/api/referrals/my-code").catch(() => null),
-          api.get("/api/referrals/status").catch(() => null)
+          api.get("/referrals/my-code").catch(() => null),
+          api.get("/referrals/status").catch(() => null)
         ]);
         if (codeRes?.data) setRefData(codeRes.data);
         if (statusRes?.data) setStatus(statusRes.data);
@@ -49,12 +49,12 @@ export default function Referrals() {
     if (!applyCode.trim()) return;
     setApplying(true);
     try {
-      const res = await api.post("/api/referrals/apply", { code: applyCode.trim() });
+      const res = await api.post("/referrals/apply", { code: applyCode.trim() });
       if (res.data?.ok) {
         toast.success("Referral code applied successfully!");
         setApplyCode("");
         // refresh status
-        const statusRes = await api.get("/api/referrals/status");
+        const statusRes = await api.get("/referrals/status");
         if (statusRes?.data) setStatus(statusRes.data);
       }
     } catch (err) {
