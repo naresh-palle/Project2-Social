@@ -385,7 +385,7 @@ export default function Messages({ miniWidget = false }) {
                       </Link>
                     )}
                   </div>
-                </div>
+                </header>
 
                 <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-gradient-to-b from-[#0B0B0E] to-[#111116] custom-scrollbar" data-testid="thread">
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
@@ -522,7 +522,7 @@ export default function Messages({ miniWidget = false }) {
                     Send
                   </button>
                 </form>
-              </>
+              </div>
             ) : (
               <div className="flex-1 flex items-center justify-center font-sans text-sm opacity-40">
                 Select a conversation
