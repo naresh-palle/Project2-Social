@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ChevronDown, CheckCircle2, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
-const FAQ_DATA = [
+const INFLUENCER_FAQ = [
   {
     question: "How do I get paid?",
     answer: "Payments are processed securely via Stripe. Once a campaign is completed and approved, funds are transferred to your connected bank account within 3-5 business days."
@@ -19,17 +20,42 @@ const FAQ_DATA = [
   }
 ];
 
+const BRAND_FAQ = [
+  { question: "How do I fund my escrow?", answer: "You can fund your escrow using any major credit card or wire transfer via Stripe." },
+  { question: "Can I rehire a creator?", answer: "Yes, you can easily rehire a creator from any completed campaign. A loyalty discount will be automatically applied." },
+  { question: "How does the matching algorithm work?", answer: "We pair you with creators who align with your brand's aesthetic and target demographics." }
+];
+
+const ADMIN_FAQ = [
+  { question: "How do I resolve disputes?", answer: "Disputes can be managed from the admin dashboard under the 'Disputes' tab." },
+  { question: "How do I manage payouts?", answer: "Payouts are automatically batched, but can be manually triggered in the 'Transactions' panel." },
+  { question: "Where do I configure referral rewards?", answer: "You can adjust referral bonuses and platform fees in the Global Configuration settings." }
+];
+
+const ADMIN_MOCK_TICKETS = [
+  { id: "T-1045", subject: "Brand escrow refund request", status: "open", date: "2026-08-09", user: "Nike Official" },
+  { id: "T-1042", subject: "Profile verification pending", status: "open", date: "2026-08-08", user: "Alex Creator" },
+  { id: "T-1038", subject: "Payment delay", status: "closed", date: "2026-08-05", user: "Sarah Styles" },
+];
+
+const USER_MOCK_TICKETS = [
+  { id: "T-123", subject: "Payment delay", status: "open", date: "2026-08-01" },
+  { id: "T-089", subject: "Profile not updating", status: "closed", date: "2026-07-28" }
+];
+
 export default function SupportCenter() {
+  const { user } = useAuth();
+  const role = user?.role || "influencer";
+  
+  const currentFaqs = role === "admin" ? ADMIN_FAQ : role === "owner" ? BRAND_FAQ : INFLUENCER_FAQ;
+
   const [activeFaq, setActiveFaq] = useState(null);
   const [form, setForm] = useState({ subject: "", category: "Payment", priority: "Low", description: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   // Mock Tickets
-  const [tickets, setTickets] = useState([
-    { id: "T-123", subject: "Payment delay", status: "open", date: "2026-08-01" },
-    { id: "T-089", subject: "Profile not updating", status: "closed", date: "2026-07-28" }
-  ]);
+  const [tickets, setTickets] = useState(role === "admin" ? ADMIN_MOCK_TICKETS : USER_MOCK_TICKETS);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,7 +109,7 @@ export default function SupportCenter() {
             <section>
               <h2 className="font-editorial text-3xl mb-6">Frequently Asked Questions</h2>
               <div className="space-y-4">
-                {FAQ_DATA.map((faq, idx) => (
+                {currentFaqs.map((faq, idx) => (
                   <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
                     <button 
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
@@ -109,14 +135,14 @@ export default function SupportCenter() {
               </div>
             </section>
 
-            {/* My Tickets */}
+            {/* Tickets */}
             <section>
-              <h2 className="font-editorial text-3xl mb-6">My Tickets</h2>
+              <h2 className="font-editorial text-3xl mb-6">{role === "admin" ? "All User Tickets" : "My Tickets"}</h2>
               <div className="space-y-4">
                 {tickets.map(ticket => (
                   <div key={ticket.id} className="p-5 border border-white/10 rounded-sm flex items-center justify-between bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
                     <div>
-                      <div className="font-mono text-xs tracking-widest text-white/40 mb-1">{ticket.id} • {ticket.date}</div>
+                      <div className="font-mono text-xs tracking-widest text-white/40 mb-1">{ticket.id} • {ticket.date} {ticket.user && `• ${ticket.user}`}</div>
                       <div className="font-sans font-medium text-lg">{ticket.subject}</div>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider ${

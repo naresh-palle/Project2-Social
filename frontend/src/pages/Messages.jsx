@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2 } from "lucide-react";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -13,20 +14,31 @@ function formatMsgTime(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function formatGroupDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
   const now = new Date();
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (sameDay) {
-    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  }
-  return d.toLocaleString([], {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
+  const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+  if (diffDays === 0 && d.getDate() === now.getDate()) return "Today";
+  if (diffDays === 1 || (diffDays === 0 && d.getDate() !== now.getDate())) return "Yesterday";
+  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+}
+
+function groupMessages(messages) {
+  const groups = [];
+  let currentGroup = null;
+  messages.forEach((m) => {
+    const dateKey = formatGroupDate(m.created_at);
+    if (!currentGroup || currentGroup.date !== dateKey) {
+      currentGroup = { date: dateKey, msgs: [] };
+      groups.push(currentGroup);
+    }
+    currentGroup.msgs.push(m);
   });
+  return groups;
 }
 
 function upsertMsg(prev, msg) {
@@ -366,85 +378,116 @@ export default function Messages() {
                   </div>
                 </div>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2" data-testid="thread">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-gradient-to-b from-[#0B0B0E] to-[#111116] custom-scrollbar" data-testid="thread">
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
-                  {visible.map((m) => {
-                    const mine = m.sender_id === user?.id;
-                    return (
-                      <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                        <div
-                          className={`max-w-[78%] md:max-w-[65%] px-3 py-2 rounded-2xl group relative ${
-                            mine ? "bg-[#FF3B30] text-white rounded-br-md" : "bg-white/10 rounded-bl-md"
-                          }`}
-                        >
-                          {!mine && (
-                            <div className="font-sans text-[10px] opacity-60 mb-0.5 truncate">
-                              {m.sender_name}
-                            </div>
-                          )}
-                          {m.media_url && (
-                            m.media_type === "video" ? (
-                              <video src={m.media_url} controls className="max-w-full rounded-md mb-1.5" />
-                            ) : m.media_type === "voice" || m.media_type === "audio" ? (
-                              <audio src={m.media_url} controls className="w-full mb-1.5" />
-                            ) : (
-                              <img src={m.media_url} alt="" className="max-w-full rounded-md mb-1.5" />
-                            )
-                          )}
-                          {editingMsg === m.id ? (
-                            <div className="space-y-1.5">
-                              <input
-                                value={editText}
-                                onChange={(e) => setEditText(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 px-2 py-1 font-sans text-sm rounded-sm"
-                              />
-                              <div className="flex gap-2">
-                                <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase">
-                                  Save
-                                </button>
-                                <button type="button" onClick={() => setEditingMsg(null)} className="font-sans text-[10px] uppercase opacity-60">
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="font-sans text-sm leading-snug whitespace-pre-wrap break-words">
-                              {m.content}
-                              {m.edited && <span className="text-[10px] opacity-50 ml-1">(edited)</span>}
-                            </div>
-                          )}
-                          <div className={`mt-1 flex items-center gap-2 ${mine ? "justify-between" : "justify-start"}`}>
-                            <span className={`font-sans text-[10px] ${mine ? "opacity-80" : "opacity-45"}`}>
-                              {formatMsgTime(m.created_at)}
-                            </span>
-                            {mine && editingMsg !== m.id && (
-                              <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingMsg(m.id);
-                                    setEditText(m.content || "");
-                                  }}
-                                  className="opacity-80 hover:opacity-100"
-                                >
-                                  <Edit3 className="w-3 h-3" />
-                                </button>
-                                <button type="button" onClick={() => deleteMsg(m.id)} className="opacity-80 hover:opacity-100">
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                  {groupMessages(visible).map((group, gIdx) => (
+                    <div key={`group-${gIdx}`} className="space-y-4">
+                      <div className="flex justify-center sticky top-0 z-10">
+                        <span className="bg-[#1A1A24]/80 backdrop-blur-md border border-white/5 text-[10px] uppercase tracking-widest font-mono px-4 py-1.5 rounded-full text-white/50 shadow-xl flex items-center gap-2">
+                          <Calendar className="w-3 h-3" />
+                          {group.date}
+                        </span>
                       </div>
-                    );
-                  })}
+                      <div className="space-y-2">
+                        <AnimatePresence initial={false}>
+                          {group.msgs.map((m, mIdx) => {
+                            const mine = m.sender_id === user?.id;
+                            const prevMsg = mIdx > 0 ? group.msgs[mIdx - 1] : null;
+                            const isConsecutive = prevMsg && prevMsg.sender_id === m.sender_id;
+                            return (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                key={m.id} 
+                                className={`flex ${mine ? "justify-end" : "justify-start"} ${isConsecutive ? "mt-1" : "mt-4"}`}
+                              >
+                                <div
+                                  className={`max-w-[85%] md:max-w-[70%] px-4 py-3 group relative shadow-2xl ${
+                                    mine 
+                                      ? "bg-gradient-to-br from-[#FF3B30] to-[#E52D27] text-white rounded-2xl rounded-tr-sm" 
+                                      : "bg-white/[0.04] border border-white/5 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#F4F4F0]"
+                                  }`}
+                                >
+                                  {!mine && !isConsecutive && (
+                                    <div className="font-sans text-[10px] text-[#FF3B30] font-semibold tracking-wider uppercase mb-1">
+                                      {m.sender_name}
+                                    </div>
+                                  )}
+                                  {m.media_url && (
+                                    m.media_type === "video" ? (
+                                      <video src={m.media_url} controls className="max-w-full rounded-xl mb-2" />
+                                    ) : m.media_type === "voice" || m.media_type === "audio" ? (
+                                      <audio src={m.media_url} controls className="w-full mb-2" />
+                                    ) : (
+                                      <img src={m.media_url} alt="" className="max-w-full rounded-xl mb-2 object-cover max-h-[300px]" />
+                                    )
+                                  )}
+                                  {editingMsg === m.id ? (
+                                    <div className="space-y-2">
+                                      <input
+                                        value={editText}
+                                        onChange={(e) => setEditText(e.target.value)}
+                                        className="w-full bg-black/40 border border-white/20 px-3 py-2 font-sans text-sm rounded-lg outline-none focus:border-white/50 transition-colors"
+                                        autoFocus
+                                      />
+                                      <div className="flex gap-3 justify-end">
+                                        <button type="button" onClick={() => setEditingMsg(null)} className="font-sans text-[10px] uppercase opacity-60 hover:opacity-100">
+                                          Cancel
+                                        </button>
+                                        <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase font-bold text-white">
+                                          Save
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="font-sans text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                                      {m.content}
+                                      {m.edited && <span className="text-[9px] opacity-40 ml-2 italic tracking-widest uppercase">(edited)</span>}
+                                    </div>
+                                  )}
+                                  <div className={`mt-2 flex items-center gap-2 ${mine ? "justify-end" : "justify-start"}`}>
+                                    <span className={`font-sans text-[9px] tracking-widest uppercase ${mine ? "text-white/60" : "text-white/40"}`}>
+                                      {formatMsgTime(m.created_at)}
+                                    </span>
+                                    {mine && editingMsg !== m.id && (
+                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#1A1A24] p-1.5 rounded-full border border-white/10 shadow-xl">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingMsg(m.id);
+                                            setEditText(m.content || "");
+                                          }}
+                                          className="text-white/50 hover:text-white"
+                                        >
+                                          <Edit3 className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-white/50 hover:text-[#FF3B30]">
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  ))}
                   {typingUser && (
-                    <div className="font-sans text-[11px] opacity-45 italic px-1">{typingUser} is typing…</div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-white/40 px-4">
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                      </div>
+                      <span className="font-sans text-[11px] tracking-wide">{typingUser} is typing...</span>
+                    </motion.div>
                   )}
                 </div>
 
-                <form onSubmit={send} className="border-t border-white/10 px-3 py-2.5 flex gap-2 items-center shrink-0">
+                <form onSubmit={send} className="bg-[#111116] border-t border-white/5 p-4 flex gap-3 items-center shrink-0">
                   <input ref={fileRef} type="file" accept="image/*,video/*,audio/*" hidden onChange={onAttach} />
                   <button type="button" onClick={() => fileRef.current?.click()} className="p-2 opacity-60 hover:opacity-100">
                     <Paperclip className="w-4 h-4" />
