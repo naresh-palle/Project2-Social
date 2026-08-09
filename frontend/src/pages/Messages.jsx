@@ -273,7 +273,6 @@ export default function Messages({ miniWidget = false }) {
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-  return (
     <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
       {!miniWidget && <ThemeToaster />}
       {!miniWidget && <Nav />}
