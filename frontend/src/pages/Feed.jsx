@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
-  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Sparkle, Loader2, Send,
-  MoreHorizontal, ArrowLeft
+  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowRight
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
@@ -229,9 +228,6 @@ export default function Feed() {
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24 w-full flex-1">
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] mb-3">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back
-            </Link>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" /> § Community Feed
             </p>
@@ -244,6 +240,9 @@ export default function Feed() {
             <button type="button" onClick={() => setShowCreate(true)} className="px-6 py-3 bg-[#FF3B30] font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2">
               <Plus className="w-4 h-4" /> Create Post
             </button>
+            <Link to="/dashboard" className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30]">
+              Back <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 

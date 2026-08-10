@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
-import { Copy, Share2, Check, Send, Users, Sparkles, ChevronLeft } from "lucide-react";
+import { 
+  Copy, Share2, Send, Check, ChevronRight, Users, Sparkles 
+} from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { Link } from "react-router-dom";
 import { Nav } from "@/components/Nav";
@@ -72,15 +74,17 @@ export default function Referrals() {
       <ThemeToaster />
       <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
-        <div className="mb-8">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
-            <ChevronLeft className="w-4 h-4" /> Back
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Rewards</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
+            <p className="font-sans text-white/60 text-sm max-w-lg">
+              Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
+            </p>
+          </div>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+             Back <ChevronRight className="w-4 h-4" />
           </Link>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rewards</p>
-          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
-          <p className="font-sans text-white/60 text-sm max-w-lg">
-            Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -205,7 +209,7 @@ export default function Referrals() {
         )}
 
         <div className="mt-8">
-          <h3 className="font-editorial text-2xl mb-4">Referral History</h3>
+          <h3 className="font-sans text-xl font-bold tracking-tight mb-4">Referral History</h3>
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left font-sans text-sm">

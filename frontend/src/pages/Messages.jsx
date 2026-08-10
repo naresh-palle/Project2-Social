@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
@@ -281,9 +281,13 @@ export default function Messages({ miniWidget = false }) {
       {!miniWidget && <Nav />}
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
-          <div className="mb-6">
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
-              <ChevronLeft className="w-4 h-4" /> Back
+          <div className="mb-6 flex items-start justify-between">
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
+            </div>
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+               Back <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
+import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronRight } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { api } from "@/lib/api";
@@ -77,11 +77,15 @@ export default function SearchPage() {
       <ThemeToaster />
       <Nav />
       <div className="pt-20 max-w-4xl mx-auto px-6 md:px-10 pb-16 flex-1 w-full">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
-            <ChevronLeft className="w-4 h-4" /> Back
-        </Link>
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Discover</p>
-        <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+          </div>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+             Back <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
 
         <form
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}

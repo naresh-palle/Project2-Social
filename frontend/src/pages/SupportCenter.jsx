@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ChevronDown, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Plus, ChevronDown, CheckCircle2, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -80,16 +80,18 @@ export default function SupportCenter() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-12 flex items-start justify-between"
         >
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
-            <ChevronLeft className="w-4 h-4" /> Back
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Support</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Help & Support</h1>
+            <p className="font-sans text-white/60 max-w-2xl text-sm">
+              Find answers to common questions or reach out to our team directly.
+            </p>
+          </div>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+             Back <ChevronRight className="w-4 h-4" />
           </Link>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Support</p>
-          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Help & Support</h1>
-          <p className="font-sans text-white/60 max-w-2xl text-sm">
-            We're here to help you navigate CR8 Studio. Find answers below or raise a ticket.
-          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
