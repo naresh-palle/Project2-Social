@@ -106,12 +106,12 @@ export default function SupportCenter() {
             {/* FAQ Section */}
             <section>
               <h2 className="font-sans text-2xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {currentFaqs.map((faq, idx) => (
                   <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
                     <button 
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                      className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.04] transition-colors gap-4"
+                      className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/[0.04] transition-colors gap-4"
                     >
                       <span className="font-sans text-base font-semibold text-[#F4F4F0]">{faq.question}</span>
                       <ChevronDown className={`w-5 h-5 text-white/40 transition-transform shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />
@@ -122,7 +122,7 @@ export default function SupportCenter() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="px-6 pb-6 text-[#F4F4F0]/60 font-sans text-sm leading-relaxed"
+                          className="px-5 pb-5 text-[#F4F4F0]/60 font-sans text-sm leading-relaxed"
                         >
                           {faq.answer}
                         </motion.div>
@@ -155,9 +155,10 @@ export default function SupportCenter() {
           </motion.div>
 
           {/* Right Column: Ticket Form */}
-          <div className="border border-white/10 bg-[#121212] rounded-sm p-6 sticky top-32">
-            <h2 className="font-sans text-2xl font-bold mb-6">Raise a Ticket</h2>
-            {success ? (
+          <div>
+            <div className="border border-white/10 bg-[#121212] rounded-sm p-6 sticky top-32">
+              <h2 className="font-sans text-2xl font-bold mb-6">Raise a Ticket</h2>
+              {success ? (
               <motion.div 
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -232,6 +233,7 @@ export default function SupportCenter() {
                 </button>
               </form>
             )}
+          </div>
           </div>
           
         </div>

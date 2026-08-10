@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
@@ -18,7 +18,9 @@ const TABS = [
 ];
 
 export default function SearchPage() {
-  const [q, setQ] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQ = searchParams.get("q") || "";
+  const [q, setQ] = useState(initialQ);
   const [tab, setTab] = useState("all");
   const [results, setResults] = useState(null);
   const [recent, setRecent] = useState([]);
@@ -33,10 +35,6 @@ export default function SearchPage() {
     } catch {}
   };
 
-  useEffect(() => {
-    loadMeta();
-  }, []);
-
   const runSearch = async (query = q, kind = tab) => {
     if (!query.trim()) return;
     setLoading(true);
@@ -50,6 +48,14 @@ export default function SearchPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadMeta();
+    if (initialQ) {
+      runSearch(initialQ);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const clearRecent = async () => {
     try {
