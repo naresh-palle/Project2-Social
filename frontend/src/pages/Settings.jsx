@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User, Bell, Trash2, Download, Ban, VolumeX, UserX,
-  Monitor, Sun, Moon, Eye, Loader2, ChevronRight
+  Monitor, Sun, Moon, Eye, Loader2, ChevronRight, ArrowLeft
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth, applyUserSettings } from "@/lib/auth";
@@ -325,6 +325,9 @@ export default function Settings() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <Nav />
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] mb-4">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back
+        </Link>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
         <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings</h1>
 
