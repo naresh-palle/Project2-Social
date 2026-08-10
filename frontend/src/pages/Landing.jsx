@@ -1010,8 +1010,6 @@ export default function Landing() {
     }
   }, [user, navigate]);
 
-  if (user) return null;
-
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
   const [autoPaused, setAutoPaused] = useState(false);
@@ -1088,6 +1086,8 @@ export default function Landing() {
     }, 5000);
     return () => clearInterval(id);
   }, [autoPaused, nextDeck, deckIndex]);
+
+  if (user) return null;
 
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
