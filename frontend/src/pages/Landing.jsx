@@ -1098,6 +1098,8 @@ export default function Landing() {
 
   if (user) return null;
 
+  if (user) return null;
+
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
       {/* Simple Solid Obsidian Background */}
