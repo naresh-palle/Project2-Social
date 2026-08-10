@@ -42,24 +42,27 @@ export default function HelpChat() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-32 pb-8 px-6 flex flex-col">
       <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col h-[calc(100vh-140px)]">
         {/* Header */}
-        <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
-          <ChevronLeft className="w-4 h-4" /> Back
-        </Link>
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="mb-8"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] border border-[#FF3B30]/30 shadow-[0_0_20px_rgba(255,59,48,0.2)]">
-              <Sparkles className="w-6 h-6" />
-            </div>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mt-2 gap-4">
             <div>
-              <h1 className="font-editorial text-3xl font-bold">CR8 Assistant</h1>
-              <p className="font-sans text-white/50 text-sm flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#34C759] animate-pulse" />
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI Assistant</p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">CR8 Assistant</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="font-sans text-white/50 text-xs flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
                 Online
               </p>
+              <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] border border-[#FF3B30]/30 shadow-[0_0_10px_rgba(255,59,48,0.2)]">
+                <Sparkles className="w-4 h-4" />
+              </div>
             </div>
           </div>
 

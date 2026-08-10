@@ -72,21 +72,16 @@ export default function Referrals() {
       <ThemeToaster />
       <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
-        <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
-          <ChevronLeft className="w-4 h-4" /> Back
-        </Link>
-        <header className="mb-8 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-editorial text-4xl md:text-5xl text-white mb-3"
-          >
-            Refer & Earn
-          </motion.h1>
-          <p className="font-sans text-white/60 text-sm max-w-lg mx-auto">
+        <div className="mb-8">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rewards</p>
+          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
+          <p className="font-sans text-white/60 text-sm max-w-lg">
             Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
           </p>
-        </header>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Main Card */}

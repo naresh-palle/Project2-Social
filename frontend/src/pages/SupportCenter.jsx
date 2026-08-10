@@ -80,13 +80,14 @@ export default function SupportCenter() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4 relative"
+          className="mb-12"
         >
-          <Link to="/dashboard" className="absolute left-0 top-2 flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
             <ChevronLeft className="w-4 h-4" /> Back
           </Link>
-          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight">Help & Support</h1>
-          <p className="font-sans text-white/60 max-w-2xl mx-auto text-sm">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Support</p>
+          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Help & Support</h1>
+          <p className="font-sans text-white/60 max-w-2xl text-sm">
             We're here to help you navigate CR8 Studio. Find answers below or raise a ticket.
           </p>
         </motion.div>

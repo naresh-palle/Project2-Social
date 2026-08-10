@@ -52,19 +52,15 @@ export default function Leaderboard() {
       <ThemeToaster />
       <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
         {/* Header */}
-        <Link to="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4 w-fit">
-          <ChevronLeft className="w-4 h-4" /> Back
-        </Link>
-        <header className="mb-12 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-editorial text-5xl md:text-6xl text-white mb-6"
-          >
-            Leaderboard
-          </motion.h1>
+        <div className="mb-12">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rankings</p>
+          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-8">Leaderboard</h1>
+
           
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-start mb-8">
             <div className="bg-white/5 p-1 rounded-full flex border border-white/10">
               {["weekly", "monthly"].map(p => (
                 <button
@@ -78,7 +74,7 @@ export default function Leaderboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 relative">
+          <div className="flex flex-wrap justify-start gap-2 relative">
             {categories.map(c => {
               const active = category === c.id;
               const Icon = c.icon;
@@ -100,7 +96,7 @@ export default function Leaderboard() {
               );
             })}
           </div>
-        </header>
+        </div>
 
         {myRank && myRank.rank && (
           <motion.div 
