@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
-  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft, Loader2
+  Sparkles, Sparkle, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
+  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft, Loader2, MoreHorizontal, Send
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 

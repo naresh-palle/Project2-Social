@@ -751,7 +751,8 @@ function InfluencerPanel() {
               return c;
             });
           }
-          return base;
+          // Filter out accounts with 0 followers and 0 posts
+          return base.filter(c => c.analytics?.followers > 0 || c.analytics?.posts > 0);
         })()}
         onSync={handleSync}
         isSyncing={syncing}
@@ -760,10 +761,18 @@ function InfluencerPanel() {
         connectedPlatforms={(() => {
           let base = user?.oauth_connections?.length > 0 ? [...user.oauth_connections] : [];
           if (base.length === 0 && user?.platform_metrics) {
-            base = Object.entries(user.platform_metrics).map(([plat]) => ({ platform: plat }));
+            base = Object.entries(user.platform_metrics).map(([plat, data]) => ({ platform: plat, analytics: { followers: data.followers || 0, posts: data.posts || 0 } }));
+          } else {
+            base = base.map(c => {
+              const pm = user?.platform_metrics?.[c.platform];
+              if (pm) {
+                return { ...c, analytics: { followers: pm.followers ?? pm.subscribers ?? c.analytics?.followers ?? 0, posts: pm.posts ?? c.analytics?.posts ?? 0 } };
+              }
+              return c;
+            });
           }
-          return base;
-        })().map(c => c.platform)}
+          return base.filter(c => (c.analytics?.followers > 0 || c.analytics?.posts > 0)).map(c => c.platform);
+        })()}
       />
 
       {/* Primary Navigation Tabs for Influencers */}
