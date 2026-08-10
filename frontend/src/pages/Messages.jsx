@@ -83,8 +83,11 @@ export default function Messages({ miniWidget = false }) {
       if (openId) {
         const c = (data || []).find((c) => c.id === openId);
         if (c) setActive(c);
-      } else if (data?.length && !activeRef.current) {
-        setActive(data[0]);
+      } else if (data?.length && !activeRef.current && !miniWidget) {
+        // Only auto-select on desktop full-page view, not on widget
+        // Wait, user said: "WHen Click on message by default its showing existing chat instead of all chat messages"
+        // Let's just never auto-select so they always see the list first.
+        // setActive(data[0]); 
       }
     } catch (e) {
       console.error(e);
@@ -333,18 +336,20 @@ export default function Messages({ miniWidget = false }) {
                   type="button"
                   onClick={() => setActive(c)}
                   data-testid={`convo-${c.id}`}
-                  className={`w-full text-left px-3 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors ${
-                    active?.id === c.id ? "bg-white/[0.06]" : ""
+                  className={`w-full text-left p-3 mb-2 border rounded-lg transition-all ${
+                    active?.id === c.id 
+                      ? "border-[#FF3B30]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,59,48,0.1)]" 
+                      : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-sans text-sm font-semibold truncate">{displayPartnerName(c)}</div>
+                    <div className="font-sans text-sm font-bold truncate text-[#F4F4F0]">{displayPartnerName(c)}</div>
                     {c.mock ? <span className="font-sans text-[9px] text-[#FF3B30] uppercase shrink-0">Demo</span> : null}
                   </div>
-                  <div className="font-sans text-[10px] opacity-50 truncate mt-0.5">
+                  <div className="font-mono text-[9px] tracking-widest uppercase text-[#FF3B30] truncate mt-1">
                     {c.campaign_brand || c.campaign_title || "Direct"}
                   </div>
-                  {c.last_message && <div className="font-sans text-xs opacity-60 mt-1 truncate">{c.last_message}</div>}
+                  {c.last_message && <div className="font-sans text-xs opacity-60 mt-1.5 truncate leading-relaxed">{c.last_message}</div>}
                 </button>
               ))
             )}
@@ -387,7 +392,7 @@ export default function Messages({ miniWidget = false }) {
                   </div>
                 </header>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-gradient-to-b from-[#0B0B0E] to-[#111116] custom-scrollbar" data-testid="thread">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1a1f] via-[#0B0B0E] to-[#0B0B0E] custom-scrollbar" data-testid="thread">
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
                   {groupMessages(visible).map((group, gIdx) => (
                     <div key={`group-${gIdx}`} className="space-y-4">
