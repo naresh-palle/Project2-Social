@@ -1003,15 +1003,6 @@ function FinalCTA() {
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [user, navigate]);
-
-  if (user) return null;
-
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
   const [autoPaused, setAutoPaused] = useState(false);
@@ -1052,12 +1043,20 @@ export default function Landing() {
   }, []);
 
   useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (user) return undefined;
     const handleGlobalClick = () => pauseAutoThenResume();
     window.addEventListener("click", handleGlobalClick);
     return () => window.removeEventListener("click", handleGlobalClick);
-  }, [pauseAutoThenResume]);
+  }, [user, pauseAutoThenResume]);
 
   useEffect(() => {
+    if (user) return undefined;
     document.body.style.background = "#0B0B0E";
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
@@ -1078,16 +1077,18 @@ export default function Landing() {
       window.removeEventListener("resetHomeDeck", onReset);
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     };
-  }, [prevDeck, nextDeck, pauseAutoThenResume]);
+  }, [user, prevDeck, nextDeck, pauseAutoThenResume]);
 
   // Auto-advance slides; pause briefly after manual navigation
   useEffect(() => {
-    if (autoPaused) return undefined;
+    if (user || autoPaused) return undefined;
     const id = setInterval(() => {
       nextDeck();
     }, 5000);
     return () => clearInterval(id);
-  }, [autoPaused, nextDeck, deckIndex]);
+  }, [user, autoPaused, nextDeck, deckIndex]);
+
+  if (user) return null;
 
   return (
     <div className="App bg-[#0B0B0E] text-[#F4F4F0] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
