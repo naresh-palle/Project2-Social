@@ -3,7 +3,6 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
@@ -110,7 +109,6 @@ export default function ResetPassword() {
           )}
         </motion.div>
       </div>
-      <Footer />
     </div>
   );
 }

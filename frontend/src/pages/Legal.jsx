@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
 
 const DOCS = {
   terms: {
@@ -207,7 +206,6 @@ export default function Legal() {
           </>
         )}
       </div>
-      <Footer />
     </div>
   );
 }

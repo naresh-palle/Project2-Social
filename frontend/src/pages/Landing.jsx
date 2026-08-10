@@ -1036,8 +1036,14 @@ export default function Landing() {
   const pauseAutoThenResume = useCallback(() => {
     setAutoPaused(true);
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    resumeTimerRef.current = setTimeout(() => setAutoPaused(false), 12000);
+    resumeTimerRef.current = setTimeout(() => setAutoPaused(false), 15000);
   }, []);
+
+  useEffect(() => {
+    const handleGlobalClick = () => pauseAutoThenResume();
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
+  }, [pauseAutoThenResume]);
 
   useEffect(() => {
     document.body.style.background = "#0B0B0E";
@@ -1067,7 +1073,7 @@ export default function Landing() {
     if (autoPaused) return undefined;
     const id = setInterval(() => {
       nextDeck();
-    }, 7000);
+    }, 5000);
     return () => clearInterval(id);
   }, [autoPaused, nextDeck, deckIndex]);
 

@@ -25,6 +25,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       setLoading(null);
     }
   };
+  if (connectedPlatforms.length >= PLATFORMS.length) return null;
 
   return (
     <div className="bg-white/5 border border-[#F4F4F0]/10 p-6">
@@ -36,8 +37,8 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {PLATFORMS.map(p => {
-          const isConnected = connectedPlatforms.includes(p.id);
+        {PLATFORMS.filter(p => !connectedPlatforms.includes(p.id)).map(p => {
+          const isConnected = false;
           const Icon = p.icon;
           
           return (
