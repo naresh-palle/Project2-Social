@@ -77,7 +77,7 @@ export default function Invitations() {
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
           </div>
           <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
-            ← Dashboard
+            ← Back
           </Link>
         </div>
 

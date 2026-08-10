@@ -73,7 +73,7 @@ export default function Wallet() {
             <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
           </div>
           <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-flex items-center gap-1.5">
-            <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
           </Link>
         </div>
 

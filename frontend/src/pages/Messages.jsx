@@ -279,15 +279,11 @@ export default function Messages({ miniWidget = false }) {
     <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
       {!miniWidget && <ThemeToaster />}
       {!miniWidget && <Nav />}
-      <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-6xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
+      <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
-          <div className="pb-4 flex items-center justify-between gap-3 shrink-0">
-            <div>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Messages</h1>
-              <p className="font-sans text-xs opacity-50 mt-0.5">Inbox</p>
-            </div>
-            <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
-              ← Dashboard
+          <div className="mb-6">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-2">
+              <ChevronLeft className="w-4 h-4" /> Back
             </Link>
           </div>
         )}
@@ -317,8 +313,8 @@ export default function Messages({ miniWidget = false }) {
           </div>
         )}
 
-        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "grid grid-cols-12 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
-          <aside className={miniWidget ? (active ? "hidden" : "flex-1 overflow-y-auto") : "col-span-12 md:col-span-4 lg:col-span-3 border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto max-h-[40vh] md:max-h-none"}>
+        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "flex-1 flex flex-col min-h-0 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
+          <aside className={active ? "hidden" : "flex-1 overflow-y-auto"}>
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
@@ -355,12 +351,12 @@ export default function Messages({ miniWidget = false }) {
             )}
           </aside>
 
-          <section className={miniWidget ? (!active ? "hidden" : "flex-1 flex flex-col min-h-0 bg-[#0B0B0E]") : "col-span-12 md:col-span-8 lg:col-span-9 flex flex-col min-h-0"}>
+          <section className={!active ? "hidden" : "flex-1 flex flex-col min-h-0 bg-[#0B0B0E]"}>
             {active ? (
               <div className="flex flex-col h-full relative">
                 <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
-                    <button onClick={() => setActive(null)} className={`${miniWidget ? "block" : "md:hidden"} p-2 -ml-2 opacity-60 hover:opacity-100`}>
+                    <button onClick={() => setActive(null)} className="p-2 -ml-2 opacity-60 hover:opacity-100">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                   <div className="min-w-0">
