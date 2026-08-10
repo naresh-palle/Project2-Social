@@ -105,7 +105,7 @@ export default function SupportCenter() {
           >
             {/* FAQ Section */}
             <section>
-              <h2 className="font-editorial text-3xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
+              <h2 className="font-sans text-2xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
               <div className="space-y-4">
                 {currentFaqs.map((faq, idx) => (
                   <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
@@ -113,7 +113,7 @@ export default function SupportCenter() {
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                       className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.04] transition-colors gap-4"
                     >
-                      <span className="font-editorial text-lg font-semibold text-[#F4F4F0]">{faq.question}</span>
+                      <span className="font-sans text-base font-semibold text-[#F4F4F0]">{faq.question}</span>
                       <ChevronDown className={`w-5 h-5 text-white/40 transition-transform shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>

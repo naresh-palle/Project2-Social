@@ -1,19 +1,10 @@
-import { Instagram, Facebook, Twitter, Youtube, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-const ICONS = {
-  instagram: Instagram,
-  facebook: Facebook,
-  twitter: Twitter,
-  youtube: Youtube
-};
-
-const COLORS = {
-  instagram: "text-pink-500",
-  facebook: "text-blue-500",
-  twitter: "text-sky-400",
-  youtube: "text-red-500"
-};
+import {
+  SOCIAL_PLATFORM_LABELS,
+  SOCIAL_PLATFORM_ICONS,
+  SOCIAL_PLATFORM_COLORS
+} from "@/lib/platforms";
 
 export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
   if (!connections || connections.length === 0) return null;
@@ -37,8 +28,9 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {connections.map(c => {
-          const Icon = ICONS[c.platform] || Instagram;
-          const colorClass = COLORS[c.platform] || "text-white";
+          const Icon = SOCIAL_PLATFORM_ICONS[c.platform] || SOCIAL_PLATFORM_ICONS.instagram;
+          const colorClass = SOCIAL_PLATFORM_COLORS[c.platform] || "text-white";
+          const platformLabel = SOCIAL_PLATFORM_LABELS[c.platform] || c.platform;
           
           return (
             <div key={c.platform} className="bg-white/[0.02] border border-[#F4F4F0]/10 p-5 hover:border-white/20 transition-colors">
@@ -54,7 +46,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   <div>
                     <div className="font-bold">{c.account_name || "Connected Account"}</div>
                     <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-widest uppercase opacity-50 mt-0.5">
-                      <Icon className={`w-3 h-3 ${colorClass}`} /> {c.platform}
+                      <Icon className={`w-3 h-3 ${colorClass}`} /> {platformLabel}
                     </div>
                   </div>
                 </div>

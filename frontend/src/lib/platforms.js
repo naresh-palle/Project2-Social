@@ -1,11 +1,34 @@
+import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
+
 /** Canonical social platform order across Edit Profile, Profile, Influencer Detail, etc. */
 export const SOCIAL_PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
 
 export const SOCIAL_PLATFORM_LABELS = {
   facebook: "Facebook",
   instagram: "Instagram",
-  twitter: "Twitter",
+  twitter: "X (Twitter)",
   youtube: "YouTube",
+};
+
+export const SOCIAL_PLATFORM_ICONS = {
+  facebook: Facebook,
+  instagram: Instagram,
+  twitter: Twitter,
+  youtube: Youtube,
+};
+
+export const SOCIAL_PLATFORM_COLORS = {
+  instagram: "text-pink-500",
+  facebook: "text-blue-500",
+  twitter: "text-sky-400",
+  youtube: "text-red-500",
+};
+
+export const SOCIAL_PLATFORM_HOVER_COLORS = {
+  instagram: "hover:bg-pink-600/20 hover:border-pink-600 hover:text-pink-500",
+  facebook: "hover:bg-blue-600/20 hover:border-blue-600 hover:text-blue-500",
+  twitter: "hover:bg-sky-500/20 hover:border-sky-500 hover:text-sky-400",
+  youtube: "hover:bg-red-600/20 hover:border-red-600 hover:text-red-500",
 };
 
 export function emptyPlatformMetrics() {
