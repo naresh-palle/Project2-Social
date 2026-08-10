@@ -103,7 +103,7 @@ export default function SupportCenter() {
           >
             {/* FAQ Section */}
             <section>
-              <h2 className="font-editorial text-3xl mb-6">Frequently Asked Questions</h2>
+              <h2 className="font-sans text-xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
               <div className="space-y-4">
                 {currentFaqs.map((faq, idx) => (
                   <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
@@ -111,7 +111,7 @@ export default function SupportCenter() {
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                       className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.04] transition-colors gap-4"
                     >
-                      <span className="font-editorial text-xl leading-tight text-[#F4F4F0] font-bold">{faq.question}</span>
+                      <span className="font-sans font-semibold text-[#F4F4F0]">{faq.question}</span>
                       <ChevronDown className={`w-5 h-5 text-white/40 transition-transform shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>
@@ -120,7 +120,7 @@ export default function SupportCenter() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="px-6 pb-6 text-[#F4F4F0]/60 font-mono text-xs leading-relaxed"
+                          className="px-6 pb-6 text-[#F4F4F0]/60 font-sans text-sm leading-relaxed"
                         >
                           {faq.answer}
                         </motion.div>
@@ -133,7 +133,7 @@ export default function SupportCenter() {
 
             {/* Tickets */}
             <section>
-              <h2 className="font-editorial text-3xl mb-6">{role === "admin" ? "All User Tickets" : "My Tickets"}</h2>
+              <h2 className="font-sans text-xl font-bold tracking-tight mb-6">{role === "admin" ? "All User Tickets" : "My Tickets"}</h2>
               <div className="space-y-4">
                 {tickets.map(ticket => (
                   <div key={ticket.id} className="p-5 border border-white/10 rounded-sm flex items-center justify-between bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
