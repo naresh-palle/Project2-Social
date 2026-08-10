@@ -1007,14 +1007,14 @@ export default function Landing() {
 
   const slides = [
     { id: "hero", component: <><Hero /><EditorialMarquee /><Footer /></> },
-    { id: "quick-value", component: <><QuickValue /><Footer /></> },
-    { id: "manifesto", component: <><Manifesto /><Footer /></> },
-    { id: "how-it-works", component: <><HowItWorks /><Footer /></> },
-    { id: "social-proof", component: <><SocialProof /><Footer /></> },
-    { id: "portfolio", component: <><FeaturedGrid /><Footer /></> },
-    { id: "pricing", component: <><PricingSection /><Footer /></> },
-    { id: "faq", component: <><FAQ /><Footer /></> },
-    { id: "final-cta", component: <><FinalCTA /><Footer /></> },
+    { id: "quick-value", component: <><QuickValue /></> },
+    { id: "manifesto", component: <><Manifesto /></> },
+    { id: "how-it-works", component: <><HowItWorks /></> },
+    { id: "social-proof", component: <><SocialProof /></> },
+    { id: "portfolio", component: <><FeaturedGrid /></> },
+    { id: "pricing", component: <><PricingSection /></> },
+    { id: "faq", component: <><FAQ /></> },
+    { id: "final-cta", component: <><FinalCTA /></> },
   ];
 
   const goToDeck = useCallback((updater) => {
