@@ -45,12 +45,26 @@ export default function SupportCenter() {
   const currentFaqs = role === "admin" ? ADMIN_FAQ : role === "owner" ? BRAND_FAQ : INFLUENCER_FAQ;
 
   const [activeFaq, setActiveFaq] = useState(null);
-  const [form, setForm] = useState({ subject: "", category: "Payment", priority: "Low", description: "" });
+  const [activeTicket, setActiveTicket] = useState(null);
+  
+  const [form, setForm] = useState({
+    subject: "",
+    category: "Payment",
+    priority: "Low",
+    description: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   // Mock Tickets
-  const [tickets, setTickets] = useState(role === "admin" ? ADMIN_MOCK_TICKETS : USER_MOCK_TICKETS);
+  const [tickets, setTickets] = useState(role === "admin" ? [
+    { id: "T-1045", subject: "Brand escrow refund request", status: "open", date: "2026-08-09", user: "Nike Official", category: "Payment", priority: "High", description: "The escrow refund for campaign #442 has not been processed yet. Please advise." },
+    { id: "T-1042", subject: "Profile verification pending", status: "open", date: "2026-08-08", user: "Alex Creator", category: "Account", priority: "Medium", description: "I submitted my ID 3 days ago but haven't received the verified badge." },
+    { id: "T-1038", subject: "Payment delay", status: "closed", date: "2026-08-05", user: "Sarah Styles", category: "Payment", priority: "Urgent", description: "My payout from July is still showing as pending." },
+  ] : [
+    { id: "T-123", subject: "Payment delay", status: "open", date: "2026-08-01", category: "Payment", priority: "Medium", description: "My payout from July is still showing as pending." },
+    { id: "T-089", subject: "Profile not updating", status: "closed", date: "2026-07-28", category: "Account", priority: "Low", description: "I changed my bio but it's not reflecting on my public profile." }
+  ]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +75,9 @@ export default function SupportCenter() {
       setTickets([{
         id: `T-${Math.floor(Math.random() * 1000)}`,
         subject: form.subject,
+        category: form.category,
+        priority: form.priority,
+        description: form.description,
         status: "open",
         date: new Date().toISOString().split("T")[0]
       }, ...tickets]);
@@ -138,16 +155,52 @@ export default function SupportCenter() {
               <h2 className="font-sans text-xl font-bold tracking-tight mb-6">{role === "admin" ? "All User Tickets" : "My Tickets"}</h2>
               <div className="space-y-4">
                 {tickets.map(ticket => (
-                  <div key={ticket.id} className="p-5 border border-white/10 rounded-sm flex items-center justify-between bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
-                    <div>
-                      <div className="font-mono text-xs tracking-widest text-white/40 mb-1">{ticket.id} • {ticket.date} {ticket.user && `• ${ticket.user}`}</div>
-                      <div className="font-sans font-medium text-lg">{ticket.subject}</div>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider ${
-                      ticket.status === 'open' ? 'bg-[#34C759]/20 text-[#34C759] border border-[#34C759]/30' : 'bg-white/10 text-white/40 border border-white/10'
-                    }`}>
-                      {ticket.status}
-                    </div>
+                  <div key={ticket.id} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
+                    <button 
+                      onClick={() => setActiveTicket(activeTicket === ticket.id ? null : ticket.id)}
+                      className="w-full flex items-center justify-between p-5 text-left hover:bg-white/[0.04] transition-colors gap-4"
+                    >
+                      <div>
+                        <div className="font-mono text-xs tracking-widest text-white/40 mb-1">{ticket.id} • {ticket.date} {ticket.user && `• ${ticket.user}`}</div>
+                        <div className="font-sans font-medium text-lg">{ticket.subject}</div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider ${
+                          ticket.status === 'open' ? 'bg-[#34C759]/20 text-[#34C759] border border-[#34C759]/30' : 'bg-white/10 text-white/40 border border-white/10'
+                        }`}>
+                          {ticket.status}
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-white/40 transition-transform shrink-0 ${activeTicket === ticket.id ? 'rotate-180' : ''}`} />
+                      </div>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {activeTicket === ticket.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="px-5 pb-5 border-t border-white/5 pt-4"
+                        >
+                          <div className="flex flex-wrap gap-4 mb-4">
+                            <div>
+                              <span className="text-[10px] font-mono tracking-widest uppercase opacity-40 block mb-1">Category</span>
+                              <span className="text-sm border border-white/10 bg-white/5 px-2 py-1 rounded-sm">{ticket.category}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-mono tracking-widest uppercase opacity-40 block mb-1">Priority</span>
+                              <span className="text-sm border border-white/10 bg-white/5 px-2 py-1 rounded-sm">{ticket.priority}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-mono tracking-widest uppercase opacity-40 block mb-2">Description</span>
+                            <p className="text-sm text-white/70 leading-relaxed bg-black/40 p-3 rounded-sm border border-white/5">
+                              {ticket.description}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))}
               </div>

@@ -720,12 +720,50 @@ function InfluencerPanel() {
 
       {/* Platform Analytics & Social Connect — always visible above tabs */}
       <SocialAnalyticsCards
-        connections={user?.oauth_connections || []}
+        connections={(() => {
+          let base = user?.oauth_connections?.length > 0 ? [...user.oauth_connections] : [];
+          if (base.length === 0 && user?.platform_metrics) {
+            base = Object.entries(user.platform_metrics).map(([plat, data]) => ({
+              platform: plat,
+              account_name: data.handle || `@${user.handle || "creator"}`,
+              analytics: {
+                followers: data.followers || data.subscribers || 0,
+                er: data.er || data.engagement || 0,
+                views: data.views || "0",
+                posts: data.posts || 0
+              },
+              last_sync_time: new Date().toISOString()
+            }));
+          } else {
+            base = base.map(c => {
+              const pm = user?.platform_metrics?.[c.platform];
+              if (pm) {
+                return {
+                  ...c,
+                  analytics: {
+                    followers: pm.followers ?? pm.subscribers ?? c.analytics?.followers ?? 0,
+                    er: pm.er ?? pm.engagement ?? c.analytics?.er ?? 0,
+                    views: pm.views ?? c.analytics?.views ?? "0",
+                    posts: pm.posts ?? c.analytics?.posts ?? 0
+                  }
+                };
+              }
+              return c;
+            });
+          }
+          return base;
+        })()}
         onSync={handleSync}
         isSyncing={syncing}
       />
       <SocialConnect
-        connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
+        connectedPlatforms={(() => {
+          let base = user?.oauth_connections?.length > 0 ? [...user.oauth_connections] : [];
+          if (base.length === 0 && user?.platform_metrics) {
+            base = Object.entries(user.platform_metrics).map(([plat]) => ({ platform: plat }));
+          }
+          return base;
+        })().map(c => c.platform)}
       />
 
       {/* Primary Navigation Tabs for Influencers */}

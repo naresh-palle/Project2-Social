@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
-  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft
+  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft, Loader2
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 

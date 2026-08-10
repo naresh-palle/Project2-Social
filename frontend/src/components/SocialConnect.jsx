@@ -36,8 +36,8 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {SOCIAL_PLATFORMS.filter(p => !connectedPlatforms.includes(p)).map(p => {
-          const isConnected = false;
+        {SOCIAL_PLATFORMS.map(p => {
+          const isConnected = connectedPlatforms.includes(p);
           const Icon = SOCIAL_PLATFORM_ICONS[p];
           const name = SOCIAL_PLATFORM_LABELS[p];
           const color = SOCIAL_PLATFORM_HOVER_COLORS[p];
