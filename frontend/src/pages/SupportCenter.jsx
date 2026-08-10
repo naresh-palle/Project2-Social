@@ -108,10 +108,10 @@ export default function SupportCenter() {
                   <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
                     <button 
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                      className="w-full flex items-center justify-between p-5 text-left hover:bg-white/[0.04] transition-colors"
+                      className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.04] transition-colors gap-4"
                     >
-                      <span className="font-sans font-medium text-lg">{faq.question}</span>
-                      <ChevronDown className={`w-5 h-5 text-white/40 transition-transform ${activeFaq === idx ? 'rotate-180' : ''}`} />
+                      <span className="font-editorial text-xl leading-tight text-[#F4F4F0] font-bold">{faq.question}</span>
+                      <ChevronDown className={`w-5 h-5 text-white/40 transition-transform shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>
                       {activeFaq === idx && (
@@ -119,7 +119,7 @@ export default function SupportCenter() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="px-5 pb-5 text-white/60 font-sans leading-relaxed"
+                          className="px-6 pb-6 text-[#F4F4F0]/60 font-mono text-xs leading-relaxed"
                         >
                           {faq.answer}
                         </motion.div>
