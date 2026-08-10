@@ -122,27 +122,23 @@ export default function Dashboard() {
                     className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
                   />
                 </form>
-                <IconTip label="Feed">
-                  <Link
-                    to="/feed"
-                    title="Feed"
-                    aria-label="Feed"
-                    className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] !px-2.5 !py-2.5"
-                  >
-                    <Newspaper className="w-5 h-5" />
-                  </Link>
-                </IconTip>
-                <IconTip label="Directory">
-                  <Link
-                    to="/marketplace"
-                    title="Directory"
-                    aria-label="Directory"
-                    data-testid="browse-campaigns-btn"
-                    className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-2.5 !py-2.5"
-                  >
-                    <Compass className="w-5 h-5" />
-                  </Link>
-                </IconTip>
+                <Link
+                  to="/feed"
+                  title="Feed"
+                  aria-label="Feed"
+                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 !px-3 !py-2"
+                >
+                  <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
+                </Link>
+                <Link
+                  to="/marketplace"
+                  title="Directory"
+                  aria-label="Directory"
+                  data-testid="browse-campaigns-btn"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
+                >
+                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -162,17 +158,15 @@ export default function Dashboard() {
                     className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
                   />
                 </form>
-                <IconTip label="Directory">
                 <Link
                   to="/marketplace"
                   title="Directory"
                   aria-label="Directory"
                   data-testid="browse-campaigns-btn"
-                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-2.5 !py-2.5"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
                 >
-                  <Compass className="w-5 h-5" />
+                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
                 </Link>
-                </IconTip>
               </div>
             )}
 
