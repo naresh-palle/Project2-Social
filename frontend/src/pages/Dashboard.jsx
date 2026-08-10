@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
-  ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass
+  ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass, Search
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
@@ -61,16 +61,15 @@ export default function Dashboard() {
           <div className="border-b border-white/10 pb-2 mb-2.5 flex flex-wrap items-end justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/20 relative">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover" />
-                ) : (
-                  <div 
-                    className="w-full h-full flex items-center justify-center font-sans text-base text-white"
-                    style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
-                  >
-                    {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-                  </div>
+                {user?.avatar && (
+                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
                 )}
+                <div 
+                  className="w-full h-full flex items-center justify-center font-sans text-base text-white absolute inset-0 z-0"
+                  style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
+                >
+                  {(displayAccountName(user) || "C")[0]?.toUpperCase()}
+                </div>
               </div>
               <div>
                 <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
@@ -107,6 +106,22 @@ export default function Dashboard() {
 
             {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
               <div className="flex items-center gap-2">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const query = formData.get("q");
+                    if(query) nav(`/search?q=${encodeURIComponent(query)}`);
+                  }}
+                  className="hidden md:flex relative mr-2"
+                >
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-white" />
+                  <input 
+                    name="q" 
+                    placeholder="Global search..." 
+                    className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
+                  />
+                </form>
                 <IconTip label="Feed">
                   <Link
                     to="/feed"
@@ -130,7 +145,24 @@ export default function Dashboard() {
                 </IconTip>
               </div>
             ) : (
-              <IconTip label="Directory">
+              <div className="flex items-center gap-2">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const query = formData.get("q");
+                    if(query) nav(`/search?q=${encodeURIComponent(query)}`);
+                  }}
+                  className="hidden md:flex relative mr-2"
+                >
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-white" />
+                  <input 
+                    name="q" 
+                    placeholder="Global search..." 
+                    className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
+                  />
+                </form>
+                <IconTip label="Directory">
                 <Link
                   to="/marketplace"
                   title="Directory"
@@ -140,7 +172,8 @@ export default function Dashboard() {
                 >
                   <Compass className="w-5 h-5" />
                 </Link>
-              </IconTip>
+                </IconTip>
+              </div>
             )}
 
 
@@ -463,8 +496,8 @@ function OwnerPanel() {
                     <span>❤️ {work.likes}</span>
                     <span>💬 {work.comments}</span>
                   </div>
-                  <Link to="/marketplace" className="btn-solid py-1.5 px-2.5 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
-                    Invite <ArrowRight className="w-3 h-3" />
+                  <Link to={`/u/${work.handle}`} className="btn-solid py-1.5 px-2.5 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
+                    View Profile <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </motion.div>

@@ -702,6 +702,23 @@ def setup_phase1(
         await db.likes.delete_many({"post_id": post_id})
         return {"ok": True}
 
+    @api_router.put("/campaigns/{campaign_id}")
+    async def update_campaign(campaign_id: str, campaign: dict, current: dict = Depends(get_current_user)):
+        await require_role(current, ["owner", "admin", "agent"])
+        c = await db.campaigns.find_one({"id": campaign_id})
+        if not c:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        if c.get("owner_id") != current["id"] and current.get("role") != "admin" and not (current.get("role") == "agent" and current.get("agent_type") == "brand_agent"):
+            raise HTTPException(status_code=403, detail="Not your campaign")
+        
+        # Merge allowed fields
+        allowed = ["title", "brand", "description", "deliverables", "location", "influencer_type", "min_reach", "min_followers", "min_engagement", "influencer_experience", "timeline", "influencer_location", "budget", "niches", "platforms", "cover", "status"]
+        updates = {k: v for k, v in campaign.items() if k in allowed}
+        
+        await db.campaigns.update_one({"id": campaign_id}, {"$set": updates})
+        updated = await db.campaigns.find_one({"id": campaign_id}, {"_id": 0})
+        return clean(updated)
+
     @api_router.post("/posts/{post_id}/pin")
     async def pin_post(post_id: str, current: dict = Depends(get_current_user)):
         post = await db.posts.find_one({"id": post_id})
@@ -777,6 +794,55 @@ def setup_phase1(
                 pass
 
         posts = await db.posts.find(q, {"_id": 0}).sort(sort).limit(limit).to_list(limit)
+
+        if not posts and not cursor and await db.posts.count_documents({}) == 0:
+            import uuid
+            from datetime import datetime
+            
+            # Find a demo user to use as author
+            demo_user = await db.users.find_one({"role": "influencer"}) or current
+            
+            mock_posts = [
+                {
+                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
+                    "author_id": demo_user["id"],
+                    "content": "Just wrapped up an amazing shoot with a new streetwear brand! The vibes were immaculate, can't wait to share the final cuts. 📸✨ #streetwear #creator",
+                    "media_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
+                    "media_type": "image",
+                    "status": "published",
+                    "likes_count": 42,
+                    "comments_count": 5,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "mock": True
+                },
+                {
+                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
+                    "author_id": demo_user["id"],
+                    "content": "What's everyone's favorite editing software these days? Thinking about switching from Premiere to DaVinci Resolve. Let me know your thoughts! 👇",
+                    "media_url": None,
+                    "media_type": None,
+                    "status": "published",
+                    "likes_count": 18,
+                    "comments_count": 12,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "mock": True
+                },
+                {
+                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
+                    "author_id": demo_user["id"],
+                    "content": "Beautiful sunset in the city today! Getting some great B-roll footage.",
+                    "media_url": "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&q=80&w=800",
+                    "media_type": "image",
+                    "status": "published",
+                    "likes_count": 105,
+                    "comments_count": 24,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "mock": True
+                }
+            ]
+            await db.posts.insert_many(mock_posts)
+            posts = mock_posts
+
         enriched = [await enrich_post(p, current["id"]) for p in posts]
         next_cursor = posts[-1]["created_at"] if posts else None
 
@@ -1046,7 +1112,10 @@ def setup_phase1(
     async def public_profile(user_id: str, current: dict = Depends(get_current_user)):
         u = await db.users.find_one({"id": user_id}, {"password_hash": 0, "two_fa_secret": 0})
         if not u:
+            u = await db.users.find_one({"$or": [{"handle": user_id}, {"username": user_id}]}, {"password_hash": 0, "two_fa_secret": 0})
+        if not u:
             raise HTTPException(status_code=404, detail="User not found")
+        user_id = u["id"]  # Ensure we use the real ID for subsequent queries
         if await is_blocked(current["id"], user_id):
             raise HTTPException(status_code=403, detail="Blocked")
         await db.profile_views.insert_one({

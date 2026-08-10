@@ -63,17 +63,26 @@ export default function PublicProfile() {
   };
 
   const block = async () => {
-    if (!window.confirm("Block this user?")) return;
-    setActionBusy("block");
-    try {
-      await api.post("/privacy/block", { user_id: userId });
-      toast.success("User blocked");
-      nav(-1);
-    } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "Block failed");
-    } finally {
-      setActionBusy(null);
-    }
+    toast("Block this user?", {
+      action: {
+        label: "Block",
+        onClick: async () => {
+          setActionBusy("block");
+          try {
+            await api.post("/privacy/block", { user_id: userId });
+            toast.success("User blocked");
+            nav(-1);
+          } catch (e) {
+            toast.error(formatApiError(e.response?.data?.detail) || "Block failed");
+          } finally {
+            setActionBusy(null);
+          }
+        }
+      },
+      cancel: {
+        label: "Cancel"
+      }
+    });
   };
 
   const report = async () => {
@@ -130,7 +139,16 @@ export default function PublicProfile() {
       <Nav />
       <ThemeToaster />
       <div className="pt-24 flex-1">
-        <div className="h-48 md:h-64 w-full overflow-hidden">
+        <div className="max-w-4xl mx-auto px-6 md:px-10 mb-6 flex flex-col items-start gap-4">
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
+          </button>
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ User Profile</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Profile</h1>
+          </div>
+        </div>
+        <div className="h-48 md:h-64 w-full overflow-hidden max-w-6xl mx-auto rounded-t-xl">
             {profile.cover_photo ? (
               <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -148,16 +166,17 @@ export default function PublicProfile() {
           </div>
         <div className="max-w-3xl mx-auto px-6 md:px-10 pb-24 -mt-16 relative">
           <div className="flex items-end gap-6">
-            {profile.avatar ? (
-              <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E]" />
-            ) : (
+            <div className="relative w-28 h-28 shrink-0">
+              {profile.avatar && (
+                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#0B0B0E] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+              )}
               <div
-                className="w-28 h-28 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
+                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
                 style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
               >
                 {(displayName || "?")[0]?.toUpperCase()}
               </div>
-            )}
+            </div>
             <div className="flex-1 pb-2">
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
               {(profile.role === "owner" || profile.role === "agent") && profile.company && (

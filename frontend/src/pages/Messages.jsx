@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
@@ -264,13 +264,22 @@ export default function Messages({ miniWidget = false }) {
   };
 
   const deleteMsg = async (msgId) => {
-    if (!window.confirm("Delete this message?")) return;
-    try {
-      await api.delete(`/messages/${msgId}`);
-      setMsgs((prev) => prev.filter((m) => m.id !== msgId));
-    } catch {
-      toast.error("Delete failed");
-    }
+    toast("Delete this message?", {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            await api.delete(`/messages/${msgId}`);
+            setMsgs((prev) => prev.filter((m) => m.id !== msgId));
+          } catch {
+            toast.error("Delete failed");
+          }
+        }
+      },
+      cancel: {
+        label: "Cancel"
+      }
+    });
   };
 
   const visible = msgs.filter((m) => !m.deleted);
@@ -281,33 +290,40 @@ export default function Messages({ miniWidget = false }) {
       {!miniWidget && <Nav />}
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
-          <div className="mb-6 flex items-start justify-between">
+          <div className="mb-6">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
+               <ChevronLeft className="w-4 h-4" /> Back
+            </Link>
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
             </div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
-               Back <ChevronRight className="w-4 h-4" />
+          </div>
+        )}
+
+        {miniWidget && (
+          <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0">
+            <h2 className="font-sans text-sm font-bold tracking-tight">Messages</h2>
+            <Link to={active ? `/messages?id=${active.id}` : "/messages"} onClick={() => document.querySelector('button[title="Close Chat"]')?.click()} className="text-[10px] uppercase text-[#FF3B30] hover:underline font-mono">
+              Open Full Chat
             </Link>
           </div>
         )}
 
-        {!miniWidget && (
-          <div className="mb-3 flex gap-2 max-w-sm shrink-0">
-            <input
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && searchMessages()}
-              placeholder="Search messages…"
-              className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
-            />
-            <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
-              <Search className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-        {!miniWidget && searchResults.length > 0 && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] max-w-sm rounded-sm space-y-1.5 shrink-0">
+        <div className={`mb-3 flex gap-2 shrink-0 ${miniWidget ? "p-3" : "max-w-sm"}`}>
+          <input
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && searchMessages()}
+            placeholder={miniWidget ? "Search users or messages..." : "Search messages…"}
+            className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
+          />
+          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
+            <Search className="w-4 h-4" />
+          </button>
+        </div>
+        {searchResults.length > 0 && (
+          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-sm space-y-1.5 shrink-0">
             {searchResults.map((m) => (
               <div key={m.id} className="font-sans text-xs opacity-80 truncate">{m.content}</div>
             ))}

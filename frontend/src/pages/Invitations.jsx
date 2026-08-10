@@ -71,14 +71,14 @@ export default function Invitations() {
       <Nav />
       <ThemeToaster />
       <div className="pt-24 max-w-4xl mx-auto px-4 md:px-6 pb-16">
-        <div className="pb-4 flex items-center justify-between gap-3 border-b border-white/10">
+        <div className="pb-4 border-b border-white/10">
+          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-block mb-4">
+            ← Back
+          </Link>
           <div>
             <p className="font-sans text-[10px] tracking-widest uppercase opacity-50">{subtitle}</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
           </div>
-          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
-            Back →
-          </Link>
         </div>
 
         {loading ? (

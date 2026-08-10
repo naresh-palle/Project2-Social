@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { useAuth } from "@/lib/auth";
@@ -67,14 +67,14 @@ export default function Wallet() {
       <ThemeToaster />
 
       <div className="pt-24 max-w-5xl mx-auto px-4 md:px-6 pb-16">
-        <div className="pb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10">
+        <div className="pb-5 border-b border-white/10">
+          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-flex items-center gap-1.5 mb-4">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
+          </Link>
           <div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Wallet</h1>
             <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
           </div>
-          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-flex items-center gap-1.5">
-            Back <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">

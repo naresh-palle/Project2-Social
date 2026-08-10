@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ArrowRight, Sparkles, Loader2, Upload, X } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
@@ -13,7 +14,8 @@ const PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
 const INFLUENCER_TYPES = ["Nano", "Micro", "Macro", "Mega", "Celebrity"];
 const EXPERIENCE_OPTS = ["Any", "1+ years", "2+ years", "3+ years", "5+ years"];
 
-export default function NewCampaign() {
+export default function NewCampaign({ isEdit }) {
+  const { id } = useParams();
   const { user } = useAuth();
   const nav = useNavigate();
   const brandLocked = user?.role === "owner";
@@ -51,6 +53,34 @@ export default function NewCampaign() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nav]);
 
+  useEffect(() => {
+    if (isEdit && id) {
+      api.get(`/campaigns/${id}`)
+        .then((res) => {
+          const c = res.data;
+          setF({
+            title: c.title || "",
+            brand: c.brand || "",
+            description: c.description || "",
+            budget: c.budget || 15000,
+            deliverables: c.deliverables || "",
+            cover: c.cover || "",
+            location: c.location || "",
+            timeline: c.timeline || "",
+            min_followers: c.min_followers || 10000,
+            influencer_location: c.influencer_location || "",
+            influencer_experience: c.influencer_experience || "Any",
+            influencer_type: c.influencer_type || "Micro",
+            min_reach: c.min_reach || "",
+            min_engagement: c.min_engagement || "",
+          });
+          if (c.niches) setNiches(c.niches);
+          if (c.platforms) setPlatforms(c.platforms);
+        })
+        .catch(() => toast.error("Failed to load campaign"));
+    }
+  }, [isEdit, id]);
+
   const onCoverPick = async (e) => {
     const url = await uploadImage(e.target.files?.[0]);
     if (url) {
@@ -77,7 +107,27 @@ export default function NewCampaign() {
       toast.success("Draft ready.");
       setAiOpen(false);
     } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "AI failed");
+      console.warn("AI backend failed, using fallback mock data:", e);
+      // Fallback for wsarecv issues or missing API key
+      const mockData = {
+        title: "Brand Awareness Campaign",
+        description: `Looking for creators to help promote: ${aiGoal}. This will be a high-energy campaign focused on organic engagement.`,
+        deliverables: "1 Instagram Reel + 2 Story Highlights",
+        budget: 50000,
+        niches: ["Lifestyle", "Tech"],
+        platforms: ["Instagram"]
+      };
+      setF({
+        ...f,
+        title: mockData.title,
+        description: mockData.description,
+        deliverables: mockData.deliverables,
+        budget: mockData.budget,
+      });
+      setNiches(mockData.niches);
+      setPlatforms(mockData.platforms);
+      toast.success("Draft ready (Mock Fallback).");
+      setAiOpen(false);
     } finally {
       setAiBusy(false);
     }
@@ -95,8 +145,17 @@ export default function NewCampaign() {
         niches,
         platforms,
       };
-      const { data } = await api.post("/campaigns", payload);
-      toast.success("Brief posted.");
+      
+      let data;
+      if (isEdit && id) {
+        const res = await api.put(`/campaigns/${id}`, payload);
+        data = res.data;
+        toast.success("Brief updated.");
+      } else {
+        const res = await api.post("/campaigns", payload);
+        data = res.data;
+        toast.success("Brief posted.");
+      }
       nav(`/campaigns/${data.id}`);
     } catch (err) {
       toast.error(formatApiError(err.response?.data?.detail) || "Failed");

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, Bot, Sparkles, User, ExternalLink, ChevronRight } from "lucide-react";
+import { Send, Bot, Sparkles, User, ExternalLink, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function HelpChat() {
@@ -47,6 +47,9 @@ export default function HelpChat() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4">
+             <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
           <div className="flex flex-col sm:flex-row sm:items-start justify-between mt-2 gap-4">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI Assistant</p>
@@ -63,15 +66,12 @@ export default function HelpChat() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-start mt-4">
             <Link 
               to="/support" 
               className="hidden sm:flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors font-mono text-[10px] tracking-widest uppercase text-white/80 hover:text-white"
             >
               Create Support Ticket <ExternalLink className="w-3 h-3" />
-            </Link>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
-               Back <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </motion.div>

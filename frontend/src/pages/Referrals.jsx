@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 import { 
-  Copy, Share2, Send, Check, ChevronRight, Users, Sparkles 
+  Copy, Share2, Send, Check, ChevronLeft, Users, Sparkles 
 } from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { Link } from "react-router-dom";
@@ -74,7 +74,10 @@ export default function Referrals() {
       <ThemeToaster />
       <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
+             <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Rewards</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
@@ -82,9 +85,6 @@ export default function Referrals() {
               Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
             </p>
           </div>
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
-             Back <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -266,7 +266,7 @@ export default function Referrals() {
                 <div className="w-12 h-12 bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 rounded-full flex items-center justify-center font-editorial text-2xl mx-auto mb-4">
                   {s.step}
                 </div>
-                <h4 className="font-sans font-bold text-lg mb-2">{s.title}</h4>
+                <h4 className="font-editorial font-bold text-xl mb-2">{s.title}</h4>
                 <p className="font-sans text-sm text-white/60">{s.desc}</p>
               </div>
             ))}

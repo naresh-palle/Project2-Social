@@ -212,16 +212,25 @@ export function AdminPanel() {
           toast.error("Admin users cannot be deleted");
           return;
       }
-      if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
-      try {
-          await api.delete(`/admin/users/${userId}`);
-          toast.success("User deleted successfully");
-          fetchUsers();
-          const stRes = await api.get("/admin/dashboard-stats");
-          setStats(stRes.data);
-      } catch (e) {
-          toast.error(e?.response?.data?.detail || "Failed to delete user");
-      }
+      toast("Are you sure you want to permanently delete this user?", {
+        action: {
+          label: "Delete",
+          onClick: async () => {
+            try {
+                await api.delete(`/admin/users/${userId}`);
+                toast.success("User deleted successfully");
+                fetchUsers();
+                const stRes = await api.get("/admin/dashboard-stats");
+                setStats(stRes.data);
+            } catch (e) {
+                toast.error(e?.response?.data?.detail || "Failed to delete user");
+            }
+          }
+        },
+        cancel: {
+          label: "Cancel"
+        }
+      });
   };
 
   const banUser = async (userId, role) => {
@@ -230,14 +239,23 @@ export function AdminPanel() {
           return;
       }
       const reason = window.prompt("Ban reason (optional):") || "Policy violation";
-      if (!window.confirm("Ban this user?")) return;
-      try {
-          await api.post(`/admin/users/${userId}/ban`, { reason });
-          toast.success("User banned");
-          fetchUsers();
-      } catch (e) {
-          toast.error(e?.response?.data?.detail || "Ban failed");
-      }
+      toast("Ban this user?", {
+        action: {
+          label: "Ban",
+          onClick: async () => {
+            try {
+                await api.post(`/admin/users/${userId}/ban`, { reason });
+                toast.success("User banned");
+                fetchUsers();
+            } catch (e) {
+                toast.error(e?.response?.data?.detail || "Ban failed");
+            }
+          }
+        },
+        cancel: {
+          label: "Cancel"
+        }
+      });
   };
 
   const handleReportAction = async (reportId, status) => {

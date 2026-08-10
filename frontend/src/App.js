@@ -64,6 +64,7 @@ function App() {
             <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />
             <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
             <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
+            <Route path="/campaigns/:id/edit" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign isEdit /></RequireAuth>} />
             <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
             <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
             <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />

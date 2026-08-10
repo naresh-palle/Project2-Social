@@ -152,6 +152,7 @@ export default function ProfileEdit() {
   const { user, refresh } = useAuth();
   const nav = useNavigate();
   const [f, setF] = useState(null);
+  const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [syncBusy, setSyncBusy] = useState(false);
@@ -353,102 +354,50 @@ export default function ProfileEdit() {
     setCropState({ src: f.cover_photo, aspect: 16 / 5, target: "cover", title: "Edit cover crop" });
   };
 
+  const validateStep1 = () => {
+    if (!f.name || f.name.trim() === "") { toast.error("Please enter your Name."); return false; }
+    if (!f.bio || f.bio.trim() === "") { toast.error("Please enter your Bio / About."); return false; }
+    if (!f.gender?.trim() || !["male", "female", "other"].includes(f.gender)) { toast.error("Please select Gender."); return false; }
+    if (!toIsoDate(f.date_of_birth)) { toast.error("Please select your Date of Birth."); return false; }
+    if (isInfluencer && !(f.username || f.handle)?.toString().trim()) { toast.error("Username is missing."); return false; }
+    return true;
+  };
+
+  const validateStep2 = () => {
+    if (!isInfluencer) {
+      if (!f.company?.trim()) { toast.error("Company / Brand Name is required."); return false; }
+      if (!f.industry?.trim()) { toast.error("Brand Industry is required."); return false; }
+      if (!f.website?.trim()) { toast.error("Official Website URL is required."); return false; }
+    } else {
+      if (!f.platform_metrics?.instagram?.handle?.trim()) { toast.error("Instagram handle is required."); return false; }
+      if (!f.base_rate || Number(f.base_rate) <= 0) { toast.error("Please specify your Base Rate."); return false; }
+      if (!f.experience?.trim()) { toast.error("Years of Experience is required."); return false; }
+      if (!f.response_time?.trim()) { toast.error("Response Time is required."); return false; }
+      if (!f.content_types || f.content_types.length === 0) { toast.error("Please select Content Types."); return false; }
+    }
+    return true;
+  };
+
+  const validateStep3 = () => {
+    if (!f.avatar) { toast.error("Please upload a Profile Picture."); return false; }
+    return true;
+  };
+
+  const nextStep = () => {
+    if (step === 1 && !validateStep1()) return;
+    if (step === 2 && !validateStep2()) return;
+    setStep((s) => s + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const prevStep = () => {
+    setStep((s) => s - 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const submit = async (e) => {
     e.preventDefault();
-
-    // Client-side section validation & auto-scroll to missing data
-    if (!f.name || f.name.trim() === "") {
-      toast.error("Missing Data: Please enter your Name in Section 1.");
-      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    if (!f.bio || f.bio.trim() === "") {
-      toast.error("Missing Data: Please enter your Bio / About in Section 1.");
-      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    if (!f.avatar) {
-      toast.error("Missing Data: Please upload a Profile Picture in Section 1.");
-      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    // City / state come from signup (pincode) — not required to re-enter here
-
-    if (!f.gender?.trim() || !["male", "female", "other"].includes(f.gender)) {
-      toast.error("Missing Data: Please select Gender (Male, Female, or Others).");
-      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-    if (!toIsoDate(f.date_of_birth)) {
-      toast.error("Missing Data: Please select your Date of Birth.");
-      document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    if (!isInfluencer) {
-      if (!f.company?.trim()) {
-        toast.error("Missing Data: Company / Brand Name is required.");
-        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-      if (!f.industry?.trim()) {
-        toast.error("Missing Data: Brand Industry is required.");
-        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-      if (!f.website?.trim()) {
-        toast.error("Missing Data: Official Website URL is required.");
-        document.getElementById("sec-company")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-    }
-
-    if (isInfluencer) {
-      // Username comes from account signup; keep handle synced for profile display
-      if (!(f.username || f.handle)?.toString().trim()) {
-        toast.error("Missing Data: Username is missing from your account.");
-        document.getElementById("sec-basic")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      if (!f.platform_metrics?.instagram?.handle?.trim()) {
-        toast.error("Missing Data: Instagram handle is required in Social Presence.");
-        document.getElementById("sec-social")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      // Content niche is optional
-
-      if (!f.base_rate || Number(f.base_rate) <= 0) {
-        toast.error("Missing Data: Please specify your Pricing & Rates in Section 5.");
-        document.getElementById("sec-rate")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      // Past campaigns are optional — empty rows are ignored on save
-
-      if (!f.experience?.trim()) {
-        toast.error("Missing Data: Years of Experience is required in Section 7.");
-        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      if (!f.response_time?.trim()) {
-        toast.error("Missing Data: Response Time is required in Section 7.");
-        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      if (!f.content_types || f.content_types.length === 0) {
-        toast.error("Missing Data: Please select at least one Content Type You Create in Section 7.");
-        document.getElementById("sec-content-types")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-    }
-
+    if (!validateStep1() || !validateStep2() || !validateStep3()) return;
     setBusy(true);
     try {
       const handleValue = formatUsername(f.handle, f.username);
@@ -748,14 +697,28 @@ export default function ProfileEdit() {
             </div>
         </div>
 
+        <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-white/10 bg-white/[0.02] rounded-md">
+          <div className="flex items-center gap-2">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF3B30] text-white" : "bg-white/10 text-white/50"}`}>
+                {s}
+              </div>
+            ))}
+          </div>
+          <div className="text-xs uppercase tracking-widest text-[#FF3B30] font-semibold">
+            {step === 1 ? "Step 1: Basic Info" : step === 2 ? "Step 2: Details" : "Step 3: Media & Review"}
+          </div>
+        </div>
+
         <motion.form noValidate onSubmit={submit} className="mt-4 space-y-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           
-          {/* SECTION 1: BASIC */}
-          <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
-                <span className="mr-2">01</span>
-                Basic details
-              </h2>
+          {step === 1 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    <span className="mr-2">01</span>
+                    Basic Info
+                  </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {isInfluencer ? (
@@ -790,52 +753,6 @@ export default function ProfileEdit() {
                 )}
               </div>
 
-              {!isInfluencer && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="sec-company">
-                  <F label="Brand Industry Category *">
-                    <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
-                      <option value="" className="bg-[#0B0B0E]">Select Industry Category...</option>
-                      {INDUSTRIES.map(ind => (
-                        <option key={ind} value={ind} className="bg-[#0B0B0E]">{ind}</option>
-                      ))}
-                    </select>
-                  </F>
-                  <F label="Official Website URL *">
-                    <input type="text" inputMode="url" required className="inp font-sans text-sm" placeholder="https://example.com" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
-                  </F>
-                  <F label="LinkedIn">
-                    <input type="text" inputMode="url" className="inp font-sans text-sm" placeholder="https://linkedin.com/company/…" value={f.linkedin || ""} onChange={e=>setF({...f, linkedin: e.target.value})} />
-                  </F>
-                  <F label="Size · Employees">
-                    <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
-                      <option value="" className="bg-[#0B0B0E]">Select company size…</option>
-                      {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => (
-                        <option key={s} value={s} className="bg-[#0B0B0E]">{s}</option>
-                      ))}
-                    </select>
-                  </F>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="sec-niche">
-                <MultiSelectDropdown
-                  options={categoriesList.map(c => typeof c === 'string' ? c : c.name)}
-                  selected={Array.isArray(f.category) ? f.category : toList(f.category)}
-                  onChange={(vals) => setF({ ...f, category: vals })}
-                  placeholder="Select niches…"
-                  compact
-                  label={isInfluencer ? "Niches / Category (required for AI bio)" : "Niches / Category (optional)"}
-                />
-                <MultiSelectDropdown
-                  options={LANGUAGES}
-                  selected={Array.isArray(f.languages) ? f.languages : toList(f.languages)}
-                  onChange={(vals) => setF({ ...f, languages: vals })}
-                  placeholder="Select languages…"
-                  compact
-                  label="Languages"
-                />
-              </div>
-
               <F label="Bio / About *">
                   <textarea required rows={3} className="inp resize-none text-sm" value={f.bio} onChange={e=>setF({...f,bio:e.target.value})} maxLength={500} />
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2">
@@ -858,37 +775,6 @@ export default function ProfileEdit() {
                       </div>
                   </div>
               </F>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <F label="Profile Picture *">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-sm" />}
-                    <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                    <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
-                      <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
-                    </button>
-                    {f.avatar && (
-                      <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
-                        <Crop className="w-3 h-3" /> Crop
-                      </button>
-                    )}
-                  </div>
-                </F>
-                <F label="Cover Photo">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-sm" />}
-                    <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                    <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
-                      <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
-                    </button>
-                    {f.cover_photo && (
-                      <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
-                        <Crop className="w-3 h-3" /> Crop
-                      </button>
-                    )}
-                  </div>
-                </F>
-              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                 <F label="Date of Birth *">
@@ -949,10 +835,67 @@ export default function ProfileEdit() {
                       {f.state || "—"}
                     </div>
                   </div>
-              </div>
-          </section>
+                  </div>
+              </section>
+            </motion.div>
+          )}
 
-          {/* SECTION 3: SOCIAL ACCOUNTS — edit/rename ID, Save auto-fetches metrics */}
+          {step === 2 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {!isInfluencer && (
+                <section id="sec-company" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    Company Details
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <F label="Brand Industry Category *">
+                      <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
+                        <option value="" className="bg-[#0B0B0E]">Select Industry Category...</option>
+                        {INDUSTRIES.map(ind => <option key={ind} value={ind} className="bg-[#0B0B0E]">{ind}</option>)}
+                      </select>
+                    </F>
+                    <F label="Official Website URL *">
+                      <input type="text" inputMode="url" required className="inp font-sans text-sm" placeholder="https://example.com" value={f.website || ""} onChange={e=>setF({...f, website: e.target.value})} />
+                    </F>
+                    <F label="LinkedIn">
+                      <input type="text" inputMode="url" className="inp font-sans text-sm" placeholder="https://linkedin.com/company/…" value={f.linkedin || ""} onChange={e=>setF({...f, linkedin: e.target.value})} />
+                    </F>
+                    <F label="Size · Employees">
+                      <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
+                        <option value="" className="bg-[#0B0B0E]">Select company size…</option>
+                        {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => <option key={s} value={s} className="bg-[#0B0B0E]">{s}</option>)}
+                      </select>
+                    </F>
+                  </div>
+                </section>
+              )}
+
+              {isInfluencer && (
+                <section id="sec-niche" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    Niches & Languages
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <MultiSelectDropdown
+                      options={categoriesList.map(c => typeof c === 'string' ? c : c.name)}
+                      selected={Array.isArray(f.category) ? f.category : toList(f.category)}
+                      onChange={(vals) => setF({ ...f, category: vals })}
+                      placeholder="Select niches…"
+                      compact
+                      label="Niches / Category (required for AI bio)"
+                    />
+                    <MultiSelectDropdown
+                      options={LANGUAGES}
+                      selected={Array.isArray(f.languages) ? f.languages : toList(f.languages)}
+                      onChange={(vals) => setF({ ...f, languages: vals })}
+                      placeholder="Select languages…"
+                      compact
+                      label="Languages"
+                    />
+                  </div>
+                </section>
+              )}
+
           <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
                 <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
@@ -1125,7 +1068,51 @@ export default function ProfileEdit() {
                     />
                 </section>
                 </div>
+                </>
+              )}
+            </motion.div>
+          )}
 
+          {step === 3 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
+                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                  Media & Assets
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <F label="Profile Picture *">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-sm" />}
+                      <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
+                      <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                        <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
+                      </button>
+                      {f.avatar && (
+                        <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                          <Crop className="w-3 h-3" /> Crop
+                        </button>
+                      )}
+                    </div>
+                  </F>
+                  <F label="Cover Photo">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-sm" />}
+                      <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
+                      <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                        <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
+                      </button>
+                      {f.cover_photo && (
+                        <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                          <Crop className="w-3 h-3" /> Crop
+                        </button>
+                      )}
+                    </div>
+                  </F>
+                </div>
+              </section>
+
+              {isInfluencer && (
+                <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
                     <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
@@ -1212,11 +1199,24 @@ export default function ProfileEdit() {
                 </section>
                 </>
               )}
+            </motion.div>
+          )}
 
-          <div className="pt-2">
-            <button type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
-              <Save className="w-3.5 h-3.5" /> {busy ? "Saving…" : "Save profile"}
-            </button>
+          <div className="pt-2 flex items-center justify-between">
+            {step > 1 ? (
+              <button type="button" onClick={prevStep} className="edit-btn bg-white/10 text-white hover:bg-white/20 px-5 py-2.5 text-[11px]">
+                Back
+              </button>
+            ) : <div />}
+            {step < 3 ? (
+              <button type="button" onClick={nextStep} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+                Next Step
+              </button>
+            ) : (
+              <button type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+                <Save className="w-3.5 h-3.5" /> {busy ? "Saving…" : "Save profile"}
+              </button>
+            )}
           </div>
         </motion.form>
       </div>

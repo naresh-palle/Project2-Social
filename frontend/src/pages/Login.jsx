@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound, Loader2 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { SocialAuthButtons } from "@/components/SocialAuthButtons";
@@ -375,9 +375,16 @@ export default function Login() {
               {!otpSent ? (
                 <button
                   type="submit"
-                  className="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                  disabled={loading}
+                  className="w-full bg-[#007AFF] hover:bg-[#0062cc] disabled:bg-[#007AFF]/50 disabled:cursor-not-allowed text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
                 >
-                  Send 6-Digit OTP Code
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending...
+                    </>
+                  ) : (
+                    "Send 6-Digit OTP Code"
+                  )}
                 </button>
               ) : (
                 <button

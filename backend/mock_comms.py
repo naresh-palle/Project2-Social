@@ -173,7 +173,7 @@ async def _ensure_invitation(
     })
 
 
-async def seed_mock_comms(db, logger=None) -> Dict[str, Any]:
+async def seed_mock_comms(db, logger=None, target_user=None) -> Dict[str, Any]:
     """Seed cross-role mock DMs + invitations for demo accounts."""
     admin = await _by_email(db, "admin@cr8.studio") or await _first_role(db, "admin")
     creator = await _by_email(db, "creator@cr8.studio") or await _first_role(db, "influencer")
@@ -184,6 +184,18 @@ async def seed_mock_comms(db, logger=None) -> Dict[str, Any]:
     )
     agent = await _by_email(db, "agent@cr8.studio") or await _first_role(db, "agent")
     studio = await _by_email(db, "studio@cr8.studio") or company
+
+    if target_user:
+        role = target_user.get("role")
+        if role == "admin":
+            admin = target_user
+        elif role == "influencer":
+            creator = target_user
+        elif role == "owner":
+            company = target_user
+            studio = target_user
+        elif role == "agent":
+            agent = target_user
 
     if not admin or not creator or not company:
         if logger:
@@ -338,5 +350,5 @@ async def ensure_mock_comms_if_empty(db, current: dict, logger=None) -> bool:
         })
     if count > 0:
         return False
-    await seed_mock_comms(db, logger=logger)
+    await seed_mock_comms(db, logger=logger, target_user=current)
     return True

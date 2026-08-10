@@ -76,9 +76,9 @@ export default function CreatorDetail() {
       
       {/* HEADER SECTION */}
       <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">
-        <Link to="/marketplace" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-6">
+        <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-6">
             <ChevronLeft className="w-4 h-4" /> Back
-        </Link>
+        </button>
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-12 gap-12 items-end border-b border-white/10 pb-16">
             <div className="md:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-end">

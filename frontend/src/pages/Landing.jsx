@@ -1010,6 +1010,8 @@ export default function Landing() {
     }
   }, [user, navigate]);
 
+  if (user) return null;
+
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
   const [autoPaused, setAutoPaused] = useState(false);

@@ -182,10 +182,17 @@ export default function CampaignDetail() {
       <ThemeToaster />
       <div className="pt-24 max-w-[1600px] mx-auto px-4 md:px-8 pb-16">
         <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
-          <Link to={backTarget} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
             <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
-          <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {brief.id.slice(0, 6)} · {brief.status}</span>
+          </button>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {brief.id.slice(0, 6)} · {brief.status}</span>
+            {isOwner && (
+              <Link to={`/campaigns/${brief.id}/edit`} className="font-sans text-[10px] uppercase text-[#FF3B30] hover:underline">
+                Edit Brief
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-12 gap-8 mt-6">

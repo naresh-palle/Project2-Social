@@ -179,16 +179,16 @@ export default function Marketplace() {
       <Nav />
 
       <div className="pt-20 pb-4 max-w-[1600px] mx-auto px-3 md:px-6">
-        <div className="hairline-b pb-3 flex flex-wrap items-end justify-between gap-2">
+        <div className="hairline-b pb-3 flex flex-col items-start gap-4">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
           <div>
             <p className="font-sans text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
             <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1">
               The <span className="italic">file</span> on record
             </h1>
           </div>
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
-            <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
         </div>
 
         {/* Tabs + search in bordered box */}

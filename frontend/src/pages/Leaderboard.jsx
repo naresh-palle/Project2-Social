@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronRight, Coins, IndianRupee, ChevronLeft } from "lucide-react";
+import { Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins, IndianRupee } from "lucide-react";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { Link } from "react-router-dom";
 import { Nav } from "@/components/Nav";
@@ -53,14 +53,14 @@ export default function Leaderboard() {
       <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
         {/* Header */}
         <div className="mb-12">
-          <div className="flex items-start justify-between">
+          <div>
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
+               <ChevronLeft className="w-4 h-4" /> Back
+            </Link>
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rankings</p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-8">Leaderboard</h1>
             </div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
-               Back <ChevronRight className="w-4 h-4" />
-            </Link>
           </div>
 
           

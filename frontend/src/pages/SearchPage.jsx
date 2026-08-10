@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronRight } from "lucide-react";
+import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
 
 import { api } from "@/lib/api";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 
 const TABS = [
+  { id: "all", label: "All", icon: Search },
   { id: "users", label: "Users", icon: Users },
   { id: "posts", label: "Posts", icon: FileText },
   { id: "hashtags", label: "Hashtags", icon: Hash },
@@ -18,7 +19,7 @@ const TABS = [
 
 export default function SearchPage() {
   const [q, setQ] = useState("");
-  const [tab, setTab] = useState("users");
+  const [tab, setTab] = useState("all");
   const [results, setResults] = useState(null);
   const [recent, setRecent] = useState([]);
   const [trending, setTrending] = useState({ searches: [], hashtags: [] });
@@ -61,15 +62,23 @@ export default function SearchPage() {
   };
 
   const items = results
-    ? tab === "users"
-      ? results.users || []
-      : tab === "posts"
-        ? results.posts || []
-        : tab === "hashtags"
-          ? results.hashtags || []
-          : tab === "campaigns"
-            ? results.campaigns || []
-            : results.locations || []
+    ? tab === "all"
+      ? [
+          ...(results.users || []),
+          ...(results.posts || []),
+          ...(results.hashtags || []),
+          ...(results.campaigns || []),
+          ...(results.locations || []),
+        ]
+      : tab === "users"
+        ? results.users || []
+        : tab === "posts"
+          ? results.posts || []
+          : tab === "hashtags"
+            ? results.hashtags || []
+            : tab === "campaigns"
+              ? results.campaigns || []
+              : results.locations || []
     : [];
 
   return (
@@ -77,14 +86,14 @@ export default function SearchPage() {
       <ThemeToaster />
       <Nav />
       <div className="pt-20 max-w-4xl mx-auto px-6 md:px-10 pb-16 flex-1 w-full">
-        <div className="flex items-start justify-between mb-8">
+        <div className="mb-8">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
+             <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
           </div>
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
-             Back <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
 
         <form
@@ -205,9 +214,54 @@ export default function SearchPage() {
             {items.length === 0 ? (
               <p className="font-sans text-xl font-medium tracking-tight opacity-40 text-center py-12">No results found</p>
             ) : (
-              items.map((item, i) => (
-                <SearchResult key={item.id || item.tag || i} tab={tab} item={item} />
-              ))
+              tab === "all" ? (
+                <div className="space-y-8">
+                  {results.users?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Users</h3>
+                      <div className="space-y-3">
+                        {results.users.map((item, i) => <SearchResult key={`user-${item.id || i}`} tab="users" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.posts?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Posts</h3>
+                      <div className="space-y-3">
+                        {results.posts.map((item, i) => <SearchResult key={`post-${item.id || i}`} tab="posts" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.hashtags?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Hashtags</h3>
+                      <div className="space-y-3">
+                        {results.hashtags.map((item, i) => <SearchResult key={`hash-${item.tag || i}`} tab="hashtags" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.campaigns?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Campaigns</h3>
+                      <div className="space-y-3">
+                        {results.campaigns.map((item, i) => <SearchResult key={`camp-${item.id || i}`} tab="campaigns" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.locations?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Locations</h3>
+                      <div className="space-y-3">
+                        {results.locations.map((item, i) => <SearchResult key={`loc-${item.id || i}`} tab="location" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                items.map((item, i) => (
+                  <SearchResult key={item.id || item.tag || i} tab={tab} item={item} />
+                ))
+              )
             )}
           </div>
         )}
