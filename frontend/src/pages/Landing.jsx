@@ -1003,6 +1003,12 @@ function FinalCTA() {
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
   const [autoPaused, setAutoPaused] = useState(false);
@@ -1087,6 +1093,8 @@ export default function Landing() {
     }, 5000);
     return () => clearInterval(id);
   }, [user, autoPaused, nextDeck, deckIndex]);
+
+  if (user) return null;
 
   if (user) return null;
 
