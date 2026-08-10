@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Marquee from "react-fast-marquee";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase, 
   ChevronLeft, ChevronRight, DollarSign, Lock, Zap, Award, CheckCircle2, 
@@ -11,6 +11,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useLenis } from "@/lib/useLenis";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 // ————— Line reveal helper —————
 function MaskLine({ children, delay = 0, className = "" }) {
@@ -1000,6 +1001,15 @@ function FinalCTA() {
    10-SLIDE PRESENTATION SLIDE DECK ENGINE
    ========================================================================= */
 export default function Landing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
   useLenis();
   const [deckIndex, setDeckIndex] = useState(0);
   const [autoPaused, setAutoPaused] = useState(false);
