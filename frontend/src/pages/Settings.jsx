@@ -46,6 +46,7 @@ export default function Settings() {
   const [securityOpen, setSecurityOpen] = useState(false);
   const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
   const [pwdBusy, setPwdBusy] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const fontTimer = useRef(null);
   const settingsRef = useRef(null);
   const saveSeq = useRef(0);
@@ -219,6 +220,7 @@ export default function Settings() {
   };
 
   const exportData = async () => {
+    setDownloading(true);
     try {
       const { data } = await api.get("/auth/export-data");
       const userRow = data?.user && typeof data.user === "object" ? data.user : (user || {});
@@ -265,6 +267,8 @@ export default function Settings() {
       toast.success("AI profile PDF downloaded");
     } catch {
       toast.error("Export failed");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -401,7 +405,6 @@ export default function Settings() {
 
             <Section title="Privacy" icon={Eye} dense>
               <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
-              <Toggle label="Show Online Status" checked={settings.show_online_status !== false} onChange={(v) => patch({ show_online_status: v })} />
               <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
             </Section>
 
@@ -458,8 +461,8 @@ export default function Settings() {
             <DraftsAndAnalytics />
 
             <Section title="Your Data" icon={Download} dense>
-              <button type="button" onClick={exportData} className="btn-sm-solid flex items-center gap-2">
-                <Download className="w-4 h-4" /> Download My Data (AI PDF)
+              <button type="button" onClick={exportData} disabled={downloading} className="btn-sm-solid flex items-center gap-2 disabled:opacity-50">
+                {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download My Data (AI PDF)
               </button>
             </Section>
 

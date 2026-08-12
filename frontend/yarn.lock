@@ -9579,7 +9579,7 @@ react-dom@19.0.0:
   dependencies:
     scheduler "^0.25.0"
 
-react-easy-crop@5.4.1:
+react-easy-crop@^5.4.1:
   version "5.4.1"
   resolved "https://registry.npmjs.org/react-easy-crop/-/react-easy-crop-5.4.1.tgz"
   integrity sha512-Djtsi7bWO75vkKYkVxNRrJWY69pXLahIAkUN0mmt9cXNnaq2tpG59ctSY6P7ipJgBc7COJDRMRuwb2lYwtACNQ==

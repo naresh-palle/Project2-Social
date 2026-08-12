@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -14,31 +13,20 @@ function formatMsgTime(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
-
-function formatGroupDate(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
   const now = new Date();
-  const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-  if (diffDays === 0 && d.getDate() === now.getDate()) return "Today";
-  if (diffDays === 1 || (diffDays === 0 && d.getDate() !== now.getDate())) return "Yesterday";
-  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-}
-
-function groupMessages(messages) {
-  const groups = [];
-  let currentGroup = null;
-  messages.forEach((m) => {
-    const dateKey = formatGroupDate(m.created_at);
-    if (!currentGroup || currentGroup.date !== dateKey) {
-      currentGroup = { date: dateKey, msgs: [] };
-      groups.push(currentGroup);
-    }
-    currentGroup.msgs.push(m);
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+  if (sameDay) {
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+  return d.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
-  return groups;
 }
 
 function upsertMsg(prev, msg) {
@@ -47,7 +35,7 @@ function upsertMsg(prev, msg) {
   return [...prev, msg];
 }
 
-export default function Messages({ miniWidget = false }) {
+export default function Messages() {
   const { user } = useAuth();
   const [sp] = useSearchParams();
   const [convos, setConvos] = useState([]);
@@ -56,6 +44,7 @@ export default function Messages({ miniWidget = false }) {
   const [text, setText] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [typingUser, setTypingUser] = useState(null);
   const [editingMsg, setEditingMsg] = useState(null);
   const [editText, setEditText] = useState("");
@@ -83,11 +72,8 @@ export default function Messages({ miniWidget = false }) {
       if (openId) {
         const c = (data || []).find((c) => c.id === openId);
         if (c) setActive(c);
-      } else if (data?.length && !activeRef.current && !miniWidget) {
-        // Only auto-select on desktop full-page view, not on widget
-        // Wait, user said: "WHen Click on message by default its showing existing chat instead of all chat messages"
-        // Let's just never auto-select so they always see the list first.
-        // setActive(data[0]); 
+      } else if (data?.length && !activeRef.current) {
+        setActive(data[0]);
       }
     } catch (e) {
       console.error(e);
@@ -264,58 +250,40 @@ export default function Messages({ miniWidget = false }) {
   };
 
   const deleteMsg = async (msgId) => {
-    toast("Delete this message?", {
-      action: {
-        label: "Delete",
-        onClick: async () => {
-          try {
-            await api.delete(`/messages/${msgId}`);
-            setMsgs((prev) => prev.filter((m) => m.id !== msgId));
-          } catch {
-            toast.error("Delete failed");
-          }
-        }
-      },
-      cancel: {
-        label: "Cancel"
-      }
-    });
+    try {
+      await api.delete(`/messages/${msgId}`);
+      setMsgs((prev) => prev.filter((m) => m.id !== msgId));
+      toast.success("Message deleted");
+    } catch {
+      toast.error("Delete failed");
+    } finally {
+      setConfirmDelete(null);
+    }
   };
 
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-    <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
-      {!miniWidget && <ThemeToaster />}
-      {!miniWidget && <Nav />}
-      <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
-        {!miniWidget && (
-          <div className="mb-6">
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
-               <ChevronLeft className="w-4 h-4" /> Back
-            </Link>
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
-            </div>
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
+      <ThemeToaster />
+      <Nav />
+      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-6 pb-8">
+        <div className="pb-4 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Messages</h1>
+            <p className="font-sans text-xs opacity-50 mt-0.5">Inbox</p>
           </div>
-        )}
+          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
+            ← Dashboard
+          </Link>
+        </div>
 
-        {miniWidget && (
-          <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0">
-            <h2 className="font-sans text-sm font-bold tracking-tight">Messages</h2>
-            <Link to={active ? `/messages?id=${active.id}` : "/messages"} onClick={() => document.querySelector('button[title="Close Chat"]')?.click()} className="text-[10px] uppercase text-[#FF3B30] hover:underline font-mono">
-              Open Full Chat
-            </Link>
-          </div>
-        )}
-
-        <div className={`mb-3 flex gap-2 shrink-0 ${miniWidget ? "p-3" : "max-w-sm"}`}>
+        <div className="mb-3 flex gap-2 max-w-sm">
           <input
             value={searchQ}
             onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && searchMessages()}
-            placeholder={miniWidget ? "Search users or messages..." : "Search messages…"}
+            placeholder="Search messages…"
             className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
           />
           <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
@@ -323,7 +291,7 @@ export default function Messages({ miniWidget = false }) {
           </button>
         </div>
         {searchResults.length > 0 && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-sm space-y-1.5 shrink-0">
+          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] max-w-sm rounded-sm space-y-1.5">
             {searchResults.map((m) => (
               <div key={m.id} className="font-sans text-xs opacity-80 truncate">{m.content}</div>
             ))}
@@ -333,8 +301,8 @@ export default function Messages({ miniWidget = false }) {
           </div>
         )}
 
-        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "flex-1 flex flex-col min-h-0 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
-          <aside className={active ? "hidden" : "flex-1 overflow-y-auto"}>
+        <div className="grid grid-cols-12 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]">
+          <aside className="col-span-12 md:col-span-4 lg:col-span-3 border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto max-h-[40vh] md:max-h-none">
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
@@ -352,33 +320,27 @@ export default function Messages({ miniWidget = false }) {
                   type="button"
                   onClick={() => setActive(c)}
                   data-testid={`convo-${c.id}`}
-                  className={`w-full text-left p-3 mb-2 border rounded-lg transition-all ${
-                    active?.id === c.id 
-                      ? "border-[#FF3B30]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,59,48,0.1)]" 
-                      : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
+                  className={`w-full text-left px-3 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors ${
+                    active?.id === c.id ? "bg-white/[0.06]" : ""
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-sans text-sm font-bold truncate text-[#F4F4F0]">{displayPartnerName(c)}</div>
+                    <div className="font-sans text-sm font-semibold truncate">{displayPartnerName(c)}</div>
                     {c.mock ? <span className="font-sans text-[9px] text-[#FF3B30] uppercase shrink-0">Demo</span> : null}
                   </div>
-                  <div className="font-mono text-[9px] tracking-widest uppercase text-[#FF3B30] truncate mt-1">
+                  <div className="font-sans text-[10px] opacity-50 truncate mt-0.5">
                     {c.campaign_brand || c.campaign_title || "Direct"}
                   </div>
-                  {c.last_message && <div className="font-sans text-xs opacity-60 mt-1.5 truncate leading-relaxed">{c.last_message}</div>}
+                  {c.last_message && <div className="font-sans text-xs opacity-60 mt-1 truncate">{c.last_message}</div>}
                 </button>
               ))
             )}
           </aside>
 
-          <section className={!active ? "hidden" : "flex-1 flex flex-col min-h-0 bg-[#0B0B0E]"}>
+          <section className="col-span-12 md:col-span-8 lg:col-span-9 flex flex-col min-h-0">
             {active ? (
-              <div className="flex flex-col h-full relative">
-                <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <button onClick={() => setActive(null)} className="p-2 -ml-2 opacity-60 hover:opacity-100">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
+              <>
+                <div className="px-3 py-2.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
                   <div className="min-w-0">
                     <div className="font-sans text-sm font-semibold truncate flex items-center gap-2">
                       {displayPartnerName(active)}
@@ -388,7 +350,6 @@ export default function Messages({ miniWidget = false }) {
                       {active.campaign_brand}
                       {active.campaign_title ? ` · ${active.campaign_title}` : ""}
                     </div>
-                  </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button type="button" onClick={pinConvo} title="Pin" className="p-1.5 opacity-60 hover:opacity-100">
@@ -406,118 +367,95 @@ export default function Messages({ miniWidget = false }) {
                       </Link>
                     )}
                   </div>
-                </header>
+                </div>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1a1f] via-[#0B0B0E] to-[#0B0B0E] custom-scrollbar" data-testid="thread">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2" data-testid="thread">
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
-                  {groupMessages(visible).map((group, gIdx) => (
-                    <div key={`group-${gIdx}`} className="space-y-4">
-                      <div className="flex justify-center sticky top-0 z-10">
-                        <span className="bg-[#1A1A24]/80 backdrop-blur-md border border-white/5 text-[10px] uppercase tracking-widest font-mono px-4 py-1.5 rounded-full text-white/50 shadow-xl flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          {group.date}
-                        </span>
-                      </div>
-                      <div className="space-y-2">
-                        <AnimatePresence initial={false}>
-                          {group.msgs.map((m, mIdx) => {
-                            const mine = m.sender_id === user?.id;
-                            const prevMsg = mIdx > 0 ? group.msgs[mIdx - 1] : null;
-                            const isConsecutive = prevMsg && prevMsg.sender_id === m.sender_id;
-                            return (
-                              <motion.div 
-                                initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                key={m.id} 
-                                className={`flex ${mine ? "justify-end" : "justify-start"} ${isConsecutive ? "mt-1" : "mt-4"}`}
-                              >
-                                <div
-                                  className={`max-w-[85%] md:max-w-[70%] px-4 py-3 group relative shadow-2xl ${
-                                    mine 
-                                      ? "bg-gradient-to-br from-[#FF3B30] to-[#E52D27] text-white rounded-2xl rounded-tr-sm" 
-                                      : "bg-white/[0.04] border border-white/5 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#F4F4F0]"
-                                  }`}
+                  {visible.map((m) => {
+                    const mine = m.sender_id === user?.id;
+                    return (
+                      <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                        <div
+                          className={`max-w-[78%] md:max-w-[65%] px-3 py-2 rounded-2xl group relative ${
+                            mine ? "bg-[#FF3B30] text-white rounded-br-md" : "bg-white/10 rounded-bl-md"
+                          }`}
+                        >
+                          {!mine && (
+                            <div className="font-sans text-[10px] opacity-60 mb-0.5 truncate">
+                              {m.sender_name}
+                            </div>
+                          )}
+                          {m.media_url && (
+                            m.media_type === "video" ? (
+                              <video src={m.media_url} controls className="max-w-full rounded-md mb-1.5" />
+                            ) : m.media_type === "voice" || m.media_type === "audio" ? (
+                              <audio src={m.media_url} controls className="w-full mb-1.5" />
+                            ) : (
+                              <img src={m.media_url} alt="" className="max-w-full rounded-md mb-1.5" />
+                            )
+                          )}
+                          {editingMsg === m.id ? (
+                            <div className="space-y-1.5">
+                              <input
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                className="w-full bg-black/40 border border-white/20 px-2 py-1 font-sans text-sm rounded-sm"
+                              />
+                              <div className="flex gap-2">
+                                <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase">
+                                  Save
+                                </button>
+                                <button type="button" onClick={() => setEditingMsg(null)} className="font-sans text-[10px] uppercase opacity-60">
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="font-sans text-sm leading-snug whitespace-pre-wrap break-words">
+                              {m.content}
+                              {m.edited && <span className="text-[10px] opacity-50 ml-1">(edited)</span>}
+                            </div>
+                          )}
+                          <div className={`mt-1 flex items-center gap-2 ${mine ? "justify-between" : "justify-start"}`}>
+                            <span className={`font-sans text-[10px] ${mine ? "opacity-80" : "opacity-45"}`}>
+                              {formatMsgTime(m.created_at)}
+                            </span>
+                            {mine && editingMsg !== m.id && (
+                              <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingMsg(m.id);
+                                    setEditText(m.content || "");
+                                  }}
+                                  className="opacity-80 hover:opacity-100"
                                 >
-                                  {!mine && !isConsecutive && (
-                                    <div className="font-sans text-[10px] text-[#FF3B30] font-semibold tracking-wider uppercase mb-1">
-                                      {m.sender_name}
-                                    </div>
-                                  )}
-                                  {m.media_url && (
-                                    m.media_type === "video" ? (
-                                      <video src={m.media_url} controls className="max-w-full rounded-xl mb-2" />
-                                    ) : m.media_type === "voice" || m.media_type === "audio" ? (
-                                      <audio src={m.media_url} controls className="w-full mb-2" />
-                                    ) : (
-                                      <img src={m.media_url} alt="" className="max-w-full rounded-xl mb-2 object-cover max-h-[300px]" />
-                                    )
-                                  )}
-                                  {editingMsg === m.id ? (
-                                    <div className="space-y-2">
-                                      <input
-                                        value={editText}
-                                        onChange={(e) => setEditText(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/20 px-3 py-2 font-sans text-sm rounded-lg outline-none focus:border-white/50 transition-colors"
-                                        autoFocus
-                                      />
-                                      <div className="flex gap-3 justify-end">
-                                        <button type="button" onClick={() => setEditingMsg(null)} className="font-sans text-[10px] uppercase opacity-60 hover:opacity-100">
-                                          Cancel
-                                        </button>
-                                        <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase font-bold text-white">
-                                          Save
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="font-sans text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                                      {m.content}
-                                      {m.edited && <span className="text-[9px] opacity-40 ml-2 italic tracking-widest uppercase">(edited)</span>}
-                                    </div>
-                                  )}
-                                  <div className={`mt-2 flex items-center gap-2 ${mine ? "justify-end" : "justify-start"}`}>
-                                    <span className={`font-sans text-[9px] tracking-widest uppercase ${mine ? "text-white/60" : "text-white/40"}`}>
-                                      {formatMsgTime(m.created_at)}
-                                    </span>
-                                    {mine && editingMsg !== m.id && (
-                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#1A1A24] p-1.5 rounded-full border border-white/10 shadow-xl">
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setEditingMsg(m.id);
-                                            setEditText(m.content || "");
-                                          }}
-                                          className="text-white/50 hover:text-white"
-                                        >
-                                          <Edit3 className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-white/50 hover:text-[#FF3B30]">
-                                          <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      </div>
-                                    )}
+                                  <Edit3 className="w-3 h-3" />
+                                </button>
+                                {confirmDelete === m.id ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-[9px] uppercase opacity-70">Delete?</span>
+                                    <button type="button" onClick={() => deleteMsg(m.id)} className="text-[#FF3B30] hover:text-white font-bold">Yes</button>
+                                    <button type="button" onClick={() => setConfirmDelete(null)} className="opacity-80 hover:opacity-100">No</button>
                                   </div>
-                                </div>
-                              </motion.div>
-                            );
-                          })}
-                        </AnimatePresence>
+                                ) : (
+                                  <button type="button" onClick={() => setConfirmDelete(m.id)} className="opacity-80 hover:opacity-100 text-[#FF3B30]">
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {typingUser && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-white/40 px-4">
-                      <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                      </div>
-                      <span className="font-sans text-[11px] tracking-wide">{typingUser} is typing...</span>
-                    </motion.div>
+                    <div className="font-sans text-[11px] opacity-45 italic px-1">{typingUser} is typing…</div>
                   )}
                 </div>
 
-                <form onSubmit={send} className="bg-[#111116] border-t border-white/5 p-4 flex gap-3 items-center shrink-0">
+                <form onSubmit={send} className="border-t border-white/10 px-3 py-2.5 flex gap-2 items-center shrink-0">
                   <input ref={fileRef} type="file" accept="image/*,video/*,audio/*" hidden onChange={onAttach} />
                   <button type="button" onClick={() => fileRef.current?.click()} className="p-2 opacity-60 hover:opacity-100">
                     <Paperclip className="w-4 h-4" />
@@ -543,7 +481,7 @@ export default function Messages({ miniWidget = false }) {
                     Send
                   </button>
                 </form>
-              </div>
+              </>
             ) : (
               <div className="flex-1 flex items-center justify-center font-sans text-sm opacity-40">
                 Select a conversation

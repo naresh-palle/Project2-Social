@@ -10,8 +10,7 @@ import {
   ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass, Search
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-
-import { IconTip } from "@/components/IconTip";
+import { Footer } from "@/components/Footer";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
@@ -25,6 +24,32 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [showOnline, setShowOnline] = useState(true);
+
+  useEffect(() => {
+    if (user?.id) {
+      api.get("/settings").then(({ data }) => {
+        if (data) setShowOnline(data.show_online_status !== false);
+      }).catch(() => {});
+    }
+  }, [user?.id]);
+
+  const toggleOnline = () => {
+    const next = !showOnline;
+    setShowOnline(next);
+    api.patch("/settings", { show_online_status: next }).catch(() => {
+      setShowOnline(!next);
+      toast.error("Failed to update status");
+    });
+  };
+
+  const onSearchSubmit = (e) => {
+    e.preventDefault();
+    if (globalSearch.trim()) {
+      nav(`/search?q=${encodeURIComponent(globalSearch.trim())}`);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) nav("/login");
@@ -57,29 +82,30 @@ export default function Dashboard() {
       <div className="relative z-10">
         <Nav />
         <ThemeToaster />
-        <div className="pt-16 max-w-[1400px] mx-auto px-2 md:px-4 pb-8">
-          <div className="border-b border-white/10 pb-2 mb-2.5 flex flex-wrap items-end justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/20 relative">
-                {user?.avatar && (
-                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+        <div className="pt-20 max-w-[1400px] mx-auto px-4 md:px-8 pb-16">
+          <div className="border-b border-white/10 pb-3 mb-3 flex flex-wrap items-end justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover" />
+                ) : (
+                  <div 
+                    className="w-full h-full flex items-center justify-center font-sans text-lg text-white"
+                    style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
+                  >
+                    {(displayAccountName(user) || "C")[0]?.toUpperCase()}
+                  </div>
                 )}
-                <div 
-                  className="w-full h-full flex items-center justify-center font-sans text-base text-white absolute inset-0 z-0"
-                  style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
-                >
-                  {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-                </div>
               </div>
               <div>
                 <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
-                  {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Influencer desk"}
+                  {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Creator desk"}
                 </p>
-                <h1 className="font-sans text-lg md:text-xl font-bold tracking-tight leading-tight mt-0.5 inline-flex items-center gap-2 flex-wrap">
+                <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-0.5 inline-flex items-center gap-2 flex-wrap">
                   {displayAccountName(user)}
                   {user?.verified && (
                     <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-wider text-[#34C759] font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                      <ShieldCheck className="w-4 h-4" /> Verified
                     </span>
                   )}
                 </h1>
@@ -96,7 +122,7 @@ export default function Dashboard() {
                   const city = (user?.city || user?.location || "").trim() || null;
                   if (!category && !city) return null;
                   return (
-                    <p className="font-sans text-[11px] opacity-60 mt-0.5">
+                    <p className="font-sans text-xs opacity-60 mt-1">
                       {[category, city].filter(Boolean).join(" · ")}
                     </p>
                   );
@@ -106,71 +132,59 @@ export default function Dashboard() {
 
             {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
               <div className="flex items-center gap-2">
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    const query = formData.get("q");
-                    if(query) nav(`/search?q=${encodeURIComponent(query)}`);
-                  }}
-                  className="hidden md:flex relative mr-2"
-                >
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-white" />
-                  <input 
-                    name="q" 
-                    placeholder="Global search..." 
-                    className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
-                  />
-                </form>
                 <Link
                   to="/feed"
                   title="Feed"
                   aria-label="Feed"
-                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 !px-3 !py-2"
+                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] !px-3 !py-3"
                 >
-                  <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
+                  <Newspaper className="w-5 h-5" />
                 </Link>
                 <Link
                   to="/marketplace"
-                  title="Directory"
-                  aria-label="Directory"
+                  title="Browse Briefs"
+                  aria-label="Browse Briefs"
                   data-testid="browse-campaigns-btn"
-                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-3 !py-3"
                 >
-                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+                  <Compass className="w-5 h-5" />
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    const query = formData.get("q");
-                    if(query) nav(`/search?q=${encodeURIComponent(query)}`);
-                  }}
-                  className="hidden md:flex relative mr-2"
-                >
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-white" />
-                  <input 
-                    name="q" 
-                    placeholder="Global search..." 
-                    className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:border-[#FF3B30] w-48 transition-all focus:w-64 font-mono text-white placeholder-white/40" 
-                  />
-                </form>
-                <Link
-                  to="/marketplace"
-                  title="Directory"
-                  aria-label="Directory"
-                  data-testid="browse-campaigns-btn"
-                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
-                >
-                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-                </Link>
-              </div>
+              <Link
+                to="/marketplace"
+                title="Browse Briefs"
+                aria-label="Browse Briefs"
+                data-testid="browse-campaigns-btn"
+                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white !px-3 !py-3"
+              >
+                <Compass className="w-5 h-5" />
+              </Link>
             )}
+            
+            <button
+              onClick={toggleOnline}
+              title={showOnline ? "You are online" : "You are invisible"}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-colors ${
+                showOnline 
+                  ? "border-[#34C759] text-[#34C759] bg-[#34C759]/10 hover:bg-[#34C759]/20" 
+                  : "border-white/20 text-white/50 bg-white/5 hover:bg-white/10"
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${showOnline ? "bg-[#34C759]" : "bg-white/50"}`} />
+              {showOnline ? "Online" : "Invisible"}
+            </button>
 
-
+            <form onSubmit={onSearchSubmit} className="relative flex-1 min-w-[200px] max-w-sm ml-auto">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
+              <input
+                type="text"
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                placeholder="Global search..."
+                className="w-full bg-[#121212] border border-white/10 rounded-full py-2 pl-9 pr-4 text-xs font-mono outline-none focus:border-[#FF3B30] transition-colors"
+              />
+            </form>
           </div>
 
           {user?.role === "admin" ? (
@@ -183,7 +197,7 @@ export default function Dashboard() {
             <InfluencerPanel />
           )}
         </div>
-
+        <Footer />
       </div>
     </div>
     </ErrorBoundary>
@@ -216,7 +230,7 @@ const FEATURED_CREATOR_WORK_FEED = [
     creatorName: "Priya Varma",
     handle: "priya.tech.reviews",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400",
-    workTitle: "AI Influencer Studio Workstation Review",
+    workTitle: "AI Creator Studio Workstation Review",
     workImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800",
     category: "Technology & SaaS",
     reach: "380K Reach",
@@ -261,40 +275,6 @@ const FEATURED_CREATOR_WORK_FEED = [
     comments: "740",
     brandPartner: "PulseFit Apparel",
     description: "Dynamic training reel demonstrating breathable stretch gear. High retention rate with 82% video completion percentage."
-  },
-  {
-    id: "feed-5",
-    creatorName: "Anya Singh",
-    handle: "anya.arts",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400",
-    workTitle: "Monsoon Capsule Lookbook Reel",
-    workImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=80&w=800",
-    category: "Fashion & Style",
-    reach: "340K Reach",
-    engagementRate: "6.4% ER",
-    aiAuthenticity: "98% Real Audience",
-    verified: true,
-    likes: "31.2K",
-    comments: "980",
-    brandPartner: "Acme Brand",
-    description: "Editorial capsule storytelling with city rain ambience. Drove +18% PDP views in 72 hours."
-  },
-  {
-    id: "feed-6",
-    creatorName: "Vikram Patel",
-    handle: "vikram.food",
-    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
-    workTitle: "Street Kitchen Collab Series",
-    workImage: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&q=80&w=800",
-    category: "Food & Cooking",
-    reach: "410K Reach",
-    engagementRate: "7.8% ER",
-    aiAuthenticity: "99% Real Audience",
-    verified: true,
-    likes: "47.0K",
-    comments: "1.6K",
-    brandPartner: "Zomato",
-    description: "High-retention cooking short with branded CTA. Generated 2.1K app opens via tracked link."
   }
 ];
 
@@ -321,23 +301,23 @@ function OwnerPanel() {
         { k: "In Progress", v: stats?.in_progress ?? 0, tail: "shipping now" },
         { k: "Applications", v: stats?.applications_total ?? 0, tail: "on file" },
         { k: "Escrow Held", v: `₹${(stats?.escrow_held ?? 0).toLocaleString()}`, tail: "in studio vault" },
-        { k: "Paid Influencers", v: `₹${(stats?.paid_to_creators ?? 0).toLocaleString()}`, tail: "released" },
-        { k: "Verified Roster", v: `${safeMatches.length || 12} Influencers`, tail: "ai vetted" },
+        { k: "Paid Creators", v: `₹${(stats?.paid_to_creators ?? 0).toLocaleString()}`, tail: "released" },
+        { k: "Verified Roster", v: `${safeMatches.length || 12} Creators`, tail: "ai vetted" },
       ]
     : [
         { k: "Live Briefs", v: Math.max(safeItems.filter((c) => c.status === "open").length, 3), tail: "of 5 total" },
         { k: "In Progress", v: 2, tail: "shipping now" },
         { k: "Applications", v: 18, tail: "on file" },
         { k: "Escrow Held", v: "₹4,85,000", tail: "in studio vault" },
-        { k: "Paid Influencers", v: "₹12,40,000", tail: "released" },
-        { k: "Verified Roster", v: `${Math.max(safeMatches.length, 12)} Influencers`, tail: "ai vetted" },
+        { k: "Paid Creators", v: "₹12,40,000", tail: "released" },
+        { k: "Verified Roster", v: `${Math.max(safeMatches.length, 12)} Creators`, tail: "ai vetted" },
       ];
 
   const rosterSource = (safeMatches.length > 0 ? safeMatches : FEATURED_CREATOR_WORK_FEED).map((c, i) => ({
     ...c,
     id: c.id || `demo-creator-${i}`,
     name: c.name || c.creatorName,
-    category: c.category || c.niche || c.city || "Verified Influencer",
+    category: c.category || c.niche || c.city || "Verified Creator",
     avatar: c.avatar || c.workImage || FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].avatar,
     handle: formatUsername(c.handle, c.username) || FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].handle,
   }));
@@ -350,7 +330,7 @@ function OwnerPanel() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       {/* Analytics Summary Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="owner-analytics">
         {tiles.map((t, i) => (
@@ -359,116 +339,121 @@ function OwnerPanel() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            className={`p-2.5 md:p-3 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            className={`p-4 md:p-5 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
-            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
+            <div className="font-sans font-bold text-xl md:text-2xl leading-tight mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
       </div>
 
-      {/* Primary Tab Navigation for Brands — category filter merged into row */}
-      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-2 gap-2">
-        <div className="flex gap-3 font-sans text-[10px] tracking-[0.22em] uppercase flex-wrap items-center">
+      {/* Primary Tab Navigation for Brands */}
+      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-3 gap-3">
+        <div className="flex gap-4 font-sans text-[10px] tracking-[0.22em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("work-feed")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "work-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" /> Feed ({filteredFeed.length})
+            <Sparkles className="w-4 h-4" /> Influencers Work &amp; Content Feed ({filteredFeed.length})
           </button>
           <button
             onClick={() => setActiveTab("directory")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "directory" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Users className="w-3.5 h-3.5" /> Verified Influencer Roster ({filteredRoster.length})
+            <Users className="w-4 h-4" /> Verified Creator Roster ({filteredRoster.length})
           </button>
           <button
             onClick={() => setActiveTab("my-briefs")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "my-briefs" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Briefcase className="w-3.5 h-3.5" /> My Campaigns ({safeItems.length})
+            <Briefcase className="w-4 h-4" /> My Brand Briefs ({safeItems.length})
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {(activeTab === "work-feed" || activeTab === "directory") && (
-            <div className="flex flex-wrap gap-2 items-center w-fit max-w-full">
-              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
-              </span>
-              <div className="w-[12rem] max-w-full">
-                <MultiSelectDropdown
-                  options={PLATFORM_CATEGORIES}
-                  selected={selectedCategories}
-                  onChange={setSelectedCategories}
-                  placeholder="All"
-                  allowAll
-                  compact
-                  noUnderline
-                />
-              </div>
-            </div>
-          )}
-          <Link to="/campaigns/new" className="btn-solid py-1.5 px-3 text-xs bg-[#FF3B30] text-white">
-            + New Campaign
-          </Link>
-        </div>
+        <Link to="/campaigns/new" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white">
+          + New Campaign
+        </Link>
       </div>
 
-      {/* VIEW 1: FEED */}
+      {(activeTab === "work-feed" || activeTab === "directory") && (
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
+            <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
+              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
+            </span>
+            <div className="w-[13.5rem] max-w-full">
+              <MultiSelectDropdown
+                options={PLATFORM_CATEGORIES}
+                selected={selectedCategories}
+                onChange={setSelectedCategories}
+                placeholder="All"
+                allowAll
+                compact
+                noUnderline
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 1: INFLUENCERS WORK & LIVE CONTENT FEED */}
       {activeTab === "work-feed" && (
-        <div className="space-y-3">
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-6">
+          {/* Reel & Content Showcase Grid */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredFeed.map((work, idx) => (
               <motion.div
                 key={work.id}
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500"
+                className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm shadow-2xl relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <img src={work.avatar} alt={work.creatorName} className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <h4 className="font-sans text-xs font-semibold truncate">{work.creatorName}</h4>
-                        {work.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#FF3B30] shrink-0" />}
+                {/* Top Creator Info Bar */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <img src={work.avatar} alt={work.creatorName} className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="font-sans text-sm font-semibold">{work.creatorName}</h4>
+                        {work.verified && <ShieldCheck className="w-4 h-4 text-[#FF3B30]" />}
                       </div>
-                      <p className="font-sans text-[9px] tracking-[0.16em] uppercase opacity-60 truncate">{work.handle}</p>
+                      <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">{work.handle}</p>
                     </div>
                   </div>
-                  <span className="font-sans text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs shrink-0">
+                  <span className="font-sans text-[9px] tracking-[0.2em] uppercase px-2.5 py-1 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs">
                     {work.aiAuthenticity}
                   </span>
                 </div>
 
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-2 group/media cursor-pointer">
+                {/* Media Showcase Card */}
+                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-4 group/media cursor-pointer">
                   <img src={work.workImage} alt={work.workTitle} className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-700 opacity-90" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                  <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <span className="font-sans text-[8px] tracking-[0.16em] uppercase bg-[#FF3B30] text-white px-1.5 py-0.5 font-bold mb-0.5 inline-block">
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                    <div>
+                      <span className="font-sans text-[9px] tracking-[0.2em] uppercase bg-[#FF3B30] text-white px-2 py-0.5 font-bold mb-1 inline-block">
                         {work.category}
                       </span>
-                      <h3 className="font-sans text-sm text-white font-medium leading-snug line-clamp-2">{work.workTitle}</h3>
+                      <h3 className="font-sans text-2xl text-white font-medium leading-tight">{work.workTitle}</h3>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white group-hover/media:bg-[#FF3B30] transition-colors shrink-0">
-                      <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white group-hover/media:bg-[#FF3B30] transition-colors shrink-0">
+                      <Play className="w-4 h-4 fill-current ml-0.5" />
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5 py-2 border-t border-b border-white/10 font-sans text-[9px] tracking-[0.14em] uppercase opacity-80 mb-2">
+                {/* Metrics & Performance Bar */}
+                <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/10 font-sans text-[10px] tracking-[0.2em] uppercase opacity-80 mb-4">
                   <div>
-                    <span className="opacity-50 block">Reach</span>
+                    <span className="opacity-50 block">Audience Reach</span>
                     <span className="text-white font-bold">{work.reach}</span>
                   </div>
                   <div>
@@ -476,23 +461,26 @@ function OwnerPanel() {
                     <span className="text-[#FF3B30] font-bold">{work.engagementRate}</span>
                   </div>
                   <div>
-                    <span className="opacity-50 block">Partner</span>
+                    <span className="opacity-50 block">Brand Partner</span>
                     <span className="text-white font-bold truncate block">{work.brandPartner}</span>
                   </div>
                 </div>
 
-                <p className="font-sans text-xs text-[#F4F4F0]/75 leading-snug mb-2 line-clamp-2">
+                <p className="font-sans text-sm text-[#F4F4F0]/75 leading-relaxed mb-6">
                   {work.description}
                 </p>
 
-                <div className="flex items-center justify-between pt-1">
-                  <div className="font-sans text-[9px] tracking-[0.14em] uppercase opacity-50 flex items-center gap-2">
+                {/* Bottom Action CTAs */}
+                <div className="flex items-center justify-between pt-2">
+                  <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-3">
                     <span>❤️ {work.likes}</span>
                     <span>💬 {work.comments}</span>
                   </div>
-                  <Link to={`/u/${work.handle}`} className="btn-solid py-1.5 px-2.5 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
-                    View Profile <ArrowRight className="w-3 h-3" />
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link to="/marketplace" className="btn-solid py-2 px-4 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
+                      Invite to Brief <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -503,21 +491,21 @@ function OwnerPanel() {
       {/* VIEW 2: VERIFIED CREATOR DIRECTORY ROSTER */}
       {activeTab === "directory" && (
         <div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filteredRoster.map((c, i) => (
-              <Link key={c.id || i} to={c.id && !String(c.id).startsWith("demo-") && !String(c.id).startsWith("feed-") ? `/creators/${c.id}` : "/marketplace"} className="flex flex-col hover:bg-white/5 transition p-2 rounded-sm border border-white/15">
-                <div className="h-28 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
+              <Link key={c.id || i} to={c.id && !String(c.id).startsWith("demo-") && !String(c.id).startsWith("feed-") ? `/creators/${c.id}` : "/marketplace"} className="flex flex-col hover:bg-white/5 transition p-4 rounded-sm border border-white/15">
+                <div className="h-40 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-3 rounded-xs bg-white/5">
                   <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover transition duration-500" onError={(e) => { e.currentTarget.src = FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].avatar; }} />
                 </div>
-                <div className="flex flex-col justify-between flex-1 min-w-0">
+                <div className="flex flex-col justify-between flex-1">
                   <div>
-                    <div className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#FF3B30] font-bold truncate">{c.category || "Verified Influencer"}</div>
-                    <h3 className="font-sans text-xs leading-snug font-semibold mt-0.5 truncate">{c.name || c.creatorName}</h3>
-                    <p className="text-[10px] font-sans uppercase opacity-70 mt-0.5 truncate">{c.handle || "creator"}</p>
+                    <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{c.category || "Verified Creator"}</div>
+                    <h3 className="font-sans text-sm md:text-base leading-snug font-semibold mt-1">{c.name || c.creatorName}</h3>
+                    <p className="text-[11px] font-sans uppercase opacity-70 mt-1">{c.handle || "creator"}</p>
                   </div>
-                  <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between font-sans text-[8px] tracking-[0.14em] uppercase">
+                  <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between font-sans text-[10px] tracking-[0.2em] uppercase">
                     <span className="text-[#34C759]">Verified ✓</span>
-                    <span className="text-[#FF3B30]">View →</span>
+                    <span className="text-[#FF3B30]">View Profile →</span>
                   </div>
                 </div>
               </Link>
@@ -526,13 +514,13 @@ function OwnerPanel() {
         </div>
       )}
 
-      {/* VIEW 3: MY CAMPAIGNS */}
+      {/* VIEW 3: MY BRAND BRIEFS */}
       {activeTab === "my-briefs" && (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {safeItems.length === 0 ? (
             <Empty label="No briefs posted yet. Post your first campaign." />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {safeItems.map((c) => (
                 <CampaignRow key={c.id} c={c} />
               ))}
@@ -545,7 +533,7 @@ function OwnerPanel() {
 }
 
 /* =========================================================================
-   2. CREATOR / INFLUENCER PANEL — CAMPAIGNS & BRIEF DISCOVERY (Primary for Influencers)
+   2. CREATOR / INFLUENCER PANEL — CAMPAIGNS & BRIEF DISCOVERY (Primary for Creators)
    ========================================================================= */
 const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
   {
@@ -558,7 +546,7 @@ const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
     aiMatch: "98% Match",
     escrowLocked: true,
     cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
-    description: "Seeking high-end editorial influencers for our luxury winter coat and silk blazer collection. High engagement audience in metros required."
+    description: "Seeking high-end editorial creators for our luxury winter coat and silk blazer collection. High engagement audience in metros required."
   },
   {
     id: "cmp-102",
@@ -594,7 +582,7 @@ const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
     aiMatch: "90% Match",
     escrowLocked: true,
     cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
-    description: "Looking for active lifestyle influencers to test sweat-resistant seamless activewear during high-intensity training sessions."
+    description: "Looking for active lifestyle creators to test sweat-resistant seamless activewear during high-intensity training sessions."
   }
 ];
 
@@ -607,9 +595,22 @@ function InfluencerPanel() {
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
 
-  const [levelInfo, setLevelInfo] = useState(null);
-  const [badges, setBadges] = useState([]);
-  const [leaderboard, setLeaderboard] = useState(null);
+  // Derive connections from platform_metrics (from ProfileEdit)
+  const derivedConnections = Object.entries(user?.platform_metrics || {})
+    .filter(([_, metrics]) => metrics?.handle)
+    .map(([plat, metrics]) => ({
+      platform: plat,
+      account_name: metrics.handle.startsWith('@') ? metrics.handle : `@${metrics.handle}`,
+      last_sync_time: metrics.last_sync || user?.updated_at || new Date().toISOString(),
+      analytics: {
+        followers: metrics.followers ?? metrics.subscribers ?? 0,
+        er: metrics.engagement ?? 0,
+        views: metrics.views ?? 0,
+        posts: metrics.posts ?? 0
+      }
+    }));
+
+  const activeConnections = derivedConnections.length > 0 ? derivedConnections : (user?.oauth_connections || []);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -626,10 +627,6 @@ function InfluencerPanel() {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
     api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
     api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
-
-    api.get("/levels/my-progress").then((r) => setLevelInfo(r.data)).catch(() => setLevelInfo(null));
-    api.get("/badges/mine").then((r) => setBadges(Array.isArray(r.data) ? r.data : [])).catch(() => setBadges([]));
-    api.get("/leaderboard/my-rank?type=top_performer&period=weekly").then((r) => setLeaderboard(r.data)).catch(() => setLeaderboard(null));
   }, []);
 
   const safeApps = Array.isArray(apps) ? apps : [];
@@ -651,8 +648,8 @@ function InfluencerPanel() {
   );
 
   return (
-    <div className="space-y-3">
-      {/* Influencer Analytics Summary */}
+    <div className="space-y-10">
+      {/* Creator Analytics Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="creator-analytics">
         {tiles.map((t, i) => (
           <motion.div
@@ -660,189 +657,157 @@ function InfluencerPanel() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            className={`p-2.5 md:p-3 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            className={`p-5 md:p-6 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
-            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
+            <div className="font-sans font-bold text-xl md:text-2xl leading-tight mt-2 text-white tracking-tight">{t.v}</div>
+            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-1">{t.tail}</div>
           </motion.div>
         ))}
       </div>
 
-      {/* Gamification / Progression Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Level */}
-        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden group">
-           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Creator Level</div>
-           {levelInfo ? (
-             <>
-               <div className="text-2xl font-bold mt-1 group-hover:text-[#FF3B30] transition-colors">{levelInfo.current_level || "Beginner"}</div>
-               {levelInfo.next_level && (
-                 <div className="mt-2 w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                   <div className="bg-[#FF3B30] h-full transition-all duration-1000 ease-out" style={{ width: `${levelInfo.progress_pct || 0}%` }}></div>
-                 </div>
-               )}
-               <div className="font-sans text-[9px] uppercase opacity-50 mt-1">{levelInfo.progress_pct || 0}% to {levelInfo.next_level || "Max"}</div>
-             </>
-           ) : (
-             <div className="text-sm opacity-50 mt-1">Loading level...</div>
-           )}
-        </div>
-
-        {/* Badges */}
-        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden">
-           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Earned Badges</div>
-           <div className="flex flex-wrap gap-2 mt-2">
-             {badges.length > 0 ? badges.map((b, i) => (
-               <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-sm hover:border-white/30 transition-colors cursor-default" title={b.badge_name}>
-                 <span className="text-base">{b.badge_icon || "🏆"}</span>
-                 <span className="font-sans text-[10px] font-bold" style={{ color: b.badge_color || "#F4F4F0" }}>{b.badge_name}</span>
-               </div>
-             )) : (
-               <div className="text-xs opacity-50 mt-1">No badges yet. Complete tasks to earn them!</div>
-             )}
-           </div>
-        </div>
-
-        {/* Leaderboard */}
-        <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-col gap-2 relative overflow-hidden">
-           <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] font-bold">Leaderboard Position</div>
-           {leaderboard ? (
-             <div className="mt-2 flex items-end gap-2">
-               <div className="text-3xl font-bold text-[#34C759]">#{leaderboard.rank}</div>
-               <div className="font-sans text-xs opacity-60 pb-1">in Top Performers</div>
-             </div>
-           ) : (
-             <div className="text-sm opacity-50 mt-2">Unranked</div>
-           )}
-        </div>
-      </div>
-
-      {/* Platform Analytics & Social Connect — always visible above tabs */}
-      <SocialAnalyticsCards
-        connections={user?.oauth_connections || []}
-        onSync={handleSync}
-        isSyncing={syncing}
-      />
-      <SocialConnect
-        connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
-      />
-
-      {/* Primary Navigation Tabs for Influencers */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
-        <div className="flex gap-4 font-sans text-[11px] tracking-[0.22em] uppercase flex-wrap">
+      {/* Primary Navigation Tabs for Creators */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex gap-6 font-sans text-[11px] tracking-[0.28em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("campaigns-feed")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
+            <Zap className="w-4 h-4 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
           </button>
           <button
             onClick={() => setActiveTab("my-pitches")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
+            className={`kinetic-underline py-2 flex items-center gap-2 ${
               activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <FileText className="w-3.5 h-3.5" /> My Pitches & Applications ({safeApps.length})
+            <FileText className="w-4 h-4" /> My Pitches &amp; Applications ({safeApps.length})
           </button>
         </div>
-        {activeTab === "campaigns-feed" && (
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
-              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
-            </span>
-            <div className="w-[13rem] max-w-full">
-              <MultiSelectDropdown
-                options={PLATFORM_CATEGORIES}
-                selected={selectedNiches}
-                onChange={setSelectedNiches}
-                placeholder="All"
-                allowAll
-                compact
-                noUnderline
-              />
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY */}
+            {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY (Primary for Creators) */}
       {activeTab === "campaigns-feed" && (
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredCampaigns.map((c, idx) => (
-            <motion.div
-              key={c.id || idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className="bg-[#121212]/90 border border-white/15 p-3 rounded-sm relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-sans text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
-                    <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
-                  </span>
-                  <span className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
-                    <Lock className="w-3 h-3" /> Escrow
-                  </span>
-                </div>
-                <p className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-60 mb-0.5">{c.brand}</p>
-                <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
-                  {c.title}
-                </h3>
-                <p className="font-sans text-xs opacity-70 mt-2 leading-relaxed line-clamp-2">
-                  {c.description}
-                </p>
-                <div className="mt-2 pt-2 border-t border-white/10 space-y-1 font-sans text-[10px] opacity-75">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3 h-3 text-[#FF3B30] shrink-0" />
-                    <span className="truncate">{c.deliverables || "2x Reels + 4x Stories"}</span>
+        <div className="space-y-8">
+        <SocialAnalyticsCards 
+          connections={activeConnections} 
+          onSync={handleSync} 
+          isSyncing={syncing} 
+        />
+        
+        <SocialConnect 
+          connectedPlatforms={activeConnections.map(c => c.platform)} 
+        />
+
+          {/* Niche Filter Pills & Grid View Controls */}
+          <div className="flex flex-wrap items-center justify-end gap-4">
+            <div className="flex flex-wrap gap-3 items-center w-fit max-w-full">
+              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
+              </span>
+              <div className="w-[13.5rem] max-w-full">
+                <MultiSelectDropdown
+                  options={PLATFORM_CATEGORIES}
+                  selected={selectedNiches}
+                  onChange={setSelectedNiches}
+                  placeholder="All"
+                  allowAll
+                  compact
+                  noUnderline
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Campaign Brief Grid */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredCampaigns.map((c, idx) => (
+              <motion.div
+                key={c.id || idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                className="bg-[#121212]/90 border border-white/15 p-6 rounded-sm shadow-2xl relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-sans text-[10px] tracking-[0.22em] uppercase px-3 py-1 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
+                    </span>
+                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase text-[#34C759] bg-[#34C759]/10 px-2.5 py-1 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
+                      <Lock className="w-3 h-3" /> Escrow Locked
+                    </span>
+                  </div>
+
+                  {/* Brand & Title */}
+                  <p className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 mb-1">{c.brand}</p>
+                  <h3 className="font-sans text-base font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
+                    {c.title}
+                  </h3>
+                  <p className="font-sans text-xs opacity-75 mt-3 leading-relaxed line-clamp-3">
+                    {c.description}
+                  </p>
+
+                  {/* Deliverables Info */}
+                  <div className="mt-4 pt-4 border-t border-white/10 space-y-2 font-sans text-[11px] opacity-80">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#FF3B30]" />
+                      <span>Deliverables: {c.deliverables || "2x Reels + 4x Stories"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[#34C759]">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>AI Compliance Audit: Automated Caption &amp; Logo Check</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
-                <div>
-                  <span className="font-sans text-[8px] tracking-[0.18em] uppercase opacity-50 block">Budget</span>
-                  <span className="font-sans text-base text-white font-bold">
-                    ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
-                  </span>
+
+                {/* Bottom Budget & Pitch CTA */}
+                <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
+                  <div>
+                    <span className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-50 block">Campaign Budget</span>
+                    <span className="font-sans italic text-xl text-white font-bold">
+                       ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
+                    </span>
+                  </div>
+
+                  <Link
+                    to={`/campaigns/${c.id}`}
+                    className="btn-solid py-2.5 px-5 text-xs bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-2 shadow-lg"
+                  >
+                    Pitch Brief <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
-                <Link
-                  to={`/campaigns/${c.id}`}
-                  className="btn-solid py-1.5 px-3 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1"
-                >
-                  Pitch <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* VIEW 2: MY PITCHES & APPLICATION TRACKER */}
       {activeTab === "my-pitches" && (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {safeApps.length === 0 ? (
             <Empty label="No pitches submitted yet. Pitch live briefs above." />
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {safeApps.map((a) => (
-                <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div key={a.id} className="p-6 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
-                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
-                    <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
-                    <p className="font-sans text-xs opacity-60 mt-0.5">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
+                    <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
+                    <h4 className="font-sans text-2xl font-bold">{a.campaign_title || "Campaign Brief"}</h4>
+                    <p className="font-sans text-xs opacity-60 mt-1">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
+                  <div className="flex items-center gap-4">
+                    <span className={`font-sans text-[11px] tracking-[0.2em] uppercase px-3 py-1 border rounded-xs font-bold ${
                       a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]" : "bg-white/5 border-white/20 text-white/70"
                     }`}>
-                      {a.status}
+                      Status: {a.status}
                     </span>
-                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-white/10 hover:bg-[#FF3B30] text-white">
-                      View ↗
+                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-2 px-4 text-xs bg-white/10 hover:bg-[#FF3B30] text-white">
+                      View Details ↗
                     </Link>
                   </div>
                 </div>
@@ -878,37 +843,37 @@ function AgentPanel() {
   const isInfluencerAgent = user?.agent_type === "influencer_agent";
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2">
+    <div className="space-y-10">
+      <div className="flex items-center justify-between border-b border-white/10 pb-6 flex-wrap gap-4">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console
           </span>
-          <h2 className="font-sans text-base font-bold mt-0.5">
+          <h2 className="font-sans text-xl md:text-2xl mt-1">
             {isInfluencerAgent ? "⭐ Influencer & Talent Agent Desk" : "🏢 Company & Brand Agent Desk"}
           </h2>
         </div>
       </div>
 
       {isInfluencerAgent ? (
-        <div className="space-y-3">
-          <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creators.length})</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="space-y-8">
+          <h3 className="font-sans text-2xl">Scouted Creator Roster ({creators.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {creators.map((c) => (
-              <Link key={c.id} to={`/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-sm">
-                <div className="h-24 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
-                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
+              <Link key={c.id} to={`/creators/${c.id}`} className="hairline-t hairline-b hairline-l hairline-r flex flex-col hover:bg-white/5 transition p-6 border border-white/15">
+                <div className="h-48 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-4">
+                  <img src={c.avatar} alt={c.name} className="w-full h-full object-cover  transition duration-500" />
                 </div>
-                <h4 className="font-sans text-xs font-semibold truncate">{c.name}</h4>
-                <p className="text-[9px] font-sans uppercase opacity-70 text-[#FF3B30] mt-0.5 truncate">{c.niches?.join(", ")}</p>
+                <h4 className="font-sans text-2xl">{c.name}</h4>
+                <p className="text-xs font-sans uppercase opacity-70 text-[#FF3B30] mt-1">{c.niches?.join(", ")}</p>
               </Link>
             ))}
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <h3 className="font-sans text-sm font-semibold opacity-70">Client Campaigns ({campaigns.length})</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="space-y-8">
+          <h3 className="font-sans text-2xl">Client Campaigns ({campaigns.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {campaigns.map((c) => (
               <CampaignRow key={c.id} c={c} />
             ))}
@@ -934,18 +899,18 @@ function CampaignRow({ c }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="p-3 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-0 hover:border-[#FF3B30]/50 transition-all"
+      className="p-4 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-[180px] hover:border-[#FF3B30]/50 transition-all"
     >
       <div>
         <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
-        <h3 className="font-sans text-sm leading-snug font-semibold mt-1">{c.title}</h3>
-        <p className="text-xs font-sans opacity-70 mt-1.5 line-clamp-2 leading-relaxed">{c.description}</p>
+        <h3 className="font-sans text-base leading-snug font-semibold mt-1">{c.title}</h3>
+        <p className="text-xs font-sans opacity-70 mt-2 line-clamp-3 leading-relaxed">{c.description}</p>
       </div>
-      <div className="mt-3 flex items-baseline justify-between border-t border-white/10 pt-2">
+      <div className="mt-4 flex items-baseline justify-between border-t border-white/10 pt-3">
         <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
           Budget:
         </div>
-        <div className="font-sans text-sm text-white font-semibold">₹{c.budget}</div>
+        <div className="font-sans text-base text-white font-semibold">₹{c.budget}</div>
       </div>
     </motion.div>
   );
@@ -953,8 +918,8 @@ function CampaignRow({ c }) {
 
 function Empty({ label }) {
   return (
-    <div className="border border-white/10 py-10 text-center rounded-sm bg-white/[0.01]">
-      <div className="font-sans italic text-lg opacity-60">{label}</div>
+    <div className="border border-white/10 py-20 text-center rounded-sm bg-white/[0.01]">
+      <div className="font-sans italic text-xl opacity-60">{label}</div>
     </div>
   );
 }
