@@ -84,6 +84,9 @@ export function AdminPanel() {
   const [roleFilter, setRoleFilter] = useState([]); // [] = All
   const [categoryFilter, setCategoryFilter] = useState([]); // [] = All
   const [statusFilter, setStatusFilter] = useState([]); // [] = All
+  const [stateFilter, setStateFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [languageFilter, setLanguageFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -93,6 +96,9 @@ export function AdminPanel() {
   const [platformStats, setPlatformStats] = useState(null);
   const [broadcastText, setBroadcastText] = useState("");
   const [broadcastRole, setBroadcastRole] = useState("");
+  const [broadcastState, setBroadcastState] = useState("");
+  const [broadcastCity, setBroadcastCity] = useState("");
+  const [broadcastLanguage, setBroadcastLanguage] = useState("");
   const [userToDelete, setUserToDelete] = useState(null);
 
   const notifications = [
@@ -259,6 +265,23 @@ export function AdminPanel() {
       });
   };
 
+
+  const exportAIReport = async () => {
+    try {
+        toast.info("Generating AI Analysis...");
+        const res = await api.get("/admin/reports/ai-summary");
+        if (res.data && res.data.summary) {
+             const { runExport } = await import("@/lib/exportFormats");
+             await runExport([{summary: res.data.summary}], "pdf", "AI Report Summary");
+             toast.success("AI Report Exported!");
+        } else {
+             toast.error("Failed to parse AI response.");
+        }
+    } catch(err) {
+        toast.error("AI Report generation failed.");
+    }
+  };
+
   const handleReportAction = async (reportId, status) => {
       try {
           await api.post(`/admin/reports/${reportId}`, { status, note: `Marked ${status}` });
@@ -276,6 +299,9 @@ export function AdminPanel() {
           const { data } = await api.post("/admin/notifications/broadcast", {
               text: broadcastText,
               role: broadcastRole || undefined,
+              state: broadcastState || undefined,
+              city: broadcastCity || undefined,
+              language: broadcastLanguage || undefined,
           });
           toast.success(`Broadcast sent to ${data.sent} users`);
           setBroadcastText("");
@@ -285,7 +311,31 @@ export function AdminPanel() {
   };
 
     const exportData = () => {
-      const raw = tab === "users" ? usersList : [stats].filter(Boolean);
+      let raw = tab === "users" ? usersList : [stats].filter(Boolean);
+      
+      // Filter by Date
+      const now = new Date();
+      let filterStart = null;
+      let filterEnd = null;
+      if (exportRange === "weekly") filterStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      else if (exportRange === "monthly") filterStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      else if (exportRange === "6months") filterStart = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+      else if (exportRange === "1year") filterStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      else if (exportRange === "custom") {
+          if (startDate) filterStart = new Date(startDate);
+          if (endDate) { filterEnd = new Date(endDate); filterEnd.setHours(23, 59, 59, 999); }
+      }
+      
+      if (filterStart || filterEnd) {
+          raw = raw.filter(item => {
+              if (!item.created_at) return true; // If no date, include it
+              const itemDate = new Date(item.created_at);
+              if (filterStart && itemDate < filterStart) return false;
+              if (filterEnd && itemDate > filterEnd) return false;
+              return true;
+          });
+      }
+
       if (!raw || !raw.length) {
         toast.error("Nothing to export on this tab");
         return;
@@ -312,7 +362,7 @@ export function AdminPanel() {
         runExport(exportFormat, {
           rows: data,
           filename: base,
-          title: `CR8 Studio — ${tab === "users" ? "Users" : "Platform"} Export`,
+          title: `CR8 Admin — ${tab === "users" ? (roleFilter.length > 0 ? roleFilter[0].charAt(0).toUpperCase() + roleFilter[0].slice(1) + "s" : "Users") : "Platform"} Report`,
           meta,
           sheetName: tab === "users" ? "Users" : "Stats",
         });

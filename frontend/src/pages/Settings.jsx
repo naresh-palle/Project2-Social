@@ -405,10 +405,10 @@ export default function Settings() {
               </Field>
             </Section>
 
-            <Section title="Privacy" icon={Eye} dense>
+            {user?.role !== "admin" && (<Section title="Privacy" icon={Eye} dense>
               <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
               <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
-            </Section>
+            </Section>)}
 
             <Section title="Notifications" icon={Bell} dense>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
@@ -425,7 +425,7 @@ export default function Settings() {
           </div>
 
           <div className="space-y-3">
-            {blocks.length > 0 && (
+            {blocks.length > 0 && user?.role !== "admin" && (
               <Section title="Blocked Users" icon={Ban} dense>
                 {blocks.map((b) => (
                   <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
@@ -438,7 +438,7 @@ export default function Settings() {
               </Section>
             )}
 
-            {mutes.length > 0 && (
+            {mutes.length > 0 && user?.role !== "admin" && (
               <Section title="Muted Users" icon={VolumeX} dense>
                 {mutes.map((m) => (
                   <div key={m.id} className="flex items-center justify-between py-1">
@@ -449,7 +449,7 @@ export default function Settings() {
               </Section>
             )}
 
-            {restricted.length > 0 && (
+            {restricted.length > 0 && user?.role !== "admin" && (
               <Section title="Restricted Users" icon={UserX} dense>
                 {restricted.map((r) => (
                   <div key={r.id} className="flex items-center justify-between py-1">
@@ -462,13 +462,13 @@ export default function Settings() {
 
             <DraftsAndAnalytics />
 
-            <Section title="Your Data" icon={Download} dense>
+            {user?.role !== "admin" && (<Section title="Your Data" icon={Download} dense>
               <button type="button" onClick={exportData} disabled={downloading} className="btn-sm-solid flex items-center gap-2 disabled:opacity-50">
                 {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download My Data (AI PDF)
               </button>
-            </Section>
+            </Section>)}
 
-            <Section title="Danger Zone" icon={Trash2} dense>
+            {user?.role !== "admin" && (<Section title="Danger Zone" icon={Trash2} dense>
               <p className="font-mono text-[11px] opacity-60 mb-2">Permanently delete your account and all data.</p>
               <input
                 type="text"
@@ -485,7 +485,7 @@ export default function Settings() {
               >
                 Delete Account
               </button>
-            </Section>
+            </Section>)}
           </div>
         </div>
       </div>
@@ -733,40 +733,40 @@ function DraftsAndAnalytics() {
 
   return (
     <>
-      {(drafts.length > 0 || scheduled.length > 0) && (
-      <Section title="Drafts & Scheduled" icon={Monitor} dense>
-        {drafts.length > 0 && (
-          <>
-            <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
-            {drafts.map((p) => (
-              <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
-                <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
-                <div className="flex gap-2 shrink-0">
-                  <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
-                  <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
+      {(drafts.length > 0 || scheduled.length > 0) && user?.role !== "admin" && (
+        <Section title="Drafts & Scheduled" icon={Monitor} dense>
+          {drafts.length > 0 && (
+            <>
+              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
+              {drafts.map((p) => (
+                <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                  <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
+                  <div className="flex gap-2 shrink-0">
+                    <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
+                    <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </>
-        )}
-        {scheduled.length > 0 && (
-          <>
-            <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Scheduled</h4>
-            {scheduled.map((p) => (
-              <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
-                <div className="truncate">
-                  <span className="font-editorial text-sm">{p.title || p.text || "Untitled"}</span>
-                  <div className="font-mono text-[10px] opacity-50">{p.scheduled_at}</div>
+              ))}
+            </>
+          )}
+          {scheduled.length > 0 && (
+            <>
+              <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-4">Scheduled</h4>
+              {scheduled.map((p) => (
+                <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                  <div>
+                    <span className="font-editorial text-sm block truncate">{p.title || p.text || "Untitled"}</span>
+                    <span className="font-mono text-[9px] opacity-60 text-indigo-300 block">{new Date(p.scheduled_for).toLocaleString()}</span>
+                  </div>
+                  <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
                 </div>
-                <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
-              </div>
-            ))}
-          </>
-        )}
-      </Section>
+              ))}
+            </>
+          )}
+        </Section>
       )}
 
-      {analytics && (
+      {analytics && user?.role !== "admin" && (
         <Section title="Social Analytics" icon={Eye} dense>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {[

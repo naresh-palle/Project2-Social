@@ -1523,7 +1523,7 @@ async def _create_registered_user(
         "mobile": clean_mobile, "pincode": pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
         "location": city_val, "city": city_val, "state": state_val, "industry": None, "website": None,
-        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
+        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": (i * 1500) + (1000 if i % 2 == 0 else 500),
         "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
         "social_accounts": social_accounts,
@@ -2192,6 +2192,9 @@ async def admin_users(
     category: Optional[str] = None, 
     q: Optional[str] = None,
     status: Optional[str] = None,
+    state: Optional[str] = None,
+    city: Optional[str] = None,
+    language: Optional[str] = None,
     current: dict = Depends(get_current_user)
 ):
     await require_role(current, ["admin"])
@@ -2221,11 +2224,53 @@ async def admin_users(
             {"mobile": {"$regex": q, "$options": "i"}},
         ]
     if status == "pending":
-        filt["role"] = "agent"
-        filt["agent_approved"] = False
+        filt["$or"] = [{"agent_approved": False}, {"onboarding_status": "pending_approval"}, {"onboarding_status": "pending"}]
     
+    if state:
+        filt["state"] = state
+    if city:
+        filt["city"] = city
+    if language:
+        filt["languages"] = language
+        
     users = await db.users.find(filt, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
     return users
+
+
+@api_router.post("/admin/users/{user_id}/approve")
+async def admin_approve_user(user_id: str, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    res = await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {"agent_approved": True, "onboarding_status": "completed", "decline_reason": None}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await push_notification(
+        user_id, "Account Approved", "Your account has been verified and approved.",
+        "admin", "https://i.pravatar.cc/150?u=admin"
+    )
+    return {"ok": True}
+
+class DeclineUserInput(BaseModel):
+    reason: Optional[str] = "Account credentials require further verification."
+
+@api_router.post("/admin/users/{user_id}/decline")
+async def admin_decline_user(user_id: str, inp: DeclineUserInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    res = await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {"agent_approved": False, "onboarding_status": "declined", "decline_reason": inp.reason}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await push_notification(
+        user_id, "Account Declined", f"Your account approval was declined. Reason: {inp.reason}",
+        "admin", "https://i.pravatar.cc/150?u=admin"
+    )
+    return {"ok": True}
 
 @api_router.delete("/admin/users/{user_id}")
 async def admin_delete_user(user_id: str, current: dict = Depends(get_current_user)):
@@ -4291,6 +4336,17 @@ async def seed_admin():
         logger.info("Updated Super Admin user (%s / admin)", admin_email)
 
 async def seed_demo():
+
+    # Mock Reports
+    if await db.reports.count_documents({}) == 0:
+        reports = [
+            {"id": "rep_1", "target_type": "user", "target_id": "test_creator", "reason": "Spam profile", "status": "open", "created_at": now_iso()},
+            {"id": "rep_2", "target_type": "campaign", "target_id": "camp_1", "reason": "Fraudulent job posting", "status": "open", "created_at": now_iso()},
+            {"id": "rep_3", "target_type": "user", "target_id": "test_agency", "reason": "Fake credentials", "status": "open", "created_at": now_iso()},
+            {"id": "rep_4", "target_type": "campaign", "target_id": "camp_2", "reason": "Inappropriate content", "status": "resolved", "created_at": now_iso()}
+        ]
+        await db.reports.insert_many(reports)
+
     demo_password_hash = hash_password("demo1234")
     
     seed_emails = ["creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio"]

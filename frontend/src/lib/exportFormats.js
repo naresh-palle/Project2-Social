@@ -93,8 +93,7 @@ export function exportExcel({ rows, filename, sheetName = "CR8 Export", meta = "
 /** Minimal multi-page text PDF (Helvetica). */
 export function exportPdf({ rows, filename, title = "CR8 Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
-  const lines = [
-    title,
+  const linesArr = [
     meta,
     "",
     headers.join(" | "),
@@ -106,48 +105,61 @@ export function exportPdf({ rows, filename, title = "CR8 Export", meta = "" }) {
   const pageHeight = 792;
   const margin = 40;
   const lineHeight = 12;
-  const maxLines = Math.floor((pageHeight - margin * 2) / lineHeight);
+  const maxLines = Math.floor((pageHeight - margin * 2 - 80) / lineHeight);
   const pages = [];
-  for (let i = 0; i < Math.max(lines.length, 1); i += maxLines) {
-    pages.push(lines.slice(i, i + maxLines));
+  for (let i = 0; i < Math.max(linesArr.length, 1); i += maxLines) {
+    pages.push(linesArr.slice(i, i + maxLines));
   }
-  if (!pages.length) pages.push([title]);
+  if (!pages.length) pages.push(["No data"]);
 
   const objs = [];
   const pushObj = (bodyStr) => {
     objs.push(bodyStr);
     return objs.length;
   };
-
   const fontId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  const contentIds = pages.map((pageLines) => {
-    const textOps = (pageLines.length ? pageLines : [""])
-      .map((line, idx) => {
-        const safe = String(line)
-          .replace(/\\/g, "\\\\")
-          .replace(/\(/g, "\\(")
-          .replace(/\)/g, "\\)")
-          .slice(0, 110);
-        const y = pageHeight - margin - idx * lineHeight;
-        return `BT /F1 9 Tf ${margin} ${y} Td (${safe}) Tj ET`;
+  const boldId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+
+  const pdfEscape = (str) =>
+    String(str)
+      .replace(/\\/g, "\\\\")
+      .replace(/\(/g, "\\(")
+      .replace(/\)/g, "\\)")
+      .replace(/[\r\n]+/g, " ");
+
+  const contentIds = pages.map((pageItems) => {
+    let ops = "q\n";
+    ops += "1 0.23 0.18 rg\n"; // #FF3B30 Header Background
+    ops += "0 710 612 82 re f\n";
+    ops += "1 1 1 rg\n"; // White Text
+    ops += `BT /F2 16 Tf ${margin} 750 Td (${pdfEscape(title)}) Tj ET\n`;
+    ops += "Q\n";
+    
+    ops += "q 0.15 0.15 0.15 rg\n"; // Dark Gray Text
+    ops += pageItems
+      .map((text, i) => {
+        const font = i === 0 ? "F2" : "F1";
+        const y = 680 - i * lineHeight;
+        const safe = pdfEscape(text).slice(0, 110);
+        return `BT /${font} 9 Tf ${margin} ${y} Td (${safe}) Tj ET`;
       })
       .join("\n");
-    const stream = `${textOps}\n`;
-    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
+    ops += "\nQ";
+    
+    const stream = `${ops}\n`;
+    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
   });
 
-  const pagesIdPlaceholder = objs.length + contentIds.length + 1;
   const pageIds = contentIds.map((cid) =>
     pushObj(
-      `<< /Type /Page /Parent ${pagesIdPlaceholder} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << /Font << /F1 ${fontId} 0 R >> >> >>`
+      `<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`
     )
   );
   const pagesId = pushObj(
     `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`
   );
-  // Fix parent refs now that pagesId is known
   pageIds.forEach((pid, i) => {
-    objs[pid - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentIds[i]} 0 R /Resources << /Font << /F1 ${fontId} 0 R >> >> >>`;
+    objs[pid - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentIds[i]} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`;
   });
   const catalogId = pushObj(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
 
