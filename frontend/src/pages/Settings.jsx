@@ -611,6 +611,31 @@ export default function Settings() {
         </div>
       )}
 
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-md shadow-2xl p-6">
+            <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF3B30] font-semibold mb-2">Confirm Deletion</h3>
+            <p className="font-sans text-xs text-white/80 mb-6">
+              Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteAccount}
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-sm transition-colors shadow-lg shadow-[#FF3B30]/20"
+              >
+                Yes, Delete My Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* theme-aware .inp-field / .btn-sm-* live in index.css */}
     </div>
   );
@@ -756,31 +781,6 @@ function DraftsAndAnalytics() {
             ))}
           </div>
         </Section>
-      )}
-
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-md shadow-2xl p-6">
-            <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF3B30] font-semibold mb-2">Confirm Deletion</h3>
-            <p className="font-sans text-xs text-white/80 mb-6">
-              Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-sm transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={deleteAccount}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-sm transition-colors shadow-lg shadow-[#FF3B30]/20"
-              >
-                Yes, Delete My Account
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </>
   );
