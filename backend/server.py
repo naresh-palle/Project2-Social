@@ -2046,29 +2046,44 @@ async def decline_agent(agent_id: str, inp: Optional[AgentDeclineInput] = None, 
 @api_router.get("/admin/dashboard-stats")
 async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
-    total_creators = await db.users.count_documents({"role": "influencer"})
-    total_brands = await db.users.count_documents({"role": "owner"})
-    total_agencies = await db.users.count_documents({"role": "agent"})
     
-    total_campaigns = await db.campaigns.count_documents({})
-    active_campaigns = await db.campaigns.count_documents({"status": "in_progress"})
-    completed_campaigns = await db.campaigns.count_documents({"status": "completed"})
-    
-    pipeline = [{"$group": {"_id": None, "total": {"$sum": "$budget"}}}]
-    res = await db.campaigns.aggregate(pipeline).to_list(1)
-    total_payments = res[0]["total"] if res else 0
-    total_revenue = total_payments * 0.15 # 15% platform commission mock
-
-    total_requests = await db.applications.count_documents({})
-    pending_verification = await db.users.count_documents({"role": "agent", "agent_approved": False})
-
     now = datetime.now(timezone.utc)
     day_ago = (now - timedelta(days=1)).isoformat()
     month_ago = (now - timedelta(days=30)).isoformat()
-    dau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": day_ago}, "success": True})
-    mau_ids = await db.login_history.distinct("user_id", {"created_at": {"$gte": month_ago}, "success": True})
+    pipeline = [{"$group": {"_id": None, "total": {"$sum": "$budget"}}}]
+
+    results = await asyncio.gather(
+        db.users.count_documents({"role": "influencer"}),
+        db.users.count_documents({"role": "owner"}),
+        db.users.count_documents({"role": "agent"}),
+        db.campaigns.count_documents({}),
+        db.campaigns.count_documents({"status": "in_progress"}),
+        db.campaigns.count_documents({"status": "completed"}),
+        db.campaigns.aggregate(pipeline).to_list(1),
+        db.applications.count_documents({}),
+        db.users.count_documents({"role": "agent", "agent_approved": False}),
+        db.login_history.distinct("user_id", {"created_at": {"$gte": day_ago}, "success": True}),
+        db.login_history.distinct("user_id", {"created_at": {"$gte": month_ago}, "success": True}),
+        db.users.count_documents({"created_at": {"$gte": day_ago}}),
+    )
+
+    total_creators = results[0]
+    total_brands = results[1]
+    total_agencies = results[2]
+    total_campaigns = results[3]
+    active_campaigns = results[4]
+    completed_campaigns = results[5]
+    res = results[6]
+    total_requests = results[7]
+    pending_verification = results[8]
+    dau_ids = results[9]
+    mau_ids = results[10]
+    new_registrations = results[11]
+
+    total_payments = res[0]["total"] if res else 0
+    total_revenue = total_payments * 0.15 # 15% platform commission mock
+
     logins_today = len([x for x in dau_ids if x])
-    new_registrations = await db.users.count_documents({"created_at": {"$gte": day_ago}})
     
     return {
         "users": {

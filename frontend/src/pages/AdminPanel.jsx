@@ -26,6 +26,18 @@ const ROLE_DB_MAP = {
   Agencies: "agent",
 };
 
+const TAB_EXPORT_LABELS = {
+  overview: "Overview",
+  reports: "Reports",
+  categories: "Categories",
+  audit: "Audit Logs",
+  agent_approvals: "Agent Approvals",
+  treasury: "Escrow Treasury",
+  briefs: "Brief Moderation",
+  broadcast: "Broadcast History",
+  referrals: "Referrals"
+};
+
 function userCategoryText(u) {
   return []
     .concat(u?.category || [])
@@ -111,18 +123,16 @@ export function AdminPanel() {
   useEffect(() => {
     async function load() {
       try {
-        const [stRes, actRes, payRes] = await Promise.all([
+        const [stRes, actRes, payRes, platRes] = await Promise.all([
           api.get("/admin/dashboard-stats"),
           api.get("/admin/recent-activity"),
-          api.get("/admin/payments")
+          api.get("/admin/payments"),
+          api.get("/analytics/platform").catch(() => ({ data: null }))
         ]);
         setStats(stRes.data);
         setActivity(actRes.data);
         setPayments(payRes.data);
-        try {
-          const platRes = await api.get("/analytics/platform");
-          setPlatformStats(platRes.data);
-        } catch {}
+        if (platRes.data) setPlatformStats(platRes.data);
       } catch (e) {
         toast.error("Failed to load platform data");
       } finally {
@@ -336,8 +346,24 @@ export function AdminPanel() {
       }
   };
 
-    const exportData = () => {
-      let raw = tab === "users" ? usersList : [stats].filter(Boolean);
+    const promoteToAdmin = async (userId) => {
+        if (!confirm("Are you sure you want to promote this user to Admin?")) return;
+        try {
+            await api.post(`/admin/users/${userId}/promote-admin`);
+            toast.success("User promoted to Admin successfully");
+            fetchUsers();
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Failed to promote user");
+        }
+    };
+
+    const exportData = async () => {
+      let raw = [];
+      if (tab === "users") raw = usersList;
+      else if (tab === "reports") raw = reports;
+      else if (tab === "categories") raw = categories;
+      else if (tab === "audit") raw = activity;
+      else raw = [stats].filter(Boolean);
       
       // Filter by Date
       const now = new Date();
@@ -384,17 +410,29 @@ export function AdminPanel() {
       });
       const meta = `Export Timeframe: ${exportRange.toUpperCase()}${exportRange === "custom" ? ` (${startDate} to ${endDate || "Unlimited"})` : ""} · Tab: ${tab}`;
       const base = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
+      
       try {
+        let aiSummary = "";
+        if (exportFormat === "pdf_report") {
+            setDownloading(true);
+            toast.info("Generating AI Analysis...");
+            const res = await api.post("/admin/reports/ai-summary", { rows: data.slice(0, 50) });
+            aiSummary = res.data?.summary || "No summary generated.";
+            setDownloading(false);
+        }
+
         runExport(exportFormat, {
           rows: data,
           filename: base,
           title: `CR8 Admin — ${tab === "users" ? (roleFilter.length > 0 ? roleFilter[0].charAt(0).toUpperCase() + roleFilter[0].slice(1) + "s" : "Users") : "Platform"} Report`,
           meta,
+          aiSummary,
           sheetName: tab === "users" ? "Users" : "Stats",
         });
         setExportModal(false);
         toast.success(`Export ready (${exportFormat.toUpperCase()} · ${exportRange})`);
       } catch (e) {
+        setDownloading(false);
         toast.error(e?.message || "Export failed");
       }
   };
@@ -466,7 +504,7 @@ export function AdminPanel() {
                             categoryFilter.length > 0 ? categoryFilter[0] : "",
                             roleFilter.length > 0 ? (roleFilter[0] === "influencer" ? "Influencers" : roleFilter[0] === "owner" ? "Brands" : roleFilter[0] === "agent" ? "Agencies" : "Users") : "Users"
                         ].filter(Boolean).join(" ")
-                    ) : (tab.charAt(0).toUpperCase() + tab.slice(1))}
+                    ) : (TAB_EXPORT_LABELS[tab] || "Data")}
                 </button>
 
             </div>
@@ -595,13 +633,13 @@ export function AdminPanel() {
         {/* TAB 5: USER MANAGEMENT */}
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
+                <div className="relative z-20 flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                         <Search className="w-4 h-4 opacity-50" />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
                     </div>
                     <div className="h-6 w-px bg-white/10 hidden md:block" />
-                    <div className="flex flex-wrap items-center gap-4 font-sans text-[10px] uppercase tracking-wider flex-1 min-w-[280px]">
+                    <div className="relative z-20 flex flex-wrap items-center gap-4 font-sans text-[10px] uppercase tracking-wider flex-1 min-w-[280px]">
                         <div className="flex items-center gap-2 shrink-0">
                             <Filter className="w-3 h-3 opacity-50" />
                         </div>
@@ -820,6 +858,7 @@ export function AdminPanel() {
                           <th className="p-4 font-normal">Categories</th>
                           <th className="p-4 font-normal">Email</th>
                           <th className="p-4 font-normal">Status</th>
+                          <th className="p-4 font-normal text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -843,6 +882,13 @@ export function AdminPanel() {
                                   <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span>
                                 ) : (
                                   <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                {u.role !== "admin" && (
+                                  <button onClick={() => promoteToAdmin(u.id)} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors rounded-xs whitespace-nowrap">
+                                    Promote Admin
+                                  </button>
                                 )}
                               </td>
                             </tr>

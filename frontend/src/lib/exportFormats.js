@@ -388,6 +388,50 @@ export function exportProfileReportPdf({
   buildPdfFromBlocks(blocks, filename || `cr8-profile-${dateLabel}`);
 }
 
+/** Generates a polished PDF report for a list of items, including an AI executive summary. */
+export function exportAiReportPdf({
+  rows,
+  filename,
+  title = "CR8 Data Report",
+  aiSummary = "Data snapshot summary.",
+}) {
+  const { headers, rows: body } = normalizeRows(rows);
+  const dateLabel = new Date().toISOString().slice(0, 10);
+  
+  const blocks = [];
+  blocks.push({ kind: "h1", text: title });
+  blocks.push({ kind: "spacer", gap: 10 });
+  
+  // AI Summary section
+  blocks.push({ kind: "h2", text: "Executive Summary" });
+  blocks.push({ kind: "body", text: String(aiSummary) });
+  blocks.push({ kind: "spacer", gap: 20 });
+  
+  // Data Overview
+  blocks.push({ kind: "h2", text: "Data Overview" });
+  blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
+  blocks.push({ kind: "spacer", gap: 10 });
+  
+  // Group rows for easier reading
+  blocks.push({ kind: "h2", text: "Included Records" });
+  const names = body.map((cols, idx) => {
+    // Just grab the first non-empty column (usually username or email)
+    const primary = cols.find(c => c && String(c).trim() !== "") || `Record ${idx + 1}`;
+    return primary;
+  });
+  
+  // Chunk names to avoid huge paragraphs
+  const chunkSize = 20;
+  for (let i = 0; i < names.length; i += chunkSize) {
+    blocks.push({ kind: "body", text: names.slice(i, i + chunkSize).join(" • ") });
+  }
+
+  blocks.push({ kind: "spacer", gap: 15 });
+  blocks.push({ kind: "meta", text: `© CR8 Studio · Generated on ${dateLabel}` });
+
+  buildPdfFromBlocks(blocks, filename || `cr8-report-${dateLabel}`);
+}
+
 /** Word-compatible HTML document (.doc). */
 export function exportDoc({ rows, filename, title = "CR8 Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
@@ -413,13 +457,15 @@ export function exportDoc({ rows, filename, title = "CR8 Export", meta = "" }) {
 export const EXPORT_FORMATS = [
   { id: "csv", label: "CSV", ext: "csv" },
   { id: "excel", label: "Excel (.xls)", ext: "xls" },
-  { id: "pdf", label: "PDF", ext: "pdf" },
+  { id: "pdf", label: "PDF (Table)", ext: "pdf" },
+  { id: "pdf_report", label: "PDF (AI Report)", ext: "pdf" },
   { id: "doc", label: "Word (.doc)", ext: "doc" },
 ];
 
 export function runExport(format, opts) {
   if (format === "excel") return exportExcel(opts);
   if (format === "pdf") return exportPdf(opts);
+  if (format === "pdf_report") return exportAiReportPdf(opts);
   if (format === "doc") return exportDoc(opts);
   return exportCsv(opts);
 }

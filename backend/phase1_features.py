@@ -206,6 +206,9 @@ def setup_phase1(
         text: str
         kind: str = "announcement"
         role: Optional[str] = None
+        state: Optional[str] = None
+        city: Optional[str] = None
+        language: Optional[str] = None
 
     class AdminReportAction(BaseModel):
         status: Literal["reviewed", "resolved", "dismissed"]
@@ -1567,6 +1570,23 @@ def setup_phase1(
         q = {} if status == "all" else {"status": status}
         return await db.reports.find(q, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
 
+    @api_router.post("/admin/reports/ai-summary")
+    async def admin_reports_ai_summary(req: dict, current: dict = Depends(get_current_user)):
+        await require_role(current, ["admin"])
+        rows = req.get("rows", [])
+        if not rows:
+            return {"summary": "No data provided to generate a summary."}
+        
+        # Format the data for the LLM
+        sample = str(rows[:20]) # Limit to 20 rows to avoid token overflow
+        prompt = f"Analyze this sample of exported user data and write a short, professional executive summary of the demographics and platform activity:\n{sample}"
+        try:
+            summary = await _llm("You are an expert data analyst for CR8 Studio.", prompt)
+        except Exception:
+            summary = "AI analysis failed. Please try again."
+            
+        return {"summary": summary}
+
     @api_router.post("/admin/reports/{report_id}")
     async def admin_report_action(report_id: str, inp: AdminReportAction, current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
@@ -1619,10 +1639,41 @@ def setup_phase1(
         )
         return {"ok": True}
 
+    @api_router.post("/admin/users/{user_id}/promote-admin")
+    async def admin_promote(user_id: str, current: dict = Depends(get_current_user)):
+        await require_role(current, ["admin"])
+        target = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1})
+        if not target:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        await db.users.update_one({"id": user_id}, {"$set": {"role": "admin"}})
+        
+        await _audit(
+            action="Admin Promoted",
+            user_id=current.get("id"),
+            username=current.get("username"),
+            details=f"Promoted user {user_id} to admin",
+            status="Completed",
+            meta={"target_user_id": user_id},
+        )
+        return {"ok": True}
+
     @api_router.post("/admin/notifications/broadcast")
     async def admin_broadcast(inp: AdminBroadcastInput, current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
-        q = {"role": inp.role} if inp.role else {}
+        q = {}
+        if inp.role:
+            q["role"] = inp.role
+        if inp.state:
+            q["state"] = {"$regex": f"^{inp.state}$", "$options": "i"}
+        if inp.city:
+            q["city"] = {"$regex": f"^{inp.city}$", "$options": "i"}
+        if inp.language:
+            q["$or"] = [
+                {"language": {"$regex": f"^{inp.language}$", "$options": "i"}},
+                {"languages": {"$regex": f"^{inp.language}$", "$options": "i"}}
+            ]
+            
         users = await db.users.find(q, {"id": 1}).to_list(2000)
         for u in users:
             await push_notification(u["id"], inp.kind, inp.text, {"broadcast": True})

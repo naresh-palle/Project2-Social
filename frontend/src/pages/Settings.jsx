@@ -94,7 +94,10 @@ export default function Settings() {
       setMutes(muteRes.data || []);
       setRestricted(restrRes.data || []);
     } catch {
-      if (!local) toast.error("Failed to load settings");
+      if (!local) {
+        toast.error("Failed to load settings from server");
+        setSettings({});
+      }
     }
   }, [user, mergeUserSettings]);
 
