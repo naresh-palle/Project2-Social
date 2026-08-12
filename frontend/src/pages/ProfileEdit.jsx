@@ -710,7 +710,19 @@ export default function ProfileEdit() {
           </div>
         </div>
 
-        <motion.form noValidate onSubmit={submit} className="mt-4 space-y-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+        <motion.form 
+          noValidate 
+          onSubmit={submit} 
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.tagName !== "BUTTON") {
+              e.preventDefault();
+            }
+          }}
+          className="mt-4 space-y-4" 
+          initial={{ opacity: 0, y: 12 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.45 }}
+        >
           
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
@@ -1121,11 +1133,11 @@ export default function ProfileEdit() {
                     </h2>
                     
                     <F label="Images and Videos">
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10">
+                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10 rounded-sm overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
-                                <video src={p} className="w-full h-full object-cover" controls />
+                                <video src={p} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                             ) : (
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
