@@ -93,6 +93,7 @@ export function AdminPanel() {
   const [platformStats, setPlatformStats] = useState(null);
   const [broadcastText, setBroadcastText] = useState("");
   const [broadcastRole, setBroadcastRole] = useState("");
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const notifications = [
       { id: 1, text: "New influencer '@zara_fashion' registered", time: "2 mins ago", type: "success" },
@@ -207,30 +208,30 @@ export function AdminPanel() {
       return () => clearInterval(id);
   }, [tab]);
 
+  const confirmDeleteUser = async () => {
+      if (!userToDelete) return;
+      const { id: userId } = userToDelete;
+      try {
+          await api.delete(`/admin/users/${userId}`);
+          toast.success("User deleted successfully");
+          fetchUsers();
+          api.get("/admin/dashboard-stats").then(r => setStats(r.data));
+          if (tab === "audit") {
+              api.get("/admin/recent-activity").then(r => setActivity(r.data || []));
+          }
+      } catch (e) {
+          toast.error(e?.response?.data?.detail || "Failed to delete user");
+      } finally {
+          setUserToDelete(null);
+      }
+  };
+
   const deleteUser = async (userId, role) => {
       if (role === "admin") {
           toast.error("Admin users cannot be deleted");
           return;
       }
-      toast("Are you sure you want to permanently delete this user?", {
-        action: {
-          label: "Delete",
-          onClick: async () => {
-            try {
-                await api.delete(`/admin/users/${userId}`);
-                toast.success("User deleted successfully");
-                fetchUsers();
-                const stRes = await api.get("/admin/dashboard-stats");
-                setStats(stRes.data);
-            } catch (e) {
-                toast.error(e?.response?.data?.detail || "Failed to delete user");
-            }
-          }
-        },
-        cancel: {
-          label: "Cancel"
-        }
-      });
+      setUserToDelete({ id: userId, role });
   };
 
   const banUser = async (userId, role) => {
@@ -785,12 +786,13 @@ export function AdminPanel() {
                                 <th className="p-4 font-normal">Timestamp</th>
                                 <th className="p-4 font-normal">User</th>
                                 <th className="p-4 font-normal">Action Type</th>
+                                <th className="p-4 font-normal">Details</th>
                                 <th className="p-4 font-normal">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {activity.length === 0 ? (
-                                <tr><td colSpan={4} className="p-12 text-center font-sans italic text-2xl opacity-40">No recent activity</td></tr>
+                                <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No recent activity</td></tr>
                             ) : (
                                 activity.map((a, i) => (
                                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -800,12 +802,13 @@ export function AdminPanel() {
                                         <td className="p-4 text-sm opacity-90">
                                           {formatUsername(a.username, a.user) || "—"}
                                         </td>
-                                        <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-80">{a.type}</td>
+                                        <td className="p-4 font-sans text-xs">{a.type}</td>
+                                        <td className="p-4 font-sans text-xs opacity-70">{a.details || "-"}</td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans rounded-sm border ${
-                                                ["success", "completed"].includes(String(a.status || "").toLowerCase()) ? 'bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20' :
-                                                ["failed", "error"].includes(String(a.status || "").toLowerCase()) ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20' :
-                                                'bg-white/5 text-white/70 border-white/10'
+                                            <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border rounded-xs ${
+                                                a.status === "Completed" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" :
+                                                a.status === "Pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/30" :
+                                                "bg-white/5 text-white/50 border-white/10"
                                             }`}>
                                                 {a.status}
                                             </span>
@@ -934,6 +937,28 @@ export function AdminPanel() {
           </motion.div>
         </div>
       )}
+
+      {/* User Delete Confirmation Modal */}
+      <AnimatePresence>
+          {userToDelete && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-sm w-full max-w-md shadow-2xl relative">
+                      <h3 className="font-editorial text-3xl mb-2 text-[#FF3B30]">Delete User?</h3>
+                      <p className="font-mono text-xs opacity-60 mb-8">
+                          Are you sure you want to permanently delete this user? This action cannot be undone and will erase all their campaigns, applications, and data.
+                      </p>
+                      <div className="flex justify-end gap-4">
+                          <button onClick={() => setUserToDelete(null)} className="px-4 py-2 font-mono text-xs text-white/60 hover:text-white transition-colors">
+                              Cancel
+                          </button>
+                          <button onClick={confirmDeleteUser} className="btn-solid py-2 px-6 bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                              Delete Permanently
+                          </button>
+                      </div>
+                  </motion.div>
+              </div>
+          )}
+      </AnimatePresence>
 
     </div>
   );

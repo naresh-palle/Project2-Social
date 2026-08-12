@@ -23,8 +23,9 @@ import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
   const nav = useNavigate();
+  const [showOnline, setShowOnline] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) nav("/login");
@@ -101,6 +102,17 @@ export default function Dashboard() {
                     </p>
                   );
                 })()}
+                
+                <div className="flex items-center gap-2 mt-2">
+                  <div className={`w-2 h-2 rounded-full ${showOnline ? 'bg-[#34C759]' : 'bg-white/20'}`} />
+                  <span className="font-sans text-[10px] uppercase tracking-widest opacity-60">Status:</span>
+                  <button 
+                    onClick={() => setShowOnline(!showOnline)}
+                    className="font-sans text-[10px] uppercase tracking-widest font-bold hover:text-[#FF3B30] transition-colors"
+                  >
+                    {showOnline ? 'Online' : 'Offline'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -720,7 +732,14 @@ function InfluencerPanel() {
 
       {/* Platform Analytics & Social Connect — always visible above tabs */}
       <SocialAnalyticsCards
-        connections={user?.oauth_connections || []}
+        connections={
+          user?.oauth_connections?.length 
+            ? user.oauth_connections 
+            : Object.keys(user?.platform_metrics || {}).map(plat => ({
+                platform: plat,
+                handle: user.platform_metrics[plat].handle || user.handle || user.username
+              }))
+        }
         onSync={handleSync}
         isSyncing={syncing}
       />

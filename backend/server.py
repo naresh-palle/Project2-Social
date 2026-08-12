@@ -576,6 +576,9 @@ class UserUpdate(BaseModel):
     agent_approved: Optional[bool] = None
     niches: Optional[List[str]] = None
     roster_size: Optional[str] = None
+    oauth_connections: Optional[List[Dict[str, Any]]] = None
+    languages: Optional[List[str]] = None
+    platform_metrics: Optional[Dict[str, Any]] = None
 
     @field_validator("category", mode="before")
     @classmethod
@@ -1903,6 +1906,14 @@ async def delete_account(current: dict = Depends(get_current_user)):
     await db.applications.delete_many({"influencer_id": current["id"]})
     await db.posts.delete_many({"author_id": current["id"]})
     
+    await write_audit_log(
+        action="Account Deleted",
+        user_id=current["id"],
+        username=current.get("username"),
+        details="User voluntarily deleted their account",
+        status="Completed"
+    )
+
     await log_activity(
         user_id=current["id"],
         action="Account Deleted",
