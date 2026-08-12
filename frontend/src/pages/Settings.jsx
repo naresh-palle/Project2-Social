@@ -43,6 +43,7 @@ export default function Settings() {
   const [twoFa, setTwoFa] = useState({ setup: null, code: "" });
   const [disable2fa, setDisable2fa] = useState({ password: "", code: "" });
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [securityOpen, setSecurityOpen] = useState(false);
   const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
   const [pwdBusy, setPwdBusy] = useState(false);
@@ -302,15 +303,11 @@ export default function Settings() {
   };
 
   const deleteAccount = async () => {
-    if (deleteConfirm !== "DELETE") {
-      toast.error("Type DELETE to confirm");
-      return;
-    }
     try {
       await api.post("/auth/delete-account");
       logout();
-      nav("/");
       toast.success("Account deleted");
+      nav("/");
     } catch {
       toast.error("Deletion failed");
     }
@@ -475,7 +472,12 @@ export default function Settings() {
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 className="inp-field mb-2"
               />
-              <button type="button" onClick={deleteAccount} className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold">
+              <button 
+                type="button" 
+                disabled={deleteConfirm !== "DELETE"}
+                onClick={() => setShowDeleteModal(true)} 
+                className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Delete Account
               </button>
             </Section>
@@ -754,6 +756,31 @@ function DraftsAndAnalytics() {
             ))}
           </div>
         </Section>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-md shadow-2xl p-6">
+            <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF3B30] font-semibold mb-2">Confirm Deletion</h3>
+            <p className="font-sans text-xs text-white/80 mb-6">
+              Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteAccount}
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-sm transition-colors shadow-lg shadow-[#FF3B30]/20"
+              >
+                Yes, Delete My Account
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
