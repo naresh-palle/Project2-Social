@@ -431,6 +431,16 @@ export default function Register() {
     }
   };
 
+  const allFieldsFilled = 
+    form.firstName.trim() !== "" &&
+    form.lastName.trim() !== "" &&
+    (role === "influencer" || form.company.trim() !== "") &&
+    form.username.trim() !== "" &&
+    form.email.trim() !== "" &&
+    form.mobile.trim() !== "" &&
+    form.pincode.trim() !== "" &&
+    form.password.trim() !== "";
+
   return (
     <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative">
       <Nav />
@@ -486,7 +496,7 @@ export default function Register() {
             {(role === "owner" || role === "agent") && (
               <div className="col-span-2">
                 <Field 
-                  label={role === "owner" ? "Brand / Company *" : "Agency Name *"} 
+                  label={role === "owner" ? "Brand / Company" : "Agency Name"} 
                   testid="reg-company" 
                   value={form.company} 
                   onChange={change("company")} 
@@ -634,9 +644,10 @@ export default function Register() {
               id="terms-check"
               required
               checked={termsAgreed}
+              disabled={!allFieldsFilled}
               onChange={(e) => setTermsAgreed(e.target.checked)}
               tabIndex={0}
-              className="accent-[#FF3B30] w-4 h-4 cursor-pointer shrink-0"
+              className="accent-[#FF3B30] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label htmlFor="terms-check" className="font-sans text-[11px] text-white/90 cursor-pointer select-none leading-snug">
               I agree to <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Privacy Policy</span>.
@@ -646,7 +657,7 @@ export default function Register() {
           <button
             type="submit"
             data-testid="register-submit"
-            disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed}
+            disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed || !allFieldsFilled}
             className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF3B30] text-white font-bold text-sm hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
           >
             {loading ? "Sending Code…" : "Signup"}
@@ -735,7 +746,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
   return (
     <div className="space-y-0">
       <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
-        {label}
+        {label} {props.required && <span className="text-[#FF3B30] ml-0.5">*</span>}
       </label>
       <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}

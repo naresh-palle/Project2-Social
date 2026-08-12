@@ -533,7 +533,7 @@ const toggleCategory = (c) => {
         <div className="pt-12 flex justify-end">
           <button
             onClick={() => setStep(4)}
-            disabled={currentCats.length === 0 || f.languages.length === 0 || !f.availability || !user?.oauth_connections?.length}
+            disabled={currentCats.length === 0 || f.languages.length === 0 || !f.availability}
             className="btn-solid disabled:opacity-50"
           >
             Continue <ChevronRight className="w-4 h-4" />
