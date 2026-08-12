@@ -4732,7 +4732,7 @@ _SPA_SKIP_PREFIXES = ("api", "docs", "redoc", "openapi.json")
 async def spa_root():
     index = WEB_DIR / "index.html"
     if index.is_file():
-        return FileResponse(index)
+        return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return {"name": "CR8 API", "status": "ok", "web": False}
 
 
@@ -4749,9 +4749,12 @@ async def spa_or_static(full_path: str):
     except ValueError:
         raise HTTPException(status_code=404, detail="Not Found")
     if candidate.is_file():
-        return FileResponse(candidate)
+        if "static" in candidate.parts:
+            # Cache static assets with content hashes
+            return FileResponse(candidate, headers={"Cache-Control": "public, max-age=31536000, immutable"})
+        return FileResponse(candidate, headers={"Cache-Control": "no-cache"})
     index = WEB_DIR / "index.html"
     if index.is_file():
-        return FileResponse(index)
+        return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     raise HTTPException(status_code=404, detail="Not Found")
 
