@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { api } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 
 const TABS = [
+  { id: "all", label: "All", icon: Search },
   { id: "users", label: "Users", icon: Users },
   { id: "posts", label: "Posts", icon: FileText },
   { id: "hashtags", label: "Hashtags", icon: Hash },
@@ -17,10 +18,8 @@ const TABS = [
 ];
 
 export default function SearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQ = searchParams.get("q") || "";
-  const [q, setQ] = useState(initialQ);
-  const [tab, setTab] = useState("users");
+  const [q, setQ] = useState("");
+  const [tab, setTab] = useState("all");
   const [results, setResults] = useState(null);
   const [recent, setRecent] = useState([]);
   const [trending, setTrending] = useState({ searches: [], hashtags: [] });
@@ -36,20 +35,11 @@ export default function SearchPage() {
 
   useEffect(() => {
     loadMeta();
-    if (initialQ) {
-      runSearch(initialQ, tab);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const updateSearchUrl = (query) => {
-    if (query) setSearchParams({ q: query });
-    else setSearchParams({});
-  };
+  }, []);
 
   const runSearch = async (query = q, kind = tab) => {
     if (!query.trim()) return;
     setLoading(true);
-    updateSearchUrl(query.trim());
     try {
       const { data } = await api.get("/search", { params: { q: query.trim(), kind } });
       setResults(data);
@@ -72,24 +62,39 @@ export default function SearchPage() {
   };
 
   const items = results
-    ? tab === "users"
-      ? results.users || []
-      : tab === "posts"
-        ? results.posts || []
-        : tab === "hashtags"
-          ? results.hashtags || []
-          : tab === "campaigns"
-            ? results.campaigns || []
-            : results.locations || []
+    ? tab === "all"
+      ? [
+          ...(results.users || []),
+          ...(results.posts || []),
+          ...(results.hashtags || []),
+          ...(results.campaigns || []),
+          ...(results.locations || []),
+        ]
+      : tab === "users"
+        ? results.users || []
+        : tab === "posts"
+          ? results.posts || []
+          : tab === "hashtags"
+            ? results.hashtags || []
+            : tab === "campaigns"
+              ? results.campaigns || []
+              : results.locations || []
     : [];
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <ThemeToaster />
       <Nav />
-      <div className="pt-28 max-w-4xl mx-auto px-6 md:px-10 pb-24 flex-1 w-full">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
-        <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+      <div className="pt-20 max-w-4xl mx-auto px-6 md:px-10 pb-16 flex-1 w-full">
+        <div className="mb-8">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
+             <ChevronLeft className="w-4 h-4" /> Back
+          </Link>
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+          </div>
+        </div>
 
         <form
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}
@@ -99,11 +104,11 @@ export default function SearchPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search creators, posts, hashtags…"
+            placeholder="Search influencers, posts, hashtags…"
             className="flex-1 bg-transparent outline-none font-mono text-sm py-2"
           />
           {q && (
-            <button type="button" onClick={() => { setQ(""); setResults(null); updateSearchUrl(""); }} className="p-2 opacity-50 hover:opacity-100">
+            <button type="button" onClick={() => { setQ(""); setResults(null); }} className="p-2 opacity-50 hover:opacity-100">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -128,63 +133,79 @@ export default function SearchPage() {
         </div>
 
         {!results && (
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-8 space-y-8">
+            
+            {/* Trending Section */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2">
+              <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 mb-3">
+                <TrendingUp className="w-3.5 h-3.5" /> Trending
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-8">
+                <div className="space-y-1.5">
+                  <h4 className="font-sans text-[9px] uppercase opacity-40 mb-1.5 tracking-widest">Top Hashtags</h4>
+                  {(trending.hashtags || []).slice(0, 5).map((h) => (
+                    <button
+                      key={h.tag}
+                      type="button"
+                      onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
+                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 rounded-xs transition-colors flex justify-between items-center"
+                    >
+                      <span className="font-editorial text-base">#{h.tag}</span>
+                      <span className="font-mono text-[9px] opacity-50">{h.count} posts</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-1.5">
+                  <h4 className="font-sans text-[9px] uppercase opacity-40 mb-1.5 tracking-widest">Top Searches</h4>
+                  {(trending.searches || []).slice(0, 5).map((s) => (
+                    <button
+                      key={s.query}
+                      type="button"
+                      onClick={() => { setQ(s.query); runSearch(s.query); }}
+                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-xs rounded-xs transition-colors"
+                    >
+                      {s.query}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Section */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5" /> Recent
                 </h3>
                 {recent.length > 0 && (
-                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-white uppercase">
+                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-white uppercase transition-colors">
                     Clear
                   </button>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {recent.length === 0 ? (
-                  <p className="font-mono text-xs opacity-40">No recent searches</p>
+                  <p className="font-mono text-[10px] opacity-40 italic">No recent searches</p>
                 ) : (
                   recent.map((r) => (
                     <button
                       key={r.id}
                       type="button"
                       onClick={() => { setQ(r.query); runSearch(r.query, r.kind || tab); }}
-                      className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs"
+                      className="w-full flex items-center justify-between px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-xs rounded-xs transition-colors"
                     >
-                      {r.query}
+                      <span className="truncate pr-2">{r.query}</span>
+                      {r.kind && (
+                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-white/60 rounded-sm">
+                          {r.kind}
+                        </span>
+                      )}
                     </button>
                   ))
                 )}
               </div>
             </div>
-            <div>
-              <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 mb-4">
-                <TrendingUp className="w-3.5 h-3.5" /> Trending
-              </h3>
-              <div className="space-y-2">
-                {(trending.hashtags || []).slice(0, 5).map((h) => (
-                  <button
-                    key={h.tag}
-                    type="button"
-                    onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
-                    className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 rounded-xs"
-                  >
-                    <span className="font-editorial text-lg">#{h.tag}</span>
-                    <span className="font-mono text-[10px] opacity-50 ml-2">{h.count} posts</span>
-                  </button>
-                ))}
-                {(trending.searches || []).slice(0, 5).map((s) => (
-                  <button
-                    key={s.query}
-                    type="button"
-                    onClick={() => { setQ(s.query); runSearch(s.query); }}
-                    className="block w-full text-left p-3 border border-white/10 bg-white/[0.02] hover:border-[#FF3B30]/40 font-mono text-sm rounded-xs"
-                  >
-                    {s.query}
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </div>
         )}
 
@@ -193,14 +214,59 @@ export default function SearchPage() {
             {items.length === 0 ? (
               <p className="font-sans text-xl font-medium tracking-tight opacity-40 text-center py-12">No results found</p>
             ) : (
-              items.map((item, i) => (
-                <SearchResult key={item.id || item.tag || i} tab={tab} item={item} />
-              ))
+              tab === "all" ? (
+                <div className="space-y-8">
+                  {results.users?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Users</h3>
+                      <div className="space-y-3">
+                        {results.users.map((item, i) => <SearchResult key={`user-${item.id || i}`} tab="users" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.posts?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Posts</h3>
+                      <div className="space-y-3">
+                        {results.posts.map((item, i) => <SearchResult key={`post-${item.id || i}`} tab="posts" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.hashtags?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Hashtags</h3>
+                      <div className="space-y-3">
+                        {results.hashtags.map((item, i) => <SearchResult key={`hash-${item.tag || i}`} tab="hashtags" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.campaigns?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Campaigns</h3>
+                      <div className="space-y-3">
+                        {results.campaigns.map((item, i) => <SearchResult key={`camp-${item.id || i}`} tab="campaigns" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                  {results.locations?.length > 0 && (
+                    <div>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF3B30] mb-3">Locations</h3>
+                      <div className="space-y-3">
+                        {results.locations.map((item, i) => <SearchResult key={`loc-${item.id || i}`} tab="location" item={item} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                items.map((item, i) => (
+                  <SearchResult key={item.id || item.tag || i} tab={tab} item={item} />
+                ))
+              )
             )}
           </div>
         )}
       </div>
-      <Footer />
+
     </div>
   );
 }

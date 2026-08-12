@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2, ArrowLeft, User } from "lucide-react";
+import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 } from "lucide-react";
 import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
@@ -63,17 +63,26 @@ export default function PublicProfile() {
   };
 
   const block = async () => {
-    if (!window.confirm("Block this user?")) return;
-    setActionBusy("block");
-    try {
-      await api.post("/privacy/block", { user_id: userId });
-      toast.success("User blocked");
-      nav(-1);
-    } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "Block failed");
-    } finally {
-      setActionBusy(null);
-    }
+    toast("Block this user?", {
+      action: {
+        label: "Block",
+        onClick: async () => {
+          setActionBusy("block");
+          try {
+            await api.post("/privacy/block", { user_id: userId });
+            toast.success("User blocked");
+            nav(-1);
+          } catch (e) {
+            toast.error(formatApiError(e.response?.data?.detail) || "Block failed");
+          } finally {
+            setActionBusy(null);
+          }
+        }
+      },
+      cancel: {
+        label: "Cancel"
+      }
+    });
   };
 
   const report = async () => {
@@ -105,32 +114,18 @@ export default function PublicProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-        <Nav />
-        <ThemeToaster />
-        <div className="pt-24 px-6 md:px-10">
-          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] mb-8">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back
-          </button>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin" />
-        </div>
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
         <Nav />
         <ThemeToaster />
-        <div className="pt-24 px-6 md:px-10">
-          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] mb-8">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back
-          </button>
-        </div>
-        <div className="flex-1 flex items-center justify-center font-sans text-2xl font-medium opacity-40">User not found</div>
+        <div className="pt-32 text-center font-sans text-2xl font-medium opacity-40">User not found</div>
       </div>
     );
   }
@@ -144,25 +139,44 @@ export default function PublicProfile() {
       <Nav />
       <ThemeToaster />
       <div className="pt-24 flex-1">
-        {profile.cover_photo && (
-          <div className="h-48 md:h-64 w-full overflow-hidden">
-            <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
+        <div className="max-w-4xl mx-auto px-6 md:px-10 mb-6 flex flex-col items-start gap-4">
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
+          </button>
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ User Profile</p>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Profile</h1>
           </div>
-        )}
-        <div className="max-w-3xl mx-auto px-6 md:px-10 pb-24 -mt-16 relative">
-          <div className="absolute -top-12 left-6 md:left-10 z-10">
-            <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] bg-[#0B0B0E]/50 px-3 py-1.5 rounded-sm backdrop-blur-md border border-white/10">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back
-            </button>
-          </div>
-          <div className="flex items-end gap-6">
-            {profile.avatar ? (
-              <img src={profile.avatar} alt="" className="w-28 h-28 rounded-full object-cover border-4 border-[#0B0B0E] z-10 relative bg-[#0B0B0E]" />
+        </div>
+        <div className="h-48 md:h-64 w-full overflow-hidden max-w-6xl mx-auto rounded-t-xl">
+            {profile.cover_photo ? (
+              <img src={profile.cover_photo} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-28 h-28 rounded-full bg-[#121212] border-4 border-[#0B0B0E] flex items-center justify-center z-10 relative text-white/50">
-                <User className="w-12 h-12" />
+              <div
+                className="w-full h-full"
+                style={{
+                  background: "linear-gradient(135deg, #0B0B0E 0%, #1a0a0a 30%, #2d0505 55%, #1a0505 75%, #0B0B0E 100%)",
+                }}
+              >
+                <div className="w-full h-full flex items-center justify-center opacity-10">
+                  <span className="font-editorial italic text-8xl md:text-9xl font-bold text-[#FF3B30] select-none">CR8</span>
+                </div>
               </div>
             )}
+          </div>
+        <div className="max-w-3xl mx-auto px-6 md:px-10 pb-24 -mt-16 relative">
+          <div className="flex items-end gap-6">
+            <div className="relative w-28 h-28 shrink-0">
+              {profile.avatar && (
+                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#0B0B0E] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+              )}
+              <div
+                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
+                style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+              >
+                {(displayName || "?")[0]?.toUpperCase()}
+              </div>
+            </div>
             <div className="flex-1 pb-2">
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
               {(profile.role === "owner" || profile.role === "agent") && profile.company && (
@@ -234,7 +248,7 @@ export default function PublicProfile() {
         </div>
       )}
 
-      <Footer />
+
       <style>{`.btn-action { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: bold; cursor: pointer; }`}</style>
     </div>
   );
