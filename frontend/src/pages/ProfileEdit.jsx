@@ -383,14 +383,16 @@ export default function ProfileEdit() {
     return true;
   };
 
-  const nextStep = () => {
+  const nextStep = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (step === 1 && !validateStep1()) return;
     if (step === 2 && !validateStep2()) return;
     setStep((s) => s + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const prevStep = () => {
+  const prevStep = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     setStep((s) => s - 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -1216,16 +1218,16 @@ export default function ProfileEdit() {
 
           <div className="pt-2 flex items-center justify-between">
             {step > 1 ? (
-              <button type="button" onClick={prevStep} className="edit-btn bg-white/10 text-white hover:bg-white/20 px-5 py-2.5 text-[11px]">
+              <button key="btn-back" type="button" onClick={prevStep} className="edit-btn bg-white/10 text-white hover:bg-white/20 px-5 py-2.5 text-[11px]">
                 Back
               </button>
             ) : <div />}
             {step < 3 ? (
-              <button type="button" onClick={nextStep} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+              <button key="btn-next" type="button" onClick={nextStep} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
                 Next Step
               </button>
             ) : (
-              <button type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+              <button key="btn-submit" type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
                 <Save className="w-3.5 h-3.5" /> {busy ? "Saving…" : "Save profile"}
               </button>
             )}
