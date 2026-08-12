@@ -140,6 +140,9 @@ export function AdminPanel() {
           if (categoryFilter?.length === 1) params.append("category", categoryFilter[0]);
           if (statusFilter?.length === 1 && statusFilter[0] === "Pending") params.append("status", "pending");
           if (searchQuery) params.append("q", searchQuery);
+          if (stateFilter) params.append("state", stateFilter);
+          if (cityFilter) params.append("city", cityFilter);
+          if (languageFilter) params.append("languages", languageFilter);
           
           const { data } = await api.get(`/admin/users?${params.toString()}`);
           // Admins are never listed — prevents ban/delete access from User Management.
@@ -230,6 +233,29 @@ export function AdminPanel() {
       } finally {
           setUserToDelete(null);
       }
+  };
+
+
+  const handleApproveUser = async (userId) => {
+    try {
+      await api.post(`/admin/users/${userId}/approve`);
+      toast.success("User approved successfully");
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to approve user");
+    }
+  };
+
+  const handleDeclineUser = async (userId) => {
+    try {
+      const reason = window.prompt("Reason for declining:", "Account credentials require further verification.");
+      if (reason === null) return;
+      await api.post(`/admin/users/${userId}/decline`, { reason });
+      toast.success("User declined");
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to decline user");
+    }
   };
 
   const deleteUser = async (userId, role) => {
@@ -435,8 +461,14 @@ export function AdminPanel() {
             
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
                 <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
-                    <Download className="w-4 h-4" /> Export {tab === "users" ? "Users" : "Data"}
+                    <Download className="w-4 h-4" /> Export {tab === "users" ? (
+                        [
+                            categoryFilter.length > 0 ? categoryFilter[0] : "",
+                            roleFilter.length > 0 ? (roleFilter[0] === "influencer" ? "Influencers" : roleFilter[0] === "owner" ? "Brands" : roleFilter[0] === "agent" ? "Agencies" : "Users") : "Users"
+                        ].filter(Boolean).join(" ")
+                    ) : (tab.charAt(0).toUpperCase() + tab.slice(1))}
                 </button>
+
             </div>
         </div>
 
@@ -606,6 +638,9 @@ export function AdminPanel() {
                             label="Status"
                           />
                         </div>
+                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
+                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
+                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
                     </div>
                 </div>
                 <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
@@ -655,6 +690,16 @@ export function AdminPanel() {
                                                 <span className="font-sans text-[9px] uppercase tracking-widest opacity-40">Protected</span>
                                               ) : (
                                                 <div className="flex items-center justify-end gap-1">
+                                                  {(!u.agent_approved || u.onboarding_status === "pending") && u.onboarding_status !== "declined" && (
+                                                    <>
+                                                        <button onClick={() => handleApproveUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-green-400 transition-colors" title="Approve User">
+                                                            <CheckCircle2 className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => handleDeclineUser(u.id)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Decline User">
+                                                            <XCircle className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                  )}
                                                   <button onClick={() => banUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Ban User"><Lock className="w-4 h-4" /></button>
                                                   <button onClick={() => deleteUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
@@ -822,6 +867,11 @@ export function AdminPanel() {
                     <option value="owner">Brands Only</option>
                     <option value="agent">Agencies Only</option>
                 </select>
+                <div className="flex gap-2">
+                    <input type="text" placeholder="State (optional)" value={broadcastState} onChange={e => setBroadcastState(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
+                    <input type="text" placeholder="City (optional)" value={broadcastCity} onChange={e => setBroadcastCity(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
+                    <input type="text" placeholder="Language (optional)" value={broadcastLanguage} onChange={e => setBroadcastLanguage(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
+                </div>
                 <button onClick={sendBroadcast} className="btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase">Send Broadcast</button>
             </motion.div>
         )}

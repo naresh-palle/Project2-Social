@@ -460,7 +460,7 @@ export default function Settings() {
               </Section>
             )}
 
-            <DraftsAndAnalytics />
+            {user?.role !== "admin" && <DraftsAndAnalytics />}
 
             {user?.role !== "admin" && (<Section title="Your Data" icon={Download} dense>
               <button type="button" onClick={exportData} disabled={downloading} className="btn-sm-solid flex items-center gap-2 disabled:opacity-50">

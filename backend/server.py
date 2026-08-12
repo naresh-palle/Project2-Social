@@ -4416,6 +4416,33 @@ async def seed_demo():
         })
 
     await seed_directory_roster(demo_password_hash)
+    
+    # Leaderboard Mock Data
+    await db.wallet_tx.delete_many({"note": {"$regex": "^Mock data"}})
+    influencers = await db.users.find({"role": "influencer"}).to_list(10)
+    brands = await db.users.find({"role": "owner"}).to_list(10)
+    txs = []
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+    amounts = [500000, 420000, 310000, 250000, 180000, 120000, 80000, 50000, 20000, 10000]
+    for i, user in enumerate(influencers):
+        amt = amounts[i % len(amounts)]
+        txs.append({
+            "id": str(uuid.uuid4()), "user_id": user["id"], "kind": "credit", "amount": amt,
+            "note": "Mock data: Campaign Payment", "created_at": (now - timedelta(days=2)).isoformat()
+        })
+    for i, user in enumerate(brands):
+        amt = amounts[i % len(amounts)] * 1.5
+        txs.append({
+            "id": str(uuid.uuid4()), "user_id": user["id"], "kind": "debit", "amount": int(amt),
+            "note": "Mock data: Escrow Locked", "created_at": (now - timedelta(days=3)).isoformat()
+        })
+    if txs:
+        await db.wallet_tx.insert_many(txs)
+    from phase2_features import _recompute_leaderboard
+    await _recompute_leaderboard("weekly")
+    await _recompute_leaderboard("monthly")
+
 
 
 DIRECTORY_IMAGES = [
