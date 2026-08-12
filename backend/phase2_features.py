@@ -1195,5 +1195,6 @@ def setup_phase2(
 
     # Expose hook for server.py to call
     api_router.__phase2_on_campaign_completed__ = on_campaign_completed
+    api_router.__phase2_recompute_leaderboard__ = _recompute_leaderboard
 
     logger.info("Phase 2 features mounted: categories, matching, levels, badges, leaderboard, referrals")

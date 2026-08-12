@@ -4439,9 +4439,9 @@ async def seed_demo():
         })
     if txs:
         await db.wallet_tx.insert_many(txs)
-    from phase2_features import _recompute_leaderboard
-    await _recompute_leaderboard("weekly")
-    await _recompute_leaderboard("monthly")
+    if hasattr(api_router, "__phase2_recompute_leaderboard__"):
+        await api_router.__phase2_recompute_leaderboard__("weekly")
+        await api_router.__phase2_recompute_leaderboard__("monthly")
 
 
 
