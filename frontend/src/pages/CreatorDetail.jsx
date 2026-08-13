@@ -90,7 +90,6 @@ export default function CreatorDetail() {
                     </div>
                 )}
                 <div className="flex-1">
-                <div className="flex-1">
                     <div className="font-mono text-[10px] tracking-[0.16em] uppercase font-semibold inline-flex items-center gap-2 flex-wrap text-white/80 mb-3">
                         <div className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></span>

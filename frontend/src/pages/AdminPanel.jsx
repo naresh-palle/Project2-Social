@@ -551,7 +551,6 @@ export function AdminPanel() {
                             </div>
                         </div>
                     </div>
-                </div>
             </motion.div>
         )}
 

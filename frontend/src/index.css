@@ -196,9 +196,6 @@ a, button { cursor: pointer; }
 }
 
 /* Buttons */
-.btn-pill {
-    display: inline-flex;
-}
 
 /* Premier Level Glassmorphism */
 .glass-panel {
@@ -226,6 +223,8 @@ a, button { cursor: pointer; }
     -webkit-backdrop-filter: blur(12px);
 }
 
+.btn-pill {
+    display: inline-flex;
     align-items: center;
     gap: 0.6rem;
     padding: 0.9rem 1.4rem;
