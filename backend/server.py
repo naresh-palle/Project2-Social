@@ -2389,6 +2389,7 @@ async def sync_analytics(
             
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
+    failed_plats = []
     for idx, plat in enumerate(plats_to_fetch):
         res = results[idx]
         if isinstance(res, dict):

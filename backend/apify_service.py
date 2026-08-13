@@ -62,7 +62,7 @@ class ApifyService:
         payload = {}
         if platform == "instagram":
             actor_id = ACTOR_INSTAGRAM
-            payload = {"addParentData": False, "directUrls": [f"https://instagram.com/{handle}"], "resultsLimit": 1}
+            payload = {"addParentData": False, "directUrls": [f"https://instagram.com/{handle}"], "resultsLimit": 1, "resultsType": "details"}
         elif platform == "youtube":
             actor_id = ACTOR_YOUTUBE
             payload = {"startUrls": [{"url": f"https://youtube.com/@{handle}"}], "maxResults": 1}
