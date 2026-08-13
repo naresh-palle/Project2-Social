@@ -431,29 +431,66 @@ export default function ProfileEdit() {
     if (!scrapeUrl.trim()) return;
     setScraping(true);
     try {
-      const { data } = await api.post("/social/scrape", { url: scrapeUrl.trim() });
-      if (data?.data) {
-        const p = data.data;
-        const newF = { ...f };
-        if (p.biography && !newF.bio) newF.bio = p.biography;
-        if (p.fullName && !newF.name) newF.name = p.fullName;
-        if (p.followersCount && data.platform) {
-          const plat = data.platform.toLowerCase().includes('insta') ? 'instagram' : data.platform.toLowerCase().includes('youtube') ? 'youtube' : 'facebook';
-          newF.platform_metrics = { 
-            ...(newF.platform_metrics || {}), 
-            [plat]: { handle: p.username || '', followers: p.followersCount }
-          };
-        }
-        setF(newF);
-        toast.success("Profile data auto-filled!");
-        setShowScrapeInput(false);
-        setScrapeUrl("");
-      } else {
-        toast.error("No profile data found.");
+      const { data: initData } = await api.post("/social/scrape", { url: scrapeUrl.trim() });
+      if (!initData?.jobId) {
+        toast.error("Failed to start scraper job.");
+        setScraping(false);
+        return;
       }
+      
+      const jobId = initData.jobId;
+      toast.info("Scraper job started, fetching data...");
+      
+      let attempts = 0;
+      const pollTimer = setInterval(async () => {
+        attempts++;
+        if (attempts > 30) {
+          clearInterval(pollTimer);
+          toast.error("Scraping timed out after 90 seconds.");
+          setScraping(false);
+          return;
+        }
+        
+        try {
+          const { data: statusData } = await api.get(`/api/scrape/${jobId}`);
+          if (statusData.status === "completed") {
+            clearInterval(pollTimer);
+            const data = statusData.data;
+            if (data?.data) {
+              const p = data.data;
+              const newF = { ...f };
+              if (p.biography && !newF.bio) newF.bio = p.biography;
+              if (p.fullName && !newF.name) newF.name = p.fullName;
+              if (p.followersCount && data.platform) {
+                const plat = data.platform.toLowerCase().includes('insta') ? 'instagram' : data.platform.toLowerCase().includes('youtube') ? 'youtube' : 'facebook';
+                newF.platform_metrics = { 
+                  ...(newF.platform_metrics || {}), 
+                  [plat]: { handle: p.username || '', followers: p.followersCount }
+                };
+              }
+              setF(newF);
+              toast.success("Profile data auto-filled!");
+              setShowScrapeInput(false);
+              setScrapeUrl("");
+            } else {
+              toast.error("No profile data found.");
+            }
+            setScraping(false);
+          } else if (statusData.status === "failed") {
+            clearInterval(pollTimer);
+            toast.error(statusData.error || "Scraping failed.");
+            setScraping(false);
+          }
+          // else "pending" or "running" -> continue polling
+        } catch (pollErr) {
+          clearInterval(pollTimer);
+          toast.error("Error polling scraper status.");
+          setScraping(false);
+        }
+      }, 3000); // Poll every 3s
+      
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || "Failed to fetch profile");
-    } finally {
+      toast.error(formatApiError(err.response?.data?.detail) || "Failed to start scraping");
       setScraping(false);
     }
   };

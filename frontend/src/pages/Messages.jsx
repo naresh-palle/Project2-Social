@@ -284,8 +284,7 @@ export default function Messages({ miniWidget = false }) {
 
   return (
     <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
-      {!miniWidget && }
-      {!miniWidget && }
+
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
           <div className="mb-6">

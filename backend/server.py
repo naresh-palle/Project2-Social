@@ -2373,57 +2373,10 @@ async def sync_analytics(
             "monthly_analytics": current.get("monthly_analytics", [])
         }
 
-    apify_token = os.environ.get("APIFY_TOKEN")
+    from apify_service import apify_service
     
     async def fetch_platform(plat, handle):
-        if not apify_token: return None
-        actor = None
-        payload = {}
-        if plat == "instagram":
-            actor = "apify~instagram-scraper"
-            payload = {"addParentData": False, "directUrls": [f"https://instagram.com/{handle}"], "resultsLimit": 1}
-        elif plat == "youtube":
-            actor = "streamhut~youtube-scraper"
-            payload = {"startUrls": [{"url": f"https://youtube.com/@{handle}"}], "maxResults": 1}
-        elif plat == "facebook":
-            actor = "apify~facebook-pages-scraper"
-            payload = {"startUrls": [{"url": f"https://facebook.com/{handle}"}], "resultsLimit": 1}
-        else:
-            return None
-            
-        try:
-            async with httpx.AsyncClient(timeout=45.0) as client:
-                res = await client.post(
-                    f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items?token={apify_token}",
-                    json=payload
-                )
-                if res.status_code in (200, 201):
-                    data = res.json()
-                    if isinstance(data, list) and len(data) > 0:
-                        item = data[0]
-                        if plat == "instagram":
-                            return {
-                                "followers": item.get("followersCount", 0),
-                                "posts": item.get("postsCount", 0),
-                                "views": 0, "engagement": 0
-                            }
-                        elif plat == "youtube":
-                            sub_count = item.get("numberOfSubscribers", item.get("subscribersCount", item.get("followersCount", 0)))
-                            return {
-                                "subscribers": sub_count,
-                                "followers": sub_count,
-                                "posts": item.get("numberOfVideos", item.get("videosCount", 0)),
-                                "views": item.get("totalViews", item.get("viewsCount", 0)),
-                                "engagement": 0
-                            }
-                        elif plat == "facebook":
-                            return {
-                                "followers": item.get("likes", item.get("followers", 0)),
-                                "posts": 0, "views": 0, "engagement": 0
-                            }
-        except Exception as e:
-            logger.error("Apify fetch failed for %s %s: %s", plat, handle, e)
-        return None
+        return await apify_service.fetch_sync(plat, handle)
 
     tasks = []
     plats_to_fetch = []
@@ -4813,40 +4766,36 @@ class ScrapeInput(BaseModel):
 
 @api_router.post("/social/scrape")
 async def scrape_social(inp: ScrapeInput, current: dict = Depends(get_current_user)):
-    import os
-    import httpx
-    apify_token = os.environ.get("APIFY_TOKEN")
-    if not apify_token:
-        raise HTTPException(status_code=500, detail="APIFY_TOKEN not configured")
-        
-    url = inp.url.lower()
-    
-    if "instagram.com" in url:
-        actor = "apify~instagram-scraper"
-        payload = {"addParentData": False, "directUrls": [inp.url], "resultsLimit": 1}
-    elif "youtube.com" in url or "youtu.be" in url:
-        actor = "streamhut~youtube-scraper" 
-        payload = {"startUrls": [{"url": inp.url}], "maxResults": 1}
-    elif "facebook.com" in url or "fb.com" in url:
-        actor = "apify~facebook-pages-scraper"
-        payload = {"startUrls": [{"url": inp.url}], "resultsLimit": 1}
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported platform URL. Please provide an Instagram, YouTube, or Facebook URL.")
-        
+    from apify_service import apify_service
     try:
-        async with httpx.AsyncClient(timeout=90.0) as client:
-            res = await client.post(
-                f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items?token={apify_token}",
-                json=payload
-            )
-            if res.status_code == 200 or res.status_code == 201:
-                data = res.json()
-                if isinstance(data, list) and len(data) > 0:
-                    return {"ok": True, "data": data[0], "platform": actor.split("~")[1]}
-                return {"ok": True, "data": data, "platform": actor.split("~")[1]}
-            return {"ok": False, "error": f"Apify error {res.status_code}", "raw": res.text}
+        job = await apify_service.create_scraper_job(db, current["id"], inp.url)
+        import asyncio
+        asyncio.create_task(apify_service.run_scraper_job(db, job["id"]))
+        return {"ok": True, "jobId": job["id"]}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Scraping service temporarily unavailable")
+
+@api_router.get("/api/scrape/{job_id}")
+async def get_scrape_job_status(job_id: str, current: dict = Depends(get_current_user)):
+    job = await db.scraper_jobs.find_one({"id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job["user_id"] != current["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+    return {
+        "success": True,
+        "status": job["status"],
+        "data": job.get("result_data"),
+        "error": job.get("error_message")
+    }
+
+@api_router.get("/api/apify/health")
+async def apify_health():
+    from apify_service import apify_service
+    return await apify_service.health_check()
 
 @api_router.get("/feed")
 async def get_feed(mode: str = "foryou", cursor: Optional[str] = None, limit: int = 20, current: dict = Depends(get_current_user)):
@@ -4889,5 +4838,6 @@ async def spa_or_static(full_path: str):
     if index.is_file():
         return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     raise HTTPException(status_code=404, detail="Not Found")
+
 
 

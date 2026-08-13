@@ -14,3 +14,4 @@ google-generativeai
 google-auth
 pyotp
 Pillow
+apify-client
