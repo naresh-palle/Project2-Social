@@ -59,7 +59,7 @@ function userMatchesCategories(u, selected = []) {
 }
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-4 xl:p-5 border border-white/10 bg-white/[0.02] relative overflow-hidden group min-w-0">
+        <div className="p-4 xl:p-5 glass-panel relative overflow-hidden group min-w-0">
             <div className="flex justify-between items-start gap-2">
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
                 <div className="p-2 bg-white/5 rounded-sm shrink-0">{icon}</div>
@@ -357,6 +357,16 @@ export function AdminPanel() {
         }
     };
 
+    const assignCreatorLevel = async (userId, level) => {
+        try {
+            await api.patch(`/admin/users/${userId}/level`, { level });
+            toast.success("Creator level updated");
+            fetchUsers();
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Failed to update level");
+        }
+    };
+
     const exportData = async () => {
       let raw = [];
       if (tab === "users") raw = usersList;
@@ -521,80 +531,10 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-                    <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
-                        <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium">Revenue &amp; GMV Growth Stream</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={revenueData}>
-                                    <defs>
-                                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#34C759" stopOpacity={0.3}/><stop offset="95%" stopColor="#34C759" stopOpacity={0}/></linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" stroke="rgba(244,244,240,0.2)" fontSize={10} />
-                                    <YAxis stroke="rgba(244,244,240,0.2)" fontSize={10} tickFormatter={v => `₹${v/1000}k`} />
-                                    <Tooltip contentStyle={{ backgroundColor: '#0A0A0A', borderColor: 'rgba(244,244,240,0.1)' }} itemStyle={{ color: '#F4F4F0' }} />
-                                    <Area type="monotone" dataKey="revenue" stroke="#34C759" fillOpacity={1} fill="url(#colorRev)" />
-                                    <Area type="monotone" dataKey="payments" stroke="rgba(244,244,240,0.3)" fill="none" strokeDasharray="3 3" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                    
-                    <div className="p-6 border border-white/10 bg-white/[0.02] flex flex-col">
-                        <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium">Platform Activity</h3>
-                        <div className="flex-1 flex justify-center items-center">
-                            <ResponsiveContainer width="100%" height={200}>
-                                <PieChart>
-                                    <Pie data={platformData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                        {platformData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                                    </Pie>
-                                    <Tooltip contentStyle={{ backgroundColor: '#0A0A0A', borderColor: 'rgba(244,244,240,0.1)' }} itemStyle={{ color: '#F4F4F0' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                        <div className="flex justify-center gap-6 mt-4 font-sans text-[10px] tracking-wider uppercase opacity-80">
-                            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#34C759]" /> Active</div>
-                            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#FF3B30]" /> Inactive</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-                    <div className="lg:col-span-2 p-6 border border-white/10 bg-white/[0.02]">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Recent Escrow Payments</h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
-                                        <th className="p-3 font-normal">ID</th><th className="p-3 font-normal">Influencer</th><th className="p-3 font-normal">Brand</th><th className="p-3 font-normal">Amount</th><th className="p-3 font-normal">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(payments.length > 0 ? payments : [
-                                      { id: "ESC-801", creator: "Aarav Sharma", brand: "Studio Noir", amount: 250000, status: "Escrow Released" },
-                                      { id: "ESC-802", creator: "Priya Varma", brand: "HyperTech AI", amount: 350000, status: "Escrow Locked" },
-                                      { id: "ESC-803", creator: "Rohan Kapoor", brand: "Veda Organics", amount: 180000, status: "Escrow Released" },
-                                      { id: "ESC-804", creator: "Neha Gupta", brand: "PulseFit Global", amount: 200000, status: "Escrow Locked" },
-                                    ]).slice(0, 5).map((p, i) => (
-                                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                            <td className="p-3 font-sans text-sm opacity-60">#{p.id}</td>
-                                            <td className="p-3 font-sans text-sm">{p.creator}</td>
-                                            <td className="p-3 font-sans text-sm opacity-80">{p.brand}</td>
-                                            <td className="p-3 font-sans text-sm text-[#34C759] font-bold tabular-nums">₹{(p.amount || 0).toLocaleString()}</td>
-                                            <td className="p-3">
-                                                <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm font-bold">{p.status}</span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                {/* Revenue, Platform Activity, and Recent Escrow Payments sections removed per requirements */}
 
                     <div className="space-y-6">
-                        <div className="p-6 border border-white/10 bg-white/[0.02]">
+                        <div className="p-6 glass-panel">
                             <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
                             <div className="space-y-4">
                                 {notifications.map(n => (
@@ -633,7 +573,7 @@ export function AdminPanel() {
         {/* TAB 5: USER MANAGEMENT */}
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="relative z-20 flex flex-wrap items-center gap-4 mb-6 p-4 border border-white/10 bg-white/[0.02]">
+                <div className="relative z-20 flex flex-wrap items-center gap-4 mb-6 p-4 glass-panel">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                         <Search className="w-4 h-4 opacity-50" />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
@@ -681,7 +621,7 @@ export function AdminPanel() {
                         <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
                     </div>
                 </div>
-                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                <div className="glass-panel overflow-x-auto">
                     {usersLoading ? (
                         <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>
                     ) : (
@@ -718,7 +658,21 @@ export function AdminPanel() {
                                                     : `+91 ${String(u.mobile).replace(/\D/g, "").slice(-10)}`)
                                                 : "—"}
                                             </td>
-                                            <td className="p-4"><div className="font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</div><div className="text-xs opacity-60 mt-1">{u.category || "—"}</div></td>
+                                            <td className="p-4">
+                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</div>
+                                              <div className="text-xs opacity-60 mt-1">{u.category || "—"}</div>
+                                              {u.role === 'influencer' && (
+                                                <select
+                                                  className="mt-2 bg-white/5 border border-white/10 text-xs px-2 py-1 rounded outline-none text-[#F4F4F0]"
+                                                  value={u.creator_level || "Beginner"}
+                                                  onChange={(e) => assignCreatorLevel(u.id, e.target.value)}
+                                                >
+                                                  <option value="Beginner" className="bg-[#0B0B0E]">Beginner</option>
+                                                  <option value="Pro" className="bg-[#0B0B0E]">Pro</option>
+                                                  <option value="Elite" className="bg-[#0B0B0E]">Elite</option>
+                                                </select>
+                                              )}
+                                            </td>
                                             <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
                                             <td className="p-4">
                                                 {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>}
@@ -755,7 +709,7 @@ export function AdminPanel() {
 
         {/* TAB: REPORTS */}
         {tab === "reports" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 border border-white/10 bg-white/[0.02] overflow-x-auto">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 glass-panel overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
@@ -800,7 +754,7 @@ export function AdminPanel() {
 
             return (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-6">
-                <div className="p-4 border border-white/10 bg-white/[0.02] flex flex-wrap items-end gap-4">
+                <div className="p-4 glass-panel flex flex-wrap items-end gap-4">
                   <div className="min-w-[240px] max-w-md flex-1">
                     <MultiSelectDropdown
                       options={catalog}
@@ -846,7 +800,7 @@ export function AdminPanel() {
                   ))}
                 </div>
 
-                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                <div className="glass-panel overflow-x-auto">
                   {categoryUsersLoading ? (
                     <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>
                   ) : (
@@ -904,7 +858,7 @@ export function AdminPanel() {
 
         {/* TAB: BROADCAST */}
         {tab === "broadcast" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl space-y-4">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl space-y-4">
                 <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h3>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
                 <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs">
@@ -925,7 +879,7 @@ export function AdminPanel() {
         {/* TAB 6: AUDIT LOGS */}
         {tab === "audit" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+                <div className="glass-panel overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
@@ -1433,29 +1387,29 @@ function EscrowTreasuryDesk() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 border border-white/10 bg-white/[0.02]">
+        <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
           <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹48,50,000</div>
           <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
-        <div className="p-5 border border-white/10 bg-white/[0.02]">
+        <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Protection Status</div>
           <div className="font-sans text-3xl text-[#FF3B30] font-bold mt-3 tracking-tight tabular-nums">₹6,30,500</div>
           <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Zero Agency Cuts</div>
         </div>
-        <div className="p-5 border border-white/10 bg-white/[0.02]">
+        <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
           <div className="font-sans text-3xl text-[#34C759] font-bold mt-3 tracking-tight tabular-nums">₹42,19,500</div>
           <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
         </div>
-        <div className="p-5 border border-white/10 bg-white/[0.02]">
+        <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Disputed Claims</div>
           <div className="font-sans text-3xl text-orange-400 font-bold mt-3 tracking-tight tabular-nums">₹1,20,000</div>
           <div className="font-sans text-[9px] text-orange-400 uppercase tracking-wider mt-2">&lt;30m Support Resolution</div>
         </div>
       </div>
 
-      <div className="border border-white/10 bg-white/[0.02] overflow-x-auto">
+      <div className="glass-panel overflow-x-auto">
         <div className="p-4 border-b border-white/10 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF3B30] font-bold">
           Live Escrow Ledger &amp; Manual Override Control
         </div>
@@ -1649,7 +1603,7 @@ function MatchAlgorithmConfig() {
   };
   if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl">
        <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Match Algorithm Configuration</h3>
        <div className="space-y-4">
          {Object.entries(config).map(([key, val]) => (
@@ -1674,7 +1628,7 @@ function ReferralConfig() {
   };
   if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 border border-white/10 bg-white/[0.02] max-w-xl">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl">
        <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Referral Configuration</h3>
        <div className="space-y-4">
          <div className="flex flex-col gap-1">

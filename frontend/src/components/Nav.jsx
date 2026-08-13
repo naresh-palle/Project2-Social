@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, LifeBuoy, Bot, MessageSquare } from "lucide-react";
+import { ChevronDown, LifeBuoy, Bot, MessageSquare, Search } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 
@@ -39,7 +39,8 @@ export function Nav({ variant = "dark" }) {
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
-        { to: "/search", label: "Search" },
+        { to: "/feed", label: "Feed" },
+        { to: "/directory", label: "Directory" },
         { to: "/leaderboard", label: "Leaderboard" },
         ...(user?.role !== "admin" ? [
           { to: "/referrals", label: "Referrals" },
@@ -79,7 +80,50 @@ export function Nav({ variant = "dark" }) {
         </Link>
 
 
-        <div className="flex items-center gap-3">
+        {user && (
+          <div className="hidden lg:flex items-center justify-center flex-1 mx-8 gap-4 overflow-x-auto no-scrollbar">
+            {items.map(it => (
+              <Link
+                key={it.to}
+                to={it.to}
+                data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-sm transition-colors whitespace-nowrap"
+              >
+                {it.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 shrink-0">
+          {user && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = e.target.search.value.toLowerCase();
+                if (q.includes("theme") || q.includes("dark") || q.includes("light") || q.includes("setting") || q.includes("password")) nav("/settings");
+                else if (q.includes("dash")) nav("/dashboard");
+                else if (q.includes("profile")) nav("/profile");
+                else if (q.includes("wallet") || q.includes("money") || q.includes("escrow") || q.includes("pay")) nav("/wallet");
+                else if (q.includes("referral") || q.includes("invite")) nav("/referrals");
+                else if (q.includes("lead") || q.includes("rank")) nav("/leaderboard");
+                else if (q.includes("directory") || q.includes("find")) nav("/directory");
+                else if (q.includes("feed") || q.includes("campaign")) nav("/feed");
+                else if (q.includes("message") || q.includes("chat")) nav("/messages");
+                else nav("/search?q=" + encodeURIComponent(q));
+                e.target.search.value = "";
+              }}
+              className="relative hidden md:flex items-center mr-2"
+            >
+              <Search className="w-3.5 h-3.5 absolute left-3 opacity-50 text-white" />
+              <input 
+                name="search"
+                type="text" 
+                placeholder="⌘ Search / Jump..." 
+                className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-[10px] uppercase tracking-widest font-mono text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all w-48 focus:w-64"
+              />
+            </form>
+          )}
           {user ? (
             <>
               {user?.role !== "admin" && (
@@ -95,17 +139,8 @@ export function Nav({ variant = "dark" }) {
                 </>
               )}
               <NotificationBell />
-              <div 
-                ref={menuRef} 
-                className="relative"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  onClick={() => setOpen(v => !v)}
-                  data-testid="nav-user-menu"
-                  className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border border-white/30 bg-white/10 hover:bg-[#FF3B30] hover:border-[#FF3B30] text-white text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-md"
-                >
+              
+              <div className="flex items-center gap-3 pl-2 border-l border-white/20">
                   {user?.avatar ? (
                     <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20" />
                   ) : (
@@ -116,68 +151,13 @@ export function Nav({ variant = "dark" }) {
                       {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                     </div>
                   )}
-                  <span className="font-bold text-white tracking-wider hidden sm:inline">
-                    {displayAccountName(user)}
-                  </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
-                </button>
-                <AnimatePresence>
-                  {open && (
-                    <div 
-                      className="absolute right-0 top-full pt-1.5 w-60 z-50"
-                      onMouseEnter={handleMouseEnter}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="bg-[#0A0A0A] border border-white/20 shadow-2xl backdrop-blur-2xl rounded-sm overflow-hidden"
-                      >
-                        <div className="p-4 hairline-b bg-white/[0.03] flex items-center gap-3">
-                          {user?.avatar ? (
-                            <img src={user.avatar} alt="" className="w-9 h-9 rounded-full object-cover shrink-0 border border-white/20" />
-                          ) : (
-                            <div
-                              className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-base text-white border border-white/20"
-                              style={{ backgroundColor: `hsl(${((displayAccountName(user) || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
-                            >
-                              {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-sans text-base font-semibold truncate">
-                              {displayAccountName(user)}
-                            </div>
-                            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30]">{user.role}</div>
-                          </div>
-                        </div>
-                        <div className="p-2">
-                          {items.map(it => (
-                            <Link
-                              key={it.to}
-                              to={it.to}
-                              onClick={() => setOpen(false)}
-                              data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                              className="block px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-white/10 text-white/90 hover:text-white transition-colors"
-                            >
-                              {it.label}
-                            </Link>
-                          ))}
-
-                          <button
-                            onClick={() => { setOpen(false); logout(); nav("/"); }}
-                            data-testid="nav-logout"
-                            className="block w-full text-left px-3 py-2.5 font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30] hover:bg-white/10 transition-colors"
-                          >
-                            Sign Out
-                          </button>
-                        </div>
-                      </motion.div>
-                    </div>
-                  )}
-                </AnimatePresence>
+                  <button
+                    onClick={() => { logout(); nav("/"); }}
+                    data-testid="nav-logout"
+                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] hover:text-[#ff6b63] transition-colors"
+                  >
+                    Sign Out
+                  </button>
               </div>
             </>
           ) : (

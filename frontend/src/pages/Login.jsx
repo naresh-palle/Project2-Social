@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound, Loader2 } from "lucide-react";
@@ -27,6 +27,14 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    if (user) {
+      nav("/dashboard", { replace: true });
+    }
+  }, [user, nav]);
 
   const submitPassword = async (e) => {
     e.preventDefault();

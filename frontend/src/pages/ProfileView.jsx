@@ -119,7 +119,7 @@ export default function ProfileView() {
             <ChevronLeft className="w-4 h-4" /> Back
         </Link>
 
-        <div className="mt-4 border border-white/10 bg-white/[0.02] p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="mt-4 glass-panel p-3 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-10 h-10 rounded-full border border-[#FF3B30]/40 flex items-center justify-center bg-[#FF3B30]/10 font-sans text-sm font-bold text-[#FF3B30] shrink-0">
               {completionScore}%
@@ -185,13 +185,34 @@ export default function ProfileView() {
                 </div>
               )}
               <div className="min-w-0 pb-0.5">
-                <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold inline-flex items-center gap-1.5 flex-wrap">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                  {profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer"}
-                  {profile.verified && <span className="text-[#34C759] normal-case tracking-normal">· Verified</span>}
-                </p>
-                <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1 break-all">
+                <div className="font-sans text-[10px] tracking-[0.16em] uppercase font-semibold inline-flex items-center gap-2 flex-wrap text-white/80">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></span>
+                    Online
+                  </div>
+                  <span className="opacity-40">•</span>
+                  {isInfluencer && (
+                    <>
+                      <span className="text-[#FF3B30]">{profile.creator_level || "Beginner"} Level</span>
+                      <span className="opacity-40">•</span>
+                    </>
+                  )}
+                  <span className="text-[#FF3B30] inline-flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                    {profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer"}
+                  </span>
+                  {profile.verified && (
+                    <>
+                      <span className="opacity-40">•</span>
+                      <span className="text-[#34C759]">Verified</span>
+                    </>
+                  )}
+                </div>
+                <h1 className="flex items-center gap-3 font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1 break-all">
                   {displayName}
+                  {isInfluencer && pastCampaigns.length >= 10 && (
+                    <span title="Veteran Creator (10+ Campaigns)" className="text-xl inline-block drop-shadow-md">🏆</span>
+                  )}
                 </h1>
                 {(profile.role === "owner" || profile.role === "agent") && profile.company && profile.company !== displayName && (
                   <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>
@@ -224,7 +245,7 @@ export default function ProfileView() {
 
         <div className="py-5 grid grid-cols-1 md:grid-cols-12 gap-4">
           <div className="md:col-span-4 space-y-3">
-            <div className="border border-white/10 bg-white/[0.02] p-3">
+            <div className="glass-panel p-3">
               <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Bio</h3>
               <p className="font-sans text-sm leading-relaxed text-white/90 break-words">
                 {profile.bio || "No bio yet."}
@@ -232,7 +253,7 @@ export default function ProfileView() {
             </div>
 
             {!isInfluencer && (
-              <div className="border border-white/10 bg-white/[0.02] p-3 space-y-3">
+              <div className="glass-panel p-3 space-y-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Brand details</h3>
                 <dl className="space-y-2.5 text-xs font-sans">
                   <div className="flex justify-between gap-3 border-b border-white/10 pb-2">
@@ -273,7 +294,7 @@ export default function ProfileView() {
             )}
 
             {isInfluencer && (
-              <div className="border border-white/10 bg-white/[0.02] p-3 space-y-3">
+              <div className="glass-panel p-3 space-y-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">Specs &amp; rates</h3>
                 <dl className="space-y-2.5 text-xs font-sans">
                   <div className="flex justify-between gap-3 border-b border-white/10 pb-2">
@@ -301,7 +322,7 @@ export default function ProfileView() {
             )}
 
             {categoriesList.length > 0 && (
-              <div className="border border-white/10 bg-white/[0.02] p-3">
+              <div className="glass-panel p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Niches</h3>
                 <div className="flex flex-wrap gap-1.5 items-start">
                   {categoriesList.map((c) => (
@@ -317,7 +338,7 @@ export default function ProfileView() {
             )}
 
             {languagesList.length > 0 && (
-              <div className="border border-white/10 bg-white/[0.02] p-3">
+              <div className="glass-panel p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Languages</h3>
                 <div className="flex flex-wrap gap-1.5 items-start">
                   {languagesList.map((l) => (
@@ -333,7 +354,7 @@ export default function ProfileView() {
             )}
 
             {isInfluencer && contentTypesList.length > 0 && (
-              <div className="border border-white/10 bg-white/[0.02] p-3">
+              <div className="glass-panel p-3">
                 <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold mb-2">Content types</h3>
                 <div className="flex flex-wrap gap-1.5 items-start">
                   {contentTypesList.map((t) => (
@@ -424,7 +445,7 @@ export default function ProfileView() {
                 {pastCampaigns.length > 0 ? (
                   <div className="space-y-2 font-sans text-xs">
                     {pastCampaigns.map((c, i) => (
-                      <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2 p-3 border border-white/10 bg-white/[0.02] items-center">
+                      <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2 p-3 glass-panel items-center">
                         <div className="md:col-span-2 font-semibold truncate">{c.brand || "—"}</div>
                         <div className="md:col-span-3 opacity-80 truncate">{c.title || "—"}</div>
                         <div className="md:col-span-2 opacity-60">{c.date || "—"}</div>
@@ -442,7 +463,7 @@ export default function ProfileView() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 border border-white/10 bg-white/[0.02] text-center font-sans text-xs opacity-50">
+                  <div className="p-4 glass-panel text-center font-sans text-xs opacity-50">
                     No past campaigns yet.
                   </div>
                 )}
@@ -483,7 +504,7 @@ export default function ProfileView() {
                   </div>
                 )}
                 {portfolioImages.length === 0 && portfolioVideos.length === 0 && (
-                  <div className="p-4 border border-white/10 bg-white/[0.02] text-center font-sans text-xs opacity-50">
+                  <div className="p-4 glass-panel text-center font-sans text-xs opacity-50">
                     No portfolio media yet.
                   </div>
                 )}

@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 
 const MODES = [
+  { id: "campaigns", label: "Campaigns" },
   { id: "latest", label: "Latest" },
   { id: "trending", label: "Trending" },
   { id: "personalized", label: "For You" },
@@ -25,7 +26,7 @@ export default function Feed() {
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [cursor, setCursor] = useState(null);
-  const [mode, setMode] = useState("latest");
+  const [mode, setMode] = useState("campaigns");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

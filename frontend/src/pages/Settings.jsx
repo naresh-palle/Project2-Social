@@ -704,6 +704,7 @@ function QuickLink({ to, label }) {
 }
 
 function DraftsAndAnalytics() {
+  const { user } = useAuth();
   const [drafts, setDrafts] = useState([]);
   const [scheduled, setScheduled] = useState([]);
   const [analytics, setAnalytics] = useState(null);

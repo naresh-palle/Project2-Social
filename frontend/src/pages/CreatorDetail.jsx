@@ -90,11 +90,24 @@ export default function CreatorDetail() {
                     </div>
                 )}
                 <div className="flex-1">
-                    <div className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2 text-[#FF3B30]">
-                        {creator.category || "Influencer"} · {creator.city || "Global"}
+                <div className="flex-1">
+                    <div className="font-mono text-[10px] tracking-[0.16em] uppercase font-semibold inline-flex items-center gap-2 flex-wrap text-white/80 mb-3">
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></span>
+                            Online
+                        </div>
+                        <span className="opacity-40">•</span>
+                        <span className="text-[#FF3B30]">{creator.creator_level || "Beginner"} Level</span>
+                        <span className="opacity-40">•</span>
+                        <span className="text-[#FF3B30]">
+                            {creator.category || "Influencer"} · {creator.city || "Global"}
+                        </span>
                     </div>
-                    <h1 className="font-sans text-5xl md:text-7xl font-bold tracking-tight leading-none">
+                    <h1 className="flex items-center gap-4 font-sans text-5xl md:text-7xl font-bold tracking-tight leading-none">
                         {formatUsername(creator.handle, creator.username) || creator.name || "Influencer"}
+                        {creator.past_campaigns?.length >= 10 && (
+                            <span title="Veteran Creator (10+ Campaigns)" className="text-4xl md:text-6xl inline-block drop-shadow-md">🏆</span>
+                        )}
                     </h1>
                     <div className="font-mono text-sm opacity-60 mt-4 flex items-center gap-4">
                         {creator.company ? <span>{creator.company}</span> : null}
@@ -178,7 +191,7 @@ export default function CreatorDetail() {
                           const isGrowthPos = growth >= 0;
 
                           return (
-                              <div key={plat} className="p-6 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors relative overflow-hidden group">
+                              <div key={plat} className="p-6 glass-panel hover:bg-white/[0.04] transition-colors relative overflow-hidden group">
                                   <div className="absolute -right-8 -top-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
                                       <Icon className="w-48 h-48" />
                                   </div>

@@ -2268,6 +2268,20 @@ async def admin_approve_user(user_id: str, current: dict = Depends(get_current_u
     )
     return {"ok": True}
 
+class CreatorLevelInput(BaseModel):
+    level: str
+
+@api_router.patch("/admin/users/{user_id}/level")
+async def admin_set_level(user_id: str, inp: CreatorLevelInput, current: dict = Depends(get_current_user)):
+    await require_role(current, ["admin"])
+    res = await db.users.update_one(
+        {"id": user_id}, 
+        {"$set": {"creator_level": inp.level}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"ok": True}
+
 class DeclineUserInput(BaseModel):
     reason: Optional[str] = "Account credentials require further verification."
 
@@ -4829,6 +4843,46 @@ setup_phase2(
     write_audit_log=write_audit_log,
     logger=logger,
 )
+
+class ScrapeInput(BaseModel):
+    url: str
+
+@api_router.post("/social/scrape")
+async def scrape_social(inp: ScrapeInput, current: dict = Depends(get_current_user)):
+    import os
+    import httpx
+    apify_token = os.environ.get("APIFY_TOKEN")
+    if not apify_token:
+        raise HTTPException(status_code=500, detail="APIFY_TOKEN not configured")
+        
+    url = inp.url.lower()
+    
+    if "instagram.com" in url:
+        actor = "apify~instagram-scraper"
+        payload = {"addParentData": False, "directUrls": [inp.url], "resultsLimit": 1}
+    elif "youtube.com" in url or "youtu.be" in url:
+        actor = "streamhut~youtube-scraper" 
+        payload = {"startUrls": [{"url": inp.url}], "maxResults": 1}
+    elif "facebook.com" in url or "fb.com" in url:
+        actor = "apify~facebook-pages-scraper"
+        payload = {"startUrls": [{"url": inp.url}], "resultsLimit": 1}
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported platform URL. Please provide an Instagram, YouTube, or Facebook URL.")
+        
+    try:
+        async with httpx.AsyncClient(timeout=90.0) as client:
+            res = await client.post(
+                f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items?token={apify_token}",
+                json=payload
+            )
+            if res.status_code == 200 or res.status_code == 201:
+                data = res.json()
+                if isinstance(data, list) and len(data) > 0:
+                    return {"ok": True, "data": data[0], "platform": actor.split("~")[1]}
+                return {"ok": True, "data": data, "platform": actor.split("~")[1]}
+            return {"ok": False, "error": f"Apify error {res.status_code}", "raw": res.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 app.include_router(api_router)
 
