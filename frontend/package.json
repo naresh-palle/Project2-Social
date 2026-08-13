@@ -73,8 +73,7 @@
     "build": "craco build",
     "test": "craco test",
     "predeploy": "craco build",
-    "deploy": "node -e \"console.error('Do not deploy to gh-pages — Pages queue is stuck. Use: bash ../scripts/sync-web-to-backend.sh (Render) or bash ../scripts/unblock-github-pages.sh first.'); process.exit(1)\"",
-    "deploy:pages": "cross-env PUBLIC_URL=/Project2-Social craco build && gh-pages -d build",
+    "deploy": "npm run deploy:render",
     "deploy:render": "bash ../scripts/sync-web-to-backend.sh"
   },
   "browserslist": {
