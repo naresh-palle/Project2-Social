@@ -2340,10 +2340,12 @@ async def sync_analytics(
 ):
     await require_role(current, ["influencer"])
     
-    import random
-    from datetime import datetime, timedelta
+    import os
+    import httpx
+    import asyncio
+    from datetime import datetime, timezone, timedelta
     
-    # 1. Update Platform Metrics with deep data
+    # 1. Update Platform Metrics with real data from Apify
     pm = dict(current.get("platform_metrics") or {})
 
     # Merge latest handles from client (IDs only) before fetching metrics
@@ -2371,46 +2373,87 @@ async def sync_analytics(
             "monthly_analytics": current.get("monthly_analytics", [])
         }
 
+    apify_token = os.environ.get("APIFY_TOKEN")
+    
+    async def fetch_platform(plat, handle):
+        if not apify_token: return None
+        actor = None
+        payload = {}
+        if plat == "instagram":
+            actor = "apify~instagram-scraper"
+            payload = {"addParentData": False, "directUrls": [f"https://instagram.com/{handle}"], "resultsLimit": 1}
+        elif plat == "youtube":
+            actor = "streamhut~youtube-scraper"
+            payload = {"startUrls": [{"url": f"https://youtube.com/@{handle}"}], "maxResults": 1}
+        elif plat == "facebook":
+            actor = "apify~facebook-pages-scraper"
+            payload = {"startUrls": [{"url": f"https://facebook.com/{handle}"}], "resultsLimit": 1}
+        else:
+            return None
+            
+        try:
+            async with httpx.AsyncClient(timeout=45.0) as client:
+                res = await client.post(
+                    f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items?token={apify_token}",
+                    json=payload
+                )
+                if res.status_code in (200, 201):
+                    data = res.json()
+                    if isinstance(data, list) and len(data) > 0:
+                        item = data[0]
+                        if plat == "instagram":
+                            return {
+                                "followers": item.get("followersCount", 0),
+                                "posts": item.get("postsCount", 0),
+                                "views": 0, "engagement": 0
+                            }
+                        elif plat == "youtube":
+                            sub_count = item.get("numberOfSubscribers", item.get("subscribersCount", item.get("followersCount", 0)))
+                            return {
+                                "subscribers": sub_count,
+                                "followers": sub_count,
+                                "posts": item.get("numberOfVideos", item.get("videosCount", 0)),
+                                "views": item.get("totalViews", item.get("viewsCount", 0)),
+                                "engagement": 0
+                            }
+                        elif plat == "facebook":
+                            return {
+                                "followers": item.get("likes", item.get("followers", 0)),
+                                "posts": 0, "views": 0, "engagement": 0
+                            }
+        except Exception as e:
+            logger.error("Apify fetch failed for %s %s: %s", plat, handle, e)
+        return None
+
+    tasks = []
+    plats_to_fetch = []
     for plat in ["facebook", "instagram", "twitter", "youtube"]:
         info = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
         handle = str(info.get("handle") or "").strip()
-        if handle:
-            # Deterministic-ish seed from handle so re-sync stays stable for same ID
-            seed = sum(ord(c) for c in handle.lower()) + (len(handle) * 17)
-            rng = random.Random(seed)
-            base_foll = rng.randint(8000, 650000)
-            pm[plat] = {
-                "handle": handle,
-                "followers": base_foll,
-                "engagement": round(rng.uniform(1.2, 9.5), 1),
-                "views": int(base_foll * rng.uniform(2.0, 5.5)),
-                "posts": rng.randint(80, 2200),
-                "growth": round(rng.uniform(-1.5, 12.0), 1),
-                "last_synced": now_iso(),
-            }
-            if plat == "instagram":
-                pm[plat].update({
-                    "story_reach": int(base_foll * 0.15),
-                    "reel_reach": int(base_foll * 1.2),
-                    "profile_visits": int(base_foll * 0.05),
-                })
-            if plat == "youtube":
-                pm[plat]["subscribers"] = base_foll
-        elif plat in pm:
+        if handle and plat in ["facebook", "instagram", "youtube"]:
+            plats_to_fetch.append(plat)
+            tasks.append(fetch_platform(plat, handle))
+            
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for idx, plat in enumerate(plats_to_fetch):
+        res = results[idx]
+        if isinstance(res, dict):
+            existing = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
+            pm[plat] = {**existing, **res, "last_synced": now_iso()}
+            
+    # For unsupported platforms or missing handles:
+    for plat in ["facebook", "instagram", "twitter", "youtube"]:
+        info = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
+        handle = str(info.get("handle") or "").strip()
+        if not handle:
             pm[plat] = {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0}
     
-    # 2. Generate 12 Months of Historical Data
-    monthly_data = []
-    base_followers = (pm.get("instagram") or {}).get("followers") or 100000
-    for i in range(11, -1, -1):
-        dt = datetime.now(timezone.utc) - timedelta(days=30*i)
-        growth_factor = 1.0 - (i * 0.02) # Simulate upward trend over time
-        monthly_data.append({
-            "month": dt.strftime("%b %Y"),
-            "followers": int(base_followers * growth_factor),
-            "engagement": round(random.uniform(3.0, 6.0), 1),
-            "views": int(base_followers * growth_factor * random.uniform(2.5, 4.0))
-        })
+    # 2. Update Historical Data (stop mocking fake growth)
+    monthly_data = current.get("monthly_analytics") or []
+    if not monthly_data or len(monthly_data) > 12:
+        # Just keep the most recent if it exists, otherwise empty
+        monthly_data = []
         
     await db.users.update_one(
         {"id": current["id"]},
