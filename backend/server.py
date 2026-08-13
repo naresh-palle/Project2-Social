@@ -4884,6 +4884,11 @@ async def scrape_social(inp: ScrapeInput, current: dict = Depends(get_current_us
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/feed")
+async def get_feed(mode: str = "foryou", cursor: Optional[str] = None, limit: int = 20, current: dict = Depends(get_current_user)):
+    # Basic mock endpoint so frontend Feed doesn't error out
+    return {"items": [], "next_cursor": None, "suggested_people": []}
+
 app.include_router(api_router)
 
 # Serve the built SPA from backend/web when present (Render fallback while GitHub Pages is stuck).

@@ -39,8 +39,6 @@ export function Nav({ variant = "dark" }) {
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
-        { to: "/feed", label: "Feed" },
-        { to: "/directory", label: "Directory" },
         { to: "/leaderboard", label: "Leaderboard" },
         ...(user?.role !== "admin" ? [
           { to: "/referrals", label: "Referrals" },
