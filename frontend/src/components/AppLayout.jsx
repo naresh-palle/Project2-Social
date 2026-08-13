@@ -1,6 +1,7 @@
 import { Sidebar } from "./Sidebar";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { Outlet } from "react-router-dom";
+import { AIAssistant } from "./AIAssistant";
 
 export function AppLayout() {
   return (
@@ -14,11 +15,15 @@ export function AppLayout() {
       <Sidebar />
       <ThemeToaster />
 
-      <main className="flex-1 ml-64 relative z-10 p-6 md:p-10 pb-24 h-screen overflow-y-auto no-scrollbar">
-        <div className="w-full max-w-[1600px] mx-auto">
+      {/* The main shell is fixed height. Child pages must manage their own scrolling */}
+      <main className="flex-1 ml-64 relative z-10 flex flex-col h-screen overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden relative w-full max-w-[1600px] mx-auto p-6 md:p-10 pb-24">
           <Outlet />
         </div>
       </main>
+
+      {/* Global AI Assistant */}
+      <AIAssistant />
     </div>
   );
 }

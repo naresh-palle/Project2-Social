@@ -60,11 +60,9 @@ export default function Wallet() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]" data-testid="wallet-page">
-      
-      
-
-      <div className="pt-24 max-w-5xl mx-auto px-4 md:px-6 pb-16">
+    <div className="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto pb-4" data-testid="wallet-page">
+      {/* Top Static Section */}
+      <div className="shrink-0 space-y-4 mb-4 pt-6">
         <div className="pb-5 border-b border-white/10">
           
           <div>
@@ -150,8 +148,11 @@ export default function Wallet() {
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Scrollable Transactions Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
+        <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="font-sans text-sm font-semibold">Transactions ({filteredTx.length})</h2>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
@@ -241,8 +242,7 @@ export default function Wallet() {
             </tbody>
           </table>
         </div>
-      </div>
-
+      </div> {/* End Scrollable Area */}
     </div>
   );
 }

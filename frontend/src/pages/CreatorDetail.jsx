@@ -67,13 +67,11 @@ export default function CreatorDetail() {
   }, {key: null, val: null});
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      
-      
-      
-      
+    <div className="flex flex-col h-full overflow-hidden w-full max-w-7xl mx-auto pb-4 pt-6 px-6 md:px-12">
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
       {/* HEADER SECTION */}
-      <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">
+      <div className="relative">
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-12 gap-12 items-end border-b border-white/10 pb-16">
             <div className="md:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-end">
@@ -316,9 +314,9 @@ export default function CreatorDetail() {
                   </section>
               )}
 
-          </div>
-      </div>
-
+          </section>
+        </div>
+      </div> {/* End Scrollable Area */}
     </div>
   );
 }

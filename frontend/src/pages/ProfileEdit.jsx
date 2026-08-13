@@ -734,11 +734,9 @@ export default function ProfileEdit() {
   const { score: completion, missing: missingFields } = getCompletionDetails();
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      
-      
-      
-      <div className="pt-20 max-w-4xl mx-auto px-3 md:px-5 pb-8 relative">
+    <div className="flex flex-col h-full overflow-hidden w-full max-w-4xl mx-auto pb-4">
+      {/* Top Static Header */}
+      <div className="shrink-0 space-y-4 mb-4">
         <div className="flex items-center justify-between gap-3">
             <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
             <div className="flex items-center gap-3">
@@ -780,6 +778,10 @@ export default function ProfileEdit() {
             {step === 1 ? "Step 1: Basic Info" : step === 2 ? "Step 2: Details" : "Step 3: Media & Review"}
           </div>
         </div>
+      </div> {/* End Static Header */}
+
+      {/* Scrollable Form Container */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
 
         <motion.form 
           noValidate 
@@ -1352,8 +1354,7 @@ export default function ProfileEdit() {
             )}
           </div>
         </motion.form>
-      </div>
-
+      </div> {/* End Scrollable Form Container */}
       {cropState && (
         <ImageCropModal
           imageSrc={cropState.src}

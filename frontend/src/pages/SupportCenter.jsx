@@ -73,10 +73,9 @@ export default function SupportCenter() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-24 pb-16 px-6">
-      <div className="max-w-5xl mx-auto space-y-12">
-        
-        {/* Header */}
+    <div className="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto pb-4 px-6 pt-6">
+      {/* Top Static Header */}
+      <div className="shrink-0 space-y-4 mb-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -91,7 +90,10 @@ export default function SupportCenter() {
             </p>
           </div>
         </motion.div>
+      </div> {/* End Static Header */}
 
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
           {/* Left Column: FAQ & My Tickets */}
@@ -233,7 +235,7 @@ export default function SupportCenter() {
           </div>
           
         </div>
-      </div>
+      </div> {/* End Scrollable Area */}
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   return (
     <ErrorBoundary>
-      <div className="space-y-6">
+      <div className="flex flex-col h-full overflow-hidden">
 
         {user?.role === "admin" ? (
           <AdminPanel />
@@ -221,7 +221,9 @@ function OwnerPanel() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col h-full space-y-3">
+      {/* Top Static Section */}
+      <div className="shrink-0 space-y-3">
       {/* Analytics Summary Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="owner-analytics">
         {tiles.map((t, i) => (
@@ -292,7 +294,10 @@ function OwnerPanel() {
           </Link>
         </div>
       </div>
+      </div> {/* End Static Section */}
 
+      {/* Scrollable Main Content Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pb-10 pr-2">
       {/* VIEW 1: FEED */}
       {activeTab === "work-feed" && (
         <div className="space-y-3">
@@ -411,6 +416,7 @@ function OwnerPanel() {
           )}
         </div>
       )}
+      </div> {/* End Scrollable Area */}
     </div>
   );
 }
@@ -522,7 +528,9 @@ function InfluencerPanel() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col h-full space-y-3">
+      {/* Top Static Section (KPIs, Tabs) */}
+      <div className="shrink-0 space-y-3">
       {/* Influencer Analytics Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="creator-analytics">
         {tiles.map((t, i) => (
@@ -598,7 +606,10 @@ function InfluencerPanel() {
           </div>
         )}
       </div>
+      </div> {/* End Top Static Section */}
 
+      {/* Scrollable Main Content Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar pb-10 pr-2">
       {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY */}
       {activeTab === "campaigns-feed" && (
         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
@@ -682,6 +693,7 @@ function InfluencerPanel() {
           )}
         </div>
       )}
+      </div> {/* End Scrollable Area */}
     </div>
   );
 }

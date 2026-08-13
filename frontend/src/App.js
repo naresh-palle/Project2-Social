@@ -30,7 +30,7 @@ import SupportCenter from "@/pages/SupportCenter";
 import HelpChat from "@/pages/HelpChat";
 import Leaderboard from "@/pages/Leaderboard";
 import Referrals from "@/pages/Referrals";
-import { FloatingChatWidget } from "@/components/FloatingChatWidget";
+
 import { AppLayout } from "@/components/AppLayout";
 
 function App() {
@@ -38,7 +38,7 @@ function App() {
     <div className="App">
       <HashRouter>
         <AuthProvider>
-          <FloatingChatWidget />
+
           <Routes>
             {/* Public / Unauthenticated Routes */}
             <Route path="/" element={<Landing />} />
