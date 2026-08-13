@@ -2394,6 +2394,9 @@ async def sync_analytics(
         if isinstance(res, dict):
             existing = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
             pm[plat] = {**existing, **res, "last_synced": now_iso()}
+        else:
+            failed_plats.append(plat)
+            print(f"Apify fetch failed for {plat}: {res}")
             
     # For unsupported platforms or missing handles:
     for plat in ["facebook", "instagram", "twitter", "youtube"]:
@@ -2413,9 +2416,13 @@ async def sync_analytics(
         {"$set": {"platform_metrics": pm, "monthly_analytics": monthly_data, "analytics_last_synced": now_iso()}}
     )
     
+    msg = "Analytics synchronized with external platforms."
+    if failed_plats:
+        msg = f"Saved handle, but Apify data fetch failed for: {', '.join(failed_plats)}. (Check Render logs or Apify token)"
+
     return {
-        "ok": True, 
-        "message": "Analytics synchronized with external platforms.",
+        "ok": True if not failed_plats else False, 
+        "message": msg,
         "metrics": pm,
         "monthly_analytics": monthly_data
     }
