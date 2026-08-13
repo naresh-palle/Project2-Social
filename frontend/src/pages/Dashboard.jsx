@@ -59,9 +59,9 @@ export default function Dashboard() {
         <Nav />
         <ThemeToaster />
         <div className="pt-16 max-w-[1400px] mx-auto px-2 md:px-4 pb-8">
-          <div className="border-b border-white/10 pb-4 mb-2.5 flex flex-wrap items-end justify-between gap-4">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative">
+          <div className="border-b border-white/10 pb-4 mb-2.5 flex flex-wrap items-start md:items-end justify-between gap-4">
+            <div className="flex items-start gap-4 flex-wrap">
+              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative mt-1">
                 {user?.avatar && (
                   <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
                 )}
