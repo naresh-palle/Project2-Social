@@ -2,12 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { ArrowRight, Sparkles, Loader2, Upload, X } from "lucide-react";
-import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 
 const NICHES = ["fashion", "luxury", "beauty", "tech", "design", "wellness", "lifestyle"];
 const PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
@@ -167,7 +165,7 @@ export default function NewCampaign({ isEdit }) {
   if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10">
-        <Nav />
+        
         <h1 className="font-sans text-2xl font-bold tracking-tight">Brand Owners, Agents &amp; Admins only, please</h1>
       </div>
     );
@@ -175,8 +173,8 @@ export default function NewCampaign({ isEdit }) {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-20 max-w-3xl mx-auto px-4 md:px-6 pb-16 relative">
         <button
           type="button"

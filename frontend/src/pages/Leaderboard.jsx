@@ -3,9 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins, IndianRupee } from "lucide-react";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { Link } from "react-router-dom";
-import { Nav } from "@/components/Nav";
 import { toast } from "sonner";
 
 export default function Leaderboard() {
@@ -48,8 +46,8 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
         {/* Header */}
         <div className="mb-12">

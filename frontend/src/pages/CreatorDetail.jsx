@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, MessageSquare, Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, TrendingUp, Users, ChevronLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Nav } from "@/components/Nav";
 
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatUsername } from "@/lib/username";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
@@ -71,8 +69,8 @@ export default function CreatorDetail() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
-      <Nav />
-      <ThemeToaster />
+      
+      
       
       {/* HEADER SECTION */}
       <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">

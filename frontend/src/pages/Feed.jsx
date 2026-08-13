@@ -6,14 +6,12 @@ import {
   Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft,
   Loader2, Send, MoreHorizontal, Sparkle
 } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
 import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 
 const MODES = [
   { id: "campaigns", label: "Campaigns" },
@@ -234,8 +232,8 @@ export default function Feed() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <ThemeToaster />
-      <Nav />
+      
+      
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24 w-full flex-1">
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>

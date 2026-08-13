@@ -31,6 +31,7 @@ import HelpChat from "@/pages/HelpChat";
 import Leaderboard from "@/pages/Leaderboard";
 import Referrals from "@/pages/Referrals";
 import { FloatingChatWidget } from "@/components/FloatingChatWidget";
+import { AppLayout } from "@/components/AppLayout";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <AuthProvider>
           <FloatingChatWidget />
           <Routes>
+            {/* Public / Unauthenticated Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -47,28 +49,32 @@ function App() {
             <Route path="/privacy-policy" element={<Navigate to="/legal/privacy" replace />} />
             <Route path="/register" element={<RegisterSplash />} />
             <Route path="/register/:role" element={<Register />} />
-            <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
-            <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
-            <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
-            <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />
-            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-            <Route path="/u/:userId" element={<RequireAuth><PublicProfile /></RequireAuth>} />
-            <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
-            <Route path="/profile/edit" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
-            <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
-            <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
-            <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
-
-            <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
-            <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
-            <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />
-            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
-            <Route path="/campaigns/:id/edit" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign isEdit /></RequireAuth>} />
-            <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
-            <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
-            <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />
-            <Route path="/help" element={<RequireAuth><HelpChat /></RequireAuth>} />
+            
+            {/* Authenticated Routes wrapped in AppLayout (Sidebar + Main Grid) */}
+            <Route element={<AppLayout />}>
+              <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
+              <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+              <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
+              <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />
+              <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+              <Route path="/u/:userId" element={<RequireAuth><PublicProfile /></RequireAuth>} />
+              <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
+              <Route path="/profile/edit" element={<RequireAuth><ProfileEdit /></RequireAuth>} />
+              <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+              <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
+              <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
+  
+              <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
+              <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
+              <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />
+              <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
+              <Route path="/campaigns/:id/edit" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign isEdit /></RequireAuth>} />
+              <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
+              <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
+              <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />
+              <Route path="/help" element={<RequireAuth><HelpChat /></RequireAuth>} />
+            </Route>
           </Routes>
         </AuthProvider>
       </HashRouter>

@@ -4,11 +4,9 @@ import {
   User, Bell, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Sun, Moon, Eye, Loader2, ChevronRight, ChevronLeft
 } from "lucide-react";
-import { Nav } from "@/components/Nav";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { readLocalSettings, writeLocalSettings, mergeSettings, settingsDiff } from "@/lib/settingsStore";
 import { exportProfileReportPdf } from "@/lib/exportFormats";
 import { formatUsername } from "@/lib/username";
@@ -319,7 +317,7 @@ export default function Settings() {
   if (!user || !settings) {
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
-      <ThemeToaster />
+      
         <Loader2 className="w-6 h-6 animate-spin opacity-50" />
       </div>
     );
@@ -327,7 +325,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <Nav />
+      
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
         <div className="mb-6">
           <button onClick={() => nav(-1)} className="font-mono text-[10px] uppercase tracking-widest text-white/60 hover:text-white flex items-center gap-1 transition-colors">

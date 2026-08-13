@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, X, Send } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function Invitations() {
   const { user } = useAuth();
@@ -68,8 +66,8 @@ export default function Invitations() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-24 max-w-4xl mx-auto px-4 md:px-6 pb-16">
         <div className="pb-4 border-b border-white/10">
           <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-block mb-4">

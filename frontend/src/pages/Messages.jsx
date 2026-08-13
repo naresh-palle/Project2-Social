@@ -2,12 +2,10 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Nav } from "@/components/Nav";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { displayPartnerName } from "@/lib/username";
 
 function formatMsgTime(iso) {
@@ -286,8 +284,8 @@ export default function Messages({ miniWidget = false }) {
 
   return (
     <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
-      {!miniWidget && <ThemeToaster />}
-      {!miniWidget && <Nav />}
+      {!miniWidget && }
+      {!miniWidget && }
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
           <div className="mb-6">

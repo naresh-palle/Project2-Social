@@ -4267,7 +4267,7 @@ async def ai_suggest_profile(inp: ProfileSuggestInput, current: dict = Depends(g
     return out
 
 
-# ---------- Social OAuth & Sync (Mocked) ----------
+# ---------- Social OAuth & Sync ----------
 oauth_key = os.environ.get("OAUTH_ENCRYPTION_KEY")
 cipher_suite = Fernet(oauth_key.encode()) if oauth_key else None
 
@@ -4279,90 +4279,11 @@ def decrypt_token(encrypted_token: str) -> str:
     if not cipher_suite: return encrypted_token
     return cipher_suite.decrypt(encrypted_token.encode()).decode()
 
-PLATFORM_MOCK_DATA = {
-    "instagram": {"followers": 24851, "er": "5.82", "views": "1.2M", "posts": 248, "handle": "@creator_ig"},
-    "facebook": {"followers": 15200, "er": "3.41", "views": "800K", "posts": 512, "handle": "Creator FB Page"},
-    "twitter": {"followers": 42100, "er": "2.10", "views": "2.5M", "posts": 1050, "handle": "@creator_x"},
-    "youtube": {"followers": 150000, "er": "8.50", "views": "15M", "posts": 120, "handle": "Creator Channel"}
-}
+# In a real application, you would implement the official OAuth routes here
+# e.g., @api_router.get("/oauth/{platform}/login")
+# e.g., @api_router.get("/oauth/{platform}/callback")
 
-@api_router.get("/oauth/{platform}/login")
-async def oauth_login(platform: str, user=Depends(get_current_user)):
-    if platform not in PLATFORM_MOCK_DATA:
-        raise HTTPException(400, "Unsupported platform")
-    # In a real app, redirect to official OAuth URL:
-    # url = f"https://api.{platform}.com/oauth/authorize?client_id=...&redirect_uri=..."
-    # return {"url": url}
-    
-    # Mock redirect to our own callback with a dummy code
-    callback_url = f"/api/oauth/{platform}/callback?code=mock_code_{random.randint(1000,9999)}&state={user['id']}"
-    
-    # Since we are returning the URL to the frontend to redirect the user to,
-    # we need to make sure the callback URL points to the backend server.
-    backend_url = os.environ.get("BACKEND_URL", "https://project2-social.onrender.com")
-    return {"url": f"{backend_url}{callback_url}"}
 
-@api_router.get("/oauth/{platform}/callback")
-async def oauth_callback(platform: str, code: str, state: str):
-    # state is the user_id for this mock
-    user_id = state
-    user = await db.users.find_one({"id": user_id})
-    if not user:
-        raise HTTPException(404, "User not found")
-        
-    # Mock token exchange
-    access_token = f"mock_access_{platform}_{random.randint(10000,99999)}"
-    refresh_token = f"mock_refresh_{platform}_{random.randint(10000,99999)}"
-    
-    enc_access = encrypt_token(access_token)
-    enc_refresh = encrypt_token(refresh_token)
-    
-    data = PLATFORM_MOCK_DATA[platform]
-    
-    connection_data = {
-        "platform": platform,
-        "encrypted_access_token": enc_access,
-        "encrypted_refresh_token": enc_refresh,
-        "account_name": data["handle"],
-        "analytics": {
-            "followers": data["followers"],
-            "er": data["er"],
-            "views": data["views"],
-            "posts": data["posts"]
-        },
-        "last_sync_time": datetime.utcnow().isoformat()
-    }
-    
-    # Update user document: upsert connection in oauth_connections array
-    connections = user.get("oauth_connections", [])
-    # Remove existing for this platform if any
-    connections = [c for c in connections if c["platform"] != platform]
-    connections.append(connection_data)
-    
-    await db.users.update_one({"id": user_id}, {"$set": {"oauth_connections": connections}})
-    
-    # Redirect back to dashboard
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
-    # Wait, the deployed frontend is on github pages. We should redirect to the referer or the configured frontend url.
-    return RedirectResponse(f"{frontend_url}/dashboard?oauth_success={platform}")
-
-@app.post("/oauth/sync")
-async def oauth_sync(user=Depends(get_current_user)):
-    connections = user.get("oauth_connections", [])
-    if not connections:
-        return {"status": "ok", "message": "No connections to sync"}
-        
-    for c in connections:
-        # In a real app, decrypt tokens and call official APIs
-        # token = decrypt_token(c["encrypted_access_token"])
-        
-        # Mock jitter for analytics update
-        plat = c["platform"]
-        c["analytics"]["followers"] += random.randint(10, 100)
-        c["last_sync_time"] = datetime.utcnow().isoformat()
-        
-    await db.users.update_one({"id": user["id"]}, {"$set": {"oauth_connections": connections}})
-    return {"status": "ok", "connections": connections}
 
 
 # ---------- Startup ----------
@@ -4968,4 +4889,5 @@ async def spa_or_static(full_path: str):
     if index.is_file():
         return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     raise HTTPException(status_code=404, detail="Not Found")
+
 

@@ -5,9 +5,7 @@ import { motion } from "framer-motion";
 import { 
   Copy, Share2, Send, Check, ChevronLeft, Users, Sparkles 
 } from "lucide-react";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { Link } from "react-router-dom";
-import { Nav } from "@/components/Nav";
 import { toast } from "sonner";
 
 export default function Referrals() {
@@ -70,8 +68,8 @@ export default function Referrals() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
         <div className="mb-8">

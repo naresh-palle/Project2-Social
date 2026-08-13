@@ -45,125 +45,109 @@ export default function Dashboard() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden">
-      
-
-      {/* Ambient Radial Mesh Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        
-        
-        
-      </div>
-
-      <div className="relative z-10">
-        <Nav />
-        <ThemeToaster />
-        <div className="pt-16 max-w-[1400px] mx-auto px-2 md:px-4 pb-8">
-          <div className="border-b border-white/10 pb-4 mb-2.5 flex flex-wrap items-start md:items-end justify-between gap-4">
-            <div className="flex items-start gap-4 flex-wrap">
-              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative mt-1">
-                {user?.avatar && (
-                  <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
-                )}
-                <div 
-                  className="w-full h-full flex items-center justify-center font-sans text-lg text-white absolute inset-0 z-0"
-                  style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
-                >
-                  {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-                </div>
-              </div>
-              <div>
-                <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
-                  {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Influencer desk"}
-                </p>
-                <h1 className="font-sans text-lg md:text-xl font-bold tracking-tight leading-tight mt-0.5 inline-flex items-center gap-2 flex-wrap">
-                  {displayAccountName(user)}
-                  {user?.verified && (
-                    <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-wider text-[#34C759] font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Verified
-                    </span>
-                  )}
-                </h1>
-                {(() => {
-                  const niches = user?.niches || user?.category;
-                  let category = null;
-                  if (Array.isArray(niches) && niches.length) {
-                    category = niches.filter(Boolean).slice(0, 2).join(" · ");
-                  } else if (typeof niches === "string" && niches.trim()) {
-                    category = niches.trim();
-                  } else if (user?.industry?.trim()) {
-                    category = user.industry.trim();
-                  }
-                  const city = (user?.city || user?.location || "").trim() || null;
-                  if (!category && !city) return null;
-                  return (
-                    <p className="font-sans text-[11px] opacity-60 mt-0.5">
-                      {[category, city].filter(Boolean).join(" · ")}
-                    </p>
-                  );
-                })()}
-                
-                <div className="flex items-center gap-2 mt-2">
-                  <div className={`w-2 h-2 rounded-full ${showOnline ? 'bg-[#34C759]' : 'bg-white/20'}`} />
-                  <span className="font-sans text-[10px] uppercase tracking-widest opacity-60">Status:</span>
-                  <button 
-                    onClick={() => setShowOnline(!showOnline)}
-                    className="font-sans text-[10px] uppercase tracking-widest font-bold hover:text-[#FF3B30] transition-colors"
-                  >
-                    {showOnline ? 'Online' : 'Offline'}
-                  </button>
-                </div>
+      <div className="space-y-6">
+        <div className="border-b border-white/10 pb-4 mb-2.5 flex flex-wrap items-start md:items-end justify-between gap-4">
+          <div className="flex items-start gap-4 flex-wrap">
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative mt-1">
+              {user?.avatar && (
+                <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+              )}
+              <div 
+                className="w-full h-full flex items-center justify-center font-sans text-lg text-white absolute inset-0 z-0"
+                style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
+              >
+                {(displayAccountName(user) || "C")[0]?.toUpperCase()}
               </div>
             </div>
-
-            {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
-              <div className="flex items-center gap-2 mt-4 md:mt-0">
-                <Link
-                  to="/feed"
-                  title="Feed"
-                  aria-label="Feed"
-                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 px-4 py-2 rounded-full shadow-lg shadow-[#FF3B30]/20"
+            <div>
+              <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
+                {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Influencer desk"}
+              </p>
+              <h1 className="font-sans text-lg md:text-xl font-bold tracking-tight leading-tight mt-0.5 inline-flex items-center gap-2 flex-wrap">
+                {displayAccountName(user)}
+                {user?.verified && (
+                  <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-wider text-[#34C759] font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                  </span>
+                )}
+              </h1>
+              {(() => {
+                const niches = user?.niches || user?.category;
+                let category = null;
+                if (Array.isArray(niches) && niches.length) {
+                  category = niches.filter(Boolean).slice(0, 2).join(" · ");
+                } else if (typeof niches === "string" && niches.trim()) {
+                  category = niches.trim();
+                } else if (user?.industry?.trim()) {
+                  category = user.industry.trim();
+                }
+                const city = (user?.city || user?.location || "").trim() || null;
+                if (!category && !city) return null;
+                return (
+                  <p className="font-sans text-[11px] opacity-60 mt-0.5">
+                    {[category, city].filter(Boolean).join(" · ")}
+                  </p>
+                );
+              })()}
+              
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-2 h-2 rounded-full ${showOnline ? 'bg-[#34C759]' : 'bg-white/20'}`} />
+                <span className="font-sans text-[10px] uppercase tracking-widest opacity-60">Status:</span>
+                <button 
+                  onClick={() => setShowOnline(!showOnline)}
+                  className="font-sans text-[10px] uppercase tracking-widest font-bold hover:text-[#FF3B30] transition-colors"
                 >
-                  <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
-                </Link>
-                <Link
-                  to="/marketplace"
-                  title="Directory"
-                  aria-label="Directory"
-                  data-testid="browse-campaigns-btn"
-                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
-                >
-                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-                </Link>
+                  {showOnline ? 'Online' : 'Offline'}
+                </button>
               </div>
-            ) : (
-              <div className="flex items-center gap-2 mt-4 md:mt-0">
-                <Link
-                  to="/marketplace"
-                  title="Directory"
-                  aria-label="Directory"
-                  data-testid="browse-campaigns-btn"
-                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
-                >
-                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-                </Link>
-              </div>
-            )}
+            </div>
           </div>
 
-          {user?.role === "admin" ? (
-            <AdminPanel />
-          ) : user?.role === "owner" ? (
-            <OwnerPanel />
-          ) : user?.role === "agent" ? (
-            <AgentPanel />
+          {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
+            <div className="flex items-center gap-2 mt-4 md:mt-0">
+              <Link
+                to="/feed"
+                title="Feed"
+                aria-label="Feed"
+                className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 px-4 py-2 rounded-full shadow-lg shadow-[#FF3B30]/20"
+              >
+                <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
+              </Link>
+              <Link
+                to="/marketplace"
+                title="Directory"
+                aria-label="Directory"
+                data-testid="browse-campaigns-btn"
+                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
+              >
+                <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+              </Link>
+            </div>
           ) : (
-            <InfluencerPanel />
+            <div className="flex items-center gap-2 mt-4 md:mt-0">
+              <Link
+                to="/marketplace"
+                title="Directory"
+                aria-label="Directory"
+                data-testid="browse-campaigns-btn"
+                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
+              >
+                <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+              </Link>
+            </div>
           )}
         </div>
 
+        {user?.role === "admin" ? (
+          <AdminPanel />
+        ) : user?.role === "owner" ? (
+          <OwnerPanel />
+        ) : user?.role === "agent" ? (
+          <AgentPanel />
+        ) : (
+          <InfluencerPanel />
+        )}
       </div>
-    </div>
     </ErrorBoundary>
   );
 }
@@ -592,7 +576,7 @@ function InfluencerPanel() {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      await api.post("/oauth/sync");
+      await api.post("/creators/sync-analytics");
       await refresh();
     } catch (e) {
       console.error(e);

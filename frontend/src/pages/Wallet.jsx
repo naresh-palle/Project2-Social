@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 
 export default function Wallet() {
   const { user, refresh } = useAuth();
@@ -63,8 +61,8 @@ export default function Wallet() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]" data-testid="wallet-page">
-      <Nav />
-      <ThemeToaster />
+      
+      
 
       <div className="pt-24 max-w-5xl mx-auto px-4 md:px-6 pb-16">
         <div className="pb-5 border-b border-white/10">

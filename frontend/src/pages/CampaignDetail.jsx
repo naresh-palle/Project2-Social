@@ -2,12 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText, ChevronLeft } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { api, formatApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { uploadDocument } from "@/lib/upload";
 
 export default function CampaignDetail() {
@@ -147,7 +145,7 @@ export default function CampaignDetail() {
     }
   };
 
-  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><Nav /><h1 className="font-sans text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
+  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><h1 className="font-sans text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
   if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = user?.role === "owner" && c.owner_id === user?.id;
@@ -178,8 +176,8 @@ export default function CampaignDetail() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-24 max-w-[1600px] mx-auto px-4 md:px-8 pb-16">
         <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">

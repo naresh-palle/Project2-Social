@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { api } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 
 const TABS = [
   { id: "all", label: "All", icon: Search },
@@ -88,8 +86,8 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <ThemeToaster />
-      <Nav />
+      
+      
       <div className="pt-20 max-w-4xl mx-auto px-6 md:px-10 pb-16 flex-1 w-full">
         <div className="mb-8">
           <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">

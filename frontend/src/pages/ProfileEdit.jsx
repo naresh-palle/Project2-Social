@@ -2,13 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop, Pencil } from "lucide-react";
-import { Nav } from "@/components/Nav";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError, firstErrorField } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
 import { toast } from "sonner";
-import { ThemeToaster } from "@/components/ThemeToaster";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { DateField, toIsoDate } from "@/components/DateField";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -701,8 +699,8 @@ export default function ProfileEdit() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
-      <Nav />
-      <ThemeToaster />
+      
+      
       <div className="pt-20 max-w-4xl mx-auto px-3 md:px-5 pb-8 relative">
         <div className="flex items-center justify-between gap-3">
             <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>

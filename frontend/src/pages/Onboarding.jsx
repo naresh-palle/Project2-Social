@@ -5,7 +5,6 @@ import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter, Facebook }
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
-import { Nav } from "@/components/Nav";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, emptyPlatformMetrics } from "@/lib/platforms";
 
@@ -107,7 +106,7 @@ export default function Onboarding() {
     if (isPending && !isEditingAgent) {
       return (
         <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-          <Nav />
+          
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -193,7 +192,7 @@ export default function Onboarding() {
     if (isDeclined && !isEditingAgent) {
       return (
         <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-          <Nav />
+          
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#121212] border border-[#FF3B30]/40 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -233,7 +232,7 @@ export default function Onboarding() {
     // 3. Agent Onboarding Details Entry Form
     return (
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-        <Nav />
+        
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
             onSubmit={submitAgentApplication}
@@ -686,7 +685,7 @@ function Layout({ step, title, subtitle, children }) {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
-      <Nav />
+      
       <div className="flex-1 flex items-center justify-center p-6 mt-16">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
