@@ -21,7 +21,7 @@ export function SocialAuthButtons({
   return (
     <div className="w-full max-w-sm mx-auto" data-testid="social-auth-row">
       <div
-        className={`relative h-9 rounded-md overflow-hidden border border-white/15 bg-[#111] isolate ${loading ? "opacity-60 pointer-events-none" : ""}`}
+        className={`relative h-9 rounded-3xl overflow-hidden border border-white/15 bg-[#111] isolate ${loading ? "opacity-60 pointer-events-none" : ""}`}
         data-testid="google-signin-button"
       >
         <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center gap-2 text-white text-xs font-medium">

@@ -66,9 +66,7 @@ export default function Wallet() {
 
       <div className="pt-24 max-w-5xl mx-auto px-4 md:px-6 pb-16">
         <div className="pb-5 border-b border-white/10">
-          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-flex items-center gap-1.5 mb-4">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back
-          </Link>
+          
           <div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Wallet</h1>
             <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
@@ -76,21 +74,21 @@ export default function Wallet() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-sm">
+          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Balance</span>
               <WalletIcon className="w-4 h-4 text-[#FF3B30]" />
             </div>
             <div className="font-sans text-2xl font-bold mt-2 tabular-nums">₹{Number(w.balance || 0).toLocaleString()}</div>
           </div>
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-sm">
+          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Income</span>
               <TrendingUp className="w-4 h-4 text-[#34C759]" />
             </div>
             <div className="font-sans text-2xl font-bold mt-2 text-[#34C759] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
           </div>
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-sm">
+          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Withdrawn</span>
               <TrendingDown className="w-4 h-4 text-[#FF9500]" />
@@ -100,7 +98,7 @@ export default function Wallet() {
         </div>
 
         {bonus && (
-          <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-sm">
+          <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55 text-[#FF3B30] font-bold">Bonus Progress</span>
             </div>
@@ -113,7 +111,7 @@ export default function Wallet() {
           </div>
         )}
 
-        <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-sm grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-7">
             <div className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30]">
               {isOwner ? "Deposit" : "Withdraw"}
@@ -131,14 +129,14 @@ export default function Wallet() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount"
-                className="w-full bg-transparent border border-white/15 focus:border-[#FF3B30] outline-none rounded-sm pl-7 pr-3 py-2 font-sans text-sm"
+                className="w-full bg-transparent border border-white/15 focus:border-[#FF3B30] outline-none rounded-3xl pl-7 pr-3 py-2 font-sans text-sm"
               />
             </div>
             <button
               data-testid="wallet-submit"
               disabled={busy || !amount || Number(amount) <= 0}
               onClick={() => doTx(isOwner ? "deposit" : "withdraw")}
-              className="inline-flex items-center justify-center gap-1.5 bg-[#FF3B30] text-white rounded-sm px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-1.5 bg-[#FF3B30] text-white rounded-3xl px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
             >
               {isOwner ? (
                 <>
@@ -163,10 +161,10 @@ export default function Wallet() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF3B30] rounded-sm w-40"
+                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF3B30] rounded-3xl w-40"
               />
             </div>
-            <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-sm font-sans text-[10px] uppercase tracking-wider">
+            <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
               {[
                 ["all", "All"],
                 ["income", "Income"],
@@ -187,7 +185,7 @@ export default function Wallet() {
           </div>
         </div>
 
-        <div className="mt-3 border border-white/10 rounded-sm overflow-x-auto">
+        <div className="mt-3 border border-white/10 rounded-3xl overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 font-sans text-[10px] uppercase tracking-wider opacity-50 bg-white/[0.02]">
@@ -226,7 +224,7 @@ export default function Wallet() {
                       ) : null}
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className="px-1.5 py-0.5 text-[10px] uppercase font-sans rounded-sm border bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20">
+                      <span className="px-1.5 py-0.5 text-[10px] uppercase font-sans rounded-3xl border bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20">
                         Done
                       </span>
                     </td>

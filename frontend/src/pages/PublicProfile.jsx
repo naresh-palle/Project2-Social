@@ -235,7 +235,7 @@ export default function PublicProfile() {
 
       {showReport && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-sm space-y-4">
+          <div className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4">
             <h3 className="font-editorial text-2xl">Report User</h3>
             <textarea
               value={reportReason}

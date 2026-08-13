@@ -71,7 +71,7 @@ export default function RegisterSplash() {
                 to={`/register/${r.k}`}
                 state={googleState || undefined}
                 data-testid={`splash-door-${r.k}`}
-                className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#121212]/90 backdrop-blur-xl border border-white/15 ${r.bgHover} transition-all duration-500 rounded-sm shadow-xl`}
+                className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#121212]/90 backdrop-blur-xl border border-white/15 ${r.bgHover} transition-all duration-500 rounded-3xl shadow-xl`}
               >
                 {/* Accent glow line on hover */}
                 <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#FF3B30] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

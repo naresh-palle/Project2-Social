@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,500;1,700&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -116,8 +116,8 @@ button, input, select, textarea {
     font-family: inherit;
 }
 
-.font-editorial { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
-.font-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
+.font-editorial { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em; }
+.font-mono { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em; }
 .font-sans { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; }
 
 /* Selection */
@@ -189,7 +189,7 @@ a, button { cursor: pointer; }
 
 /* Editorial number */
 .chapter-num {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Manrope', sans-serif;
     font-style: italic;
     font-weight: 400;
     line-height: 0.85;
@@ -601,7 +601,7 @@ html.reduced-motion *::after {
     background: var(--surface-1);
     border: 1px solid var(--border-soft);
     padding: 0.45rem 0.55rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Manrope', sans-serif;
     font-size: 0.75rem;
     color: var(--fg);
     border-radius: 2px;
@@ -615,7 +615,7 @@ html.reduced-motion *::after {
 .btn-sm-solid {
     padding: 0.4rem 0.85rem;
     background: var(--vermilion);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Manrope', sans-serif;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
@@ -625,7 +625,7 @@ html.reduced-motion *::after {
 .btn-sm-outline {
     padding: 0.4rem 0.85rem;
     border: 1px solid var(--border-strong);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Manrope', sans-serif;
     font-size: 0.65rem;
     text-transform: uppercase;
     color: var(--fg);

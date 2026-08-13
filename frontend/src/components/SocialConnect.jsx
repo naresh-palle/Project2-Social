@@ -81,12 +81,12 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                    onKeyDown={(e) => {
                      if (e.key === 'Enter') connectAccount(p, handleInput);
                    }}
-                   className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 font-mono text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-3"
+                   className="w-full bg-black/40 border border-white/10 rounded-3xl px-3 py-2 font-mono text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-3"
                  />
                  <button 
                    onClick={() => connectAccount(p, handleInput)}
                    disabled={loading === p || !handleInput}
-                   className="w-full bg-[#FF3B30] text-white hover:bg-[#e03126] font-sans text-[10px] uppercase tracking-widest font-bold py-2 rounded-lg disabled:opacity-50"
+                   className="w-full bg-[#FF3B30] text-white hover:bg-[#e03126] font-sans text-[10px] uppercase tracking-widest font-bold py-2 rounded-3xl disabled:opacity-50"
                  >
                    {loading === p ? "Connecting..." : "Confirm"}
                  </button>

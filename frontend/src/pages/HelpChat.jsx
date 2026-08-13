@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, Bot, Sparkles, User, ExternalLink, ChevronLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Send, Bot, Sparkles, User, ExternalLink, ChevronLeft, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function HelpChat() {
   const [messages, setMessages] = useState([
@@ -47,9 +47,7 @@ export default function HelpChat() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-4">
-             <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
+          
           <div className="flex flex-col sm:flex-row sm:items-start justify-between mt-2 gap-4">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI Assistant</p>
@@ -63,6 +61,13 @@ export default function HelpChat() {
               <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] border border-[#FF3B30]/30 shadow-[0_0_10px_rgba(255,59,48,0.2)]">
                 <Sparkles className="w-4 h-4" />
               </div>
+              <button 
+                onClick={() => window.history.back()} 
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors ml-2"
+                title="Close"
+              >
+                <X className="w-5 h-5 opacity-60 hover:opacity-100" />
+              </button>
             </div>
           </div>
 
@@ -80,7 +85,7 @@ export default function HelpChat() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex-grow bg-[#121216] border border-white/10 rounded-sm overflow-hidden flex flex-col shadow-2xl relative"
+          className="flex-grow bg-[#121216] border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative"
         >
           {/* Messages Area */}
           <div className="flex-grow p-6 overflow-y-auto space-y-6">
@@ -99,7 +104,7 @@ export default function HelpChat() {
                   {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
                 
-                <div className={`p-4 rounded-sm ${
+                <div className={`p-4 rounded-3xl ${
                   msg.role === 'user' 
                     ? 'bg-[#FF3B30] text-white' 
                     : 'bg-white/[0.04] border border-white/10 text-white/90'
@@ -118,7 +123,7 @@ export default function HelpChat() {
                 <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 flex items-center justify-center shrink-0 mt-1">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="p-4 rounded-sm bg-white/[0.04] border border-white/10 text-white/90 flex flex-row items-center gap-1 w-16 justify-center">
+                <div className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 text-white/90 flex flex-row items-center gap-1 w-16 justify-center">
                   <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
                   <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
                   <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
@@ -136,12 +141,12 @@ export default function HelpChat() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-grow bg-white/[0.03] border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-[#FF3B30] transition-colors font-sans"
+                className="flex-grow bg-white/[0.03] border border-white/10 rounded-3xl px-4 py-3 text-white focus:outline-none focus:border-[#FF3B30] transition-colors font-sans"
               />
               <button 
                 type="submit"
                 disabled={!input.trim() || isTyping}
-                className="bg-[#FF3B30] text-white px-6 py-3 rounded-sm hover:bg-[#ff5247] transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-[#FF3B30]"
+                className="bg-[#FF3B30] text-white px-6 py-3 rounded-3xl hover:bg-[#ff5247] transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-[#FF3B30]"
               >
                 <Send className="w-5 h-5" />
               </button>

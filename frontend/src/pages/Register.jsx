@@ -451,7 +451,7 @@ export default function Register() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#121212]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-sm shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#121212]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
         >
           {/* Same top gradient bar as Sign In */}
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
@@ -516,7 +516,7 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
-                    className={`px-2 py-1.5 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
@@ -531,7 +531,7 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
-                    className={`px-2 py-1.5 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"

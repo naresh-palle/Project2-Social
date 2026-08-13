@@ -206,25 +206,25 @@ export default function ProfileView() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-b border-white/5 pb-6">
               <div>
                 <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Username</p>
-                <div className="bg-black/30 border border-white/5 rounded-lg px-4 py-2 font-mono text-sm text-white inline-block">
+                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-mono text-sm text-white inline-block">
                   {profile.username ? `@${profile.username}` : "N/A"}
                 </div>
               </div>
               <div>
                 <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Joined Date</p>
-                <div className="bg-black/30 border border-white/5 rounded-lg px-4 py-2 font-sans text-sm text-white inline-block">
+                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-sans text-sm text-white inline-block">
                   {profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "2024"}
                 </div>
               </div>
               <div>
                 <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Base Rate</p>
-                <div className="bg-black/30 border border-white/5 rounded-lg px-4 py-2 font-sans text-sm text-white inline-block">
+                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-sans text-sm text-white inline-block">
                   {profile.base_rate ? `$${profile.base_rate}` : "N/A"}
                 </div>
               </div>
               <div>
                 <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">User ID</p>
-                <div className="bg-black/30 border border-white/5 rounded-lg px-4 py-2 font-mono text-xs text-white/60 inline-block truncate max-w-full">
+                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-mono text-xs text-white/60 inline-block truncate max-w-full">
                   {profile.id || profile._id?.substring(0, 8) || "N/A"}
                 </div>
               </div>

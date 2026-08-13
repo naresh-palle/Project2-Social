@@ -85,7 +85,7 @@ export function Nav({ variant = "dark" }) {
                 key={it.to}
                 to={it.to}
                 data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-sm transition-colors whitespace-nowrap"
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-3xl transition-colors whitespace-nowrap"
               >
                 {it.label}
               </Link>

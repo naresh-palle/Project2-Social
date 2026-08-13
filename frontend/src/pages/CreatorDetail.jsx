@@ -74,9 +74,6 @@ export default function CreatorDetail() {
       
       {/* HEADER SECTION */}
       <div className="relative pt-24 px-6 md:px-12 max-w-7xl mx-auto">
-        <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm mb-6">
-            <ChevronLeft className="w-4 h-4" /> Back
-        </button>
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-12 gap-12 items-end border-b border-white/10 pb-16">
             <div className="md:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-end">
@@ -194,7 +191,7 @@ export default function CreatorDetail() {
                                   </div>
                                   <div className="flex justify-between items-start relative z-10">
                                       <div className="flex items-center gap-3">
-                                          <div className={`p-2 rounded-sm ${plat==='youtube'?'bg-red-500/10 text-red-500':plat==='twitter'?'bg-blue-400/10 text-blue-400':plat==='facebook'?'bg-blue-600/10 text-blue-600':'bg-pink-500/10 text-pink-500'}`}>
+                                          <div className={`p-2 rounded-3xl ${plat==='youtube'?'bg-red-500/10 text-red-500':plat==='twitter'?'bg-blue-400/10 text-blue-400':plat==='facebook'?'bg-blue-600/10 text-blue-600':'bg-pink-500/10 text-pink-500'}`}>
                                               <Icon className="w-5 h-5" />
                                           </div>
                                           <div>

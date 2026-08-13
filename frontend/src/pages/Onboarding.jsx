@@ -108,7 +108,7 @@ export default function Onboarding() {
         <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
           
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
-            <div className="max-w-xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
+            <div className="max-w-xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
                   § Application Under Review
@@ -127,7 +127,7 @@ export default function Onboarding() {
                 </p>
               </div>
 
-              <div className="bg-white/5 p-5 border border-white/10 rounded-sm space-y-3 font-mono text-xs">
+              <div className="bg-white/5 p-5 border border-white/10 rounded-3xl space-y-3 font-mono text-xs">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Agency / Company:</span>
                   <span className="text-white font-bold">{user.company || "Agency"}</span>
@@ -194,7 +194,7 @@ export default function Onboarding() {
         <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
           
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
-            <div className="max-w-xl w-full bg-[#121212] border border-[#FF3B30]/40 p-8 md:p-12 rounded-sm shadow-2xl space-y-6">
+            <div className="max-w-xl w-full bg-[#121212] border border-[#FF3B30]/40 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
                   § Application Status Update
@@ -208,7 +208,7 @@ export default function Onboarding() {
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-white">
                   Application Revision Needed
                 </h1>
-                <div className="mt-4 p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-sm font-mono text-xs text-white">
+                <div className="mt-4 p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-3xl font-mono text-xs text-white">
                   <span className="text-[#FF3B30] font-bold uppercase block mb-1">Admin Feedback:</span>
                   {user.decline_reason || "Agency credentials require further verification before granting full access."}
                 </div>
@@ -236,7 +236,7 @@ export default function Onboarding() {
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
             onSubmit={submitAgentApplication}
-            className="max-w-2xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl space-y-8"
+            className="max-w-2xl w-full bg-[#121212] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-8"
           >
             <div className="border-b border-white/10 pb-4">
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
@@ -266,7 +266,7 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "company_agent" })}
-                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "company_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
@@ -281,7 +281,7 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "influencer_agent" })}
-                    className={`p-4 border text-left rounded-sm transition-all cursor-pointer ${
+                    className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "influencer_agent"
                         ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
@@ -546,7 +546,7 @@ const toggleCategory = (c) => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-sm w-full max-w-md shadow-2xl relative"
+                className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative"
               >
                 <button 
                   onClick={() => setManualAuthPlatform(null)}

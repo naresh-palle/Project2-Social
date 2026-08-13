@@ -52,9 +52,7 @@ export default function Leaderboard() {
         {/* Header */}
         <div className="mb-12">
           <div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
-               <ChevronLeft className="w-4 h-4" /> Back
-            </Link>
+            
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rankings</p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-8">Leaderboard</h1>

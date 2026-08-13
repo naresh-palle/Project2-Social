@@ -70,9 +70,7 @@ export default function Invitations() {
       
       <div className="pt-24 max-w-4xl mx-auto px-4 md:px-6 pb-16">
         <div className="pb-4 border-b border-white/10">
-          <Link to="/dashboard" className="font-sans text-xs uppercase tracking-widest opacity-60 hover:opacity-100 inline-block mb-4">
-            ← Back
-          </Link>
+          
           <div>
             <p className="font-sans text-[10px] tracking-widest uppercase opacity-50">{subtitle}</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
@@ -82,7 +80,7 @@ export default function Invitations() {
         {loading ? (
           <div className="space-y-3 mt-5 animate-pulse">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="border border-white/10 p-4 h-24 bg-white/[0.02] rounded-sm" />
+              <div key={n} className="border border-white/10 p-4 h-24 bg-white/[0.02] rounded-3xl" />
             ))}
           </div>
         ) : invs.length === 0 ? (
@@ -100,7 +98,7 @@ export default function Invitations() {
               <div
                 key={i.id}
                 data-testid={`inv-${i.id}`}
-                className="border border-white/10 bg-white/[0.02] rounded-sm p-4 grid grid-cols-12 gap-3"
+                className="border border-white/10 bg-white/[0.02] rounded-3xl p-4 grid grid-cols-12 gap-3"
               >
                 <div className="col-span-12 md:col-span-7 min-w-0">
                   <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-50">

@@ -288,9 +288,7 @@ export default function Messages({ miniWidget = false }) {
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
           <div className="mb-6">
-            <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
-               <ChevronLeft className="w-4 h-4" /> Back
-            </Link>
+            
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
@@ -313,14 +311,14 @@ export default function Messages({ miniWidget = false }) {
             onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && searchMessages()}
             placeholder={miniWidget ? "Search users or messages..." : "Search messages…"}
-            className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-sm"
+            className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-3xl"
           />
-          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-sm">
+          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-3xl">
             <Search className="w-4 h-4" />
           </button>
         </div>
         {searchResults.length > 0 && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-sm space-y-1.5 shrink-0">
+          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-3xl space-y-1.5 shrink-0">
             {searchResults.map((m) => (
               <div key={m.id} className="font-sans text-xs opacity-80 truncate">{m.content}</div>
             ))}
@@ -330,12 +328,12 @@ export default function Messages({ miniWidget = false }) {
           </div>
         )}
 
-        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "flex-1 flex flex-col min-h-0 border border-white/10 rounded-sm overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
+        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "flex-1 flex flex-col min-h-0 border border-white/10 rounded-3xl overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
           <aside className={active ? "hidden" : "flex-1 overflow-y-auto"}>
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-14 bg-white/[0.03] rounded-sm" />
+                  <div key={n} className="h-14 bg-white/[0.03] rounded-3xl" />
                 ))}
               </div>
             ) : convos.length === 0 ? (
@@ -349,7 +347,7 @@ export default function Messages({ miniWidget = false }) {
                   type="button"
                   onClick={() => setActive(c)}
                   data-testid={`convo-${c.id}`}
-                  className={`w-full text-left p-3 mb-2 border rounded-lg transition-all ${
+                  className={`w-full text-left p-3 mb-2 border rounded-3xl transition-all ${
                     active?.id === c.id 
                       ? "border-[#FF3B30]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,59,48,0.1)]" 
                       : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
@@ -454,7 +452,7 @@ export default function Messages({ miniWidget = false }) {
                                       <input
                                         value={editText}
                                         onChange={(e) => setEditText(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/20 px-3 py-2 font-sans text-sm rounded-lg outline-none focus:border-white/50 transition-colors"
+                                        className="w-full bg-black/40 border border-white/20 px-3 py-2 font-sans text-sm rounded-3xl outline-none focus:border-white/50 transition-colors"
                                         autoFocus
                                       />
                                       <div className="flex gap-3 justify-end">

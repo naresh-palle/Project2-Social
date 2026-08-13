@@ -82,9 +82,7 @@ export default function SupportCenter() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
-             <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
+          
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Support</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Help & Support</h1>
@@ -108,7 +106,7 @@ export default function SupportCenter() {
               <h2 className="font-sans text-2xl font-bold tracking-tight mb-6">Frequently Asked Questions</h2>
               <div className="space-y-4">
                 {currentFaqs.map((faq, idx) => (
-                  <div key={idx} className="border border-white/10 rounded-sm overflow-hidden bg-white/[0.02]">
+                  <div key={idx} className="border border-white/10 rounded-3xl overflow-hidden bg-white/[0.02]">
                     <button 
                       onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
                       className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.04] transition-colors gap-4"
@@ -138,7 +136,7 @@ export default function SupportCenter() {
               <h2 className="font-sans text-xl font-bold tracking-tight mb-6">{role === "admin" ? "All User Tickets" : "My Tickets"}</h2>
               <div className="space-y-4">
                 {tickets.map(ticket => (
-                  <div key={ticket.id} className="p-5 border border-white/10 rounded-sm flex items-center justify-between bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                  <div key={ticket.id} className="p-5 border border-white/10 rounded-3xl flex items-center justify-between bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
                     <div>
                       <div className="font-mono text-xs tracking-widest text-white/40 mb-1">{ticket.id} • {ticket.date} {ticket.user && `• ${ticket.user}`}</div>
                       <div className="font-sans font-medium text-lg">{ticket.subject}</div>
@@ -155,13 +153,13 @@ export default function SupportCenter() {
           </motion.div>
 
           {/* Right Column: Ticket Form */}
-          <div className="border border-white/10 bg-[#121212] rounded-sm p-6 sticky top-32">
+          <div className="border border-white/10 bg-[#121212] rounded-3xl p-6 sticky top-32">
             <h2 className="font-sans text-2xl font-bold mb-6">Raise a Ticket</h2>
             {success ? (
               <motion.div 
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] p-6 rounded-sm text-center space-y-3"
+                className="bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] p-6 rounded-3xl text-center space-y-3"
               >
                 <CheckCircle2 className="w-10 h-10 mx-auto" />
                 <p className="font-sans text-sm font-semibold tracking-wider uppercase">Ticket Submitted</p>

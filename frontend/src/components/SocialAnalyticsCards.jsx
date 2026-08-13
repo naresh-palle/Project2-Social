@@ -33,7 +33,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           const platformLabel = SOCIAL_PLATFORM_LABELS[c.platform] || c.platform;
           
           return (
-            <div key={c.platform} className="bg-white/[0.02] border border-[#F4F4F0]/10 p-5 hover:border-white/20 transition-colors">
+            <div key={c.platform} className="bg-white/[0.02] border border-[#F4F4F0]/10 p-6 rounded-3xl hover:border-white/20 hover:bg-white/[0.04] transition-all shadow-xl">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">

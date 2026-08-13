@@ -59,7 +59,7 @@ export function MultiSelectDropdown({
         onClick={() => setOpen((v) => !v)}
         className={`w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
           noUnderline
-            ? "border border-white/15 hover:border-white/30 focus:border-[#FF3B30] px-3 rounded-sm"
+            ? "border border-white/15 hover:border-white/30 focus:border-[#FF3B30] px-3 rounded-3xl"
             : "border-b border-white/15 hover:border-white/30 focus:border-[#FF3B30]"
         } ${compact ? "py-2 min-h-[36px]" : "py-3 min-h-[48px]"}`}
       >
@@ -76,7 +76,7 @@ export function MultiSelectDropdown({
             values.map((sel) => (
               <span
                 key={sel}
-                className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-sm text-[11px] font-sans inline-flex w-fit items-center gap-1.5 whitespace-nowrap"
+                className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-3xl text-[11px] font-sans inline-flex w-fit items-center gap-1.5 whitespace-nowrap"
               >
                 <span>{sel}</span>
                 {!single && (

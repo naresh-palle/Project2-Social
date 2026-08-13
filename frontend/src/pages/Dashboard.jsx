@@ -46,97 +46,6 @@ export default function Dashboard() {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <div className="border-b border-white/10 pb-4 mb-2.5 flex flex-wrap items-start md:items-end justify-between gap-4">
-          <div className="flex items-start gap-4 flex-wrap">
-            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/20 relative mt-1">
-              {user?.avatar && (
-                <img src={user.avatar} alt={displayAccountName(user)} className="w-full h-full object-cover relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
-              )}
-              <div 
-                className="w-full h-full flex items-center justify-center font-sans text-lg text-white absolute inset-0 z-0"
-                style={{ backgroundColor: `hsl(${((displayAccountName(user)).length) * 45}, 65%, 40%)` }}
-              >
-                {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-              </div>
-            </div>
-            <div>
-              <p className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
-                {user?.role === "admin" ? "Admin console" : user?.role === "owner" ? "Brand desk" : user?.role === "agent" ? "Agency desk" : "Influencer desk"}
-              </p>
-              <h1 className="font-sans text-lg md:text-xl font-bold tracking-tight leading-tight mt-0.5 inline-flex items-center gap-2 flex-wrap">
-                {displayAccountName(user)}
-                {user?.verified && (
-                  <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-wider text-[#34C759] font-semibold">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Verified
-                  </span>
-                )}
-              </h1>
-              {(() => {
-                const niches = user?.niches || user?.category;
-                let category = null;
-                if (Array.isArray(niches) && niches.length) {
-                  category = niches.filter(Boolean).slice(0, 2).join(" · ");
-                } else if (typeof niches === "string" && niches.trim()) {
-                  category = niches.trim();
-                } else if (user?.industry?.trim()) {
-                  category = user.industry.trim();
-                }
-                const city = (user?.city || user?.location || "").trim() || null;
-                if (!category && !city) return null;
-                return (
-                  <p className="font-sans text-[11px] opacity-60 mt-0.5">
-                    {[category, city].filter(Boolean).join(" · ")}
-                  </p>
-                );
-              })()}
-              
-              <div className="flex items-center gap-2 mt-2">
-                <div className={`w-2 h-2 rounded-full ${showOnline ? 'bg-[#34C759]' : 'bg-white/20'}`} />
-                <span className="font-sans text-[10px] uppercase tracking-widest opacity-60">Status:</span>
-                <button 
-                  onClick={() => setShowOnline(!showOnline)}
-                  className="font-sans text-[10px] uppercase tracking-widest font-bold hover:text-[#FF3B30] transition-colors"
-                >
-                  {showOnline ? 'Online' : 'Offline'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <Link
-                to="/feed"
-                title="Feed"
-                aria-label="Feed"
-                className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 px-4 py-2 rounded-full shadow-lg shadow-[#FF3B30]/20"
-              >
-                <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
-              </Link>
-              <Link
-                to="/marketplace"
-                title="Directory"
-                aria-label="Directory"
-                data-testid="browse-campaigns-btn"
-                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
-              >
-                <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-              </Link>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <Link
-                to="/marketplace"
-                title="Directory"
-                aria-label="Directory"
-                data-testid="browse-campaigns-btn"
-                className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
-              >
-                <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-              </Link>
-            </div>
-          )}
-        </div>
 
         {user?.role === "admin" ? (
           <AdminPanel />
@@ -467,7 +376,7 @@ function OwnerPanel() {
         <div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {filteredRoster.map((c, i) => (
-              <Link key={c.id || i} to={c.id && !String(c.id).startsWith("demo-") && !String(c.id).startsWith("feed-") ? `/creators/${c.id}` : "/marketplace"} className="flex flex-col hover:bg-white/5 transition p-2 rounded-sm border border-white/15">
+              <Link key={c.id || i} to={c.id && !String(c.id).startsWith("demo-") && !String(c.id).startsWith("feed-") ? `/creators/${c.id}` : "/marketplace"} className="flex flex-col hover:bg-white/5 transition p-2 rounded-3xl border border-white/15">
                 <div className="h-28 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
                   <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover transition duration-500" onError={(e) => { e.currentTarget.src = FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].avatar; }} />
                 </div>
@@ -751,7 +660,7 @@ function InfluencerPanel() {
           ) : (
             <div className="space-y-3">
               {safeApps.map((a) => (
-                <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                   <div>
                     <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
                     <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
@@ -817,7 +726,7 @@ function AgentPanel() {
           <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creators.length})</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {creators.map((c) => (
-              <Link key={c.id} to={`/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-sm">
+              <Link key={c.id} to={`/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-3xl">
                 <div className="h-24 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
                   <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
                 </div>
@@ -856,7 +765,7 @@ function CampaignRow({ c }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="p-3 bg-[#121212]/90 border border-white/15 rounded-sm flex flex-col justify-between min-h-0 hover:border-[#FF3B30]/50 transition-all"
+      className="p-3 bg-[#121212]/90 border border-white/15 rounded-3xl flex flex-col justify-between min-h-0 hover:border-[#FF3B30]/50 transition-all"
     >
       <div>
         <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
@@ -875,7 +784,7 @@ function CampaignRow({ c }) {
 
 function Empty({ label }) {
   return (
-    <div className="border border-white/10 py-10 text-center rounded-sm bg-white/[0.01]">
+    <div className="border border-white/10 py-10 text-center rounded-3xl bg-white/[0.01]">
       <div className="font-sans italic text-lg opacity-60">{label}</div>
     </div>
   );

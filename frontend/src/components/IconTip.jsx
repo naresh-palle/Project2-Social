@@ -14,7 +14,7 @@ export function IconTip({ label, children, className = "", side = "bottom" }) {
       {children}
       <span
         role="tooltip"
-        className={`pointer-events-none absolute ${pos} z-[80] whitespace-nowrap rounded-sm border border-white/20 bg-[#111] px-2 py-1 font-sans text-[9px] tracking-[0.14em] uppercase text-white opacity-0 translate-y-0.5 shadow-lg transition-all duration-150 group-hover/icontip:opacity-100 group-hover/icontip:translate-y-0 group-focus-within/icontip:opacity-100`}
+        className={`pointer-events-none absolute ${pos} z-[80] whitespace-nowrap rounded-3xl border border-white/20 bg-[#111] px-2 py-1 font-sans text-[9px] tracking-[0.14em] uppercase text-white opacity-0 translate-y-0.5 shadow-lg transition-all duration-150 group-hover/icontip:opacity-100 group-hover/icontip:translate-y-0 group-focus-within/icontip:opacity-100`}
       >
         {label}
       </span>

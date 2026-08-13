@@ -236,7 +236,7 @@ function QuickValue() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* FOR INFLUENCERS */}
-          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative">
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#007AFF] font-bold flex items-center gap-2">
                 <UserCheck className="w-4 h-4" /> FOR INFLUENCERS:
@@ -282,7 +282,7 @@ function QuickValue() {
           </div>
 
           {/* FOR BRANDS */}
-          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-sm shadow-2xl relative">
+          <div className="bg-[#121212]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> FOR BRANDS:

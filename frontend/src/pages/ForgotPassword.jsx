@@ -36,7 +36,7 @@ export default function ForgotPassword() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl"
+          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl"
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] to-purple-500 absolute top-0 left-0" />
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Account Recovery</p>

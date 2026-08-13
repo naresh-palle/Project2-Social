@@ -199,7 +199,7 @@ export default function NewCampaign({ isEdit }) {
         </div>
 
         {aiOpen && (
-          <div className="mt-4 border border-white/10 p-4 rounded-sm" data-testid="ai-panel">
+          <div className="mt-4 border border-white/10 p-4 rounded-3xl" data-testid="ai-panel">
             <div className="flex items-baseline gap-2">
               <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
               <span className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-70">AI Brand Copilot</span>
@@ -293,7 +293,7 @@ export default function NewCampaign({ isEdit }) {
           </Row>
           <Row label="Cover Image *">
             <div className="flex items-center gap-3 mt-2">
-              {f.cover && <img src={f.cover} alt="Cover Preview" className="w-16 h-20 object-cover border border-white/20 p-0.5 rounded-sm" />}
+              {f.cover && <img src={f.cover} alt="Cover Preview" className="w-16 h-20 object-cover border border-white/20 p-0.5 rounded-3xl" />}
               <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} data-testid="cf-cover-file" />
               <button
                 type="button"

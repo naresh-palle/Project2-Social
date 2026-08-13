@@ -90,9 +90,7 @@ export default function SearchPage() {
       
       <div className="pt-20 max-w-4xl mx-auto px-6 md:px-10 pb-16 flex-1 w-full">
         <div className="mb-8">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0 mb-4">
-             <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
+          
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
@@ -199,7 +197,7 @@ export default function SearchPage() {
                     >
                       <span className="truncate pr-2">{r.query}</span>
                       {r.kind && (
-                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-white/60 rounded-sm">
+                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-white/60 rounded-3xl">
                           {r.kind}
                         </span>
                       )}

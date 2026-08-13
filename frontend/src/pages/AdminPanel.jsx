@@ -62,7 +62,7 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
         <div className="p-4 xl:p-5 glass-panel relative overflow-hidden group min-w-0">
             <div className="flex justify-between items-start gap-2">
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
-                <div className="p-2 bg-white/5 rounded-sm shrink-0">{icon}</div>
+                <div className="p-2 bg-white/5 rounded-3xl shrink-0">{icon}</div>
             </div>
             <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-white truncate">{value}</div>
             <div className="flex justify-between items-center mt-3 gap-2">
@@ -674,7 +674,7 @@ export function AdminPanel() {
                                             </td>
                                             <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
                                             <td className="p-4">
-                                                {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>}
+                                                {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-3xl">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-3xl">Active</span>}
                                             </td>
                                             <td className="p-4 text-right">
                                               {u.role === "admin" ? (
@@ -832,9 +832,9 @@ export function AdminPanel() {
                               <td className="p-4 font-sans text-sm break-all opacity-80">{u.email || "—"}</td>
                               <td className="p-4">
                                 {u.onboarding_status === "pending" ? (
-                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-sm">Pending</span>
+                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-3xl">Pending</span>
                                 ) : (
-                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-sm">Active</span>
+                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-3xl">Active</span>
                                 )}
                               </td>
                               <td className="p-4">
@@ -934,7 +934,7 @@ export function AdminPanel() {
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (
         <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-sm shadow-2xl space-y-6">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-3xl shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
@@ -1041,7 +1041,7 @@ export function AdminPanel() {
       <AnimatePresence>
           {userToDelete && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-sm w-full max-w-md shadow-2xl relative">
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative">
                       <h3 className="font-editorial text-3xl mb-2 text-[#FF3B30]">Delete User?</h3>
                       <p className="font-mono text-xs opacity-60 mb-8">
                           Are you sure you want to permanently delete this user? This action cannot be undone and will erase all their campaigns, applications, and data.
@@ -1330,7 +1330,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       {/* DECLINE MODAL */}
       {declineModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-sm space-y-4 shadow-2xl">
+          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4 shadow-2xl">
             <h3 className="font-sans text-2xl text-white font-bold">Decline Agency Access</h3>
             <p className="font-sans text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea

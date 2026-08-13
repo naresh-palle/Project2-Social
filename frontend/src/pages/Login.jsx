@@ -174,7 +174,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-md max-h-[calc(100dvh-4rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-sm shadow-2xl relative overflow-hidden"
+          className="w-full max-w-md max-h-[calc(100dvh-4rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-hidden"
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 

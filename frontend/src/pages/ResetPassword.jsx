@@ -53,7 +53,7 @@ export default function ResetPassword() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-sm shadow-2xl"
+          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl"
         >
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Set New Password</p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">

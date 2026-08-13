@@ -237,9 +237,6 @@ export default function Feed() {
       <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24 w-full flex-1">
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 hover:text-[#FF3B30] mb-4">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back
-            </Link>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5" /> § Community Feed
             </p>
@@ -519,7 +516,7 @@ function CreatePostModal({ onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-sm shadow-2xl space-y-4 my-8">
+      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 my-8">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="font-editorial text-2xl font-bold">Create Post</h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5 opacity-60" /></button>

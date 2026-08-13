@@ -107,7 +107,7 @@ function CreatorDirectoryCard({ creator, index }) {
           ) : null}
           {c.match_score != null ? (
             <span 
-              className="absolute top-1.5 right-1.5 bg-[#34C759]/20 text-[#34C759] px-2 py-0.5 font-sans text-[10px] tracking-wide uppercase font-semibold rounded-sm border border-[#34C759]/30"
+              className="absolute top-1.5 right-1.5 bg-[#34C759]/20 text-[#34C759] px-2 py-0.5 font-sans text-[10px] tracking-wide uppercase font-semibold rounded-3xl border border-[#34C759]/30"
               title={c.match_reasons ? c.match_reasons.join('\n') : ''}
             >
               {c.match_score}% Match
@@ -179,9 +179,7 @@ export default function Marketplace() {
 
       <div className="pt-20 pb-4 max-w-[1600px] mx-auto px-3 md:px-6">
         <div className="hairline-b pb-3 flex flex-col items-start gap-4">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
-            <ChevronLeft className="w-4 h-4" /> Back
-          </Link>
+          
           <div>
             <p className="font-sans text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
             <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1">
@@ -191,7 +189,7 @@ export default function Marketplace() {
         </div>
 
         {/* Tabs + search in bordered box */}
-        <div className="mt-3 border border-white/15 rounded-sm px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
+        <div className="mt-3 border border-white/15 rounded-3xl px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex gap-5 font-sans text-[11px] tracking-[0.28em] uppercase">
             {["creators", "campaigns"].map((t) => (
               <button

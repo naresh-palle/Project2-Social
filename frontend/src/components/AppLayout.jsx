@@ -15,7 +15,7 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-64 relative z-10 p-6 md:p-10 h-screen overflow-y-auto no-scrollbar">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="w-full max-w-[1600px] mx-auto">
           <Outlet />
         </div>
       </main>

@@ -768,7 +768,7 @@ export default function ProfileEdit() {
             </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-white/10 bg-white/[0.02] rounded-md">
+        <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-white/10 bg-white/[0.02] rounded-3xl">
           <div className="flex items-center gap-2">
             {[1, 2, 3].map((s) => (
               <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF3B30] text-white" : "bg-white/10 text-white/50"}`}>
@@ -798,7 +798,7 @@ export default function ProfileEdit() {
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               {isInfluencer && (
-                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-4 rounded-md mb-4">
+                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-4 rounded-3xl mb-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-sans text-sm font-bold text-[#FF3B30] flex items-center gap-1.5">
@@ -1059,7 +1059,7 @@ export default function ProfileEdit() {
                         const isEditing = editingPlat === plat;
                         const isSaving = savingPlat === plat;
                         return (
-                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-sm ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
+                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-3xl ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
                             <div className="flex justify-between items-center mb-2 gap-2">
                                 <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
                                     {SOCIAL_PLATFORM_LABELS[plat] || plat} {plat === "instagram" && isInfluencer && "*"}
@@ -1122,7 +1122,7 @@ export default function ProfileEdit() {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center truncate">
+                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center break-all whitespace-normal">
                                     {socialOrNA(savedHandle)}
                                   </div>
                                 )}
@@ -1215,7 +1215,7 @@ export default function ProfileEdit() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <F label="Profile Picture *">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-sm" />}
+                      {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-3xl" />}
                       <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
                       <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
                         <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
@@ -1229,7 +1229,7 @@ export default function ProfileEdit() {
                   </F>
                   <F label="Cover Photo">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-sm" />}
+                      {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-3xl" />}
                       <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
                       <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
                         <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
@@ -1256,7 +1256,7 @@ export default function ProfileEdit() {
                     <F label="Images and Videos">
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10 rounded-sm overflow-hidden">
+                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10 rounded-3xl overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
                                 <video src={p} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                             ) : (
@@ -1294,7 +1294,7 @@ export default function ProfileEdit() {
                                 </div>
 
                                 {f.past_campaigns.map((c, i) => (
-                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-sm">
+                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-3xl">
                                         <div className="md:col-span-2">
                                             <input className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
                                         </div>

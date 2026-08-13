@@ -328,9 +328,6 @@ export default function Settings() {
       
       <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
         <div className="mb-6">
-          <button onClick={() => nav(-1)} className="font-mono text-[10px] uppercase tracking-widest text-white/60 hover:text-white flex items-center gap-1 transition-colors">
-            <ChevronLeft className="w-3 h-3" /> Back
-          </button>
         </div>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
         <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings</h1>
@@ -498,7 +495,7 @@ export default function Settings() {
           data-testid="security-modal-backdrop"
         >
           <div
-            className="bg-[#121212] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-sm shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="bg-[#121212] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             data-testid="security-modal"
           >
@@ -619,7 +616,7 @@ export default function Settings() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-md shadow-2xl p-6">
+          <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-6">
             <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF3B30] font-semibold mb-2">Confirm Deletion</h3>
             <p className="font-sans text-xs text-white/80 mb-6">
               Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
@@ -627,13 +624,13 @@ export default function Settings() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-sm transition-colors"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={deleteAccount}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-sm transition-colors shadow-lg shadow-[#FF3B30]/20"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-3xl transition-colors shadow-lg shadow-[#FF3B30]/20"
               >
                 Yes, Delete My Account
               </button>
