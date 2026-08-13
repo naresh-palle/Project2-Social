@@ -114,41 +114,41 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-
-              {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
-                <div className="flex items-center gap-2 ml-4">
-                  <Link
-                    to="/feed"
-                    title="Feed"
-                    aria-label="Feed"
-                    className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 !px-3 !py-2"
-                  >
-                    <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
-                  </Link>
-                  <Link
-                    to="/marketplace"
-                    title="Directory"
-                    aria-label="Directory"
-                    data-testid="browse-campaigns-btn"
-                    className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
-                  >
-                    <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-                  </Link>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 ml-4">
-                  <Link
-                    to="/marketplace"
-                    title="Directory"
-                    aria-label="Directory"
-                    data-testid="browse-campaigns-btn"
-                    className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 !px-3 !py-2"
-                  >
-                    <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
-                  </Link>
-                </div>
-              )}
             </div>
+
+            {user?.role === "influencer" || user?.role === "creator" || !["owner", "admin", "agent"].includes(user?.role) ? (
+              <div className="flex items-center gap-2 mt-4 md:mt-0">
+                <Link
+                  to="/feed"
+                  title="Feed"
+                  aria-label="Feed"
+                  className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1.5 px-4 py-2 rounded-full shadow-lg shadow-[#FF3B30]/20"
+                >
+                  <Newspaper className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Feed</span>
+                </Link>
+                <Link
+                  to="/marketplace"
+                  title="Directory"
+                  aria-label="Directory"
+                  data-testid="browse-campaigns-btn"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
+                >
+                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mt-4 md:mt-0">
+                <Link
+                  to="/marketplace"
+                  title="Directory"
+                  aria-label="Directory"
+                  data-testid="browse-campaigns-btn"
+                  className="btn-solid border border-white/20 bg-white/5 hover:bg-white/15 text-white flex items-center gap-1.5 px-4 py-2 rounded-full backdrop-blur-md"
+                >
+                  <Compass className="w-4 h-4" /> <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Directory</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {user?.role === "admin" ? (
@@ -330,14 +330,14 @@ function OwnerPanel() {
   return (
     <div className="space-y-3">
       {/* Analytics Summary Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="owner-analytics">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="owner-analytics">
         {tiles.map((t, i) => (
           <motion.div
             key={t.k}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            className={`p-2.5 md:p-3 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center"
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
             <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
@@ -631,14 +631,14 @@ function InfluencerPanel() {
   return (
     <div className="space-y-3">
       {/* Influencer Analytics Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 hairline-t hairline-b hairline-l hairline-r bg-white/[0.02]" data-testid="creator-analytics">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="creator-analytics">
         {tiles.map((t, i) => (
           <motion.div
             key={t.k}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            className={`p-2.5 md:p-3 ${i < tiles.length - 1 ? "hairline-r" : ""} ${i < 3 ? "md:hairline-b" : ""}`}
+            className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center"
           >
             <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
             <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
