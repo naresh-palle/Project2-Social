@@ -314,8 +314,8 @@ export default function CreatorDetail() {
                   </section>
               )}
 
-          </section>
-        </div>
+          </div>
+      </div>
       </div> {/* End Scrollable Area */}
     </div>
   );
