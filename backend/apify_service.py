@@ -75,9 +75,9 @@ class ApifyService:
         logger.info(f"[APIFY] ACTOR_STARTED: Running sync fetch for {platform} via {actor_id}")
         try:
             run = await self.client.actor(actor_id).call(run_input=payload)
-            logger.info(f"[APIFY] ACTOR_COMPLETED: {run.get('id')}")
+            logger.info(f"[APIFY] ACTOR_COMPLETED: {run.id}")
             
-            dataset_id = run.get("defaultDatasetId")
+            dataset_id = run.default_dataset_id
             if not dataset_id:
                 logger.error("[APIFY] DATASET_UNAVAILABLE: No dataset returned.")
                 return None
@@ -173,9 +173,9 @@ class ApifyService:
             run = await self.client.actor(actor_id).call(run_input=payload)
             
             duration = (datetime.utcnow() - start_time).total_seconds()
-            logger.info(f"[APIFY] ACTOR_COMPLETED: Job {job_id}, run_id {run.get('id')}, duration {duration}s")
+            logger.info(f"[APIFY] ACTOR_COMPLETED: Job {job_id}, run_id {run.id}, duration {duration}s")
             
-            dataset_id = run.get("defaultDatasetId")
+            dataset_id = run.default_dataset_id
             if dataset_id:
                 list_page = await self.client.dataset(dataset_id).list_items()
                 items = list_page.items
