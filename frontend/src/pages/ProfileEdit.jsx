@@ -158,6 +158,9 @@ export default function ProfileEdit() {
   const [syncBusy, setSyncBusy] = useState(false);
   const [editingPlat, setEditingPlat] = useState(null);
   const [draftHandle, setDraftHandle] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scraping, setScraping] = useState(false);
+  const [showScrapeInput, setShowScrapeInput] = useState(false);
   const [savingPlat, setSavingPlat] = useState(null);
   const [cropState, setCropState] = useState(null); // { src, aspect, target: 'avatar'|'cover' }
   const [categoriesList, setCategoriesList] = useState([]);
@@ -424,6 +427,37 @@ export default function ProfileEdit() {
       if (field) scrollToFieldError(field);
       toast.error(formatApiError(detail) || "Failed to save profile");
     } finally { setBusy(false); }
+  };
+
+  const handleScrape = async () => {
+    if (!scrapeUrl.trim()) return;
+    setScraping(true);
+    try {
+      const { data } = await api.post("/social/scrape", { url: scrapeUrl.trim() });
+      if (data?.data) {
+        const p = data.data;
+        const newF = { ...f };
+        if (p.biography && !newF.bio) newF.bio = p.biography;
+        if (p.fullName && !newF.name) newF.name = p.fullName;
+        if (p.followersCount && data.platform) {
+          const plat = data.platform.toLowerCase().includes('insta') ? 'instagram' : data.platform.toLowerCase().includes('youtube') ? 'youtube' : 'facebook';
+          newF.platform_metrics = { 
+            ...(newF.platform_metrics || {}), 
+            [plat]: { handle: p.username || '', followers: p.followersCount }
+          };
+        }
+        setF(newF);
+        toast.success("Profile data auto-filled!");
+        setShowScrapeInput(false);
+        setScrapeUrl("");
+      } else {
+        toast.error("No profile data found.");
+      }
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || "Failed to fetch profile");
+    } finally {
+      setScraping(false);
+    }
   };
 
   const runAiCuration = async () => {
@@ -728,6 +762,56 @@ export default function ProfileEdit() {
           
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {isInfluencer && (
+                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-4 rounded-md mb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-sans text-sm font-bold text-[#FF3B30] flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4" /> Auto-Fill from Social Media
+                      </h3>
+                      <p className="font-sans text-[11px] opacity-70 mt-1">
+                        Paste your Instagram, YouTube, or Facebook URL to auto-fill your basic info.
+                      </p>
+                    </div>
+                    {!showScrapeInput && (
+                      <button 
+                        type="button" 
+                        onClick={() => setShowScrapeInput(true)}
+                        className="btn-solid bg-[#FF3B30] hover:bg-[#e03126] text-white !px-3 !py-1.5 text-xs"
+                      >
+                        Start
+                      </button>
+                    )}
+                  </div>
+                  {showScrapeInput && (
+                    <div className="mt-3 flex gap-2">
+                      <input 
+                        className="inp flex-1" 
+                        placeholder="e.g. https://instagram.com/username" 
+                        value={scrapeUrl}
+                        onChange={e => setScrapeUrl(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleScrape()}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={handleScrape}
+                        disabled={scraping || !scrapeUrl.trim()}
+                        className="btn-solid bg-white text-black hover:bg-white/90 disabled:opacity-50 !px-4"
+                      >
+                        {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : "Fetch"}
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowScrapeInput(false)}
+                        className="btn-ghost"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
                   <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
                     <span className="mr-2">01</span>
