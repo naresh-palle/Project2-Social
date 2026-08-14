@@ -524,8 +524,8 @@ export function AdminPanel() {
 
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 flex flex-col gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Influencers · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
@@ -533,26 +533,22 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
                 </div>
 
-                {/* Revenue, Platform Activity, and Recent Escrow Payments sections removed per requirements */}
-
-                    <div className="space-y-6">
-                        <div className="p-6 glass-panel">
-                            <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
-                            <div className="space-y-4">
-                                {notifications.map(n => (
-                                    <div key={n.id} className="flex items-start gap-3">
-                                        {n.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
-                                        {n.type === 'error' && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
-                                        {n.type === 'warning' && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
-                                        <div>
-                                            <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
-                                            <p className="font-sans text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                <div className="p-6 glass-panel relative z-0">
+                    <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
+                    <div className="space-y-4">
+                        {notifications.map(n => (
+                            <div key={n.id} className="flex items-start gap-3">
+                                {n.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
+                                {n.type === 'error' && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
+                                {n.type === 'warning' && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
+                                <div>
+                                    <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
+                                    <p className="font-sans text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
+                </div>
             </motion.div>
         )}
 
