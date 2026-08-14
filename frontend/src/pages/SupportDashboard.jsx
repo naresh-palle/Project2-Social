@@ -23,6 +23,17 @@ const AI_STATUS_OPTS = [
   { id: "human_handling", label: "Human Handling" },
 ];
 
+const QUEUE_FILTERS = [
+  { id: "all", label: "All Tickets" },
+  { id: "unassigned", label: "Unassigned" },
+  { id: "mine", label: "My Tickets" },
+  { id: "influencer", label: "Influencer" },
+  { id: "company", label: "Company" },
+  { id: "agent", label: "Agent" },
+  { id: "escalated", label: "Escalated" },
+  { id: "resolved", label: "Resolved" },
+];
+
 const QUEUE_PRESETS = {
   all: { status: "", assignment: "", userType: "", escalated: false },
   unassigned: {
@@ -73,6 +84,12 @@ const STATUS_OPTS = [
   { id: "reopened", label: "Reopened" },
   { id: "", label: "All statuses" },
 ];
+
+const FILTER_SELECT =
+  "bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans appearance-none cursor-pointer focus:outline-none focus:border-[#FF3B30] min-w-[7.5rem]";
+const FILTER_OPTION = { backgroundColor: "#1A1A1E", color: "#F4F4F0" };
+const FILTER_INPUT =
+  "bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30] flex-1 min-w-[8rem]";
 
 function statusClass(status) {
   if (status === "new" || status === "open") return "bg-[#34C759]/20 text-[#34C759] border-[#34C759]/30";
@@ -162,19 +179,30 @@ export default function SupportDashboard() {
   const setTab = (nextTab, nextQueue) => {
     const sp = new URLSearchParams();
     sp.set("tab", nextTab);
-    if (nextTab === "tickets") sp.set("queue", nextQueue || queue || "all");
+    if (nextTab === "tickets" && nextQueue) sp.set("queue", nextQueue);
     setSearchParams(sp);
   };
 
-  // Apply queue preset when queue changes
+  // Apply queue preset when queue changes (KPI / deep links)
   useEffect(() => {
     if (tab !== "tickets") return;
-    const preset = QUEUE_PRESETS[queue] || QUEUE_PRESETS.all;
+    if (!queue || !QUEUE_PRESETS[queue]) return;
+    const preset = QUEUE_PRESETS[queue];
     setUserType(preset.userType);
     setStatusFilter(preset.status);
     setAssignmentAgent(preset.assignment === "mine" || preset.assignment === "unassigned" ? preset.assignment : "");
   }, [tab, queue]);
 
+  const applyQueueFilter = (qid) => {
+    const preset = QUEUE_PRESETS[qid] || QUEUE_PRESETS.all;
+    setUserType(preset.userType);
+    setStatusFilter(preset.status);
+    setAssignmentAgent(preset.assignment === "mine" || preset.assignment === "unassigned" ? preset.assignment : "");
+    const sp = new URLSearchParams();
+    sp.set("tab", "tickets");
+    if (qid && qid !== "all") sp.set("queue", qid);
+    setSearchParams(sp);
+  };
   const loadMe = useCallback(async () => {
     try {
       const { data } = await api.get("/support/me");
@@ -535,7 +563,7 @@ export default function SupportDashboard() {
             ))}
           </div>
           <p className="text-white/50 text-sm">
-            Centralized helpdesk for Influencer, Company, and Agent tickets. Use sidebar queues or the Tickets tab to claim and resolve.
+            Centralized helpdesk for Influencer, Company, and Agent tickets. Open Tickets and use the queue filters to claim and resolve.
           </p>
         </div>
       )}
@@ -545,26 +573,69 @@ export default function SupportDashboard() {
           <div className="lg:col-span-2 space-y-3">
             <div className="flex flex-wrap gap-2 items-center">
               <Filter className="w-3.5 h-3.5 text-[#FF3B30]" />
-              <select value={userType} onChange={(e) => setUserType(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
-                {USER_TYPES.map((u) => <option key={u.id || "all"} value={u.id}>{u.label}</option>)}
+              <select
+                value={queue && QUEUE_PRESETS[queue] ? queue : "all"}
+                onChange={(e) => applyQueueFilter(e.target.value)}
+                className={FILTER_SELECT}
+                aria-label="Ticket queue"
+              >
+                {QUEUE_FILTERS.map((u) => (
+                  <option key={u.id} value={u.id} style={FILTER_OPTION}>{u.label}</option>
+                ))}
               </select>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
-                {STATUS_OPTS.map((s) => <option key={s.id || "allst"} value={s.id}>{s.label}</option>)}
+              <select
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+                className={FILTER_SELECT}
+                aria-label="User type"
+              >
+                {USER_TYPES.map((u) => (
+                  <option key={u.id || "all"} value={u.id} style={FILTER_OPTION}>{u.label === "All" ? "User Type: All" : u.label}</option>
+                ))}
               </select>
-              <select value={priority} onChange={(e) => setPriority(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
-                <option value="">Priority</option>
-                {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p}>{p}</option>)}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className={FILTER_SELECT}
+                aria-label="Status"
+              >
+                {STATUS_OPTS.map((s) => (
+                  <option key={s.id || "allst"} value={s.id} style={FILTER_OPTION}>{s.label}</option>
+                ))}
               </select>
-              <select value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
-                {AI_STATUS_OPTS.map((a) => <option key={a.id || "aiall"} value={a.id}>{a.label}</option>)}
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className={FILTER_SELECT}
+                aria-label="Priority"
+              >
+                <option value="" style={FILTER_OPTION}>Priority</option>
+                {["Low", "Medium", "High", "Critical"].map((p) => (
+                  <option key={p} value={p} style={FILTER_OPTION}>{p}</option>
+                ))}
+              </select>
+              <select
+                value={aiStatus}
+                onChange={(e) => setAiStatus(e.target.value)}
+                className={FILTER_SELECT}
+                aria-label="AI status"
+              >
+                {AI_STATUS_OPTS.map((a) => (
+                  <option key={a.id || "aiall"} value={a.id} style={FILTER_OPTION}>{a.label}</option>
+                ))}
               </select>
               {canAssign && (
-                <select value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
-                  <option value="">Assignment</option>
-                  <option value="unassigned">Unassigned</option>
-                  <option value="mine">My Tickets</option>
+                <select
+                  value={assignmentAgent}
+                  onChange={(e) => setAssignmentAgent(e.target.value)}
+                  className={FILTER_SELECT}
+                  aria-label="Assignment"
+                >
+                  <option value="" style={FILTER_OPTION}>Assignment</option>
+                  <option value="unassigned" style={FILTER_OPTION}>Unassigned</option>
+                  <option value="mine" style={FILTER_OPTION}>My Tickets</option>
                   {agents.map((a) => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
+                    <option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>
                   ))}
                 </select>
               )}
@@ -572,10 +643,9 @@ export default function SupportDashboard() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search…"
-                className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg flex-1 min-w-[8rem]"
+                className={FILTER_INPUT}
               />
             </div>
-
             {loading ? (
               <div className="flex items-center gap-2 text-white/50 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
@@ -697,22 +767,22 @@ export default function SupportDashboard() {
                   )}
                   {can("support.tickets.update") && (
                     <select
-                      className="bg-white/5 border border-white/15 px-2 py-1 text-[10px] rounded-full"
+                      className={`${FILTER_SELECT} rounded-full text-[10px]`}
                       value={ticket.priority || "Medium"}
                       onChange={(e) => patch({ priority: e.target.value })}
                     >
-                      {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p}>{p}</option>)}
+                      {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p} style={FILTER_OPTION}>{p}</option>)}
                     </select>
                   )}
                   {canAssign && agents.length > 0 && (
                     <select
-                      className="bg-white/5 border border-white/15 px-2 py-1 text-[10px] rounded-full"
+                      className={`${FILTER_SELECT} rounded-full text-[10px]`}
                       value={ticket.assignee_id || ""}
                       onChange={(e) => patch({ assignee_id: e.target.value })}
                     >
-                      <option value="">Unassigned</option>
+                      <option value="" style={FILTER_OPTION}>Unassigned</option>
                       {agents.map((a) => (
-                        <option key={a.id} value={a.id}>{a.name} ({a.role})</option>
+                        <option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name} ({a.role})</option>
                       ))}
                     </select>
                   )}
@@ -841,13 +911,13 @@ export default function SupportDashboard() {
                     {canManageUsers && (
                       <td className="p-3 space-x-2 whitespace-nowrap">
                         <select
-                          className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg"
+                          className={FILTER_SELECT}
                           value={u.support_role || u.role}
                           onChange={(e) => patchStaff(u.id, { support_role: e.target.value })}
                         >
-                          <option value="support_agent">Agent</option>
-                          <option value="support_lead">Lead</option>
-                          <option value="support_admin">Admin</option>
+                          <option value="support_agent" style={FILTER_OPTION}>Agent</option>
+                          <option value="support_lead" style={FILTER_OPTION}>Lead</option>
+                          <option value="support_admin" style={FILTER_OPTION}>Admin</option>
                         </select>
                         <button
                           type="button"
@@ -870,10 +940,10 @@ export default function SupportDashboard() {
               <input required placeholder="Name" value={newStaff.name} onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required type="email" placeholder="Email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required placeholder="Username" value={newStaff.username} onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <select value={newStaff.support_role} onChange={(e) => setNewStaff({ ...newStaff, support_role: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl">
-                <option value="support_agent">Support Agent</option>
-                <option value="support_lead">Support Lead</option>
-                <option value="support_admin">Support Admin</option>
+              <select value={newStaff.support_role} onChange={(e) => setNewStaff({ ...newStaff, support_role: e.target.value })} className={`${FILTER_SELECT} py-2 rounded-xl`}>
+                <option value="support_agent" style={FILTER_OPTION}>Support Agent</option>
+                <option value="support_lead" style={FILTER_OPTION}>Support Lead</option>
+                <option value="support_admin" style={FILTER_OPTION}>Support Admin</option>
               </select>
               <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">

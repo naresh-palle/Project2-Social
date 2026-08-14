@@ -1,44 +1,25 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Search, LifeBuoy, Bot, ShieldCheck, ChevronDown } from "lucide-react";
+import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
-
-const TICKET_QUEUES = [
-  { id: "all", label: "All Tickets", icon: "🎫" },
-  { id: "unassigned", label: "Unassigned", icon: "📥" },
-  { id: "mine", label: "My Tickets", icon: "👤" },
-  { id: "influencer", label: "Influencer", icon: "✨" },
-  { id: "company", label: "Company", icon: "🏢" },
-  { id: "agent", label: "Agent", icon: "🤝" },
-  { id: "escalated", label: "Escalated", icon: "⬆️" },
-  { id: "resolved", label: "Resolved", icon: "✅" },
-];
 
 export function Sidebar() {
   const { user } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
 
+  if (!user) return null;
+
   const isSupportOps = isSupportOpsRole(user?.role);
   const searchParams = new URLSearchParams(location.search);
   const opsTab = searchParams.get("tab") || "overview";
-  const opsQueue = searchParams.get("queue") || "all";
-  const ticketsActive = Boolean(user) && isSupportOps && location.pathname === "/support/ops" && opsTab === "tickets";
 
-  const [ticketsOpen, setTicketsOpen] = useState(false);
-
-  useEffect(() => {
-    if (ticketsActive) setTicketsOpen(true);
-  }, [ticketsActive]);
-
-  if (!user) return null;
   const supportItems = [
     { to: "/support/ops?tab=overview", label: "Overview", icon: "📊", tab: "overview" },
-    { type: "tickets-dropdown" },
+    { to: "/support/ops?tab=tickets", label: "Tickets", icon: "🎫", tab: "tickets" },
     ...(user?.role === "support_admin" || user?.role === "support_lead"
       ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "👥", tab: "staff" }]
       : []),
@@ -77,7 +58,7 @@ export function Sidebar() {
     e.preventDefault();
     const q = e.target.search.value.toLowerCase();
     if (isSupportOps) {
-      if (q.includes("ticket") || q.includes("queue")) nav("/support/ops?tab=tickets&queue=all");
+      if (q.includes("ticket") || q.includes("queue")) nav("/support/ops?tab=tickets");
       else if (q.includes("user") || q.includes("staff")) nav("/support/ops?tab=staff");
       else if (q.includes("analytic")) nav("/support/ops?tab=analytics");
       else if (q.includes("knowledge") || q.includes("faq")) nav("/support/ops?tab=knowledge");
@@ -102,8 +83,6 @@ export function Sidebar() {
     if (location.pathname !== "/support/ops") return false;
     return opsTab === it.tab;
   };
-
-  const currentQueueLabel = TICKET_QUEUES.find((q) => q.id === opsQueue)?.label || "All Tickets";
 
   return (
     <motion.aside
@@ -202,56 +181,6 @@ export function Sidebar() {
 
         <nav className="flex flex-col gap-1 flex-1">
           {items.map((it) => {
-            if (it.type === "tickets-dropdown") {
-              return (
-                <div key="tickets-dropdown" className="flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !ticketsOpen;
-                      setTicketsOpen(next);
-                      if (next && !ticketsActive) {
-                        nav("/support/ops?tab=tickets&queue=all");
-                      }
-                    }}
-                    className={`font-mono text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 rounded-xl transition-colors flex items-center gap-3 w-full text-left ${
-                      ticketsActive
-                        ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-bold"
-                        : "text-white/60 hover:text-white hover:bg-white/10"
-                    }`}
-                    aria-expanded={ticketsOpen}
-                  >
-                    <span className="text-base opacity-80">🎫</span>
-                    <span className="flex-1 truncate">
-                      Tickets{ticketsActive ? ` · ${currentQueueLabel}` : ""}
-                    </span>
-                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${ticketsOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {ticketsOpen && (
-                    <div className="ml-3 pl-2 border-l border-white/10 flex flex-col gap-0.5 py-1">
-                      {TICKET_QUEUES.map((q) => {
-                        const active = ticketsActive && opsQueue === q.id;
-                        return (
-                          <Link
-                            key={q.id}
-                            to={`/support/ops?tab=tickets&queue=${q.id}`}
-                            className={`font-mono text-[9px] tracking-[0.18em] uppercase px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                              active
-                                ? "bg-white/10 text-white font-bold"
-                                : "text-white/50 hover:text-white hover:bg-white/5"
-                            }`}
-                          >
-                            <span className="text-sm opacity-80">{q.icon}</span>
-                            {q.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
             const isActive = isItemActive(it);
             return (
               <Link
