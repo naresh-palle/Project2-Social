@@ -109,7 +109,7 @@ export default function ProfileView() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> ⚡ Profile Details

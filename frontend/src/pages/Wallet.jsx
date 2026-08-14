@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {  ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft , Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -63,18 +63,15 @@ export default function Wallet() {
     <div className="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto pb-4" data-testid="wallet-page">
       {/* Top Static Section */}
       <div className="shrink-0 space-y-4 mb-4 pt-6">
-        <div className="pb-5 border-b border-white/10">
-          
-          <div>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> ⚡ Escrow Wallet
               </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Wallet</h1>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Wallet</h1>
+              <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
             </div>
-            <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
           </div>
-        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
           <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">

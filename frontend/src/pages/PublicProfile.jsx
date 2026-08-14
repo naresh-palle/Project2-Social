@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import {  MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 , Sparkles } from "lucide-react";
+import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -146,15 +146,14 @@ export default function PublicProfile() {
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ User Profile</p>
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Public Profile
-              </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Profile</h1>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5" /> ⚡ Public Profile
+                </p>
+                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Profile</h1>
+              </div>
             </div>
-          </div>
         </div>
         <div className="h-48 md:h-64 w-full overflow-hidden max-w-6xl mx-auto rounded-t-xl">
             {profile.cover_photo ? (

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import {  Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft , Sparkles } from "lucide-react";
+import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -287,18 +287,14 @@ export default function Messages({ miniWidget = false }) {
 
       <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "pt-24 max-w-2xl mx-auto px-4 md:px-6 pb-8 flex-1 w-full"}>
         {!miniWidget && (
-          <div className="mb-6">
-            
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 shrink-0">
               <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Inbox
-              </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5" /> ⚡ Inbox
+                </p>
+                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Messages</h1>
+              </div>
             </div>
-            </div>
-          </div>
         )}
 
         {miniWidget && (

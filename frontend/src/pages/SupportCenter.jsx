@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {  Plus, ChevronDown, CheckCircle2, ChevronLeft , Sparkles } from "lucide-react";
+import { Plus, ChevronDown, CheckCircle2, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -81,18 +81,16 @@ export default function SupportCenter() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Support</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> ⚡ Support Center
               </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Help & Support</h1>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2 mb-2">Help & Support</h1>
+              <p className="font-sans text-white/60 max-w-2xl text-sm">
+                Find answers to common questions or reach out to our team directly.
+              </p>
             </div>
-            <p className="font-sans text-white/60 max-w-2xl text-sm">
-              Find answers to common questions or reach out to our team directly.
-            </p>
           </div>
         </motion.div>
       </div> {/* End Static Header */}

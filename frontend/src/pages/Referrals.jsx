@@ -72,21 +72,17 @@ export default function Referrals() {
       
       <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
         {/* Header */}
-        <div className="mb-8">
-          
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Rewards</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> ⚡ Referral Program
               </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2 mb-2">Refer & Earn</h1>
+              <p className="font-sans text-white/60 text-sm max-w-lg">
+                Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
+              </p>
             </div>
-            <p className="font-sans text-white/60 text-sm max-w-lg">
-              Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
-            </p>
           </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Main Card */}
