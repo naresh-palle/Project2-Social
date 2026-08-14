@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronDown, Check } from "lucide-react";
 
 /**
  * Shared multi-select dropdown.
  * - selected=[] means "All" when allowAll is true (default for filters)
  * - single=true for single-value picks (availability, etc.)
+ * Menu is portaled to document.body so it is never clipped/overlapped by
+ * glass-panel overflow or sibling stacking contexts.
  */
 export function MultiSelectDropdown({
   options = [],
@@ -19,16 +22,69 @@ export function MultiSelectDropdown({
   label,
 }) {
   const [open, setOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState(null);
   const ref = useRef(null);
+  const menuRef = useRef(null);
   const values = Array.isArray(selected) ? selected : selected ? [selected] : [];
+
+  const updatePosition = () => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+    const viewportW = window.innerWidth;
+    const spaceBelow = viewportH - rect.bottom;
+    const openUp = spaceBelow < 220 && rect.top > spaceBelow;
+    const width = Math.min(Math.max(rect.width, 160), Math.min(viewportW - 16, 288));
+    let left = rect.left;
+    if (left + width > viewportW - 8) left = Math.max(8, viewportW - width - 8);
+    setMenuStyle({
+      position: "fixed",
+      left,
+      width,
+      zIndex: 9999,
+      ...(openUp
+        ? { bottom: viewportH - rect.top + 4, top: "auto" }
+        : { top: rect.bottom + 4, bottom: "auto" }),
+      maxHeight: Math.min(224, openUp ? rect.top - 12 : spaceBelow - 12),
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePosition();
+  }, [open, values.length, options.length]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onScrollOrResize = () => updatePosition();
+    window.addEventListener("resize", onScrollOrResize);
+    // capture scroll from any scrollable ancestor
+    window.addEventListener("scroll", onScrollOrResize, true);
+    return () => {
+      window.removeEventListener("resize", onScrollOrResize);
+      window.removeEventListener("scroll", onScrollOrResize, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+      const inTrigger = ref.current && ref.current.contains(e.target);
+      const inMenu = menuRef.current && menuRef.current.contains(e.target);
+      if (!inTrigger && !inMenu) setOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const showAll = allowAll && values.length === 0;
 
@@ -47,6 +103,50 @@ export function MultiSelectDropdown({
     onChange?.([]);
   };
 
+  const menu = open && menuStyle
+    ? createPortal(
+        <div
+          ref={menuRef}
+          style={{
+            ...menuStyle,
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgba(255,255,255,0.2) transparent",
+          }}
+          className="overflow-y-auto bg-[#121212] border border-white/20 rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.75)]"
+        >
+          {allowAll && (
+            <button
+              type="button"
+              onClick={clearAll}
+              className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap ${
+                showAll ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
+              }`}
+            >
+              <span>All</span>
+              {showAll && <Check className="w-3.5 h-3.5 shrink-0" />}
+            </button>
+          )}
+          {options.map((opt) => {
+            const isSel = values.includes(opt);
+            return (
+              <button
+                type="button"
+                key={opt}
+                onClick={() => toggle(opt)}
+                className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap transition-colors ${
+                  isSel ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
+                }`}
+              >
+                <span>{opt}</span>
+                {isSel && <Check className="w-3.5 h-3.5 shrink-0" />}
+              </button>
+            );
+          })}
+        </div>,
+        document.body
+      )
+    : null;
+
   return (
     <div className={`relative ${className}`} ref={ref}>
       {label && (
@@ -57,6 +157,7 @@ export function MultiSelectDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className={`w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
           noUnderline
             ? "border border-white/15 hover:border-white/30 focus:border-[#FF3B30] px-3 rounded-3xl"
@@ -105,42 +206,7 @@ export function MultiSelectDropdown({
         </div>
         <ChevronDown className={`w-3.5 h-3.5 opacity-50 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-
-      {open && (
-        <div
-          className="absolute top-full left-0 mt-1 w-max min-w-full max-w-[min(100vw-2rem,18rem)] max-h-56 overflow-y-auto bg-[#121212] border border-white/15 z-50 shadow-2xl"
-          style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.2) transparent" }}
-        >
-          {allowAll && (
-            <button
-              type="button"
-              onClick={clearAll}
-              className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap ${
-                showAll ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
-              }`}
-            >
-              <span>All</span>
-              {showAll && <Check className="w-3.5 h-3.5 shrink-0" />}
-            </button>
-          )}
-          {options.map((opt) => {
-            const isSel = values.includes(opt);
-            return (
-              <button
-                type="button"
-                key={opt}
-                onClick={() => toggle(opt)}
-                className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap transition-colors ${
-                  isSel ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
-                }`}
-              >
-                <span>{opt}</span>
-                {isSel && <Check className="w-3.5 h-3.5 shrink-0" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {menu}
     </div>
   );
 }

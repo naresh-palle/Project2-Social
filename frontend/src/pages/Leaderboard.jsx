@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 import { Trophy, Coins, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+
+const MOCK_TOP_PERFORMERS = [
+  { user_id: "mock-p1", rank: 1, name: "Aarav Sharma", handle: "aarav.style", level: "Pro", score: 9840, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p2", rank: 2, name: "Meera Kapoor", handle: "meerak.beauty", level: "Elite", score: 9120, avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p3", rank: 3, name: "Rohan Desai", handle: "rohan.fitness", level: "Pro", score: 8765, avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p4", rank: 4, name: "Isha Nair", handle: "isha.eats", level: "Elite", score: 8040, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p5", rank: 5, name: "Kabir Malhotra", handle: "kabir.tech", level: "Beginner", score: 7580, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p6", rank: 6, name: "Ananya Roy", handle: "ananya.travels", level: "Elite", score: 7010, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p7", rank: 7, name: "Dev Patel", handle: "dev.gaming", level: "Beginner", score: 6640, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200" },
+  { user_id: "mock-p8", rank: 8, name: "Sara Khan", handle: "sara.lifestyle", level: "Pro", score: 6295, avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200" },
+];
 
 export default function Leaderboard() {
   const [period, setPeriod] = useState("weekly");
@@ -31,14 +42,21 @@ export default function Leaderboard() {
     fetchData();
   }, [category, period]);
 
+  const entries = useMemo(() => {
+    const live = data?.entries || [];
+    if (live.length > 0) return live;
+    if (category === "top_performer") return MOCK_TOP_PERFORMERS;
+    return [];
+  }, [data, category]);
+
   const categories = [
     { id: "top_performer", label: "Top Performer", icon: Trophy },
     { id: "top_earner", label: "Top Earner", icon: Coins },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col h-full">
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+    <div className="h-full min-h-0 bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1 pb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
@@ -103,8 +121,8 @@ export default function Leaderboard() {
             [...Array(6)].map((_, i) => (
               <div key={i} className="h-12 bg-white/5 animate-pulse rounded-lg" />
             ))
-          ) : data?.entries?.length > 0 ? (
-            data.entries.map((entry, idx) => {
+          ) : entries.length > 0 ? (
+            entries.map((entry, idx) => {
               let row = "bg-white/[0.03] border-white/8";
               let rankStyle = "text-white/40 font-mono text-sm";
               if (entry.rank === 1) {

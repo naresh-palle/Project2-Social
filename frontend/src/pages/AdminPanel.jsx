@@ -114,6 +114,9 @@ export function AdminPanel() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [alertFilter, setAlertFilter] = useState("all");
   const [selectedAlert, setSelectedAlert] = useState(null);
+  const [auditSearch, setAuditSearch] = useState("");
+  const [auditTypeFilter, setAuditTypeFilter] = useState([]);
+  const [auditStatusFilter, setAuditStatusFilter] = useState([]);
 
   const notifications = [
       {
@@ -593,8 +596,8 @@ export function AdminPanel() {
   const COLORS = ['#34C759', '#FF3B30'];
 
   return (
-    <div>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
+    <div className="h-full min-h-0 flex flex-col">
+        <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> Admin
@@ -634,6 +637,7 @@ export function AdminPanel() {
             </div>
         </div>
 
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-10 pr-1">
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
             <div className="mt-8 space-y-10">
@@ -711,17 +715,16 @@ export function AdminPanel() {
         {/* TAB 5: USER MANAGEMENT */}
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="relative z-20 flex flex-wrap items-center gap-4 mb-6 p-4 glass-panel">
-                    <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-                        <Search className="w-4 h-4 opacity-50" />
+                <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-white/10 bg-[#121212] overflow-visible">
+                    <div className="flex items-center gap-2 w-full max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
+                        <Search className="w-4 h-4 opacity-50 shrink-0" />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
                     </div>
-                    <div className="h-6 w-px bg-white/10 hidden md:block" />
-                    <div className="relative z-20 flex flex-wrap items-center gap-4 font-sans text-[10px] uppercase tracking-wider flex-1 min-w-[280px]">
-                        <div className="flex items-center gap-2 shrink-0">
+                    <div className="relative z-30 flex flex-wrap items-end gap-3 font-sans text-[10px] uppercase tracking-wider">
+                        <div className="flex items-center gap-2 shrink-0 pb-2">
                             <Filter className="w-3 h-3 opacity-50" />
                         </div>
-                        <div className="min-w-[140px] max-w-[200px] flex-1">
+                        <div className="w-[140px]">
                           <MultiSelectDropdown
                             options={USER_ROLE_OPTIONS}
                             selected={roleFilter}
@@ -732,7 +735,7 @@ export function AdminPanel() {
                             label="Role"
                           />
                         </div>
-                        <div className="min-w-[180px] max-w-xs flex-1">
+                        <div className="w-[180px]">
                           <MultiSelectDropdown
                             options={PLATFORM_CATEGORIES}
                             selected={categoryFilter}
@@ -743,7 +746,7 @@ export function AdminPanel() {
                             label="Category"
                           />
                         </div>
-                        <div className="min-w-[140px] max-w-[180px] flex-1">
+                        <div className="w-[140px]">
                           <MultiSelectDropdown
                             options={USER_STATUS_OPTIONS}
                             selected={statusFilter}
@@ -754,9 +757,9 @@ export function AdminPanel() {
                             label="Status"
                           />
                         </div>
-                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
-                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
-                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-xs text-white min-w-[100px] flex-1" />
+                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
+                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
+                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
                     </div>
                 </div>
                 <div className="glass-panel overflow-x-auto">
@@ -1016,7 +1019,41 @@ export function AdminPanel() {
 
         {/* TAB 6: AUDIT LOGS */}
         {tab === "audit" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-4">
+                <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-white/10 bg-[#121212] overflow-visible">
+                    <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
+                        <Search className="w-4 h-4 opacity-50 shrink-0" />
+                        <input
+                          type="text"
+                          placeholder="Search user, action, details…"
+                          value={auditSearch}
+                          onChange={(e) => setAuditSearch(e.target.value)}
+                          className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans"
+                        />
+                    </div>
+                    <div className="w-[180px]">
+                      <MultiSelectDropdown
+                        options={[...new Set(activity.map((a) => a.type).filter(Boolean))]}
+                        selected={auditTypeFilter}
+                        onChange={setAuditTypeFilter}
+                        placeholder="All types"
+                        allowAll
+                        compact
+                        label="Action Type"
+                      />
+                    </div>
+                    <div className="w-[160px]">
+                      <MultiSelectDropdown
+                        options={["Completed", "Pending", "Failed"]}
+                        selected={auditStatusFilter}
+                        onChange={setAuditStatusFilter}
+                        placeholder="All statuses"
+                        allowAll
+                        compact
+                        label="Status"
+                      />
+                    </div>
+                </div>
                 <div className="glass-panel overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -1029,10 +1066,29 @@ export function AdminPanel() {
                             </tr>
                         </thead>
                         <tbody>
-                            {activity.length === 0 ? (
-                                <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No recent activity</td></tr>
-                            ) : (
-                                activity.map((a, i) => (
+                            {(() => {
+                              const filtered = activity.filter((a) => {
+                                if (auditTypeFilter.length && !auditTypeFilter.includes(a.type)) return false;
+                                if (auditStatusFilter.length && !auditStatusFilter.includes(a.status)) return false;
+                                if (auditSearch.trim()) {
+                                  const q = auditSearch.trim().toLowerCase();
+                                  const hay = [
+                                    a.username,
+                                    a.user,
+                                    a.type,
+                                    a.details,
+                                    a.status,
+                                  ].filter(Boolean).join(" ").toLowerCase();
+                                  if (!hay.includes(q)) return false;
+                                }
+                                return true;
+                              });
+                              if (filtered.length === 0) {
+                                return (
+                                  <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No matching activity</td></tr>
+                                );
+                              }
+                              return filtered.map((a, i) => (
                                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                                         <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">
                                             {new Date(a.time).toLocaleString()}
@@ -1052,8 +1108,8 @@ export function AdminPanel() {
                                             </span>
                                         </td>
                                     </tr>
-                                ))
-                            )}
+                              ));
+                            })()}
                         </tbody>
                     </table>
                 </div>
@@ -1069,6 +1125,7 @@ export function AdminPanel() {
         {tab === "referrals" && (
             <ReferralConfig />
         )}
+        </div>
 
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (

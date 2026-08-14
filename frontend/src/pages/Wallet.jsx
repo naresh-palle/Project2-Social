@@ -60,7 +60,7 @@ export default function Wallet() {
   });
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1" data-testid="wallet-page">
+    <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1" data-testid="wallet-page">
       {/* Top Static Section */}
       <div className="shrink-0 space-y-4 mb-4 pt-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">

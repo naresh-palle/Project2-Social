@@ -180,9 +180,9 @@ export default function Marketplace() {
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col h-full">
+    <div className="h-full min-h-0 bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
 
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+      <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1 pb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-6">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">

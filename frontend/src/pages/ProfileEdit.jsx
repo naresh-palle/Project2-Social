@@ -734,7 +734,7 @@ export default function ProfileEdit() {
   const { score: completion, missing: missingFields } = getCompletionDetails();
 
   return (
-    <div className="flex flex-col h-full overflow-hidden w-full max-w-4xl mx-auto pb-4">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden w-full max-w-4xl mx-auto pb-4">
       {/* Top Static Header */}
       <div className="shrink-0 space-y-4 mb-4">
         <div className="flex items-center justify-between gap-3">
@@ -781,7 +781,7 @@ export default function ProfileEdit() {
       </div> {/* End Static Header */}
 
       {/* Scrollable Form Container */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-10">
 
         <motion.form 
           noValidate 

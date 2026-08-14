@@ -37,7 +37,7 @@ export function AppLayout() {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden relative w-full max-w-[1600px] mx-auto px-6 md:px-10 pb-28 pr-8 md:pr-12 pt-2">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar relative w-full max-w-[1600px] mx-auto px-6 md:px-10 pb-28 pr-8 md:pr-12 pt-2">
           <Outlet />
         </div>
       </main>

@@ -311,9 +311,9 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+    <div className="h-full min-h-0 bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
+      <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1">
         <div className="mb-6">
         </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">

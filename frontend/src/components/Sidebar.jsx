@@ -1,12 +1,12 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Search, LifeBuoy, Bot, LogOut, ShieldCheck } from "lucide-react";
+import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 
 export function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
 
@@ -145,7 +145,7 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto p-4 border-t border-white/10">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
               <LifeBuoy className="w-4 h-4" />
@@ -156,14 +156,6 @@ export function Sidebar() {
           </div>
           <NotificationBell />
         </div>
-        
-        <button
-          onClick={() => { logout(); nav("/"); }}
-          className="w-full font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] hover:text-[#ff6b63] transition-colors flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 hover:bg-white/5"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          Sign Out
-        </button>
       </div>
     </motion.aside>
   );
