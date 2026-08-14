@@ -59,7 +59,7 @@ function userMatchesCategories(u, selected = []) {
 }
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-4 xl:p-5 glass-panel relative overflow-hidden group min-w-0">
+        <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-white/10 bg-[#121212] shadow-none">
             <div className="flex justify-between items-start gap-2">
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
                 <div className="p-2 bg-white/5 rounded-3xl shrink-0">{icon}</div>
@@ -636,8 +636,8 @@ export function AdminPanel() {
 
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 flex flex-col gap-8 isolate">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
+            <div className="mt-8 space-y-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Influencers · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
@@ -645,7 +645,7 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
                 </div>
 
-                <div className="p-6 glass-panel relative z-0 mt-2 clear-both">
+                <section className="p-6 rounded-3xl border border-white/10 bg-[#121212]">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                       <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium flex items-center gap-2 mb-0">
                         <Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts
@@ -689,8 +689,8 @@ export function AdminPanel() {
                           ))
                         )}
                     </div>
-                </div>
-            </motion.div>
+                </section>
+            </div>
         )}
 
         {/* TAB 2: AGENT APPROVALS */}
