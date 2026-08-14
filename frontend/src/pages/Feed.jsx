@@ -3,14 +3,15 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
-  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, Search, ExternalLink, Flame, CheckCircle2, FileText, ArrowLeft,
-  Loader2, Send, MoreHorizontal, Sparkle
+  Pin, Trash2, Edit3, X, Image, Link2, BarChart2, ExternalLink, CheckCircle2,
+  Loader2, Send, MoreHorizontal, Sparkle, Lock, Zap, ArrowRight, Volume2, VolumeX
 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadMedia } from "@/lib/upload";
 import { formatUsername } from "@/lib/username";
+import { MOCK_CAMPAIGNS } from "@/lib/mockCampaigns";
 import { toast } from "sonner";
 
 const MODES = [
@@ -19,6 +20,14 @@ const MODES = [
   { id: "trending", label: "Trending" },
   { id: "personalized", label: "For You" },
 ];
+
+const REEL_MODES = new Set(["latest", "trending", "personalized"]);
+const FEED_API_MODE = {
+  campaigns: "latest",
+  latest: "latest",
+  trending: "trending",
+  personalized: "personalized",
+};
 
 export default function Feed() {
   const { user } = useAuth();
@@ -37,6 +46,14 @@ export default function Feed() {
   const loadMoreRef = useRef(null);
 
   const fetchFeed = useCallback(async (reset = false) => {
+    if (mode === "campaigns") {
+      setPosts([]);
+      setCursor(null);
+      setLoading(false);
+      setLoadingMore(false);
+      setRefreshing(false);
+      return;
+    }
     if (reset) {
       setLoading(true);
       setRefreshing(true);
@@ -46,7 +63,7 @@ export default function Feed() {
       setLoading(true);
     }
     try {
-      const params = { mode, limit: 20 };
+      const params = { mode: FEED_API_MODE[mode] || "latest", limit: 20 };
       if (!reset && cursor) params.cursor = cursor;
       const { data } = await api.get("/feed", { params });
       const items = data.items || [];
@@ -67,14 +84,21 @@ export default function Feed() {
     setPosts([]);
     setCursor(null);
     setLoading(true);
-    setSuggested([]);
     (async () => {
       try {
-        const { data } = await api.get("/feed", { params: { mode, limit: 20 } });
-        if (cancelled) return;
-        setPosts(data.items || []);
-        setCursor(data.next_cursor || null);
-        setSuggested(data.suggested_people || []);
+        if (mode === "campaigns") {
+          const { data } = await api.get("/feed", { params: { mode: "latest", limit: 10 } });
+          if (cancelled) return;
+          setSuggested(data.suggested_people || []);
+          setPosts([]);
+          setCursor(null);
+        } else {
+          const { data } = await api.get("/feed", { params: { mode: FEED_API_MODE[mode] || "latest", limit: 20 } });
+          if (cancelled) return;
+          setPosts(data.items || []);
+          setCursor(data.next_cursor || null);
+          setSuggested(data.suggested_people || []);
+        }
       } catch {
         if (!cancelled) toast.error("Failed to load feed");
       } finally {
@@ -98,9 +122,20 @@ export default function Feed() {
   }, [cursor, loadingMore, fetchFeed]);
 
   const refresh = () => {
+    if (mode === "campaigns") {
+      setRefreshing(true);
+      api.get("/feed", { params: { mode: "latest", limit: 10 } })
+        .then(({ data }) => setSuggested(data.suggested_people || []))
+        .catch(() => {})
+        .finally(() => setRefreshing(false));
+      return;
+    }
     setCursor(null);
     fetchFeed(true);
   };
+
+  const showSuggested = suggested.length > 0;
+  const isReelMode = REEL_MODES.has(mode);
 
   const toggleLike = async (post) => {
     try {
@@ -281,49 +316,76 @@ export default function Feed() {
           ))}
         </div>
 
-        <div className={`grid grid-cols-1 gap-4 ${suggested.length > 0 ? "lg:grid-cols-3" : ""}`}>
-          <div className={`${suggested.length > 0 ? "lg:col-span-2" : ""} space-y-4`}>
-            {loading ? (
+        <div className={`grid grid-cols-1 gap-4 items-start ${showSuggested ? "lg:grid-cols-[minmax(0,1fr)_220px]" : ""}`}>
+          <div className={isReelMode ? "space-y-5 max-w-[420px] mx-auto w-full" : "space-y-4"}>
+            {mode === "campaigns" ? (
+              loading ? (
+                <div className="flex justify-center py-16"><Loader2 className="w-7 h-7 animate-spin opacity-50" /></div>
+              ) : (
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                  {MOCK_CAMPAIGNS.map((c, idx) => (
+                    <CampaignCard key={c.id} campaign={c} index={idx} />
+                  ))}
+                </div>
+              )
+            ) : loading ? (
               <div className="flex justify-center py-16"><Loader2 className="w-7 h-7 animate-spin opacity-50" /></div>
             ) : posts.length === 0 ? (
               <p className="font-sans text-lg font-medium tracking-tight opacity-40 text-center py-14">No posts yet. Be the first to share!</p>
             ) : (
-              posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  userId={user?.id}
-                  onLike={() => toggleLike(post)}
-                  onComment={() => openComments(post)}
-                  onShare={() => sharePost(post)}
-                  onSave={() => toggleSave(post)}
-                  onBookmark={() => toggleBookmark(post)}
-                  onRepost={() => repost(post)}
-                  onQuote={() => quotePost(post)}
-                  onDelete={() => deletePost(post)}
-                  onPin={() => pinPost(post)}
-                />
-              ))
+              posts.map((post) =>
+                isReelMode ? (
+                  <ReelCard
+                    key={post.id}
+                    post={post}
+                    userId={user?.id}
+                    onLike={() => toggleLike(post)}
+                    onComment={() => openComments(post)}
+                    onShare={() => sharePost(post)}
+                    onSave={() => toggleSave(post)}
+                    onBookmark={() => toggleBookmark(post)}
+                    onRepost={() => repost(post)}
+                    onQuote={() => quotePost(post)}
+                    onDelete={() => deletePost(post)}
+                    onPin={() => pinPost(post)}
+                  />
+                ) : (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    userId={user?.id}
+                    onLike={() => toggleLike(post)}
+                    onComment={() => openComments(post)}
+                    onShare={() => sharePost(post)}
+                    onSave={() => toggleSave(post)}
+                    onBookmark={() => toggleBookmark(post)}
+                    onRepost={() => repost(post)}
+                    onQuote={() => quotePost(post)}
+                    onDelete={() => deletePost(post)}
+                    onPin={() => pinPost(post)}
+                  />
+                )
+              )
             )}
-            {cursor && <div ref={loadMoreRef} className="py-6 text-center">
+            {mode !== "campaigns" && cursor && <div ref={loadMoreRef} className="py-6 text-center">
               {loadingMore && <Loader2 className="w-5 h-5 animate-spin mx-auto opacity-50" />}
             </div>}
           </div>
 
-          {suggested.length > 0 && (
-            <aside>
-              <div className="p-4 border border-white/15 bg-[#121212] rounded-2xl sticky top-0">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] font-bold mb-2">Suggested</h3>
+          {showSuggested && (
+            <aside className="self-start lg:sticky lg:top-2">
+              <div className="px-3 py-3 border border-white/15 bg-[#121212] rounded-2xl">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] font-bold mb-1.5">Suggested</h3>
                 <div className="divide-y divide-white/5">
-                  {suggested.map((u) => {
+                  {suggested.slice(0, 6).map((u) => {
                     const label = formatUsername(u.username, u.handle) || "user";
                     return (
                       <Link
                         key={u.id}
                         to={`/u/${u.id}`}
-                        className="flex items-center gap-2.5 py-2 hover:bg-white/5 rounded-lg px-1.5 -mx-1.5"
+                        className="flex items-center gap-2 py-1.5 hover:bg-white/5 rounded-lg px-1 -mx-1"
                       >
-                        <div className="w-8 h-8 rounded-full border border-white/15 bg-white/[0.04] overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full border border-white/15 bg-white/[0.04] overflow-hidden shrink-0 flex items-center justify-center">
                           {u.avatar ? (
                             <img
                               src={u.avatar}
@@ -339,7 +401,7 @@ export default function Feed() {
                             </span>
                           )}
                         </div>
-                        <span className="font-sans text-sm text-white/85 truncate">{label}</span>
+                        <span className="font-sans text-xs text-white/85 truncate">{label}</span>
                       </Link>
                     );
                   })}
@@ -368,6 +430,171 @@ export default function Feed() {
       )}
 
     </div>
+  );
+}
+
+function CampaignCard({ campaign: c, index: idx }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: idx * 0.05 }}
+      className="border border-white/15 bg-[#121212] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF3B30]/40 transition-colors"
+    >
+      <div className="relative h-36 overflow-hidden">
+        <img src={c.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
+          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-black/55 border border-[#FF3B30]/40 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+            <Zap className="w-3 h-3" /> {c.aiMatch || "Match"}
+          </span>
+          {c.escrowLocked && (
+            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#34C759] bg-black/55 px-2 py-0.5 border border-[#34C759]/35 rounded-xs flex items-center gap-1 font-bold">
+              <Lock className="w-3 h-3" /> Escrow
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="p-3.5 flex flex-col flex-1">
+        <p className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-55 mb-0.5">{c.brand}</p>
+        <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors line-clamp-2">{c.title}</h3>
+        <p className="font-sans text-xs opacity-65 mt-1.5 leading-relaxed line-clamp-2">{c.description}</p>
+        <div className="mt-2 pt-2 border-t border-white/10 font-sans text-[10px] opacity-75 flex items-center gap-1.5">
+          <CheckCircle2 className="w-3 h-3 text-[#FF3B30] shrink-0" />
+          <span className="truncate">{c.deliverables}</span>
+        </div>
+        <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+          <div>
+            <span className="font-sans text-[8px] tracking-[0.16em] uppercase opacity-45 block">Budget</span>
+            <span className="font-sans text-base text-white font-bold">₹{Number(c.budget).toLocaleString()}</span>
+          </div>
+          <Link
+            to={`/campaigns/${c.id}`}
+            className="py-1.5 px-3 text-[10px] uppercase tracking-wider font-bold bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1 rounded-full"
+          >
+            Pitch <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark, onRepost, onQuote, onDelete, onPin }) {
+  const [menu, setMenu] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const isOwn = post.author_id === userId || post.author?.id === userId;
+  const author = post.author || {};
+  const media = post.media?.[0];
+  const isVideo = media && (media.type === "video" || media.media_type === "video");
+  const cover = media?.url || post.gif_url || "https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&q=80&w=800";
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative w-full aspect-[9/16] max-h-[72vh] rounded-3xl overflow-hidden border border-white/15 bg-black shadow-2xl shadow-black/40"
+    >
+      {isVideo ? (
+        <video
+          src={cover}
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          loop
+          muted={muted}
+          playsInline
+        />
+      ) : (
+        <img src={cover} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/80 pointer-events-none" />
+
+      <div className="absolute top-3 left-3 right-14 flex items-center gap-2 z-10">
+        <Link to={`/u/${author.id}`} className="flex items-center gap-2 min-w-0">
+          {author.avatar ? (
+            <img src={author.avatar} alt="" className="w-9 h-9 rounded-full object-cover border border-white/30" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center font-bold text-xs">
+              {(author.name || "U")[0]}
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="font-sans text-sm font-semibold truncate drop-shadow">{author.name || "Creator"}</div>
+            <div className="font-mono text-[9px] uppercase tracking-wider text-white/70 truncate">
+              {formatUsername(author.handle, author.username) || "user"}
+              {post.pinned ? " · Pinned" : ""}
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+        {isVideo && (
+          <button type="button" onClick={() => setMuted((m) => !m)} className="p-2 rounded-full bg-black/45 border border-white/20">
+            {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        )}
+        <div className="relative">
+          <button type="button" onClick={() => setMenu(!menu)} className="p-2 rounded-full bg-black/45 border border-white/20">
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+          {menu && isOwn && (
+            <div className="absolute right-0 top-11 bg-[#0A0A0A] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
+              <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
+              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF3B30] hover:bg-white/10">Delete</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="absolute right-3 bottom-24 z-10 flex flex-col items-center gap-4">
+        <button type="button" onClick={onLike} className="flex flex-col items-center gap-1">
+          <span className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.liked ? "text-[#FF3B30]" : ""}`}>
+            <Heart className={`w-5 h-5 ${post.liked ? "fill-current" : ""}`} />
+          </span>
+          <span className="font-mono text-[10px] drop-shadow">{post.likes_count || 0}</span>
+        </button>
+        <button type="button" onClick={onComment} className="flex flex-col items-center gap-1">
+          <span className="p-2.5 rounded-full bg-black/40 border border-white/15">
+            <MessageSquare className="w-5 h-5" />
+          </span>
+          <span className="font-mono text-[10px] drop-shadow">{post.comments_count || 0}</span>
+        </button>
+        <button type="button" onClick={onShare} className="p-2.5 rounded-full bg-black/40 border border-white/15">
+          <Share2 className="w-5 h-5" />
+        </button>
+        <button type="button" onClick={onSave} className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.saved ? "text-[#34C759]" : ""}`}>
+          <Bookmark className={`w-5 h-5 ${post.saved ? "fill-current" : ""}`} />
+        </button>
+        <button type="button" onClick={onRepost} className="p-2.5 rounded-full bg-black/40 border border-white/15">
+          <Repeat2 className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="absolute left-0 right-16 bottom-0 z-10 p-4 space-y-2">
+        {post.title && <h3 className="font-sans text-base font-bold leading-snug drop-shadow line-clamp-2">{post.title}</h3>}
+        {post.text && <p className="font-sans text-sm text-white/90 leading-snug line-clamp-3 drop-shadow">{post.text}</p>}
+        {post.hashtags?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {post.hashtags.slice(0, 6).map((t) => (
+              <span key={t} className="font-mono text-[10px] text-white/80">#{t}</span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-3 pt-1">
+          <button type="button" onClick={onQuote} className="font-mono text-[9px] uppercase tracking-widest text-white/70 hover:text-white">Quote</button>
+          <button type="button" onClick={onBookmark} className={`font-mono text-[9px] uppercase tracking-widest ${post.bookmarked ? "text-yellow-300" : "text-white/70 hover:text-white"}`}>
+            Bookmark
+          </button>
+          {post.link_url && (
+            <a href={post.link_url} target="_blank" rel="noreferrer" className="font-mono text-[9px] uppercase tracking-widest text-[#7ab8ff] flex items-center gap-1">
+              <ExternalLink className="w-3 h-3" /> Link
+            </a>
+          )}
+        </div>
+      </div>
+    </motion.article>
   );
 }
 

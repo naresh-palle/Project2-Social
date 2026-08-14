@@ -112,13 +112,125 @@ export function AdminPanel() {
   const [broadcastCity, setBroadcastCity] = useState("");
   const [broadcastLanguage, setBroadcastLanguage] = useState("");
   const [userToDelete, setUserToDelete] = useState(null);
+  const [alertFilter, setAlertFilter] = useState("all");
+  const [selectedAlert, setSelectedAlert] = useState(null);
 
   const notifications = [
-      { id: 1, text: "New influencer '@zara_fashion' registered", time: "2 mins ago", type: "success" },
-      { id: 2, text: "Escrow locked for campaign 'HyperTech AI'", time: "45 mins ago", type: "success" },
-      { id: 3, text: "Payment of ₹45,000 completed", time: "3 hrs ago", type: "success" },
-      { id: 4, text: "3 new agency verification requests pending", time: "5 hrs ago", type: "warning" }
+      {
+        id: 1,
+        text: "New influencer '@zara_fashion' registered",
+        time: "2 mins ago",
+        type: "success",
+        title: "New influencer registration",
+        source: "Auth · onboarding",
+        details: "Creator account '@zara_fashion' completed signup and profile bootstrap. Role assigned as influencer.",
+        issues: ["Profile photo pending verification"],
+        logs: [
+          "[07:52:11] POST /auth/register → 201",
+          "[07:52:12] user_id=usr_zara_fashion created",
+          "[07:52:14] welcome email queued",
+        ],
+        errors: [],
+      },
+      {
+        id: 2,
+        text: "Escrow locked for campaign 'HyperTech AI'",
+        time: "45 mins ago",
+        type: "success",
+        title: "Escrow lock confirmed",
+        source: "Payments · escrow",
+        details: "₹3,50,000 escrow hold placed for campaign 'AI Video Editing Suite Promotion' (HyperTech AI).",
+        issues: [],
+        logs: [
+          "[07:08:02] escrow.create camp=cmp-102 amount=350000",
+          "[07:08:03] razorpay.order captured",
+          "[07:08:04] campaign status → funded",
+        ],
+        errors: [],
+      },
+      {
+        id: 3,
+        text: "Payment of ₹45,000 completed",
+        time: "3 hrs ago",
+        type: "success",
+        title: "Creator payout completed",
+        source: "Wallet · payouts",
+        details: "Payout ₹45,000 released to creator wallet after deliverable approval on campaign cmp-103.",
+        issues: [],
+        logs: [
+          "[04:41:19] payout.initiate amount=45000",
+          "[04:41:21] ledger.entry credit wallet",
+          "[04:41:22] notify creator",
+        ],
+        errors: [],
+      },
+      {
+        id: 4,
+        text: "3 new agency verification requests pending",
+        time: "5 hrs ago",
+        type: "warning",
+        title: "Agency verification backlog",
+        source: "Compliance · agencies",
+        details: "Three agency accounts are awaiting document review. SLA target is 24h from submission.",
+        issues: [
+          "Apex Talent Management — GST certificate unclear scan",
+          "Pulse Media Agency — director ID mismatch",
+          "Starlet Influencer Studio — website unreachable",
+        ],
+        logs: [
+          "[02:12:44] queue.depth agencies=3",
+          "[02:12:45] sla.warning threshold=24h",
+        ],
+        errors: [],
+      },
+      {
+        id: 5,
+        text: "Webhook retry failed for escrow release",
+        time: "6 hrs ago",
+        type: "error",
+        title: "Escrow webhook failure",
+        source: "Payments · webhooks",
+        details: "Outbound webhook to brand endpoint failed after 3 retries. Escrow release is queued for manual review.",
+        issues: ["Brand callback URL returned 502", "Retry budget exhausted"],
+        logs: [
+          "[01:05:01] webhook.dispatch attempt=1 → 502",
+          "[01:05:31] webhook.dispatch attempt=2 → 502",
+          "[01:06:31] webhook.dispatch attempt=3 → timeout",
+          "[01:06:32] job moved to dead-letter queue",
+        ],
+        errors: [
+          "HTTP 502 Bad Gateway from partner.hypertech.ai/hooks/escrow",
+          "TimeoutError: no response within 10s on attempt 3",
+        ],
+      },
+      {
+        id: 6,
+        text: "Feed media CDN latency spike detected",
+        time: "8 hrs ago",
+        type: "error",
+        title: "CDN latency anomaly",
+        source: "Infra · media",
+        details: "p95 image fetch latency exceeded 2.4s for AP-South region. Auto-mitigation switched origin preference.",
+        issues: ["Elevated 5xx from edge POP BLR1"],
+        logs: [
+          "[23:18:09] alert.fire metric=cdn.p95_ms value=2410",
+          "[23:18:11] failover.origin → secondary",
+        ],
+        errors: [
+          "EdgeError: POP BLR1 origin_connect_timeout",
+        ],
+      },
   ];
+
+  const alertFilters = [
+    { id: "all", label: "All" },
+    { id: "success", label: "Success" },
+    { id: "warning", label: "Warning" },
+    { id: "error", label: "Error" },
+  ];
+  const filteredAlerts = alertFilter === "all"
+    ? notifications
+    : notifications.filter((n) => n.type === alertFilter);
 
   useEffect(() => {
     async function load() {
@@ -524,8 +636,8 @@ export function AdminPanel() {
 
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 flex flex-col gap-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 flex flex-col gap-8 isolate">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
                     <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Influencers · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
@@ -533,20 +645,49 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
                 </div>
 
-                <div className="p-6 glass-panel relative z-0">
-                    <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 mb-6 font-medium flex items-center gap-2"><Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts</h3>
-                    <div className="space-y-4">
-                        {notifications.map(n => (
-                            <div key={n.id} className="flex items-start gap-3">
-                                {n.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
-                                {n.type === 'error' && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
-                                {n.type === 'warning' && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
-                                <div>
-                                    <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
-                                    <p className="font-sans text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time}</p>
-                                </div>
-                            </div>
+                <div className="p-6 glass-panel relative z-0 mt-2 clear-both">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                      <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium flex items-center gap-2 mb-0">
+                        <Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {alertFilters.map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setAlertFilter(f.id)}
+                            className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
+                              alertFilter === f.id
+                                ? "bg-[#FF3B30] border-[#FF3B30] text-white"
+                                : "border-white/15 text-white/55 hover:border-white/35"
+                            }`}
+                          >
+                            {f.label}
+                          </button>
                         ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                        {filteredAlerts.length === 0 ? (
+                          <p className="font-sans text-sm opacity-40 py-4 text-center">No alerts for this filter.</p>
+                        ) : (
+                          filteredAlerts.map((n) => (
+                            <button
+                              key={n.id}
+                              type="button"
+                              onClick={() => setSelectedAlert(n)}
+                              className="w-full text-left flex items-start gap-3 p-3 rounded-2xl border border-transparent hover:border-white/10 hover:bg-white/[0.03] transition-colors"
+                            >
+                                {n.type === "success" && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
+                                {n.type === "error" && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
+                                {n.type === "warning" && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
+                                    <p className="font-sans text-[9px] uppercase tracking-widest opacity-50 mt-1">{n.time} · Tap for details</p>
+                                </div>
+                            </button>
+                          ))
+                        )}
                     </div>
                 </div>
             </motion.div>
@@ -1034,6 +1175,86 @@ export function AdminPanel() {
           </motion.div>
         </div>
       )}
+
+      {/* Alert detail modal */}
+      <AnimatePresence>
+          {selectedAlert && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedAlert(null)}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto"
+                  >
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                          <p className={`font-mono text-[9px] uppercase tracking-widest mb-2 ${
+                            selectedAlert.type === "error" ? "text-[#FF3B30]" :
+                            selectedAlert.type === "warning" ? "text-orange-400" : "text-[#34C759]"
+                          }`}>
+                            {selectedAlert.type} · {selectedAlert.time}
+                          </p>
+                          <h3 className="font-editorial text-2xl md:text-3xl leading-tight">{selectedAlert.title || selectedAlert.text}</h3>
+                          {selectedAlert.source && (
+                            <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mt-2">{selectedAlert.source}</p>
+                          )}
+                        </div>
+                        <button type="button" onClick={() => setSelectedAlert(null)} className="p-2 rounded-full hover:bg-white/5 opacity-60 hover:opacity-100">
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <section className="mb-5">
+                        <h4 className="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-2">Details</h4>
+                        <p className="font-sans text-sm opacity-85 leading-relaxed">{selectedAlert.details || selectedAlert.text}</p>
+                      </section>
+
+                      {(selectedAlert.issues?.length > 0) && (
+                        <section className="mb-5">
+                          <h4 className="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-2">Issues</h4>
+                          <ul className="space-y-1.5">
+                            {selectedAlert.issues.map((issue, i) => (
+                              <li key={i} className="font-sans text-sm opacity-80 flex gap-2">
+                                <span className="text-orange-400 shrink-0">•</span>
+                                <span>{issue}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
+
+                      {(selectedAlert.errors?.length > 0) && (
+                        <section className="mb-5">
+                          <h4 className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]/80 mb-2">Errors</h4>
+                          <div className="space-y-2">
+                            {selectedAlert.errors.map((err, i) => (
+                              <pre key={i} className="font-mono text-[11px] leading-relaxed p-3 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#ffb4ae] whitespace-pre-wrap break-words">{err}</pre>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      {(selectedAlert.logs?.length > 0) && (
+                        <section className="mb-2">
+                          <h4 className="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-2">Logs</h4>
+                          <div className="rounded-xl bg-black/50 border border-white/10 p-3 space-y-1 max-h-48 overflow-y-auto">
+                            {selectedAlert.logs.map((line, i) => (
+                              <pre key={i} className="font-mono text-[11px] text-white/70 whitespace-pre-wrap break-words">{line}</pre>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      <div className="flex justify-end mt-6 pt-4 border-t border-white/10">
+                          <button type="button" onClick={() => setSelectedAlert(null)} className="px-5 py-2 font-mono text-xs uppercase tracking-widest border border-white/15 hover:bg-white/5 rounded-full">
+                              Close
+                          </button>
+                      </div>
+                  </motion.div>
+              </div>
+          )}
+      </AnimatePresence>
 
       {/* User Delete Confirmation Modal */}
       <AnimatePresence>

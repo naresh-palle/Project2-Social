@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { MOCK_CAMPAIGNS as DEFAULT_CAMPAIGNS_FOR_CREATORS } from "@/lib/mockCampaigns";
 
 export default function Dashboard() {
   const { user, loading, refresh } = useAuth();
@@ -424,57 +425,6 @@ function OwnerPanel() {
 /* =========================================================================
    2. CREATOR / INFLUENCER PANEL — CAMPAIGNS & BRIEF DISCOVERY (Primary for Influencers)
    ========================================================================= */
-const DEFAULT_CAMPAIGNS_FOR_CREATORS = [
-  {
-    id: "cmp-101",
-    title: "Silk & Midnight Winter Apparel Launch",
-    brand: "Studio Noir Apparel",
-    budget: 250000,
-    deliverables: "2x Instagram Reels + 4x Story Takeovers",
-    niche: "Fashion & Style",
-    aiMatch: "98% Match",
-    escrowLocked: true,
-    cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
-    description: "Seeking high-end editorial influencers for our luxury winter coat and silk blazer collection. High engagement audience in metros required."
-  },
-  {
-    id: "cmp-102",
-    title: "AI Video Editing Suite Promotion",
-    brand: "HyperTech AI",
-    budget: 350000,
-    deliverables: "1x YouTube Dedicated Video + 2x Shorts",
-    niche: "Technology & SaaS",
-    aiMatch: "95% Match",
-    escrowLocked: true,
-    cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
-    description: "Promote our new generative video tool. Show real-time workflow transformation. Escrow payout upon automated caption compliance audit."
-  },
-  {
-    id: "cmp-103",
-    title: "Organic Hydra Glow Serum Campaign",
-    brand: "Veda Organics",
-    budget: 180000,
-    deliverables: "2x Reel Unboxing + 3x Before/After Stories",
-    niche: "Beauty & Cosmetics",
-    aiMatch: "92% Match",
-    escrowLocked: true,
-    cover: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
-    description: "Focus on clean beauty aesthetics and authentic 7-day serum results. Verified ingredient breakdown provided in brief."
-  },
-  {
-    id: "cmp-104",
-    title: "PulseFit Endurance Activewear Series",
-    brand: "PulseFit Global",
-    budget: 200000,
-    deliverables: "1x Workout Reel + Product Tagged Link",
-    niche: "Fitness & Wellness",
-    aiMatch: "90% Match",
-    escrowLocked: true,
-    cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
-    description: "Looking for active lifestyle influencers to test sweat-resistant seamless activewear during high-intensity training sessions."
-  }
-];
-
 function InfluencerPanel() {
   const { user, refresh } = useAuth();
   const [apps, setApps] = useState([]);
