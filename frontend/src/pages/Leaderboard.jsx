@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins, IndianRupee } from "lucide-react";
+import {  Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins, IndianRupee , Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -55,7 +55,12 @@ export default function Leaderboard() {
             
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-2">§ Rankings</p>
+              <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Rankings
+              </p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-8">Leaderboard</h1>
+            </div>
             </div>
           </div>
 

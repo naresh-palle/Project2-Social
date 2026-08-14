@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
+import {  ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft , Sparkles } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -66,7 +66,12 @@ export default function Wallet() {
         <div className="pb-5 border-b border-white/10">
           
           <div>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Wallet</h1>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Escrow Wallet
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Wallet</h1>
+            </div>
             <p className="font-sans text-xs opacity-50 mt-1">Balance &amp; transactions</p>
           </div>
         </div>

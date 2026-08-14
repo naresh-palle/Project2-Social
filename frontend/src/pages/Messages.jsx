@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft } from "lucide-react";
+import {  Send, Paperclip, Search, Pin, Archive, Edit3, Trash2, Calendar, ChevronLeft , Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -291,7 +291,12 @@ export default function Messages({ miniWidget = false }) {
             
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Inbox</p>
+              <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Inbox
+              </p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Messages</h1>
+            </div>
             </div>
           </div>
         )}

@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
+import { 
   User, Bell, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Sun, Moon, Eye, Loader2, ChevronRight, ChevronLeft
-} from "lucide-react";
+, Sparkles } from "lucide-react";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -330,7 +330,12 @@ export default function Settings() {
         <div className="mb-6">
         </div>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Preferences</p>
-        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings</h1>
+        <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Account Settings
+              </p>
+              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Settings</h1>
+            </div>
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
           <div className="space-y-3">

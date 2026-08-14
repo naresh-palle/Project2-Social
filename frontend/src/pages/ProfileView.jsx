@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {
+import { 
   Edit2, Image as ImageIcon, Video as VideoIcon,
   ExternalLink, ShieldCheck, MapPin, CheckCircle2
-} from "lucide-react";
+, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 
 import { toast } from "sonner";
@@ -109,8 +109,13 @@ export default function ProfileView() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-4 border-b border-white/10">
-        <h1 className="font-editorial text-3xl font-bold text-white">Profile</h1>
+      <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-8">
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Profile Details
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Profile</h1>
+            </div>
         <Link
           to="/profile/edit"
           className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-5 shadow-lg shadow-[#FF3B30]/20"

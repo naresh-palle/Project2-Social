@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 } from "lucide-react";
+import {  MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 , Sparkles } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -148,7 +148,12 @@ export default function PublicProfile() {
           </button>
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ User Profile</p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Profile</h1>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Public Profile
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Profile</h1>
+            </div>
           </div>
         </div>
         <div className="h-48 md:h-64 w-full overflow-hidden max-w-6xl mx-auto rounded-t-xl">

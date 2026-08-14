@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, X, Send } from "lucide-react";
+import {  Check, X, Send , Sparkles } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -73,7 +73,12 @@ export default function Invitations() {
           
           <div>
             <p className="font-sans text-[10px] tracking-widest uppercase opacity-50">{subtitle}</p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Invitations
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">{title}</h1>
+            </div>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft } from "lucide-react";
+import {  Search, X, TrendingUp, Clock, Hash, MapPin, Users, FileText, Megaphone, ChevronLeft , Sparkles } from "lucide-react";
 
 import { api } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
@@ -93,7 +93,12 @@ export default function SearchPage() {
           
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Discover</p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Search
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Search</h1>
+            </div>
           </div>
         </div>
 

@@ -51,7 +51,12 @@ export default function HelpChat() {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between mt-2 gap-4">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI Assistant</p>
+              <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ CR8 Help
+              </p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">CR8 Assistant</h1>
+            </div>
             </div>
             <div className="flex items-center gap-3">
               <p className="font-sans text-white/50 text-xs flex items-center gap-2">

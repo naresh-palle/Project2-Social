@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { 
+import {  
   Users, IndianRupee, Activity, Bell, Search, Download, Calendar, 
   ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, 
   Trash2, Lock, ShieldCheck, Zap, FileText, Check, ShieldAlert
-} from "lucide-react";
+, Sparkles } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -484,7 +484,9 @@ export function AdminPanel() {
     <div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
-                <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ Super Admin Console</p>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Super Admin Console
+              </p>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Platform Console</h1>
                 <div className="flex gap-4 mt-8 font-sans text-[11px] uppercase tracking-widest overflow-x-auto whitespace-nowrap custom-scrollbar pb-1">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>

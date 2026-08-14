@@ -76,7 +76,12 @@ export default function Referrals() {
           
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ Rewards</p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> ⚡ Referral Program
+              </p>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 mb-2">Refer & Earn</h1>
+            </div>
             <p className="font-sans text-white/60 text-sm max-w-lg">
               Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
             </p>
