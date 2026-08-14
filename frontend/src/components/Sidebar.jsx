@@ -1,33 +1,44 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
+import { Search, LifeBuoy, Bot, ShieldCheck, ChevronDown } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
+
+const TICKET_QUEUES = [
+  { id: "all", label: "All Tickets", icon: "🎫" },
+  { id: "unassigned", label: "Unassigned", icon: "📥" },
+  { id: "mine", label: "My Tickets", icon: "👤" },
+  { id: "influencer", label: "Influencer", icon: "✨" },
+  { id: "company", label: "Company", icon: "🏢" },
+  { id: "agent", label: "Agent", icon: "🤝" },
+  { id: "escalated", label: "Escalated", icon: "⬆️" },
+  { id: "resolved", label: "Resolved", icon: "✅" },
+];
 
 export function Sidebar() {
   const { user } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
 
-  if (!user) return null;
-
   const isSupportOps = isSupportOpsRole(user?.role);
   const searchParams = new URLSearchParams(location.search);
   const opsTab = searchParams.get("tab") || "overview";
-  const opsQueue = searchParams.get("queue") || "";
+  const opsQueue = searchParams.get("queue") || "all";
+  const ticketsActive = Boolean(user) && isSupportOps && location.pathname === "/support/ops" && opsTab === "tickets";
 
+  const [ticketsOpen, setTicketsOpen] = useState(false);
+
+  useEffect(() => {
+    if (ticketsActive) setTicketsOpen(true);
+  }, [ticketsActive]);
+
+  if (!user) return null;
   const supportItems = [
     { to: "/support/ops?tab=overview", label: "Overview", icon: "📊", tab: "overview" },
-    { to: "/support/ops?tab=tickets&queue=all", label: "All Tickets", icon: "🎫", tab: "tickets", queue: "all" },
-    { to: "/support/ops?tab=tickets&queue=unassigned", label: "Unassigned", icon: "📥", tab: "tickets", queue: "unassigned" },
-    { to: "/support/ops?tab=tickets&queue=mine", label: "My Tickets", icon: "👤", tab: "tickets", queue: "mine" },
-    { to: "/support/ops?tab=tickets&queue=influencer", label: "Influencer", icon: "✨", tab: "tickets", queue: "influencer" },
-    { to: "/support/ops?tab=tickets&queue=company", label: "Company", icon: "🏢", tab: "tickets", queue: "company" },
-    { to: "/support/ops?tab=tickets&queue=agent", label: "Agent", icon: "🤝", tab: "tickets", queue: "agent" },
-    { to: "/support/ops?tab=tickets&queue=escalated", label: "Escalated", icon: "⬆️", tab: "tickets", queue: "escalated" },
-    { to: "/support/ops?tab=tickets&queue=resolved", label: "Resolved", icon: "✅", tab: "tickets", queue: "resolved" },
+    { type: "tickets-dropdown" },
     ...(user?.role === "support_admin" || user?.role === "support_lead"
       ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "👥", tab: "staff" }]
       : []),
@@ -89,11 +100,10 @@ export function Sidebar() {
     if (it.to === "/settings") return location.pathname === "/settings";
     if (!isSupportOps) return location.pathname === it.to;
     if (location.pathname !== "/support/ops") return false;
-    if (it.tab === "tickets") {
-      return opsTab === "tickets" && (opsQueue || "all") === (it.queue || "all");
-    }
     return opsTab === it.tab;
   };
+
+  const currentQueueLabel = TICKET_QUEUES.find((q) => q.id === opsQueue)?.label || "All Tickets";
 
   return (
     <motion.aside
@@ -192,10 +202,60 @@ export function Sidebar() {
 
         <nav className="flex flex-col gap-1 flex-1">
           {items.map((it) => {
+            if (it.type === "tickets-dropdown") {
+              return (
+                <div key="tickets-dropdown" className="flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !ticketsOpen;
+                      setTicketsOpen(next);
+                      if (next && !ticketsActive) {
+                        nav("/support/ops?tab=tickets&queue=all");
+                      }
+                    }}
+                    className={`font-mono text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 rounded-xl transition-colors flex items-center gap-3 w-full text-left ${
+                      ticketsActive
+                        ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-bold"
+                        : "text-white/60 hover:text-white hover:bg-white/10"
+                    }`}
+                    aria-expanded={ticketsOpen}
+                  >
+                    <span className="text-base opacity-80">🎫</span>
+                    <span className="flex-1 truncate">
+                      Tickets{ticketsActive ? ` · ${currentQueueLabel}` : ""}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${ticketsOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {ticketsOpen && (
+                    <div className="ml-3 pl-2 border-l border-white/10 flex flex-col gap-0.5 py-1">
+                      {TICKET_QUEUES.map((q) => {
+                        const active = ticketsActive && opsQueue === q.id;
+                        return (
+                          <Link
+                            key={q.id}
+                            to={`/support/ops?tab=tickets&queue=${q.id}`}
+                            className={`font-mono text-[9px] tracking-[0.18em] uppercase px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                              active
+                                ? "bg-white/10 text-white font-bold"
+                                : "text-white/50 hover:text-white hover:bg-white/5"
+                            }`}
+                          >
+                            <span className="text-sm opacity-80">{q.icon}</span>
+                            {q.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             const isActive = isItemActive(it);
             return (
               <Link
-                key={it.to + (it.queue || "")}
+                key={it.to}
                 to={it.to}
                 className={`font-mono text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
                   isActive
