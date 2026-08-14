@@ -1,6 +1,8 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
+const SUPPORT_ROLES = ["support", "support_agent", "support_lead", "support_admin"];
+
 export function RequireAuth({ children, roles = [] }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -13,7 +15,19 @@ export function RequireAuth({ children, roles = [] }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (roles.length > 0 && !roles.includes(user.role) && user.role !== "admin" && user.role !== "support_admin") {
+  // Support Operations is an independent category — never inherit business-role routes
+  if (SUPPORT_ROLES.includes(user.role)) {
+    if (roles.length === 0) {
+      // Generic auth-only pages (settings etc.) OK
+      return children;
+    }
+    if (roles.some((r) => SUPPORT_ROLES.includes(r)) || roles.includes(user.role)) {
+      return children;
+    }
+    return <Navigate to="/support/ops" replace />;
+  }
+
+  if (roles.length > 0 && !roles.includes(user.role) && user.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 

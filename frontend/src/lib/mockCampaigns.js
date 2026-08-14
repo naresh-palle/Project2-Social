@@ -9,6 +9,7 @@ export const MOCK_CAMPAIGNS = [
     niche: "Fashion & Style",
     aiMatch: "98% Match",
     escrowLocked: true,
+    status: "open",
     cover: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
     description:
       "Seeking high-end editorial influencers for our luxury winter coat and silk blazer collection. High engagement audience in metros required.",
@@ -22,6 +23,7 @@ export const MOCK_CAMPAIGNS = [
     niche: "Technology & SaaS",
     aiMatch: "95% Match",
     escrowLocked: true,
+    status: "open",
     cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
     description:
       "Promote our new generative video tool. Show real-time workflow transformation. Escrow payout upon automated caption compliance audit.",
@@ -35,6 +37,7 @@ export const MOCK_CAMPAIGNS = [
     niche: "Beauty & Cosmetics",
     aiMatch: "92% Match",
     escrowLocked: true,
+    status: "in_progress",
     cover: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
     description:
       "Focus on clean beauty aesthetics and authentic 7-day serum results. Verified ingredient breakdown provided in brief.",
@@ -48,6 +51,7 @@ export const MOCK_CAMPAIGNS = [
     niche: "Fitness & Wellness",
     aiMatch: "90% Match",
     escrowLocked: true,
+    status: "open",
     cover: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
     description:
       "Looking for active lifestyle influencers to test sweat-resistant seamless activewear during high-intensity training sessions.",
@@ -61,6 +65,7 @@ export const MOCK_CAMPAIGNS = [
     niche: "Food & Lifestyle",
     aiMatch: "88% Match",
     escrowLocked: true,
+    status: "open",
     cover: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800",
     description:
       "City-hopping food creators to showcase signature bowls and late-night delivery moments across metro audiences.",
@@ -74,8 +79,75 @@ export const MOCK_CAMPAIGNS = [
     niche: "Auto & Mobility",
     aiMatch: "91% Match",
     escrowLocked: true,
+    status: "open",
     cover: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800",
     description:
       "Highlight range, charge speed, and city commute vibes for the new VoltRide scooter launch.",
+  },
+];
+
+/** Demo applications for influencer dashboard when the API returns none. */
+export const MOCK_PITCHES = [
+  {
+    id: "app-demo-1",
+    campaign_id: "cmp-101",
+    campaign_title: "Silk & Midnight Winter Apparel Launch",
+    brand: "Studio Noir Apparel",
+    status: "pending",
+    budget: 250000,
+    pitched_at: "2026-08-12",
+    note: "Shared lookbook moodboard + metro audience breakdown.",
+  },
+  {
+    id: "app-demo-2",
+    campaign_id: "cmp-103",
+    campaign_title: "Organic Hydra Glow Serum Campaign",
+    brand: "Veda Organics",
+    status: "accepted",
+    budget: 180000,
+    pitched_at: "2026-08-08",
+    note: "7-day before/after plan approved by brand desk.",
+  },
+  {
+    id: "app-demo-3",
+    campaign_id: "cmp-104",
+    campaign_title: "PulseFit Endurance Activewear Series",
+    brand: "PulseFit Global",
+    status: "shortlisted",
+    budget: 200000,
+    pitched_at: "2026-08-10",
+    note: "HIIT reel concept + product tagging package.",
+  },
+];
+
+/** Demo creator roster for agency desk when /creators is empty. */
+export const MOCK_AGENT_CREATORS = [
+  {
+    id: "demo-cr-1",
+    name: "Aarav Styles",
+    niches: ["Fashion", "Lifestyle"],
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+    handle: "@aarav.style",
+  },
+  {
+    id: "demo-cr-2",
+    name: "Meera Glow",
+    niches: ["Beauty", "Skincare"],
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
+    handle: "@meeraglow",
+  },
+  {
+    id: "demo-cr-3",
+    name: "Kabir Fit",
+    niches: ["Fitness", "Wellness"],
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+    handle: "@kabirfit",
+  },
+  {
+    id: "demo-cr-4",
+    name: "Ananya Bites",
+    niches: ["Food", "Travel"],
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400",
+    handle: "@ananyabites",
   },
 ];
