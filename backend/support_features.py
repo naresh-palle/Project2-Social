@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Literal, Set
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from pydantic import BaseModel, Field, EmailStr
 
 # Canonical support category roles (independent of influencer/owner/agent)
@@ -26,6 +26,80 @@ LEGACY_SUPPORT = "support"  # migrated → support_agent
 
 SUPPORT_CATEGORY_ROLES = (SUPPORT_AGENT, SUPPORT_LEAD, SUPPORT_ADMIN, LEGACY_SUPPORT)
 SUPPORT_STAFF_ROLES = (*SUPPORT_CATEGORY_ROLES, "admin")
+
+
+class TicketCreate(BaseModel):
+    subject: str = Field(min_length=3, max_length=200)
+    category: str = "Other"
+    priority: Literal["Low", "Medium", "High", "Critical"] = "Medium"
+    description: str = Field(min_length=5, max_length=8000)
+    campaign_id: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+
+
+class TicketPatch(BaseModel):
+    status: Optional[str] = None
+    priority: Optional[Literal["Low", "Medium", "High", "Critical"]] = None
+    assignee_id: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    escalate: Optional[bool] = None
+    internal_note: Optional[str] = Field(default=None, max_length=4000)
+
+
+class TicketMessageIn(BaseModel):
+    body: str = Field(min_length=1, max_length=8000)
+    internal: bool = False
+
+
+class AiChatIn(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+    history: List[Dict[str, str]] = Field(default_factory=list)
+    create_ticket_if_needed: bool = False
+
+
+class AiDraftIn(BaseModel):
+    instruction: Optional[str] = Field(default=None, max_length=1000)
+
+
+class SupportUserCreate(BaseModel):
+    email: EmailStr
+    name: str = Field(min_length=1, max_length=80)
+    username: str = Field(min_length=3, max_length=30)
+    password: str = Field(min_length=8)
+    support_role: Literal["support_agent", "support_lead", "support_admin"] = "support_agent"
+
+
+class SupportUserPatch(BaseModel):
+    name: Optional[str] = None
+    support_role: Optional[Literal["support_agent", "support_lead", "support_admin"]] = None
+    active: Optional[bool] = None
+    password: Optional[str] = Field(default=None, min_length=8)
+
+
+class KbArticleIn(BaseModel):
+    title: str = Field(min_length=2, max_length=200)
+    body: str = Field(min_length=2, max_length=20000)
+    tags: List[str] = Field(default_factory=list)
+    roles: List[str] = Field(default_factory=list)
+    active: bool = True
+
+
+class KbArticlePatch(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=2, max_length=200)
+    body: Optional[str] = Field(default=None, min_length=2, max_length=20000)
+    tags: Optional[List[str]] = None
+    roles: Optional[List[str]] = None
+    active: Optional[bool] = None
+
+
+class AiConfigPatch(BaseModel):
+    enabled: Optional[bool] = None
+    auto_escalate: Optional[bool] = None
+    greeting: Optional[str] = Field(default=None, max_length=500)
+    model_hint: Optional[str] = Field(default=None, max_length=80)
+    max_history: Optional[int] = Field(default=None, ge=2, le=40)
+
 
 # Permissions
 PERMS: Dict[str, Set[str]] = {
@@ -199,48 +273,6 @@ def setup_support(
     call_llm,
     logger,
 ):
-    class TicketCreate(BaseModel):
-        subject: str = Field(min_length=3, max_length=200)
-        category: str = "Other"
-        priority: Literal["Low", "Medium", "High", "Critical"] = "Medium"
-        description: str = Field(min_length=5, max_length=8000)
-        campaign_id: Optional[str] = None
-        tags: List[str] = Field(default_factory=list)
-
-    class TicketPatch(BaseModel):
-        status: Optional[str] = None
-        priority: Optional[Literal["Low", "Medium", "High", "Critical"]] = None
-        assignee_id: Optional[str] = None
-        category: Optional[str] = None
-        tags: Optional[List[str]] = None
-        escalate: Optional[bool] = None
-        internal_note: Optional[str] = Field(default=None, max_length=4000)
-
-    class TicketMessageIn(BaseModel):
-        body: str = Field(min_length=1, max_length=8000)
-        internal: bool = False
-
-    class AiChatIn(BaseModel):
-        message: str = Field(min_length=1, max_length=4000)
-        history: List[Dict[str, str]] = Field(default_factory=list)
-        create_ticket_if_needed: bool = False
-
-    class AiDraftIn(BaseModel):
-        instruction: Optional[str] = Field(default=None, max_length=1000)
-
-    class SupportUserCreate(BaseModel):
-        email: EmailStr
-        name: str = Field(min_length=1, max_length=80)
-        username: str = Field(min_length=3, max_length=30)
-        password: str = Field(min_length=8)
-        support_role: Literal["support_agent", "support_lead", "support_admin"] = "support_agent"
-
-    class SupportUserPatch(BaseModel):
-        name: Optional[str] = None
-        support_role: Optional[Literal["support_agent", "support_lead", "support_admin"]] = None
-        active: Optional[bool] = None
-        password: Optional[str] = Field(default=None, min_length=8)
-
     async def _audit(actor: dict, action: str, *, ticket_id: str = None, details: str = "", meta: dict = None):
         if not write_audit_log:
             return
@@ -926,27 +958,6 @@ def setup_support(
             await _touch_last_active(current)
         return {"ok": True, "ticket": _public_ticket(fresh, include_internal=staff)}
 
-    class KbArticleIn(BaseModel):
-        title: str = Field(min_length=2, max_length=200)
-        body: str = Field(min_length=2, max_length=20000)
-        tags: List[str] = Field(default_factory=list)
-        roles: List[str] = Field(default_factory=list)
-        active: bool = True
-
-    class KbArticlePatch(BaseModel):
-        title: Optional[str] = Field(default=None, min_length=2, max_length=200)
-        body: Optional[str] = Field(default=None, min_length=2, max_length=20000)
-        tags: Optional[List[str]] = None
-        roles: Optional[List[str]] = None
-        active: Optional[bool] = None
-
-    class AiConfigPatch(BaseModel):
-        enabled: Optional[bool] = None
-        auto_escalate: Optional[bool] = None
-        greeting: Optional[str] = Field(default=None, max_length=500)
-        model_hint: Optional[str] = Field(default=None, max_length=80)
-        max_history: Optional[int] = Field(default=None, ge=2, le=40)
-
     @api_router.get("/support/knowledge")
     async def list_kb(current: dict = Depends(get_current_user)):
         _require_perm(current, "support.knowledge_base.view")
@@ -954,7 +965,7 @@ def setup_support(
         return {"articles": items}
 
     @api_router.post("/support/knowledge")
-    async def create_kb(inp: KbArticleIn, current: dict = Depends(get_current_user)):
+    async def create_kb(inp: KbArticleIn = Body(...), current: dict = Depends(get_current_user)):
         _require_perm(current, "support.knowledge_base.manage")
         now = now_iso()
         doc = {
