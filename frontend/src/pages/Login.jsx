@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { api, formatApiError } from "@/lib/api";
+import { postAuthPath } from "@/lib/supportOps";
 
 export default function Login() {
   const { login, googleLogin, mobileOtpLogin } = useAuth();
@@ -32,7 +33,7 @@ export default function Login() {
   
   useEffect(() => {
     if (user) {
-      nav("/dashboard", { replace: true });
+      nav(postAuthPath(user), { replace: true });
     }
   }, [user, nav]);
 
@@ -49,8 +50,11 @@ export default function Login() {
     setLoading(true);
     const r = await login(identifier, password, { remember_me: rememberMe, totp_code: totpCode || undefined });
     setLoading(false);
-    if (r.ok) nav("/dashboard");
-    else if (r.requires_2fa) {
+    if (r.ok) {
+      // postAuthPath uses latest auth user after login; fall back via /auth/me role in token flow
+      const next = postAuthPath(r.user) || "/dashboard";
+      nav(next);
+    } else if (r.requires_2fa) {
       setRequires2fa(true);
       setErr("");
     } else setErr(r.error);
@@ -70,7 +74,7 @@ export default function Login() {
       setLoading(false);
       if (r.ok) {
         toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
-        nav("/dashboard");
+        nav(postAuthPath(r.user));
       } else if (r.notRegistered) {
         toast.error("No account found for this Google email. Please register first.");
         nav("/register", {
@@ -152,7 +156,7 @@ export default function Login() {
       const r = await mobileOtpLogin(cleanMobile, otp, { remember_me: rememberMe });
       if (r.ok) {
         toast.success("Mobile OTP verified. Welcome back.");
-        nav("/dashboard");
+        nav(postAuthPath(r.user));
       } else if (r.notRegistered) {
         setErr("No account found for this mobile number. Please register first.");
       } else {

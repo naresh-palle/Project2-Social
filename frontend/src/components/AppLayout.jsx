@@ -4,10 +4,12 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { FloatingChatWidget } from "./FloatingChatWidget";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { isSupportOpsRole } from "@/lib/supportOps";
 
 export function AppLayout() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const nav = useNavigate();
+  const isSupport = isSupportOpsRole(user?.role);
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden flex">
@@ -42,8 +44,8 @@ export function AppLayout() {
         </div>
       </main>
 
-      {/* Floating Messages (icon-only FAB) */}
-      <FloatingChatWidget />
+      {/* Business messaging FAB — not for Support Operations */}
+      {!isSupport && <FloatingChatWidget />}
     </div>
   );
 }

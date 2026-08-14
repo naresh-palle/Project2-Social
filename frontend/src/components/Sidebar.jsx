@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
+import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
 
 export function Sidebar() {
   const { user } = useAuth();
@@ -12,34 +13,66 @@ export function Sidebar() {
 
   if (!user) return null;
 
-  const isSupportOps = ["support", "support_agent", "support_lead", "support_admin"].includes(user?.role);
+  const isSupportOps = isSupportOpsRole(user?.role);
+  const searchParams = new URLSearchParams(location.search);
+  const opsTab = searchParams.get("tab") || "overview";
+  const opsQueue = searchParams.get("queue") || "";
+
+  const supportItems = [
+    { to: "/support/ops?tab=overview", label: "Overview", icon: "📊", tab: "overview" },
+    { to: "/support/ops?tab=tickets&queue=all", label: "All Tickets", icon: "🎫", tab: "tickets", queue: "all" },
+    { to: "/support/ops?tab=tickets&queue=unassigned", label: "Unassigned", icon: "📥", tab: "tickets", queue: "unassigned" },
+    { to: "/support/ops?tab=tickets&queue=mine", label: "My Tickets", icon: "👤", tab: "tickets", queue: "mine" },
+    { to: "/support/ops?tab=tickets&queue=influencer", label: "Influencer", icon: "✨", tab: "tickets", queue: "influencer" },
+    { to: "/support/ops?tab=tickets&queue=company", label: "Company", icon: "🏢", tab: "tickets", queue: "company" },
+    { to: "/support/ops?tab=tickets&queue=agent", label: "Agent", icon: "🤝", tab: "tickets", queue: "agent" },
+    { to: "/support/ops?tab=tickets&queue=escalated", label: "Escalated", icon: "⬆️", tab: "tickets", queue: "escalated" },
+    { to: "/support/ops?tab=tickets&queue=resolved", label: "Resolved", icon: "✅", tab: "tickets", queue: "resolved" },
+    ...(user?.role === "support_admin" || user?.role === "support_lead"
+      ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "👥", tab: "staff" }]
+      : []),
+    { to: "/support/ops?tab=knowledge", label: "Knowledge Base", icon: "📚", tab: "knowledge" },
+    ...(user?.role === "support_admin"
+      ? [{ to: "/support/ops?tab=ai", label: "AI Support", icon: "🤖", tab: "ai" }]
+      : []),
+    ...(user?.role === "support_admin" || user?.role === "support_lead"
+      ? [{ to: "/support/ops?tab=analytics", label: "Analytics", icon: "📈", tab: "analytics" }]
+      : []),
+    ...(user?.role === "support_admin" || user?.role === "support_lead"
+      ? [{ to: "/support/ops?tab=audit", label: "Audit", icon: "🧾", tab: "audit" }]
+      : []),
+    { to: "/settings", label: "Settings", icon: "⚙️", tab: "settings" },
+  ];
 
   const items = isSupportOps
-    ? [
-        { to: "/support/ops", label: "Support Dashboard", icon: "🆘" },
-        ...(user?.role === "support_admin" || user?.role === "support_lead"
-          ? [{ to: "/support/ops", label: "Ops Desk", icon: "📋" }]
-          : []),
-        { to: "/settings", label: "Settings", icon: "⚙️" },
-      ]
+    ? supportItems
     : [
-    { to: "/dashboard", label: "Dashboard", icon: "📊" },
-    { to: "/feed", label: "Feed", icon: "📰" },
-    { to: "/marketplace", label: "Directory", icon: "📇" },
-    { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
-    ...(user?.role !== "admin" ? [
-      { to: "/referrals", label: "Referrals", icon: "👥" },
-      { to: "/invitations", label: "Invitations", icon: "✉️" },
-    ] : []),
-    { to: "/wallet", label: "Wallet", icon: "💳" },
-    { to: "/profile", label: "Profile", icon: "👤" },
-    { to: "/settings", label: "Settings", icon: "⚙️" },
-  ];
+        { to: "/dashboard", label: "Dashboard", icon: "📊" },
+        { to: "/feed", label: "Feed", icon: "📰" },
+        { to: "/marketplace", label: "Directory", icon: "📇" },
+        { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
+        ...(user?.role !== "admin"
+          ? [
+              { to: "/referrals", label: "Referrals", icon: "👥" },
+              { to: "/invitations", label: "Invitations", icon: "✉️" },
+            ]
+          : []),
+        { to: "/wallet", label: "Wallet", icon: "💳" },
+        { to: "/profile", label: "Profile", icon: "👤" },
+        { to: "/settings", label: "Settings", icon: "⚙️" },
+      ];
 
   const handleSearch = (e) => {
     e.preventDefault();
     const q = e.target.search.value.toLowerCase();
-    if (q.includes("theme") || q.includes("dark") || q.includes("light") || q.includes("setting") || q.includes("password")) nav("/settings");
+    if (isSupportOps) {
+      if (q.includes("ticket") || q.includes("queue")) nav("/support/ops?tab=tickets&queue=all");
+      else if (q.includes("user") || q.includes("staff")) nav("/support/ops?tab=staff");
+      else if (q.includes("analytic")) nav("/support/ops?tab=analytics");
+      else if (q.includes("knowledge") || q.includes("faq")) nav("/support/ops?tab=knowledge");
+      else if (q.includes("setting")) nav("/settings");
+      else nav("/support/ops?tab=overview");
+    } else if (q.includes("theme") || q.includes("dark") || q.includes("light") || q.includes("setting") || q.includes("password")) nav("/settings");
     else if (q.includes("dash")) nav("/dashboard");
     else if (q.includes("profile")) nav("/profile");
     else if (q.includes("wallet") || q.includes("money") || q.includes("escrow") || q.includes("pay")) nav("/wallet");
@@ -52,6 +85,16 @@ export function Sidebar() {
     e.target.search.value = "";
   };
 
+  const isItemActive = (it) => {
+    if (it.to === "/settings") return location.pathname === "/settings";
+    if (!isSupportOps) return location.pathname === it.to;
+    if (location.pathname !== "/support/ops") return false;
+    if (it.tab === "tickets") {
+      return opsTab === "tickets" && (opsQueue || "all") === (it.queue || "all");
+    }
+    return opsTab === it.tab;
+  };
+
   return (
     <motion.aside
       initial={{ x: -250, opacity: 0 }}
@@ -60,8 +103,8 @@ export function Sidebar() {
       className="fixed top-0 left-0 h-screen w-64 bg-[#0B0B0E] border-r border-white/10 flex flex-col z-50 overflow-y-auto no-scrollbar"
     >
       <div className="p-4">
-        <Link 
-          to={["support", "support_agent", "support_lead", "support_admin"].includes(user?.role) ? "/support/ops" : "/dashboard"}
+        <Link
+          to={isSupportOps ? supportHomePath() : "/dashboard"}
           className="flex items-center gap-2 cursor-pointer mb-5"
         >
           <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">CR</span>
@@ -69,7 +112,6 @@ export function Sidebar() {
           <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 ml-2">Studio</span>
         </Link>
 
-        {/* Profile Summary in Sidebar */}
         <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">
           <div className="relative mb-2">
             {user?.avatar ? (
@@ -84,13 +126,21 @@ export function Sidebar() {
             )}
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#34C759] border-2 border-[#0B0B0E] rounded-full"></div>
           </div>
-          
+
           <h3 className="font-sans font-bold text-sm text-white flex items-center gap-1 justify-center leading-tight">
             {displayAccountName(user)}
             {user?.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#34C759]" />}
           </h3>
           <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#FF3B30] mt-0.5">
-            {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : user?.role === "support_admin" ? "Support Admin" : user?.role === "support_lead" ? "Support Lead" : ["support", "support_agent"].includes(user?.role) ? "Support Agent" : "Influencer"}
+            {user?.role === "admin"
+              ? "Admin Console"
+              : user?.role === "owner"
+                ? "Brand Desk"
+                : user?.role === "agent"
+                  ? "Agency Desk"
+                  : isSupportOps
+                    ? supportRoleLabel(user?.role)
+                    : "Influencer"}
           </p>
           {(() => {
             if (user?.role === "admin") {
@@ -100,7 +150,7 @@ export function Sidebar() {
                 </p>
               );
             }
-            if (["support", "support_agent", "support_lead", "support_admin"].includes(user?.role)) {
+            if (isSupportOps) {
               return (
                 <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
                   Support Operations
@@ -132,24 +182,24 @@ export function Sidebar() {
 
         <form onSubmit={handleSearch} className="relative mb-4">
           <Search className="w-3.5 h-3.5 absolute left-3 top-2 opacity-50 text-white" />
-          <input 
+          <input
             name="search"
-            type="text" 
-            placeholder="Search..." 
+            type="text"
+            placeholder="Search..."
             className="w-full bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-[10px] uppercase tracking-widest font-mono text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
           />
         </form>
 
         <nav className="flex flex-col gap-1 flex-1">
-          {items.map(it => {
-            const isActive = location.pathname === it.to;
+          {items.map((it) => {
+            const isActive = isItemActive(it);
             return (
               <Link
-                key={it.to}
+                key={it.to + (it.queue || "")}
                 to={it.to}
                 className={`font-mono text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
-                  isActive 
-                    ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-bold" 
+                  isActive
+                    ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-bold"
                     : "text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -164,7 +214,7 @@ export function Sidebar() {
       <div className="mt-auto p-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            {user?.role !== "support" && !["support_agent", "support_lead", "support_admin"].includes(user?.role) && (
+            {!isSupportOps && (
               <>
                 <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
                   <LifeBuoy className="w-4 h-4" />

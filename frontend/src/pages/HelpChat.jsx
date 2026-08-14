@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send, Bot, Sparkles, User, ExternalLink, X, Ticket } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { isSupportOpsRole, supportHomePath } from "@/lib/supportOps";
 
 export default function HelpChat() {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([
     { role: "assistant", content: "Hi! I'm the CR8 Studio AI assistant. Ask about payments, escrow, matching, disputes, or account setup." },
   ]);
@@ -17,6 +20,10 @@ export default function HelpChat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  if (isSupportOpsRole(user?.role)) {
+    return <Navigate to={supportHomePath()} replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

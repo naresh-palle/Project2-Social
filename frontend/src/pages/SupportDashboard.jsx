@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  LifeBuoy, Loader2, MessageSquare, Send, X, Filter, UserPlus, Tag,
+  LifeBuoy, Loader2, MessageSquare, Send, X, Filter, UserPlus, Tag, Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { supportRoleLabel } from "@/lib/supportOps";
 
 const USER_TYPES = [
   { id: "", label: "All" },
@@ -13,17 +15,62 @@ const USER_TYPES = [
   { id: "agent", label: "Agent" },
 ];
 
+const AI_STATUS_OPTS = [
+  { id: "", label: "AI Status" },
+  { id: "ai_handling", label: "AI Handling" },
+  { id: "ai_resolved", label: "AI Resolved" },
+  { id: "ai_escalated", label: "AI Escalated" },
+  { id: "human_handling", label: "Human Handling" },
+];
+
+const QUEUE_PRESETS = {
+  all: { status: "", assignment: "", userType: "", escalated: false },
+  unassigned: {
+    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    assignment: "unassigned",
+    userType: "",
+    escalated: false,
+  },
+  mine: {
+    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    assignment: "mine",
+    userType: "",
+    escalated: false,
+  },
+  influencer: {
+    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    assignment: "",
+    userType: "influencer",
+    escalated: false,
+  },
+  company: {
+    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    assignment: "",
+    userType: "company",
+    escalated: false,
+  },
+  agent: {
+    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    assignment: "",
+    userType: "agent",
+    escalated: false,
+  },
+  escalated: { status: "", assignment: "", userType: "", escalated: true },
+  resolved: { status: "resolved,closed", assignment: "", userType: "", escalated: false },
+};
+
 const STATUS_OPTS = [
   { id: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling", label: "Active" },
   { id: "new", label: "New" },
-  { id: "unassigned_flag", label: "Unassigned" },
-  { id: "mine_flag", label: "My Tickets" },
   { id: "ai_handling", label: "AI Handling" },
-  { id: "in_progress,assigned", label: "In Progress" },
+  { id: "open", label: "Open" },
+  { id: "assigned", label: "Assigned" },
+  { id: "in_progress", label: "In Progress" },
   { id: "pending_user", label: "Pending User" },
   { id: "pending_support", label: "Pending Support" },
-  { id: "escalated_flag", label: "Escalated" },
-  { id: "resolved,closed", label: "Resolved" },
+  { id: "resolved", label: "Resolved" },
+  { id: "closed", label: "Closed" },
+  { id: "reopened", label: "Reopened" },
   { id: "", label: "All statuses" },
 ];
 
@@ -42,8 +89,13 @@ function typeLabel(t) {
   return t || "User";
 }
 
+function fmtTs(v) {
+  if (!v) return "—";
+  return String(v).slice(0, 16).replace("T", " ");
+}
+
 const KPI_KEYS = [
-  ["total", "Total"],
+  ["total", "Total Tickets"],
   ["new", "New"],
   ["unassigned", "Unassigned"],
   ["my_open", "My Open"],
@@ -56,31 +108,72 @@ const KPI_KEYS = [
   ["pending_user", "Pending User"],
   ["pending_support", "Pending Support"],
   ["sla_breached", "SLA Breached"],
-  ["finished_today_by_me", "Resolved Today (me)"],
+  ["resolved_today", "Resolved Today"],
 ];
 
 export default function SupportDashboard() {
   const { user } = useAuth();
-  const [tab, setTab] = useState("tickets"); // overview | tickets | staff
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") || "overview";
+  const queue = searchParams.get("queue") || "all";
+
   const [stats, setStats] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [agents, setAgents] = useState([]);
   const [staff, setStaff] = useState([]);
+  const [kb, setKb] = useState([]);
+  const [aiConfig, setAiConfig] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [audit, setAudit] = useState([]);
   const [perms, setPerms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState("");
   const [statusFilter, setStatusFilter] = useState(STATUS_OPTS[0].id);
   const [priority, setPriority] = useState("");
+  const [aiStatus, setAiStatus] = useState("");
+  const [assignmentAgent, setAssignmentAgent] = useState("");
   const [q, setQ] = useState("");
+  const [tagInput, setTagInput] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState(null);
   const [reply, setReply] = useState("");
   const [busy, setBusy] = useState(false);
-  const [newStaff, setNewStaff] = useState({ email: "", name: "", username: "", password: "demo1234", support_role: "support_agent" });
+  const [newStaff, setNewStaff] = useState({
+    email: "", name: "", username: "", password: "demo1234", support_role: "support_agent",
+  });
+  const [newKb, setNewKb] = useState({ title: "", body: "", tags: "" });
 
-  const canAssign = perms.includes("support.tickets.assign");
-  const canManageUsers = perms.includes("support.users.manage");
-  const canViewStaff = perms.includes("support.users.view");
+  const can = (p) => perms.includes(p);
+  const canAssign = can("support.tickets.assign");
+  const canEscalate = can("support.tickets.escalate");
+  const canReply = can("support.tickets.reply");
+  const canInternal = can("support.tickets.internal_note");
+  const canResolve = can("support.tickets.resolve");
+  const canReopen = can("support.tickets.reopen");
+  const canManageUsers = can("support.users.manage");
+  const canViewStaff = can("support.users.view");
+  const canViewKb = can("support.knowledge_base.view");
+  const canManageKb = can("support.knowledge_base.manage");
+  const canAiConfig = can("support.ai.configure");
+  const canAnalytics = can("support.analytics.view") || can("support.analytics.view_own");
+  const canAudit = can("support.audit.view");
+
+  const setTab = (nextTab, nextQueue) => {
+    const sp = new URLSearchParams();
+    sp.set("tab", nextTab);
+    if (nextTab === "tickets") sp.set("queue", nextQueue || queue || "all");
+    setSearchParams(sp);
+  };
+
+  // Apply queue preset when queue changes
+  useEffect(() => {
+    if (tab !== "tickets") return;
+    const preset = QUEUE_PRESETS[queue] || QUEUE_PRESETS.all;
+    setUserType(preset.userType);
+    setStatusFilter(preset.status);
+    setAssignmentAgent(preset.assignment === "mine" || preset.assignment === "unassigned" ? preset.assignment : "");
+  }, [tab, queue]);
 
   const loadMe = useCallback(async () => {
     try {
@@ -99,24 +192,17 @@ export default function SupportDashboard() {
   const loadTickets = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (userType) params.set("user_type", userType);
-      if (priority) params.set("priority", priority);
-      if (q.trim()) params.set("q", q.trim());
+      const preset = QUEUE_PRESETS[queue] || QUEUE_PRESETS.all;
+      const ut = userType || preset.userType;
+      const st = statusFilter || preset.status;
+      let assignment = assignmentAgent || preset.assignment || "";
+      let escalated = preset.escalated ? true : undefined;
 
-      let assignment = "";
-      let status = statusFilter;
-      let escalated;
-      if (statusFilter === "unassigned_flag") {
-        assignment = "unassigned";
-        status = "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling";
-      } else if (statusFilter === "mine_flag") {
-        assignment = "mine";
-        status = "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling";
-      } else if (statusFilter === "escalated_flag") {
-        escalated = true;
-        status = "";
-      }
-      if (status) params.set("status", status);
+      if (ut) params.set("user_type", ut);
+      if (priority) params.set("priority", priority);
+      if (aiStatus) params.set("ai_status", aiStatus);
+      if (q.trim()) params.set("q", q.trim());
+      if (st) params.set("status", st);
       if (assignment) params.set("assignment", assignment);
       if (escalated) params.set("escalated", "true");
 
@@ -125,7 +211,7 @@ export default function SupportDashboard() {
     } catch {
       toast.error("Failed to load tickets");
     }
-  }, [userType, priority, q, statusFilter]);
+  }, [userType, priority, q, statusFilter, aiStatus, assignmentAgent, queue]);
 
   const loadAgents = useCallback(async () => {
     if (!canAssign) return;
@@ -143,22 +229,57 @@ export default function SupportDashboard() {
     } catch { /* ignore */ }
   }, [canViewStaff]);
 
+  const loadKb = useCallback(async () => {
+    if (!canViewKb) return;
+    try {
+      const { data } = await api.get("/support/knowledge");
+      setKb(data.articles || []);
+    } catch { /* ignore */ }
+  }, [canViewKb]);
+
+  const loadAi = useCallback(async () => {
+    if (!canAiConfig && !canViewKb) return;
+    try {
+      const { data } = await api.get("/support/ai/config");
+      setAiConfig(data.config || null);
+    } catch { /* ignore */ }
+  }, [canAiConfig, canViewKb]);
+
+  const loadAnalytics = useCallback(async () => {
+    if (!canAnalytics) return;
+    try {
+      const { data } = await api.get("/support/analytics");
+      setAnalytics(data);
+    } catch { /* ignore */ }
+  }, [canAnalytics]);
+
+  const loadAudit = useCallback(async () => {
+    if (!canAudit) return;
+    try {
+      const { data } = await api.get("/support/audit?limit=150");
+      setAudit(data.logs || []);
+    } catch { /* ignore */ }
+  }, [canAudit]);
+
   useEffect(() => {
     (async () => {
       setLoading(true);
       await loadMe();
-      await Promise.all([loadStats(), loadTickets()]);
+      await loadStats();
       setLoading(false);
     })();
-  }, [loadMe, loadStats, loadTickets]);
+  }, [loadMe, loadStats]);
 
   useEffect(() => {
-    loadAgents();
-  }, [loadAgents]);
+    if (tab === "tickets" || tab === "overview") loadTickets();
+  }, [tab, loadTickets]);
 
-  useEffect(() => {
-    if (tab === "staff") loadStaff();
-  }, [tab, loadStaff]);
+  useEffect(() => { loadAgents(); }, [loadAgents]);
+  useEffect(() => { if (tab === "staff") loadStaff(); }, [tab, loadStaff]);
+  useEffect(() => { if (tab === "knowledge") loadKb(); }, [tab, loadKb]);
+  useEffect(() => { if (tab === "ai") loadAi(); }, [tab, loadAi]);
+  useEffect(() => { if (tab === "analytics" || tab === "overview") loadAnalytics(); }, [tab, loadAnalytics]);
+  useEffect(() => { if (tab === "audit") loadAudit(); }, [tab, loadAudit]);
 
   const openTicket = async (id) => {
     setSelectedId(id);
@@ -167,7 +288,9 @@ export default function SupportDashboard() {
       const { data } = await api.get(`/support/tickets/${id}`);
       setDetail(data);
       setReply("");
+      setTagInput((data.ticket?.tags || []).join(", "));
       if (data.permissions) setPerms(data.permissions);
+      if (tab !== "tickets") setTab("tickets", queue || "all");
     } catch {
       toast.error("Failed to open ticket");
       setSelectedId(null);
@@ -180,6 +303,7 @@ export default function SupportDashboard() {
     if (!selectedId) return;
     const { data } = await api.get(`/support/tickets/${selectedId}`);
     setDetail(data);
+    setTagInput((data.ticket?.tags || []).join(", "));
     await loadTickets();
     await loadStats();
   };
@@ -228,7 +352,7 @@ export default function SupportDashboard() {
   };
 
   const draftAi = async () => {
-    if (!selectedId) return;
+    if (!selectedId || !canReply) return;
     setBusy(true);
     try {
       const { data } = await api.post(`/support/tickets/${selectedId}/ai-draft`, {});
@@ -239,6 +363,11 @@ export default function SupportDashboard() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const saveTags = async () => {
+    const tags = tagInput.split(",").map((t) => t.trim()).filter(Boolean);
+    await patch({ tags });
   };
 
   const createStaff = async (e) => {
@@ -256,16 +385,71 @@ export default function SupportDashboard() {
     }
   };
 
+  const patchStaff = async (id, body) => {
+    setBusy(true);
+    try {
+      await api.patch(`/support/staff/${id}`, body);
+      toast.success("Updated");
+      await loadStaff();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Update failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const createKb = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await api.post("/support/knowledge", {
+        title: newKb.title,
+        body: newKb.body,
+        tags: newKb.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      });
+      setNewKb({ title: "", body: "", tags: "" });
+      toast.success("Article created");
+      await loadKb();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Create failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveAiConfig = async () => {
+    if (!aiConfig || !canAiConfig) return;
+    setBusy(true);
+    try {
+      const { data } = await api.patch("/support/ai/config", {
+        enabled: !!aiConfig.enabled,
+        auto_escalate: !!aiConfig.auto_escalate,
+        greeting: aiConfig.greeting || "",
+        max_history: Number(aiConfig.max_history) || 10,
+      });
+      setAiConfig(data.config);
+      toast.success("AI config saved");
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Save failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const ticket = detail?.ticket;
-  const roleLabel = useMemo(() => {
-    const r = user?.role;
-    if (r === "support_admin") return "Support Admin";
-    if (r === "support_lead") return "Support Lead";
-    return "Support Agent";
-  }, [user?.role]);
+  const roleLabel = useMemo(() => supportRoleLabel(user?.role), [user?.role]);
+
+  const statusButtons = useMemo(() => {
+    const all = ["open", "assigned", "in_progress", "pending_user", "pending_support", "resolved", "closed", "reopened"];
+    return all.filter((s) => {
+      if (s === "resolved" || s === "closed") return canResolve;
+      if (s === "reopened") return canReopen;
+      return perms.includes("support.tickets.update");
+    });
+  }, [perms, canResolve, canReopen]);
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8" data-testid="support-ops-dashboard">
       <div className="shrink-0 border-b border-white/10 pb-5 mb-5">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
           <LifeBuoy className="w-3.5 h-3.5" /> Support Operations
@@ -273,23 +457,36 @@ export default function SupportDashboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mt-2">
           <div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Support Dashboard</h1>
-            <p className="text-white/50 text-sm mt-1">{roleLabel} · Independent ops category (not Influencer / Company / Agent)</p>
+            <p className="text-white/50 text-sm mt-1">
+              {roleLabel} · Independent ops category (not Influencer / Company / Agent)
+            </p>
           </div>
-          <div className="flex gap-2 font-mono text-[10px] uppercase tracking-widest">
+          <div className="flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-widest">
             {[
               ["overview", "Overview"],
               ["tickets", "Tickets"],
               ...(canViewStaff ? [["staff", "Users"]] : []),
+              ...(canViewKb ? [["knowledge", "Knowledge"]] : []),
+              ...(canAiConfig ? [["ai", "AI Support"]] : []),
+              ...(canAnalytics ? [["analytics", "Analytics"]] : []),
+              ...(canAudit ? [["audit", "Audit"]] : []),
             ].map(([id, label]) => (
               <button
                 key={id}
                 type="button"
-                onClick={() => setTab(id)}
+                onClick={() => setTab(id, id === "tickets" ? "all" : undefined)}
                 className={`px-3 py-1.5 rounded-full border ${tab === id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"}`}
               >
                 {label}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => nav("/settings")}
+              className="px-3 py-1.5 rounded-full border border-white/15 text-white/50"
+            >
+              Settings
+            </button>
           </div>
         </div>
       </div>
@@ -297,17 +494,49 @@ export default function SupportDashboard() {
       {(tab === "overview" || tab === "tickets") && stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
           {KPI_KEYS.map(([key, label]) => (
-            <div key={key} className="border border-white/10 bg-white/[0.02] rounded-xl px-3 py-2">
+            <button
+              key={key}
+              type="button"
+              onClick={() => {
+                if (key === "unassigned") setTab("tickets", "unassigned");
+                else if (key === "my_open") setTab("tickets", "mine");
+                else if (key === "influencer") setTab("tickets", "influencer");
+                else if (key === "company") setTab("tickets", "company");
+                else if (key === "agent") setTab("tickets", "agent");
+                else if (key === "sla_breached" || key === "critical") setTab("tickets", "all");
+                else setTab("tickets", "all");
+              }}
+              className="text-left border border-white/10 bg-white/[0.02] rounded-xl px-3 py-2 hover:border-[#FF3B30]/40 transition-colors"
+            >
               <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
               <div className="font-sans text-xl font-bold mt-0.5 tabular-nums">{stats[key] ?? 0}</div>
-            </div>
+            </button>
           ))}
         </div>
       )}
 
       {tab === "overview" && (
-        <div className="text-white/50 text-sm">
-          Use the <button type="button" className="text-[#FF3B30] underline" onClick={() => setTab("tickets")}>Tickets</button> tab to claim, filter by user type, and resolve Influencer / Company / Agent issues.
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              ["Unassigned queue", "unassigned", stats?.unassigned],
+              ["Escalated", "escalated", analytics?.escalated_open ?? "—"],
+              ["My open", "mine", stats?.my_open],
+            ].map(([label, qid, val]) => (
+              <button
+                key={qid}
+                type="button"
+                onClick={() => setTab("tickets", qid)}
+                className="border border-white/10 rounded-2xl p-4 text-left hover:border-[#FF3B30]/40"
+              >
+                <div className="font-mono text-[10px] uppercase tracking-widest text-white/40">{label}</div>
+                <div className="text-3xl font-bold mt-2">{val ?? 0}</div>
+              </button>
+            ))}
+          </div>
+          <p className="text-white/50 text-sm">
+            Centralized helpdesk for Influencer, Company, and Agent tickets. Use sidebar queues or the Tickets tab to claim and resolve.
+          </p>
         </div>
       )}
 
@@ -326,6 +555,19 @@ export default function SupportDashboard() {
                 <option value="">Priority</option>
                 {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
+              <select value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
+                {AI_STATUS_OPTS.map((a) => <option key={a.id || "aiall"} value={a.id}>{a.label}</option>)}
+              </select>
+              {canAssign && (
+                <select value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg">
+                  <option value="">Assignment</option>
+                  <option value="unassigned">Unassigned</option>
+                  <option value="mine">My Tickets</option>
+                  {agents.map((a) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+              )}
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -370,43 +612,67 @@ export default function SupportDashboard() {
             {selectedId && ticket ? (
               <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col">
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <div>
-                    <div className="font-mono text-[10px] text-white/40 tracking-widest">
-                      {ticket.number} · {typeLabel(ticket.user_type)} · {ticket.category} · {ticket.priority}
+                  <div className="min-w-0">
+                    <h2 className="font-sans text-xl font-bold">{ticket.subject}</h2>
+                    <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-white/60 font-mono">
+                      <div>Ticket: <span className="text-white">{ticket.number}</span></div>
+                      <div>ID: <span className="text-white">{ticket.id}</span></div>
+                      <div>User: <span className="text-white">{ticket.user_name}</span></div>
+                      <div>User Type: <span className="text-white">{typeLabel(ticket.user_type)}</span></div>
+                      <div>User ID: <span className="text-white break-all">{ticket.user_id}</span></div>
+                      <div>Category: <span className="text-white">{ticket.category}</span></div>
+                      <div>Priority: <span className="text-white">{ticket.priority}</span></div>
+                      <div>Status: <span className="text-white">{(ticket.status || "").replace(/_/g, " ")}</span></div>
+                      <div>Assigned: <span className="text-white">{ticket.assignee_name || "Unassigned"}</span></div>
+                      <div>AI Status: <span className="text-white">{ticket.ai_status || "none"}</span></div>
+                      <div>Created: <span className="text-white">{fmtTs(ticket.created_at)}</span></div>
+                      <div>Updated: <span className="text-white">{fmtTs(ticket.updated_at)}</span></div>
+                      <div className={ticket.sla_breached ? "text-[#FF3B30]" : ""}>
+                        SLA: <span className="text-white">{fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</span>
+                      </div>
+                      <div>Email: <span className="text-white">{ticket.user_email}</span></div>
                     </div>
-                    <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
-                    <p className="text-xs text-white/50 mt-1">
-                      {ticket.user_name} · {ticket.user_email} · ID {ticket.user_id?.slice(0, 8)}…
-                    </p>
-                    {ticket.sla_due_at && (
-                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF3B30]" : "text-white/40"}`}>
-                        SLA due {ticket.sla_due_at.slice(0, 16).replace("T", " ")}
-                        {ticket.sla_breached ? " · BREACHED" : ""}
-                      </p>
-                    )}
                   </div>
-                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full">
+                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 {detail.user_context && (
                   <div className="mb-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-xs text-white/70 space-y-1">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User context</div>
-                    <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User context ({typeLabel(detail.user_context.user_type)})</div>
+                    <div>{detail.user_context.name} · {detail.user_context.email}</div>
                     {detail.user_context.company && <div>Company: {detail.user_context.company}</div>}
                     {detail.user_context.handle && <div>Handle: {detail.user_context.handle}</div>}
                     {detail.user_context.city && <div>City: {detail.user_context.city}</div>}
+                    {detail.user_context.user_type === "influencer" && (
+                      <>
+                        {(detail.user_context.niches || []).length > 0 && <div>Niches: {(detail.user_context.niches || []).join(", ")}</div>}
+                        <div>Campaign participations: {detail.user_context.campaign_participations ?? 0}</div>
+                      </>
+                    )}
+                    {detail.user_context.user_type === "company" && (
+                      <>
+                        {detail.user_context.industry && <div>Industry: {detail.user_context.industry}</div>}
+                        <div>Campaigns owned: {detail.user_context.campaigns_owned ?? 0}</div>
+                      </>
+                    )}
+                    {detail.user_context.user_type === "agent" && (
+                      <>
+                        <div>Agency approved: {detail.user_context.agent_approved ? "Yes" : "No"}</div>
+                        <div>Roster size: {detail.user_context.roster_size ?? 0}</div>
+                      </>
+                    )}
                   </div>
                 )}
 
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {!ticket.assignee_id && (
+                  {!ticket.assignee_id && can("support.tickets.claim") && (
                     <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30]">
                       <UserPlus className="w-3 h-3 inline mr-1" /> Claim
                     </button>
                   )}
-                  {["open", "assigned", "in_progress", "pending_user", "pending_support", "resolved", "closed", "reopened"].map((s) => (
+                  {statusButtons.map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -419,12 +685,25 @@ export default function SupportDashboard() {
                       {s.replace(/_/g, " ")}
                     </button>
                   ))}
-                  <button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">
-                    Escalate
-                  </button>
-                  <button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">
-                    AI draft
-                  </button>
+                  {canEscalate && (
+                    <button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">
+                      Escalate
+                    </button>
+                  )}
+                  {canReply && (
+                    <button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">
+                      AI draft
+                    </button>
+                  )}
+                  {can("support.tickets.update") && (
+                    <select
+                      className="bg-white/5 border border-white/15 px-2 py-1 text-[10px] rounded-full"
+                      value={ticket.priority || "Medium"}
+                      onChange={(e) => patch({ priority: e.target.value })}
+                    >
+                      {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  )}
                   {canAssign && agents.length > 0 && (
                     <select
                       className="bg-white/5 border border-white/15 px-2 py-1 text-[10px] rounded-full"
@@ -438,6 +717,21 @@ export default function SupportDashboard() {
                     </select>
                   )}
                 </div>
+
+                {can("support.tickets.update") && (
+                  <div className="flex gap-2 mb-3 items-center">
+                    <Tag className="w-3.5 h-3.5 text-white/40" />
+                    <input
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      placeholder="Tags (comma-separated)"
+                      className="flex-1 bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg"
+                    />
+                    <button type="button" disabled={busy} onClick={saveTags} className="px-2 py-1 text-[10px] font-mono uppercase border border-white/15 rounded-lg">
+                      Save tags
+                    </button>
+                  </div>
+                )}
 
                 {(ticket.tags || []).length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-3">
@@ -468,7 +762,7 @@ export default function SupportDashboard() {
                         {m.author_name} · {m.author_role}
                         {m.internal ? " · internal" : ""}
                         {m.source === "ai" ? " · AI" : ""}
-                        · {(m.created_at || "").slice(0, 16).replace("T", " ")}
+                        · {fmtTs(m.created_at)}
                       </div>
                       <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                     </div>
@@ -484,22 +778,26 @@ export default function SupportDashboard() {
                     className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm outline-none focus:border-[#FF3B30] resize-none rounded-xl"
                   />
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={busy || !reply.trim()}
-                      onClick={() => sendReply({ internal: false })}
-                      className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-3.5 h-3.5" /> Reply
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy || !reply.trim()}
-                      onClick={() => sendReply({ internal: true })}
-                      className="px-3 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50"
-                    >
-                      Internal
-                    </button>
+                    {canReply && (
+                      <button
+                        type="button"
+                        disabled={busy || !reply.trim()}
+                        onClick={() => sendReply({ internal: false })}
+                        className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        <Send className="w-3.5 h-3.5" /> Reply
+                      </button>
+                    )}
+                    {canInternal && (
+                      <button
+                        type="button"
+                        disabled={busy || !reply.trim()}
+                        onClick={() => sendReply({ internal: true })}
+                        className="px-3 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50"
+                      >
+                        Internal
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -520,10 +818,13 @@ export default function SupportDashboard() {
                 <tr>
                   <th className="p-3">Name</th>
                   <th className="p-3">Email</th>
-                  <th className="p-3">Role</th>
+                  <th className="p-3">Support Role</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Open</th>
                   <th className="p-3">Resolved</th>
+                  <th className="p-3">SLA %</th>
+                  <th className="p-3">Last Active</th>
+                  {canManageUsers && <th className="p-3">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -535,6 +836,28 @@ export default function SupportDashboard() {
                     <td className="p-3">{u.status}</td>
                     <td className="p-3">{u.open_tickets}</td>
                     <td className="p-3">{u.resolved_tickets}</td>
+                    <td className="p-3">{u.sla_performance ?? "—"}%</td>
+                    <td className="p-3 text-white/50 text-xs">{fmtTs(u.last_active)}</td>
+                    {canManageUsers && (
+                      <td className="p-3 space-x-2 whitespace-nowrap">
+                        <select
+                          className="bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg"
+                          value={u.support_role || u.role}
+                          onChange={(e) => patchStaff(u.id, { support_role: e.target.value })}
+                        >
+                          <option value="support_agent">Agent</option>
+                          <option value="support_lead">Lead</option>
+                          <option value="support_admin">Admin</option>
+                        </select>
+                        <button
+                          type="button"
+                          className="text-[10px] font-mono uppercase border border-white/15 px-2 py-1 rounded-lg"
+                          onClick={() => patchStaff(u.id, { active: u.status !== "active" })}
+                        >
+                          {u.status === "active" ? "Deactivate" : "Activate"}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -558,6 +881,134 @@ export default function SupportDashboard() {
               </button>
             </form>
           )}
+        </div>
+      )}
+
+      {tab === "knowledge" && canViewKb && (
+        <div className="space-y-4 max-w-4xl">
+          {kb.map((a) => (
+            <div key={a.id} className="border border-white/10 rounded-2xl p-4">
+              <div className="flex justify-between gap-3">
+                <h3 className="font-sans font-bold">{a.title}</h3>
+                <span className="font-mono text-[9px] uppercase text-white/40">{a.active ? "Active" : "Inactive"}</span>
+              </div>
+              <p className="text-sm text-white/70 mt-2 whitespace-pre-wrap">{a.body}</p>
+              {(a.tags || []).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {a.tags.map((t) => (
+                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 border border-white/15 rounded-full text-white/50">{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          {canManageKb && (
+            <form onSubmit={createKb} className="border border-white/10 rounded-2xl p-4 space-y-3">
+              <h3 className="font-sans font-bold flex items-center gap-2"><Plus className="w-4 h-4" /> New article</h3>
+              <input required value={newKb.title} onChange={(e) => setNewKb({ ...newKb, title: e.target.value })} placeholder="Title" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <textarea required value={newKb.body} onChange={(e) => setNewKb({ ...newKb, body: e.target.value })} rows={4} placeholder="Body" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <input value={newKb.tags} onChange={(e) => setNewKb({ ...newKb, tags: e.target.value })} placeholder="Tags (comma-separated)" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">Create</button>
+            </form>
+          )}
+        </div>
+      )}
+
+      {tab === "ai" && canAiConfig && aiConfig && (
+        <div className="max-w-xl border border-white/10 rounded-2xl p-5 space-y-4">
+          <h3 className="font-sans font-bold">AI Support configuration</h3>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!aiConfig.enabled} onChange={(e) => setAiConfig({ ...aiConfig, enabled: e.target.checked })} />
+            AI enabled
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!aiConfig.auto_escalate} onChange={(e) => setAiConfig({ ...aiConfig, auto_escalate: e.target.checked })} />
+            Auto-escalate unresolved chats to Support queue
+          </label>
+          <div>
+            <div className="font-mono text-[9px] uppercase text-white/40 mb-1">Greeting</div>
+            <input value={aiConfig.greeting || ""} onChange={(e) => setAiConfig({ ...aiConfig, greeting: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+          </div>
+          <div>
+            <div className="font-mono text-[9px] uppercase text-white/40 mb-1">Max history turns</div>
+            <input type="number" min={2} max={40} value={aiConfig.max_history || 10} onChange={(e) => setAiConfig({ ...aiConfig, max_history: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+          </div>
+          <button type="button" disabled={busy} onClick={saveAiConfig} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">
+            Save
+          </button>
+        </div>
+      )}
+
+      {tab === "analytics" && canAnalytics && analytics && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(analytics.by_user_type || {}).map(([ut, row]) => (
+              <div key={ut} className="border border-white/10 rounded-2xl p-4">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">{typeLabel(ut)}</div>
+                <div className="mt-2 text-sm text-white/70 space-y-1">
+                  <div>Open: {row.open}</div>
+                  <div>Resolved: {row.resolved}</div>
+                  <div>SLA breached: {row.sla_breached}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="border border-white/10 rounded-2xl overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40 border-b border-white/10">
+                <tr>
+                  <th className="p-3">Agent</th>
+                  <th className="p-3">Role</th>
+                  <th className="p-3">Open</th>
+                  <th className="p-3">Resolved</th>
+                  <th className="p-3">SLA Breached</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(analytics.agents || []).map((a) => (
+                  <tr key={a.id} className="border-b border-white/5">
+                    <td className="p-3">{a.name}</td>
+                    <td className="p-3 font-mono text-xs">{a.role}</td>
+                    <td className="p-3">{a.open}</td>
+                    <td className="p-3">{a.resolved}</td>
+                    <td className="p-3">{a.sla_breached}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tab === "audit" && canAudit && (
+        <div className="border border-white/10 rounded-2xl overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40 border-b border-white/10">
+              <tr>
+                <th className="p-3">Time</th>
+                <th className="p-3">Actor</th>
+                <th className="p-3">Actor Type</th>
+                <th className="p-3">Action</th>
+                <th className="p-3">Ticket</th>
+                <th className="p-3">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {audit.map((log, i) => (
+                <tr key={log.id || i} className="border-b border-white/5 align-top">
+                  <td className="p-3 text-xs text-white/50 whitespace-nowrap">{fmtTs(log.created_at || log.timestamp)}</td>
+                  <td className="p-3">{log.user || log.username || log.user_id || "—"}</td>
+                  <td className="p-3 font-mono text-xs">{log.meta?.actor_type || "—"}</td>
+                  <td className="p-3 font-mono text-xs">{log.action}</td>
+                  <td className="p-3 font-mono text-xs">{log.meta?.ticket_id || "—"}</td>
+                  <td className="p-3 text-xs text-white/60 max-w-xs truncate">{log.details || JSON.stringify(log.meta || {})}</td>
+                </tr>
+              ))}
+              {!audit.length && (
+                <tr><td className="p-4 text-white/40" colSpan={6}>No support audit entries yet.</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

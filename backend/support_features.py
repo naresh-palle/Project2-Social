@@ -54,10 +54,12 @@ PERMS: Dict[str, Set[str]] = {
         "support.tickets.resolve",
         "support.tickets.reopen",
         "support.tickets.escalate",
+        "support.users.view",
         "support.users.view_context",
         "support.knowledge_base.view",
         "support.analytics.view",
         "support.queues.manage",
+        "support.audit.view",
     },
     SUPPORT_ADMIN: set(),  # filled below as union of all
     "admin": set(),
@@ -280,6 +282,56 @@ def setup_support(
         await db.support_messages.create_index([("ticket_id", 1), ("created_at", 1)])
         await db.support_ai_sessions.create_index("id", unique=True)
         await db.support_ai_sessions.create_index([("user_id", 1), ("updated_at", -1)])
+        await db.support_kb.create_index("id", unique=True)
+        await db.support_kb.create_index([("active", 1), ("updated_at", -1)])
+        await db.support_ai_config.create_index("id", unique=True)
+
+    async def _touch_last_active(user: dict):
+        if not user or not user.get("id") or not is_support_category(user):
+            return
+        try:
+            await db.users.update_one({"id": user["id"]}, {"$set": {"last_active": now_iso()}})
+        except Exception:
+            pass
+
+    async def _ensure_kb_seed():
+        count = await db.support_kb.count_documents({})
+        if count:
+            return
+        defaults = [
+            {"title": "Payments & escrow", "body": "Brands fund campaign escrow; creators are paid after deliverable approval.", "tags": ["payment", "escrow"], "roles": ["influencer", "company", "agent"]},
+            {"title": "Disputes", "body": "Open a Dispute ticket; Support Operations reviews briefs and deliverables.", "tags": ["dispute"], "roles": ["influencer", "company"]},
+            {"title": "Agency approvals", "body": "Admins approve new agencies before full marketplace access.", "tags": ["agent"], "roles": ["agent"]},
+            {"title": "Account categories", "body": "Influencer, Company (owner), Agent, Admin, and Support Operations are separate categories.", "tags": ["account"], "roles": ["influencer", "company", "agent"]},
+        ]
+        now = now_iso()
+        for d in defaults:
+            await db.support_kb.insert_one({
+                "id": f"kb_{uuid.uuid4().hex[:10]}",
+                "title": d["title"],
+                "body": d["body"],
+                "tags": d["tags"],
+                "roles": d["roles"],
+                "active": True,
+                "created_at": now,
+                "updated_at": now,
+            })
+
+    async def _get_ai_config() -> dict:
+        cfg = await db.support_ai_config.find_one({"id": "default"})
+        if cfg:
+            return clean(cfg) if clean else _clean_doc(cfg)
+        default = {
+            "id": "default",
+            "enabled": True,
+            "auto_escalate": True,
+            "greeting": "Hi — I'm CR8 AI Support. How can I help?",
+            "model_hint": "default",
+            "max_history": 10,
+            "updated_at": now_iso(),
+        }
+        await db.support_ai_config.update_one({"id": "default"}, {"$setOnInsert": default}, upsert=True)
+        return default
 
     async def seed_support_users():
         demo_hash = hash_password("demo1234")
@@ -290,10 +342,9 @@ def setup_support(
              "role": SUPPORT_LEAD, "handle": "@support.lead"},
             {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "CR8 Support Admin",
              "role": SUPPORT_ADMIN, "handle": "@support.admin"},
-            # Migrate legacy email if present
-            {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "CR8 Support Admin",
-             "role": SUPPORT_ADMIN, "handle": "@support.admin"},
         ]
+        await _ensure_kb_seed()
+        await _get_ai_config()
         # Also migrate legacy role "support" → support_agent
         await db.users.update_many({"role": LEGACY_SUPPORT}, {"$set": {"role": SUPPORT_AGENT, "user_category": "support"}})
         for s in seeds:
@@ -514,11 +565,20 @@ def setup_support(
                 "assignee_id": u["id"],
                 "status": {"$in": ["resolved", "closed"]},
             })
+            breached_n = await db.support_tickets.count_documents({
+                "assignee_id": u["id"],
+                "sla_breached": True,
+            })
+            handled = resolved_n + open_n
+            sla_pct = round(100.0 * (1 - (breached_n / handled)), 1) if handled else 100.0
             out.append({
                 **(clean(u) if clean else _clean_doc(u)),
                 "support_role": normalize_support_role(u.get("role")),
                 "open_tickets": open_n,
                 "resolved_tickets": resolved_n,
+                "sla_breached_tickets": breached_n,
+                "sla_performance": sla_pct,
+                "last_active": u.get("last_active") or u.get("updated_at") or u.get("created_at"),
                 "status": "active" if u.get("active", True) else "inactive",
             })
         return {"users": out}
@@ -675,18 +735,40 @@ def setup_support(
                 {"_id": 0, "password_hash": 0, "two_fa_secret": 0, "wallet": 0},
             )
             if u:
+                ut = user_type_from_role(u.get("role"))
                 user_context = {
                     "id": u.get("id"),
                     "name": u.get("name"),
                     "email": u.get("email"),
                     "role": u.get("role"),
-                    "user_type": user_type_from_role(u.get("role")),
+                    "user_type": ut,
                     "company": u.get("company"),
                     "handle": u.get("handle") or u.get("username"),
                     "city": u.get("city"),
                     "verified": u.get("verified"),
                     "onboarding_status": u.get("onboarding_status"),
+                    "platforms": u.get("platforms") or [],
+                    "niches": u.get("niches") or [],
+                    "industry": u.get("industry"),
+                    "agent_approved": u.get("agent_approved"),
                 }
+                if ut == "influencer":
+                    camp_n = await db.campaigns.count_documents({
+                        "$or": [
+                            {"applications.influencer_id": u.get("id")},
+                            {"accepted_influencers": u.get("id")},
+                        ]
+                    }) if hasattr(db, "campaigns") else 0
+                    user_context["campaign_participations"] = camp_n
+                elif ut == "company":
+                    owned = await db.campaigns.count_documents({"owner_id": u.get("id")}) if hasattr(db, "campaigns") else 0
+                    user_context["campaigns_owned"] = owned
+                elif ut == "agent":
+                    roster = await db.users.count_documents({"agent_id": u.get("id"), "role": "influencer"})
+                    user_context["roster_size"] = roster
+
+        if staff:
+            await _touch_last_active(current)
 
         return {
             "ticket": _public_ticket(ticket, include_internal=staff),
@@ -722,6 +804,8 @@ def setup_support(
             "created_at": now,
         }
         await db.support_messages.insert_one(msg)
+        if staff:
+            await _touch_last_active(current)
 
         updates: Dict[str, Any] = {"updated_at": now, "ai_status": "human_handling"}
         if staff and not inp.internal:
@@ -762,6 +846,7 @@ def setup_support(
             }},
         )
         await _audit(current, "support_ticket_assigned", ticket_id=ticket_id, meta={"assignee_id": current["id"]})
+        await _touch_last_active(current)
         fresh = await _get_ticket_or_404(ticket_id)
         return {"ok": True, "ticket": _public_ticket(fresh, include_internal=True)}
 
@@ -837,20 +922,204 @@ def setup_support(
                          meta={k: updates[k] for k in updates if k != "updated_at"})
 
         fresh = await _get_ticket_or_404(ticket_id)
+        if staff:
+            await _touch_last_active(current)
         return {"ok": True, "ticket": _public_ticket(fresh, include_internal=staff)}
+
+    class KbArticleIn(BaseModel):
+        title: str = Field(min_length=2, max_length=200)
+        body: str = Field(min_length=2, max_length=20000)
+        tags: List[str] = Field(default_factory=list)
+        roles: List[str] = Field(default_factory=list)
+        active: bool = True
+
+    class KbArticlePatch(BaseModel):
+        title: Optional[str] = Field(default=None, min_length=2, max_length=200)
+        body: Optional[str] = Field(default=None, min_length=2, max_length=20000)
+        tags: Optional[List[str]] = None
+        roles: Optional[List[str]] = None
+        active: Optional[bool] = None
+
+    class AiConfigPatch(BaseModel):
+        enabled: Optional[bool] = None
+        auto_escalate: Optional[bool] = None
+        greeting: Optional[str] = Field(default=None, max_length=500)
+        model_hint: Optional[str] = Field(default=None, max_length=80)
+        max_history: Optional[int] = Field(default=None, ge=2, le=40)
+
+    @api_router.get("/support/knowledge")
+    async def list_kb(current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.knowledge_base.view")
+        items = await db.support_kb.find({}, {"_id": 0}).sort("updated_at", -1).to_list(200)
+        return {"articles": items}
+
+    @api_router.post("/support/knowledge")
+    async def create_kb(inp: KbArticleIn, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.knowledge_base.manage")
+        now = now_iso()
+        doc = {
+            "id": f"kb_{uuid.uuid4().hex[:10]}",
+            "title": inp.title.strip(),
+            "body": inp.body.strip(),
+            "tags": list(inp.tags or []),
+            "roles": list(inp.roles or []),
+            "active": bool(inp.active),
+            "created_at": now,
+            "updated_at": now,
+            "created_by": current.get("id"),
+        }
+        await db.support_kb.insert_one(doc)
+        await _audit(current, "support_kb_created", details=doc["title"], meta={"id": doc["id"]})
+        await _touch_last_active(current)
+        return {"ok": True, "article": doc}
+
+    @api_router.patch("/support/knowledge/{article_id}")
+    async def patch_kb(article_id: str, inp: KbArticlePatch, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.knowledge_base.manage")
+        existing = await db.support_kb.find_one({"id": article_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Article not found")
+        updates: Dict[str, Any] = {"updated_at": now_iso()}
+        if inp.title is not None:
+            updates["title"] = inp.title.strip()
+        if inp.body is not None:
+            updates["body"] = inp.body.strip()
+        if inp.tags is not None:
+            updates["tags"] = inp.tags
+        if inp.roles is not None:
+            updates["roles"] = inp.roles
+        if inp.active is not None:
+            updates["active"] = inp.active
+        await db.support_kb.update_one({"id": article_id}, {"$set": updates})
+        await _audit(current, "support_kb_updated", details=article_id, meta=updates)
+        await _touch_last_active(current)
+        fresh = await db.support_kb.find_one({"id": article_id}, {"_id": 0})
+        return {"ok": True, "article": fresh}
+
+    @api_router.delete("/support/knowledge/{article_id}")
+    async def delete_kb(article_id: str, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.knowledge_base.manage")
+        res = await db.support_kb.delete_one({"id": article_id})
+        if not res.deleted_count:
+            raise HTTPException(status_code=404, detail="Article not found")
+        await _audit(current, "support_kb_deleted", details=article_id)
+        return {"ok": True}
+
+    @api_router.get("/support/ai/config")
+    async def get_ai_config(current: dict = Depends(get_current_user)):
+        if not (has_perm(current, "support.ai.configure") or has_perm(current, "support.knowledge_base.view")):
+            raise HTTPException(status_code=403, detail="Missing permission")
+        return {"config": await _get_ai_config()}
+
+    @api_router.patch("/support/ai/config")
+    async def patch_ai_config(inp: AiConfigPatch, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.ai.configure")
+        updates: Dict[str, Any] = {"updated_at": now_iso()}
+        if inp.enabled is not None:
+            updates["enabled"] = inp.enabled
+        if inp.auto_escalate is not None:
+            updates["auto_escalate"] = inp.auto_escalate
+        if inp.greeting is not None:
+            updates["greeting"] = inp.greeting.strip()
+        if inp.model_hint is not None:
+            updates["model_hint"] = inp.model_hint.strip()
+        if inp.max_history is not None:
+            updates["max_history"] = inp.max_history
+        await db.support_ai_config.update_one({"id": "default"}, {"$set": updates}, upsert=True)
+        await _audit(current, "support_ai_config_updated", meta=updates)
+        await _touch_last_active(current)
+        return {"ok": True, "config": await _get_ai_config()}
+
+    @api_router.get("/support/analytics")
+    async def support_analytics(current: dict = Depends(get_current_user)):
+        if not (has_perm(current, "support.analytics.view") or has_perm(current, "support.analytics.view_own")):
+            raise HTTPException(status_code=403, detail="Missing permission: support.analytics.view")
+        open_statuses = ["new", "open", "assigned", "in_progress", "pending_user", "pending_support", "reopened", "ai_handling"]
+        by_type = {}
+        for ut in ("influencer", "company", "agent"):
+            by_type[ut] = {
+                "open": await db.support_tickets.count_documents({"user_type": ut, "status": {"$in": open_statuses}}),
+                "resolved": await db.support_tickets.count_documents({"user_type": ut, "status": {"$in": ["resolved", "closed"]}}),
+                "sla_breached": await db.support_tickets.count_documents({"user_type": ut, "sla_breached": True, "status": {"$in": open_statuses}}),
+            }
+        by_priority = {}
+        for p in TICKET_PRIORITIES:
+            by_priority[p] = await db.support_tickets.count_documents({"priority": p, "status": {"$in": open_statuses}})
+        agents = await db.users.find(
+            {"role": {"$in": list(SUPPORT_CATEGORY_ROLES)}, "active": {"$ne": False}},
+            {"_id": 0, "id": 1, "name": 1, "role": 1},
+        ).to_list(100)
+        agent_stats = []
+        for a in agents:
+            if not has_perm(current, "support.analytics.view") and a["id"] != current["id"]:
+                continue
+            agent_stats.append({
+                "id": a["id"],
+                "name": a.get("name"),
+                "role": normalize_support_role(a.get("role")),
+                "open": await db.support_tickets.count_documents({"assignee_id": a["id"], "status": {"$in": open_statuses}}),
+                "resolved": await db.support_tickets.count_documents({"assignee_id": a["id"], "status": {"$in": ["resolved", "closed"]}}),
+                "sla_breached": await db.support_tickets.count_documents({"assignee_id": a["id"], "sla_breached": True}),
+            })
+        return {
+            "by_user_type": by_type,
+            "by_priority": by_priority,
+            "agents": agent_stats,
+            "escalated_open": await db.support_tickets.count_documents({"escalated": True, "status": {"$in": open_statuses}}),
+            "ai_escalated": await db.support_tickets.count_documents({"ai_status": "ai_escalated"}),
+            "ai_resolved": await db.support_tickets.count_documents({"ai_status": "ai_resolved"}),
+        }
+
+    @api_router.get("/support/audit")
+    async def support_audit(
+        limit: int = Query(100, ge=1, le=300),
+        ticket_id: Optional[str] = None,
+        current: dict = Depends(get_current_user),
+    ):
+        _require_perm(current, "support.audit.view")
+        q: Dict[str, Any] = {
+            "$or": [
+                {"action": {"$regex": "^support_"}},
+                {"meta.actor_type": "support"},
+            ]
+        }
+        if ticket_id:
+            q = {"$and": [q, {"$or": [{"meta.ticket_id": ticket_id}, {"details": {"$regex": ticket_id}}]}]}
+        items = await db.audit_logs.find(q, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+        return {"logs": items}
 
     @api_router.post("/support/ai/chat")
     async def support_ai_chat(inp: AiChatIn, current: dict = Depends(get_current_user)):
         if is_support_category(current):
             raise HTTPException(status_code=400, detail="AI Help is for business users; use the Support Dashboard")
 
+        cfg = await _get_ai_config()
+        if not cfg.get("enabled", True):
+            return {
+                "ok": True,
+                "reply": "AI Support is temporarily unavailable. Please open a ticket from Support Center.",
+                "escalate": True,
+                "classification": {
+                    "user_type": user_type_from_role(current.get("role")),
+                    "category": "other",
+                    "intent": "ai_disabled",
+                    "priority": "Medium",
+                    "requires_human": True,
+                },
+                "ticket": None,
+            }
+
         role = current.get("role") or "user"
         utype = user_type_from_role(role)
         faqs = FAQ_BY_ROLE.get(role) or FAQ_BY_ROLE.get("influencer") or []
         faq_text = "\n".join(f"Q: {f['question']}\nA: {f['answer']}" for f in faqs)
+        kb_articles = await db.support_kb.find({"active": True}, {"_id": 0, "title": 1, "body": 1}).to_list(50)
+        kb_extra = "\n".join(f"- {a.get('title')}: {a.get('body')}" for a in kb_articles)
+        kb_text = f"{KNOWLEDGE_BASE}\n{kb_extra}".strip()
 
         history_lines = []
-        for h in (inp.history or [])[-10]:
+        max_h = int(cfg.get("max_history") or 10)
+        for h in (inp.history or [])[-max_h]:
             r = h.get("role") or "user"
             c = (h.get("content") or "").strip()
             if c:
@@ -864,7 +1133,7 @@ def setup_support(
         )
         prompt = (
             f"User type: {utype}\nRole: {role}\nName: {current.get('name')}\n\n"
-            f"KNOWLEDGE BASE:\n{KNOWLEDGE_BASE}\n\nFAQs:\n{faq_text}\n\n"
+            f"KNOWLEDGE BASE:\n{kb_text}\n\nFAQs:\n{faq_text}\n\n"
             f"Conversation:\n" + ("\n".join(history_lines) + "\n" if history_lines else "")
             + f"user: {inp.message.strip()}\nassistant:"
         )
@@ -914,6 +1183,8 @@ def setup_support(
         if "ESCALATE_TICKET=yes" in (reply or ""):
             escalate = True
             reply = reply.replace("ESCALATE_TICKET=yes", "").strip()
+        if not cfg.get("auto_escalate", True):
+            escalate = False
         classification["requires_human"] = escalate
 
         # Persist AI session
@@ -987,6 +1258,7 @@ def setup_support(
                 f"Thanks for contacting CR8 Support about \"{ticket.get('subject')}\". "
                 "We're looking into this and will update you shortly.\n\n— CR8 Support Operations"
             )
+        await _touch_last_active(current)
         return {"ok": True, "draft": draft}
 
     return ensure_indexes, seed_support_users
