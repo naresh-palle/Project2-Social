@@ -1,18 +1,37 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, matchPath } from "react-router-dom";
 import { MessageSquare, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import Messages from "@/pages/Messages";
 
+function useProfileDmTarget() {
+  const location = useLocation();
+  return useMemo(() => {
+    const creator = matchPath("/creators/:id", location.pathname);
+    if (creator?.params?.id) return creator.params.id;
+    const publicUser = matchPath("/u/:userId", location.pathname);
+    if (publicUser?.params?.userId) return publicUser.params.userId;
+    return null;
+  }, [location.pathname]);
+}
+
 export function FloatingChatWidget() {
   const { user } = useAuth();
   const location = useLocation();
+  const dmUserId = useProfileDmTarget();
   const [isOpen, setIsOpen] = useState(false);
+
+  // When landing on a creator/company profile, keep widget closed until icon click
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   if (!user || location.pathname === "/messages" || location.pathname.startsWith("/onboarding")) {
     return null;
   }
+
+  const chattingProfile = Boolean(dmUserId && String(dmUserId) !== String(user.id));
 
   return (
     <>
@@ -33,7 +52,9 @@ export function FloatingChatWidget() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-sans text-sm font-bold tracking-wide truncate">Messages</h3>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/50">Inbox</p>
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/50">
+                    {chattingProfile ? "Chat with profile" : "Inbox"}
+                  </p>
                 </div>
               </div>
               <button
@@ -47,7 +68,11 @@ export function FloatingChatWidget() {
               </button>
             </div>
             <div className="flex-1 min-h-0 overflow-hidden">
-              <Messages miniWidget={true} onClose={() => setIsOpen(false)} />
+              <Messages
+                miniWidget={true}
+                onClose={() => setIsOpen(false)}
+                dmUserId={chattingProfile ? dmUserId : null}
+              />
             </div>
           </motion.div>
         )}
@@ -62,8 +87,8 @@ export function FloatingChatWidget() {
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
             className="fixed bottom-[1.5rem] right-[1.5rem] z-[60] flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#FF3B30] via-[#FF5A3C] to-[#FF8A3D] text-white shadow-[0_10px_36px_rgba(255,59,48,0.45)] hover:shadow-[0_14px_44px_rgba(255,59,48,0.6)] hover:-translate-y-1 transition-all duration-300 ring-2 ring-white/20"
-            title="Messages"
-            aria-label="Open messages"
+            title={chattingProfile ? "Message this profile" : "Messages"}
+            aria-label={chattingProfile ? "Message this profile" : "Open messages"}
             data-testid="messages-fab"
           >
             <MessageSquare className="w-6 h-6" />

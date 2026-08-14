@@ -798,51 +798,76 @@ def setup_phase1(
 
         posts = await db.posts.find(q, {"_id": 0}).sort(sort).limit(limit).to_list(limit)
 
+        # Replace legacy mock posts that used wrong schema / one shared author
+        legacy_mock = await db.posts.find_one({"mock": True, "content": {"$exists": True}})
+        if legacy_mock:
+            await db.posts.delete_many({"mock": True})
+            posts = await db.posts.find(q, {"_id": 0}).sort(sort).limit(limit).to_list(limit)
+
         if not posts and not cursor and await db.posts.count_documents({}) == 0:
-            import uuid
-            from datetime import datetime
-            
-            # Find a demo user to use as author
-            demo_user = await db.users.find_one({"role": "influencer"}) or current
-            
-            mock_posts = [
+            from datetime import datetime, timedelta
+
+            influencers = await db.users.find(
+                {"role": {"$in": ["influencer", "creator"]}},
+                {"_id": 0, "password_hash": 0},
+            ).limit(8).to_list(8)
+            if not influencers:
+                influencers = [current]
+
+            samples = [
                 {
-                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
-                    "author_id": demo_user["id"],
-                    "content": "Just wrapped up an amazing shoot with a new streetwear brand! The vibes were immaculate, can't wait to share the final cuts. 📸✨ #streetwear #creator",
-                    "media_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
-                    "media_type": "image",
-                    "status": "published",
+                    "text": "Just wrapped a streetwear campaign — final cuts land this week. #streetwear #creator",
+                    "media": [{"url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800", "type": "image"}],
                     "likes_count": 42,
                     "comments_count": 5,
-                    "created_at": datetime.utcnow().isoformat() + "Z",
-                    "mock": True
                 },
                 {
-                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
-                    "author_id": demo_user["id"],
-                    "content": "What's everyone's favorite editing software these days? Thinking about switching from Premiere to DaVinci Resolve. Let me know your thoughts! 👇",
-                    "media_url": None,
-                    "media_type": None,
-                    "status": "published",
+                    "text": "Editing stack check: Premiere or DaVinci for brand Reels? Drop your workflow below.",
+                    "media": [],
                     "likes_count": 18,
                     "comments_count": 12,
-                    "created_at": datetime.utcnow().isoformat() + "Z",
-                    "mock": True
                 },
                 {
-                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
-                    "author_id": demo_user["id"],
-                    "content": "Beautiful sunset in the city today! Getting some great B-roll footage.",
-                    "media_url": "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&q=80&w=800",
-                    "media_type": "image",
-                    "status": "published",
+                    "text": "Golden-hour B-roll from today's city walk. Always chase the light.",
+                    "media": [{"url": "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&q=80&w=800", "type": "image"}],
                     "likes_count": 105,
                     "comments_count": 24,
-                    "created_at": datetime.utcnow().isoformat() + "Z",
-                    "mock": True
-                }
+                },
+                {
+                    "text": "Brand brief tip: clear deliverables + usage rights up front saves everyone time.",
+                    "media": [],
+                    "likes_count": 31,
+                    "comments_count": 8,
+                },
+                {
+                    "text": "New travel reel live — monsoon roads & roadside chai. Link in bio.",
+                    "media": [{"url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800", "type": "image"}],
+                    "likes_count": 67,
+                    "comments_count": 14,
+                },
             ]
+
+            now = datetime.utcnow()
+            mock_posts = []
+            for i, sample in enumerate(samples):
+                author = influencers[i % len(influencers)]
+                created = (now - timedelta(hours=i * 5 + 1)).isoformat() + "Z"
+                mock_posts.append({
+                    "id": f"post_mock_{uuid.uuid4().hex[:8]}",
+                    "author_id": author["id"],
+                    "title": "",
+                    "text": sample["text"],
+                    "media": sample["media"],
+                    "status": "published",
+                    "pinned": False,
+                    "likes_count": sample["likes_count"],
+                    "comments_count": sample["comments_count"],
+                    "created_at": created,
+                    "published_at": created,
+                    "hashtags": [],
+                    "mentions": [],
+                    "mock": True,
+                })
             await db.posts.insert_many(mock_posts)
             posts = mock_posts
 
