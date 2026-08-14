@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2 } from "lucide-react";
+import { MessageCircle, UserPlus, UserMinus, Ban, Flag, Loader2, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
-import { formatUsername, displayAccountName } from "@/lib/username";
+import { displayAccountName } from "@/lib/username";
 import { toast } from "sonner";
 
 export default function PublicProfile() {
@@ -34,10 +34,13 @@ export default function PublicProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  const targetId = profile?.id || userId;
+
   const follow = async () => {
+    if (!targetId) return;
     setActionBusy("follow");
     try {
-      const { data } = await api.post("/follow", { user_id: userId });
+      const { data } = await api.post("/follow", { user_id: targetId });
       toast.success(data.status === "pending" ? "Follow request sent" : "Following");
       await load();
     } catch (e) {
@@ -48,9 +51,10 @@ export default function PublicProfile() {
   };
 
   const unfollow = async () => {
+    if (!targetId) return;
     setActionBusy("unfollow");
     try {
-      await api.post("/unfollow", { user_id: userId });
+      await api.post("/unfollow", { user_id: targetId });
       toast.success(profile?.follow_pending ? "Request cancelled" : "Unfollowed");
       await load();
     } catch {
@@ -61,13 +65,14 @@ export default function PublicProfile() {
   };
 
   const block = async () => {
+    if (!targetId) return;
     toast("Block this user?", {
       action: {
         label: "Block",
         onClick: async () => {
           setActionBusy("block");
           try {
-            await api.post("/privacy/block", { user_id: userId });
+            await api.post("/privacy/block", { user_id: targetId });
             toast.success("User blocked");
             nav(-1);
           } catch (e) {
@@ -84,10 +89,10 @@ export default function PublicProfile() {
   };
 
   const report = async () => {
-    if (!reportReason.trim()) return;
+    if (!reportReason.trim() || !targetId) return;
     setActionBusy("report");
     try {
-      await api.post("/reports", { target_type: "user", target_id: userId, reason: reportReason });
+      await api.post("/reports", { target_type: "user", target_id: targetId, reason: reportReason });
       toast.success("Report submitted");
       setShowReport(false);
       setReportReason("");
@@ -99,9 +104,10 @@ export default function PublicProfile() {
   };
 
   const dm = async () => {
+    if (!targetId) return;
     setActionBusy("dm");
     try {
-      const { data } = await api.post("/conversations/dm", { user_id: userId });
+      const { data } = await api.post("/conversations/dm", { user_id: targetId });
       nav(`/messages?id=${data.id}`);
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail) || "Could not open DM");
@@ -133,7 +139,18 @@ export default function PublicProfile() {
     );
   }
 
-  const isMe = String(me?.id || "") === String(userId || "");
+  const param = String(userId || "").toLowerCase().replace(/^@/, "");
+  const meHandle = String(me?.handle || "").toLowerCase().replace(/^@/, "");
+  const meUsername = String(me?.username || "").toLowerCase().replace(/^@/, "");
+  const profileHandle = String(profile?.handle || "").toLowerCase().replace(/^@/, "");
+  const profileUsername = String(profile?.username || "").toLowerCase().replace(/^@/, "");
+  const isMe = Boolean(
+    me?.id && (
+      String(me.id) === String(profile.id || "") ||
+      String(me.id) === String(userId || "") ||
+      (param && (param === meHandle || param === meUsername || param === profileHandle || param === profileUsername))
+    )
+  );
   const displayName = displayAccountName(profile, "Profile");
   const busy = !!actionBusy;
 
@@ -232,7 +249,13 @@ export default function PublicProfile() {
           )}
 
           {isMe && (
-            <Link to="/profile/edit" className="inline-block mt-8 btn-action bg-[#FF3B30]">Edit Profile</Link>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <span className="font-mono text-[10px] tracking-widest uppercase text-white/40 px-3 py-2 border border-white/10 rounded-full">
+                This is you
+              </span>
+              <Link to="/profile/edit" className="inline-block btn-action bg-[#FF3B30]">Edit Profile</Link>
+              <Link to="/profile" className="inline-block btn-action bg-white/10">Back to Profile</Link>
+            </div>
           )}
         </div>
       </div>

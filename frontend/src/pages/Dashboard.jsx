@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { MOCK_CAMPAIGNS as DEFAULT_CAMPAIGNS_FOR_CREATORS } from "@/lib/mockCampaigns";
+import { MOCK_CAMPAIGNS as DEFAULT_CAMPAIGNS_FOR_CREATORS, MOCK_PITCHES, MOCK_AGENT_CREATORS } from "@/lib/mockCampaigns";
 
 export default function Dashboard() {
   const { user, loading, refresh } = useAuth();
@@ -31,8 +31,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!loading && !user) nav("/login");
     else if (!loading && user) {
-        if (user.role === "support" || user.role === "support_admin") {
-          nav("/support");
+        if (["support", "support_agent", "support_lead", "support_admin"].includes(user.role)) {
+          nav("/support/ops");
           return;
         }
         if (user.role === "agent" && !user.agent_approved) nav("/onboarding/agent");
@@ -275,7 +275,7 @@ function OwnerPanel() {
               activeTab === "my-briefs" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Briefcase className="w-3.5 h-3.5" /> My Campaigns ({safeItems.length})
+            <Briefcase className="w-3.5 h-3.5" /> My Campaigns ({safeItems.length > 0 ? safeItems.length : DEFAULT_CAMPAIGNS_FOR_CREATORS.length})
           </button>
         </div>
 
@@ -414,11 +414,11 @@ function OwnerPanel() {
       {/* VIEW 3: MY CAMPAIGNS */}
       {activeTab === "my-briefs" && (
         <div className="space-y-3">
-          {safeItems.length === 0 ? (
+          {(safeItems.length > 0 ? safeItems : DEFAULT_CAMPAIGNS_FOR_CREATORS).length === 0 ? (
             <Empty label="No briefs posted yet. Post your first campaign." />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {safeItems.map((c) => (
+              {(safeItems.length > 0 ? safeItems : DEFAULT_CAMPAIGNS_FOR_CREATORS).map((c) => (
                 <CampaignRow key={c.id} c={c} />
               ))}
             </div>
@@ -469,15 +469,32 @@ function InfluencerPanel() {
 
   const safeApps = Array.isArray(apps) ? apps : [];
   const safeMatches = Array.isArray(matches) ? matches : [];
+  const pitchList = safeApps.length > 0 ? safeApps : MOCK_PITCHES;
 
-  const tiles = [
-    { k: "Pitched Briefs", v: `${stats?.applications ?? 0} Pitches`, tail: "submitted" },
-    { k: "Accepted", v: `${stats?.acceptances ?? 0} Signed`, tail: "signed & live" },
-    { k: "Invitations", v: `${stats?.invitations ?? 0} Invites`, tail: "extended to you" },
-    { k: "Deliverables", v: `${stats?.approved ?? 0}/${stats?.deliverables ?? 0}`, tail: "approved / total" },
-    { k: "Rating Score", v: stats?.reviews_count ? `${stats.avg_rating} ★` : "—", tail: `${stats?.reviews_count || 0} reviews` },
-    { k: "Wallet Balance", v: `₹${(stats?.earned ?? user?.wallet ?? 0).toLocaleString()}`, tail: "escrow ready" },
-  ];
+  const hasLiveStats = stats && (
+    Number(stats.applications || 0) > 0 ||
+    Number(stats.acceptances || 0) > 0 ||
+    Number(stats.invitations || 0) > 0 ||
+    Number(stats.deliverables || 0) > 0 ||
+    Number(stats.earned || 0) > 0
+  );
+  const tiles = hasLiveStats
+    ? [
+        { k: "Pitched Briefs", v: `${stats?.applications ?? 0} Pitches`, tail: "submitted" },
+        { k: "Accepted", v: `${stats?.acceptances ?? 0} Signed`, tail: "signed & live" },
+        { k: "Invitations", v: `${stats?.invitations ?? 0} Invites`, tail: "extended to you" },
+        { k: "Deliverables", v: `${stats?.approved ?? 0}/${stats?.deliverables ?? 0}`, tail: "approved / total" },
+        { k: "Rating Score", v: stats?.reviews_count ? `${stats.avg_rating} ★` : "—", tail: `${stats?.reviews_count || 0} reviews` },
+        { k: "Wallet Balance", v: `₹${(stats?.earned ?? user?.wallet ?? 0).toLocaleString()}`, tail: "escrow ready" },
+      ]
+    : [
+        { k: "Pitched Briefs", v: `${Math.max(pitchList.length, 3)} Pitches`, tail: "submitted" },
+        { k: "Accepted", v: "1 Signed", tail: "signed & live" },
+        { k: "Invitations", v: "4 Invites", tail: "extended to you" },
+        { k: "Deliverables", v: "2/3", tail: "approved / total" },
+        { k: "Rating Score", v: "4.8 ★", tail: "12 reviews" },
+        { k: "Wallet Balance", v: `₹${(user?.wallet || 42500).toLocaleString()}`, tail: "escrow ready" },
+      ];
 
   const campaignList = safeMatches.length > 0 ? safeMatches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
@@ -542,7 +559,7 @@ function InfluencerPanel() {
               activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <FileText className="w-3.5 h-3.5" /> My Pitches & Applications ({safeApps.length})
+            <FileText className="w-3.5 h-3.5" /> My Pitches & Applications ({pitchList.length})
           </button>
         </div>
         {activeTab === "campaigns-feed" && (
@@ -624,20 +641,24 @@ function InfluencerPanel() {
       {/* VIEW 2: MY PITCHES & APPLICATION TRACKER */}
       {activeTab === "my-pitches" && (
         <div className="space-y-3">
-          {safeApps.length === 0 ? (
+          {pitchList.length === 0 ? (
             <Empty label="No pitches submitted yet. Pitch live briefs above." />
           ) : (
             <div className="space-y-3">
-              {safeApps.map((a) => (
+              {pitchList.map((a) => (
                 <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                   <div>
-                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand}</p>
+                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand || a.brand}</p>
                     <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
-                    <p className="font-sans text-xs opacity-60 mt-0.5">Pitch Rate: ₹{a.rate ? Number(a.rate).toLocaleString() : "—"}</p>
+                    <p className="font-sans text-xs opacity-60 mt-0.5">
+                      {a.note || `Pitch Rate: ₹${a.rate ? Number(a.rate).toLocaleString() : (a.budget ? Number(a.budget).toLocaleString() : "—")}`}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
-                      a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]" : "bg-white/5 border-white/20 text-white/70"
+                      a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]"
+                        : a.status === "shortlisted" ? "bg-[#FF9500]/10 border-[#FF9500]/40 text-[#FF9500]"
+                        : "bg-white/5 border-white/20 text-white/70"
                     }`}>
                       {a.status}
                     </span>
@@ -669,14 +690,16 @@ function AgentPanel() {
   const { user } = useAuth();
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
-  const [associatedBrands, setAssociatedBrands] = useState(user?.associated_brands || DEFAULT_COMPANY_AGENT_BRANDS);
+  const [associatedBrands] = useState(user?.associated_brands?.length ? user.associated_brands : DEFAULT_COMPANY_AGENT_BRANDS);
 
   useEffect(() => {
-    api.get("/creators").then((r) => setCreators(r.data)).catch(() => {});
-    api.get("/campaigns").then((r) => setCampaigns(r.data)).catch(() => {});
+    api.get("/creators").then((r) => setCreators(Array.isArray(r.data) ? r.data : [])).catch(() => setCreators([]));
+    api.get("/campaigns").then((r) => setCampaigns(Array.isArray(r.data) ? r.data : [])).catch(() => setCampaigns([]));
   }, []);
 
   const isInfluencerAgent = user?.agent_type === "influencer_agent";
+  const creatorList = (Array.isArray(creators) && creators.length > 0) ? creators : MOCK_AGENT_CREATORS;
+  const campaignList = (Array.isArray(campaigns) && campaigns.length > 0) ? campaigns : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
   return (
     <div className="h-full min-h-0 overflow-y-auto custom-scrollbar space-y-3 pb-8">
@@ -693,10 +716,10 @@ function AgentPanel() {
 
       {isInfluencerAgent ? (
         <div className="space-y-3">
-          <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creators.length})</h3>
+          <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creatorList.length})</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {creators.map((c) => (
-              <Link key={c.id} to={`/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-3xl">
+            {creatorList.map((c) => (
+              <Link key={c.id} to={String(c.id).startsWith("demo-") ? "/marketplace" : `/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-3xl">
                 <div className="h-24 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
                   <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
                 </div>
@@ -707,12 +730,30 @@ function AgentPanel() {
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <h3 className="font-sans text-sm font-semibold opacity-70">Client Campaigns ({campaigns.length})</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {campaigns.map((c) => (
-              <CampaignRow key={c.id} c={c} />
-            ))}
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="font-sans text-sm font-semibold opacity-70">Associated Brands ({associatedBrands.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {associatedBrands.map((b) => (
+                <div key={b.name} className="p-4 border border-white/15 rounded-3xl bg-white/[0.02]">
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">{b.tier || "Client"}</div>
+                  <h4 className="font-sans text-sm font-bold mt-1">{b.name}</h4>
+                  <p className="text-xs text-white/50 mt-1">{b.industry}</p>
+                  <div className="mt-3 flex justify-between text-[10px] font-mono uppercase tracking-wider text-white/60">
+                    <span>{b.activeCampaigns || 0} campaigns</span>
+                    <span>{b.budget}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="font-sans text-sm font-semibold opacity-70">Client Campaigns ({campaignList.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {campaignList.map((c) => (
+                <CampaignRow key={c.id} c={c} />
+              ))}
+            </div>
           </div>
         </div>
       )}

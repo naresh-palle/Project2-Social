@@ -1,85 +1,132 @@
 """
-CR8 Support & AI Ticket Management System
-Mounted onto the main API router by server.py.
+CR8 Support Operations — independent SUPPORT user category.
 
-Roles:
-  - support         — agent who can view queue, reply, update status
-  - support_admin   — can assign, escalate, close any ticket + manage queue
-  - admin           — full access (existing)
+Support is NOT an Influencer/Company/Agent role. Sub-roles:
+  - support_agent  (legacy alias: support)
+  - support_lead
+  - support_admin
 
-User flows:
-  - Any authenticated user can create tickets and chat with AI help
-  - AI can suggest escalating to a ticket; optional auto-create
+Platform admin retains full access for ops.
 """
 from __future__ import annotations
 
 import re
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Literal, Callable, Awaitable
+from datetime import datetime, timezone, timedelta
+from typing import Any, Dict, List, Optional, Literal, Set
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
-SUPPORT_STAFF_ROLES = ("support", "support_admin", "admin")
-TICKET_CATEGORIES = ("Payment", "Account", "Technical Bug", "Dispute", "Other")
-TICKET_PRIORITIES = ("Low", "Medium", "High", "Urgent")
-TICKET_STATUSES = ("open", "in_progress", "waiting_user", "resolved", "closed")
+# Canonical support category roles (independent of influencer/owner/agent)
+SUPPORT_AGENT = "support_agent"
+SUPPORT_LEAD = "support_lead"
+SUPPORT_ADMIN = "support_admin"
+LEGACY_SUPPORT = "support"  # migrated → support_agent
+
+SUPPORT_CATEGORY_ROLES = (SUPPORT_AGENT, SUPPORT_LEAD, SUPPORT_ADMIN, LEGACY_SUPPORT)
+SUPPORT_STAFF_ROLES = (*SUPPORT_CATEGORY_ROLES, "admin")
+
+# Permissions
+PERMS: Dict[str, Set[str]] = {
+    SUPPORT_AGENT: {
+        "support.dashboard.view",
+        "support.tickets.view",
+        "support.tickets.claim",
+        "support.tickets.update",
+        "support.tickets.reply",
+        "support.tickets.internal_note",
+        "support.tickets.resolve",
+        "support.tickets.reopen",
+        "support.users.view_context",
+        "support.knowledge_base.view",
+        "support.analytics.view_own",
+    },
+    SUPPORT_LEAD: {
+        "support.dashboard.view",
+        "support.tickets.view",
+        "support.tickets.view_all",
+        "support.tickets.claim",
+        "support.tickets.assign",
+        "support.tickets.update",
+        "support.tickets.reply",
+        "support.tickets.internal_note",
+        "support.tickets.resolve",
+        "support.tickets.reopen",
+        "support.tickets.escalate",
+        "support.users.view_context",
+        "support.knowledge_base.view",
+        "support.analytics.view",
+        "support.queues.manage",
+    },
+    SUPPORT_ADMIN: set(),  # filled below as union of all
+    "admin": set(),
+}
+# Support admin + platform admin get everything
+_ALL_PERMS = {
+    "support.dashboard.view",
+    "support.tickets.view",
+    "support.tickets.view_all",
+    "support.tickets.create",
+    "support.tickets.claim",
+    "support.tickets.assign",
+    "support.tickets.update",
+    "support.tickets.reply",
+    "support.tickets.internal_note",
+    "support.tickets.resolve",
+    "support.tickets.reopen",
+    "support.tickets.escalate",
+    "support.users.view",
+    "support.users.view_context",
+    "support.users.manage",
+    "support.knowledge_base.view",
+    "support.knowledge_base.manage",
+    "support.analytics.view",
+    "support.analytics.view_own",
+    "support.queues.manage",
+    "support.ai.configure",
+    "support.audit.view",
+}
+PERMS[SUPPORT_ADMIN] = set(_ALL_PERMS)
+PERMS["admin"] = set(_ALL_PERMS)
+PERMS[LEGACY_SUPPORT] = set(PERMS[SUPPORT_AGENT])
+PERMS[SUPPORT_LEAD] = PERMS[SUPPORT_LEAD] | PERMS[SUPPORT_AGENT]
+
+TICKET_CATEGORIES = ("Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Other")
+TICKET_PRIORITIES = ("Low", "Medium", "High", "Critical")
+TICKET_STATUSES = (
+    "new", "ai_handling", "open", "assigned", "in_progress",
+    "pending_user", "pending_support", "resolved", "closed", "reopened",
+)
+AI_STATUSES = ("ai_handling", "ai_resolved", "ai_escalated", "human_handling", "none")
+
+USER_TYPE_LABELS = {
+    "influencer": "Influencer",
+    "owner": "Company",
+    "agent": "Agent",
+    "admin": "Admin",
+}
 
 KNOWLEDGE_BASE = """
-CR8 Studio is an influencer marketplace connecting brands (owners), creators (influencers), and agencies (agents).
+CR8 Studio is an influencer marketplace connecting brands (companies/owners), creators (influencers), and agencies (agents).
 
-Payments & escrow:
-- Brands fund campaign escrow via wallet / Stripe-style flows.
-- Creators are paid after deliverable approval; platform commission is deducted from payouts.
-- Refunds return escrow to the brand wallet when campaigns cancel.
-
-Matching:
-- Matching uses niche, audience, past performance, and campaign requirements.
-- Creator levels (Rising / Pro / Elite) unlock premium campaigns.
-
-Disputes:
-- Users can open a Dispute ticket from Support for rejected deliverables or payment issues.
-- Support staff review briefs, messages, and deliverables before deciding.
-
-Accounts:
-- Roles: owner (brand), influencer (creator), agent (agency), admin, support, support_admin.
-- Demo logins use password demo1234 for creator@ / company@ / agent@ cr8.studio.
-- Profile edit supports Apify social scrape for Instagram / YouTube / Facebook.
-
-AI Help:
-- The CR8 Assistant answers product questions using this knowledge base.
-- If unsure, it should recommend opening a support ticket at /support.
+Payments & escrow: Brands fund campaign escrow; creators are paid after deliverable approval.
+Matching: niche, audience, past performance, campaign requirements.
+Disputes: open a Dispute ticket; Support Operations reviews briefs and deliverables.
+Accounts: Influencer, Company (owner), Agent, Admin, and Support Operations are separate categories.
+Demo passwords: demo1234 for creator@ / company@ / agent@ / support@ / support.lead@ / support.admin@ cr8.studio.
 """
 
 FAQ_BY_ROLE = {
     "influencer": [
-        {"question": "How do I get paid?", "answer": "Once a campaign deliverable is approved, funds move from escrow to your wallet and can be withdrawn within 3–5 business days."},
-        {"question": "How does matching work?", "answer": "We pair creators with brands using niche, audience fit, past performance, and campaign requirements."},
-        {"question": "Can I dispute a rejection?", "answer": "Yes. Open a Dispute ticket in Support with the campaign link and our team will review."},
-        {"question": "Do I pay a platform fee?", "answer": "No upfront fee. A platform commission is deducted from the final payout and shown before you accept."},
+        {"question": "How do I get paid?", "answer": "Funds release to your wallet after deliverable approval."},
+        {"question": "Can I dispute a rejection?", "answer": "Yes — open a Dispute ticket in Support."},
     ],
     "owner": [
-        {"question": "How do I fund escrow?", "answer": "Add funds to your brand wallet, then lock escrow when launching a campaign."},
-        {"question": "Can I rehire a creator?", "answer": "Yes — rehire from any completed campaign; loyalty discounts may apply."},
-        {"question": "What if a creator misses a deadline?", "answer": "The campaign can be canceled and escrow returned to your wallet."},
-        {"question": "How many revision rounds?", "answer": "Brands typically get up to two revision rounds before final approval."},
+        {"question": "How do I fund escrow?", "answer": "Add funds to your brand wallet, then lock escrow on the campaign."},
     ],
     "agent": [
-        {"question": "How do agency approvals work?", "answer": "New agencies wait for admin approval before accessing full marketplace tools."},
-        {"question": "Can I manage multiple creators?", "answer": "Yes — approved agencies can represent creators and coordinate briefs from the Agency Desk."},
-    ],
-    "admin": [
-        {"question": "How do I resolve disputes?", "answer": "Use Support Desk tickets with category Dispute, or promote a support_admin to own the queue."},
-        {"question": "How do I manage payouts?", "answer": "Review Wallet / Transactions in Admin; support tickets of type Payment should be linked to the user id."},
-    ],
-    "support": [
-        {"question": "How do I take a ticket?", "answer": "Open the ticket and set status to In Progress — you become the assignee."},
-        {"question": "When should I escalate?", "answer": "Escalate payment disputes over ₹50k or policy exceptions to support_admin."},
-    ],
-    "support_admin": [
-        {"question": "How do I assign agents?", "answer": "Patch the ticket with assignee_id of a support user."},
-        {"question": "Can I close tickets?", "answer": "Yes — set status to resolved or closed after the user confirms."},
+        {"question": "How do agency approvals work?", "answer": "Admins approve new agencies before full marketplace access."},
     ],
 }
 
@@ -96,8 +143,42 @@ def _clean_doc(doc: Optional[dict]) -> Optional[dict]:
     return out
 
 
+def normalize_support_role(role: Optional[str]) -> Optional[str]:
+    if role == LEGACY_SUPPORT:
+        return SUPPORT_AGENT
+    return role
+
+
+def is_support_category(user: dict) -> bool:
+    """True only for Support Operations users (not platform admin business roles)."""
+    return (user or {}).get("role") in SUPPORT_CATEGORY_ROLES
+
+
 def is_support_staff(user: dict) -> bool:
     return (user or {}).get("role") in SUPPORT_STAFF_ROLES
+
+
+def support_perms(user: dict) -> Set[str]:
+    role = normalize_support_role((user or {}).get("role")) or ""
+    if (user or {}).get("role") == "admin":
+        return set(_ALL_PERMS)
+    return set(PERMS.get(role, set()) | PERMS.get((user or {}).get("role"), set()))
+
+
+def has_perm(user: dict, perm: str) -> bool:
+    return perm in support_perms(user)
+
+
+def user_type_from_role(role: Optional[str]) -> str:
+    if role == "owner":
+        return "company"
+    if role == "influencer":
+        return "influencer"
+    if role == "agent":
+        return "agent"
+    if role in SUPPORT_CATEGORY_ROLES:
+        return "support"
+    return role or "unknown"
 
 
 def setup_support(
@@ -118,20 +199,24 @@ def setup_support(
 ):
     class TicketCreate(BaseModel):
         subject: str = Field(min_length=3, max_length=200)
-        category: Literal["Payment", "Account", "Technical Bug", "Dispute", "Other"] = "Other"
-        priority: Literal["Low", "Medium", "High", "Urgent"] = "Medium"
+        category: str = "Other"
+        priority: Literal["Low", "Medium", "High", "Critical"] = "Medium"
         description: str = Field(min_length=5, max_length=8000)
         campaign_id: Optional[str] = None
+        tags: List[str] = Field(default_factory=list)
 
     class TicketPatch(BaseModel):
-        status: Optional[Literal["open", "in_progress", "waiting_user", "resolved", "closed"]] = None
-        priority: Optional[Literal["Low", "Medium", "High", "Urgent"]] = None
+        status: Optional[str] = None
+        priority: Optional[Literal["Low", "Medium", "High", "Critical"]] = None
         assignee_id: Optional[str] = None
+        category: Optional[str] = None
+        tags: Optional[List[str]] = None
+        escalate: Optional[bool] = None
         internal_note: Optional[str] = Field(default=None, max_length=4000)
 
     class TicketMessageIn(BaseModel):
         body: str = Field(min_length=1, max_length=8000)
-        internal: bool = False  # staff-only note
+        internal: bool = False
 
     class AiChatIn(BaseModel):
         message: str = Field(min_length=1, max_length=4000)
@@ -141,23 +226,37 @@ def setup_support(
     class AiDraftIn(BaseModel):
         instruction: Optional[str] = Field(default=None, max_length=1000)
 
-    async def _audit(**kwargs):
-        if write_audit_log:
-            # Normalize to write_audit_log(user_id=..., action=..., ...)
-            payload = dict(kwargs)
-            if "actor_id" in payload and "user_id" not in payload:
-                payload["user_id"] = payload.pop("actor_id")
-            payload.pop("target_type", None)
-            payload.pop("target_id", None)
-            try:
-                await write_audit_log(**payload)
-            except TypeError:
-                await write_audit_log(
-                    action=payload.get("action", "support"),
-                    user_id=payload.get("user_id"),
-                    meta=payload.get("meta"),
-                    details=str(payload.get("meta") or ""),
-                )
+    class SupportUserCreate(BaseModel):
+        email: EmailStr
+        name: str = Field(min_length=1, max_length=80)
+        username: str = Field(min_length=3, max_length=30)
+        password: str = Field(min_length=8)
+        support_role: Literal["support_agent", "support_lead", "support_admin"] = "support_agent"
+
+    class SupportUserPatch(BaseModel):
+        name: Optional[str] = None
+        support_role: Optional[Literal["support_agent", "support_lead", "support_admin"]] = None
+        active: Optional[bool] = None
+        password: Optional[str] = Field(default=None, min_length=8)
+
+    async def _audit(actor: dict, action: str, *, ticket_id: str = None, details: str = "", meta: dict = None):
+        if not write_audit_log:
+            return
+        try:
+            await write_audit_log(
+                action=action,
+                user_id=actor.get("id"),
+                username=actor.get("username") or actor.get("name"),
+                user=actor.get("name"),
+                details=details,
+                meta={
+                    **(meta or {}),
+                    "actor_type": "support" if is_support_category(actor) else actor.get("role"),
+                    "ticket_id": ticket_id,
+                },
+            )
+        except Exception as e:
+            logger.warning("support audit failed: %s", e)
 
     async def _notify(user_id: str, title: str, body: str, link: str = "/support"):
         if push_notification:
@@ -166,11 +265,17 @@ def setup_support(
             except Exception as e:
                 logger.warning("support notify failed: %s", e)
 
+    def _require_perm(current: dict, perm: str):
+        if not has_perm(current, perm):
+            raise HTTPException(status_code=403, detail=f"Missing permission: {perm}")
+
     async def ensure_indexes():
         await db.support_tickets.create_index("id", unique=True)
         await db.support_tickets.create_index([("user_id", 1), ("created_at", -1)])
+        await db.support_tickets.create_index([("user_type", 1), ("status", 1)])
         await db.support_tickets.create_index([("status", 1), ("priority", 1), ("updated_at", -1)])
         await db.support_tickets.create_index([("assignee_id", 1), ("status", 1)])
+        await db.support_tickets.create_index([("ai_status", 1), ("updated_at", -1)])
         await db.support_messages.create_index("id", unique=True)
         await db.support_messages.create_index([("ticket_id", 1), ("created_at", 1)])
         await db.support_ai_sessions.create_index("id", unique=True)
@@ -179,21 +284,18 @@ def setup_support(
     async def seed_support_users():
         demo_hash = hash_password("demo1234")
         seeds = [
-            {
-                "email": "support@cr8.studio",
-                "username": "supportagent",
-                "name": "CR8 Support",
-                "role": "support",
-                "handle": "@support",
-            },
-            {
-                "email": "support.admin@cr8.studio",
-                "username": "supportadmin",
-                "name": "CR8 Support Admin",
-                "role": "support_admin",
-                "handle": "@support.admin",
-            },
+            {"email": "support@cr8.studio", "username": "supportagent", "name": "CR8 Support Agent",
+             "role": SUPPORT_AGENT, "handle": "@support.agent"},
+            {"email": "support.lead@cr8.studio", "username": "supportlead", "name": "CR8 Support Lead",
+             "role": SUPPORT_LEAD, "handle": "@support.lead"},
+            {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "CR8 Support Admin",
+             "role": SUPPORT_ADMIN, "handle": "@support.admin"},
+            # Migrate legacy email if present
+            {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "CR8 Support Admin",
+             "role": SUPPORT_ADMIN, "handle": "@support.admin"},
         ]
+        # Also migrate legacy role "support" → support_agent
+        await db.users.update_many({"role": LEGACY_SUPPORT}, {"$set": {"role": SUPPORT_AGENT, "user_category": "support"}})
         for s in seeds:
             existing = await db.users.find_one({"email": s["email"]})
             base = {
@@ -201,30 +303,24 @@ def setup_support(
                 "name": s["name"],
                 "username": s["username"],
                 "role": s["role"],
+                "user_category": "support",
                 "handle": s["handle"],
-                "company": "CR8 Studio",
-                "bio": "Support desk",
+                "company": "CR8 Studio Support Operations",
+                "bio": "Internal Support Operations",
                 "verified": True,
                 "wallet": 0,
                 "onboarding_status": "completed",
                 "agent_approved": True,
+                "active": True,
                 "avatar": None,
                 "niches": [],
                 "platforms": [],
             }
             if not existing:
-                await db.users.insert_one({
-                    "id": str(uuid.uuid4()),
-                    "email": s["email"],
-                    "created_at": now_iso(),
-                    **base,
-                })
-                logger.info("Seeded support user %s", s["email"])
+                await db.users.insert_one({"id": str(uuid.uuid4()), "email": s["email"], "created_at": now_iso(), **base})
+                logger.info("Seeded support user %s (%s)", s["email"], s["role"])
             else:
-                await db.users.update_one(
-                    {"email": s["email"]},
-                    {"$set": base},
-                )
+                await db.users.update_one({"email": s["email"]}, {"$set": base})
 
     def _public_ticket(doc: dict, include_internal: bool = False) -> dict:
         t = clean(doc) if clean else _clean_doc(doc)
@@ -232,6 +328,10 @@ def setup_support(
             return {}
         if not include_internal:
             t.pop("internal_notes", None)
+        t["user_type_label"] = USER_TYPE_LABELS.get(
+            "owner" if t.get("user_type") == "company" else t.get("user_type") or t.get("user_role"),
+            t.get("user_type") or t.get("user_role") or "User",
+        )
         return t
 
     async def _get_ticket_or_404(ticket_id: str) -> dict:
@@ -250,12 +350,24 @@ def setup_support(
 
     async def _next_ticket_number() -> str:
         count = await db.support_tickets.count_documents({})
-        return f"T-{1000 + count + 1}"
+        return f"CR8-{1000 + count + 1}"
 
-    async def _create_ticket_internal(current: dict, inp: TicketCreate) -> dict:
+    def _sla_due(priority: str) -> str:
+        hours = {"Critical": 4, "High": 8, "Medium": 24, "Low": 48}.get(priority, 24)
+        return (datetime.utcnow() + timedelta(hours=hours)).isoformat()
+
+    async def _create_ticket_internal(
+        current: dict,
+        inp: TicketCreate,
+        *,
+        ai_status: str = "none",
+        ai_conversation: list = None,
+        ai_classification: dict = None,
+    ) -> dict:
         ticket_id = f"tkt_{uuid.uuid4().hex[:12]}"
         number = await _next_ticket_number()
         now = now_iso()
+        utype = user_type_from_role(current.get("role"))
         doc = {
             "id": ticket_id,
             "number": number,
@@ -263,20 +375,28 @@ def setup_support(
             "user_name": current.get("name") or current.get("username") or current.get("email"),
             "user_email": current.get("email"),
             "user_role": current.get("role"),
+            "user_type": utype,
             "subject": inp.subject.strip(),
-            "category": inp.category,
+            "category": inp.category if inp.category in TICKET_CATEGORIES else "Other",
             "priority": inp.priority,
             "description": inp.description.strip(),
             "campaign_id": inp.campaign_id,
-            "status": "open",
+            "tags": list(inp.tags or []),
+            "status": "new" if ai_status == "ai_escalated" else "open",
+            "ai_status": ai_status,
+            "ai_conversation": list(ai_conversation or []),
+            "ai_classification": ai_classification or {},
             "assignee_id": None,
             "assignee_name": None,
+            "escalated": False,
+            "sla_due_at": _sla_due(inp.priority),
+            "sla_breached": False,
             "internal_notes": [],
             "created_at": now,
             "updated_at": now,
         }
         await db.support_tickets.insert_one(doc)
-        msg = {
+        await db.support_messages.insert_one({
             "id": f"smsg_{uuid.uuid4().hex[:12]}",
             "ticket_id": ticket_id,
             "author_id": current["id"],
@@ -284,23 +404,46 @@ def setup_support(
             "author_role": current.get("role"),
             "body": inp.description.strip(),
             "internal": False,
+            "source": "user",
             "created_at": now,
-        }
-        await db.support_messages.insert_one(msg)
+        })
+        # Attach AI transcript as system messages
+        for turn in (ai_conversation or []):
+            await db.support_messages.insert_one({
+                "id": f"smsg_{uuid.uuid4().hex[:12]}",
+                "ticket_id": ticket_id,
+                "author_id": "ai" if turn.get("role") == "assistant" else current["id"],
+                "author_name": "CR8 AI Support" if turn.get("role") == "assistant" else doc["user_name"],
+                "author_role": "ai" if turn.get("role") == "assistant" else current.get("role"),
+                "body": turn.get("content") or "",
+                "internal": False,
+                "source": "ai",
+                "created_at": now,
+            })
         staff = await db.users.find(
-            {"role": {"$in": ["support", "support_admin"]}},
+            {"role": {"$in": list(SUPPORT_CATEGORY_ROLES)}, "active": {"$ne": False}},
             {"_id": 0, "id": 1},
-        ).to_list(20)
+        ).to_list(50)
         for s in staff:
-            await _notify(s["id"], f"New ticket {number}", inp.subject, link="/support")
-        await _audit(
-            actor_id=current["id"],
-            action="support_ticket_created",
-            target_type="support_ticket",
-            target_id=ticket_id,
-            meta={"number": number, "category": inp.category, "priority": inp.priority},
-        )
+            await _notify(s["id"], f"New ticket {number}", f"[{utype}] {inp.subject}", link="/support")
+        await _audit(current, "support_ticket_created", ticket_id=ticket_id,
+                     meta={"number": number, "user_type": utype, "category": inp.category})
         return doc
+
+    # ── Me / permissions ──
+    @api_router.get("/support/me")
+    async def support_me(current: dict = Depends(get_current_user)):
+        role = normalize_support_role(current.get("role"))
+        return {
+            "id": current.get("id"),
+            "name": current.get("name"),
+            "email": current.get("email"),
+            "role": current.get("role"),
+            "support_role": role if is_support_category(current) else None,
+            "user_category": "support" if is_support_category(current) else user_type_from_role(current.get("role")),
+            "is_support": is_support_category(current),
+            "permissions": sorted(support_perms(current)) if is_support_staff(current) else [],
+        }
 
     @api_router.get("/support/faqs")
     async def support_faqs(current: dict = Depends(get_current_user)):
@@ -310,40 +453,130 @@ def setup_support(
 
     @api_router.get("/support/stats")
     async def support_stats(current: dict = Depends(get_current_user)):
-        await require_role(current, list(SUPPORT_STAFF_ROLES))
+        _require_perm(current, "support.dashboard.view")
         day_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
-        open_n = await db.support_tickets.count_documents({"status": {"$in": ["open", "in_progress", "waiting_user"]}})
-        urgent = await db.support_tickets.count_documents({"status": {"$in": ["open", "in_progress"]}, "priority": "Urgent"})
-        mine = await db.support_tickets.count_documents({"assignee_id": current["id"], "status": {"$nin": ["closed", "resolved"]}})
-        resolved_today = await db.support_tickets.count_documents({
-            "status": {"$in": ["resolved", "closed"]},
-            "updated_at": {"$gte": day_start},
-        })
-        # Tickets this agent personally finished today
-        finished_today_by_me = await db.support_tickets.count_documents({
-            "assignee_id": current["id"],
-            "status": {"$in": ["resolved", "closed"]},
-            "updated_at": {"$gte": day_start},
-        })
+
+        async def cnt(q):
+            return await db.support_tickets.count_documents(q)
+
+        open_statuses = ["new", "open", "assigned", "in_progress", "pending_user", "pending_support", "reopened", "ai_handling"]
+        total = await cnt({})
         return {
-            "open": open_n,
-            "urgent": urgent,
-            "assigned_to_me": mine,
-            "resolved_today": resolved_today,
-            "finished_today_by_me": finished_today_by_me,
+            "total": total,
+            "new": await cnt({"status": "new"}),
+            "unassigned": await cnt({"assignee_id": None, "status": {"$in": open_statuses}}),
+            "my_open": await cnt({"assignee_id": current["id"], "status": {"$in": open_statuses}}),
+            "influencer": await cnt({"user_type": "influencer", "status": {"$in": open_statuses}}),
+            "company": await cnt({"user_type": "company", "status": {"$in": open_statuses}}),
+            "agent": await cnt({"user_type": "agent", "status": {"$in": open_statuses}}),
+            "critical": await cnt({"priority": "Critical", "status": {"$in": open_statuses}}),
+            "ai_resolved": await cnt({"ai_status": "ai_resolved"}),
+            "ai_escalated": await cnt({"ai_status": "ai_escalated"}),
+            "pending_user": await cnt({"status": "pending_user"}),
+            "pending_support": await cnt({"status": "pending_support"}),
+            "sla_breached": await cnt({"sla_breached": True, "status": {"$in": open_statuses}}),
+            "resolved_today": await cnt({"status": {"$in": ["resolved", "closed"]}, "updated_at": {"$gte": day_start}}),
+            "finished_today_by_me": await cnt({
+                "assignee_id": current["id"],
+                "status": {"$in": ["resolved", "closed"]},
+                "updated_at": {"$gte": day_start},
+            }),
+            # legacy keys
+            "open": await cnt({"status": {"$in": open_statuses}}),
+            "urgent": await cnt({"priority": {"$in": ["Critical", "High"]}, "status": {"$in": open_statuses}}),
+            "assigned_to_me": await cnt({"assignee_id": current["id"], "status": {"$in": open_statuses}}),
         }
 
     @api_router.get("/support/agents")
     async def list_support_agents(current: dict = Depends(get_current_user)):
-        await require_role(current, ["support_admin", "admin"])
+        _require_perm(current, "support.tickets.assign")
         cursor = db.users.find(
-            {"role": {"$in": ["support", "support_admin", "admin"]}},
-            {"_id": 0, "id": 1, "name": 1, "email": 1, "role": 1, "avatar": 1},
+            {"role": {"$in": list(SUPPORT_CATEGORY_ROLES)}, "active": {"$ne": False}},
+            {"_id": 0, "id": 1, "name": 1, "email": 1, "role": 1, "avatar": 1, "active": 1},
         )
-        return {"agents": await cursor.to_list(100)}
+        return {"agents": await cursor.to_list(200)}
+
+    # ── Support user management (Support Admin) ──
+    @api_router.get("/support/staff")
+    async def list_support_staff(current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.users.view")
+        users = await db.users.find(
+            {"role": {"$in": list(SUPPORT_CATEGORY_ROLES)}},
+            {"_id": 0, "password_hash": 0, "two_fa_secret": 0},
+        ).to_list(200)
+        out = []
+        for u in users:
+            open_n = await db.support_tickets.count_documents({
+                "assignee_id": u["id"],
+                "status": {"$nin": ["resolved", "closed"]},
+            })
+            resolved_n = await db.support_tickets.count_documents({
+                "assignee_id": u["id"],
+                "status": {"$in": ["resolved", "closed"]},
+            })
+            out.append({
+                **(clean(u) if clean else _clean_doc(u)),
+                "support_role": normalize_support_role(u.get("role")),
+                "open_tickets": open_n,
+                "resolved_tickets": resolved_n,
+                "status": "active" if u.get("active", True) else "inactive",
+            })
+        return {"users": out}
+
+    @api_router.post("/support/staff")
+    async def create_support_staff(inp: SupportUserCreate, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.users.manage")
+        email = inp.email.lower().strip()
+        username = inp.username.lower().strip()
+        if await db.users.find_one({"$or": [{"email": email}, {"username": username}]}):
+            raise HTTPException(status_code=400, detail="Email or username already exists")
+        doc = {
+            "id": str(uuid.uuid4()),
+            "email": email,
+            "username": username,
+            "name": inp.name.strip(),
+            "password_hash": hash_password(inp.password),
+            "role": inp.support_role,
+            "user_category": "support",
+            "handle": f"@{username}",
+            "company": "CR8 Studio Support Operations",
+            "verified": True,
+            "wallet": 0,
+            "onboarding_status": "completed",
+            "agent_approved": True,
+            "active": True,
+            "created_at": now_iso(),
+        }
+        await db.users.insert_one(doc)
+        await _audit(current, "support_user_created", details=email, meta={"role": inp.support_role})
+        return {"ok": True, "user": {k: v for k, v in doc.items() if k != "password_hash"}}
+
+    @api_router.patch("/support/staff/{user_id}")
+    async def patch_support_staff(user_id: str, inp: SupportUserPatch, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.users.manage")
+        target = await db.users.find_one({"id": user_id, "role": {"$in": list(SUPPORT_CATEGORY_ROLES)}})
+        if not target:
+            raise HTTPException(status_code=404, detail="Support user not found")
+        updates: Dict[str, Any] = {}
+        if inp.name is not None:
+            updates["name"] = inp.name.strip()
+        if inp.support_role is not None:
+            updates["role"] = inp.support_role
+            updates["user_category"] = "support"
+        if inp.active is not None:
+            updates["active"] = inp.active
+        if inp.password:
+            updates["password_hash"] = hash_password(inp.password)
+        if updates:
+            await db.users.update_one({"id": user_id}, {"$set": updates})
+            await _audit(current, "support_user_updated", details=user_id, meta=updates)
+        fresh = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+        return {"ok": True, "user": fresh}
 
     @api_router.post("/support/tickets")
     async def create_ticket(inp: TicketCreate, current: dict = Depends(get_current_user)):
+        if is_support_category(current):
+            raise HTTPException(status_code=400, detail="Support staff should not open end-user tickets here")
         doc = await _create_ticket_internal(current, inp)
         return {"ok": True, "ticket": _public_ticket(doc, include_internal=False)}
 
@@ -352,29 +585,68 @@ def setup_support(
         status: Optional[str] = None,
         priority: Optional[str] = None,
         category: Optional[str] = None,
+        user_type: Optional[str] = None,
+        ai_status: Optional[str] = None,
+        assignment: Optional[str] = None,
         q: Optional[str] = None,
         mine: bool = False,
-        limit: int = Query(50, ge=1, le=200),
+        escalated: Optional[bool] = None,
+        limit: int = Query(100, ge=1, le=300),
         current: dict = Depends(get_current_user),
     ):
         query: Dict[str, Any] = {}
         if is_support_staff(current):
-            if mine:
+            _require_perm(current, "support.tickets.view")
+            if mine or assignment == "mine":
                 query["assignee_id"] = current["id"]
+            elif assignment == "unassigned":
+                query["assignee_id"] = None
+            elif assignment and assignment not in ("all", ""):
+                query["assignee_id"] = assignment
+            if not has_perm(current, "support.tickets.view_all") and "assignee_id" not in query:
+                # Agents see unassigned + own by default unless filtered
+                query["$or"] = [{"assignee_id": None}, {"assignee_id": current["id"]}]
         else:
             query["user_id"] = current["id"]
 
         if status:
             statuses = [s.strip() for s in status.split(",") if s.strip()]
-            if statuses:
-                query["status"] = {"$in": statuses}
+            # map legacy waiting_user → pending_user
+            mapped = []
+            for s in statuses:
+                if s == "waiting_user":
+                    mapped.append("pending_user")
+                else:
+                    mapped.append(s)
+            if mapped:
+                query["status"] = {"$in": mapped}
         if priority:
-            query["priority"] = priority
+            # map Urgent → Critical for legacy
+            pr = "Critical" if priority == "Urgent" else priority
+            query["priority"] = pr
         if category:
             query["category"] = category
+        if user_type and user_type.lower() not in ("all", ""):
+            ut = user_type.lower()
+            if ut == "company":
+                ut = "company"
+            query["user_type"] = ut
+        if ai_status:
+            query["ai_status"] = ai_status
+        if escalated is not None:
+            query["escalated"] = escalated
         if q:
             rx = {"$regex": re.escape(q.strip()), "$options": "i"}
-            query["$or"] = [{"subject": rx}, {"number": rx}, {"user_name": rx}, {"user_email": rx}]
+            query.setdefault("$and", []).append({
+                "$or": [{"subject": rx}, {"number": rx}, {"user_name": rx}, {"user_email": rx}, {"description": rx}]
+            })
+
+        # SLA breach refresh (best-effort)
+        now = datetime.utcnow().isoformat()
+        await db.support_tickets.update_many(
+            {"sla_due_at": {"$lt": now}, "status": {"$nin": ["resolved", "closed"]}, "sla_breached": {"$ne": True}},
+            {"$set": {"sla_breached": True}},
+        )
 
         cursor = db.support_tickets.find(query, {"_id": 0}).sort("updated_at", -1).limit(limit)
         items = await cursor.to_list(limit)
@@ -388,27 +660,54 @@ def setup_support(
         ticket = await _get_ticket_or_404(ticket_id)
         await _assert_ticket_access(ticket, current)
         staff = is_support_staff(current)
+        if staff:
+            _require_perm(current, "support.tickets.view")
+            await _audit(current, "support_ticket_viewed", ticket_id=ticket_id)
         msgs = await db.support_messages.find(
             {"ticket_id": ticket_id, **({} if staff else {"internal": {"$ne": True}})},
             {"_id": 0},
-        ).sort("created_at", 1).to_list(500)
+        ).sort("created_at", 1).to_list(800)
+
+        user_context = None
+        if staff and has_perm(current, "support.users.view_context"):
+            u = await db.users.find_one(
+                {"id": ticket.get("user_id")},
+                {"_id": 0, "password_hash": 0, "two_fa_secret": 0, "wallet": 0},
+            )
+            if u:
+                user_context = {
+                    "id": u.get("id"),
+                    "name": u.get("name"),
+                    "email": u.get("email"),
+                    "role": u.get("role"),
+                    "user_type": user_type_from_role(u.get("role")),
+                    "company": u.get("company"),
+                    "handle": u.get("handle") or u.get("username"),
+                    "city": u.get("city"),
+                    "verified": u.get("verified"),
+                    "onboarding_status": u.get("onboarding_status"),
+                }
+
         return {
             "ticket": _public_ticket(ticket, include_internal=staff),
             "messages": [clean(m) if clean else _clean_doc(m) for m in msgs],
+            "ai_conversation": ticket.get("ai_conversation") or [],
+            "user_context": user_context,
             "staff": staff,
+            "permissions": sorted(support_perms(current)) if staff else [],
         }
 
     @api_router.post("/support/tickets/{ticket_id}/messages")
-    async def post_ticket_message(
-        ticket_id: str,
-        inp: TicketMessageIn,
-        current: dict = Depends(get_current_user),
-    ):
+    async def post_ticket_message(ticket_id: str, inp: TicketMessageIn, current: dict = Depends(get_current_user)):
         ticket = await _get_ticket_or_404(ticket_id)
         await _assert_ticket_access(ticket, current, write=True)
         staff = is_support_staff(current)
-        if inp.internal and not staff:
-            raise HTTPException(status_code=403, detail="Internal notes are staff-only")
+        if inp.internal:
+            if not staff:
+                raise HTTPException(status_code=403, detail="Internal notes are staff-only")
+            _require_perm(current, "support.tickets.internal_note")
+        elif staff:
+            _require_perm(current, "support.tickets.reply")
 
         now = now_iso()
         msg = {
@@ -419,71 +718,107 @@ def setup_support(
             "author_role": current.get("role"),
             "body": inp.body.strip(),
             "internal": bool(inp.internal and staff),
+            "source": "support" if staff else "user",
             "created_at": now,
         }
         await db.support_messages.insert_one(msg)
 
-        updates: Dict[str, Any] = {"updated_at": now}
+        updates: Dict[str, Any] = {"updated_at": now, "ai_status": "human_handling"}
         if staff and not inp.internal:
-            if ticket.get("status") == "open":
-                updates["status"] = "in_progress"
             if not ticket.get("assignee_id"):
                 updates["assignee_id"] = current["id"]
                 updates["assignee_name"] = current.get("name")
-            # waiting on user after staff reply
-            if ticket.get("status") in ("open", "in_progress", "waiting_user"):
-                updates["status"] = "waiting_user"
+            updates["status"] = "pending_user"
         elif not staff:
-            if ticket.get("status") == "waiting_user":
-                updates["status"] = "in_progress"
+            if ticket.get("status") in ("pending_user", "resolved"):
+                updates["status"] = "pending_support" if ticket.get("assignee_id") else "open"
 
         await db.support_tickets.update_one({"id": ticket_id}, {"$set": updates})
+        await _audit(current, "support_internal_note" if inp.internal else "support_reply",
+                     ticket_id=ticket_id)
 
-        # Notify the other party
         if staff and not inp.internal:
             await _notify(ticket["user_id"], f"Update on {ticket.get('number')}", "Support replied to your ticket.")
         elif not staff and ticket.get("assignee_id"):
-            await _notify(ticket["assignee_id"], f"Reply on {ticket.get('number')}", "User replied to the ticket.")
+            await _notify(ticket["assignee_id"], f"Reply on {ticket.get('number')}", "User replied.")
 
         return {"ok": True, "message": clean(msg) if clean else _clean_doc(msg)}
 
+    @api_router.post("/support/tickets/{ticket_id}/claim")
+    async def claim_ticket(ticket_id: str, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.tickets.claim")
+        ticket = await _get_ticket_or_404(ticket_id)
+        if ticket.get("assignee_id") and ticket.get("assignee_id") != current["id"]:
+            if not has_perm(current, "support.tickets.assign"):
+                raise HTTPException(status_code=400, detail="Ticket already assigned")
+        await db.support_tickets.update_one(
+            {"id": ticket_id},
+            {"$set": {
+                "assignee_id": current["id"],
+                "assignee_name": current.get("name"),
+                "status": "assigned",
+                "ai_status": "human_handling",
+                "updated_at": now_iso(),
+            }},
+        )
+        await _audit(current, "support_ticket_assigned", ticket_id=ticket_id, meta={"assignee_id": current["id"]})
+        fresh = await _get_ticket_or_404(ticket_id)
+        return {"ok": True, "ticket": _public_ticket(fresh, include_internal=True)}
+
     @api_router.patch("/support/tickets/{ticket_id}")
-    async def patch_ticket(
-        ticket_id: str,
-        inp: TicketPatch,
-        current: dict = Depends(get_current_user),
-    ):
+    async def patch_ticket(ticket_id: str, inp: TicketPatch, current: dict = Depends(get_current_user)):
         ticket = await _get_ticket_or_404(ticket_id)
         staff = is_support_staff(current)
-        # Users may only reopen/close their own in limited ways
+
         if not staff:
             await _assert_ticket_access(ticket, current)
-            if inp.assignee_id or inp.internal_note or (inp.priority and inp.priority != ticket.get("priority")):
+            if inp.assignee_id or inp.internal_note or inp.tags is not None or inp.escalate:
                 raise HTTPException(status_code=403, detail="Only support staff can change that field")
-            if inp.status and inp.status not in ("closed", "open"):
+            if inp.status and inp.status not in ("closed", "open", "reopened"):
                 raise HTTPException(status_code=403, detail="Invalid status for user")
         else:
-            await require_role(current, list(SUPPORT_STAFF_ROLES))
+            _require_perm(current, "support.tickets.update")
+            if inp.assignee_id is not None:
+                _require_perm(current, "support.tickets.assign")
+            if inp.escalate:
+                _require_perm(current, "support.tickets.escalate")
+            if inp.status in ("resolved", "closed"):
+                _require_perm(current, "support.tickets.resolve")
+            if inp.status == "reopened":
+                _require_perm(current, "support.tickets.reopen")
 
         updates: Dict[str, Any] = {"updated_at": now_iso()}
         if inp.status:
-            updates["status"] = inp.status
+            st = "pending_user" if inp.status == "waiting_user" else inp.status
+            updates["status"] = st
         if inp.priority and staff:
             updates["priority"] = inp.priority
+            updates["sla_due_at"] = _sla_due(inp.priority)
+        if inp.category and staff:
+            updates["category"] = inp.category
+        if inp.tags is not None and staff:
+            updates["tags"] = inp.tags
+        if inp.escalate and staff:
+            updates["escalated"] = True
+            updates["status"] = "pending_support"
         if inp.assignee_id is not None and staff:
             if inp.assignee_id == "":
                 updates["assignee_id"] = None
                 updates["assignee_name"] = None
             else:
-                agent = await db.users.find_one({"id": inp.assignee_id}, {"_id": 0, "id": 1, "name": 1, "role": 1})
-                if not agent or agent.get("role") not in SUPPORT_STAFF_ROLES:
-                    raise HTTPException(status_code=400, detail="Assignee must be support staff")
+                agent = await db.users.find_one(
+                    {"id": inp.assignee_id, "role": {"$in": list(SUPPORT_CATEGORY_ROLES)}},
+                    {"_id": 0, "id": 1, "name": 1},
+                )
+                if not agent:
+                    raise HTTPException(status_code=400, detail="Assignee must be a Support Operations user")
                 updates["assignee_id"] = agent["id"]
                 updates["assignee_name"] = agent.get("name")
-                if ticket.get("status") == "open":
-                    updates["status"] = "in_progress"
+                if ticket.get("status") in ("new", "open", "ai_handling"):
+                    updates["status"] = "assigned"
 
         if inp.internal_note and staff:
+            _require_perm(current, "support.tickets.internal_note")
             note = {
                 "id": f"note_{uuid.uuid4().hex[:8]}",
                 "author_id": current["id"],
@@ -495,49 +830,68 @@ def setup_support(
                 {"id": ticket_id},
                 {"$set": updates, "$push": {"internal_notes": note}},
             )
+            await _audit(current, "support_internal_note", ticket_id=ticket_id)
         else:
             await db.support_tickets.update_one({"id": ticket_id}, {"$set": updates})
+            await _audit(current, "support_ticket_updated", ticket_id=ticket_id,
+                         meta={k: updates[k] for k in updates if k != "updated_at"})
 
-        await _audit(
-            actor_id=current["id"],
-            action="support_ticket_updated",
-            target_type="support_ticket",
-            target_id=ticket_id,
-            meta={k: updates[k] for k in updates if k != "updated_at"},
-        )
         fresh = await _get_ticket_or_404(ticket_id)
         return {"ok": True, "ticket": _public_ticket(fresh, include_internal=staff)}
 
     @api_router.post("/support/ai/chat")
     async def support_ai_chat(inp: AiChatIn, current: dict = Depends(get_current_user)):
+        if is_support_category(current):
+            raise HTTPException(status_code=400, detail="AI Help is for business users; use the Support Dashboard")
+
         role = current.get("role") or "user"
-        faqs = FAQ_BY_ROLE.get(role) or FAQ_BY_ROLE["influencer"]
+        utype = user_type_from_role(role)
+        faqs = FAQ_BY_ROLE.get(role) or FAQ_BY_ROLE.get("influencer") or []
         faq_text = "\n".join(f"Q: {f['question']}\nA: {f['answer']}" for f in faqs)
 
         history_lines = []
-        for h in (inp.history or [])[-8]:
+        for h in (inp.history or [])[-10]:
             r = h.get("role") or "user"
             c = (h.get("content") or "").strip()
             if c:
                 history_lines.append(f"{r}: {c}")
 
         system = (
-            "You are the CR8 Studio Support AI assistant. Be concise, friendly, and accurate. "
-            "Use ONLY the knowledge base and FAQs below. If you cannot help confidently, "
-            "say so and recommend opening a support ticket. "
-            "If the user clearly needs a human (payments stuck, account ban, dispute), "
-            "end with the line: ESCALATE_TICKET=yes"
+            "You are CR8 Studio first-line AI Support. Be concise and accurate. "
+            "Use ONLY the knowledge base. If you cannot help confidently, say so and "
+            "end with the exact line: ESCALATE_TICKET=yes. "
+            f"The user category is {utype}."
         )
         prompt = (
-            f"User role: {role}\nName: {current.get('name')}\n\n"
-            f"KNOWLEDGE BASE:\n{KNOWLEDGE_BASE}\n\n"
-            f"FAQs:\n{faq_text}\n\n"
+            f"User type: {utype}\nRole: {role}\nName: {current.get('name')}\n\n"
+            f"KNOWLEDGE BASE:\n{KNOWLEDGE_BASE}\n\nFAQs:\n{faq_text}\n\n"
             f"Conversation:\n" + ("\n".join(history_lines) + "\n" if history_lines else "")
             + f"user: {inp.message.strip()}\nassistant:"
         )
 
         reply = None
         escalate = False
+        classification = {
+            "user_type": utype,
+            "category": "other",
+            "intent": "general",
+            "priority": "Medium",
+            "requires_human": False,
+        }
+        msg_l = inp.message.lower()
+        if any(k in msg_l for k in ("pay", "escrow", "wallet", "payout")):
+            classification["category"] = "payment"
+            classification["intent"] = "payment_issue"
+            classification["priority"] = "High"
+        elif any(k in msg_l for k in ("campaign", "brief", "deliverable")):
+            classification["category"] = "campaign"
+            classification["intent"] = "campaign_issue"
+            classification["priority"] = "High"
+        elif any(k in msg_l for k in ("profile", "edit", "login", "password")):
+            classification["category"] = "profile"
+            classification["intent"] = "edit_profile"
+            classification["priority"] = "Medium"
+
         if call_llm:
             try:
                 reply = (await call_llm(system, prompt) or "").strip()
@@ -545,42 +899,24 @@ def setup_support(
                 logger.warning("support AI LLM failed: %s", e)
 
         if not reply:
-            # Deterministic fallback from FAQs
-            msg_l = inp.message.lower()
             for f in faqs:
                 keys = [w for w in re.split(r"\W+", f["question"].lower()) if len(w) > 3]
                 if sum(1 for k in keys if k in msg_l) >= 2:
-                    reply = f["answer"] + "\n\nIf you still need help, open a ticket in Support."
+                    reply = f["answer"] + "\n\nIf you still need help, I can open a support ticket."
                     break
             if not reply:
                 reply = (
-                    "I couldn't find a confident answer in the CR8 knowledge base. "
-                    "Please open a support ticket with details (and a campaign link if relevant) "
-                    "and our team will follow up."
+                    "I couldn't resolve this from the CR8 knowledge base. "
+                    "I can escalate to our Support Operations team."
                 )
                 escalate = True
 
-        if "ESCALATE_TICKET=yes" in reply:
+        if "ESCALATE_TICKET=yes" in (reply or ""):
             escalate = True
             reply = reply.replace("ESCALATE_TICKET=yes", "").strip()
+        classification["requires_human"] = escalate
 
-        ticket = None
-        if escalate and inp.create_ticket_if_needed:
-            doc = await _create_ticket_internal(
-                current,
-                TicketCreate(
-                    subject=(inp.message.strip()[:80] or "Help request from AI chat"),
-                    category="Other",
-                    priority="Medium",
-                    description=(
-                        f"Auto-created from AI Help chat.\n\nUser message:\n{inp.message.strip()}\n\n"
-                        f"AI reply:\n{reply}"
-                    ),
-                ),
-            )
-            ticket = _public_ticket(doc, include_internal=False)
-
-        # Persist lightweight session (simple replace of recent messages)
+        # Persist AI session
         prev = await db.support_ai_sessions.find_one({"user_id": current["id"]})
         messages = list((prev or {}).get("messages") or [])
         messages.extend([
@@ -591,46 +927,53 @@ def setup_support(
         await db.support_ai_sessions.update_one(
             {"user_id": current["id"]},
             {
-                "$set": {
-                    "updated_at": now_iso(),
-                    "last_message": inp.message[:500],
-                    "messages": messages,
-                },
-                "$setOnInsert": {
-                    "id": f"ais_{uuid.uuid4().hex[:10]}",
-                    "user_id": current["id"],
-                    "created_at": now_iso(),
-                },
+                "$set": {"updated_at": now_iso(), "last_message": inp.message[:500], "messages": messages,
+                         "user_type": utype, "classification": classification},
+                "$setOnInsert": {"id": f"ais_{uuid.uuid4().hex[:10]}", "user_id": current["id"], "created_at": now_iso()},
             },
             upsert=True,
         )
+
+        ticket = None
+        if escalate and inp.create_ticket_if_needed:
+            cat_map = {"payment": "Payment", "campaign": "Campaign", "profile": "Profile", "other": "Other"}
+            doc = await _create_ticket_internal(
+                current,
+                TicketCreate(
+                    subject=(inp.message.strip()[:80] or "AI escalated help request"),
+                    category=cat_map.get(classification["category"], "Other"),
+                    priority=classification["priority"] if classification["priority"] in TICKET_PRIORITIES else "Medium",
+                    description=f"Auto-created from AI Support.\n\nUser ({utype}):\n{inp.message.strip()}\n\nAI:\n{reply}",
+                    tags=[utype, "ai-escalated"],
+                ),
+                ai_status="ai_escalated",
+                ai_conversation=messages[-12:],
+                ai_classification=classification,
+            )
+            ticket = _public_ticket(doc)
+            await _audit(current, "support_ai_escalation", ticket_id=doc["id"], meta=classification)
 
         return {
             "ok": True,
             "reply": reply,
             "escalate": escalate,
+            "classification": classification,
             "ticket": ticket,
         }
 
     @api_router.post("/support/tickets/{ticket_id}/ai-draft")
-    async def support_ai_draft(
-        ticket_id: str,
-        inp: AiDraftIn,
-        current: dict = Depends(get_current_user),
-    ):
-        await require_role(current, list(SUPPORT_STAFF_ROLES))
+    async def support_ai_draft(ticket_id: str, inp: AiDraftIn, current: dict = Depends(get_current_user)):
+        _require_perm(current, "support.tickets.reply")
         ticket = await _get_ticket_or_404(ticket_id)
         msgs = await db.support_messages.find(
-            {"ticket_id": ticket_id, "internal": {"$ne": True}},
-            {"_id": 0},
-        ).sort("created_at", 1).to_list(50)
+            {"ticket_id": ticket_id, "internal": {"$ne": True}}, {"_id": 0},
+        ).sort("created_at", 1).to_list(80)
         thread = "\n".join(f"{m.get('author_role')}: {m.get('body')}" for m in msgs)
-        system = "You are a CR8 support agent. Draft a short, professional reply to the user. No markdown headings."
+        system = "You are a CR8 Support Operations agent. Draft a short professional reply. No markdown headings."
         prompt = (
-            f"Ticket {ticket.get('number')} | {ticket.get('category')} | {ticket.get('priority')}\n"
+            f"Ticket {ticket.get('number')} | type={ticket.get('user_type')} | {ticket.get('category')} | {ticket.get('priority')}\n"
             f"Subject: {ticket.get('subject')}\n\nThread:\n{thread}\n\n"
-            f"Extra instruction: {inp.instruction or 'Be empathetic and propose next steps.'}\n"
-            "Draft:"
+            f"Instruction: {inp.instruction or 'Be empathetic and propose next steps.'}\nDraft:"
         )
         draft = None
         if call_llm:
@@ -642,7 +985,7 @@ def setup_support(
             draft = (
                 f"Hi {ticket.get('user_name') or 'there'},\n\n"
                 f"Thanks for contacting CR8 Support about \"{ticket.get('subject')}\". "
-                "We're looking into this and will update you shortly.\n\n— CR8 Support"
+                "We're looking into this and will update you shortly.\n\n— CR8 Support Operations"
             )
         return {"ok": True, "draft": draft}
 

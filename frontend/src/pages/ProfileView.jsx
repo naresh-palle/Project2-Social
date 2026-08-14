@@ -113,12 +113,20 @@ export default function ProfileView() {
           </p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Profile</h1>
         </div>
-        <Link
-          to="/profile/edit"
-          className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm shadow-lg shadow-[#FF3B30]/20"
-        >
-          <Edit2 className="w-3.5 h-3.5" /> Edit
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to={`/u/${profile.id}`}
+            className="btn-solid bg-white/10 text-white hover:bg-white/15 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm border border-white/15"
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> View as public profile
+          </Link>
+          <Link
+            to="/profile/edit"
+            className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm shadow-lg shadow-[#FF3B30]/20"
+          >
+            <Edit2 className="w-3.5 h-3.5" /> Edit
+          </Link>
+        </div>
       </div>
 
       {/* Hero */}

@@ -12,9 +12,14 @@ export function Sidebar() {
 
   if (!user) return null;
 
-  const items = user?.role === "support"
+  const isSupportOps = ["support", "support_agent", "support_lead", "support_admin"].includes(user?.role);
+
+  const items = isSupportOps
     ? [
-        { to: "/support", label: "Support Desk", icon: "🆘" },
+        { to: "/support/ops", label: "Support Dashboard", icon: "🆘" },
+        ...(user?.role === "support_admin" || user?.role === "support_lead"
+          ? [{ to: "/support/ops", label: "Ops Desk", icon: "📋" }]
+          : []),
         { to: "/settings", label: "Settings", icon: "⚙️" },
       ]
     : [
@@ -22,13 +27,9 @@ export function Sidebar() {
     { to: "/feed", label: "Feed", icon: "📰" },
     { to: "/marketplace", label: "Directory", icon: "📇" },
     { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
-    ...(user?.role !== "admin" && user?.role !== "support_admin" ? [
+    ...(user?.role !== "admin" ? [
       { to: "/referrals", label: "Referrals", icon: "👥" },
       { to: "/invitations", label: "Invitations", icon: "✉️" },
-    ] : []),
-    ...(user?.role === "support_admin" ? [
-      { to: "/support", label: "Support Desk", icon: "🆘" },
-      { to: "/help", label: "AI Help", icon: "🤖" },
     ] : []),
     { to: "/wallet", label: "Wallet", icon: "💳" },
     { to: "/profile", label: "Profile", icon: "👤" },
@@ -60,7 +61,7 @@ export function Sidebar() {
     >
       <div className="p-4">
         <Link 
-          to="/dashboard" 
+          to={["support", "support_agent", "support_lead", "support_admin"].includes(user?.role) ? "/support/ops" : "/dashboard"}
           className="flex items-center gap-2 cursor-pointer mb-5"
         >
           <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">CR</span>
@@ -89,7 +90,7 @@ export function Sidebar() {
             {user?.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#34C759]" />}
           </h3>
           <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#FF3B30] mt-0.5">
-            {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : user?.role === "support_admin" ? "Support Admin" : user?.role === "support" ? "Support Desk" : "Influencer"}
+            {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : user?.role === "support_admin" ? "Support Admin" : user?.role === "support_lead" ? "Support Lead" : ["support", "support_agent"].includes(user?.role) ? "Support Agent" : "Influencer"}
           </p>
           {(() => {
             if (user?.role === "admin") {
@@ -99,10 +100,10 @@ export function Sidebar() {
                 </p>
               );
             }
-            if (user?.role === "support" || user?.role === "support_admin") {
+            if (["support", "support_agent", "support_lead", "support_admin"].includes(user?.role)) {
               return (
                 <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
-                  Ticket Queue
+                  Support Operations
                 </p>
               );
             }
@@ -163,7 +164,7 @@ export function Sidebar() {
       <div className="mt-auto p-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            {user?.role !== "support" && (
+            {user?.role !== "support" && !["support_agent", "support_lead", "support_admin"].includes(user?.role) && (
               <>
                 <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
                   <LifeBuoy className="w-4 h-4" />

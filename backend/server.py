@@ -191,7 +191,9 @@ ROLE_AUDIT_LABELS = {
     "owner": "Brand",
     "agent": "Agency",
     "admin": "Admin",
-    "support": "Support",
+    "support": "Support Agent",
+    "support_agent": "Support Agent",
+    "support_lead": "Support Lead",
     "support_admin": "Support Admin",
 }
 
@@ -496,7 +498,10 @@ async def require_role(current: dict, roles: list) -> dict:
 
 
 # ---------- Models ----------
-UserRole = Literal["owner", "influencer", "admin", "agent", "support", "support_admin"]
+UserRole = Literal[
+    "owner", "influencer", "admin", "agent",
+    "support", "support_agent", "support_lead", "support_admin",
+]
 PublicRegisterRole = Literal["owner", "influencer", "agent"]
 
 
@@ -1632,8 +1637,8 @@ async def register_old(inp: RegisterInput):
         raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
-    if inp.role in ("support", "support_admin"):
-        raise HTTPException(status_code=400, detail="Cannot self-register as support staff")
+    if inp.role in ("support", "support_agent", "support_lead", "support_admin"):
+        raise HTTPException(status_code=400, detail="Cannot self-register as Support Operations staff")
     
     if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
         raise HTTPException(status_code=400, detail="Password must be alphanumeric")
@@ -4623,7 +4628,7 @@ async def reset_demo_passwords():
     seed_emails = [
         "lena@cr8.studio", "kai@cr8.studio", "nova@cr8.studio",
         "creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio",
-        "support@cr8.studio", "support.admin@cr8.studio",
+        "support@cr8.studio", "support.lead@cr8.studio", "support.admin@cr8.studio",
         "pending_agent@cr8.studio", "studio@cr8.studio",
         "arjun@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio",
         "sneha@cr8.studio", "karthik@cr8.studio", "anya@cr8.studio",
