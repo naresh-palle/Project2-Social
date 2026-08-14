@@ -481,9 +481,9 @@ export default function CampaignDetail() {
                 </div>
               </div>
             )}
+            </div>
           </div>
-        </div>
-      </div>
+        </div> {/* End Scrollable Area */}
 
       <AnimatePresence>
         {showRehire && (
@@ -508,7 +508,6 @@ export default function CampaignDetail() {
           </div>
         )}
       </AnimatePresence>
-      </div> {/* End Scrollable Area */}
     </div>
   );
 }
