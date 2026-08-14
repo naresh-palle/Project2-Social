@@ -4710,6 +4710,12 @@ async def on_startup():
         logger.warning("mock_comms seed on startup failed: %s", e)
     if _phase1_ensure_indexes:
         await _phase1_ensure_indexes()
+    try:
+        from apify_service import apify_service
+        await apify_service.ensure_indexes(db)
+        await apify_service.fail_stale_jobs(db)
+    except Exception as e:
+        logger.warning("apify indexes/stale cleanup failed: %s", e)
     logger.info("CR8 API ready.")
 
 
@@ -4770,37 +4776,43 @@ setup_phase2(
 )
 
 class ScrapeInput(BaseModel):
-    url: str
+    url: str = Field(min_length=1, max_length=500)
 
 @api_router.post("/social/scrape")
 async def scrape_social(inp: ScrapeInput, current: dict = Depends(get_current_user)):
     from apify_service import apify_service
+    if not apify_service.is_configured():
+        raise HTTPException(status_code=503, detail="Apify scraper is not configured (missing APIFY_TOKEN)")
     try:
         job = await apify_service.create_scraper_job(db, current["id"], inp.url)
         import asyncio
         asyncio.create_task(apify_service.run_scraper_job(db, job["id"]))
-        return {"ok": True, "jobId": job["id"]}
+        return {"ok": True, "jobId": job["id"], "status": job.get("status"), "url": job.get("url")}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
+        logger.exception("scrape_social failed: %s", e)
         raise HTTPException(status_code=500, detail="Scraping service temporarily unavailable")
 
-@api_router.get("/api/scrape/{job_id}")
+@api_router.get("/scrape/{job_id}")
 async def get_scrape_job_status(job_id: str, current: dict = Depends(get_current_user)):
-    job = await db.scraper_jobs.find_one({"id": job_id})
+    job = await db.scraper_jobs.find_one({"id": job_id}, {"_id": 0})
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    if job["user_id"] != current["id"]:
+    if job.get("user_id") != current["id"] and current.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Forbidden")
-        
     return {
         "success": True,
-        "status": job["status"],
+        "status": job.get("status"),
         "data": job.get("result_data"),
-        "error": job.get("error_message")
+        "error": job.get("error_message"),
+        "platform": job.get("platform"),
+        "url": job.get("url"),
     }
 
-@api_router.get("/api/apify/health")
+@api_router.get("/apify/health")
 async def apify_health():
     from apify_service import apify_service
     return await apify_service.health_check()
