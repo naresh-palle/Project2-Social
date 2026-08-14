@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
-import { 
-  Copy, Share2, Send, Check, ChevronLeft, Users, Sparkles 
+import {
+  Copy, Share2, Send, Check, Users, Sparkles, Gift, Clock, BadgeCheck
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function Referrals() {
@@ -27,7 +26,7 @@ export default function Referrals() {
         ]);
         if (codeRes?.data) setRefData(codeRes.data);
         if (statusRes?.data) setStatus(statusRes.data);
-      } catch (err) {
+      } catch {
         toast.error("Failed to load referral data");
       } finally {
         setLoading(false);
@@ -53,7 +52,6 @@ export default function Referrals() {
       if (res.data?.ok) {
         toast.success("Referral code applied successfully!");
         setApplyCode("");
-        // refresh status
         const statusRes = await api.get("/referrals/status");
         if (statusRes?.data) setStatus(statusRes.data);
       }
@@ -65,208 +63,213 @@ export default function Referrals() {
   };
 
   const showApply = status?.referrals?.length === 0 && user?.role !== "referrer";
+  const summary = status?.summary || {};
+
+  const stats = [
+    { label: "Referrals", value: summary.total || 0, icon: Users, accent: "text-white" },
+    { label: "Qualified", value: summary.qualified || 0, icon: BadgeCheck, accent: "text-[#34C759]" },
+    { label: "Pending", value: summary.pending || 0, icon: Clock, accent: "text-white/80" },
+    { label: "Potential", value: `₹${Number(summary.potential_reward || 0).toLocaleString()}`, icon: Gift, accent: "text-[#FF3B30]" },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      
-      
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-        {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Referral Program
-              </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2 mb-2">Refer & Earn</h1>
-              <p className="font-sans text-white/60 text-sm max-w-lg">
-                Invite your friends to CR8 Studio and earn rewards when they complete their first campaign.
-              </p>
-            </div>
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col h-full">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-5 mb-6">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5" /> Referrals
+            </p>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">
+              Refer & Earn
+            </h1>
+            <p className="font-sans text-white/55 text-sm mt-2 max-w-md">
+              Share your code. Earn when friends complete their first campaign.
+            </p>
           </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Main Card */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+        {/* Stats row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          {stats.map(({ label, value, icon: Icon, accent }) => (
+            <div
+              key={label}
+              className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <div className="font-mono text-[9px] tracking-widest uppercase text-white/45 mb-1">{label}</div>
+                <div className={`font-sans text-xl font-bold truncate ${accent}`}>
+                  {loading ? "—" : value}
+                </div>
+              </div>
+              <Icon className={`w-5 h-5 shrink-0 opacity-30 ${accent}`} />
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 mb-5">
+          {/* Code + share */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 bg-gradient-to-br from-white/10 to-transparent border border-white/10 rounded-2xl p-6 relative overflow-hidden"
+            className="xl:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[#FF3B30]/20 blur-[100px] rounded-full pointer-events-none" />
-            
-            <h2 className="font-mono text-xs tracking-widest uppercase text-white/60 mb-4">Your Referral Code</h2>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
-              <div className="bg-black/50 border border-white/20 px-6 py-3 rounded-xl flex-1 text-center sm:text-left">
-                <span className="font-mono text-2xl md:text-3xl tracking-wider text-white">
-                  {loading ? "..." : refData?.code || "CR8-CODE"}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#FF3B30]/15 blur-[80px] rounded-full pointer-events-none" />
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3 relative">
+              Your referral code
+            </h2>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-4 relative">
+              <div className="bg-black/40 border border-white/15 px-4 py-3 rounded-xl flex-1 text-center sm:text-left">
+                <span className="font-mono text-xl md:text-2xl tracking-[0.18em] text-white font-semibold">
+                  {loading ? "…" : refData?.code || "CR8-CODE"}
                 </span>
               </div>
-              <button 
+              <button
+                type="button"
                 onClick={handleCopy}
-                className="w-full sm:w-auto px-6 py-3 bg-[#FF3B30] hover:bg-[#FF3B30]/90 text-white rounded-xl font-mono text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
+                className="px-5 py-3 bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-xl font-mono text-[10px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 shrink-0"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied" : "Copy"}
+                {copied ? "Copied" : "Copy code"}
               </button>
             </div>
 
-            <div className="space-y-4">
-              <textarea 
-                className="w-full bg-black/30 border border-white/10 rounded-xl p-4 font-sans text-sm text-white/80 resize-none h-24 focus:outline-none focus:border-white/30 transition-colors"
-                readOnly
-                value={refData?.share_text || `Join me on CR8 Studio using my code!`}
-              />
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(refData?.link || "");
-                    toast.success("Link copied!");
-                  }}
-                  className="flex-1 py-3 border border-white/20 hover:bg-white/5 rounded-xl font-mono text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
-                >
-                  <Share2 className="w-4 h-4" /> Copy Link
-                </button>
-                <a 
-                  href={`https://wa.me/?text=${encodeURIComponent(refData?.share_text || "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-3 bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/30 border border-[#25D366]/30 rounded-xl font-mono text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
-                >
-                  <Send className="w-4 h-4" /> WhatsApp
-                </a>
-              </div>
+            <textarea
+              className="w-full bg-black/30 border border-white/10 rounded-xl p-3 font-sans text-xs text-white/75 resize-none h-20 focus:outline-none focus:border-white/25 transition-colors mb-3 relative"
+              readOnly
+              value={refData?.share_text || "Join me on CR8 Studio using my code!"}
+            />
+
+            <div className="flex flex-col sm:flex-row gap-2.5 relative">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(refData?.link || "");
+                  toast.success("Link copied!");
+                }}
+                className="flex-1 py-2.5 border border-white/15 hover:bg-white/5 rounded-xl font-mono text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5" /> Copy link
+              </button>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(refData?.share_text || "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-2.5 bg-[#25D366]/15 text-[#25D366] hover:bg-[#25D366]/25 border border-[#25D366]/25 rounded-xl font-mono text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
+              >
+                <Send className="w-3.5 h-3.5" /> WhatsApp
+              </a>
             </div>
           </motion.div>
 
-          {/* Stats Column */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+          {/* How it works + apply */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="space-y-4"
+            transition={{ delay: 0.05 }}
+            className="xl:col-span-2 space-y-3"
           >
-            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <div className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-1">Total Referrals</div>
-                <div className="font-sans text-2xl font-bold">{status?.summary?.total || 0}</div>
-              </div>
-              <Users className="w-6 h-6 text-white/20" />
-            </div>
-            
-            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <div className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-1">Potential Earnings</div>
-                <div className="font-sans text-2xl font-bold text-[#FF3B30]">
-                  ₹{status?.summary?.potential_reward?.toLocaleString() || 0}
-                </div>
-              </div>
-              <Sparkles className="w-6 h-6 text-[#FF3B30]/20" />
-            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 h-full">
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3">How it works</h3>
+              <ol className="space-y-3">
+                {[
+                  { title: "Share your code", desc: "Send your link to friends joining CR8." },
+                  { title: "They sign up", desc: "They apply your code at registration." },
+                  { title: "You both earn", desc: "Reward hits your wallet after first campaign." },
+                ].map((s, i) => (
+                  <li key={s.title} className="flex gap-3">
+                    <span className="w-7 h-7 rounded-full bg-[#FF3B30]/15 border border-[#FF3B30]/30 text-[#FF3B30] font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0 pt-0.5">
+                      <div className="font-sans text-sm font-semibold text-white leading-tight">{s.title}</div>
+                      <p className="font-sans text-xs text-white/50 mt-0.5 leading-snug">{s.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
 
-            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-2">
-              <div className="flex justify-between mb-2">
-                <span className="font-mono text-xs tracking-widest uppercase text-white/50">Qualified</span>
-                <span className="font-mono text-xs text-white">{status?.summary?.qualified || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-mono text-xs tracking-widest uppercase text-white/50">Pending</span>
-                <span className="font-mono text-xs text-white">{status?.summary?.pending || 0}</span>
-              </div>
+              {showApply && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <p className="font-sans text-xs text-white/60 mb-2">Have a friend’s code?</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter code"
+                      value={applyCode}
+                      onChange={(e) => setApplyCode(e.target.value)}
+                      className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 font-mono text-xs uppercase flex-1 focus:outline-none focus:border-[#FF3B30]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApply}
+                      disabled={applying || !applyCode.trim()}
+                      className="px-4 py-2 bg-[#FF3B30] disabled:opacity-50 text-white rounded-xl font-mono text-[10px] tracking-widest uppercase"
+                    >
+                      {applying ? "…" : "Apply"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
 
-        {showApply && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8 bg-[#FF3B30]/10 border border-[#FF3B30]/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4"
-          >
-            <div>
-              <h3 className="font-editorial text-xl mb-1">Were you referred by a friend?</h3>
-              <p className="font-sans text-white/70 text-xs">Enter their code below to claim your sign-up bonus.</p>
-            </div>
-            <div className="flex w-full md:w-auto gap-2">
-              <input 
-                type="text"
-                placeholder="Enter Code"
-                value={applyCode}
-                onChange={e => setApplyCode(e.target.value)}
-                className="bg-black/50 border border-white/20 rounded-xl px-4 py-2 font-mono text-xs uppercase flex-1 md:w-40 focus:outline-none focus:border-[#FF3B30]"
-              />
-              <button
-                onClick={handleApply}
-                disabled={applying || !applyCode.trim()}
-                className="px-5 py-2 bg-[#FF3B30] disabled:opacity-50 text-white rounded-xl font-mono text-[10px] tracking-widest uppercase transition-colors"
-              >
-                {applying ? "..." : "Apply"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        <div className="mt-8">
-          <h3 className="font-sans text-xl font-bold tracking-tight mb-4">Referral History</h3>
+        {/* History */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-sans text-lg font-bold tracking-tight">Referral history</h3>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+              {status?.referrals?.length || 0} total
+            </span>
+          </div>
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left font-sans text-sm">
-                <thead className="bg-white/5 font-mono text-xs tracking-widest uppercase text-white/50 border-b border-white/10">
+                <thead className="bg-white/[0.04] font-mono text-[10px] tracking-widest uppercase text-white/45 border-b border-white/10">
                   <tr>
-                    <th className="px-6 py-4">Name</th>
-                    <th className="px-6 py-4">Joined Date</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Reward</th>
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">Joined</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Reward</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10">
+                <tbody className="divide-y divide-white/8">
                   {status?.referrals?.length > 0 ? (
                     status.referrals.map((ref, idx) => (
-                      <tr key={idx} className="hover:bg-white/5 transition-colors">
-                        <td className="px-6 py-4 text-white font-medium">{ref.name || "Unknown"}</td>
-                        <td className="px-6 py-4 text-white/70">{new Date(ref.joined_at || Date.now()).toLocaleDateString()}</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider ${
-                            ref.status === "rewarded" ? "bg-green-500/20 text-green-400 border border-green-500/30" :
-                            ref.status === "qualified" ? "bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30" :
-                            "bg-white/10 text-white/70 border border-white/20"
-                          }`}>
+                      <tr key={idx} className="hover:bg-white/[0.03] transition-colors">
+                        <td className="px-4 py-3 text-white font-medium">{ref.name || "Unknown"}</td>
+                        <td className="px-4 py-3 text-white/60">
+                          {new Date(ref.joined_at || Date.now()).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider ${
+                              ref.status === "rewarded"
+                                ? "bg-green-500/15 text-green-400 border border-green-500/25"
+                                : ref.status === "qualified"
+                                  ? "bg-[#FF3B30]/15 text-[#FF3B30] border border-[#FF3B30]/25"
+                                  : "bg-white/8 text-white/65 border border-white/15"
+                            }`}
+                          >
                             {ref.status || "pending"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right text-white font-mono">
-                          {ref.reward ? `₹${ref.reward}` : "-"}
+                        <td className="px-4 py-3 text-right text-white font-mono text-xs">
+                          {ref.reward ? `₹${ref.reward}` : "—"}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center text-white/40 font-mono text-sm uppercase tracking-widest">
-                        Share your code to start earning!
+                      <td colSpan="4" className="px-4 py-10 text-center text-white/35 font-mono text-xs uppercase tracking-widest">
+                        Share your code to start earning
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-        
-        <div className="mt-20">
-          <h3 className="font-editorial text-3xl mb-8 text-center">How it works</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { step: "1", title: "Share your code", desc: "Send your unique code or referral link to friends who want to join CR8 Studio." },
-              { step: "2", title: "Friend signs up", desc: "Your friend uses your code during registration or applies it after joining." },
-              { step: "3", title: "You both earn", desc: "When they complete their first campaign, you both get a reward in your wallet." },
-            ].map((s, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl text-center">
-                <div className="w-12 h-12 bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 rounded-full flex items-center justify-center font-editorial text-2xl mx-auto mb-4">
-                  {s.step}
-                </div>
-                <h4 className="font-editorial font-bold text-xl mb-2">{s.title}</h4>
-                <p className="font-sans text-sm text-white/60">{s.desc}</p>
-              </div>
-            ))}
           </div>
         </div>
       </div>
