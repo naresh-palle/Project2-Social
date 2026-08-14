@@ -96,7 +96,6 @@ export default function Leaderboard() {
               );
             })}
           </div>
-        </div>
 
         {myRank && myRank.rank && (
           <motion.div 
