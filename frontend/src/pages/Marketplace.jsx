@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ArrowLeft, Play, ChevronLeft } from "lucide-react";
+import { Search, ArrowLeft, Play, ChevronLeft, Sparkles } from "lucide-react";
 
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -174,17 +174,14 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-      
-      
 
-      <div className="pt-20 pb-4 max-w-[1600px] mx-auto px-3 md:px-6">
-        <div className="hairline-b pb-3 flex flex-col items-start gap-4">
-          
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
           <div>
-            <p className="font-sans text-[10px] tracking-[0.3em] uppercase opacity-60">§ The Directory</p>
-            <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight leading-tight mt-1">
-              The <span className="italic">file</span> on record
-            </h1>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5" /> § The Directory
+            </p>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Directory</h1>
           </div>
         </div>
 

@@ -48,20 +48,16 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       
-      <div className="pt-24 max-w-5xl mx-auto px-4 pb-16">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
         {/* Header */}
-        <div className="mb-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
           <div>
-            
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8">
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Rankings
-              </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Leaderboard</h1>
-            </div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5" /> § Rankings
+            </p>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Leaderboard</h1>
           </div>
-          </div>
+        </div>
 
           
           <div className="flex justify-start mb-8">
