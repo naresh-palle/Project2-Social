@@ -17,9 +17,13 @@ export function Sidebar() {
     { to: "/feed", label: "Feed", icon: "📰" },
     { to: "/marketplace", label: "Directory", icon: "📇" },
     { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
-    ...(user?.role !== "admin" ? [
+    ...(user?.role !== "admin" && user?.role !== "support" && user?.role !== "support_admin" ? [
       { to: "/referrals", label: "Referrals", icon: "👥" },
       { to: "/invitations", label: "Invitations", icon: "✉️" },
+    ] : []),
+    ...(user?.role === "support" || user?.role === "support_admin" ? [
+      { to: "/support", label: "Support Desk", icon: "🆘" },
+      { to: "/help", label: "AI Help", icon: "🤖" },
     ] : []),
     { to: "/wallet", label: "Wallet", icon: "💳" },
     { to: "/profile", label: "Profile", icon: "👤" },
@@ -80,13 +84,20 @@ export function Sidebar() {
             {user?.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#34C759]" />}
           </h3>
           <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#FF3B30] mt-0.5">
-            {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : "Influencer"}
+            {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : user?.role === "support_admin" ? "Support Admin" : user?.role === "support" ? "Support Desk" : "Influencer"}
           </p>
           {(() => {
             if (user?.role === "admin") {
               return (
                 <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
                   Ops Desk
+                </p>
+              );
+            }
+            if (user?.role === "support" || user?.role === "support_admin") {
+              return (
+                <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+                  Ticket Queue
                 </p>
               );
             }
