@@ -51,7 +51,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Cr8Colors.bg.withValues(alpha: 0.9),
+        backgroundColor: Cr8Colors.bg.withOpacity(0.9),
         foregroundColor: Cr8Colors.text,
         elevation: 0,
         titleTextStyle: GoogleFonts.playfairDisplay(

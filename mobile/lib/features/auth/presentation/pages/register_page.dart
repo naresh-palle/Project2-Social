@@ -165,7 +165,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       fontSize: 11,
       fontWeight: FontWeight.w700,
       letterSpacing: 1.8,
-      color: Cr8Colors.accent.withValues(alpha: 0.9),
+      color: Cr8Colors.accent.withOpacity(0.9),
     );
 
     return Scaffold(
@@ -196,7 +196,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
-                      color: Cr8Colors.surface.withValues(alpha: 0.92),
+                      color: Cr8Colors.surface.withOpacity(0.92),
                       border: Border.all(color: Cr8Colors.hairline),
                     ),
                     child: Column(

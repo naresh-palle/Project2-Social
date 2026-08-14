@@ -183,12 +183,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/cr8-studio-data-export.pdf');
       await file.writeAsBytes(pdfBytes, flush: true);
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path, mimeType: 'application/pdf')],
-          subject: 'CR8 Studio data export (PDF)',
-          text: 'Your CR8 Studio account data export (PDF)',
-        ),
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'application/pdf')],
+        subject: 'CR8 Studio data export (PDF)',
+        text: 'Your CR8 Studio account data export (PDF)',
       );
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);

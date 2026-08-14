@@ -211,7 +211,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                   animation: _intro,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Cr8Colors.surface.withValues(alpha: 0.88),
+                      color: Cr8Colors.surface.withOpacity(0.88),
                       border: Border.all(color: Cr8Colors.hairline),
                     ),
                     child: Column(
