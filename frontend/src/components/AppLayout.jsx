@@ -5,6 +5,7 @@ import { FloatingChatWidget } from "./FloatingChatWidget";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { isSupportOpsRole } from "@/lib/supportOps";
+import { NotificationBell } from "./NotificationBell";
 
 export function AppLayout() {
   const { logout, user } = useAuth();
@@ -13,7 +14,6 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden flex">
-      {/* Background gradients/elements (optional) */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#FF3B30] opacity-[0.02] blur-[100px] rounded-full mix-blend-screen" />
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#34C759] opacity-[0.02] blur-[100px] rounded-full mix-blend-screen" />
@@ -22,9 +22,9 @@ export function AppLayout() {
       <Sidebar />
       <ThemeToaster />
 
-      {/* The main shell is fixed height. Child pages must manage their own scrolling */}
       <main className="flex-1 ml-64 relative z-10 flex flex-col h-screen overflow-hidden">
-        <div className="shrink-0 flex items-center justify-end gap-2 px-6 md:px-10 pt-4 pb-1 relative z-30">
+        <div className="shrink-0 flex items-center justify-end gap-2 px-6 md:px-10 pt-4 pb-1 relative z-[80]">
+          <NotificationBell />
           <button
             type="button"
             onClick={() => {
@@ -44,7 +44,6 @@ export function AppLayout() {
         </div>
       </main>
 
-      {/* Business messaging FAB — not for Support Operations */}
       {!isSupport && <FloatingChatWidget />}
     </div>
   );

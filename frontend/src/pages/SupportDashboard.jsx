@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
-  LifeBuoy, Loader2, MessageSquare, Send, X, Filter, UserPlus, Tag, Plus,
+  Loader2, MessageSquare, Send, X, UserPlus, Tag, Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { supportRoleLabel } from "@/lib/supportOps";
 
 const USER_TYPES = [
   { id: "", label: "All" },
@@ -130,11 +129,10 @@ const KPI_KEYS = [
 
 export default function SupportDashboard() {
   const { user } = useAuth();
-  const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab") || "overview";
+  const tabRaw = searchParams.get("tab") || "dashboard";
+  const tab = tabRaw === "overview" ? "dashboard" : tabRaw;
   const queue = searchParams.get("queue") || "all";
-
   const [stats, setStats] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [agents, setAgents] = useState([]);
@@ -299,14 +297,14 @@ export default function SupportDashboard() {
   }, [loadMe, loadStats]);
 
   useEffect(() => {
-    if (tab === "tickets" || tab === "overview") loadTickets();
+    if (tab === "tickets" || tab === "dashboard") loadTickets();
   }, [tab, loadTickets]);
 
   useEffect(() => { loadAgents(); }, [loadAgents]);
   useEffect(() => { if (tab === "staff") loadStaff(); }, [tab, loadStaff]);
   useEffect(() => { if (tab === "knowledge") loadKb(); }, [tab, loadKb]);
   useEffect(() => { if (tab === "ai") loadAi(); }, [tab, loadAi]);
-  useEffect(() => { if (tab === "analytics" || tab === "overview") loadAnalytics(); }, [tab, loadAnalytics]);
+  useEffect(() => { if (tab === "analytics" || tab === "dashboard") loadAnalytics(); }, [tab, loadAnalytics]);
   useEffect(() => { if (tab === "audit") loadAudit(); }, [tab, loadAudit]);
 
   const openTicket = async (id) => {
@@ -465,7 +463,6 @@ export default function SupportDashboard() {
   };
 
   const ticket = detail?.ticket;
-  const roleLabel = useMemo(() => supportRoleLabel(user?.role), [user?.role]);
 
   const statusButtons = useMemo(() => {
     const all = ["open", "assigned", "in_progress", "pending_user", "pending_support", "resolved", "closed", "reopened"];
@@ -476,79 +473,48 @@ export default function SupportDashboard() {
     });
   }, [perms, canResolve, canReopen]);
 
+  const pageTitle = {
+    dashboard: "Dashboard",
+    tickets: "Tickets",
+    staff: "Users",
+    knowledge: "Knowledge Base",
+    ai: "AI Support",
+    analytics: "Analytics",
+    audit: "Audit",
+  }[tab] || "Dashboard";
+
   return (
     <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8" data-testid="support-ops-dashboard">
-      <div className="shrink-0 border-b border-white/10 pb-5 mb-5">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-          <LifeBuoy className="w-3.5 h-3.5" /> Support Operations
-        </p>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mt-2">
-          <div>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Support Dashboard</h1>
-            <p className="text-white/50 text-sm mt-1">
-              {roleLabel} · Independent ops category (not Influencer / Company / Agent)
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-widest">
-            {[
-              ["overview", "Overview"],
-              ["tickets", "Tickets"],
-              ...(canViewStaff ? [["staff", "Users"]] : []),
-              ...(canViewKb ? [["knowledge", "Knowledge"]] : []),
-              ...(canAiConfig ? [["ai", "AI Support"]] : []),
-              ...(canAnalytics ? [["analytics", "Analytics"]] : []),
-              ...(canAudit ? [["audit", "Audit"]] : []),
-            ].map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTab(id, id === "tickets" ? "all" : undefined)}
-                className={`px-3 py-1.5 rounded-full border ${tab === id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"}`}
-              >
-                {label}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => nav("/settings")}
-              className="px-3 py-1.5 rounded-full border border-white/15 text-white/50"
-            >
-              Settings
-            </button>
-          </div>
-        </div>
+      <div className="shrink-0 border-b border-white/10 pb-4 mb-5">
+        <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{pageTitle}</h1>
       </div>
 
-      {(tab === "overview" || tab === "tickets") && stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
-          {KPI_KEYS.map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => {
-                if (key === "unassigned") setTab("tickets", "unassigned");
-                else if (key === "my_open") setTab("tickets", "mine");
-                else if (key === "influencer") setTab("tickets", "influencer");
-                else if (key === "company") setTab("tickets", "company");
-                else if (key === "agent") setTab("tickets", "agent");
-                else if (key === "sla_breached" || key === "critical") setTab("tickets", "all");
-                else setTab("tickets", "all");
-              }}
-              className="text-left border border-white/10 bg-white/[0.02] rounded-xl px-3 py-2 hover:border-[#FF3B30]/40 transition-colors"
-            >
-              <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
-              <div className="font-sans text-xl font-bold mt-0.5 tabular-nums">{stats[key] ?? 0}</div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {tab === "overview" && (
+      {tab === "dashboard" && stats && (
         <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            {KPI_KEYS.map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  if (key === "unassigned") setTab("tickets", "unassigned");
+                  else if (key === "my_open") setTab("tickets", "mine");
+                  else if (key === "influencer") setTab("tickets", "influencer");
+                  else if (key === "company") setTab("tickets", "company");
+                  else if (key === "agent") setTab("tickets", "agent");
+                  else setTab("tickets", "all");
+                }}
+                className="text-left border border-white/10 bg-white/[0.02] rounded-xl px-3 py-2 hover:border-[#FF3B30]/40 transition-colors"
+              >
+                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
+                <div className="font-sans text-xl font-bold mt-0.5 tabular-nums">{stats[key] ?? 0}</div>
+              </button>
+            ))}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              ["Unassigned queue", "unassigned", stats?.unassigned],
-              ["Escalated", "escalated", analytics?.escalated_open ?? "—"],
+              ["Unassigned", "unassigned", stats?.unassigned],
+              ["Escalated", "escalated", analytics?.escalated_open ?? 0],
               ["My open", "mine", stats?.my_open],
             ].map(([label, qid, val]) => (
               <button
@@ -562,116 +528,56 @@ export default function SupportDashboard() {
               </button>
             ))}
           </div>
-          <p className="text-white/50 text-sm">
-            Centralized helpdesk for Influencer, Company, and Agent tickets. Open Tickets and use the queue filters to claim and resolve.
-          </p>
         </div>
       )}
 
       {tab === "tickets" && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-3">
-            <div className="flex flex-wrap gap-2 items-center">
-              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" />
-              <select
-                value={queue && QUEUE_PRESETS[queue] ? queue : "all"}
-                onChange={(e) => applyQueueFilter(e.target.value)}
-                className={FILTER_SELECT}
-                aria-label="Ticket queue"
-              >
-                {QUEUE_FILTERS.map((u) => (
-                  <option key={u.id} value={u.id} style={FILTER_OPTION}>{u.label}</option>
-                ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <select value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(e) => applyQueueFilter(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Ticket queue">
+                {QUEUE_FILTERS.map((u) => (<option key={u.id} value={u.id} style={FILTER_OPTION}>{u.label}</option>))}
               </select>
-              <select
-                value={userType}
-                onChange={(e) => setUserType(e.target.value)}
-                className={FILTER_SELECT}
-                aria-label="User type"
-              >
-                {USER_TYPES.map((u) => (
-                  <option key={u.id || "all"} value={u.id} style={FILTER_OPTION}>{u.label === "All" ? "User Type: All" : u.label}</option>
-                ))}
+              <select value={userType} onChange={(e) => setUserType(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="User type">
+                {USER_TYPES.map((u) => (<option key={u.id || "all"} value={u.id} style={FILTER_OPTION}>{u.label === "All" ? "User Type" : u.label}</option>))}
               </select>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className={FILTER_SELECT}
-                aria-label="Status"
-              >
-                {STATUS_OPTS.map((s) => (
-                  <option key={s.id || "allst"} value={s.id} style={FILTER_OPTION}>{s.label}</option>
-                ))}
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Status">
+                {STATUS_OPTS.map((s) => (<option key={s.id || "allst"} value={s.id} style={FILTER_OPTION}>{s.label}</option>))}
               </select>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className={FILTER_SELECT}
-                aria-label="Priority"
-              >
+              <select value={priority} onChange={(e) => setPriority(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Priority">
                 <option value="" style={FILTER_OPTION}>Priority</option>
-                {["Low", "Medium", "High", "Critical"].map((p) => (
-                  <option key={p} value={p} style={FILTER_OPTION}>{p}</option>
-                ))}
+                {["Low", "Medium", "High", "Critical"].map((p) => (<option key={p} value={p} style={FILTER_OPTION}>{p}</option>))}
               </select>
-              <select
-                value={aiStatus}
-                onChange={(e) => setAiStatus(e.target.value)}
-                className={FILTER_SELECT}
-                aria-label="AI status"
-              >
-                {AI_STATUS_OPTS.map((a) => (
-                  <option key={a.id || "aiall"} value={a.id} style={FILTER_OPTION}>{a.label}</option>
-                ))}
+              <select value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="AI status">
+                {AI_STATUS_OPTS.map((a) => (<option key={a.id || "aiall"} value={a.id} style={FILTER_OPTION}>{a.label}</option>))}
               </select>
-              {canAssign && (
-                <select
-                  value={assignmentAgent}
-                  onChange={(e) => setAssignmentAgent(e.target.value)}
-                  className={FILTER_SELECT}
-                  aria-label="Assignment"
-                >
+              {canAssign ? (
+                <select value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Assignment">
                   <option value="" style={FILTER_OPTION}>Assignment</option>
                   <option value="unassigned" style={FILTER_OPTION}>Unassigned</option>
                   <option value="mine" style={FILTER_OPTION}>My Tickets</option>
-                  {agents.map((a) => (
-                    <option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>
-                  ))}
+                  {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
                 </select>
-              )}
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search…"
-                className={FILTER_INPUT}
-              />
+              ) : <div />}
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…" className={`${FILTER_INPUT} col-span-2 sm:col-span-3 w-full min-w-0`} />
             </div>
+
             {loading ? (
               <div className="flex items-center gap-2 text-white/50 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
               <p className="text-white/40 text-sm">No tickets match filters.</p>
             ) : (
               tickets.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => openTicket(t.id)}
-                  className={`w-full text-left p-3 border rounded-2xl transition-colors ${
-                    selectedId === t.id ? "border-[#FF3B30]/50 bg-[#FF3B30]/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
-                  }`}
-                >
+                <button key={t.id} type="button" onClick={() => openTicket(t.id)} className={`w-full text-left p-3 border rounded-2xl transition-colors ${selectedId === t.id ? "border-[#FF3B30]/50 bg-[#FF3B30]/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"}`}>
                   <div className="font-mono text-[9px] tracking-widest text-white/40 mb-1 flex flex-wrap gap-x-2">
                     <span>{t.number}</span>
                     <span>{typeLabel(t.user_type || t.user_role)}</span>
                     <span>{t.priority}</span>
-                    {t.ai_status && t.ai_status !== "none" && <span className="text-[#FF3B30]">{t.ai_status}</span>}
                   </div>
                   <div className="font-sans font-medium text-sm truncate">{t.subject}</div>
                   <div className="mt-2 flex justify-between items-center">
                     <span className="text-[10px] text-white/40 truncate">{t.user_name}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border ${statusClass(t.status)}`}>
-                      {(t.status || "").replace(/_/g, " ")}
-                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
                   </div>
                 </button>
               ))
@@ -683,107 +589,43 @@ export default function SupportDashboard() {
               <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
-                    <h2 className="font-sans text-xl font-bold">{ticket.subject}</h2>
-                    <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-white/60 font-mono">
-                      <div>Ticket: <span className="text-white">{ticket.number}</span></div>
-                      <div>ID: <span className="text-white">{ticket.id}</span></div>
-                      <div>User: <span className="text-white">{ticket.user_name}</span></div>
-                      <div>User Type: <span className="text-white">{typeLabel(ticket.user_type)}</span></div>
-                      <div>User ID: <span className="text-white break-all">{ticket.user_id}</span></div>
-                      <div>Category: <span className="text-white">{ticket.category}</span></div>
-                      <div>Priority: <span className="text-white">{ticket.priority}</span></div>
-                      <div>Status: <span className="text-white">{(ticket.status || "").replace(/_/g, " ")}</span></div>
-                      <div>Assigned: <span className="text-white">{ticket.assignee_name || "Unassigned"}</span></div>
-                      <div>AI Status: <span className="text-white">{ticket.ai_status || "none"}</span></div>
-                      <div>Created: <span className="text-white">{fmtTs(ticket.created_at)}</span></div>
-                      <div>Updated: <span className="text-white">{fmtTs(ticket.updated_at)}</span></div>
-                      <div className={ticket.sla_breached ? "text-[#FF3B30]" : ""}>
-                        SLA: <span className="text-white">{fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</span>
-                      </div>
-                      <div>Email: <span className="text-white">{ticket.user_email}</span></div>
-                    </div>
+                    <div className="font-mono text-[10px] text-white/40 tracking-widest">{ticket.number} · {typeLabel(ticket.user_type)} · {ticket.priority}</div>
+                    <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
+                    <p className="text-xs text-white/50 mt-1">{ticket.user_name} · {ticket.category} · {(ticket.status || "").replace(/_/g, " ")}{ticket.assignee_name ? ` · ${ticket.assignee_name}` : " · Unassigned"}</p>
+                    {ticket.sla_due_at && (
+                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF3B30]" : "text-white/40"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
+                    )}
                   </div>
-                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0">
-                    <X className="w-4 h-4" />
-                  </button>
+                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0"><X className="w-4 h-4" /></button>
                 </div>
 
                 {detail.user_context && (
                   <div className="mb-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-xs text-white/70 space-y-1">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User context ({typeLabel(detail.user_context.user_type)})</div>
-                    <div>{detail.user_context.name} · {detail.user_context.email}</div>
-                    {detail.user_context.company && <div>Company: {detail.user_context.company}</div>}
-                    {detail.user_context.handle && <div>Handle: {detail.user_context.handle}</div>}
-                    {detail.user_context.city && <div>City: {detail.user_context.city}</div>}
-                    {detail.user_context.user_type === "influencer" && (
-                      <>
-                        {(detail.user_context.niches || []).length > 0 && <div>Niches: {(detail.user_context.niches || []).join(", ")}</div>}
-                        <div>Campaign participations: {detail.user_context.campaign_participations ?? 0}</div>
-                      </>
-                    )}
-                    {detail.user_context.user_type === "company" && (
-                      <>
-                        {detail.user_context.industry && <div>Industry: {detail.user_context.industry}</div>}
-                        <div>Campaigns owned: {detail.user_context.campaigns_owned ?? 0}</div>
-                      </>
-                    )}
-                    {detail.user_context.user_type === "agent" && (
-                      <>
-                        <div>Agency approved: {detail.user_context.agent_approved ? "Yes" : "No"}</div>
-                        <div>Roster size: {detail.user_context.roster_size ?? 0}</div>
-                      </>
-                    )}
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User</div>
+                    <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
+                    {detail.user_context.handle && <div>@{String(detail.user_context.handle).replace(/^@/, "")}</div>}
+                    {detail.user_context.company && <div>{detail.user_context.company}</div>}
                   </div>
                 )}
 
                 <div className="flex flex-wrap gap-2 mb-3">
                   {!ticket.assignee_id && can("support.tickets.claim") && (
-                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30]">
-                      <UserPlus className="w-3 h-3 inline mr-1" /> Claim
-                    </button>
+                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30]"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
                   )}
                   {statusButtons.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      disabled={busy}
-                      onClick={() => patch({ status: s })}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border ${
-                        ticket.status === s ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"
-                      }`}
-                    >
-                      {s.replace(/_/g, " ")}
-                    </button>
+                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"}`}>{s.replace(/_/g, " ")}</button>
                   ))}
-                  {canEscalate && (
-                    <button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">
-                      Escalate
-                    </button>
-                  )}
-                  {canReply && (
-                    <button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">
-                      AI draft
-                    </button>
-                  )}
+                  {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">Escalate</button>)}
+                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
                   {can("support.tickets.update") && (
-                    <select
-                      className={`${FILTER_SELECT} rounded-full text-[10px]`}
-                      value={ticket.priority || "Medium"}
-                      onChange={(e) => patch({ priority: e.target.value })}
-                    >
+                    <select className={`${FILTER_SELECT} rounded-full text-[10px]`} value={ticket.priority || "Medium"} onChange={(e) => patch({ priority: e.target.value })}>
                       {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p} style={FILTER_OPTION}>{p}</option>)}
                     </select>
                   )}
                   {canAssign && agents.length > 0 && (
-                    <select
-                      className={`${FILTER_SELECT} rounded-full text-[10px]`}
-                      value={ticket.assignee_id || ""}
-                      onChange={(e) => patch({ assignee_id: e.target.value })}
-                    >
+                    <select className={`${FILTER_SELECT} rounded-full text-[10px]`} value={ticket.assignee_id || ""} onChange={(e) => patch({ assignee_id: e.target.value })}>
                       <option value="" style={FILTER_OPTION}>Unassigned</option>
-                      {agents.map((a) => (
-                        <option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name} ({a.role})</option>
-                      ))}
+                      {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
                     </select>
                   )}
                 </div>
@@ -791,48 +633,17 @@ export default function SupportDashboard() {
                 {can("support.tickets.update") && (
                   <div className="flex gap-2 mb-3 items-center">
                     <Tag className="w-3.5 h-3.5 text-white/40" />
-                    <input
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      placeholder="Tags (comma-separated)"
-                      className="flex-1 bg-white/5 border border-white/10 px-2 py-1 text-xs rounded-lg"
-                    />
-                    <button type="button" disabled={busy} onClick={saveTags} className="px-2 py-1 text-[10px] font-mono uppercase border border-white/15 rounded-lg">
-                      Save tags
-                    </button>
-                  </div>
-                )}
-
-                {(ticket.tags || []).length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {ticket.tags.map((tag) => (
-                      <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono border border-white/15 text-white/50">
-                        <Tag className="w-2.5 h-2.5" /> {tag}
-                      </span>
-                    ))}
+                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2 py-1 text-xs rounded-lg" />
+                    <button type="button" disabled={busy} onClick={saveTags} className="px-2 py-1 text-[10px] font-mono uppercase border border-white/15 rounded-lg">Save</button>
                   </div>
                 )}
 
                 <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 custom-scrollbar min-h-[180px]">
                   {(detail.messages || []).map((m) => (
-                    <div
-                      key={m.id}
-                      className={`p-3 rounded-2xl text-sm ${
-                        m.internal
-                          ? "bg-amber-500/10 border border-amber-500/20"
-                          : m.source === "ai" || m.author_role === "ai"
-                            ? "bg-white/[0.03] border border-white/10 border-dashed"
-                            : m.author_id === user?.id
-                              ? "bg-[#FF3B30]/15 border border-[#FF3B30]/25 ml-4"
-                              : "bg-white/[0.04] border border-white/10 mr-4"
-                      }`}
-                    >
+                    <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF3B30]/15 border border-[#FF3B30]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
                       <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
                         <MessageSquare className="w-3 h-3" />
-                        {m.author_name} · {m.author_role}
-                        {m.internal ? " · internal" : ""}
-                        {m.source === "ai" ? " · AI" : ""}
-                        · {fmtTs(m.created_at)}
+                        {m.author_name}{m.internal ? " · internal" : ""}{m.source === "ai" ? " · AI" : ""} · {fmtTs(m.created_at)}
                       </div>
                       <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                     </div>
@@ -840,42 +651,18 @@ export default function SupportDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <textarea
-                    value={reply}
-                    onChange={(e) => setReply(e.target.value)}
-                    rows={3}
-                    placeholder="Reply to user or add internal note…"
-                    className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm outline-none focus:border-[#FF3B30] resize-none rounded-xl"
-                  />
+                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-3 py-2 text-sm outline-none focus:border-[#FF3B30] resize-none rounded-xl" />
                   <div className="flex gap-2">
                     {canReply && (
-                      <button
-                        type="button"
-                        disabled={busy || !reply.trim()}
-                        onClick={() => sendReply({ internal: false })}
-                        className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        <Send className="w-3.5 h-3.5" /> Reply
-                      </button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2"><Send className="w-3.5 h-3.5" /> Reply</button>
                     )}
                     {canInternal && (
-                      <button
-                        type="button"
-                        disabled={busy || !reply.trim()}
-                        onClick={() => sendReply({ internal: true })}
-                        className="px-3 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50"
-                      >
-                        Internal
-                      </button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-3 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50">Internal</button>
                     )}
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="border border-dashed border-white/15 rounded-3xl p-10 text-center text-white/40 text-sm">
-                Select a ticket to view details, AI history, and reply.
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}

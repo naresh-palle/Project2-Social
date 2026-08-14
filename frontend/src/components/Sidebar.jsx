@@ -2,7 +2,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
-import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
 
@@ -18,7 +17,7 @@ export function Sidebar() {
   const opsTab = searchParams.get("tab") || "overview";
 
   const supportItems = [
-    { to: "/support/ops?tab=overview", label: "Overview", icon: "📊", tab: "overview" },
+    { to: "/support/ops?tab=dashboard", label: "Dashboard", icon: "📊", tab: "dashboard" },
     { to: "/support/ops?tab=tickets", label: "Tickets", icon: "🎫", tab: "tickets" },
     ...(user?.role === "support_admin" || user?.role === "support_lead"
       ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "👥", tab: "staff" }]
@@ -63,7 +62,7 @@ export function Sidebar() {
       else if (q.includes("analytic")) nav("/support/ops?tab=analytics");
       else if (q.includes("knowledge") || q.includes("faq")) nav("/support/ops?tab=knowledge");
       else if (q.includes("setting")) nav("/settings");
-      else nav("/support/ops?tab=overview");
+      else nav("/support/ops?tab=dashboard");
     } else if (q.includes("theme") || q.includes("dark") || q.includes("light") || q.includes("setting") || q.includes("password")) nav("/settings");
     else if (q.includes("dash")) nav("/dashboard");
     else if (q.includes("profile")) nav("/profile");
@@ -81,6 +80,7 @@ export function Sidebar() {
     if (it.to === "/settings") return location.pathname === "/settings";
     if (!isSupportOps) return location.pathname === it.to;
     if (location.pathname !== "/support/ops") return false;
+    if (it.tab === "dashboard") return opsTab === "dashboard" || opsTab === "overview" || !searchParams.get("tab");
     return opsTab === it.tab;
   };
 
@@ -201,21 +201,16 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto p-4 border-t border-white/10">
-        <div className="flex items-center justify-between">
+        {!isSupportOps && (
           <div className="flex gap-2">
-            {!isSupportOps && (
-              <>
-                <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
-                  <LifeBuoy className="w-4 h-4" />
-                </Link>
-                <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="AI Help">
-                  <Bot className="w-4 h-4" />
-                </Link>
-              </>
-            )}
+            <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
+              <LifeBuoy className="w-4 h-4" />
+            </Link>
+            <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="AI Help">
+              <Bot className="w-4 h-4" />
+            </Link>
           </div>
-          <NotificationBell />
-        </div>
+        )}
       </div>
     </motion.aside>
   );

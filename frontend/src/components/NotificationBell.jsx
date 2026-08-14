@@ -39,6 +39,8 @@ export function NotificationBell() {
   };
 
   const linkFor = (n) => {
+    if (n.meta?.link) return n.meta.link;
+    if (n.kind === "support" || n.meta?.ticket_id) return "/support/ops?tab=tickets";
     if (n.meta?.campaign_id) return `/campaigns/${n.meta.campaign_id}`;
     if (n.meta?.contract_id) return `/campaigns/${n.meta.campaign_id}`;
     if (n.kind === "invitation") return "/invitations";
@@ -69,7 +71,7 @@ export function NotificationBell() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-3 w-[360px] max-h-[70vh] overflow-y-auto bg-[#0A0A0A]/95 backdrop-blur-xl hairline-t hairline-b hairline-l hairline-r z-50"
+            className="absolute right-0 mt-3 w-[360px] max-h-[70vh] overflow-y-auto bg-[#121212] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90]"
             data-testid="notif-panel"
           >
             <div className="p-4 hairline-b flex items-center justify-between">

@@ -9,7 +9,7 @@ export function isSupportOpsRole(role) {
 }
 
 export function supportHomePath() {
-  return "/support/ops";
+  return "/support/ops?tab=dashboard";
 }
 
 export function supportRoleLabel(role) {
