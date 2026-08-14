@@ -87,7 +87,9 @@ credentials.json
 *.key
 .credentials
 
-# Local/release APK binaries (served via GitHub Pages deploy)
+# Local/release APK binaries (keep published downloads)
 *.apk
+!backend/web/downloads/*.apk
 frontend/public/*.apk
 backend/web/*.apk
+!backend/web/downloads/*.apk
