@@ -27,13 +27,14 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       const res = await api.post("/creators/sync-analytics", { platform_metrics });
       
       if (res.data?.ok) {
-        toast.success(`Successfully connected ${SOCIAL_PLATFORM_LABELS[platformId]}!`);
-        if (onConnect) onConnect(); // Trigger refresh on parent
+        toast.success(res.data?.message || `Successfully connected ${SOCIAL_PLATFORM_LABELS[platformId]}!`);
+        if (onConnect) onConnect();
       } else {
-        toast.error(res.data?.error || `Failed to connect ${platformId}`);
+        toast.error(res.data?.message || res.data?.error || `Failed to connect ${platformId}`);
       }
     } catch (e) {
-      toast.error(`Failed to connect ${platformId}`);
+      const detail = e?.response?.data?.detail || e?.response?.data?.message;
+      toast.error(detail || `Failed to connect ${platformId}`);
     } finally {
       setLoading(null);
       setActivePrompt(null);
