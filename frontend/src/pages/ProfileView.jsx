@@ -188,6 +188,10 @@ export default function ProfileView() {
                   </div>
                 )}
                 <div>
+                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Username</p>
+                  <p className="font-sans text-sm text-white font-medium">{profile.username ? `@${profile.username}` : "N/A"}</p>
+                </div>
+                <div>
                   <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">E-mail</p>
                   <p className="font-sans text-sm text-white font-medium break-all">{profile.email}</p>
                 </div>
@@ -203,118 +207,87 @@ export default function ProfileView() {
             </div>
           </div>
 
-          {/* Basic Information Card */}
+          {/* About / Bio */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6 flex items-center gap-2">
-              Basic Information <span className="text-white/30 text-[10px] font-normal">[Non-Editable Here]</span>
+            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
+              About
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-b border-white/5 pb-6">
+            <p className="font-sans text-sm leading-relaxed text-white/90 mb-6">
+              {profile.bio || "No bio provided."}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Username</p>
-                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-mono text-sm text-white inline-block">
-                  {profile.username ? `@${profile.username}` : "N/A"}
+                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Joined</p>
+                <p className="font-sans text-sm text-white">
+                  {profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}
+                </p>
+              </div>
+              {isInfluencer && (
+                <div>
+                  <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Base Rate</p>
+                  <p className="font-sans text-sm text-white">{profile.base_rate ? `$${profile.base_rate}` : "—"}</p>
                 </div>
+              )}
+              <div>
+                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Location</p>
+                <p className="font-sans text-sm text-white flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-white/40" />
+                  {profile.city || profile.state ? `${profile.city || ""}${profile.city && profile.state ? ", " : ""}${profile.state || ""}` : "—"}
+                </p>
               </div>
               <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Joined Date</p>
-                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-sans text-sm text-white inline-block">
-                  {profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "2024"}
-                </div>
-              </div>
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Base Rate</p>
-                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-sans text-sm text-white inline-block">
-                  {profile.base_rate ? `$${profile.base_rate}` : "N/A"}
-                </div>
-              </div>
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">User ID</p>
-                <div className="bg-black/30 border border-white/5 rounded-3xl px-4 py-2 font-mono text-xs text-white/60 inline-block truncate max-w-full">
-                  {profile.id || profile._id?.substring(0, 8) || "N/A"}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6">
-              <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Bio</p>
-              <p className="font-sans text-sm leading-relaxed text-white/90">
-                {profile.bio || "No bio provided."}
-              </p>
-            </div>
-          </div>
-
-          {/* Personal Information Card */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6 flex items-center gap-2">
-              Personal Information
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Location</p>
-                <div className="flex items-center gap-2 border-b border-white/10 pb-2">
-                  <MapPin className="w-4 h-4 text-white/40" />
-                  <span className="font-sans text-sm text-white">
-                    {profile.city || profile.state ? `${profile.city || ""}${profile.city && profile.state ? ", " : ""}${profile.state || ""}` : "Not specified"}
-                  </span>
-                </div>
-              </div>
-              
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-2 font-medium">Languages</p>
-                <div className="flex items-center gap-2 border-b border-white/10 pb-2">
-                  <span className="font-sans text-sm text-white">
-                    {languagesList.length > 0 ? languagesList.join(", ") : "Not specified"}
-                  </span>
-                </div>
+                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Languages</p>
+                <p className="font-sans text-sm text-white">
+                  {languagesList.length > 0 ? languagesList.join(", ") : "—"}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Occupation / Professional Information Card */}
+          {/* Professional Attributes */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
             <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6 flex items-center gap-2">
-              Professional Attributes
+              Niches & Content
             </h3>
             
-            <div className="flex flex-wrap gap-6">
-              <div className="flex flex-col items-center justify-center bg-black/20 border border-[#34C759]/20 rounded-2xl p-4 min-w-[120px]">
+            <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col items-center justify-center bg-black/20 border border-[#34C759]/20 rounded-2xl p-4 min-w-[110px]">
                 <div className="w-10 h-10 rounded-full bg-[#34C759]/10 flex items-center justify-center mb-3">
-                  <span className="text-xl text-[#34C759]">✨</span>
+                  <Sparkles className="w-4 h-4 text-[#34C759]" />
                 </div>
                 <span className="font-sans text-sm font-medium text-white text-center">
                   {categoriesList.length > 0 ? categoriesList[0] : "General"}
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Primary Niche</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Primary</span>
               </div>
               
-              {categoriesList.slice(1, 3).map((cat, idx) => (
-                <div key={idx} className="flex flex-col items-center justify-center bg-black/20 border border-[#0A84FF]/20 rounded-2xl p-4 min-w-[120px]">
+              {categoriesList.slice(1, 4).map((cat, idx) => (
+                <div key={idx} className="flex flex-col items-center justify-center bg-black/20 border border-[#0A84FF]/20 rounded-2xl p-4 min-w-[110px]">
                   <div className="w-10 h-10 rounded-full bg-[#0A84FF]/10 flex items-center justify-center mb-3">
-                    <span className="text-xl text-[#0A84FF]">🎯</span>
+                    <span className="text-sm text-[#0A84FF] font-bold">{idx + 2}</span>
                   </div>
                   <span className="font-sans text-sm font-medium text-white text-center">{cat}</span>
                   <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Niche</span>
                 </div>
               ))}
               
-              {contentTypesList.length > 0 && (
-                <div className="flex flex-col items-center justify-center bg-black/20 border border-[#BF5AF2]/20 rounded-2xl p-4 min-w-[120px]">
+              {contentTypesList.slice(0, 2).map((ct, idx) => (
+                <div key={`ct-${idx}`} className="flex flex-col items-center justify-center bg-black/20 border border-[#BF5AF2]/20 rounded-2xl p-4 min-w-[110px]">
                   <div className="w-10 h-10 rounded-full bg-[#BF5AF2]/10 flex items-center justify-center mb-3">
-                    <span className="text-xl text-[#BF5AF2]">📸</span>
+                    <ImageIcon className="w-4 h-4 text-[#BF5AF2]" />
                   </div>
-                  <span className="font-sans text-sm font-medium text-white text-center">{contentTypesList[0]}</span>
+                  <span className="font-sans text-sm font-medium text-white text-center">{ct}</span>
                   <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Content</span>
                 </div>
-              )}
+              ))}
             </div>
           </div>
 
-          {/* Portfolio Grid if applicable */}
+          {/* Portfolio */}
           {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
               <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6">
-                Portfolio Media
+                Portfolio
               </h3>
               
               {portfolioImages.length > 0 && (
@@ -349,12 +322,35 @@ export default function ProfileView() {
             </div>
           )}
 
+          {/* Past Campaigns */}
+          {isInfluencer && pastCampaigns.length > 0 && (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
+              <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
+                Past Campaigns
+              </h3>
+              <div className="space-y-2">
+                {pastCampaigns.map((c, i) => (
+                  <div key={i} className="flex items-center justify-between gap-3 py-2 border-b border-white/5 last:border-0">
+                    <span className="font-sans text-sm text-white truncate">
+                      {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
+                    </span>
+                    {(c?.brand || c?.year) && (
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40 shrink-0">
+                        {[c.brand, c.year].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* RIGHT COLUMN: Supporting Widgets */}
         <div className="md:col-span-4 space-y-6">
           
-          {/* Onboarding / Profile Status Widget */}
+          {/* Profile Status */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
             <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
               Profile Status
@@ -376,12 +372,12 @@ export default function ProfileView() {
                   <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0" />
                   <div>
                     <p className="font-sans text-xs text-white font-medium">All set!</p>
-                    <p className="font-sans text-[10px] text-white/60 mt-0.5">Your profile is fully complete and visible to brands.</p>
+                    <p className="font-sans text-[10px] text-white/60 mt-0.5">Your profile is fully complete.</p>
                   </div>
                 </div>
               ) : (
                 <>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/50 mb-1">Missing Info Tasks</p>
+                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/50 mb-1">Missing</p>
                   {missingFields.map((field, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-white/20 shrink-0" />
@@ -389,14 +385,14 @@ export default function ProfileView() {
                     </div>
                   ))}
                   <Link to="/profile/edit" className="block text-center mt-4 font-sans text-xs text-[#FF3B30] hover:underline">
-                    Complete Profile Now →
+                    Complete Profile →
                   </Link>
                 </>
               )}
             </div>
           </div>
 
-          {/* Social Accounts Metrics Widget */}
+          {/* Social Metrics */}
           {isInfluencer && (
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
               <div className="flex items-center justify-between mb-5">
