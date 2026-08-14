@@ -13,7 +13,7 @@ export function RequireAuth({ children, roles = [] }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (roles.length > 0 && !roles.includes(user.role) && user.role !== "admin") {
+  if (roles.length > 0 && !roles.includes(user.role) && user.role !== "admin" && user.role !== "support_admin") {
     return <Navigate to="/dashboard" replace />;
   }
 

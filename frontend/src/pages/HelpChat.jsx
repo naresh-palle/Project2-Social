@@ -1,41 +1,86 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, Bot, Sparkles, User, ExternalLink, X } from "lucide-react";
+import { Send, Bot, Sparkles, User, ExternalLink, X, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 export default function HelpChat() {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! I'm the CR8 Studio AI assistant. How can I help you today?" }
+    { role: "assistant", content: "Hi! I'm the CR8 Studio AI assistant. Ask about payments, escrow, matching, disputes, or account setup." },
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [lastEscalate, setLastEscalate] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
 
     const userMsg = input.trim();
     setInput("");
-    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    const nextHistory = [...messages, { role: "user", content: userMsg }];
+    setMessages(nextHistory);
     setIsTyping(true);
+    setLastEscalate(false);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const { data } = await api.post("/support/ai/chat", {
+        message: userMsg,
+        history: nextHistory.slice(0, -1).map((m) => ({ role: m.role, content: m.content })),
+        create_ticket_if_needed: false,
+      });
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply || "Sorry — I couldn't answer that." }]);
+      setLastEscalate(Boolean(data.escalate));
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "I'm having trouble reaching the knowledge base. Please raise a support ticket and our team will help.",
+        },
+      ]);
+      setLastEscalate(true);
+    } finally {
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        role: "assistant", 
-        content: "I'm currently unable to connect to the knowledge base. Please raise a support ticket for further assistance." 
-      }]);
-    }, 1500);
+    }
+  };
+
+  const escalateNow = async () => {
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUser) {
+      toast.message("Ask a question first, then escalate.");
+      return;
+    }
+    setIsTyping(true);
+    try {
+      const { data } = await api.post("/support/ai/chat", {
+        message: lastUser.content,
+        history: messages.map((m) => ({ role: m.role, content: m.content })),
+        create_ticket_if_needed: true,
+      });
+      if (data.ticket) {
+        toast.success(`Ticket ${data.ticket.number} created`);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `I've opened support ticket ${data.ticket.number} for you. You can track it in Support Center.`,
+          },
+        ]);
+      } else {
+        toast.message("Open Support Center to file a ticket.");
+      }
+    } catch {
+      toast.error("Could not create ticket automatically");
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -84,29 +129,29 @@ export default function HelpChat() {
               animate={{ opacity: 1, y: 0 }}
               className={`flex gap-4 max-w-[85%] ${msg.role === "user" ? "ml-auto flex-row-reverse" : ""}`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
-                msg.role === "user"
-                  ? "bg-white/10 text-white"
-                  : "bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30"
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
+                  msg.role === "user"
+                    ? "bg-white/10 text-white"
+                    : "bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30"
+                }`}
+              >
                 {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
-              <div className={`p-4 rounded-3xl ${
-                msg.role === "user"
-                  ? "bg-[#FF3B30] text-white"
-                  : "bg-white/[0.04] border border-white/10 text-white/90"
-              }`}>
+              <div
+                className={`p-4 rounded-3xl ${
+                  msg.role === "user"
+                    ? "bg-[#FF3B30] text-white"
+                    : "bg-white/[0.04] border border-white/10 text-white/90"
+                }`}
+              >
                 <p className="font-sans text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               </div>
             </motion.div>
           ))}
 
           {isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex gap-4 max-w-[85%]"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4 max-w-[85%]">
               <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 flex items-center justify-center shrink-0 mt-1">
                 <Bot className="w-4 h-4" />
               </div>
@@ -120,34 +165,42 @@ export default function HelpChat() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="shrink-0 p-4 border-t border-white/10 bg-[#121216]">
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-grow bg-white/[0.03] border border-white/10 rounded-3xl px-4 py-3 text-white focus:outline-none focus:border-[#FF3B30] transition-colors font-sans"
-            />
+        {lastEscalate && (
+          <div className="px-6 pb-2">
             <button
-              type="submit"
-              disabled={!input.trim() || isTyping}
-              className="bg-[#FF3B30] text-white px-6 py-3 rounded-3xl hover:bg-[#ff5247] transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-[#FF3B30]"
+              type="button"
+              onClick={escalateNow}
+              disabled={isTyping}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FF3B30]/40 text-[#FF3B30] text-xs font-mono uppercase tracking-widest hover:bg-[#FF3B30]/10 disabled:opacity-50"
             >
-              <Send className="w-5 h-5" />
+              <Ticket className="w-3.5 h-3.5" /> Create support ticket from this chat
             </button>
-          </form>
-        </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 flex gap-3">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about payments, disputes, matching…"
+            className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-3 text-sm outline-none focus:border-[#FF3B30]"
+          />
+          <button
+            type="submit"
+            disabled={isTyping || !input.trim()}
+            className="w-12 h-12 rounded-full bg-[#FF3B30] text-white flex items-center justify-center disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </form>
       </motion.div>
 
-      <div className="mt-3 flex justify-center sm:hidden shrink-0">
-        <Link
-          to="/support"
-          className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors font-mono text-[10px] tracking-widest uppercase text-white/80"
-        >
-          Create Support Ticket <ExternalLink className="w-3 h-3" />
+      <p className="mt-3 text-center text-[11px] text-white/35">
+        Still stuck?{" "}
+        <Link to="/support" className="text-[#FF3B30] hover:underline">
+          Open Support Center
         </Link>
-      </div>
+      </p>
     </div>
   );
 }

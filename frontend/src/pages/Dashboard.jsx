@@ -31,6 +31,10 @@ export default function Dashboard() {
   useEffect(() => {
     if (!loading && !user) nav("/login");
     else if (!loading && user) {
+        if (user.role === "support" || user.role === "support_admin") {
+          nav("/support");
+          return;
+        }
         if (user.role === "agent" && !user.agent_approved) nav("/onboarding/agent");
         else if (user.role !== "admin" && user.onboarding_status !== "completed") nav(`/onboarding/${user.role}`);
     }

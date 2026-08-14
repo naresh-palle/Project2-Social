@@ -191,6 +191,8 @@ ROLE_AUDIT_LABELS = {
     "owner": "Brand",
     "agent": "Agency",
     "admin": "Admin",
+    "support": "Support",
+    "support_admin": "Support Admin",
 }
 
 _brevo_account_email: Optional[str] = None
@@ -494,7 +496,8 @@ async def require_role(current: dict, roles: list) -> dict:
 
 
 # ---------- Models ----------
-UserRole = Literal["owner", "influencer", "admin", "agent"]
+UserRole = Literal["owner", "influencer", "admin", "agent", "support", "support_admin"]
+PublicRegisterRole = Literal["owner", "influencer", "agent"]
 
 
 class RegisterInput(BaseModel):
@@ -502,7 +505,7 @@ class RegisterInput(BaseModel):
     username: str = Field(min_length=3, max_length=30)
     password: str = Field(min_length=8)
     name: str = Field(min_length=1, max_length=80)
-    role: UserRole
+    role: PublicRegisterRole
     otp: str = Field(min_length=6, max_length=6)
     handle: Optional[str] = None
     platform: Optional[str] = None
@@ -1629,6 +1632,8 @@ async def register_old(inp: RegisterInput):
         raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+    if inp.role in ("support", "support_admin"):
+        raise HTTPException(status_code=400, detail="Cannot self-register as support staff")
     
     if not (any(c.isalpha() for c in inp.password) and any(c.isdigit() for c in inp.password)):
         raise HTTPException(status_code=400, detail="Password must be alphanumeric")
@@ -4618,6 +4623,7 @@ async def reset_demo_passwords():
     seed_emails = [
         "lena@cr8.studio", "kai@cr8.studio", "nova@cr8.studio",
         "creator@cr8.studio", "company@cr8.studio", "agent@cr8.studio",
+        "support@cr8.studio", "support.admin@cr8.studio",
         "pending_agent@cr8.studio", "studio@cr8.studio",
         "arjun@cr8.studio", "priya@cr8.studio", "rohan@cr8.studio",
         "sneha@cr8.studio", "karthik@cr8.studio", "anya@cr8.studio",
@@ -4716,6 +4722,11 @@ async def on_startup():
         await apify_service.fail_stale_jobs(db)
     except Exception as e:
         logger.warning("apify indexes/stale cleanup failed: %s", e)
+    try:
+        await _support_ensure_indexes()
+        await _support_seed_users()
+    except Exception as e:
+        logger.warning("support indexes/seed failed: %s", e)
     logger.info("CR8 API ready.")
 
 
@@ -4772,6 +4783,25 @@ setup_phase2(
     email_template=email_template,
     push_notification=push_notification,
     write_audit_log=write_audit_log,
+    logger=logger,
+)
+
+# ── Support & AI Ticket Management ──
+from support_features import setup_support  # noqa: E402
+
+_support_ensure_indexes, _support_seed_users = setup_support(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    clean=clean,
+    now_iso=now_iso,
+    hash_password=hash_password,
+    push_notification=push_notification,
+    send_email=send_email,
+    email_template=email_template,
+    write_audit_log=write_audit_log,
+    call_llm=call_llm,
     logger=logger,
 )
 
