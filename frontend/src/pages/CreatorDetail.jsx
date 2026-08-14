@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MessageSquare, Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatUsername } from "@/lib/username";
@@ -11,7 +10,6 @@ import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 
 export default function CreatorDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
   const nav = useNavigate();
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,15 +38,6 @@ export default function CreatorDetail() {
     );
   }
   if (!creator) return null;
-
-  const handleMessage = async () => {
-    try {
-      const { data } = await api.post("/conversations/dm", { user_id: creator.id });
-      nav(`/messages?id=${data.id}`);
-    } catch (e) {
-      toast.error(e.response?.data?.detail || "Could not open conversation");
-    }
-  };
 
   const chartData = creator.monthly_analytics?.slice(-chartRange) || [];
   const bestPlatform = Object.entries(creator.platform_metrics || {}).reduce((max, [k, v]) => {
@@ -107,15 +96,6 @@ export default function CreatorDetail() {
                 <div className="font-sans text-2xl font-bold tabular-nums">{bestPlatform.val.followers.toLocaleString()}</div>
                 <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{bestPlatform.key} audience</div>
               </div>
-            )}
-            {user && String(user.id) !== String(creator.id) && (
-              <button
-                type="button"
-                onClick={handleMessage}
-                className="btn-solid bg-[#FF3B30] text-white px-4 py-2.5 flex items-center gap-2 rounded-full text-sm"
-              >
-                <MessageSquare className="w-4 h-4" /> Message
-              </button>
             )}
           </div>
         </div>

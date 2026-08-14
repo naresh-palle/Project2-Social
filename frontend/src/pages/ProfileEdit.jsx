@@ -799,55 +799,6 @@ export default function ProfileEdit() {
           
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-              {isInfluencer && (
-                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-4 rounded-3xl mb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-sans text-sm font-bold text-[#FF3B30] flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4" /> Auto-Fill from Social Media
-                      </h3>
-                      <p className="font-sans text-[11px] opacity-70 mt-1">
-                        Paste your Instagram, YouTube, or Facebook URL to auto-fill your basic info.
-                      </p>
-                    </div>
-                    {!showScrapeInput && (
-                      <button 
-                        type="button" 
-                        onClick={() => setShowScrapeInput(true)}
-                        className="btn-solid bg-[#FF3B30] hover:bg-[#e03126] text-white !px-3 !py-1.5 text-xs"
-                      >
-                        Start
-                      </button>
-                    )}
-                  </div>
-                  {showScrapeInput && (
-                    <div className="mt-3 flex gap-2">
-                      <input 
-                        className="inp flex-1" 
-                        placeholder="e.g. https://instagram.com/username" 
-                        value={scrapeUrl}
-                        onChange={e => setScrapeUrl(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleScrape()}
-                      />
-                      <button 
-                        type="button" 
-                        onClick={handleScrape}
-                        disabled={scraping || !scrapeUrl.trim()}
-                        className="btn-solid bg-white text-black hover:bg-white/90 disabled:opacity-50 !px-4"
-                      >
-                        {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : "Fetch"}
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => setShowScrapeInput(false)}
-                        className="btn-ghost"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
               
               <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
                   <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
@@ -1032,6 +983,55 @@ export default function ProfileEdit() {
               )}
 
           <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
+              {isInfluencer && (
+                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-3 rounded-2xl mb-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-sans text-sm font-bold text-[#FF3B30] flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 shrink-0" /> Auto-Fill from Social Media
+                      </h3>
+                      <p className="font-sans text-[11px] opacity-70 mt-1">
+                        Paste your Instagram, YouTube, or Facebook URL to auto-fill your basic info.
+                      </p>
+                    </div>
+                    {!showScrapeInput && (
+                      <button
+                        type="button"
+                        onClick={() => setShowScrapeInput(true)}
+                        className="btn-solid bg-[#FF3B30] hover:bg-[#e03126] text-white !px-3 !py-1.5 text-xs shrink-0"
+                      >
+                        Start
+                      </button>
+                    )}
+                  </div>
+                  {showScrapeInput && (
+                    <div className="mt-3 flex gap-2">
+                      <input
+                        className="inp flex-1"
+                        placeholder="e.g. https://instagram.com/username"
+                        value={scrapeUrl}
+                        onChange={(e) => setScrapeUrl(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleScrape()}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleScrape}
+                        disabled={scraping || !scrapeUrl.trim()}
+                        className="btn-solid bg-white text-black hover:bg-white/90 disabled:opacity-50 !px-4"
+                      >
+                        {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : "Fetch"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowScrapeInput(false)}
+                        className="btn-ghost"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
                 <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
                   <span className="mr-2">03</span>

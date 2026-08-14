@@ -45,7 +45,7 @@ function upsertMsg(prev, msg) {
   return [...prev, msg];
 }
 
-export default function Messages({ miniWidget = false, onClose }) {
+export default function Messages({ miniWidget = false, onClose, dmUserId = null }) {
   const { user } = useAuth();
   const [sp] = useSearchParams();
   const [convos, setConvos] = useState([]);
@@ -102,6 +102,27 @@ export default function Messages({ miniWidget = false, onClose }) {
     if (user) loadConvos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useEffect(() => {
+    if (!user || !dmUserId || String(dmUserId) === String(user.id)) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.post("/conversations/dm", { user_id: dmUserId });
+        if (cancelled || !data) return;
+        setConvos((prev) => {
+          if (prev.some((c) => c.id === data.id)) return prev;
+          return [data, ...prev];
+        });
+        setActive(data);
+      } catch (e) {
+        toast.error(formatApiError(e.response?.data?.detail) || "Could not open chat");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, dmUserId]);
 
   useEffect(() => {
     if (!active) return;
