@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  Loader2, MessageSquare, Send, X, UserPlus, Tag, Plus,
+  Loader2, MessageSquare, Send, X, UserPlus, Tag, Plus, ChevronDown,
+  Inbox, AlertTriangle, Clock, CheckCircle2, Sparkles, ArrowRight,
+  Users, Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -85,10 +87,21 @@ const STATUS_OPTS = [
 ];
 
 const FILTER_SELECT =
-  "bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans appearance-none cursor-pointer focus:outline-none focus:border-[#FF3B30] min-w-[7.5rem]";
+  "w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 pl-2.5 pr-8 py-1.5 text-xs rounded-lg font-sans appearance-none cursor-pointer focus:outline-none focus:border-[#FF3B30]";
 const FILTER_OPTION = { backgroundColor: "#1A1A1E", color: "#F4F4F0" };
 const FILTER_INPUT =
-  "bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30] flex-1 min-w-[8rem]";
+  "w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30]";
+
+function FilterSelect({ className = "", children, ...props }) {
+  return (
+    <div className={`relative min-w-0 ${className}`}>
+      <select {...props} className={FILTER_SELECT}>
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/70" aria-hidden />
+    </div>
+  );
+}
 
 function statusClass(status) {
   if (status === "new" || status === "open") return "bg-[#34C759]/20 text-[#34C759] border-[#34C759]/30";
@@ -491,42 +504,129 @@ export default function SupportDashboard() {
 
       {tab === "dashboard" && stats && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
-            {KPI_KEYS.map(([key, label]) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            {[
+              { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, tone: "text-[#FF3B30]" },
+              { label: "My open", value: stats.my_open ?? 0, hint: "Assigned to you", queue: "mine", icon: Users, tone: "text-[#F4F4F0]" },
+              { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached or overdue", queue: "all", icon: AlertTriangle, tone: "text-[#FF9500]" },
+              { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, tone: "text-[#34C759]" },
+            ].map((card) => (
               <button
-                key={key}
+                key={card.label}
                 type="button"
-                onClick={() => {
-                  if (key === "unassigned") setTab("tickets", "unassigned");
-                  else if (key === "my_open") setTab("tickets", "mine");
-                  else if (key === "influencer") setTab("tickets", "influencer");
-                  else if (key === "company") setTab("tickets", "company");
-                  else if (key === "agent") setTab("tickets", "agent");
-                  else setTab("tickets", "all");
-                }}
-                className="text-left border border-white/10 bg-white/[0.02] rounded-xl px-3 py-2 hover:border-[#FF3B30]/40 transition-colors"
+                onClick={() => setTab("tickets", card.queue)}
+                className="text-left border border-white/10 bg-white/[0.03] rounded-2xl p-4 hover:border-[#FF3B30]/40 transition-colors"
               >
-                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
-                <div className="font-sans text-xl font-bold mt-0.5 tabular-nums">{stats[key] ?? 0}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-white/45">{card.label}</span>
+                  <card.icon className={`w-4 h-4 ${card.tone}`} />
+                </div>
+                <div className="font-sans text-3xl font-bold mt-2 tabular-nums">{card.value}</div>
+                <div className="text-xs text-white/40 mt-1">{card.hint}</div>
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              ["Unassigned", "unassigned", stats?.unassigned],
-              ["Escalated", "escalated", analytics?.escalated_open ?? 0],
-              ["My open", "mine", stats?.my_open],
-            ].map(([label, qid, val]) => (
-              <button
-                key={qid}
-                type="button"
-                onClick={() => setTab("tickets", qid)}
-                className="border border-white/10 rounded-2xl p-4 text-left hover:border-[#FF3B30]/40"
-              >
-                <div className="font-mono text-[10px] uppercase tracking-widest text-white/40">{label}</div>
-                <div className="text-3xl font-bold mt-2">{val ?? 0}</div>
-              </button>
-            ))}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 border border-white/10 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-sans font-bold text-lg">Priority focus</h2>
+                <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] inline-flex items-center gap-1">
+                  Open queue <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  ["Critical", stats.critical ?? 0, "critical"],
+                  ["AI escalated", stats.ai_escalated ?? 0, "escalated"],
+                  ["Pending user", stats.pending_user ?? 0, "all"],
+                  ["Pending support", stats.pending_support ?? 0, "all"],
+                ].map(([label, val, qid]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setTab("tickets", qid === "critical" ? "all" : qid)}
+                    className="border border-white/10 rounded-xl px-3 py-3 text-left hover:bg-white/[0.04]"
+                  >
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
+                    <div className="text-2xl font-bold mt-1 tabular-nums">{val}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  ["Influencer", stats.influencer ?? 0, "influencer"],
+                  ["Company", stats.company ?? 0, "company"],
+                  ["Agent", stats.agent ?? 0, "agent"],
+                ].map(([label, val, qid]) => (
+                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="border border-white/10 rounded-xl px-3 py-3 text-left hover:bg-white/[0.04]">
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
+                    <div className="text-xl font-bold mt-1 tabular-nums">{val}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="border border-white/10 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-[#FF3B30]" />
+                <h2 className="font-sans font-bold text-lg">Quick actions</h2>
+              </div>
+              {[
+                { label: "Claim next unassigned", queue: "unassigned", icon: Inbox },
+                { label: "Review escalations", queue: "escalated", icon: AlertTriangle },
+                { label: "My tickets", queue: "mine", icon: Clock },
+                { label: "AI escalated queue", queue: "escalated", icon: Sparkles },
+              ].map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  onClick={() => setTab("tickets", a.queue)}
+                  className="w-full flex items-center gap-3 border border-white/10 rounded-xl px-3 py-2.5 text-left hover:border-[#FF3B30]/40 hover:bg-white/[0.03]"
+                >
+                  <a.icon className="w-4 h-4 text-white/60" />
+                  <span className="text-sm flex-1">{a.label}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border border-white/10 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-sans font-bold text-lg">Attention list</h2>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-white/40">Newest first</span>
+            </div>
+            {(!tickets || tickets.length === 0) ? (
+              <p className="text-sm text-white/40">No open tickets right now.</p>
+            ) : (
+              <div className="space-y-2">
+                {tickets
+                  .slice()
+                  .sort((a, b) => {
+                    const rank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+                    const ra = rank[a.priority] ?? 9;
+                    const rb = rank[b.priority] ?? 9;
+                    if (ra !== rb) return ra - rb;
+                    return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
+                  })
+                  .slice(0, 6)
+                  .map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => { setTab("tickets", "all"); openTicket(t.id); }}
+                      className="w-full flex items-center gap-3 border border-white/10 rounded-xl px-3 py-2.5 text-left hover:bg-white/[0.04]"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-mono text-[9px] text-white/40 tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
+                        <div className="text-sm truncate mt-0.5">{t.subject}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -535,31 +635,31 @@ export default function SupportDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <select value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(e) => applyQueueFilter(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Ticket queue">
+              <FilterSelect value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(e) => applyQueueFilter(e.target.value)} aria-label="Ticket queue">
                 {QUEUE_FILTERS.map((u) => (<option key={u.id} value={u.id} style={FILTER_OPTION}>{u.label}</option>))}
-              </select>
-              <select value={userType} onChange={(e) => setUserType(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="User type">
+              </FilterSelect>
+              <FilterSelect value={userType} onChange={(e) => setUserType(e.target.value)} aria-label="User type">
                 {USER_TYPES.map((u) => (<option key={u.id || "all"} value={u.id} style={FILTER_OPTION}>{u.label === "All" ? "User Type" : u.label}</option>))}
-              </select>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Status">
+              </FilterSelect>
+              <FilterSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status">
                 {STATUS_OPTS.map((s) => (<option key={s.id || "allst"} value={s.id} style={FILTER_OPTION}>{s.label}</option>))}
-              </select>
-              <select value={priority} onChange={(e) => setPriority(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Priority">
+              </FilterSelect>
+              <FilterSelect value={priority} onChange={(e) => setPriority(e.target.value)} aria-label="Priority">
                 <option value="" style={FILTER_OPTION}>Priority</option>
                 {["Low", "Medium", "High", "Critical"].map((p) => (<option key={p} value={p} style={FILTER_OPTION}>{p}</option>))}
-              </select>
-              <select value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="AI status">
+              </FilterSelect>
+              <FilterSelect value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} aria-label="AI status">
                 {AI_STATUS_OPTS.map((a) => (<option key={a.id || "aiall"} value={a.id} style={FILTER_OPTION}>{a.label}</option>))}
-              </select>
+              </FilterSelect>
               {canAssign ? (
-                <select value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} className={`${FILTER_SELECT} w-full min-w-0`} aria-label="Assignment">
+                <FilterSelect value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} aria-label="Assignment">
                   <option value="" style={FILTER_OPTION}>Assignment</option>
                   <option value="unassigned" style={FILTER_OPTION}>Unassigned</option>
                   <option value="mine" style={FILTER_OPTION}>My Tickets</option>
                   {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
-                </select>
+                </FilterSelect>
               ) : <div />}
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…" className={`${FILTER_INPUT} col-span-2 sm:col-span-3 w-full min-w-0`} />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…" className={`${FILTER_INPUT} col-span-2 sm:col-span-3`} />
             </div>
 
             {loading ? (
@@ -618,15 +718,15 @@ export default function SupportDashboard() {
                   {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">Escalate</button>)}
                   {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
                   {can("support.tickets.update") && (
-                    <select className={`${FILTER_SELECT} rounded-full text-[10px]`} value={ticket.priority || "Medium"} onChange={(e) => patch({ priority: e.target.value })}>
+                    <FilterSelect className="w-auto" value={ticket.priority || "Medium"} onChange={(e) => patch({ priority: e.target.value })}>
                       {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p} style={FILTER_OPTION}>{p}</option>)}
-                    </select>
+                    </FilterSelect>
                   )}
                   {canAssign && agents.length > 0 && (
-                    <select className={`${FILTER_SELECT} rounded-full text-[10px]`} value={ticket.assignee_id || ""} onChange={(e) => patch({ assignee_id: e.target.value })}>
+                    <FilterSelect className="w-auto min-w-[8rem]" value={ticket.assignee_id || ""} onChange={(e) => patch({ assignee_id: e.target.value })}>
                       <option value="" style={FILTER_OPTION}>Unassigned</option>
                       {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
-                    </select>
+                    </FilterSelect>
                   )}
                 </div>
 
@@ -697,15 +797,15 @@ export default function SupportDashboard() {
                     <td className="p-3 text-white/50 text-xs">{fmtTs(u.last_active)}</td>
                     {canManageUsers && (
                       <td className="p-3 space-x-2 whitespace-nowrap">
-                        <select
-                          className={FILTER_SELECT}
+                        <FilterSelect
+                          className="w-auto inline-block"
                           value={u.support_role || u.role}
                           onChange={(e) => patchStaff(u.id, { support_role: e.target.value })}
                         >
                           <option value="support_agent" style={FILTER_OPTION}>Agent</option>
                           <option value="support_lead" style={FILTER_OPTION}>Lead</option>
                           <option value="support_admin" style={FILTER_OPTION}>Admin</option>
-                        </select>
+                        </FilterSelect>
                         <button
                           type="button"
                           className="text-[10px] font-mono uppercase border border-white/15 px-2 py-1 rounded-lg"
@@ -727,11 +827,11 @@ export default function SupportDashboard() {
               <input required placeholder="Name" value={newStaff.name} onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required type="email" placeholder="Email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required placeholder="Username" value={newStaff.username} onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <select value={newStaff.support_role} onChange={(e) => setNewStaff({ ...newStaff, support_role: e.target.value })} className={`${FILTER_SELECT} py-2 rounded-xl`}>
+              <FilterSelect value={newStaff.support_role} onChange={(e) => setNewStaff({ ...newStaff, support_role: e.target.value })}>
                 <option value="support_agent" style={FILTER_OPTION}>Support Agent</option>
                 <option value="support_lead" style={FILTER_OPTION}>Support Lead</option>
                 <option value="support_admin" style={FILTER_OPTION}>Support Admin</option>
-              </select>
+              </FilterSelect>
               <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">
                 Create
