@@ -126,15 +126,15 @@ export function Nav({ variant = "dark" }) {
             <>
               {user?.role !== "admin" && (
                 <>
-                  <Link to="/support" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2" title="Support">
-                    <LifeBuoy className="w-4 h-4" />
-                    <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">Support</span>
-                  </Link>
-                  <Link to="/help" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2 border-r border-white/20 pr-4 mr-1" title="AI Help">
-                    <Bot className="w-4 h-4" />
-                    <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">AI Help</span>
-                  </Link>
-                </>
+                    <Link to="/support" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2" title="Support">
+                      <LifeBuoy className="w-4 h-4" />
+                      <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">Support</span>
+                    </Link>
+                    <Link to="/messages" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2 border-r border-white/20 pr-4 mr-1" title="Messages">
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">Messages</span>
+                    </Link>
+                  </>
               )}
               <NotificationBell />
               
