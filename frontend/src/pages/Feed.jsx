@@ -233,8 +233,7 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
-      
-      <div className="pt-28 max-w-[1600px] mx-auto px-6 md:px-10 pb-24 w-full flex-1">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
         <div className="border-b border-white/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">

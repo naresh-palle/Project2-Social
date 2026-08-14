@@ -326,7 +326,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
-      <div className="pt-24 max-w-6xl mx-auto px-4 md:px-8 pb-8 flex-1 w-full">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
         <div className="mb-6">
         </div>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8">

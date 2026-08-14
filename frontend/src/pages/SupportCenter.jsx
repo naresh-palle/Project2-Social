@@ -73,7 +73,7 @@ export default function SupportCenter() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto pb-4 px-6 pt-6">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
       {/* Top Static Header */}
       <div className="shrink-0 space-y-4 mb-4">
         <motion.div 

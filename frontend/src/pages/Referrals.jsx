@@ -70,7 +70,7 @@ export default function Referrals() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
       
       
-      <div className="pt-20 max-w-4xl mx-auto px-4 pb-16">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
         {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
             <div>
