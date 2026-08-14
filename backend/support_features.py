@@ -311,18 +311,26 @@ def setup_support(
     @api_router.get("/support/stats")
     async def support_stats(current: dict = Depends(get_current_user)):
         await require_role(current, list(SUPPORT_STAFF_ROLES))
+        day_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         open_n = await db.support_tickets.count_documents({"status": {"$in": ["open", "in_progress", "waiting_user"]}})
         urgent = await db.support_tickets.count_documents({"status": {"$in": ["open", "in_progress"]}, "priority": "Urgent"})
         mine = await db.support_tickets.count_documents({"assignee_id": current["id"], "status": {"$nin": ["closed", "resolved"]}})
         resolved_today = await db.support_tickets.count_documents({
             "status": {"$in": ["resolved", "closed"]},
-            "updated_at": {"$gte": datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()},
+            "updated_at": {"$gte": day_start},
+        })
+        # Tickets this agent personally finished today
+        finished_today_by_me = await db.support_tickets.count_documents({
+            "assignee_id": current["id"],
+            "status": {"$in": ["resolved", "closed"]},
+            "updated_at": {"$gte": day_start},
         })
         return {
             "open": open_n,
             "urgent": urgent,
             "assigned_to_me": mine,
             "resolved_today": resolved_today,
+            "finished_today_by_me": finished_today_by_me,
         }
 
     @api_router.get("/support/agents")

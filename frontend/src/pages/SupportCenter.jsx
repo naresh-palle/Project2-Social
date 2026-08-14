@@ -29,9 +29,6 @@ const FALLBACK_FAQ = {
   admin: [
     { question: "How do I resolve disputes?", answer: "Use the Support Desk ticket queue (category Dispute)." },
   ],
-  support: [
-    { question: "How do I take a ticket?", answer: "Open it and set status to In Progress — you become assignee." },
-  ],
   support_admin: [
     { question: "How do I assign agents?", answer: "Use Assign on a ticket and pick a support agent." },
   ],
@@ -45,10 +42,216 @@ function statusClass(status) {
   return "bg-white/10 text-white/40 border border-white/10";
 }
 
+/** Minimal desk for role=support: ticket details, status, finished-today count. */
+function SupportAgentDesk({ user }) {
+  const [tickets, setTickets] = useState([]);
+  const [finishedToday, setFinishedToday] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [busyDetail, setBusyDetail] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const [ticketsRes, statsRes] = await Promise.all([
+        api.get("/support/tickets?status=open,in_progress,waiting_user"),
+        api.get("/support/stats"),
+      ]);
+      setTickets(ticketsRes.data.tickets || []);
+      setFinishedToday(statsRes.data.finished_today_by_me ?? statsRes.data.resolved_today ?? 0);
+    } catch {
+      toast.error("Failed to load support desk");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const refreshStats = async () => {
+    try {
+      const { data } = await api.get("/support/stats");
+      setFinishedToday(data.finished_today_by_me ?? 0);
+    } catch { /* ignore */ }
+  };
+
+  const openTicket = async (id) => {
+    setSelectedId(id);
+    setBusyDetail(true);
+    try {
+      const { data } = await api.get(`/support/tickets/${id}`);
+      setDetail(data);
+    } catch {
+      toast.error("Failed to open ticket");
+      setSelectedId(null);
+    } finally {
+      setBusyDetail(false);
+    }
+  };
+
+  const setStatus = async (status) => {
+    if (!selectedId) return;
+    setBusyDetail(true);
+    try {
+      const patch = { status };
+      if (status === "in_progress" && !detail?.ticket?.assignee_id) {
+        patch.assignee_id = user.id;
+      }
+      if (status === "resolved" || status === "closed") {
+        if (!detail?.ticket?.assignee_id) patch.assignee_id = user.id;
+      }
+      await api.patch(`/support/tickets/${selectedId}`, patch);
+      const { data } = await api.get(`/support/tickets/${selectedId}`);
+      setDetail(data);
+      await load();
+      await refreshStats();
+      toast.success(`Status → ${status.replace("_", " ")}`);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Could not update status");
+    } finally {
+      setBusyDetail(false);
+    }
+  };
+
+  const ticket = detail?.ticket;
+
+  return (
+    <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
+      <div className="shrink-0 mb-6 border-b border-white/10 pb-6">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+          <LifeBuoy className="w-3.5 h-3.5" /> Support Agent
+        </p>
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">My tickets</h1>
+            <p className="font-sans text-white/50 text-sm mt-1">View details and update status.</p>
+          </div>
+          <div className="border border-[#34C759]/30 bg-[#34C759]/10 rounded-2xl px-5 py-3 min-w-[10rem]">
+            <div className="font-mono text-[9px] uppercase tracking-widest text-[#34C759]/80">Finished today</div>
+            <div className="font-sans text-3xl font-bold text-[#34C759] mt-0.5 tabular-nums">{finishedToday}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 flex-1 min-h-0 pb-10">
+        <section className="lg:col-span-2 space-y-3">
+          <h2 className="font-sans text-lg font-bold">Queue</h2>
+          {loading ? (
+            <div className="flex items-center gap-2 text-white/50 text-sm">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+            </div>
+          ) : tickets.length === 0 ? (
+            <p className="text-white/40 text-sm">No active tickets.</p>
+          ) : (
+            tickets.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => openTicket(t.id)}
+                className={`w-full text-left p-4 border rounded-2xl flex items-center justify-between transition-colors ${
+                  selectedId === t.id
+                    ? "border-[#FF3B30]/50 bg-[#FF3B30]/10"
+                    : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
+                }`}
+              >
+                <div className="min-w-0 pr-3">
+                  <div className="font-mono text-[10px] tracking-widest text-white/40 mb-1 truncate">
+                    {t.number} · {t.user_name || "User"}
+                  </div>
+                  <div className="font-sans font-medium text-base truncate">{t.subject}</div>
+                </div>
+                <div className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider shrink-0 ${statusClass(t.status)}`}>
+                  {(t.status || "").replace("_", " ")}
+                </div>
+              </button>
+            ))
+          )}
+        </section>
+
+        <section className="lg:col-span-3">
+          {selectedId && ticket ? (
+            <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <div className="font-mono text-[10px] text-white/40 tracking-widest">
+                    {ticket.number} · {ticket.category} · {ticket.priority}
+                  </div>
+                  <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
+                  <p className="text-xs text-white/50 mt-1">
+                    {ticket.user_name} · {ticket.user_email}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedId(null); setDetail(null); }}
+                  className="p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-2">Current status</div>
+                <div className="flex flex-wrap gap-2">
+                  {["open", "in_progress", "waiting_user", "resolved", "closed"].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={busyDetail}
+                      onClick={() => setStatus(s)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border ${
+                        ticket.status === s
+                          ? "border-[#FF3B30] text-[#FF3B30]"
+                          : "border-white/15 text-white/50 hover:border-white/40"
+                      }`}
+                    >
+                      {s.replace("_", " ")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar min-h-[180px]">
+                <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">Ticket details</div>
+                {(detail.messages || []).map((m) => (
+                  <div
+                    key={m.id}
+                    className={`p-3 rounded-2xl text-sm ${
+                      m.internal
+                        ? "bg-amber-500/10 border border-amber-500/20"
+                        : m.author_id === user?.id
+                          ? "bg-[#FF3B30]/15 border border-[#FF3B30]/25 ml-4"
+                          : "bg-white/[0.04] border border-white/10 mr-4"
+                    }`}
+                  >
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
+                      <MessageSquare className="w-3 h-3" />
+                      {m.author_name}
+                      · {(m.created_at || "").slice(0, 16).replace("T", " ")}
+                    </div>
+                    <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="border border-dashed border-white/15 rounded-3xl p-10 text-center text-white/40 text-sm">
+              Select a ticket to see details and status.
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
 export default function SupportCenter() {
   const { user } = useAuth();
   const role = user?.role || "influencer";
   const isStaff = STAFF_ROLES.has(role);
+  const isSupportAgent = role === "support";
 
   const [faqs, setFaqs] = useState(FALLBACK_FAQ[role] || FALLBACK_FAQ.influencer);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -86,6 +289,7 @@ export default function SupportCenter() {
   }, []);
 
   useEffect(() => {
+    if (isSupportAgent) return undefined;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -105,7 +309,11 @@ export default function SupportCenter() {
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [loadFaqs, loadTickets, isStaff, role]);
+  }, [loadFaqs, loadTickets, isStaff, role, isSupportAgent]);
+
+  if (isSupportAgent) {
+    return <SupportAgentDesk user={user} />;
+  }
 
   const openTicket = async (id) => {
     setSelectedId(id);
@@ -234,7 +442,6 @@ export default function SupportCenter() {
 
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
         <div className={`grid grid-cols-1 ${isStaff ? "lg:grid-cols-5" : "lg:grid-cols-2"} gap-10`}>
-          {/* FAQ + list */}
           <div className={`space-y-10 ${isStaff ? "lg:col-span-2" : ""}`}>
             {!isStaff && (
               <section>
@@ -322,7 +529,6 @@ export default function SupportCenter() {
             </section>
           </div>
 
-          {/* Form or detail pane */}
           <div className={`${isStaff ? "lg:col-span-3" : ""}`}>
             {selectedId && ticket ? (
               <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
