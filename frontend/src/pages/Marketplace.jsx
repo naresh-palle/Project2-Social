@@ -76,6 +76,10 @@ function CreatorDirectoryCard({ creator, index }) {
   const hero = reel[0] || c.avatar;
   const thumbs = reel.slice(1, 4);
   const followerCount = top.followers > 0 ? top.followers : Number(c.followers) || 0;
+  const niches = (c.niches || []).slice(0, 2);
+  const city = c.city || c.location || "";
+  const er = top.engagement != null ? Number(top.engagement) : null;
+  const rate = c.base_rate != null && Number(c.base_rate) > 0 ? Number(c.base_rate) : null;
 
   return (
     <motion.div
@@ -85,8 +89,8 @@ function CreatorDirectoryCard({ creator, index }) {
       transition={{ duration: 0.55, delay: Math.min(index, 12) * 0.04 }}
       data-testid={`creator-${c.id}`}
     >
-      <Link to={`/creators/${c.id}`} className="group block">
-        <div className="aspect-[3/4] overflow-hidden relative bg-white/[0.03]">
+      <Link to={`/creators/${c.id}`} className="group block h-full">
+        <div className="aspect-[3/4] overflow-hidden relative bg-white/[0.03] rounded-2xl border border-white/10">
           <div className="absolute inset-0 grid grid-rows-[1fr_0.42fr] gap-px bg-white/10">
             <DirectoryMediaTile
               src={hero}
@@ -99,38 +103,41 @@ function CreatorDirectoryCard({ creator, index }) {
               ))}
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 to-transparent" />
           {top.label ? (
-            <span className="pointer-events-none absolute top-1.5 left-1.5 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.14em] uppercase text-white/90">
+            <span className="pointer-events-none absolute top-1.5 left-1.5 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.14em] uppercase text-white/90 rounded-full">
               {top.label}
             </span>
           ) : null}
           {c.match_score != null ? (
-            <span 
+            <span
               className="absolute top-1.5 right-1.5 bg-[#34C759]/20 text-[#34C759] px-2 py-0.5 font-sans text-[10px] tracking-wide uppercase font-semibold rounded-3xl border border-[#34C759]/30"
-              title={c.match_reasons ? c.match_reasons.join('\n') : ''}
+              title={c.match_reasons ? c.match_reasons.join("\n") : ""}
             >
               {c.match_score}% Match
             </span>
           ) : null}
         </div>
-        <div className="mt-2 flex items-baseline justify-between gap-1.5">
-          <div className="min-w-0">
-            <div className="font-sans text-sm leading-tight truncate group-hover:italic transition-all" title={socialName}>
+        <div className="mt-2.5 space-y-1">
+          <div className="flex items-baseline justify-between gap-1.5">
+            <div className="font-sans text-sm leading-tight truncate group-hover:italic transition-all font-medium" title={socialName}>
               {socialName}
             </div>
-            {(c.name && socialName !== c.name) ? (
-              <div className="font-sans text-[9px] tracking-[0.12em] uppercase opacity-45 truncate mt-0.5">
-                {c.name}
-              </div>
-            ) : null}
+            <div className="shrink-0 font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
+              {formatFollowers(followerCount)}
+            </div>
           </div>
-          <div className="shrink-0 font-sans text-[10px] tracking-[0.14em] uppercase opacity-65">
-            {formatFollowers(followerCount)}
+          {(c.name && socialName !== c.name) ? (
+            <div className="font-sans text-[10px] text-white/50 truncate">{c.name}</div>
+          ) : null}
+          <div className="font-sans text-[9px] tracking-[0.12em] uppercase opacity-45 truncate">
+            {niches.join(" · ") || c.category || "Influencer"}
+            {city ? ` · ${city}` : ""}
           </div>
-        </div>
-        <div className="mt-0.5 font-sans text-[9px] tracking-[0.14em] uppercase opacity-40 truncate">
-          {(c.niches || []).slice(0, 2).join(" · ") || c.category || "Influencer"}
+          <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest text-white/40">
+            {er != null && Number.isFinite(er) ? <span className="text-[#34C759]/80">{er.toFixed(1)}% ER</span> : null}
+            {rate != null ? <span>₹{rate.toLocaleString()}</span> : null}
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -173,20 +180,30 @@ export default function Marketplace() {
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
+    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col h-full">
 
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
+      <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-6">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> § The Directory
+              <Sparkles className="w-3.5 h-3.5" /> Directory
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Directory</h1>
           </div>
+          <div className="w-full md:w-56">
+            <MultiSelectDropdown
+              options={PLATFORM_CATEGORIES}
+              selected={categories}
+              onChange={setCategories}
+              placeholder="All categories"
+              allowAll
+              compact
+              label="Categories"
+            />
+          </div>
         </div>
 
-        {/* Tabs + search in bordered box */}
-        <div className="mt-3 border border-white/15 rounded-3xl px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
+        <div className="mb-6 border border-white/15 rounded-3xl px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex gap-5 font-sans text-[11px] tracking-[0.28em] uppercase">
             {["creators", "campaigns"].map((t) => (
               <button
@@ -207,14 +224,14 @@ export default function Marketplace() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 className="bg-transparent focus:outline-none w-36 md:w-56 font-sans text-sm"
-                placeholder="Search…"
+                placeholder={tab === "creators" ? "Search influencers…" : "Search briefs…"}
                 aria-label="Search"
               />
             </div>
             <IconTip label="Search">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center w-9 h-9 border border-white/20 bg-white/5 hover:bg-white/15"
+                className="inline-flex items-center justify-center w-9 h-9 border border-white/20 bg-white/5 hover:bg-white/15 rounded-full"
                 data-testid="search-submit"
                 title="Search"
                 aria-label="Search"
@@ -225,22 +242,8 @@ export default function Marketplace() {
           </form>
         </div>
 
-        <div className="mt-3 max-w-sm ml-auto">
-          <MultiSelectDropdown
-            options={PLATFORM_CATEGORIES}
-            selected={categories}
-            onChange={setCategories}
-            placeholder="All"
-            allowAll
-            compact
-            label="Platform categories"
-          />
-        </div>
-      </div>
-
-      <div className="max-w-[1600px] mx-auto px-3 md:px-6 pb-16">
         {tab === "creators" ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 md:gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
             {creators.map((c, i) => (
               <CreatorDirectoryCard key={c.id} creator={c} index={i} />
             ))}
@@ -251,32 +254,42 @@ export default function Marketplace() {
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {campaigns.map((c, i) => (
               <motion.div
                 key={c.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.04 }}
+                transition={{ duration: 0.45, delay: Math.min(i, 10) * 0.03 }}
                 data-testid={`campaign-row-${c.id}`}
               >
-                <Link to={`/campaigns/${c.id}`} className="group block hairline-b py-6 grid grid-cols-12 gap-6 items-baseline">
-                  <div className="col-span-12 md:col-span-1 font-sans text-[10px] tracking-[0.25em] uppercase opacity-60">
-                    {String(i + 1).padStart(2, "0")}
-                  </div>
-                  <div className="col-span-12 md:col-span-5">
-                    <div className="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60">{c.brand}</div>
-                    <div className="font-sans text-3xl md:text-4xl leading-tight mt-1 group-hover:italic transition-all">
-                      {c.title}
+                <Link
+                  to={`/campaigns/${c.id}`}
+                  className="group block border border-white/10 hover:border-[#FF3B30]/40 rounded-2xl px-4 py-4 md:px-5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                >
+                  <div className="grid grid-cols-12 gap-3 md:gap-4 items-center">
+                    <div className="col-span-12 md:col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-50">
+                      {String(i + 1).padStart(2, "0")}
                     </div>
-                  </div>
-                  <div className="col-span-6 md:col-span-3 font-sans text-[11px] tracking-[0.2em] uppercase opacity-70">
-                    {(c.niches || []).join(" · ")}
-                  </div>
-                  <div className="col-span-3 md:col-span-2 font-sans italic text-2xl">₹{c.budget}</div>
-                  <div className="col-span-3 md:col-span-1 text-right font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] group-hover:translate-x-1 transition-transform">
-                    View →
+                    <div className="col-span-12 md:col-span-5 min-w-0">
+                      <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 truncate">{c.brand || "Brand"}</div>
+                      <div className="font-sans text-lg md:text-xl font-semibold leading-tight mt-0.5 truncate group-hover:text-[#FF3B30] transition-colors">
+                        {c.title}
+                      </div>
+                      {c.description ? (
+                        <p className="font-sans text-xs text-white/50 mt-1 line-clamp-2">{c.description}</p>
+                      ) : null}
+                    </div>
+                    <div className="col-span-6 md:col-span-3 font-sans text-[10px] tracking-[0.16em] uppercase opacity-70 truncate">
+                      {(c.niches || []).slice(0, 3).join(" · ") || c.category || "General"}
+                    </div>
+                    <div className="col-span-3 md:col-span-2 font-sans text-lg font-bold text-[#34C759]">
+                      ₹{Number(c.budget || 0).toLocaleString()}
+                    </div>
+                    <div className="col-span-3 md:col-span-1 text-right font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]">
+                      View →
+                    </div>
                   </div>
                 </Link>
               </motion.div>

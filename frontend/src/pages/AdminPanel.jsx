@@ -450,7 +450,7 @@ export function AdminPanel() {
   if (loading) return (
       <div className="flex items-center justify-center py-20 text-[#F4F4F0]">
         <div className="animate-pulse font-sans tracking-widest text-sm flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Initializing Super Admin Console...
+            <Loader2 className="w-4 h-4 animate-spin" /> Loading admin…
         </div>
       </div>
   );
@@ -485,26 +485,26 @@ export function AdminPanel() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Super Admin Console
+                <Sparkles className="w-3.5 h-3.5" /> Admin
               </p>
-              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Platform Console</h1>
-                <div className="flex gap-4 mt-8 font-sans text-[11px] uppercase tracking-widest overflow-x-auto whitespace-nowrap custom-scrollbar pb-1">
+              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Admin</h1>
+                <div className="flex gap-4 mt-6 font-sans text-[11px] uppercase tracking-widest overflow-x-auto whitespace-nowrap custom-scrollbar pb-1">
                     <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
                     <button onClick={() => setTab("agent_approvals")} className={`pb-2 border-b-2 transition-colors ${tab === "agent_approvals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Agent Approvals <span className="bg-[#FF3B30] text-white px-2 py-0.5 text-[9px] rounded-xs font-bold ml-1">Desk</span>
+                      Approvals
                     </button>
                     <button onClick={() => setTab("treasury")} className={`pb-2 border-b-2 transition-colors ${tab === "treasury" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Escrow Treasury <span className="bg-[#34C759] text-white px-2 py-0.5 text-[9px] rounded-xs font-bold ml-1">₹</span>
+                      Treasury
                     </button>
                     <button onClick={() => setTab("briefs")} className={`pb-2 border-b-2 transition-colors ${tab === "briefs" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Brief Moderation <span className="bg-purple-500 text-white px-2 py-0.5 text-[9px] rounded-xs font-bold ml-1">AI</span>
+                      Briefs
                     </button>
-                    <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>User Management</button>
+                    <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Users</button>
                     <button onClick={() => setTab("reports")} className={`pb-2 border-b-2 transition-colors ${tab === "reports" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Reports</button>
                     <button onClick={() => setTab("categories")} className={`pb-2 border-b-2 transition-colors ${tab === "categories" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Categories</button>
                     <button onClick={() => setTab("broadcast")} className={`pb-2 border-b-2 transition-colors ${tab === "broadcast" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Broadcast</button>
-                    <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit Logs</button>
-                    <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match Config</button>
+                    <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit</button>
+                    <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match</button>
                     <button onClick={() => setTab("referrals")} className={`pb-2 border-b-2 transition-colors ${tab === "referrals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Referrals</button>
                 </div>
             </div>
@@ -1377,7 +1377,7 @@ function EscrowTreasuryDesk() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
       <div className="border-b border-white/10 pb-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Platform Escrow Treasury &amp; Revenue Desk</h2>
+          <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Treasury</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-[0.16em]">
             Audit live escrow locks, Escrow verification policy, and manual override releases
           </p>

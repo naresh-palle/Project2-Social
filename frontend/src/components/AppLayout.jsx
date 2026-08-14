@@ -1,7 +1,7 @@
 import { Sidebar } from "./Sidebar";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { Outlet } from "react-router-dom";
-import { AIAssistant } from "./AIAssistant";
+import { FloatingChatWidget } from "./FloatingChatWidget";
 
 export function AppLayout() {
   return (
@@ -17,13 +17,13 @@ export function AppLayout() {
 
       {/* The main shell is fixed height. Child pages must manage their own scrolling */}
       <main className="flex-1 ml-64 relative z-10 flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 flex flex-col overflow-hidden relative w-full max-w-[1600px] mx-auto p-6 md:p-10 pb-24">
+        <div className="flex-1 flex flex-col overflow-hidden relative w-full max-w-[1600px] mx-auto p-6 md:p-10 pb-28 pr-8 md:pr-12">
           <Outlet />
         </div>
       </main>
 
-      {/* Global AI Assistant */}
-      <AIAssistant />
+      {/* Floating Messages (icon-only FAB) */}
+      <FloatingChatWidget />
     </div>
   );
 }

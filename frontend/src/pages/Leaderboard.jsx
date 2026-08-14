@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import {  Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins, IndianRupee , Sparkles } from "lucide-react";
+import {  Trophy, Medal, Star, Target, TrendingUp, DollarSign, Wallet, ShieldCheck, Search, ChevronLeft, Coins , Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -41,7 +41,6 @@ export default function Leaderboard() {
   const categories = [
     { id: "top_performer", label: "Top Performer", icon: Trophy },
     { id: "top_earner", label: "Top Earner", icon: Coins },
-    { id: "top_spender", label: "Top Spender", icon: IndianRupee },
   ];
 
   return (

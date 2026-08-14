@@ -83,12 +83,19 @@ export function Sidebar() {
             {user?.role === "admin" ? "Admin Console" : user?.role === "owner" ? "Brand Desk" : user?.role === "agent" ? "Agency Desk" : "Influencer"}
           </p>
           {(() => {
+            if (user?.role === "admin") {
+              return (
+                <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+                  Ops Desk
+                </p>
+              );
+            }
             const niches = user?.niches || user?.category;
             let category = null;
             if (Array.isArray(niches) && niches.length) {
-              category = niches.filter(Boolean).slice(0, 2).join(" · ");
+              category = niches.filter(Boolean)[0] || null;
             } else if (typeof niches === "string" && niches.trim()) {
-              category = niches.trim();
+              category = niches.split(/[·,|]/)[0].trim();
             } else if (user?.industry?.trim()) {
               category = user.industry.trim();
             }

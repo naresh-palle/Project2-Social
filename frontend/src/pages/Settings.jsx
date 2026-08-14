@@ -46,7 +46,6 @@ export default function Settings() {
   const [pwdForm, setPwdForm] = useState({ current_password: "", new_password: "", confirm_password: "" });
   const [pwdBusy, setPwdBusy] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const fontTimer = useRef(null);
   const settingsRef = useRef(null);
   const saveSeq = useRef(0);
 
@@ -147,18 +146,6 @@ export default function Settings() {
 
   const updateNotif = (key, val) => {
     patch({ notification_prefs: { [key]: val } });
-  };
-
-  const onFontScale = (val) => {
-    const font_scale = parseFloat(val);
-    const next = { ...(settingsRef.current || {}), font_scale };
-    setSettings(next);
-    settingsRef.current = next;
-    applyUserSettings({ ...user, ...next });
-    if (fontTimer.current) clearTimeout(fontTimer.current);
-    fontTimer.current = setTimeout(() => {
-      patch({ font_scale });
-    }, 350);
   };
 
   const setup2fa = async () => {
@@ -340,35 +327,7 @@ export default function Settings() {
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
           <div className="space-y-3">
-            <Section title="Profile" icon={User} dense>
-              <div className="space-y-0.5">
-                <QuickLink to="/profile" label="View Profile" />
-                <QuickLink to="/profile/edit" label="Edit Profile" />
-                <button
-                  type="button"
-                  onClick={() => setSecurityOpen(true)}
-                  className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px] w-full text-left"
-                  data-testid="settings-reset-password"
-                >
-                  Reset Password
-                  <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100" />
-                </button>
-              </div>
-            </Section>
-
             <Section title="Account" icon={Monitor} dense>
-              <Field label="Language">
-                <select
-                  value={settings.language || "en"}
-                  onChange={(e) => patch({ language: e.target.value })}
-                  className="inp-select"
-                >
-                  <option value="en">English</option>
-                  <option value="hi">Hindi</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                </select>
-              </Field>
               <Field label="Theme">
                 <div className="mt-2 flex gap-2">
                   {THEME_OPTIONS.map(({ id, label, Icon }) => {
@@ -394,25 +353,21 @@ export default function Settings() {
                   })}
                 </div>
               </Field>
+              <Field label="Language">
+                <select
+                  value={settings.language || "en"}
+                  onChange={(e) => patch({ language: e.target.value })}
+                  className="inp-select"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                </select>
+              </Field>
               <Toggle label="High Contrast" checked={!!settings.high_contrast} onChange={(v) => patch({ high_contrast: v })} />
               <Toggle label="Reduce Motion" checked={!!settings.reduced_motion} onChange={(v) => patch({ reduced_motion: v })} />
-              <Field label={`Font Scale (${Number(settings.font_scale || 1).toFixed(2)}x)`}>
-                <input
-                  type="range"
-                  min="0.85"
-                  max="1.5"
-                  step="0.05"
-                  value={settings.font_scale || 1}
-                  onChange={(e) => onFontScale(e.target.value)}
-                  className="w-full accent-[#FF3B30]"
-                />
-              </Field>
             </Section>
-
-            {user?.role !== "admin" && (<Section title="Privacy" icon={Eye} dense>
-              <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
-              <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
-            </Section>)}
 
             <Section title="Notifications" icon={Bell} dense>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
@@ -426,9 +381,34 @@ export default function Settings() {
                 ))}
               </div>
             </Section>
+
+            {user?.role !== "admin" && (
+              <Section title="Privacy" icon={Eye} dense>
+                <Toggle label="Private Account" checked={!!settings.is_private} onChange={(v) => patch({ is_private: v })} />
+                <Toggle label="Show Last Seen" checked={settings.show_last_seen !== false} onChange={(v) => patch({ show_last_seen: v })} />
+              </Section>
+            )}
           </div>
 
           <div className="space-y-3">
+            <Section title="Profile" icon={User} dense>
+              <div className="space-y-0.5">
+                <QuickLink to="/profile" label="View Profile" />
+                <QuickLink to="/profile/edit" label="Edit Profile" />
+                <button
+                  type="button"
+                  onClick={() => setSecurityOpen(true)}
+                  className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px] w-full text-left"
+                  data-testid="settings-reset-password"
+                >
+                  Reset Password
+                  <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100" />
+                </button>
+              </div>
+            </Section>
+
+            {user?.role !== "admin" && <DraftsAndAnalytics />}
+
             {blocks.length > 0 && user?.role !== "admin" && (
               <Section title="Blocked Users" icon={Ban} dense>
                 {blocks.map((b) => (
@@ -464,32 +444,34 @@ export default function Settings() {
               </Section>
             )}
 
-            {user?.role !== "admin" && <DraftsAndAnalytics />}
+            {user?.role !== "admin" && (
+              <Section title="Your Data" icon={Download} dense>
+                <button type="button" onClick={exportData} disabled={downloading} className="btn-sm-solid flex items-center gap-2 disabled:opacity-50">
+                  {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download My Data (AI PDF)
+                </button>
+              </Section>
+            )}
 
-            {user?.role !== "admin" && (<Section title="Your Data" icon={Download} dense>
-              <button type="button" onClick={exportData} disabled={downloading} className="btn-sm-solid flex items-center gap-2 disabled:opacity-50">
-                {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download My Data (AI PDF)
-              </button>
-            </Section>)}
-
-            {user?.role !== "admin" && (<Section title="Danger Zone" icon={Trash2} dense>
-              <p className="font-mono text-[11px] opacity-60 mb-2">Permanently delete your account and all data.</p>
-              <input
-                type="text"
-                placeholder="Type DELETE to confirm"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="inp-field mb-2"
-              />
-              <button 
-                type="button" 
-                disabled={deleteConfirm !== "DELETE"}
-                onClick={() => setShowDeleteModal(true)} 
-                className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Delete Account
-              </button>
-            </Section>)}
+            {user?.role !== "admin" && (
+              <Section title="Danger Zone" icon={Trash2} dense>
+                <p className="font-mono text-[11px] opacity-60 mb-2">Permanently delete your account and all data.</p>
+                <input
+                  type="text"
+                  placeholder="Type DELETE to confirm"
+                  value={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.value)}
+                  className="inp-field mb-2"
+                />
+                <button
+                  type="button"
+                  disabled={deleteConfirm !== "DELETE"}
+                  onClick={() => setShowDeleteModal(true)}
+                  className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Delete Account
+                </button>
+              </Section>
+            )}
           </div>
         </div>
       </div>

@@ -45,7 +45,7 @@ function upsertMsg(prev, msg) {
   return [...prev, msg];
 }
 
-export default function Messages({ miniWidget = false }) {
+export default function Messages({ miniWidget = false, onClose }) {
   const { user } = useAuth();
   const [sp] = useSearchParams();
   const [convos, setConvos] = useState([]);
@@ -298,9 +298,12 @@ export default function Messages({ miniWidget = false }) {
         )}
 
         {miniWidget && (
-          <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0">
-            <h2 className="font-sans text-sm font-bold tracking-tight">Messages</h2>
-            <Link to={active ? `/messages?id=${active.id}` : "/messages"} onClick={() => document.querySelector('button[title="Close Chat"]')?.click()} className="text-[10px] uppercase text-[#FF3B30] hover:underline font-mono">
+          <div className="flex items-center justify-end px-3 py-2 border-b border-white/5 shrink-0">
+            <Link
+              to={active ? `/messages?id=${active.id}` : "/messages"}
+              onClick={() => onClose?.()}
+              className="text-[10px] uppercase text-[#FF3B30] hover:underline font-mono"
+            >
               Open Full Chat
             </Link>
           </div>

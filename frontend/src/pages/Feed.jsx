@@ -37,9 +37,14 @@ export default function Feed() {
   const loadMoreRef = useRef(null);
 
   const fetchFeed = useCallback(async (reset = false) => {
-    if (reset) setRefreshing(true);
-    else if (!reset && cursor) setLoadingMore(true);
-    else setLoading(true);
+    if (reset) {
+      setLoading(true);
+      setRefreshing(true);
+    } else if (cursor) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     try {
       const params = { mode, limit: 20 };
       if (!reset && cursor) params.cursor = cursor;
@@ -58,17 +63,27 @@ export default function Feed() {
   }, [mode, cursor]);
 
   useEffect(() => {
+    let cancelled = false;
     setPosts([]);
     setCursor(null);
     setLoading(true);
-    api.get("/feed", { params: { mode, limit: 20 } })
-      .then(({ data }) => {
+    setSuggested([]);
+    (async () => {
+      try {
+        const { data } = await api.get("/feed", { params: { mode, limit: 20 } });
+        if (cancelled) return;
         setPosts(data.items || []);
         setCursor(data.next_cursor || null);
         setSuggested(data.suggested_people || []);
-      })
-      .catch(() => toast.error("Failed to load feed"))
-      .finally(() => setLoading(false));
+      } catch {
+        if (!cancelled) toast.error("Failed to load feed");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [mode]);
 
   useEffect(() => {
