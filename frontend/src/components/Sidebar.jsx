@@ -12,16 +12,21 @@ export function Sidebar() {
 
   if (!user) return null;
 
-  const items = [
+  const items = user?.role === "support"
+    ? [
+        { to: "/support", label: "Support Desk", icon: "🆘" },
+        { to: "/settings", label: "Settings", icon: "⚙️" },
+      ]
+    : [
     { to: "/dashboard", label: "Dashboard", icon: "📊" },
     { to: "/feed", label: "Feed", icon: "📰" },
     { to: "/marketplace", label: "Directory", icon: "📇" },
     { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
-    ...(user?.role !== "admin" && user?.role !== "support" && user?.role !== "support_admin" ? [
+    ...(user?.role !== "admin" && user?.role !== "support_admin" ? [
       { to: "/referrals", label: "Referrals", icon: "👥" },
       { to: "/invitations", label: "Invitations", icon: "✉️" },
     ] : []),
-    ...(user?.role === "support" || user?.role === "support_admin" ? [
+    ...(user?.role === "support_admin" ? [
       { to: "/support", label: "Support Desk", icon: "🆘" },
       { to: "/help", label: "AI Help", icon: "🤖" },
     ] : []),
@@ -158,12 +163,16 @@ export function Sidebar() {
       <div className="mt-auto p-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
-              <LifeBuoy className="w-4 h-4" />
-            </Link>
-            <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="AI Help">
-              <Bot className="w-4 h-4" />
-            </Link>
+            {user?.role !== "support" && (
+              <>
+                <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
+                  <LifeBuoy className="w-4 h-4" />
+                </Link>
+                <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="AI Help">
+                  <Bot className="w-4 h-4" />
+                </Link>
+              </>
+            )}
           </div>
           <NotificationBell />
         </div>
