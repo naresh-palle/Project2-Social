@@ -249,30 +249,30 @@ export default function Feed() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
       <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> § Community Feed
+              <Sparkles className="w-3.5 h-3.5" /> Community
             </p>
-            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Feed</h1>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Feed</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={refresh} disabled={refreshing} className="p-3 border border-white/20 hover:border-[#FF3B30] rounded-xs">
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF3B30] rounded-full">
               <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
-            <button type="button" onClick={() => setShowCreate(true)} className="px-6 py-3 bg-[#FF3B30] font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Create Post
+            <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF3B30] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
+              <Plus className="w-4 h-4" /> Create
             </button>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-8">
+        <div className="flex flex-wrap gap-1.5 mb-4">
           {MODES.map((m) => (
             <button
               key={m.id}
               type="button"
               onClick={() => setMode(m.id)}
-              className={`px-4 py-2 font-mono text-[10px] uppercase tracking-widest border rounded-xs ${
+              className={`px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border rounded-full ${
                 mode === m.id ? "bg-[#FF3B30] border-[#FF3B30]" : "border-white/20 text-white/60"
               }`}
             >
@@ -281,12 +281,12 @@ export default function Feed() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className={`grid grid-cols-1 gap-4 ${suggested.length > 0 ? "lg:grid-cols-3" : ""}`}>
+          <div className={`${suggested.length > 0 ? "lg:col-span-2" : ""} space-y-4`}>
             {loading ? (
-              <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin opacity-50" /></div>
+              <div className="flex justify-center py-16"><Loader2 className="w-7 h-7 animate-spin opacity-50" /></div>
             ) : posts.length === 0 ? (
-              <p className="font-sans text-xl font-medium tracking-tight opacity-40 text-center py-20">No posts yet. Be the first to share!</p>
+              <p className="font-sans text-lg font-medium tracking-tight opacity-40 text-center py-14">No posts yet. Be the first to share!</p>
             ) : (
               posts.map((post) => (
                 <PostCard
@@ -305,44 +305,48 @@ export default function Feed() {
                 />
               ))
             )}
-            {cursor && <div ref={loadMoreRef} className="py-8 text-center">
-              {loadingMore && <Loader2 className="w-6 h-6 animate-spin mx-auto opacity-50" />}
+            {cursor && <div ref={loadMoreRef} className="py-6 text-center">
+              {loadingMore && <Loader2 className="w-5 h-5 animate-spin mx-auto opacity-50" />}
             </div>}
           </div>
 
-          <aside className="space-y-6">
-            <div className="p-6 border border-white/15 bg-[#121212] rounded-xs">
-              <h3 className="font-mono text-xs tracking-widest uppercase text-[#FF3B30] font-bold mb-4">Suggested People</h3>
-              {suggested.length === 0 ? (
-                <p className="font-mono text-xs opacity-40">No suggestions</p>
-              ) : (
-                suggested.map((u) => {
-                  const label = formatUsername(u.username, u.handle) || "user";
-                  return (
-                    <Link
-                      key={u.id}
-                      to={`/u/${u.id}`}
-                      className="flex items-center gap-3 py-2 hover:bg-white/5 rounded-xs px-2 -mx-2"
-                    >
-                      <div className="w-10 h-10 rounded-full border border-white/15 bg-white/[0.03] overflow-hidden shrink-0">
-                        {u.avatar ? (
-                          <img
-                            src={u.avatar}
-                            alt=""
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : null}
-                      </div>
-                      <span className="font-sans text-sm text-[#FF3B30] truncate">{label}</span>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </aside>
+          {suggested.length > 0 && (
+            <aside>
+              <div className="p-4 border border-white/15 bg-[#121212] rounded-2xl sticky top-0">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] font-bold mb-2">Suggested</h3>
+                <div className="divide-y divide-white/5">
+                  {suggested.map((u) => {
+                    const label = formatUsername(u.username, u.handle) || "user";
+                    return (
+                      <Link
+                        key={u.id}
+                        to={`/u/${u.id}`}
+                        className="flex items-center gap-2.5 py-2 hover:bg-white/5 rounded-lg px-1.5 -mx-1.5"
+                      >
+                        <div className="w-8 h-8 rounded-full border border-white/15 bg-white/[0.04] overflow-hidden shrink-0 flex items-center justify-center">
+                          {u.avatar ? (
+                            <img
+                              src={u.avatar}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <span className="font-sans text-[10px] font-bold text-white/70">
+                              {(label || "U")[0]?.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-sans text-sm text-white/85 truncate">{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 

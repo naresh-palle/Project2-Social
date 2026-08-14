@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { 
+import {
   Edit2, Image as ImageIcon, Video as VideoIcon,
-  ExternalLink, ShieldCheck, MapPin, CheckCircle2
-, Sparkles } from "lucide-react";
+  ExternalLink, ShieldCheck, MapPin, CheckCircle2, Sparkles
+} from "lucide-react";
 import { api } from "@/lib/api";
-
 import { toast } from "sonner";
 import {
   SOCIAL_PLATFORMS,
@@ -14,7 +13,7 @@ import {
   socialOrNA,
   socialMetricOrNA,
 } from "@/lib/platforms";
-import { formatUsername, displayAccountName } from "@/lib/username";
+import { displayAccountName } from "@/lib/username";
 import { withBrandDisplayDefaults } from "@/lib/brandProfileDefaults";
 
 export default function ProfileView() {
@@ -27,7 +26,7 @@ export default function ProfileView() {
       try {
         const { data } = await api.get("/auth/me");
         setProfile(withBrandDisplayDefaults(data));
-      } catch (e) {
+      } catch {
         toast.error("Failed to load profile");
         nav("/dashboard");
       } finally {
@@ -58,12 +57,10 @@ export default function ProfileView() {
   const getCompletionDetails = () => {
     let score = 0;
     const missing = [];
-
     if (profile.name?.trim()) score += 10; else missing.push("Name");
     if (profile.avatar) score += 10; else missing.push("Photo");
     if (profile.bio?.trim()) score += 15; else missing.push("Bio");
     if (profile.city?.trim()) score += 10;
-
     if (isInfluencer) {
       if ((profile.handle || profile.username)?.trim()) score += 10; else missing.push("Username");
       const cats = Array.isArray(profile.category)
@@ -80,369 +77,259 @@ export default function ProfileView() {
       if (profile.industry?.trim()) score += 15; else missing.push("Industry");
       if (profile.website?.trim()) score += 15; else missing.push("Website");
     }
-
     return { score: Math.min(100, score), missing };
   };
 
   const { score: completionScore, missing: missingFields } = getCompletionDetails();
-
   const rawPlatforms = profile.platform_metrics && typeof profile.platform_metrics === "object"
     ? profile.platform_metrics
     : {};
-  const displayPlatforms = SOCIAL_PLATFORMS.map((key) => [key, rawPlatforms[key] || {}]);
-  const totalReach = displayPlatforms.reduce((acc, [, p]) => {
+  const totalReach = SOCIAL_PLATFORMS.reduce((acc, key) => {
+    const p = rawPlatforms[key] || {};
     if (!hasPlatformHandle(p)) return acc;
     return acc + (Number(p?.followers || p?.subscribers) || 0);
   }, 0);
-
   const categoriesList = Array.isArray(profile.category)
     ? profile.category
     : (profile.category ? String(profile.category).split(", ").filter(Boolean) : []);
   const languagesList = Array.isArray(profile.languages) ? profile.languages : [];
   const contentTypesList = Array.isArray(profile.content_types) ? profile.content_types : [];
-  
   const portfolioItems = profile.portfolio || [];
   const portfolioVideos = portfolioItems.filter((item) => item && /\.(mp4|webm|ogg)$/i.test(item));
   const portfolioImages = portfolioItems.filter((item) => item && !/\.(mp4|webm|ogg)$/i.test(item));
   const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
   const displayName = displayAccountName(profile, "Profile");
+  const roleLabel = profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer";
+  const locationLabel = profile.city || profile.state
+    ? `${profile.city || ""}${profile.city && profile.state ? ", " : ""}${profile.state || ""}`
+    : "—";
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
-            <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> § Profile Details
-              </p>
-              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Profile</h1>
-            </div>
+    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-4 mb-5">
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5" /> Account
+          </p>
+          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Profile</h1>
+        </div>
         <Link
           to="/profile/edit"
-          className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-5 shadow-lg shadow-[#FF3B30]/20"
+          className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm shadow-lg shadow-[#FF3B30]/20"
         >
-          <Edit2 className="w-4 h-4" /> Edit Profile
+          <Edit2 className="w-3.5 h-3.5" /> Edit
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        
-        {/* LEFT COLUMN: Main Information */}
-        <div className="md:col-span-8 space-y-6">
-          
-          {/* Profile Summary Card */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row gap-6 items-center sm:items-start relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-              <ShieldCheck className="w-48 h-48" />
-            </div>
-            
-            <div className="relative shrink-0">
-              {profile.avatar ? (
-                <img
-                  src={profile.avatar}
-                  alt=""
-                  className="w-28 h-28 object-cover rounded-full border-4 border-white/10 shadow-xl"
-                />
-              ) : (
-                <div
-                  className="w-28 h-28 rounded-full border-4 border-white/10 flex items-center justify-center shrink-0 shadow-xl"
-                  style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
-                >
-                  <span className="font-sans text-4xl font-bold text-white">
-                    {(displayName || "?")[0]?.toUpperCase()}
-                  </span>
-                </div>
-              )}
-              {profile.verified && (
-                <div className="absolute bottom-1 right-1 bg-[#34C759] border-[3px] border-[#0B0B0E] p-1 rounded-full shadow-lg">
-                  <ShieldCheck className="w-4 h-4 text-white" />
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 text-center sm:text-left z-10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <h2 className="font-sans text-2xl font-bold text-white tracking-tight flex items-center justify-center sm:justify-start gap-2">
-                  {displayName}
-                </h2>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#34C759]/10 border border-[#34C759]/30 rounded-full">
-                  <div className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)] animate-pulse"></div>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#34C759] font-bold">Active</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 mt-4">
-                <div>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Role</p>
-                  <p className="font-sans text-sm text-white font-medium capitalize">{profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer"}</p>
-                </div>
-                {isInfluencer && (
-                  <div>
-                    <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Level</p>
-                    <p className="font-sans text-sm text-[#FF3B30] font-medium">{profile.creator_level || "Beginner"}</p>
-                  </div>
-                )}
-                {(profile.role === "owner" || profile.role === "agent") && profile.company && (
-                  <div>
-                    <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Company</p>
-                    <p className="font-sans text-sm text-white font-medium">{profile.company}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Username</p>
-                  <p className="font-sans text-sm text-white font-medium">{profile.username ? `@${profile.username}` : "N/A"}</p>
-                </div>
-                <div>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">E-mail</p>
-                  <p className="font-sans text-sm text-white font-medium break-all">{profile.email}</p>
-                </div>
-                {profile.website && (
-                  <div>
-                    <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Website</p>
-                    <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-sm text-[#FF3B30] font-medium hover:underline inline-flex items-center gap-1 break-all">
-                      {profile.website} <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* About / Bio */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
-              About
-            </h3>
-            <p className="font-sans text-sm leading-relaxed text-white/90 mb-6">
-              {profile.bio || "No bio provided."}
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Joined</p>
-                <p className="font-sans text-sm text-white">
-                  {profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}
-                </p>
-              </div>
-              {isInfluencer && (
-                <div>
-                  <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Base Rate</p>
-                  <p className="font-sans text-sm text-white">{profile.base_rate ? `$${profile.base_rate}` : "—"}</p>
-                </div>
-              )}
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Location</p>
-                <p className="font-sans text-sm text-white flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-white/40" />
-                  {profile.city || profile.state ? `${profile.city || ""}${profile.city && profile.state ? ", " : ""}${profile.state || ""}` : "—"}
-                </p>
-              </div>
-              <div>
-                <p className="font-sans text-[11px] text-[#FF3B30] mb-1 font-medium">Languages</p>
-                <p className="font-sans text-sm text-white">
-                  {languagesList.length > 0 ? languagesList.join(", ") : "—"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Professional Attributes */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6 flex items-center gap-2">
-              Niches & Content
-            </h3>
-            
-            <div className="flex flex-wrap gap-4">
-              <div className="flex flex-col items-center justify-center bg-black/20 border border-[#34C759]/20 rounded-2xl p-4 min-w-[110px]">
-                <div className="w-10 h-10 rounded-full bg-[#34C759]/10 flex items-center justify-center mb-3">
-                  <Sparkles className="w-4 h-4 text-[#34C759]" />
-                </div>
-                <span className="font-sans text-sm font-medium text-white text-center">
-                  {categoriesList.length > 0 ? categoriesList[0] : "General"}
-                </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Primary</span>
-              </div>
-              
-              {categoriesList.slice(1, 4).map((cat, idx) => (
-                <div key={idx} className="flex flex-col items-center justify-center bg-black/20 border border-[#0A84FF]/20 rounded-2xl p-4 min-w-[110px]">
-                  <div className="w-10 h-10 rounded-full bg-[#0A84FF]/10 flex items-center justify-center mb-3">
-                    <span className="text-sm text-[#0A84FF] font-bold">{idx + 2}</span>
-                  </div>
-                  <span className="font-sans text-sm font-medium text-white text-center">{cat}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Niche</span>
-                </div>
-              ))}
-              
-              {contentTypesList.slice(0, 2).map((ct, idx) => (
-                <div key={`ct-${idx}`} className="flex flex-col items-center justify-center bg-black/20 border border-[#BF5AF2]/20 rounded-2xl p-4 min-w-[110px]">
-                  <div className="w-10 h-10 rounded-full bg-[#BF5AF2]/10 flex items-center justify-center mb-3">
-                    <ImageIcon className="w-4 h-4 text-[#BF5AF2]" />
-                  </div>
-                  <span className="font-sans text-sm font-medium text-white text-center">{ct}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">Content</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Portfolio */}
-          {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-              <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-6">
-                Portfolio
-              </h3>
-              
-              {portfolioImages.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-60 mb-3">
-                    <ImageIcon className="w-3.5 h-3.5 text-[#FF3B30]" /> Images ({portfolioImages.length})
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {portfolioImages.map((media, i) => (
-                      <div key={i} className="aspect-square rounded-xl border border-white/10 overflow-hidden bg-black/50 hover:border-white/30 transition-colors">
-                        <img src={media} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {portfolioVideos.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-60 mb-3">
-                    <VideoIcon className="w-3.5 h-3.5 text-[#FF3B30]" /> Videos ({portfolioVideos.length})
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {portfolioVideos.map((media, i) => (
-                      <div key={i} className="aspect-video rounded-xl border border-white/10 overflow-hidden bg-black/50 hover:border-white/30 transition-colors">
-                        <video src={media} controls className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+      {/* Hero */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-5 mb-4 flex flex-col md:flex-row gap-4 items-start">
+        <div className="relative shrink-0">
+          {profile.avatar ? (
+            <img src={profile.avatar} alt="" className="w-20 h-20 object-cover rounded-full border-2 border-white/10" />
+          ) : (
+            <div
+              className="w-20 h-20 rounded-full border-2 border-white/10 flex items-center justify-center"
+              style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+            >
+              <span className="font-sans text-2xl font-bold text-white">{(displayName || "?")[0]?.toUpperCase()}</span>
             </div>
           )}
+          {profile.verified && (
+            <div className="absolute bottom-0 right-0 bg-[#34C759] border-2 border-[#0B0B0E] p-0.5 rounded-full">
+              <ShieldCheck className="w-3.5 h-3.5 text-white" />
+            </div>
+          )}
+        </div>
 
-          {/* Past Campaigns */}
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <h2 className="font-sans text-xl font-bold text-white tracking-tight truncate">{displayName}</h2>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#34C759]/10 border border-[#34C759]/30 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
+              <span className="font-mono text-[8px] uppercase tracking-widest text-[#34C759] font-bold">Active</span>
+            </span>
+            {isInfluencer && (
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/20 px-2 py-0.5 rounded-full">
+                {profile.creator_level || "Beginner"}
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+            <Meta label="Role" value={roleLabel} />
+            <Meta label="Username" value={profile.username ? `@${profile.username}` : "—"} />
+            <Meta label="Email" value={profile.email || "—"} />
+            <Meta label="Location" value={locationLabel} />
+            {(profile.role === "owner" || profile.role === "agent") && profile.company && (
+              <Meta label="Company" value={profile.company} />
+            )}
+            {profile.website && (
+              <div>
+                <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Website</p>
+                <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-sm text-[#FF3B30] hover:underline inline-flex items-center gap-1 truncate max-w-full">
+                  Visit <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+            {isInfluencer && <Meta label="Base rate" value={profile.base_rate ? `$${profile.base_rate}` : "—"} />}
+            <Meta label="Joined" value={profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
+          </div>
+        </div>
+
+        <div className="w-full md:w-44 shrink-0 bg-black/25 border border-white/10 rounded-xl p-3">
+          <div className="flex justify-between font-sans text-[10px] mb-1.5">
+            <span className="text-white/50 uppercase tracking-widest">Complete</span>
+            <span className="text-[#FF3B30] font-bold">{completionScore}%</span>
+          </div>
+          <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden mb-2">
+            <div className="bg-[#FF3B30] h-full rounded-full" style={{ width: `${completionScore}%` }} />
+          </div>
+          {completionScore === 100 ? (
+            <div className="flex items-center gap-1.5 text-[#34C759]">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="font-sans text-[10px]">All set</span>
+            </div>
+          ) : (
+            <Link to="/profile/edit" className="font-sans text-[10px] text-[#FF3B30] hover:underline">
+              Finish {missingFields[0] || "profile"} →
+            </Link>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-7 space-y-4">
+          <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-2">About</h3>
+            <p className="font-sans text-sm leading-relaxed text-white/85 mb-3">
+              {profile.bio || "No bio provided."}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {languagesList.map((lang) => (
+                <span key={lang} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 font-mono text-[9px] uppercase tracking-widest text-white/60">
+                  {lang}
+                </span>
+              ))}
+              {categoriesList.map((cat) => (
+                <span key={cat} className="px-2 py-0.5 rounded-full bg-[#FF3B30]/10 border border-[#FF3B30]/20 font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">
+                  {cat}
+                </span>
+              ))}
+              {contentTypesList.map((ct) => (
+                <span key={ct} className="px-2 py-0.5 rounded-full bg-[#0A84FF]/10 border border-[#0A84FF]/20 font-mono text-[9px] uppercase tracking-widest text-[#0A84FF]">
+                  {ct}
+                </span>
+              ))}
+            </div>
+          </section>
+
           {isInfluencer && pastCampaigns.length > 0 && (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-              <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
-                Past Campaigns
-              </h3>
-              <div className="space-y-2">
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-2">Past campaigns</h3>
+              <div className="space-y-1.5">
                 {pastCampaigns.map((c, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 py-2 border-b border-white/5 last:border-0">
+                  <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
                     <span className="font-sans text-sm text-white truncate">
                       {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
                     </span>
                     {(c?.brand || c?.year) && (
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white/40 shrink-0">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 shrink-0">
                         {[c.brand, c.year].filter(Boolean).join(" · ")}
                       </span>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-        </div>
-
-        {/* RIGHT COLUMN: Supporting Widgets */}
-        <div className="md:col-span-4 space-y-6">
-          
-          {/* Profile Status */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-            <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold mb-4">
-              Profile Status
-            </h3>
-            
-            <div className="mb-5">
-              <div className="flex justify-between font-sans text-xs mb-2">
-                <span className="text-white/60">Completion</span>
-                <span className="text-[#FF3B30] font-bold">{completionScore}%</span>
-              </div>
-              <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
-                <div className="bg-[#FF3B30] h-full rounded-full" style={{ width: `${completionScore}%` }} />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {completionScore === 100 ? (
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-[#34C759]/10 border border-[#34C759]/20">
-                  <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0" />
-                  <div>
-                    <p className="font-sans text-xs text-white font-medium">All set!</p>
-                    <p className="font-sans text-[10px] text-white/60 mt-0.5">Your profile is fully complete.</p>
+          {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3">Portfolio</h3>
+              {portfolioImages.length > 0 && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
+                    <ImageIcon className="w-3 h-3 text-[#FF3B30]" /> Images
+                  </div>
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                    {portfolioImages.map((media, i) => (
+                      <div key={i} className="aspect-square rounded-lg border border-white/10 overflow-hidden bg-black/50">
+                        <img src={media} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ) : (
-                <>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-white/50 mb-1">Missing</p>
-                  {missingFields.map((field, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full border-2 border-white/20 shrink-0" />
-                      <span className="font-sans text-xs text-white/80">Add {field}</span>
-                    </div>
-                  ))}
-                  <Link to="/profile/edit" className="block text-center mt-4 font-sans text-xs text-[#FF3B30] hover:underline">
-                    Complete Profile →
-                  </Link>
-                </>
               )}
-            </div>
-          </div>
+              {portfolioVideos.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
+                    <VideoIcon className="w-3 h-3 text-[#FF3B30]" /> Videos
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {portfolioVideos.map((media, i) => (
+                      <div key={i} className="aspect-video rounded-lg border border-white/10 overflow-hidden bg-black/50">
+                        <video src={media} controls className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+        </div>
 
-          {/* Social Metrics */}
+        <div className="lg:col-span-5 space-y-4">
           {isInfluencer && (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="font-sans text-[12px] tracking-[0.16em] uppercase text-white/80 font-semibold">
-                  Social Metrics
-                </h3>
-                <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[10px] font-bold rounded-full">
-                  {formatNumber(totalReach)} Total
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
+                <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full">
+                  {formatNumber(totalReach)} reach
                 </span>
               </div>
-
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {SOCIAL_PLATFORMS.map((key) => {
                   const data = rawPlatforms[key] || {};
                   const connected = hasPlatformHandle(data);
-                  
                   return (
-                    <div key={key} className={`p-4 rounded-2xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-70"}`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-sans text-xs uppercase tracking-wider text-[#FF3B30] font-semibold">
+                    <div key={key} className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold">
                           {SOCIAL_PLATFORM_LABELS[key] || key}
                         </span>
-                        <span className={`font-mono text-[9px] truncate max-w-[50%] ${connected ? "text-white/60" : "text-white/30"}`}>
+                        <span className="font-mono text-[9px] truncate text-white/50 max-w-[45%]">
                           {socialOrNA(data?.handle)}
                         </span>
                       </div>
-                      
-                      <div className="flex justify-between font-sans">
-                        <div>
-                          <div className="text-[9px] uppercase tracking-wider opacity-40">{key === "youtube" ? "Subs" : "Followers"}</div>
-                          <div className="text-sm font-bold tabular-nums mt-0.5 text-white">
-                            {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[9px] uppercase tracking-wider opacity-40">ER %</div>
-                          <div className={`text-sm font-bold tabular-nums mt-0.5 ${connected ? "text-[#34C759]" : "text-white"}`}>
-                            {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
-                          </div>
-                        </div>
+                      <div className="flex justify-between font-sans text-sm">
+                        <span className="tabular-nums font-semibold">
+                          {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
+                          <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">
+                            {key === "youtube" ? "subs" : "followers"}
+                          </span>
+                        </span>
+                        <span className={`tabular-nums font-semibold ${connected ? "text-[#34C759]" : ""}`}>
+                          {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
+                          <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">ER</span>
+                        </span>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </section>
           )}
-
         </div>
       </div>
+    </div>
+  );
+}
+
+function Meta({ label, value }) {
+  return (
+    <div className="min-w-0">
+      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
+      <p className="font-sans text-sm text-white font-medium truncate" title={value}>{value}</p>
     </div>
   );
 }
