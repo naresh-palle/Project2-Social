@@ -2,7 +2,7 @@
 
 ## This Cursor Cloud agent (already done)
 
-Flutter **3.32.8** + Android SDK are installed and on `PATH` via `~/.bashrc`.
+Flutter **3.47.0** + Android SDK are installed and on `PATH` via `~/.bashrc`.
 
 In a **new** terminal:
 
