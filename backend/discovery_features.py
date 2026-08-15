@@ -26,6 +26,7 @@ from discovery_engine import (
     heuristic_parse_query,
     match_breakdown,
     merge_provider_profile,
+    normalize_platform,
     public_card,
     quality_components,
     research_template,
@@ -90,6 +91,11 @@ class AssistantBody(BaseModel):
     filters: Dict[str, Any] = Field(default_factory=dict)
     selected_ids: List[str] = Field(default_factory=list)
     history: List[Dict[str, str]] = Field(default_factory=list)
+
+
+class ApifyLookupBody(BaseModel):
+    platform: str = Field(min_length=1, max_length=32)
+    handle: str = Field(min_length=1, max_length=200)
 
 
 def _strip_secrets(user: dict) -> dict:
@@ -213,12 +219,16 @@ def setup_discovery(
         return await cur.to_list(length=limit)
 
     async def _enrich(users: List[dict], brief: Optional[dict] = None) -> List[dict]:
+        ids = [u.get("id") for u in users if u.get("id")]
+        intel_docs = []
+        if ids:
+            intel_docs = await db.creator_intelligence.find(
+                {"creator_id": {"$in": ids}}, {"_id": 0}
+            ).to_list(len(ids))
+        by_id = {d.get("creator_id"): d for d in intel_docs}
         cards = []
         for u in users:
-            intel = await _intel(u["id"])
-            if not intel.get("quality_score"):
-                intel = await _upsert_intel(u)
-            await _maybe_snapshot(u)
+            intel = by_id.get(u.get("id")) or {}
             match = match_breakdown(u, brief, intel) if brief else None
             card = public_card(u, intel, match)
             if brief:
@@ -689,6 +699,53 @@ def setup_discovery(
             "creator_index": creator_index,
             "total": total,
             "creators": cards[:10],
+        }
+
+    @api_router.post("/discover/apify-lookup")
+    async def apify_lookup(body: ApifyLookupBody, current: dict = Depends(get_current_user)):
+        """Live Apify check for any IG/YT/FB handle. Does not create catalog users."""
+        await _brand(current)
+        from apify_service import strip_handle
+
+        plat = normalize_platform(body.platform)
+        handle = strip_handle(body.handle)
+        if plat not in {"instagram", "youtube", "facebook"}:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported platform. Use instagram, youtube, or facebook.",
+            )
+        if not handle:
+            raise HTTPException(status_code=400, detail="Enter a handle or profile URL.")
+        provider = _apify()
+        if not provider.is_configured():
+            return {
+                "ok": False,
+                "configured": False,
+                "platform": plat,
+                "handle": handle,
+                "profile": None,
+                "message": NOT_CONFIGURED,
+                "provider": "apify",
+            }
+        fetched = await provider.get_creator_profile(handle, plat)
+        if not fetched:
+            return {
+                "ok": False,
+                "configured": True,
+                "platform": plat,
+                "handle": handle,
+                "profile": None,
+                "message": UNAVAILABLE,
+                "provider": "apify",
+            }
+        return {
+            "ok": True,
+            "configured": True,
+            "platform": plat,
+            "handle": fetched.get("handle") or handle,
+            "profile": fetched,
+            "message": "Live Apify result. This does not add a creator to the catalog.",
+            "provider": "apify",
         }
 
     @api_router.get("/admin/discovery-stats")

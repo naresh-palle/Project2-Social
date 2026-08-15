@@ -810,7 +810,14 @@ class ApifyProvider(SocialDataProvider):
         if plat not in {"instagram", "youtube", "facebook"}:
             return None
         try:
-            return await self.svc.fetch_sync(plat, handle)
+            data = await self.svc.fetch_sync(plat, handle)
+            if not data:
+                return None
+            out = dict(data)
+            out["platform"] = plat
+            out["handle"] = out.get("handle") or handle
+            out["provider"] = "apify"
+            return out
         except Exception as e:
             logger.warning("ApifyProvider profile failed %s/%s: %s", plat, handle, e)
             return None

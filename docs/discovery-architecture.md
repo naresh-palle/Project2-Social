@@ -52,7 +52,16 @@ Frontend → CR8 /api/creators/* → CatalogProvider (Mongo users)
                               → FutureTikTokProvider / FutureFacebookProvider
 ```
 
-Apify is never called from the browser. If `APIFY_TOKEN` is missing, refresh returns `data_source_not_configured` rather than fake profiles.
+Apify is never called from the browser. If `APIFY_TOKEN` is missing, refresh and lookup return `Data source not configured` rather than fake profiles.
+
+### Verify a handle (Instagram / YouTube / Facebook)
+
+1. Open Discover (`/#/discover`) or Admin → Discovery.
+2. Check the **Apify** badge: `Apify connected` vs `Data source not configured`.
+3. Enter a platform + username (or full profile URL) and click **Verify**.
+4. `POST /api/discover/apify-lookup` calls Apify on the backend only. Success shows live followers/posts/views/engagement. Missing token → `Data source not configured`. Empty scrape → `Data unavailable`. Nothing is written to `users`.
+
+You can also hit `GET /api/apify/health` (no auth) for `{ success, status: connected|not_configured|error }`.
 
 ## Query flow
 

@@ -26,7 +26,7 @@ export function getSidebarItems(user) {
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/feed", label: "Feed", icon: "feed" },
     ...(user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
-      ? [{ to: "/discover", label: "Discover", icon: "directory" }]
+      ? [{ to: "/discover", label: "Discover", icon: "sparkles" }]
       : []),
     { to: "/marketplace", label: "Directory", icon: "directory" },
     { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
@@ -54,7 +54,7 @@ export function getBottomNavItems(user) {
   }
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
-    { to: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "/discover" : "/marketplace", label: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "Discover" : "Campaigns", icon: "directory" },
+    { to: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "/discover" : "/marketplace", label: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "Discover" : "Campaigns", icon: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "sparkles" : "directory" },
     { to: "/leaderboard", label: "Analytics", icon: "analytics" },
     { to: "/messages", label: "Inbox", icon: "bell" },
     { to: "/profile", label: "Profile", icon: "profile" },
@@ -68,8 +68,9 @@ export function isNavItemActive(it, location, user) {
   if (it.to === "/settings") return location.pathname === "/settings";
   if (!isSupportOps) {
     if (it.to === "/dashboard") return location.pathname === "/dashboard";
-    if (it.to === "/marketplace" || it.to === "/discover") {
-      return location.pathname === "/marketplace" || location.pathname === "/discover" || location.pathname.startsWith("/campaigns") || location.pathname.startsWith("/creators");
+    if (it.to === "/discover") return location.pathname === "/discover";
+    if (it.to === "/marketplace") {
+      return location.pathname === "/marketplace" || location.pathname.startsWith("/campaigns");
     }
     if (it.to === "/leaderboard") return location.pathname === "/leaderboard";
     if (it.to === "/messages") return location.pathname === "/messages";

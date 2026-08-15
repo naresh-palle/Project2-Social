@@ -1,6 +1,7 @@
 """Unit tests for discovery query builder, scoring, and providers — no Mongo."""
 from discovery_engine import (
     UNAVAILABLE,
+    ApifyProvider,
     authenticity_from_signals,
     cosine,
     creator_tier,
@@ -17,6 +18,7 @@ from discovery_engine import (
     facts_for_research,
     validate_filters,
 )
+from apify_service import strip_handle
 
 
 def test_validate_filters_drops_unknown_and_sql():
@@ -127,3 +129,17 @@ def test_research_template_marks_missing():
     report = research_template(facts)
     assert report["performance"]["posting_frequency"] == UNAVAILABLE
     assert "Data unavailable" in report["disclaimer"] or report["content"]["formats"] == UNAVAILABLE
+
+
+def test_apify_provider_unconfigured_returns_none():
+    import asyncio
+    provider = ApifyProvider(None)
+    assert provider.is_configured() is False
+    assert asyncio.run(provider.get_creator_profile("nasa", "instagram")) is None
+
+
+def test_strip_handle_from_urls_and_at():
+    assert strip_handle("@nasa") == "nasa"
+    assert strip_handle("https://www.instagram.com/nasa/") == "nasa"
+    assert strip_handle("https://www.youtube.com/@mkbhd") == "mkbhd"
+    assert strip_handle("facebook.com/natgeo") == "natgeo"

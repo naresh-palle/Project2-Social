@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Sparkles, SlidersHorizontal, X, Check, GitCompare, FileSearch, ChevronLeft, ChevronRight, MessageSquare,
 } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
+import { ApifyLookupPanel } from "@/components/ApifyLookupPanel";
 import { PLATFORM_CATEGORIES } from "@/lib/categories";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { formatUsername } from "@/lib/username";
 const PLATFORMS = ["instagram", "youtube", "facebook", "twitter"];
 const TIERS = ["nano", "micro", "mid", "macro", "mega"];
 const LANGS = ["Telugu", "Hindi", "Tamil", "Kannada", "English", "Bengali", "Marathi"];
+const UNAVAILABLE = "Data unavailable";
 const errMsg = (e) => formatApiError(e?.response?.data?.detail);
 
 function fmtNum(n) {
@@ -184,7 +186,10 @@ export default function Discover() {
     }
   }, [payloadFilters, campaignId]);
 
+  const didMount = useRef(false);
   useEffect(() => {
+    if (didMount.current) return;
+    didMount.current = true;
     search(1);
   }, [search]);
 
@@ -338,6 +343,10 @@ export default function Discover() {
         {note ? <p className="mt-2 font-sans text-[11px] text-[#FF9500]">{note}</p> : null}
       </form>
 
+      <div className="mb-3">
+        <ApifyLookupPanel compact />
+      </div>
+
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <button type="button" onClick={() => setShowFilters((v) => !v)} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest border border-white/15 rounded-full px-3 py-1">
           <SlidersHorizontal className="w-3 h-3" /> Filters
@@ -358,10 +367,15 @@ export default function Discover() {
             <option key={c.id} value={c.id}>{c.title}</option>
           ))}
         </select>
+        <button type="button" onClick={() => search(1)} className="btn-solid text-[10px] px-3 py-1">
+          Apply filters
+        </button>
         <button type="button" onClick={() => { setFilters(emptyFilters()); setNl(""); }} className="font-mono text-[10px] uppercase tracking-widest text-white/45">
           Clear all
         </button>
-        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">{total} creators</span>
+        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">
+          {loading && creators.length > 0 ? "Refreshing… · " : ""}{total} creators
+        </span>
       </div>
 
       {showFilters && (
@@ -401,7 +415,7 @@ export default function Discover() {
         </div>
       )}
 
-      {loading ? (
+      {loading && creators.length === 0 ? (
         <div className="py-16 text-center font-mono text-xs tracking-widest uppercase opacity-50">Loading catalog…</div>
       ) : creators.length === 0 ? (
         <div className="py-16 text-center font-sans text-sm text-white/50">No creators match these filters in the CR8 catalog.</div>

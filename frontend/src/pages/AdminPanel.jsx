@@ -13,6 +13,7 @@ import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { EXPORT_FORMATS, runExport } from "@/lib/exportFormats";
 import { formatUsername } from "@/lib/username";
+import { ApifyLookupPanel } from "@/components/ApifyLookupPanel";
 
 const USER_ROLE_OPTIONS = ["Influencers", "Brands", "Agencies"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
@@ -104,6 +105,7 @@ function DiscoveryOps() {
           </div>
         ))}
       </div>
+      <ApifyLookupPanel />
       <div className="rounded-2xl border border-white/10 overflow-auto">
         <table className="w-full text-xs">
           <thead className="font-mono uppercase tracking-widest text-white/40">

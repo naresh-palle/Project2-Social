@@ -9,6 +9,7 @@ import { NotificationBell } from "./NotificationBell";
 import { IconTip } from "@/components/IconTip";
 import { AiIcon } from "@/components/AiIcon";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Menu } from "lucide-react";
 
 export function AppLayout() {
@@ -76,7 +77,9 @@ export function AppLayout() {
           id="app-scroll"
           className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 pt-3 pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] lg:pb-12"
         >
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
 
