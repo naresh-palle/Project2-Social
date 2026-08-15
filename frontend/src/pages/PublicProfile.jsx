@@ -130,7 +130,7 @@ export default function PublicProfile() {
       <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
         
         
-        <div className="pt-32 px-6 md:px-10 max-w-4xl mx-auto flex flex-col items-start gap-8">
+        <div className="pt-4 px-0 sm:px-2 max-w-4xl mx-auto flex flex-col items-start gap-8">
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
@@ -159,8 +159,8 @@ export default function PublicProfile() {
     <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       
       
-      <div className="pt-24 flex-1">
-        <div className="max-w-4xl mx-auto px-6 md:px-10 mb-6 flex flex-col items-start gap-4">
+      <div className="pt-2 flex-1">
+        <div className="max-w-4xl mx-auto px-0 sm:px-2 mb-6 flex flex-col items-start gap-4">
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
@@ -189,7 +189,7 @@ export default function PublicProfile() {
               </div>
             )}
           </div>
-        <div className="max-w-3xl mx-auto px-6 md:px-10 pb-24 -mt-16 relative">
+        <div className="max-w-3xl mx-auto px-0 sm:px-2 pb-8 -mt-10 sm:-mt-16 relative">
           <div className="flex items-end gap-6">
             <div className="relative w-28 h-28 shrink-0">
               {profile.avatar && (

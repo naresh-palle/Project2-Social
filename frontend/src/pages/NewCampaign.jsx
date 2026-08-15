@@ -165,7 +165,7 @@ export default function NewCampaign({ isEdit }) {
 
   if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10">
+      <div className="min-h-[50vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4">
         
         <h1 className="font-sans text-2xl font-bold tracking-tight">Brand Owners, Agents &amp; Admins only, please</h1>
       </div>
@@ -176,11 +176,11 @@ export default function NewCampaign({ isEdit }) {
     <div className="w-full bg-[#0B0B0E] text-[#F4F4F0]">
       
       
-      <div className="pt-1 max-w-3xl mx-auto px-4 md:px-6 pb-16 relative pr-16">
+      <div className="pt-1 max-w-3xl mx-auto px-1 sm:px-4 md:px-6 pb-16 relative">
         <button
           type="button"
           onClick={() => nav("/dashboard")}
-          className="fixed top-20 right-4 md:right-8 p-2 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-xl transition-all duration-300 z-50"
+          className="absolute top-0 right-0 p-2 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-xl transition-all duration-300 z-20"
           title="Cancel / Close (Esc)"
           data-testid="new-campaign-cancel-btn"
         >

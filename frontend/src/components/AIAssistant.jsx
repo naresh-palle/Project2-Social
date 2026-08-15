@@ -72,7 +72,7 @@ export function AIAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
-            className="fixed bottom-[5.5rem] right-[1.5rem] z-[999999] w-[380px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-[#0B0B0E] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#0B0B0E] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/[0.02]">
@@ -160,10 +160,10 @@ export function AIAssistant() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-[1.5rem] right-[5.5rem] z-[999999] flex items-center justify-center gap-2 px-5 h-14 rounded-full bg-white text-black shadow-[0_8px_30px_rgb(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgb(255,255,255,0.4)] hover:-translate-y-1 transition-all duration-300 group"
+            className="fixed bottom-[4.75rem] lg:bottom-6 right-16 lg:right-[5.5rem] z-[55] flex items-center justify-center gap-2 px-3 sm:px-5 h-12 lg:h-14 rounded-full bg-white text-black shadow-[0_8px_30px_rgb(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgb(255,255,255,0.4)] hover:-translate-y-1 transition-all duration-300 group"
           >
             <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            <span className="font-sans text-xs font-bold uppercase tracking-wider">Ask AI</span>
+            <span className="hidden sm:inline font-sans text-xs font-bold uppercase tracking-wider">Ask AI</span>
           </motion.button>
         )}
       </AnimatePresence>

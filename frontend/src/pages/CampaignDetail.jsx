@@ -146,7 +146,7 @@ export default function CampaignDetail() {
     }
   };
 
-  if (c === false) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] pt-40 px-10"><h1 className="font-sans text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
+  if (c === false) return <div className="min-h-[40vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4"><h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
   if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = user?.role === "owner" && c.owner_id === user?.id;

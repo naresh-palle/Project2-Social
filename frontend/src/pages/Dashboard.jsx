@@ -23,6 +23,7 @@ import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MOCK_CAMPAIGNS as DEFAULT_CAMPAIGNS_FOR_CREATORS, MOCK_PITCHES, MOCK_AGENT_CREATORS } from "@/lib/mockCampaigns";
+import { CreatorDashboard } from "@/components/CreatorDashboard";
 
 export default function Dashboard() {
   const { user, loading, refresh } = useAuth();
@@ -231,7 +232,7 @@ function OwnerPanel() {
       {/* Top Static Section */}
       <div className="space-y-3">
       {/* Analytics Summary Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="owner-analytics">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="owner-analytics">
         {tiles.map((t, i) => (
           <motion.div
             key={t.k}
@@ -303,7 +304,7 @@ function OwnerPanel() {
       </div> {/* End Static Section */}
 
       {/* Main Content Area */}
-      <div className="pb-10 pr-2">
+      <div className="pb-6 min-w-0">
       {/* VIEW 1: FEED */}
       {activeTab === "work-feed" && (
         <div className="space-y-3">
@@ -439,9 +440,8 @@ function InfluencerPanel() {
   const [activeTab, setActiveTab] = useState("campaigns-feed");
   const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
 
-  const [levelInfo, setLevelInfo] = useState(null);
-  const [badges, setBadges] = useState([]);
-  const [leaderboard, setLeaderboard] = useState(null);
+  const [wallet, setWallet] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -458,40 +458,13 @@ function InfluencerPanel() {
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
     api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
     api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
-
-    api.get("/levels/my-progress").then((r) => setLevelInfo(r.data)).catch(() => setLevelInfo(null));
-    api.get("/badges/mine").then((r) => setBadges(Array.isArray(r.data) ? r.data : [])).catch(() => setBadges([]));
-    api.get("/leaderboard/my-rank?type=top_performer&period=weekly").then((r) => setLeaderboard(r.data)).catch(() => setLeaderboard(null));
+    api.get("/wallet").then((r) => setWallet(r.data)).catch(() => setWallet(null));
+    api.get("/notifications").then((r) => setNotifications(Array.isArray(r.data?.items) ? r.data.items : [])).catch(() => setNotifications([]));
   }, []);
 
   const safeApps = Array.isArray(apps) ? apps : [];
   const safeMatches = Array.isArray(matches) ? matches : [];
   const pitchList = safeApps.length > 0 ? safeApps : MOCK_PITCHES;
-
-  const hasLiveStats = stats && (
-    Number(stats.applications || 0) > 0 ||
-    Number(stats.acceptances || 0) > 0 ||
-    Number(stats.invitations || 0) > 0 ||
-    Number(stats.deliverables || 0) > 0 ||
-    Number(stats.earned || 0) > 0
-  );
-  const tiles = hasLiveStats
-    ? [
-        { k: "Pitched Briefs", v: `${stats?.applications ?? 0} Pitches`, tail: "submitted" },
-        { k: "Accepted", v: `${stats?.acceptances ?? 0} Signed`, tail: "signed & live" },
-        { k: "Invitations", v: `${stats?.invitations ?? 0} Invites`, tail: "extended to you" },
-        { k: "Deliverables", v: `${stats?.approved ?? 0}/${stats?.deliverables ?? 0}`, tail: "approved / total" },
-        { k: "Rating Score", v: stats?.reviews_count ? `${stats.avg_rating} ★` : "—", tail: `${stats?.reviews_count || 0} reviews` },
-        { k: "Wallet Balance", v: `₹${(stats?.earned ?? user?.wallet ?? 0).toLocaleString()}`, tail: "escrow ready" },
-      ]
-    : [
-        { k: "Pitched Briefs", v: `${Math.max(pitchList.length, 3)} Pitches`, tail: "submitted" },
-        { k: "Accepted", v: "1 Signed", tail: "signed & live" },
-        { k: "Invitations", v: "4 Invites", tail: "extended to you" },
-        { k: "Deliverables", v: "2/3", tail: "approved / total" },
-        { k: "Rating Score", v: "4.8 ★", tail: "12 reviews" },
-        { k: "Wallet Balance", v: `₹${(user?.wallet || 42500).toLocaleString()}`, tail: "escrow ready" },
-      ];
 
   const campaignList = safeMatches.length > 0 ? safeMatches : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
@@ -500,29 +473,15 @@ function InfluencerPanel() {
   );
 
   return (
-    <div className="flex flex-col w-full space-y-3">
-      {/* Top Static Section (KPIs, Tabs) */}
-      <div className="space-y-3">
-      {/* Influencer Analytics Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="creator-analytics">
-        {tiles.map((t, i) => (
-          <motion.div
-            key={t.k}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.05 }}
-            className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center"
-          >
-            <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
-            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
-          </motion.div>
-        ))}
-      </div>
+    <div className="flex flex-col w-full min-w-0 space-y-4">
+      <CreatorDashboard
+        user={user}
+        stats={stats}
+        wallet={wallet}
+        notifications={notifications}
+        campaigns={filteredCampaigns}
+      />
 
-      {/* Gamification sections removed per requirements */}
-
-      {/* Platform Analytics & Social Connect — compact strip above tabs */}
       <SocialConnect
         connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
       />
@@ -539,7 +498,6 @@ function InfluencerPanel() {
         isSyncing={syncing}
       />
 
-      {/* Primary Navigation Tabs for Influencers */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
         <div className="flex gap-4 font-sans text-[11px] tracking-[0.22em] uppercase flex-wrap">
           <button
@@ -578,13 +536,11 @@ function InfluencerPanel() {
           </div>
         )}
       </div>
-      </div> {/* End Top Static Section */}
 
-      {/* Main Content Area */}
-      <div className="pb-10 pr-2">
+      <div className="min-w-0">
       {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY */}
       {activeTab === "campaigns-feed" && (
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           {filteredCampaigns.map((c, idx) => (
             <motion.div
               key={c.id || idx}

@@ -99,6 +99,15 @@
 html, body, #root {
     background: var(--surface-0);
     color: var(--fg);
+    max-width: 100%;
+}
+
+#root, .App, main, #app-scroll {
+    min-width: 0;
+}
+
+img, video {
+    max-width: 100%;
 }
 
 body {
