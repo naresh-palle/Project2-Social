@@ -4732,6 +4732,11 @@ async def on_startup():
         await _support_seed_users()
     except Exception as e:
         logger.warning("support indexes/seed failed: %s", e)
+    try:
+        if _discovery_ensure_indexes:
+            await _discovery_ensure_indexes()
+    except Exception as e:
+        logger.warning("discovery indexes failed: %s", e)
     logger.info("CR8 API ready.")
 
 
@@ -4807,6 +4812,18 @@ _support_ensure_indexes, _support_seed_users = setup_support(
     email_template=email_template,
     write_audit_log=write_audit_log,
     call_llm=call_llm,
+    logger=logger,
+)
+
+from discovery_features import setup_discovery  # noqa: E402
+
+_discovery_ensure_indexes = setup_discovery(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    call_llm=call_llm,
+    parse_json=parse_json,
     logger=logger,
 )
 

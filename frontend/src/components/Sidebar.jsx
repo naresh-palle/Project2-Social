@@ -36,7 +36,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
     else if (q.includes("wallet") || q.includes("money") || q.includes("escrow") || q.includes("pay")) nav("/wallet");
     else if (q.includes("referral") || q.includes("invite")) nav("/referrals");
     else if (q.includes("lead") || q.includes("rank")) nav("/leaderboard");
-    else if (q.includes("directory") || q.includes("find")) nav("/marketplace");
+    else if (q.includes("directory") || q.includes("find") || q.includes("discover")) nav(user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "/discover" : "/marketplace");
     else if (q.includes("feed") || q.includes("campaign")) nav("/feed");
     else if (q.includes("message") || q.includes("chat")) nav("/messages");
     else nav("/search?q=" + encodeURIComponent(q));

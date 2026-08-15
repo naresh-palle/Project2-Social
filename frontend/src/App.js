@@ -14,6 +14,7 @@ import SearchPage from "@/pages/SearchPage";
 import Legal from "@/pages/Legal";
 import PublicProfile from "@/pages/PublicProfile";
 import Marketplace from "@/pages/Marketplace";
+import Discover from "@/pages/Discover";
 import CampaignDetail from "@/pages/CampaignDetail";
 import CreatorDetail from "@/pages/CreatorDetail";
 import NewCampaign from "@/pages/NewCampaign";
@@ -66,6 +67,7 @@ function App() {
               <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
   
               <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
+              <Route path="/discover" element={<RequireAuth roles={["owner", "agent", "admin"]}><Discover /></RequireAuth>} />
               <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
               <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />

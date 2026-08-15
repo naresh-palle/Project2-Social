@@ -77,6 +77,54 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
     );
 }
 
+function DiscoveryOps() {
+  const [stats, setStats] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  useEffect(() => {
+    api.get("/admin/discovery-stats").then(({ data }) => setStats(data)).catch(() => setStats({ error: true }));
+    api.get("/admin/discovery-jobs").then(({ data }) => setJobs(data.items || [])).catch(() => {});
+  }, []);
+  if (!stats) return <div className="font-mono text-xs tracking-widest uppercase opacity-50">Loading discovery ops…</div>;
+  if (stats.error) return <div className="text-sm text-white/50">Could not load discovery stats.</div>;
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          ["Total creators", stats.total_creators],
+          ["Synced today", stats.synced_today],
+          ["Successful syncs", stats.successful_syncs],
+          ["Failed syncs", stats.failed_syncs],
+          ["Stale creators", stats.stale_creators],
+          ["Pending research", stats.pending_research_jobs],
+          ["Apify", stats.apify_configured ? "Configured" : "Data source not configured"],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-2xl border border-white/10 bg-[#121212] p-4">
+            <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{k}</div>
+            <div className="font-sans text-xl font-bold mt-1">{v}</div>
+          </div>
+        ))}
+      </div>
+      <div className="rounded-2xl border border-white/10 overflow-auto">
+        <table className="w-full text-xs">
+          <thead className="font-mono uppercase tracking-widest text-white/40">
+            <tr><th className="p-3 text-left">Job</th><th className="p-3">Status</th><th className="p-3">Provider</th><th className="p-3">Error</th></tr>
+          </thead>
+          <tbody>
+            {jobs.slice(0, 20).map((j) => (
+              <tr key={j.id} className="border-t border-white/10">
+                <td className="p-3">{j.kind}</td>
+                <td className="p-3">{j.status}</td>
+                <td className="p-3">{j.provider}</td>
+                <td className="p-3 text-white/50">{j.error_message || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export function AdminPanel() {
   const [tab, setTab] = useState("overview");
   const [exportModal, setExportModal] = useState(false);
@@ -621,6 +669,7 @@ export function AdminPanel() {
                     <button onClick={() => setTab("broadcast")} className={`pb-2 border-b-2 transition-colors ${tab === "broadcast" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Broadcast</button>
                     <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit</button>
                     <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match</button>
+                    <button onClick={() => setTab("discovery")} className={`pb-2 border-b-2 transition-colors ${tab === "discovery" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Discovery</button>
                     <button onClick={() => setTab("referrals")} className={`pb-2 border-b-2 transition-colors ${tab === "referrals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Referrals</button>
                 </div>
             </div>
@@ -1120,6 +1169,10 @@ export function AdminPanel() {
         {/* TAB 7: MATCH ALGORITHM CONFIG */}
         {tab === "algorithm" && (
             <MatchAlgorithmConfig />
+        )}
+
+        {tab === "discovery" && (
+            <DiscoveryOps />
         )}
 
         {/* TAB 8: REFERRAL CONFIG */}

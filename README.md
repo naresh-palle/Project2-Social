@@ -10,6 +10,7 @@ Influencer marketplace — brands, creators, and agents.
 | API | https://project2-social.onrender.com/api |
 | GitHub Pages | https://naresh-palle.github.io/Project2-Social |
 | **Android APK** | https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk |
+| **Discover (brands)** | https://project2-social.onrender.com/#/discover |
 
 Demo: `company@cr8.studio` / `creator@cr8.studio` / `demo1234`
 

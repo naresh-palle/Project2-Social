@@ -296,6 +296,9 @@ function OwnerPanel() {
               </div>
             </div>
           )}
+          <Link to="/discover" className="btn-pill py-1.5 px-3 text-xs">
+            Discover
+          </Link>
           <Link to="/campaigns/new" className="btn-solid py-1.5 px-3 text-xs bg-[#FF3B30] text-white">
             + New Campaign
           </Link>

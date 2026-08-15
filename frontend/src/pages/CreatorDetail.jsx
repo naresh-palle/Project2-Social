@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { api } from "@/lib/api";
@@ -15,12 +15,21 @@ export default function CreatorDetail() {
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartRange, setChartRange] = useState(6);
+  const [intel, setIntel] = useState(null);
+  const [tab, setTab] = useState("overview");
+  const [research, setResearch] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
         const { data } = await api.get(`/creators/${id}`);
         setCreator(withDirectoryMedia(data));
+        try {
+          const intelRes = await api.get(`/creators/${id}/intelligence`);
+          setIntel(intelRes.data);
+        } catch {
+          setIntel(null);
+        }
       } catch {
         toast.error("Failed to load influencer");
         nav("/marketplace");
@@ -99,6 +108,41 @@ export default function CreatorDetail() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-3">
+          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
+            try { await api.post("/discover/shortlist", { creator_id: creator.id, action: "add" }); toast.success("Shortlisted"); }
+            catch { toast.error("Shortlist requires a brand login"); }
+          }}>Shortlist</button>
+          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
+            try {
+              const { data } = await api.post(`/creators/${creator.id}/deep-research`, {});
+              setResearch(data.report); setTab("research");
+            } catch { toast.error("Deep Research failed"); }
+          }}>Deep Research</button>
+          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
+            try {
+              const { data } = await api.post(`/creators/${creator.id}/refresh`, {});
+              toast.message(data.message || (data.ok ? "Refresh queued" : "Data source not configured"));
+            } catch { toast.error("Refresh failed"); }
+          }}>Refresh data</button>
+          <Link to="/discover" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">Discover</Link>
+        </div>
+        {intel?.quality && (
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mt-3">
+            {["engagement_quality", "audience_quality", "content_quality", "growth", "authenticity", "brand_safety"].map((k) => (
+              <div key={k} className="rounded-xl border border-white/10 bg-white/5 p-2">
+                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{k.replace(/_/g, " ")}</div>
+                <div className="font-sans text-lg font-bold">{intel.quality.breakdown?.[k] ?? "Data unavailable"}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2 mt-3 font-mono text-[9px] uppercase tracking-widest">
+          {["overview", "analytics", "audience", "research"].map((t) => (
+            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent text-white/45"}`}>{t}</button>
+          ))}
         </div>
       </div>
 
@@ -286,6 +330,19 @@ export default function CreatorDetail() {
           )}
         </div>
       </div>
+
+      {tab === "research" && (
+        <section className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <h3 className="font-mono text-[10px] uppercase tracking-widest text-white/45 mb-2">Deep Research</h3>
+          {!research ? <p className="text-sm text-white/50">Run Deep Research to generate an evidence-based report from stored catalog data.</p> : (
+            <div className="space-y-3 text-sm">
+              <p>{research.recommendation}</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{research.disclaimer}</p>
+              <pre className="whitespace-pre-wrap text-xs text-white/70 overflow-auto">{JSON.stringify({ overview: research.overview, performance: research.performance, risk: research.risk }, null, 2)}</pre>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
