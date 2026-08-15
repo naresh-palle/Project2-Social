@@ -66,3 +66,18 @@ npx gh-pages -d build
 | `npm run deploy` | Runs Render sync then GH Pages publish |
 
 Do not skip Render wait or GH Pages when the user asks for a full deploy.
+
+## 6. Mobile / every app build
+
+If `mobile/` changed, or the user asked to build/share the Android app, follow
+`.agents/skills/flutter-app-build/SKILL.md` before marking the task complete:
+
+1. Keep influencer Home as `CreatorStudioView` (do not regress the premium dashboard).
+2. `bash mobile/scripts/build_apk.sh` (also runs `share_apk.sh`).
+3. Confirm `/opt/cursor/artifacts/cr8-studio-release.apk` exists on cloud runs.
+4. Include the APK on GitHub Pages (`cd frontend && npm run deploy:gh-pages`) so
+   https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk is current.
+5. Never commit `*.apk` or a downgraded `mobile/pubspec.lock`.
+
+If only mobile files changed, skip waiting for a new web JS hash unless
+`frontend/` also changed. Still push `main` and still share the APK.

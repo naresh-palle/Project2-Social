@@ -9,6 +9,7 @@ Influencer marketplace — brands, creators, and agents.
 | **App (primary)** | https://project2-social.onrender.com |
 | API | https://project2-social.onrender.com/api |
 | GitHub Pages | https://naresh-palle.github.io/Project2-Social |
+| **Android APK** | https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk |
 
 Demo: `company@cr8.studio` / `creator@cr8.studio` / `demo1234`
 
@@ -60,3 +61,5 @@ Or open the zombie run URL above → **Cancel workflow**, then cancel any other 
 - `scripts/unblock-github-pages.sh` — cancel stuck Pages Actions (needs owner `gh`)
 - `.agents/skills/post-change-workflow/` — required agent deploy checklist
 - `.agents/skills/deploy-render-gh-pages/` — Render + Pages deploy skill
+- `.agents/skills/flutter-app-build/` — every mobile build: Creator Studio UI + share APK
+- `mobile/scripts/build_apk.sh` — release APK, then copy to `mobile/dist/` and artifacts

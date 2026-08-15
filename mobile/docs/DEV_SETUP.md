@@ -14,7 +14,13 @@ flutter build apk --release --dart-define=API_BASE=https://project2-social.onren
 bash scripts/build_apk.sh
 ```
 
-Prebuilt APK (when available): agent artifact `cr8-studio-release.apk`.
+Prebuilt APK (when available):
+
+- Cursor artifact: `cr8-studio-release.apk`
+- GitHub Pages: https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk
+- After a local build: `mobile/dist/cr8-studio-release.apk`
+
+Every app build must follow `.agents/skills/flutter-app-build/SKILL.md` (premium Creator Studio Home + share the APK).
 
 ## Your own Windows PC (local Cursor terminal)
 
