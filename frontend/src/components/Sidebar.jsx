@@ -89,7 +89,7 @@ export function Sidebar() {
       initial={{ x: -250, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 h-screen w-64 bg-[#0B0B0E] border-r border-white/10 flex flex-col z-50 overflow-y-auto no-scrollbar"
+      className="fixed top-0 left-0 h-screen w-64 bg-[#0B0B0E] border-r border-white/10 flex flex-col z-50 overflow-y-auto no-scrollbar font-sans"
     >
       <div className="p-4">
         <Link
@@ -98,7 +98,7 @@ export function Sidebar() {
         >
           <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">CR</span>
           <span className="font-editorial text-2xl leading-[1.15] text-[#FF3B30]">8</span>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 ml-2">Studio</span>
+          <span className="font-sans text-[11px] font-semibold tracking-[0.22em] uppercase text-white/50 ml-2">Studio</span>
         </Link>
 
         <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">
@@ -116,11 +116,11 @@ export function Sidebar() {
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#34C759] border-2 border-[#0B0B0E] rounded-full"></div>
           </div>
 
-          <h3 className="font-sans font-bold text-sm text-white flex items-center gap-1 justify-center leading-tight">
+          <h3 className="font-sans font-bold text-[15px] tracking-tight text-white flex items-center gap-1 justify-center leading-tight">
             {displayAccountName(user)}
-            {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5" />}
+            {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5" tone="brand" />}
           </h3>
-          <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#FF3B30] mt-0.5">
+          <p className="font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-[#FF3B30] mt-1">
             {user?.role === "admin"
               ? "Admin Console"
               : user?.role === "owner"
@@ -134,14 +134,14 @@ export function Sidebar() {
           {(() => {
             if (user?.role === "admin") {
               return (
-                <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+                <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
                   Ops Desk
                 </p>
               );
             }
             if (isSupportOps) {
               return (
-                <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+                <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
                   Support Operations
                 </p>
               );
@@ -158,24 +158,24 @@ export function Sidebar() {
             const city = (user?.city || user?.location || "").trim() || null;
             if (!category && !city) return null;
             return (
-              <p className="font-sans text-[10px] opacity-60 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+              <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
                 {[category, city].filter(Boolean).join(" · ")}
               </p>
             );
           })()}
-          <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/5 mt-1.5">
-            <div className="w-1 h-1 rounded-full bg-[#34C759]" />
-            <span className="font-mono text-[8px] uppercase tracking-widest opacity-80">Status: Online</span>
+          <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 mt-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
+            <span className="font-sans text-[10px] font-medium text-white/70">Online</span>
           </div>
         </div>
 
         <form onSubmit={handleSearch} className="relative mb-4">
-          <AiIcon name="search" className="w-3.5 h-3.5 absolute left-3 top-2.5" tone="muted" />
+          <AiIcon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" tone="muted" />
           <input
             name="search"
             type="text"
-            placeholder="Search..."
-            className="w-full bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-[10px] uppercase tracking-widest font-mono text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+            placeholder="Search…"
+            className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-[13px] font-sans font-medium text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
           />
         </form>
 
@@ -186,13 +186,13 @@ export function Sidebar() {
               <Link
                 key={it.to}
                 to={it.to}
-                className={`font-mono text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
+                className={`font-sans text-[13px] tracking-tight px-3.5 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
                   isActive
-                    ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-bold"
-                    : "text-white/60 hover:text-white hover:bg-white/10"
+                    ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-semibold"
+                    : "text-white/65 hover:text-white hover:bg-white/10 font-medium"
                 }`}
               >
-                <AiIcon name={it.icon} className="w-4 h-4 shrink-0" tone="white" />
+                <AiIcon name={it.icon} className="w-[18px] h-[18px] shrink-0" tone="white" />
                 {it.label}
               </Link>
             );
@@ -205,19 +205,19 @@ export function Sidebar() {
           <div className="flex flex-col gap-1.5">
             <Link
               to="/support"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
               aria-label="Support"
             >
               <AiIcon name="support" className="w-5 h-5" tone="white" />
-              <span className="font-mono text-[10px] tracking-[0.18em] uppercase">Support</span>
+              <span className="font-sans text-[13px] font-medium tracking-tight">Support</span>
             </Link>
             <Link
               to="/help"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
               aria-label="AI Help"
             >
               <AiIcon name="ai" className="w-5 h-5" tone="white" />
-              <span className="font-mono text-[10px] tracking-[0.18em] uppercase">AI Help</span>
+              <span className="font-sans text-[13px] font-medium tracking-tight">AI Help</span>
             </Link>
           </div>
         )}
