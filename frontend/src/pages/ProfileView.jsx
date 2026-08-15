@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Image as ImageIcon, Video as VideoIcon,
-  ShieldCheck, MapPin, CheckCircle2, Sparkles
+  ShieldCheck, CheckCircle2, ExternalLink
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -213,129 +213,133 @@ export default function ProfileView() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-7 space-y-4">
-          <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-2">About</h3>
-            <p className="font-sans text-sm leading-relaxed text-white/85 mb-3">
-              {profile.bio || "No bio provided."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {languagesList.map((lang) => (
-                <span key={lang} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 font-mono text-[9px] uppercase tracking-widest text-white/60">
-                  {lang}
-                </span>
-              ))}
-              {categoriesList.map((cat) => (
-                <span key={cat} className="px-2 py-0.5 rounded-full bg-[#FF3B30]/10 border border-[#FF3B30]/20 font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">
-                  {cat}
-                </span>
-              ))}
-              {contentTypesList.map((ct) => (
-                <span key={ct} className="px-2 py-0.5 rounded-full bg-[#0A84FF]/10 border border-[#0A84FF]/20 font-mono text-[9px] uppercase tracking-widest text-[#0A84FF]">
-                  {ct}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          {isInfluencer && pastCampaigns.length > 0 && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-2">Past campaigns</h3>
-              <div className="space-y-1.5">
-                {pastCampaigns.map((c, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
-                    <span className="font-sans text-sm text-white truncate">
-                      {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
+      <div className="flex flex-col gap-4 min-w-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start min-w-0">
+          <div className="lg:col-span-7 min-w-0 space-y-4">
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
+              <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">About</h3>
+              <p className="font-sans text-sm leading-relaxed text-white/85 break-words">
+                {profile.bio || "No bio provided."}
+              </p>
+              {(languagesList.length > 0 || categoriesList.length > 0 || contentTypesList.length > 0) && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {languagesList.map((lang) => (
+                    <span key={lang} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 font-sans text-[9px] uppercase tracking-widest text-white/60">
+                      {lang}
                     </span>
-                    {(c?.brand || c?.year) && (
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 shrink-0">
-                        {[c.brand, c.year].filter(Boolean).join(" · ")}
+                  ))}
+                  {categoriesList.map((cat) => (
+                    <span key={cat} className="px-2 py-0.5 rounded-full bg-[#FF3B30]/10 border border-[#FF3B30]/20 font-sans text-[9px] uppercase tracking-widest text-[#FF3B30]">
+                      {cat}
+                    </span>
+                  ))}
+                  {contentTypesList.map((ct) => (
+                    <span key={ct} className="px-2 py-0.5 rounded-full bg-[#0A84FF]/10 border border-[#0A84FF]/20 font-sans text-[9px] uppercase tracking-widest text-[#0A84FF]">
+                      {ct}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {isInfluencer && pastCampaigns.length > 0 && (
+              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
+                <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">Past campaigns</h3>
+                <div className="space-y-1.5">
+                  {pastCampaigns.map((c, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
+                      <span className="font-sans text-sm text-white truncate">
+                        {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
                       </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3">Portfolio</h3>
-              {portfolioImages.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
-                    <ImageIcon className="w-3 h-3 text-[#FF3B30]" /> Images
-                  </div>
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                    {portfolioImages.map((media, i) => (
-                      <div key={i} className="aspect-square rounded-lg border border-white/10 overflow-hidden bg-black/50">
-                        <img src={media} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {portfolioVideos.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
-                    <VideoIcon className="w-3 h-3 text-[#FF3B30]" /> Videos
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {portfolioVideos.map((media, i) => (
-                      <div key={i} className="aspect-video rounded-lg border border-white/10 overflow-hidden bg-black/50">
-                        <video src={media} controls className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
-        </div>
-
-        <div className="lg:col-span-5 space-y-4">
-          {isInfluencer && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
-                <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full">
-                  {formatNumber(totalReach)} reach
-                </span>
-              </div>
-              <div className="space-y-2">
-                {SOCIAL_PLATFORMS.map((key) => {
-                  const data = rawPlatforms[key] || {};
-                  const connected = hasPlatformHandle(data);
-                  return (
-                    <div key={key} className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold">
-                          {SOCIAL_PLATFORM_LABELS[key] || key}
+                      {(c?.brand || c?.year) && (
+                        <span className="font-sans text-[9px] uppercase tracking-widest text-white/40 shrink-0">
+                          {[c.brand, c.year].filter(Boolean).join(" · ")}
                         </span>
-                        <span className="font-mono text-[9px] truncate text-white/50 max-w-[45%]">
-                          {socialOrNA(data?.handle)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between font-sans text-sm">
-                        <span className="tabular-nums font-semibold">
-                          {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
-                          <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">
-                            {key === "youtube" ? "subs" : "followers"}
-                          </span>
-                        </span>
-                        <span className={`tabular-nums font-semibold ${connected ? "text-[#34C759]" : ""}`}>
-                          {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
-                          <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">ER</span>
-                        </span>
-                      </div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          <div className="lg:col-span-5 min-w-0">
+            {isInfluencer && (
+              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
+                <div className="flex items-center justify-between mb-3 gap-2">
+                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
+                  <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full shrink-0">
+                    {formatNumber(totalReach)} reach
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {SOCIAL_PLATFORMS.map((key) => {
+                    const data = rawPlatforms[key] || {};
+                    const connected = hasPlatformHandle(data);
+                    return (
+                      <div key={key} className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold">
+                            {SOCIAL_PLATFORM_LABELS[key] || key}
+                          </span>
+                          <span className="font-sans text-[9px] truncate text-white/50 max-w-[45%]">
+                            {socialOrNA(data?.handle)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-sans text-sm">
+                          <span className="tabular-nums font-semibold">
+                            {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
+                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">
+                              {key === "youtube" ? "subs" : "followers"}
+                            </span>
+                          </span>
+                          <span className={`tabular-nums font-semibold ${connected ? "text-[#34C759]" : ""}`}>
+                            {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
+                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">ER</span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
+
+        {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
+          <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden w-full min-w-0">
+            <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-3">Portfolio</h3>
+            {portfolioImages.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
+                  <ImageIcon className="w-3 h-3 text-[#FF3B30]" /> Images
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                  {portfolioImages.map((media, i) => (
+                    <div key={i} className="aspect-square rounded-lg border border-white/10 overflow-hidden bg-black/50 min-w-0">
+                      <img src={media} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {portfolioVideos.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
+                  <VideoIcon className="w-3 h-3 text-[#FF3B30]" /> Videos
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {portfolioVideos.map((media, i) => (
+                    <div key={i} className="aspect-video rounded-lg border border-white/10 overflow-hidden bg-black/50 min-w-0">
+                      <video src={media} controls className="w-full h-full object-cover block" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
