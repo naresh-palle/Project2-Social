@@ -113,18 +113,28 @@ export default function ProfileView() {
           </p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Profile</h1>
         </div>
-        <div className="flex flex-wrap gap-2 pr-20">
+        <div className="flex flex-wrap items-center gap-2 pr-20">
           <Link
             to={`/u/${profile.id}`}
-            className="btn-solid bg-white/10 text-white hover:bg-white/15 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm border border-white/15"
+            title="View as public profile"
+            aria-label="View as public profile"
+            className="group btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center justify-center gap-0 hover:gap-2 rounded-full p-2.5 hover:px-4 hover:py-2.5 text-sm shadow-lg shadow-[#FF3B30]/20 border border-[#FF3B30] transition-all duration-200"
           >
-            <ExternalLink className="w-3.5 h-3.5" /> View as public profile
+            <ExternalLink className="w-4 h-4 shrink-0" />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[16rem] group-hover:opacity-100 transition-all duration-200 font-mono text-[10px] font-bold uppercase tracking-widest">
+              View as public profile
+            </span>
           </Link>
           <Link
             to="/profile/edit"
-            className="btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm shadow-lg shadow-[#FF3B30]/20"
+            title="Edit"
+            aria-label="Edit profile"
+            className="group btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center justify-center gap-0 hover:gap-2 rounded-full p-2.5 hover:px-4 hover:py-2.5 text-sm shadow-lg shadow-[#FF3B30]/20 border border-[#FF3B30] transition-all duration-200"
           >
-            <Edit2 className="w-3.5 h-3.5" /> Edit
+            <Edit2 className="w-4 h-4 shrink-0" />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[6rem] group-hover:opacity-100 transition-all duration-200 font-mono text-[10px] font-bold uppercase tracking-widest">
+              Edit
+            </span>
           </Link>
         </div>
       </div>
