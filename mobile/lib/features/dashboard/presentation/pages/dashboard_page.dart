@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/network/cr8_api.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../widgets/creator_studio.dart';
 
 String adminUsernameLabel(Map<String, dynamic> u) {
   final raw = '${u['username'] ?? u['handle'] ?? ''}'.trim();
@@ -37,9 +39,13 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  Map<String, dynamic>? stats;
+  Map<String, dynamic> stats = {};
+  Map<String, dynamic> wallet = {};
   List<Map<String, dynamic>> items = [];
+  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> campaigns = [];
   bool loading = true;
+  int range = 7;
 
   @override
   void initState() {
@@ -59,12 +65,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       } else if (user.isOwner) {
         stats = await api.analyticsOwner();
         items = await api.campaigns(mine: true);
+        wallet = await api.wallet();
       } else if (user.isAgent) {
-        items = await api.creators();
+        items = await api.influencers();
         stats = {'creators': items.length};
       } else {
         stats = await api.analyticsCreator();
-        items = await api.myApplications();
+        wallet = await api.wallet();
+        final notif = await api.notifications();
+        notifications = ((notif['items'] as List?) ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+        campaigns = await api.matchCampaigns();
       }
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
@@ -76,7 +88,29 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    if (loading) return const LoadingScaffold(message: 'Loading dashboard…');
+    if (loading) return const LoadingScaffold(message: 'Opening studio…');
+
+    if (user?.isCreator == true) {
+      return Scaffold(
+        body: SafeArea(
+          child: RefreshIndicator(
+            color: Cr8Colors.accent,
+            onRefresh: _load,
+            child: CreatorStudioView(
+              user: user!,
+              stats: stats,
+              wallet: wallet,
+              notifications: notifications,
+              campaigns: campaigns,
+              range: range,
+              onRangeChanged: (v) => setState(() => range = v),
+              onOpenMenu: () => ref.read(scaffoldKeyProvider).currentState?.openDrawer(),
+            ),
+          ),
+        ),
+      );
+    }
+
     final isAdmin = user?.isAdmin == true;
     return Scaffold(
       appBar: AppBar(
@@ -94,9 +128,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Welcome, ${user?.displayName ?? ''}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontStyle: FontStyle.italic)),
+            Text(
+              'Welcome, ${user?.displayName ?? ''}',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontStyle: FontStyle.italic),
+            ),
             const SizedBox(height: 12),
-            if (stats != null) _StatsGrid(stats: stats!),
+            if (stats.isNotEmpty) _StatsGrid(stats: stats),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
@@ -116,9 +153,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ? 'User Management'
                   : user?.isOwner == true
                       ? 'Your campaigns'
-                      : user?.isInfluencer == true
-                          ? 'Your applications'
-                          : 'Overview',
+                      : 'Overview',
             ),
             const SizedBox(height: 8),
             if (items.isEmpty)
@@ -197,16 +232,16 @@ class _AdminUserCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: banned
-                          ? Cr8Colors.accent.withValues(alpha: 0.4)
+                          ? Cr8Colors.accent.withOpacity( 0.4)
                           : pending
-                              ? Colors.orange.withValues(alpha: 0.4)
-                              : Cr8Colors.success.withValues(alpha: 0.4),
+                              ? Colors.orange.withOpacity( 0.4)
+                              : Cr8Colors.success.withOpacity( 0.4),
                     ),
                     color: banned
-                        ? Cr8Colors.accent.withValues(alpha: 0.08)
+                        ? Cr8Colors.accent.withOpacity( 0.08)
                         : pending
-                            ? Colors.orange.withValues(alpha: 0.08)
-                            : Cr8Colors.success.withValues(alpha: 0.08),
+                            ? Colors.orange.withOpacity( 0.08)
+                            : Cr8Colors.success.withOpacity( 0.08),
                   ),
                   child: Text(
                     status.toUpperCase(),
@@ -257,13 +292,17 @@ class _StatsGrid extends StatelessWidget {
       children: entries.map((e) {
         return Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(border: Border.all(color: Cr8Colors.hairline), color: Cr8Colors.surface),
+          decoration: BoxDecoration(
+            border: Border.all(color: Cr8Colors.hairline),
+            color: Cr8Colors.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(e.key.replaceAll('_', ' ').toUpperCase(), style: Theme.of(context).textTheme.labelSmall),
               const Spacer(),
-              Text('${e.value}', style: Theme.of(context).textTheme.headlineSmall),
+              Text('${e.value}', style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800)),
             ],
           ),
         );

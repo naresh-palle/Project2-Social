@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/domain/entities/user_entity.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/campaigns/presentation/pages/campaign_detail_page.dart';
+import '../../features/dashboard/presentation/pages/analytics_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/home_shell.dart';
 import '../../features/feed/presentation/pages/feed_page.dart';
@@ -108,10 +109,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(path: '/dashboard', builder: (_, __) => const DashboardPage()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
+            GoRoute(path: '/marketplace', builder: (_, __) => const MarketplacePage()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
+            GoRoute(path: '/analytics', builder: (_, __) => const AnalyticsPage()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/messages', builder: (_, __) => const ConversationsPage()),
@@ -121,7 +122,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           ]),
         ],
       ),
-      GoRoute(path: '/marketplace', builder: (_, __) => const MarketplacePage()),
+      GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
+      GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
       GoRoute(path: '/campaigns/new', builder: (_, __) => const NewCampaignPage()),
       GoRoute(
         path: '/campaigns/:id',

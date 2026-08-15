@@ -9,6 +9,8 @@ class Cr8Colors {
   static const text = Color(0xFFF4F4F0);
   static const accent = Color(0xFFFF3B30);
   static const success = Color(0xFF34C759);
+  static const warning = Color(0xFFFF9500);
+  static const info = Color(0xFF0A84FF);
   static const muted = Color(0x99F4F4F0);
   static const hairline = Color(0x26FFFFFF);
 }
@@ -51,7 +53,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Cr8Colors.bg.withValues(alpha: 0.9),
+        backgroundColor: Cr8Colors.bg.withOpacity(0.9),
         foregroundColor: Cr8Colors.text,
         elevation: 0,
         titleTextStyle: GoogleFonts.playfairDisplay(
@@ -109,11 +111,29 @@ class AppTheme {
         backgroundColor: Cr8Colors.surface,
         contentTextStyle: TextStyle(color: Cr8Colors.text),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Cr8Colors.bg,
-        selectedItemColor: Cr8Colors.accent,
-        unselectedItemColor: Cr8Colors.muted,
-        type: BottomNavigationBarType.fixed,
+        indicatorColor: Cr8Colors.accent,
+        elevation: 0,
+        height: 68,
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          final selected = states.contains(MaterialState.selected);
+          return GoogleFonts.manrope(
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? Cr8Colors.text : Cr8Colors.muted,
+          );
+        }),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          final selected = states.contains(MaterialState.selected);
+          return IconThemeData(color: selected ? Colors.white : Cr8Colors.muted, size: 22);
+        }),
+      ),
+      cardTheme: CardTheme(
+        color: Cr8Colors.surface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       ),
     );
   }

@@ -62,6 +62,7 @@ class UserEntity extends Equatable {
   final Map<String, dynamic> raw;
 
   bool get isInfluencer => role == 'influencer' || role == 'creator';
+  bool get isCreator => isInfluencer;
   bool get isOwner => role == 'owner';
   bool get isAgent => role == 'agent';
   bool get isAdmin => role == 'admin';

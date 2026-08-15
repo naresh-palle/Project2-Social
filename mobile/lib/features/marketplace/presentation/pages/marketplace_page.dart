@@ -38,7 +38,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
     try {
       final api = ref.read(cr8ApiProvider);
       final query = q.text.trim();
-      influencers = await api.creators(q: query.isEmpty ? null : query);
+      influencers = await api.influencers(q: query.isEmpty ? null : query);
       campaigns = await api.campaigns(q: query.isEmpty ? null : query);
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
@@ -73,8 +73,8 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
                 : TabBarView(
                     controller: _tabs,
                     children: [
-                      _list(creators, isInfluencer: true),
-                      _list(campaigns, isInfluencer: false),
+                      _list(influencers, isCreator: true),
+                      _list(campaigns, isCreator: false),
                     ],
                   ),
           ),
@@ -95,7 +95,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
             leading: CircleAvatar(backgroundImage: it['avatar'] != null ? NetworkImage('${it['avatar']}') : null, child: it['avatar'] == null ? const Icon(Icons.person) : null),
             title: Text('${it['name'] ?? it['title'] ?? 'Untitled'}'),
             subtitle: Text('${it['handle'] ?? it['brand'] ?? it['city'] ?? ''}'),
-            onTap: () => context.push(isInfluencer ? '/creators/${it['id']}' : '/campaigns/${it['id']}'),
+            onTap: () => context.push(isCreator ? '/creators/${it['id']}' : '/campaigns/${it['id']}'),
           );
         },
       ),

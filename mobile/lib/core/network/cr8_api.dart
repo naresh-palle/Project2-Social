@@ -17,6 +17,9 @@ class Cr8Api {
     return _list(res.data);
   }
 
+  Future<List<Map<String, dynamic>>> creators({String? niche, String? q}) =>
+      influencers(niche: niche, q: q);
+
   Future<Map<String, dynamic>> creator(String id) async {
     final res = await _client.get('/creators/$id');
     return Map<String, dynamic>.from(res.data as Map);
