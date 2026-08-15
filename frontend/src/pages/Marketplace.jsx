@@ -65,7 +65,7 @@ function DirectoryMediaTile({ src, fallbackSrc = "", className = "", priority = 
           preload="metadata"
           onError={onFail}
         />
-        <span className="pointer-events-none absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.16em] uppercase text-white/90">
+        <span className="theme-keep-dark pointer-events-none absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.16em] uppercase text-white/90">
           <Play className="w-2.5 h-2.5 fill-current" /> Reel
         </span>
       </div>
@@ -149,7 +149,7 @@ function CreatorDirectoryCard({ creator, index }) {
           </div>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 to-transparent" />
           {top.label ? (
-            <span className="pointer-events-none absolute top-1.5 left-1.5 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.14em] uppercase text-white/90 rounded-full">
+            <span className="theme-keep-dark pointer-events-none absolute top-1.5 left-1.5 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.14em] uppercase text-white/90 rounded-full">
               {top.label}
             </span>
           ) : null}

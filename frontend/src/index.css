@@ -346,26 +346,67 @@ html.theme-light .text-\[\#F4F4F0\]\/80,
 html.theme-light .text-\[\#F4F4F0\]\/75 { color: rgba(10, 10, 10, 0.8) !important; }
 html.theme-light .text-white\/70,
 html.theme-light .text-\[\#F4F4F0\]\/70 { color: rgba(10, 10, 10, 0.72) !important; }
+html.theme-light .text-white\/65,
+html.theme-light .text-\[\#F4F4F0\]\/65 { color: rgba(10, 10, 10, 0.68) !important; }
 html.theme-light .text-white\/60,
 html.theme-light .text-\[\#F4F4F0\]\/60 { color: rgba(10, 10, 10, 0.62) !important; }
+html.theme-light .text-white\/55,
+html.theme-light .text-\[\#F4F4F0\]\/55 { color: rgba(10, 10, 10, 0.58) !important; }
 html.theme-light .text-white\/50,
 html.theme-light .text-\[\#F4F4F0\]\/50,
 html.theme-light .text-\[\#F4F4F0\]\/45 { color: rgba(10, 10, 10, 0.55) !important; }
-html.theme-light .text-white\/40 { color: rgba(10, 10, 10, 0.48) !important; }
-html.theme-light .text-white\/30 { color: rgba(10, 10, 10, 0.4) !important; }
+html.theme-light .text-white\/45 { color: rgba(10, 10, 10, 0.52) !important; }
+html.theme-light .text-white\/40,
+html.theme-light .text-\[\#F4F4F0\]\/40 { color: rgba(10, 10, 10, 0.48) !important; }
+html.theme-light .text-white\/35,
+html.theme-light .text-\[\#F4F4F0\]\/35 { color: rgba(10, 10, 10, 0.45) !important; }
+html.theme-light .text-white\/30,
+html.theme-light .text-white\/25,
+html.theme-light .text-\[\#F4F4F0\]\/25 { color: rgba(10, 10, 10, 0.4) !important; }
+html.theme-light .text-white\/20,
+html.theme-light .text-white\/15,
+html.theme-light .text-\[\#F4F4F0\]\/15 { color: rgba(10, 10, 10, 0.36) !important; }
 html.theme-light .hover\:text-white:hover { color: var(--fg) !important; }
+html.theme-light .hover\:text-white\/90:hover { color: rgba(10, 10, 10, 0.92) !important; }
+html.theme-light .hover\:text-white\/80:hover { color: rgba(10, 10, 10, 0.8) !important; }
+html.theme-light .group:hover .group-hover\:text-\[\#F4F4F0\]\/70 {
+    color: rgba(10, 10, 10, 0.72) !important;
+}
 html.theme-light .placeholder\:opacity-50::placeholder,
+html.theme-light .placeholder-white\/40::placeholder,
+html.theme-light .placeholder-white\/30::placeholder,
+html.theme-light .placeholder\:text-white\/35::placeholder,
+html.theme-light .placeholder\:text-white\/40::placeholder,
 html.theme-light input::placeholder,
 html.theme-light textarea::placeholder {
     color: var(--fg-subtle) !important;
     opacity: 1 !important;
 }
 
+/* White AI glyphs (transparent PNGs) → ink on cream; stay white on brand fills */
+html.theme-light img.ai-icon,
+html.theme-light img[src*="/icons/"] {
+    filter: invert(1);
+}
+html.theme-light .bg-\[\#FF3B30\] img.ai-icon,
+html.theme-light .bg-\[\#FF3B30\] img[src*="/icons/"],
+html.theme-light .bg-\[\#e03126\] img.ai-icon,
+html.theme-light .bg-\[\#007AFF\] img.ai-icon,
+html.theme-light .btn-solid img.ai-icon,
+html.theme-light .btn-sm-solid img.ai-icon,
+html.theme-light .theme-keep-dark img.ai-icon,
+html.theme-light .theme-keep-dark img[src*="/icons/"] {
+    filter: none;
+}
+
 /* Muted labels: opacity utilities alone wash out on light paper — boost readability */
 html.theme-light .opacity-30 { opacity: 0.52 !important; }
 html.theme-light .opacity-40 { opacity: 0.58 !important; }
+html.theme-light .opacity-45 { opacity: 0.6 !important; }
 html.theme-light .opacity-50 { opacity: 0.66 !important; }
+html.theme-light .opacity-55 { opacity: 0.7 !important; }
 html.theme-light .opacity-60 { opacity: 0.74 !important; }
+html.theme-light .opacity-65 { opacity: 0.78 !important; }
 html.theme-light .opacity-70 { opacity: 0.82 !important; }
 
 /* Keep white text on solid brand fills */
@@ -480,26 +521,51 @@ html.theme-light .theme-keep-dark.bg-black {
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\],
 html.theme-light .theme-keep-dark .text-white,
 html.theme-light .theme-keep-dark .text-white\/90,
+html.theme-light .theme-keep-dark .text-white\/85,
 html.theme-light .theme-keep-dark .text-white\/80,
 html.theme-light .theme-keep-dark .text-white\/70,
+html.theme-light .theme-keep-dark .text-white\/65,
 html.theme-light .theme-keep-dark .text-white\/60,
+html.theme-light .theme-keep-dark .text-white\/55,
 html.theme-light .theme-keep-dark .text-white\/50,
+html.theme-light .theme-keep-dark .text-white\/45,
 html.theme-light .theme-keep-dark .text-white\/40,
+html.theme-light .theme-keep-dark .text-white\/35,
+html.theme-light .theme-keep-dark .text-white\/30,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/90,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/80,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/75,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/70,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/65,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/60,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/55,
 html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/50,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/45 {
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/45,
+html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/40 {
     color: #F4F4F0 !important;
 }
 html.theme-light .theme-keep-dark .opacity-30,
 html.theme-light .theme-keep-dark .opacity-40,
+html.theme-light .theme-keep-dark .opacity-45,
 html.theme-light .theme-keep-dark .opacity-50,
+html.theme-light .theme-keep-dark .opacity-55,
 html.theme-light .theme-keep-dark .opacity-60,
+html.theme-light .theme-keep-dark .opacity-65,
 html.theme-light .theme-keep-dark .opacity-70 {
     opacity: revert !important;
+}
+html.theme-light .theme-keep-dark .bg-black\/20,
+html.theme-light .theme-keep-dark .bg-black\/30,
+html.theme-light .theme-keep-dark .bg-black\/40,
+html.theme-light .theme-keep-dark .bg-black\/45,
+html.theme-light .theme-keep-dark .bg-black\/50,
+html.theme-light .theme-keep-dark .bg-black\/55,
+html.theme-light .theme-keep-dark .bg-black\/60 {
+    background-color: rgba(0, 0, 0, 0.45) !important;
+}
+html.theme-light .theme-keep-dark .hover\:text-white:hover,
+html.theme-light .theme-keep-dark .hover\:text-white\/80:hover {
+    color: #F4F4F0 !important;
 }
 html.theme-light .theme-keep-dark .bg-white\/\[0\.02\],
 html.theme-light .theme-keep-dark .bg-white\/\[0\.03\],

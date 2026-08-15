@@ -213,7 +213,7 @@ export default function CreatorDetail() {
                   isVideoUrl(media) ? (
                     <div key={i} className="relative w-full aspect-video overflow-hidden bg-black/40 rounded-lg border border-white/10">
                       <video src={media} className="w-full h-full object-cover" muted loop playsInline autoPlay preload="metadata" />
-                      <span className="absolute bottom-1.5 left-1.5 font-mono text-[8px] tracking-widest uppercase bg-black/55 px-1.5 py-0.5 rounded">Reel</span>
+                      <span className="theme-keep-dark absolute bottom-1.5 left-1.5 font-mono text-[8px] tracking-widest uppercase bg-black/55 px-1.5 py-0.5 rounded text-white">Reel</span>
                     </div>
                   ) : (
                     <img key={i} src={media} alt="" className="w-full aspect-square object-cover rounded-lg border border-white/10" />

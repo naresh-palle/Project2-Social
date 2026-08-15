@@ -443,7 +443,7 @@ function CampaignCard({ campaign: c, index: idx }) {
       transition={{ duration: 0.4, delay: idx * 0.05 }}
       className="border border-white/15 bg-[#121212] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF3B30]/40 transition-colors"
     >
-      <div className="relative h-36 overflow-hidden">
+      <div className="theme-keep-dark relative h-36 overflow-hidden">
         <img src={c.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
@@ -495,7 +495,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
     <motion.article
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative w-full aspect-[9/16] max-h-[min(52vh,420px)] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-xl shadow-black/30"
+      className="theme-keep-dark relative w-full aspect-[9/16] max-h-[min(52vh,420px)] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-xl shadow-black/30"
     >
       {isVideo ? (
         <video

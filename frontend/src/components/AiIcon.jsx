@@ -58,7 +58,7 @@ export function AiIcon({
       alt={alt}
       title={title}
       draggable={false}
-      className={`inline-block shrink-0 object-contain ${toneClass} ${className}`}
+      className={`ai-icon inline-block shrink-0 object-contain ${toneClass} ${className}`}
       {...rest}
     />
   );

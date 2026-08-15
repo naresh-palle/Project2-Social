@@ -332,7 +332,7 @@ function OwnerPanel() {
                   </span>
                 </div>
 
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-2 group/media cursor-pointer">
+                <div className="theme-keep-dark relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-2 group/media cursor-pointer">
                   <img src={work.workImage} alt={work.workTitle} className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-700 opacity-90" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between gap-2">
