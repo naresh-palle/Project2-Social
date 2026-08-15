@@ -91,15 +91,27 @@ export default function ProfileView() {
     if (!hasPlatformHandle(p)) return acc;
     return acc + (Number(p?.followers || p?.subscribers) || 0);
   }, 0);
-  const categoriesList = Array.isArray(profile.category)
-    ? profile.category
-    : (profile.category ? String(profile.category).split(", ").filter(Boolean) : []);
-  const languagesList = Array.isArray(profile.languages) ? profile.languages : [];
-  const contentTypesList = Array.isArray(profile.content_types) ? profile.content_types : [];
+  const categoriesList = uniqueLabels([
+    ...(Array.isArray(profile.category) ? profile.category : (profile.category ? String(profile.category).split(/[,|]/) : [])),
+    ...(Array.isArray(profile.niches) ? profile.niches : (profile.niches ? String(profile.niches).split(/[,|]/) : [])),
+  ]);
+  const languagesList = uniqueLabels(profile.languages);
+  const contentTypesList = uniqueLabels(profile.content_types);
   const portfolioItems = profile.portfolio || [];
   const portfolioVideos = portfolioItems.filter((item) => item && /\.(mp4|webm|ogg)$/i.test(item));
   const portfolioImages = portfolioItems.filter((item) => item && !/\.(mp4|webm|ogg)$/i.test(item));
-  const pastCampaigns = (profile.past_campaigns || []).slice(0, 5);
+  const pastCampaigns = (profile.past_campaigns || []).filter((c) => {
+    if (!c) return false;
+    if (typeof c === "string") return Boolean(c.trim());
+    return Boolean(c.title || c.name || c.brand);
+  }).slice(0, 5);
+  const connectedPlatforms = SOCIAL_PLATFORMS.filter((key) => hasPlatformHandle(rawPlatforms[key] || {}));
+  const engagementVals = connectedPlatforms
+    .map((key) => Number(rawPlatforms[key]?.engagement))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const avgEngagement = engagementVals.length
+    ? engagementVals.reduce((a, b) => a + b, 0) / engagementVals.length
+    : null;
   const displayName = displayAccountName(profile, "Profile");
   const roleLabel = profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer";
   const locationLabel = profile.city || profile.state
@@ -214,58 +226,104 @@ export default function ProfileView() {
       </div>
 
       <div className="flex flex-col gap-4 min-w-0">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start min-w-0">
-          <div className="lg:col-span-7 min-w-0 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch min-w-0">
+          <div className="lg:col-span-7 min-w-0 flex flex-col gap-4">
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
               <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">About</h3>
               <p className="font-sans text-sm leading-relaxed text-white/85 break-words">
                 {profile.bio || "No bio provided."}
               </p>
-              {(languagesList.length > 0 || categoriesList.length > 0 || contentTypesList.length > 0) && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {languagesList.map((lang) => (
-                    <span key={lang} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 font-sans text-[9px] uppercase tracking-widest text-white/60">
-                      {lang}
-                    </span>
-                  ))}
-                  {categoriesList.map((cat) => (
-                    <span key={cat} className="px-2 py-0.5 rounded-full bg-[#FF3B30]/10 border border-[#FF3B30]/20 font-sans text-[9px] uppercase tracking-widest text-[#FF3B30]">
-                      {cat}
-                    </span>
-                  ))}
-                  {contentTypesList.map((ct) => (
-                    <span key={ct} className="px-2 py-0.5 rounded-full bg-[#0A84FF]/10 border border-[#0A84FF]/20 font-sans text-[9px] uppercase tracking-widest text-[#0A84FF]">
-                      {ct}
-                    </span>
-                  ))}
-                </div>
-              )}
             </section>
 
-            {isInfluencer && pastCampaigns.length > 0 && (
-              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
-                <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">Past campaigns</h3>
-                <div className="space-y-1.5">
-                  {pastCampaigns.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
-                      <span className="font-sans text-sm text-white truncate">
-                        {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
-                      </span>
-                      {(c?.brand || c?.year) && (
-                        <span className="font-sans text-[9px] uppercase tracking-widest text-white/40 shrink-0">
-                          {[c.brand, c.year].filter(Boolean).join(" · ")}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+            {isInfluencer && (
+              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden flex-1">
+                <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-3">Highlights</h3>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <StatTile label="Total reach" value={formatNumber(totalReach)} />
+                  <StatTile
+                    label="Avg engagement"
+                    value={avgEngagement != null ? `${avgEngagement.toFixed(1)}%` : "—"}
+                    accent={avgEngagement != null}
+                  />
+                  <StatTile label="Platforms" value={`${connectedPlatforms.length}/${SOCIAL_PLATFORMS.length}`} />
+                  <StatTile label="Portfolio" value={String(portfolioItems.length)} />
                 </div>
+
+                <h4 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">Collaboration</h4>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Base rate</p>
+                    <p className="font-sans text-lg font-bold text-[#FF3B30] tabular-nums">
+                      {profile.base_rate ? `$${Number(profile.base_rate).toLocaleString()}` : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Availability</p>
+                    <p className="font-sans text-lg font-semibold">{profile.availability || "—"}</p>
+                  </div>
+                </div>
+
+                <ChipRow
+                  label="Niches"
+                  items={categoriesList}
+                  href="/profile/edit#sec-niche"
+                  empty="Add niches"
+                />
+                <ChipRow
+                  label="Content"
+                  items={contentTypesList}
+                  href="/profile/edit#sec-content-types"
+                  empty="Add content types"
+                  tone="blue"
+                />
+                <ChipRow
+                  label="Languages"
+                  items={languagesList}
+                  href="/profile/edit#sec-niche"
+                  empty="Add languages"
+                  tone="muted"
+                />
+              </section>
+            )}
+
+            {isInfluencer && (
+              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Past campaigns</h3>
+                  <Link to="/profile/edit#sec-campaigns" className="font-sans text-[10px] text-[#FF3B30] hover:underline shrink-0">
+                    {pastCampaigns.length ? "Edit" : "Add"}
+                  </Link>
+                </div>
+                {pastCampaigns.length > 0 ? (
+                  <div className="space-y-1.5">
+                    {pastCampaigns.map((c, i) => (
+                      <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
+                        <span className="font-sans text-sm text-white truncate">
+                          {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
+                        </span>
+                        {(c?.brand || c?.year || c?.date || c?.result) && (
+                          <span className="font-sans text-[9px] uppercase tracking-widest text-white/40 shrink-0">
+                            {[c.brand, c.year || c.date, c.result].filter(Boolean).join(" · ")}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-4">
+                    <p className="font-sans text-sm text-white/70">No brand work on file yet.</p>
+                    <Link to="/profile/edit#sec-campaigns" className="font-sans text-[11px] text-[#FF3B30] hover:underline mt-1 inline-block">
+                      Add campaign history →
+                    </Link>
+                  </div>
+                )}
               </section>
             )}
           </div>
 
           <div className="lg:col-span-5 min-w-0">
             {isInfluencer && (
-              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
+              <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden h-full">
                 <div className="flex items-center justify-between mb-3 gap-2">
                   <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
                   <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full shrink-0">
@@ -350,6 +408,56 @@ function Meta({ label, value }) {
     <div className="min-w-0">
       <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
       <p className="font-sans text-sm text-white font-medium truncate" title={value}>{value}</p>
+    </div>
+  );
+}
+
+function uniqueLabels(val) {
+  const raw = Array.isArray(val) ? val : (val ? String(val).split(/[,|]/) : []);
+  const seen = new Set();
+  const out = [];
+  for (const item of raw) {
+    const t = String(item || "").trim();
+    if (!t) continue;
+    const key = t.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+  }
+  return out;
+}
+
+function StatTile({ label, value, accent = false }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
+      <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#34C759]" : "text-white"}`}>{value}</p>
+    </div>
+  );
+}
+
+function ChipRow({ label, items, href, empty, tone = "default" }) {
+  const toneClass = tone === "blue"
+    ? "bg-[#0A84FF]/10 border-[#0A84FF]/20 text-[#0A84FF]"
+    : tone === "muted"
+      ? "bg-white/5 border-white/10 text-white/60"
+      : "bg-[#FF3B30]/10 border-[#FF3B30]/20 text-[#FF3B30]";
+  return (
+    <div className="mb-2 last:mb-0">
+      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-1">{label}</p>
+      {items.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {items.map((item) => (
+            <span key={item} className={`px-2 py-0.5 rounded-full border font-sans text-[9px] uppercase tracking-widest ${toneClass}`}>
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <Link to={href} className="font-sans text-[11px] text-white/45 hover:text-[#FF3B30] transition-colors">
+          {empty} →
+        </Link>
+      )}
     </div>
   );
 }
