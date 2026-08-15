@@ -4737,6 +4737,11 @@ async def on_startup():
             await _discovery_ensure_indexes()
     except Exception as e:
         logger.warning("discovery indexes failed: %s", e)
+    try:
+        if _invoice_ensure_indexes:
+            await _invoice_ensure_indexes()
+    except Exception as e:
+        logger.warning("invoice indexes failed: %s", e)
     logger.info("CR8 API ready.")
 
 
@@ -4824,6 +4829,23 @@ _discovery_ensure_indexes = setup_discovery(
     require_role=require_role,
     call_llm=call_llm,
     parse_json=parse_json,
+    logger=logger,
+)
+
+from invoice_features import setup_invoices  # noqa: E402
+
+_invoice_ensure_indexes = setup_invoices(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    call_llm=call_llm,
+    parse_json=parse_json,
+    send_email=send_email,
+    email_template=email_template,
+    write_audit_log=write_audit_log,
+    store_upload_bytes=store_upload_bytes,
+    load_upload_bytes=load_upload_bytes,
     logger=logger,
 )
 

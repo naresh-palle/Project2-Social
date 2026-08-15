@@ -23,6 +23,9 @@ import ProfileView from "@/pages/ProfileView";
 import Messages from "@/pages/Messages";
 import Invitations from "@/pages/Invitations";
 import Wallet from "@/pages/Wallet";
+import Billing from "@/pages/Billing";
+import InvoiceEditor from "@/pages/InvoiceEditor";
+import BillingSettings from "@/pages/BillingSettings";
 import { Navigate } from "react-router-dom";
 
 import Onboarding from "@/pages/Onboarding";
@@ -65,6 +68,11 @@ function App() {
               <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
               <Route path="/invitations" element={<RequireAuth><Invitations /></RequireAuth>} />
               <Route path="/wallet" element={<RequireAuth><Wallet /></RequireAuth>} />
+              <Route path="/billing/settings" element={<RequireAuth><BillingSettings /></RequireAuth>} />
+              <Route path="/billing/new" element={<RequireAuth><InvoiceEditor /></RequireAuth>} />
+              <Route path="/billing/:id/edit" element={<RequireAuth><InvoiceEditor /></RequireAuth>} />
+              <Route path="/billing/:id" element={<RequireAuth><InvoiceEditor /></RequireAuth>} />
+              <Route path="/billing" element={<RequireAuth><Billing /></RequireAuth>} />
   
               <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
               <Route path="/discover" element={<RequireAuth roles={["owner", "agent", "admin"]}><Discover /></RequireAuth>} />

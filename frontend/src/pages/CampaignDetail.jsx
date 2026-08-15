@@ -276,6 +276,11 @@ export default function CampaignDetail() {
                         <RotateCw className="w-4 h-4" /> Rehire {creatorName}
                       </button>
                     )}
+                    {c.status === "completed" && (user?.id === c.accepted_creator_id || user?.role === "admin") && (
+                      <Link to={`/billing/new?campaign=${c.id}`} className="btn-solid">
+                        <FileText className="w-4 h-4" /> Generate Invoice
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
