@@ -333,7 +333,7 @@ export default function Feed() {
             ) : posts.length === 0 ? (
               <p className="font-sans text-lg font-medium tracking-tight opacity-40 text-center py-14">No posts yet. Be the first to share!</p>
             ) : isReelMode ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                 {posts.map((post) => (
                   <ReelCard
                     key={post.id}
@@ -495,7 +495,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
     <motion.article
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative w-full aspect-[9/16] max-h-[min(72vh,640px)] rounded-3xl overflow-hidden border border-white/15 bg-black shadow-2xl shadow-black/40"
+      className="relative w-full aspect-[9/16] max-h-[min(52vh,420px)] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-xl shadow-black/30"
     >
       {isVideo ? (
         <video

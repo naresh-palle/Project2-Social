@@ -1,7 +1,5 @@
 /**
- * Shared AI-generated icon assets (public/icons).
- * Rendered via CSS mask so glyphs are always solid, high-contrast colors
- * (black plate is masked out; fill color is controllable).
+ * Shared AI-generated icon glyphs (transparent PNGs in public/icons).
  */
 const ICON_FILES = {
   dashboard: "nav-dashboard.png",
@@ -33,47 +31,34 @@ const ICON_FILES = {
 };
 
 const TONES = {
-  white: "#F4F4F0",
-  muted: "rgba(244, 244, 240, 0.72)",
-  brand: "#FF3B30",
-  soft: "rgba(244, 244, 240, 0.9)",
+  white: "",
+  muted: "opacity-70",
+  brand: "opacity-100",
+  soft: "opacity-90",
 };
 
 export function aiIconSrc(name) {
   const file = ICON_FILES[name] || ICON_FILES.sparkles;
   const base = process.env.PUBLIC_URL || "";
-  return `${base}/icons/${file}`;
+  return `${base}/icons/${file}?v=3`;
 }
 
 export function AiIcon({
   name,
   alt = "",
   className = "w-4 h-4",
-  /** Fill color: white | muted | brand | soft | any CSS color */
   tone = "white",
   title,
   ...rest
 }) {
-  const src = aiIconSrc(name);
-  const color = TONES[tone] || tone || TONES.white;
-
+  const toneClass = TONES[tone] || "";
   return (
-    <span
-      role={alt ? "img" : "presentation"}
-      aria-label={alt || undefined}
+    <img
+      src={aiIconSrc(name)}
+      alt={alt}
       title={title}
-      className={`inline-block shrink-0 ${className}`}
-      style={{
-        backgroundColor: color,
-        WebkitMaskImage: `url(${src})`,
-        maskImage: `url(${src})`,
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
-      }}
+      draggable={false}
+      className={`inline-block shrink-0 object-contain ${toneClass} ${className}`}
       {...rest}
     />
   );
