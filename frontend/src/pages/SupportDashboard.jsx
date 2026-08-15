@@ -1,20 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
-  Loader2, MessageSquare, Send, X, UserPlus, Tag, Plus, ChevronDown,
+  Loader2, MessageSquare, Send, X, UserPlus, Tag, Plus,
   Inbox, AlertTriangle, Clock, CheckCircle2, Sparkles, ArrowRight,
-  Users, Zap,
+  Users, Zap, Search, LifeBuoy, Building2, Handshake, Star,
+  CircleDot, Bot, UserRound, Filter,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { MenuSelect } from "@/components/MenuSelect";
+import { displayAccountName } from "@/lib/username";
 
-const USER_TYPES = [
-  { id: "", label: "All" },
-  { id: "influencer", label: "Influencer" },
-  { id: "company", label: "Company" },
-  { id: "agent", label: "Agent" },
-];
 
 const AI_STATUS_OPTS = [
   { id: "", label: "AI Status" },
@@ -24,16 +22,6 @@ const AI_STATUS_OPTS = [
   { id: "human_handling", label: "Human Handling" },
 ];
 
-const QUEUE_FILTERS = [
-  { id: "all", label: "All Tickets" },
-  { id: "unassigned", label: "Unassigned" },
-  { id: "mine", label: "My Tickets" },
-  { id: "influencer", label: "Influencer" },
-  { id: "company", label: "Company" },
-  { id: "agent", label: "Agent" },
-  { id: "escalated", label: "Escalated" },
-  { id: "resolved", label: "Resolved" },
-];
 
 const QUEUE_PRESETS = {
   all: { status: "", assignment: "", userType: "", escalated: false },
@@ -86,22 +74,48 @@ const STATUS_OPTS = [
   { id: "", label: "All statuses" },
 ];
 
-const FILTER_SELECT =
-  "w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 pl-2.5 pr-8 py-1.5 text-xs rounded-lg font-sans appearance-none cursor-pointer focus:outline-none focus:border-[#FF3B30]";
-const FILTER_OPTION = { backgroundColor: "#1A1A1E", color: "#F4F4F0" };
 const FILTER_INPUT =
-  "w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2.5 py-1.5 text-xs rounded-lg font-sans placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30]";
+  "w-full bg-gradient-to-b from-white/[0.07] to-white/[0.02] text-[#F4F4F0] border border-white/15 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-white/35 focus:outline-none focus:border-[#FF3B30]/60";
 
-function FilterSelect({ className = "", children, ...props }) {
-  return (
-    <div className={`relative min-w-0 ${className}`}>
-      <select {...props} className={FILTER_SELECT}>
-        {children}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/70" aria-hidden />
-    </div>
-  );
-}
+const iconSm = (Icon, cls = "text-white/60") => <Icon className={`w-3.5 h-3.5 ${cls}`} />;
+
+const QUEUE_OPTIONS = [
+  { value: "all", label: "All Tickets", description: "Full unified queue", icon: iconSm(Inbox) },
+  { value: "unassigned", label: "Unassigned", description: "Ready to claim", icon: iconSm(CircleDot, "text-[#FF3B30]") },
+  { value: "mine", label: "My Tickets", description: "Assigned to you", icon: iconSm(UserRound) },
+  { value: "influencer", label: "Influencer", description: "Creator tickets", icon: iconSm(Star, "text-[#FF9500]") },
+  { value: "company", label: "Company", description: "Brand tickets", icon: iconSm(Building2) },
+  { value: "agent", label: "Agent", description: "Agency tickets", icon: iconSm(Handshake) },
+  { value: "escalated", label: "Escalated", description: "Needs senior review", icon: iconSm(AlertTriangle, "text-[#FF9500]") },
+  { value: "resolved", label: "Resolved", description: "Closed / done", icon: iconSm(CheckCircle2, "text-[#34C759]") },
+];
+
+const USER_TYPE_OPTIONS = [
+  { value: "", label: "All user types", icon: iconSm(Users) },
+  { value: "influencer", label: "Influencer", icon: iconSm(Star, "text-[#FF9500]") },
+  { value: "company", label: "Company", icon: iconSm(Building2) },
+  { value: "agent", label: "Agent", icon: iconSm(Handshake) },
+];
+
+const STATUS_OPTIONS = STATUS_OPTS.map((s) => ({
+  value: s.id,
+  label: s.label,
+  icon: iconSm(CircleDot),
+}));
+
+const PRIORITY_OPTIONS = [
+  { value: "", label: "All priorities", icon: iconSm(Filter) },
+  { value: "Low", label: "Low", icon: iconSm(CircleDot, "text-white/40") },
+  { value: "Medium", label: "Medium", icon: iconSm(CircleDot, "text-[#34C759]") },
+  { value: "High", label: "High", icon: iconSm(CircleDot, "text-[#FF9500]") },
+  { value: "Critical", label: "Critical", icon: iconSm(AlertTriangle, "text-[#FF3B30]") },
+];
+
+const AI_OPTIONS = AI_STATUS_OPTS.map((a) => ({
+  value: a.id,
+  label: a.label,
+  icon: iconSm(Bot, a.id ? "text-[#FF3B30]" : "text-white/50"),
+}));
 
 function statusClass(status) {
   if (status === "new" || status === "open") return "bg-[#34C759]/20 text-[#34C759] border-[#34C759]/30";
@@ -123,22 +137,6 @@ function fmtTs(v) {
   return String(v).slice(0, 16).replace("T", " ");
 }
 
-const KPI_KEYS = [
-  ["total", "Total Tickets"],
-  ["new", "New"],
-  ["unassigned", "Unassigned"],
-  ["my_open", "My Open"],
-  ["influencer", "Influencer"],
-  ["company", "Company"],
-  ["agent", "Agent"],
-  ["critical", "Critical"],
-  ["ai_resolved", "AI Resolved"],
-  ["ai_escalated", "AI Escalated"],
-  ["pending_user", "Pending User"],
-  ["pending_support", "Pending Support"],
-  ["sla_breached", "SLA Breached"],
-  ["resolved_today", "Resolved Today"],
-];
 
 export default function SupportDashboard() {
   const { user } = useAuth();
@@ -496,135 +494,206 @@ export default function SupportDashboard() {
     audit: "Audit",
   }[tab] || "Dashboard";
 
+  const assignmentOptions = useMemo(() => ([
+    { value: "", label: "Any assignment", icon: iconSm(Users) },
+    { value: "unassigned", label: "Unassigned", icon: iconSm(CircleDot, "text-[#FF3B30]") },
+    { value: "mine", label: "My Tickets", icon: iconSm(UserRound) },
+    ...agents.map((a) => ({ value: a.id, label: a.name, description: a.role, icon: iconSm(UserRound) })),
+  ]), [agents]);
+
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 18) return "Good afternoon";
+    return "Good evening";
+  }, []);
+
+  const attentionTickets = useMemo(() => {
+    const rank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+    return (tickets || [])
+      .slice()
+      .sort((a, b) => {
+        const ra = rank[a.priority] ?? 9;
+        const rb = rank[b.priority] ?? 9;
+        if (ra !== rb) return ra - rb;
+        return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
+      })
+      .slice(0, 7);
+  }, [tickets]);
+
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8" data-testid="support-ops-dashboard">
-      <div className="shrink-0 border-b border-white/10 pb-4 mb-5">
-        <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{pageTitle}</h1>
-      </div>
+    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-10" data-testid="support-ops-dashboard">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="shrink-0 mb-6"
+      >
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#121216] to-[#0B0B0E] px-5 py-5 md:px-7 md:py-6">
+          <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF3B30]/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 left-10 w-48 h-48 rounded-full bg-[#34C759]/08 blur-3xl" />
+          <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#FF3B30]">
+                <LifeBuoy className="w-3.5 h-3.5" /> Support Ops
+              </div>
+              <h1 className="font-editorial text-3xl md:text-4xl mt-2 tracking-tight">{pageTitle}</h1>
+              {tab === "dashboard" && (
+                <p className="text-white/55 text-sm mt-2 max-w-xl">
+                  {greeting}, {displayAccountName(user) || "agent"}. Clear the queue, protect SLA, and close the loop.
+                </p>
+              )}
+            </div>
+            {tab === "dashboard" && stats && (
+              <div className="flex flex-wrap gap-2">
+                <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Open</div>
+                  <div className="text-xl font-bold tabular-nums">{stats.open ?? stats.unassigned ?? 0}</div>
+                </div>
+                <div className="rounded-2xl border border-[#FF3B30]/25 bg-[#FF3B30]/10 px-3 py-2 min-w-[5.5rem]">
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-[#FF3B30]/80">Unassigned</div>
+                  <div className="text-xl font-bold tabular-nums">{stats.unassigned ?? 0}</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Today</div>
+                  <div className="text-xl font-bold tabular-nums">{stats.finished_today_by_me ?? stats.resolved_today ?? 0}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
       {tab === "dashboard" && stats && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {[
-              { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, tone: "text-[#FF3B30]" },
-              { label: "My open", value: stats.my_open ?? 0, hint: "Assigned to you", queue: "mine", icon: Users, tone: "text-[#F4F4F0]" },
-              { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached or overdue", queue: "all", icon: AlertTriangle, tone: "text-[#FF9500]" },
-              { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, tone: "text-[#34C759]" },
-            ].map((card) => (
-              <button
+              { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, accent: "from-[#FF3B30]/25 to-transparent", iconCls: "text-[#FF3B30]" },
+              { label: "My open", value: stats.my_open ?? 0, hint: "On your desk", queue: "mine", icon: Users, accent: "from-white/10 to-transparent", iconCls: "text-white" },
+              { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached / overdue", queue: "all", icon: AlertTriangle, accent: "from-[#FF9500]/25 to-transparent", iconCls: "text-[#FF9500]" },
+              { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, accent: "from-[#34C759]/20 to-transparent", iconCls: "text-[#34C759]" },
+            ].map((card, i) => (
+              <motion.button
                 key={card.label}
                 type="button"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * i, duration: 0.3 }}
                 onClick={() => setTab("tickets", card.queue)}
-                className="text-left border border-white/10 bg-white/[0.03] rounded-2xl p-4 hover:border-[#FF3B30]/40 transition-colors"
+                className={`relative overflow-hidden text-left rounded-2xl border border-white/10 bg-[#121216] p-4 hover:border-white/25 transition-colors group`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-white/45">{card.label}</span>
-                  <card.icon className={`w-4 h-4 ${card.tone}`} />
+                <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${card.accent} opacity-80`} />
+                <div className="relative flex items-start justify-between gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">{card.label}</span>
+                  <card.icon className={`w-4 h-4 ${card.iconCls} group-hover:scale-110 transition-transform`} />
                 </div>
-                <div className="font-sans text-3xl font-bold mt-2 tabular-nums">{card.value}</div>
-                <div className="text-xs text-white/40 mt-1">{card.hint}</div>
-              </button>
+                <div className="relative font-sans text-3xl font-bold mt-3 tabular-nums tracking-tight">{card.value}</div>
+                <div className="relative text-xs text-white/40 mt-1">{card.hint}</div>
+              </motion.button>
             ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 border border-white/10 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-sans font-bold text-lg">Priority focus</h2>
-                <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] inline-flex items-center gap-1">
+            <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-[#121216] p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-sans font-bold text-lg">Priority focus</h2>
+                  <p className="text-xs text-white/40 mt-0.5">Triage by severity and origin</p>
+                </div>
+                <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] inline-flex items-center gap-1 hover:opacity-80">
                   Open queue <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
-                  ["Critical", stats.critical ?? 0, "critical"],
-                  ["AI escalated", stats.ai_escalated ?? 0, "escalated"],
-                  ["Pending user", stats.pending_user ?? 0, "all"],
-                  ["Pending support", stats.pending_support ?? 0, "all"],
-                ].map(([label, val, qid]) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setTab("tickets", qid === "critical" ? "all" : qid)}
-                    className="border border-white/10 rounded-xl px-3 py-3 text-left hover:bg-white/[0.04]"
-                  >
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
-                    <div className="text-2xl font-bold mt-1 tabular-nums">{val}</div>
+                  ["Critical", stats.critical ?? 0, "all", "border-[#FF3B30]/30 bg-[#FF3B30]/10"],
+                  ["AI escalated", stats.ai_escalated ?? 0, "escalated", "border-white/10 bg-white/[0.03]"],
+                  ["Pending user", stats.pending_user ?? 0, "all", "border-white/10 bg-white/[0.03]"],
+                  ["Pending support", stats.pending_support ?? 0, "all", "border-white/10 bg-white/[0.03]"],
+                ].map(([label, val, qid, cls]) => (
+                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className={`rounded-2xl border px-3 py-3.5 text-left hover:brightness-110 transition ${cls}`}>
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/45">{label}</div>
+                    <div className="text-2xl font-bold mt-1.5 tabular-nums">{val}</div>
                   </button>
                 ))}
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-3 gap-2.5">
                 {[
-                  ["Influencer", stats.influencer ?? 0, "influencer"],
-                  ["Company", stats.company ?? 0, "company"],
-                  ["Agent", stats.agent ?? 0, "agent"],
-                ].map(([label, val, qid]) => (
-                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="border border-white/10 rounded-xl px-3 py-3 text-left hover:bg-white/[0.04]">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
-                    <div className="text-xl font-bold mt-1 tabular-nums">{val}</div>
+                  ["Influencer", stats.influencer ?? 0, "influencer", Star],
+                  ["Company", stats.company ?? 0, "company", Building2],
+                  ["Agent", stats.agent ?? 0, "agent", Handshake],
+                ].map(([label, val, qid, Icon]) => (
+                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left hover:border-white/25">
+                    <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-white/45">
+                      <Icon className="w-3 h-3" /> {label}
+                    </div>
+                    <div className="text-xl font-bold mt-1.5 tabular-nums">{val}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="border border-white/10 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[#FF3B30]" />
-                <h2 className="font-sans font-bold text-lg">Quick actions</h2>
+            <div className="rounded-3xl border border-white/10 bg-[#121216] p-5 space-y-2.5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-[#FF3B30]/15 border border-[#FF3B30]/25 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-[#FF3B30]" />
+                </div>
+                <div>
+                  <h2 className="font-sans font-bold text-lg leading-tight">Quick actions</h2>
+                  <p className="text-[11px] text-white/40">Jump into work</p>
+                </div>
               </div>
               {[
                 { label: "Claim next unassigned", queue: "unassigned", icon: Inbox },
                 { label: "Review escalations", queue: "escalated", icon: AlertTriangle },
-                { label: "My tickets", queue: "mine", icon: Clock },
+                { label: "My open tickets", queue: "mine", icon: Clock },
                 { label: "AI escalated queue", queue: "escalated", icon: Sparkles },
               ].map((a) => (
                 <button
                   key={a.label}
                   type="button"
                   onClick={() => setTab("tickets", a.queue)}
-                  className="w-full flex items-center gap-3 border border-white/10 rounded-xl px-3 py-2.5 text-left hover:border-[#FF3B30]/40 hover:bg-white/[0.03]"
+                  className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left hover:border-[#FF3B30]/40 hover:bg-[#FF3B30]/05 transition-colors"
                 >
-                  <a.icon className="w-4 h-4 text-white/60" />
-                  <span className="text-sm flex-1">{a.label}</span>
+                  <a.icon className="w-4 h-4 text-white/65" />
+                  <span className="text-sm flex-1 font-medium">{a.label}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-white/30" />
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="border border-white/10 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-sans font-bold text-lg">Attention list</h2>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-white/40">Newest first</span>
+          <div className="rounded-3xl border border-white/10 bg-[#121216] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-sans font-bold text-lg">Attention list</h2>
+                <p className="text-xs text-white/40 mt-0.5">Highest priority first</p>
+              </div>
             </div>
-            {(!tickets || tickets.length === 0) ? (
-              <p className="text-sm text-white/40">No open tickets right now.</p>
+            {attentionTickets.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-white/40">
+                Queue is clear — nice work.
+              </div>
             ) : (
               <div className="space-y-2">
-                {tickets
-                  .slice()
-                  .sort((a, b) => {
-                    const rank = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-                    const ra = rank[a.priority] ?? 9;
-                    const rb = rank[b.priority] ?? 9;
-                    if (ra !== rb) return ra - rb;
-                    return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
-                  })
-                  .slice(0, 6)
-                  .map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => { setTab("tickets", "all"); openTicket(t.id); }}
-                      className="w-full flex items-center gap-3 border border-white/10 rounded-xl px-3 py-2.5 text-left hover:bg-white/[0.04]"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="font-mono text-[9px] text-white/40 tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
-                        <div className="text-sm truncate mt-0.5">{t.subject}</div>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
-                    </button>
-                  ))}
+                {attentionTickets.map((t, i) => (
+                  <motion.button
+                    key={t.id}
+                    type="button"
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    onClick={() => { setTab("tickets", "all"); openTicket(t.id); }}
+                    className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3.5 py-3 text-left hover:bg-white/[0.05] hover:border-white/20 transition-colors"
+                  >
+                    <div className={`w-1.5 self-stretch rounded-full shrink-0 ${t.priority === "Critical" ? "bg-[#FF3B30]" : t.priority === "High" ? "bg-[#FF9500]" : "bg-white/20"}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-mono text-[9px] text-white/40 tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
+                      <div className="text-sm font-medium truncate mt-0.5">{t.subject}</div>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
+                  </motion.button>
+                ))}
               </div>
             )}
           </div>
@@ -634,50 +703,52 @@ export default function SupportDashboard() {
       {tab === "tickets" && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-3">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <FilterSelect value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(e) => applyQueueFilter(e.target.value)} aria-label="Ticket queue">
-                {QUEUE_FILTERS.map((u) => (<option key={u.id} value={u.id} style={FILTER_OPTION}>{u.label}</option>))}
-              </FilterSelect>
-              <FilterSelect value={userType} onChange={(e) => setUserType(e.target.value)} aria-label="User type">
-                {USER_TYPES.map((u) => (<option key={u.id || "all"} value={u.id} style={FILTER_OPTION}>{u.label === "All" ? "User Type" : u.label}</option>))}
-              </FilterSelect>
-              <FilterSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status">
-                {STATUS_OPTS.map((s) => (<option key={s.id || "allst"} value={s.id} style={FILTER_OPTION}>{s.label}</option>))}
-              </FilterSelect>
-              <FilterSelect value={priority} onChange={(e) => setPriority(e.target.value)} aria-label="Priority">
-                <option value="" style={FILTER_OPTION}>Priority</option>
-                {["Low", "Medium", "High", "Critical"].map((p) => (<option key={p} value={p} style={FILTER_OPTION}>{p}</option>))}
-              </FilterSelect>
-              <FilterSelect value={aiStatus} onChange={(e) => setAiStatus(e.target.value)} aria-label="AI status">
-                {AI_STATUS_OPTS.map((a) => (<option key={a.id || "aiall"} value={a.id} style={FILTER_OPTION}>{a.label}</option>))}
-              </FilterSelect>
-              {canAssign ? (
-                <FilterSelect value={assignmentAgent} onChange={(e) => setAssignmentAgent(e.target.value)} aria-label="Assignment">
-                  <option value="" style={FILTER_OPTION}>Assignment</option>
-                  <option value="unassigned" style={FILTER_OPTION}>Unassigned</option>
-                  <option value="mine" style={FILTER_OPTION}>My Tickets</option>
-                  {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
-                </FilterSelect>
-              ) : <div />}
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…" className={`${FILTER_INPUT} col-span-2 sm:col-span-3`} />
+            <div className="rounded-3xl border border-white/10 bg-[#121216] p-3.5 space-y-3">
+              <div className="flex items-center gap-2 px-0.5">
+                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" />
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">Filters</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <MenuSelect label="Queue" value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(v) => applyQueueFilter(v)} options={QUEUE_OPTIONS} />
+                <MenuSelect label="User type" value={userType} onChange={setUserType} options={USER_TYPE_OPTIONS} />
+                <MenuSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={STATUS_OPTIONS} />
+                <MenuSelect label="Priority" value={priority} onChange={setPriority} options={PRIORITY_OPTIONS} />
+                <MenuSelect label="AI status" value={aiStatus} onChange={setAiStatus} options={AI_OPTIONS} />
+                {canAssign ? (
+                  <MenuSelect label="Assignment" value={assignmentAgent} onChange={setAssignmentAgent} options={assignmentOptions} />
+                ) : null}
+              </div>
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tickets, users, numbers…" className={`${FILTER_INPUT} pl-9`} />
+              </div>
             </div>
 
             {loading ? (
-              <div className="flex items-center gap-2 text-white/50 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+              <div className="flex items-center gap-2 text-white/50 text-sm px-1"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
-              <p className="text-white/40 text-sm">No tickets match filters.</p>
+              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-8 text-center text-sm text-white/40">No tickets match filters.</div>
             ) : (
               tickets.map((t) => (
-                <button key={t.id} type="button" onClick={() => openTicket(t.id)} className={`w-full text-left p-3 border rounded-2xl transition-colors ${selectedId === t.id ? "border-[#FF3B30]/50 bg-[#FF3B30]/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"}`}>
-                  <div className="font-mono text-[9px] tracking-widest text-white/40 mb-1 flex flex-wrap gap-x-2">
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => openTicket(t.id)}
+                  className={`w-full text-left p-3.5 rounded-2xl border transition-all ${
+                    selectedId === t.id
+                      ? "border-[#FF3B30]/50 bg-[#FF3B30]/10 shadow-[0_0_0_1px_rgba(255,59,48,0.12)]"
+                      : "border-white/10 bg-[#121216] hover:border-white/25 hover:bg-white/[0.03]"
+                  }`}
+                >
+                  <div className="font-mono text-[9px] tracking-widest text-white/40 mb-1.5 flex flex-wrap gap-x-2">
                     <span>{t.number}</span>
                     <span>{typeLabel(t.user_type || t.user_role)}</span>
-                    <span>{t.priority}</span>
+                    <span className={t.priority === "Critical" ? "text-[#FF3B30]" : t.priority === "High" ? "text-[#FF9500]" : ""}>{t.priority}</span>
                   </div>
-                  <div className="font-sans font-medium text-sm truncate">{t.subject}</div>
-                  <div className="mt-2 flex justify-between items-center">
-                    <span className="text-[10px] text-white/40 truncate">{t.user_name}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
+                  <div className="font-sans font-semibold text-sm truncate">{t.subject}</div>
+                  <div className="mt-2.5 flex justify-between items-center gap-2">
+                    <span className="text-[11px] text-white/45 truncate">{t.user_name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
                   </div>
                 </button>
               ))
@@ -686,7 +757,7 @@ export default function SupportDashboard() {
 
           <div className="lg:col-span-3">
             {selectedId && ticket ? (
-              <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col">
+              <div className="border border-white/10 bg-[#121216] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
                     <div className="font-mono text-[10px] text-white/40 tracking-widest">{ticket.number} · {typeLabel(ticket.user_type)} · {ticket.priority}</div>
@@ -700,7 +771,7 @@ export default function SupportDashboard() {
                 </div>
 
                 {detail.user_context && (
-                  <div className="mb-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-xs text-white/70 space-y-1">
+                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] text-xs text-white/70 space-y-1">
                     <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User</div>
                     <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
                     {detail.user_context.handle && <div>@{String(detail.user_context.handle).replace(/^@/, "")}</div>}
@@ -710,31 +781,31 @@ export default function SupportDashboard() {
 
                 <div className="flex flex-wrap gap-2 mb-3">
                   {!ticket.assignee_id && can("support.tickets.claim") && (
-                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30]"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
+                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30] bg-[#FF3B30]/10"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
                   )}
                   {statusButtons.map((s) => (
-                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"}`}>{s.replace(/_/g, " ")}</button>
+                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF3B30] text-[#FF3B30] bg-[#FF3B30]/10" : "border-white/15 text-white/50 hover:border-white/30"}`}>{s.replace(/_/g, " ")}</button>
                   ))}
-                  {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF9500]">Escalate</button>)}
-                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
+                  {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF9500]/30 text-[#FF9500]">Escalate</button>)}
+                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
                   {can("support.tickets.update") && (
-                    <FilterSelect className="w-auto" value={ticket.priority || "Medium"} onChange={(e) => patch({ priority: e.target.value })}>
-                      {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p} style={FILTER_OPTION}>{p}</option>)}
-                    </FilterSelect>
+                    <MenuSelect className="w-[8.5rem]" value={ticket.priority || "Medium"} onChange={(v) => patch({ priority: v })} options={PRIORITY_OPTIONS.filter((o) => o.value)} />
                   )}
                   {canAssign && agents.length > 0 && (
-                    <FilterSelect className="w-auto min-w-[8rem]" value={ticket.assignee_id || ""} onChange={(e) => patch({ assignee_id: e.target.value })}>
-                      <option value="" style={FILTER_OPTION}>Unassigned</option>
-                      {agents.map((a) => (<option key={a.id} value={a.id} style={FILTER_OPTION}>{a.name}</option>))}
-                    </FilterSelect>
+                    <MenuSelect
+                      className="w-[10rem]"
+                      value={ticket.assignee_id || ""}
+                      onChange={(v) => patch({ assignee_id: v })}
+                      options={[{ value: "", label: "Unassigned" }, ...agents.map((a) => ({ value: a.id, label: a.name }))]}
+                    />
                   )}
                 </div>
 
                 {can("support.tickets.update") && (
                   <div className="flex gap-2 mb-3 items-center">
                     <Tag className="w-3.5 h-3.5 text-white/40" />
-                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-2 py-1 text-xs rounded-lg" />
-                    <button type="button" disabled={busy} onClick={saveTags} className="px-2 py-1 text-[10px] font-mono uppercase border border-white/15 rounded-lg">Save</button>
+                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-white/[0.04] text-[#F4F4F0] border border-white/15 px-2.5 py-1.5 text-xs rounded-xl" />
+                    <button type="button" disabled={busy} onClick={saveTags} className="px-2.5 py-1.5 text-[10px] font-mono uppercase border border-white/15 rounded-xl hover:border-white/30">Save</button>
                   </div>
                 )}
 
@@ -751,13 +822,13 @@ export default function SupportDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-[#1A1A1E] text-[#F4F4F0] border border-white/25 px-3 py-2 text-sm outline-none focus:border-[#FF3B30] resize-none rounded-xl" />
+                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-white/[0.04] text-[#F4F4F0] border border-white/15 px-3 py-2.5 text-sm outline-none focus:border-[#FF3B30]/60 resize-none rounded-2xl" />
                   <div className="flex gap-2">
                     {canReply && (
-                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2"><Send className="w-3.5 h-3.5" /> Reply</button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"><Send className="w-3.5 h-3.5" /> Reply</button>
                     )}
                     {canInternal && (
-                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-3 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50">Internal</button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-4 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50 rounded-xl">Internal</button>
                     )}
                   </div>
                 </div>
@@ -797,15 +868,16 @@ export default function SupportDashboard() {
                     <td className="p-3 text-white/50 text-xs">{fmtTs(u.last_active)}</td>
                     {canManageUsers && (
                       <td className="p-3 space-x-2 whitespace-nowrap">
-                        <FilterSelect
-                          className="w-auto inline-block"
+                        <MenuSelect
+                          className="w-[8.5rem] inline-block"
                           value={u.support_role || u.role}
-                          onChange={(e) => patchStaff(u.id, { support_role: e.target.value })}
-                        >
-                          <option value="support_agent" style={FILTER_OPTION}>Agent</option>
-                          <option value="support_lead" style={FILTER_OPTION}>Lead</option>
-                          <option value="support_admin" style={FILTER_OPTION}>Admin</option>
-                        </FilterSelect>
+                          onChange={(v) => patchStaff(u.id, { support_role: v })}
+                          options={[
+                            { value: "support_agent", label: "Agent" },
+                            { value: "support_lead", label: "Lead" },
+                            { value: "support_admin", label: "Admin" },
+                          ]}
+                        />
                         <button
                           type="button"
                           className="text-[10px] font-mono uppercase border border-white/15 px-2 py-1 rounded-lg"
@@ -827,11 +899,15 @@ export default function SupportDashboard() {
               <input required placeholder="Name" value={newStaff.name} onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required type="email" placeholder="Email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input required placeholder="Username" value={newStaff.username} onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <FilterSelect value={newStaff.support_role} onChange={(e) => setNewStaff({ ...newStaff, support_role: e.target.value })}>
-                <option value="support_agent" style={FILTER_OPTION}>Support Agent</option>
-                <option value="support_lead" style={FILTER_OPTION}>Support Lead</option>
-                <option value="support_admin" style={FILTER_OPTION}>Support Admin</option>
-              </FilterSelect>
+              <MenuSelect
+                value={newStaff.support_role}
+                onChange={(v) => setNewStaff({ ...newStaff, support_role: v })}
+                options={[
+                  { value: "support_agent", label: "Support Agent" },
+                  { value: "support_lead", label: "Support Lead" },
+                  { value: "support_admin", label: "Support Admin" },
+                ]}
+              />
               <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">
                 Create
