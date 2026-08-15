@@ -26,7 +26,7 @@ void main() {
       'name': 'Ada',
       'handle': 'ada',
     });
-    expect(creator.isCreator, isTrue);
+    expect(creator.isInfluencer, isTrue);
     expect(creator.displayHandle, '@ada');
     expect(creator.displayName, 'Ada');
   });

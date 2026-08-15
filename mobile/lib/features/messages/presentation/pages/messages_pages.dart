@@ -179,7 +179,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: mine ? Cr8Colors.accent.withValues(alpha: 0.25) : Cr8Colors.surface,
+                            color: mine ? Cr8Colors.accent.withOpacity(0.25) : Cr8Colors.surface,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Cr8Colors.hairline),
                           ),

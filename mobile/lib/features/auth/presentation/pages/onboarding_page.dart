@@ -70,7 +70,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           Text('Complete your studio profile.', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontStyle: FontStyle.italic)),
           const SizedBox(height: 16),
           TextField(controller: city, decoration: const InputDecoration(labelText: 'City')),
-          if (isCreator) ...[
+          if (isInfluencer) ...[
             const SizedBox(height: 12),
             const Cr8SectionLabel('Niches'),
             Wrap(

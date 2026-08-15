@@ -60,7 +60,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         stats = await api.analyticsOwner();
         items = await api.campaigns(mine: true);
       } else if (user.isAgent) {
-        items = await api.creators();
+        items = await api.influencers();
         stats = {'creators': items.length};
       } else {
         stats = await api.analyticsCreator();
@@ -197,16 +197,16 @@ class _AdminUserCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: banned
-                          ? Cr8Colors.accent.withValues(alpha: 0.4)
+                          ? Cr8Colors.accent.withOpacity(0.4)
                           : pending
-                              ? Colors.orange.withValues(alpha: 0.4)
-                              : Cr8Colors.success.withValues(alpha: 0.4),
+                              ? Colors.orange.withOpacity(0.4)
+                              : Cr8Colors.success.withOpacity(0.4),
                     ),
                     color: banned
-                        ? Cr8Colors.accent.withValues(alpha: 0.08)
+                        ? Cr8Colors.accent.withOpacity(0.08)
                         : pending
-                            ? Colors.orange.withValues(alpha: 0.08)
-                            : Cr8Colors.success.withValues(alpha: 0.08),
+                            ? Colors.orange.withOpacity(0.08)
+                            : Cr8Colors.success.withOpacity(0.08),
                   ),
                   child: Text(
                     status.toUpperCase(),

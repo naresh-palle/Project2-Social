@@ -38,7 +38,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
     try {
       final api = ref.read(cr8ApiProvider);
       final query = q.text.trim();
-      influencers = await api.creators(q: query.isEmpty ? null : query);
+      influencers = await api.influencers(q: query.isEmpty ? null : query);
       campaigns = await api.campaigns(q: query.isEmpty ? null : query);
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
@@ -73,7 +73,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
                 : TabBarView(
                     controller: _tabs,
                     children: [
-                      _list(creators, isInfluencer: true),
+                      _list(influencers, isInfluencer: true),
                       _list(campaigns, isInfluencer: false),
                     ],
                   ),
@@ -83,7 +83,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
     );
   }
 
-  Widget _list(List<Map<String, dynamic>> data, {required bool isCreator}) {
+  Widget _list(List<Map<String, dynamic>> data, {required bool isInfluencer}) {
     if (data.isEmpty) return const EmptyState(message: 'No results');
     return RefreshIndicator(
       onRefresh: _load,
@@ -92,7 +92,10 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
         itemBuilder: (_, i) {
           final it = data[i];
           return ListTile(
-            leading: CircleAvatar(backgroundImage: it['avatar'] != null ? NetworkImage('${it['avatar']}') : null, child: it['avatar'] == null ? const Icon(Icons.person) : null),
+            leading: CircleAvatar(
+              backgroundImage: it['avatar'] != null ? NetworkImage('${it['avatar']}') : null,
+              child: it['avatar'] == null ? const Icon(Icons.person) : null,
+            ),
             title: Text('${it['name'] ?? it['title'] ?? 'Untitled'}'),
             subtitle: Text('${it['handle'] ?? it['brand'] ?? it['city'] ?? ''}'),
             onTap: () => context.push(isInfluencer ? '/creators/${it['id']}' : '/campaigns/${it['id']}'),
