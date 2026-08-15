@@ -522,7 +522,7 @@ function InfluencerPanel() {
 
       {/* Gamification sections removed per requirements */}
 
-      {/* Platform Analytics & Social Connect — always visible above tabs */}
+      {/* Platform Analytics & Social Connect — compact strip above tabs */}
       <SocialConnect
         connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
       />
