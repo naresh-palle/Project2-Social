@@ -85,16 +85,14 @@ export default function SearchPage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      
-      
-      <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <div className="flex flex-col w-full pb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 w-full pr-20">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> ⚡ Search
               </p>
-              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Search</h1>
+              <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">Search</h1>
             </div>
           </div>
 

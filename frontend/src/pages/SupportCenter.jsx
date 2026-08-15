@@ -137,14 +137,14 @@ export default function SupportCenter() {
   const ticket = detail?.ticket;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1">
-      <div className="shrink-0 mb-6 border-b border-white/10 pb-6">
+    <div className="flex flex-col w-full pb-8">
+      <div className="mb-6 border-b border-white/10 pb-4 pr-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <LifeBuoy className="w-3.5 h-3.5" /> Support Center
             </p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2 mb-2">Help & Support</h1>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5 mb-2">Help & Support</h1>
             <p className="font-sans text-white/60 max-w-2xl text-sm">
               Find answers or reach CR8 Support Operations. Prefer AI Help for quick questions.
             </p>

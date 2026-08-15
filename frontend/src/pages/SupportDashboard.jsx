@@ -522,12 +522,12 @@ export default function SupportDashboard() {
   }, [tickets]);
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-10" data-testid="support-ops-dashboard">
+    <div className="flex flex-col w-full pb-10" data-testid="support-ops-dashboard">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="shrink-0 mb-6"
+        className="mb-6 pr-20"
       >
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#121216] to-[#0B0B0E] px-5 py-5 md:px-7 md:py-6">
           <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF3B30]/15 blur-3xl" />
@@ -809,7 +809,7 @@ export default function SupportDashboard() {
                   </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 custom-scrollbar min-h-[180px]">
+                <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 no-scrollbar min-h-[180px]">
                   {(detail.messages || []).map((m) => (
                     <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF3B30]/15 border border-[#FF3B30]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
                       <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">

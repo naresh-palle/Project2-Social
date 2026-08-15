@@ -23,7 +23,8 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-64 relative z-10 flex flex-col h-screen overflow-hidden">
-        <div className="shrink-0 flex items-center justify-end gap-2 px-6 md:px-10 pt-4 pb-1 relative z-[80]">
+        {/* Overlay utilities — no reserved header row / top dead space */}
+        <div className="absolute top-3 right-4 md:right-6 z-[80] flex items-center gap-2 pointer-events-auto">
           <NotificationBell />
           <button
             type="button"
@@ -39,7 +40,7 @@ export function AppLayout() {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar relative w-full max-w-[1600px] mx-auto px-6 md:px-10 pb-28 pr-8 md:pr-12 pt-2">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar relative w-full max-w-[1600px] mx-auto px-6 md:px-10 pb-16 pt-3 pr-6 md:pr-10">
           <Outlet />
         </div>
       </main>

@@ -281,9 +281,8 @@ export default function Feed() {
   };
 
   return (
-    <div className="h-full min-h-0 bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      
-      <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <div className="flex flex-col w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
@@ -291,7 +290,7 @@ export default function Feed() {
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Feed</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pr-20">
             <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF3B30] rounded-full">
               <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>

@@ -304,16 +304,16 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-    <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
+    <div className={miniWidget ? "h-full flex flex-col bg-[#0B0B0E] text-[#F4F4F0] overflow-hidden" : "w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col font-sans"}>
 
-        <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col h-full overflow-y-auto w-full flex-1"}>
+        <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col w-full"}>
         {!miniWidget && (
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 shrink-0">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 pr-20">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" /> ⚡ Inbox
                 </p>
-                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Messages</h1>
+                <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">Messages</h1>
               </div>
             </div>
         )}
@@ -428,7 +428,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   </div>
                 </header>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1a1f] via-[#0B0B0E] to-[#0B0B0E] custom-scrollbar" data-testid="thread">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1a1f] via-[#0B0B0E] to-[#0B0B0E] no-scrollbar" data-testid="thread">
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
                   {groupMessages(visible).map((group, gIdx) => (
                     <div key={`group-${gIdx}`} className="space-y-4">

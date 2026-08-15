@@ -99,7 +99,7 @@ export function AIAssistant() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col gap-4">
               {messages.map((m) => (
                 <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div

@@ -174,7 +174,7 @@ export default function CampaignDetail() {
   const backLabel = fromMessages ? "Back to Messages" : "Back";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden w-full max-w-[1600px] mx-auto pb-4 pt-6">
+    <div className="flex flex-col w-full max-w-[1600px] mx-auto pb-4">
       {/* Top Static Header */}
       <div className="shrink-0 mb-4 px-4 md:px-8">
         <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
@@ -189,8 +189,7 @@ export default function CampaignDetail() {
         </div>
       </div> {/* End Static Header */}
 
-      {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 pr-2 pb-10">
+      <div className="px-4 md:px-8 pr-2 pb-10">
         <div className="grid grid-cols-12 gap-8 mt-2">
           <div className="col-span-12 md:col-span-7">
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}

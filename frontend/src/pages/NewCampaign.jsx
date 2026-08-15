@@ -172,10 +172,10 @@ export default function NewCampaign({ isEdit }) {
   }
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto custom-scrollbar bg-[#0B0B0E] text-[#F4F4F0]">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0]">
       
       
-      <div className="pt-4 max-w-3xl mx-auto px-4 md:px-6 pb-16 relative">
+      <div className="pt-1 max-w-3xl mx-auto px-4 md:px-6 pb-16 relative pr-16">
         <button
           type="button"
           onClick={() => nav("/dashboard")}

@@ -60,15 +60,15 @@ export default function Wallet() {
   });
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1" data-testid="wallet-page">
+    <div className="flex flex-col w-full pb-8" data-testid="wallet-page">
       {/* Top Static Section */}
-      <div className="shrink-0 space-y-4 mb-4 pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mb-8">
+      <div className="shrink-0 space-y-4 mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4 pr-20">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" /> Escrow Wallet
                 </p>
-                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Wallet</h1>
+                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Wallet</h1>
                 <p className="font-sans text-xs opacity-50 mt-1">Balance & transactions</p>
               </div>
             </div>
@@ -152,8 +152,8 @@ export default function Wallet() {
         </div>
       </div>
 
-      {/* Scrollable Transactions Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
+      {/* Transactions */}
+      <div className="pr-2 pb-6">
         <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="font-sans text-sm font-semibold">Transactions ({filteredTx.length})</h2>
           <div className="flex flex-wrap items-center gap-2">

@@ -105,7 +105,7 @@ export default function ProfileView() {
     : "—";
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+    <div className="flex flex-col w-full pb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-4 mb-5">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
@@ -113,7 +113,7 @@ export default function ProfileView() {
           </p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Profile</h1>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 pr-20">
           <Link
             to={`/u/${profile.id}`}
             className="btn-solid bg-white/10 text-white hover:bg-white/15 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm border border-white/15"

@@ -52,9 +52,9 @@ export default function CreatorDetail() {
   const nichesLabel = niches.slice(0, 3).join(" · ") || "Influencer";
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto w-full flex-1 pb-8">
+    <div className="flex flex-col w-full pb-8">
       {/* Compact hero */}
-      <div className="border-b border-white/10 pb-4 mb-4">
+      <div className="border-b border-white/10 pb-4 mb-4 pr-20">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2 mb-3">
           <Sparkles className="w-3.5 h-3.5" /> Directory profile
         </p>

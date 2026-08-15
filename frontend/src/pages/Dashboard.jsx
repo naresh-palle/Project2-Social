@@ -50,11 +50,7 @@ export default function Dashboard() {
 
   return (
     <ErrorBoundary>
-      <div className={`flex flex-col h-full min-h-0 ${
-        user?.role === "admin" || user?.role === "agent"
-          ? "overflow-y-auto custom-scrollbar"
-          : "overflow-hidden"
-      }`}>
+      <div className="flex flex-col w-full">
 
         {user?.role === "admin" ? (
           <AdminPanel />
@@ -230,9 +226,9 @@ function OwnerPanel() {
   );
 
   return (
-    <div className="flex flex-col h-full min-h-0 space-y-3">
+    <div className="flex flex-col w-full space-y-3">
       {/* Top Static Section */}
-      <div className="shrink-0 space-y-3">
+      <div className="space-y-3">
       {/* Analytics Summary Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="owner-analytics">
         {tiles.map((t, i) => (
@@ -305,8 +301,8 @@ function OwnerPanel() {
       </div>
       </div> {/* End Static Section */}
 
-      {/* Scrollable Main Content Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-10 pr-2">
+      {/* Main Content Area */}
+      <div className="pb-10 pr-2">
       {/* VIEW 1: FEED */}
       {activeTab === "work-feed" && (
         <div className="space-y-3">
@@ -503,9 +499,9 @@ function InfluencerPanel() {
   );
 
   return (
-    <div className="flex flex-col h-full min-h-0 space-y-3">
+    <div className="flex flex-col w-full space-y-3">
       {/* Top Static Section (KPIs, Tabs) */}
-      <div className="shrink-0 space-y-3">
+      <div className="space-y-3">
       {/* Influencer Analytics Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="creator-analytics">
         {tiles.map((t, i) => (
@@ -583,8 +579,8 @@ function InfluencerPanel() {
       </div>
       </div> {/* End Top Static Section */}
 
-      {/* Scrollable Main Content Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-10 pr-2">
+      {/* Main Content Area */}
+      <div className="pb-10 pr-2">
       {/* VIEW 1: LIVE CAMPAIGN BRIEFS & DISCOVERY */}
       {activeTab === "campaigns-feed" && (
         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
@@ -702,8 +698,8 @@ function AgentPanel() {
   const campaignList = (Array.isArray(campaigns) && campaigns.length > 0) ? campaigns : DEFAULT_CAMPAIGNS_FOR_CREATORS;
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto custom-scrollbar space-y-3 pb-8">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B0B0E]/95 backdrop-blur-sm z-10 pt-1">
+    <div className="w-full space-y-3 pb-8">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B0B0E]/95 backdrop-blur-sm z-10 pt-1 pr-20">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console

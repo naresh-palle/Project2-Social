@@ -596,7 +596,7 @@ export function AdminPanel() {
   const COLORS = ['#34C759', '#FF3B30'];
 
   return (
-    <div className="h-full min-h-0 flex flex-col">
+    <div className="w-full flex flex-col">
         <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
@@ -637,7 +637,7 @@ export function AdminPanel() {
             </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-10 pr-1">
+        <div className="pb-10 pr-1">
         {/* TAB 1: OVERVIEW */}
         {tab === "overview" && (
             <div className="mt-8 space-y-10">

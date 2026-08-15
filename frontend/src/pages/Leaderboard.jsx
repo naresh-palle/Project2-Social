@@ -55,8 +55,8 @@ export default function Leaderboard() {
   ];
 
   return (
-    <div className="h-full min-h-0 bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <div className="flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar w-full flex-1 pb-8">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+      <div className="flex flex-col w-full pb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function Leaderboard() {
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Leaderboard</h1>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 pr-20">
             <div className="bg-white/5 p-0.5 rounded-full flex border border-white/10">
               {["weekly", "monthly"].map((p) => (
                 <button
