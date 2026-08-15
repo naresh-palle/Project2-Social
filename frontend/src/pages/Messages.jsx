@@ -309,7 +309,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
 
         <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col w-full"}>
         {!miniWidget && (
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 pr-20">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Inbox

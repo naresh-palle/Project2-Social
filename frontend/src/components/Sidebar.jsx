@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { displayAccountName } from "@/lib/username";
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
 import { AiIcon } from "@/components/AiIcon";
-import { IconTip } from "@/components/IconTip";
 
 export function Sidebar() {
   const { user } = useAuth();
@@ -171,7 +170,7 @@ export function Sidebar() {
         </div>
 
         <form onSubmit={handleSearch} className="relative mb-4">
-          <AiIcon name="search" className="w-3.5 h-3.5 absolute left-3 top-2 opacity-70" />
+          <AiIcon name="search" className="w-3.5 h-3.5 absolute left-3 top-2.5" tone="muted" />
           <input
             name="search"
             type="text"
@@ -193,7 +192,7 @@ export function Sidebar() {
                     : "text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <AiIcon name={it.icon} className={`w-4 h-4 shrink-0 ${isActive ? "brightness-110" : "opacity-80"}`} />
+                <AiIcon name={it.icon} className="w-4 h-4 shrink-0" tone="white" />
                 {it.label}
               </Link>
             );
@@ -203,17 +202,23 @@ export function Sidebar() {
 
       <div className="mt-auto p-4 border-t border-white/10">
         {!isSupportOps && (
-          <div className="flex gap-2">
-            <IconTip label="Support">
-              <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors inline-flex" aria-label="Support">
-                <AiIcon name="support" className="w-4 h-4 opacity-80" />
-              </Link>
-            </IconTip>
-            <IconTip label="AI Help">
-              <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors inline-flex" aria-label="AI Help">
-                <AiIcon name="ai" className="w-4 h-4 opacity-80" />
-              </Link>
-            </IconTip>
+          <div className="flex flex-col gap-1.5">
+            <Link
+              to="/support"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+              aria-label="Support"
+            >
+              <AiIcon name="support" className="w-5 h-5" tone="white" />
+              <span className="font-mono text-[10px] tracking-[0.18em] uppercase">Support</span>
+            </Link>
+            <Link
+              to="/help"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+              aria-label="AI Help"
+            >
+              <AiIcon name="ai" className="w-5 h-5" tone="white" />
+              <span className="font-mono text-[10px] tracking-[0.18em] uppercase">AI Help</span>
+            </Link>
           </div>
         )}
       </div>

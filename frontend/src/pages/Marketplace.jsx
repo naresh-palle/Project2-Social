@@ -19,10 +19,17 @@ function formatFollowers(n) {
   return v ? String(v) : "—";
 }
 
-function DirectoryMediaTile({ src, className = "", priority = false }) {
+function DirectoryMediaTile({ src, fallbackSrc = "", className = "", priority = false }) {
   const videoRef = useRef(null);
   const [failed, setFailed] = useState(false);
-  const video = isVideoUrl(src);
+  const [useFallback, setUseFallback] = useState(false);
+  const active = useFallback && fallbackSrc ? fallbackSrc : src;
+  const video = isVideoUrl(active);
+
+  useEffect(() => {
+    setFailed(false);
+    setUseFallback(false);
+  }, [src, fallbackSrc]);
 
   useEffect(() => {
     if (!video || !videoRef.current) return;
@@ -30,10 +37,18 @@ function DirectoryMediaTile({ src, className = "", priority = false }) {
     el.muted = true;
     const play = () => el.play().catch(() => {});
     play();
-  }, [video, src]);
+  }, [video, active]);
 
-  if (!src || failed) {
-    return <div className={`bg-white/5 ${className}`} />;
+  const onFail = () => {
+    if (!useFallback && fallbackSrc && fallbackSrc !== active) {
+      setUseFallback(true);
+      return;
+    }
+    setFailed(true);
+  };
+
+  if (!active || failed) {
+    return <div className={`bg-white/10 ${className}`} />;
   }
 
   if (video) {
@@ -41,14 +56,14 @@ function DirectoryMediaTile({ src, className = "", priority = false }) {
       <div className={`relative overflow-hidden ${className}`}>
         <video
           ref={videoRef}
-          src={src}
+          src={active}
           className="h-full w-full object-cover"
           muted
           loop
           playsInline
           autoPlay
           preload="metadata"
-          onError={() => setFailed(true)}
+          onError={onFail}
         />
         <span className="pointer-events-none absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 bg-black/55 px-1.5 py-0.5 font-sans text-[8px] tracking-[0.16em] uppercase text-white/90">
           <Play className="w-2.5 h-2.5 fill-current" /> Reel
@@ -59,11 +74,11 @@ function DirectoryMediaTile({ src, className = "", priority = false }) {
 
   return (
     <img
-      src={src}
+      src={active}
       alt=""
       loading={priority ? "eager" : "lazy"}
       className={`h-full w-full object-cover ${className}`}
-      onError={() => setFailed(true)}
+      onError={onFail}
     />
   );
 }
@@ -71,10 +86,33 @@ function DirectoryMediaTile({ src, className = "", priority = false }) {
 function CreatorDirectoryCard({ creator, index }) {
   const c = withDirectoryMedia(creator);
   const top = getTopSocialAccount(c);
-  const socialName = top.handle || formatUsername(c.handle, c.username) || c.name || "influencer";
-  const reel = (c.portfolio || []).slice(0, 4);
-  const hero = reel[0] || c.avatar;
-  const thumbs = reel.slice(1, 4);
+  const socialName =
+    formatUsername(top.handle, c.handle, c.username) ||
+    formatUsername(c.name) ||
+    "influencer";
+  const displayHandle = socialName.startsWith("@") ? socialName : `@${socialName}`;
+  const reel = (c.portfolio || []).filter(Boolean);
+  // Prefer still images for hero so blocked videos never leave a gray hole
+  const hero =
+    reel.find((u) => u && !isVideoUrl(u)) ||
+    c.cover_photo ||
+    c.avatar ||
+    reel[0];
+  const thumbPool = [
+    ...reel.filter((u) => u && u !== hero),
+    c.avatar,
+    c.cover_photo,
+    ...(c._mockMedia?.images || []),
+  ].filter(Boolean);
+  const thumbs = [];
+  for (const src of thumbPool) {
+    if (thumbs.length >= 3) break;
+    if (!thumbs.includes(src)) thumbs.push(src);
+  }
+  while (thumbs.length < 3 && c._mockMedia?.images?.length) {
+    const src = c._mockMedia.images[thumbs.length % c._mockMedia.images.length];
+    thumbs.push(src);
+  }
   const followerCount = top.followers > 0 ? top.followers : Number(c.followers) || 0;
   const niches = (c.niches || []).slice(0, 2);
   const city = c.city || c.location || "";
@@ -94,12 +132,18 @@ function CreatorDirectoryCard({ creator, index }) {
           <div className="absolute inset-0 grid grid-rows-[1fr_0.42fr] gap-px bg-white/10">
             <DirectoryMediaTile
               src={hero}
+              fallbackSrc={c.avatar || c.cover_photo || thumbs[0]}
               priority={index < 6}
-              className="transition-transform duration-700 group-hover:scale-[1.04]"
+              className="min-h-0 h-full w-full transition-transform duration-700 group-hover:scale-[1.04]"
             />
             <div className="grid grid-cols-3 gap-px bg-white/10 min-h-0">
-              {(thumbs.length ? thumbs : [c.avatar, c.cover_photo, hero]).slice(0, 3).map((src, i) => (
-                <DirectoryMediaTile key={`${c.id}-t-${i}`} src={src} className="min-h-0" />
+              {thumbs.slice(0, 3).map((src, i) => (
+                <DirectoryMediaTile
+                  key={`${c.id}-t-${i}`}
+                  src={src}
+                  fallbackSrc={c.avatar || hero}
+                  className="min-h-0 h-full w-full"
+                />
               ))}
             </div>
           </div>
@@ -120,14 +164,14 @@ function CreatorDirectoryCard({ creator, index }) {
         </div>
         <div className="mt-2.5 space-y-1">
           <div className="flex items-baseline justify-between gap-1.5">
-            <div className="font-sans text-sm leading-tight truncate group-hover:italic transition-all font-medium" title={socialName}>
-              {socialName}
+            <div className="font-sans text-sm leading-tight truncate group-hover:italic transition-all font-medium" title={displayHandle}>
+              {displayHandle}
             </div>
             <div className="shrink-0 font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
               {formatFollowers(followerCount)}
             </div>
           </div>
-          {(c.name && socialName !== c.name) ? (
+          {(c.name && formatUsername(c.name) !== socialName.replace(/^@/, "")) ? (
             <div className="font-sans text-[10px] text-white/50 truncate">{c.name}</div>
           ) : null}
           <div className="font-sans text-[9px] tracking-[0.12em] uppercase opacity-45 truncate">
@@ -188,7 +232,7 @@ export default function Marketplace() {
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Directory</h1>
           </div>
-          <div className="w-full md:w-56 md:mr-24">
+          <div className="w-full md:w-56">
             <MultiSelectDropdown
               options={PLATFORM_CATEGORIES}
               selected={categories}

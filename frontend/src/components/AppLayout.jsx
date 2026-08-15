@@ -24,7 +24,8 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-64 relative z-10 flex flex-col h-screen min-h-0 overflow-hidden">
-        <div className="absolute top-2 right-3 md:right-5 z-[80] flex items-center gap-1.5 pointer-events-auto">
+        {/* Compact utility strip — reserved height so icons never overlap page cards */}
+        <div className="shrink-0 h-12 flex items-center justify-end gap-2 px-5 md:px-8 relative z-[80] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5">
           <NotificationBell />
           <IconTip label="Sign out" side="bottom">
             <button
@@ -35,7 +36,7 @@ export function AppLayout() {
               }}
               aria-label="Sign out"
               data-testid="logout-button"
-              className="p-1.5 rounded-full border border-white/15 bg-[#121212]/80 hover:border-[#FF3B30] transition-colors shadow-lg shadow-black/30"
+              className="w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 flex items-center justify-center transition-colors"
             >
               <AiIcon name="logout" className="w-5 h-5" />
             </button>
@@ -43,7 +44,7 @@ export function AppLayout() {
         </div>
         <div
           id="app-scroll"
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-5 md:px-8 pb-12 pt-0"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-5 md:px-8 pb-12 pt-3"
         >
           <Outlet />
         </div>

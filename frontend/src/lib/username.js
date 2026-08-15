@@ -13,6 +13,21 @@ export function formatUsername(...candidates) {
       continue;
     }
     s = s.replace(/^@+/, "").replace(/[.,\s]+$/g, "").replace(/,/g, "").trim();
+    // Strip profile URLs → last path segment
+    if (/^https?:\/\//i.test(s) || /(instagram|twitter|x|facebook|youtube|youtu)\.com\//i.test(s)) {
+      try {
+        const url = new URL(s.startsWith("http") ? s : `https://${s}`);
+        const parts = url.pathname.split("/").filter(Boolean);
+        const slug = (parts.find((p) => p.startsWith("@")) || parts[parts.length - 1] || "")
+          .replace(/^@+/, "")
+          .split("?")[0];
+        if (slug && !["channel", "c", "user", "watch", "shorts", "reel", "p"].includes(slug.toLowerCase())) {
+          s = slug;
+        }
+      } catch {
+        s = s.split("/").filter(Boolean).pop() || s;
+      }
+    }
     if (s) return s;
   }
   for (const raw of candidates) {

@@ -700,7 +700,7 @@ function AgentPanel() {
 
   return (
     <div className="w-full space-y-3 pb-8">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B0B0E]/95 backdrop-blur-sm z-10 pt-1 pr-20">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B0B0E]/95 backdrop-blur-sm z-10 pt-1">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
             § Talent Representative Console

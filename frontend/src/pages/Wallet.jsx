@@ -64,7 +64,7 @@ export default function Wallet() {
     <div className="flex flex-col w-full pb-8" data-testid="wallet-page">
       {/* Top Static Section */}
       <div className="shrink-0 space-y-4 mb-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4 pr-20">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Escrow Wallet

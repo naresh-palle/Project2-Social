@@ -17,18 +17,14 @@ const MOCK_IMAGES = [
   "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&q=80&w=800&sat=-20",
   "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800",
 ];
 
-/** Short sample clips (muted autoplay-friendly). */
+/** Short sample clips that allow CORS / public GET (muted autoplay-friendly). */
 const MOCK_VIDEOS = [
   "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-  "https://www.w3schools.com/html/mov_bbb.mp4",
   "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
 ];
 
 const MOCK_AVATARS = [
@@ -66,30 +62,57 @@ export function getDirectoryMedia(seed, { imageCount = 4, videoCount = 2 } = {})
   }
   const videos = [];
   for (let i = 0; i < videoCount; i += 1) {
-    videos.push(MOCK_VIDEOS[(h + i * 2) % MOCK_VIDEOS.length]);
+    videos.push(MOCK_VIDEOS[(h + i) % MOCK_VIDEOS.length]);
   }
   return {
     avatar: MOCK_AVATARS[h % MOCK_AVATARS.length],
     cover: images[0],
     images,
     videos,
-    /** Mixed reel-style strip: video, image, image, video… */
-    reel: [videos[0], images[0], images[1], videos[1] || videos[0], images[2], images[3]].filter(Boolean),
+    /** Image-first reel so Directory heroes never blank on blocked video hosts */
+    reel: [images[0], images[1], videos[0], images[2], images[3], videos[1] || videos[0]].filter(Boolean),
   };
 }
 
 /**
  * Enrich an influencer for Directory / detail views.
  * Keeps real avatar/portfolio when present; fills gaps with mock media.
+ * Prefers images for the hero strip so broken/blocked video hosts do not leave gray holes.
  */
 export function withDirectoryMedia(creator) {
   if (!creator) return creator;
   const mock = getDirectoryMedia(creator.id || creator.username || creator.email || creator.name);
   const existing = Array.isArray(creator.portfolio) ? creator.portfolio.filter(Boolean) : [];
-  const portfolio =
-    existing.length >= 4
-      ? existing
-      : [...existing, ...mock.reel.filter((u) => !existing.includes(u))].slice(0, 8);
+
+  // Drop known-bad hosts that 403 from the browser (old gtv / w3schools samples)
+  const usable = existing.filter(
+    (u) =>
+      !/gtv-videos-bucket|w3schools\.com\/html\/mov_bbb|storage\.googleapis\.com\/gtv-videos/i.test(
+        String(u)
+      )
+  );
+
+  const images = usable.filter((u) => !isVideoUrl(u));
+  const videos = usable.filter((u) => isVideoUrl(u));
+
+  // Hero-first ordering: images, then avatar/cover, then safe mock reel
+  const portfolio = [
+    ...images,
+    creator.avatar,
+    creator.cover_photo,
+    ...videos,
+    ...mock.reel,
+  ]
+    .filter(Boolean)
+    .filter((u, i, arr) => arr.indexOf(u) === i)
+    .slice(0, 8);
+
+  // Ensure at least 4 slots for the card grid
+  while (portfolio.length < 4) {
+    const next = mock.images[portfolio.length % mock.images.length];
+    if (!portfolio.includes(next)) portfolio.push(next);
+    else portfolio.push(mock.avatar);
+  }
 
   return {
     ...creator,

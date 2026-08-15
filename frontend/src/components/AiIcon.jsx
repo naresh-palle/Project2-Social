@@ -1,6 +1,7 @@
 /**
  * Shared AI-generated icon assets (public/icons).
- * Use <AiIcon name="dashboard" /> anywhere in the app.
+ * Rendered via CSS mask so glyphs are always solid, high-contrast colors
+ * (black plate is masked out; fill color is controllable).
  */
 const ICON_FILES = {
   dashboard: "nav-dashboard.png",
@@ -31,6 +32,13 @@ const ICON_FILES = {
   edit: "edit-profile.png",
 };
 
+const TONES = {
+  white: "#F4F4F0",
+  muted: "rgba(244, 244, 240, 0.72)",
+  brand: "#FF3B30",
+  soft: "rgba(244, 244, 240, 0.9)",
+};
+
 export function aiIconSrc(name) {
   const file = ICON_FILES[name] || ICON_FILES.sparkles;
   const base = process.env.PUBLIC_URL || "";
@@ -41,15 +49,31 @@ export function AiIcon({
   name,
   alt = "",
   className = "w-4 h-4",
-  rounded = false,
+  /** Fill color: white | muted | brand | soft | any CSS color */
+  tone = "white",
+  title,
   ...rest
 }) {
+  const src = aiIconSrc(name);
+  const color = TONES[tone] || tone || TONES.white;
+
   return (
-    <img
-      src={aiIconSrc(name)}
-      alt={alt}
-      draggable={false}
-      className={`${rounded ? "rounded-full object-cover" : "object-contain"} ${className}`}
+    <span
+      role={alt ? "img" : "presentation"}
+      aria-label={alt || undefined}
+      title={title}
+      className={`inline-block shrink-0 ${className}`}
+      style={{
+        backgroundColor: color,
+        WebkitMaskImage: `url(${src})`,
+        maskImage: `url(${src})`,
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }}
       {...rest}
     />
   );

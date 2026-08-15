@@ -291,7 +291,7 @@ export default function Feed() {
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Feed</h1>
           </div>
-          <div className="flex items-center gap-2 mr-24">
+          <div className="flex items-center gap-2">
             <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF3B30] rounded-full">
               <AiIcon name="refresh" className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>

@@ -94,7 +94,7 @@ export default function HelpChat() {
   return (
     <div className="w-full min-h-[calc(100vh-1.5rem)] bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
       <div className="mb-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4 pr-20">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> CR8 Help

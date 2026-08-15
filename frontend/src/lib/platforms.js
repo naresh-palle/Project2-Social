@@ -115,8 +115,29 @@ export function getTopSocialAccount(user) {
   }
 
   let handle = best.handle;
-  if (handle && !handle.startsWith("@") && best.platform !== "youtube" && best.platform !== "facebook") {
-    handle = `@${handle.replace(/^@/, "")}`;
+  // Normalize profile URLs → @username
+  if (handle) {
+    const raw = handle.replace(/^@+/, "").trim();
+    try {
+      if (/^https?:\/\//i.test(raw) || raw.includes("instagram.com") || raw.includes("twitter.com") || raw.includes("x.com") || raw.includes("facebook.com") || raw.includes("youtube.com") || raw.includes("youtu.be")) {
+        const url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+        const parts = url.pathname.split("/").filter(Boolean);
+        // youtube.com/@handle or /channel/... or /c/...
+        let slug = parts.find((p) => p.startsWith("@")) || parts[parts.length - 1] || "";
+        slug = slug.replace(/^@+/, "").split("?")[0];
+        if (slug && !["channel", "c", "user", "watch", "shorts", "reel", "p"].includes(slug.toLowerCase())) {
+          handle = slug;
+        }
+      } else {
+        handle = raw;
+      }
+    } catch {
+      handle = raw.split("/").filter(Boolean).pop() || raw;
+    }
+    handle = String(handle).replace(/^@+/, "").trim();
+    if (handle && best.platform !== "youtube" && best.platform !== "facebook") {
+      handle = `@${handle}`;
+    }
   }
 
   return {

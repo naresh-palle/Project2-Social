@@ -56,7 +56,7 @@ export function NotificationBell() {
           data-testid="notif-bell"
           title="Notifications"
           aria-label="Notifications"
-          className="relative w-9 h-9 rounded-full hairline-t hairline-b hairline-l hairline-r flex items-center justify-center hover:bg-white/5 transition-colors"
+          className="relative w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:bg-[#FF3B30]/15 hover:border-[#FF3B30] flex items-center justify-center transition-colors"
         >
           <AiIcon name="bell" className="w-5 h-5" />
           {data.unread > 0 && (

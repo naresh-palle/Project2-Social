@@ -139,7 +139,7 @@ export default function SupportCenter() {
 
   return (
     <div className="flex flex-col w-full pb-8">
-      <div className="mb-6 border-b border-white/10 pb-4 pr-20">
+      <div className="mb-6 border-b border-white/10 pb-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">

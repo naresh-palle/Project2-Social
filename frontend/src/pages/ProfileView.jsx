@@ -115,23 +115,23 @@ export default function ProfileView() {
           </p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Profile</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2 mr-24">
+        <div className="flex flex-wrap items-center gap-2">
           <IconTip label="View as public profile" side="bottom">
             <Link
               to={`/u/${profile.id}`}
               aria-label="View as public profile"
-              className="inline-flex items-center justify-center rounded-full overflow-hidden w-10 h-10 hover:scale-105 transition-transform shadow-lg shadow-[#FF3B30]/25"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
             >
-              <AiIcon name="view-public" rounded className="w-10 h-10" />
+              <AiIcon name="view-public" className="w-5 h-5" />
             </Link>
           </IconTip>
           <IconTip label="Edit" side="bottom">
             <Link
               to="/profile/edit"
               aria-label="Edit profile"
-              className="inline-flex items-center justify-center rounded-full overflow-hidden w-10 h-10 hover:scale-105 transition-transform shadow-lg shadow-[#FF3B30]/25"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
             >
-              <AiIcon name="edit" rounded className="w-10 h-10" />
+              <AiIcon name="edit" className="w-5 h-5" />
             </Link>
           </IconTip>
         </div>

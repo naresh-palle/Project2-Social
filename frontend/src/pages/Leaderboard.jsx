@@ -65,7 +65,7 @@ export default function Leaderboard() {
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Leaderboard</h1>
           </div>
-          <div className="flex flex-wrap items-center gap-2 pr-20">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="bg-white/5 p-0.5 rounded-full flex border border-white/10">
               {["weekly", "monthly"].map((p) => (
                 <button

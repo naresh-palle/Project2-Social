@@ -528,7 +528,7 @@ export default function SupportDashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="mb-6 pr-20"
+        className="mb-6"
       >
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#121216] to-[#0B0B0E] px-5 py-5 md:px-7 md:py-6">
           <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF3B30]/15 blur-3xl" />
