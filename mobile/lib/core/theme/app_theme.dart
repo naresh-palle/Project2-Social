@@ -53,7 +53,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Cr8Colors.bg.withOpacity(0.9),
+        backgroundColor: Cr8Colors.bg.withValues(alpha: 0.9),
         foregroundColor: Cr8Colors.text,
         elevation: 0,
         titleTextStyle: GoogleFonts.playfairDisplay(
@@ -116,20 +116,20 @@ class AppTheme {
         indicatorColor: Cr8Colors.accent,
         elevation: 0,
         height: 68,
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          final selected = states.contains(MaterialState.selected);
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
           return GoogleFonts.manrope(
             fontSize: 11,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected ? Cr8Colors.text : Cr8Colors.muted,
           );
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          final selected = states.contains(MaterialState.selected);
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
           return IconThemeData(color: selected ? Colors.white : Cr8Colors.muted, size: 22);
         }),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: Cr8Colors.surface,
         elevation: 0,
         margin: EdgeInsets.zero,

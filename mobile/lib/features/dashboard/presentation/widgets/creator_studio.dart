@@ -237,7 +237,7 @@ class _GreetingHeader extends StatelessWidget {
           onTap: () => context.push('/profile'),
           child: CircleAvatar(
             radius: 26,
-            backgroundColor: Cr8Colors.accent.withOpacity( 0.2),
+            backgroundColor: Cr8Colors.accent.withValues(alpha: 0.2),
             backgroundImage: user.avatar != null && user.avatar!.isNotEmpty ? NetworkImage(user.avatar!) : null,
             child: user.avatar == null || user.avatar!.isEmpty
                 ? Text(
@@ -304,7 +304,7 @@ class _EarningsHero extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Cr8Colors.accent.withOpacity( 0.35),
+            color: Cr8Colors.accent.withValues(alpha: 0.35),
             blurRadius: 28,
             offset: const Offset(0, 14),
           ),
@@ -459,7 +459,7 @@ class _KpiCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: Cr8Colors.hairline),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity( 0.18), blurRadius: 16, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 16, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
@@ -603,7 +603,7 @@ class SparklinePainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [color.withOpacity( 0.35), color.withOpacity( 0)],
+          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0)],
         ).createShader(Offset.zero & size),
     );
     canvas.drawPath(
@@ -685,7 +685,7 @@ class _ActivityRow extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: m.color.withOpacity( 0.12),
+            backgroundColor: m.color.withValues(alpha: 0.12),
             child: Icon(m.icon, size: 18, color: m.color),
           ),
           const SizedBox(width: 10),

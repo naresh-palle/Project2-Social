@@ -33,9 +33,12 @@ drawer, not the bottom nav.
 
 Signed-in users hitting `/`, `/login`, or `/register` redirect to `/dashboard`.
 
-Compile for Flutter 3.24+ in this cloud image: prefer `withOpacity`,
-`MaterialStateProperty`, and `CardTheme` in new code. Do not commit
-`mobile/pubspec.lock` after a local `flutter pub get` on an older SDK.
+Match **GitHub Actions Flutter `stable`** (see `.github/workflows/flutter-mobile.yml`).
+CI runs `flutter analyze --no-fatal-infos`, so **errors fail the deploy**:
+
+- `ThemeData.cardTheme` must be `CardThemeData` (not `CardTheme`)
+- Prefer `withValues(alpha: …)`, `WidgetStateProperty`, and `WidgetState`
+- Do not commit `mobile/pubspec.lock` produced by an older local SDK (e.g. 3.24)
 
 ## 2. Build the release APK
 

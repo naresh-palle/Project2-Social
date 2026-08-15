@@ -232,16 +232,16 @@ class _AdminUserCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: banned
-                          ? Cr8Colors.accent.withOpacity( 0.4)
+                          ? Cr8Colors.accent.withValues(alpha: 0.4)
                           : pending
-                              ? Colors.orange.withOpacity( 0.4)
-                              : Cr8Colors.success.withOpacity( 0.4),
+                              ? Colors.orange.withValues(alpha: 0.4)
+                              : Cr8Colors.success.withValues(alpha: 0.4),
                     ),
                     color: banned
-                        ? Cr8Colors.accent.withOpacity( 0.08)
+                        ? Cr8Colors.accent.withValues(alpha: 0.08)
                         : pending
-                            ? Colors.orange.withOpacity( 0.08)
-                            : Cr8Colors.success.withOpacity( 0.08),
+                            ? Colors.orange.withValues(alpha: 0.08)
+                            : Cr8Colors.success.withValues(alpha: 0.08),
                   ),
                   child: Text(
                     status.toUpperCase(),
