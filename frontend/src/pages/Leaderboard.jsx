@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 import { Trophy, Coins, Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { toast } from "sonner";
 
 const MOCK_TOP_PERFORMERS = [
@@ -60,7 +61,7 @@ export default function Leaderboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Rankings
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Rankings
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Leaderboard</h1>
           </div>

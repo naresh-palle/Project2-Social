@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { Nav } from "@/components/Nav";
 
 export default function RegisterSplash() {
@@ -30,7 +31,7 @@ export default function RegisterSplash() {
         >
           <div className="text-center">
             <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-[#FF3B30] font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5" /> Studio Entry Gate
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Studio Entry Gate
             </div>
             <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15]">
               Choose your <span className="italic text-[#FF3B30]">door</span>

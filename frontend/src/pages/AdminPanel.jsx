@@ -5,6 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, 
   Trash2, Lock, ShieldCheck, Zap, FileText, Check, ShieldAlert, Sparkles
 } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -600,7 +601,7 @@ export function AdminPanel() {
         <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> Admin
+                <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Admin
               </p>
               <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Admin</h1>
                 <div className="flex gap-4 mt-6 font-sans text-[11px] uppercase tracking-widest overflow-x-auto whitespace-nowrap custom-scrollbar pb-1">

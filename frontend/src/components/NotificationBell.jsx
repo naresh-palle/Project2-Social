@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { IconTip } from "@/components/IconTip";
+import { AiIcon } from "@/components/AiIcon";
 
 export function NotificationBell() {
   const { user } = useAuth();
@@ -58,7 +58,7 @@ export function NotificationBell() {
           aria-label="Notifications"
           className="relative w-9 h-9 rounded-full hairline-t hairline-b hairline-l hairline-r flex items-center justify-center hover:bg-white/5 transition-colors"
         >
-          <Bell className="w-4 h-4" />
+          <AiIcon name="bell" className="w-5 h-5" />
           {data.unread > 0 && (
             <span data-testid="notif-badge" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF3B30] text-[#F4F4F0] text-[10px] font-mono flex items-center justify-center">
               {data.unread > 9 ? "9+" : data.unread}

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { ArrowRight, Sparkles, Loader2, Upload, X } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { uploadImage } from "@/lib/upload";
@@ -194,7 +195,7 @@ export default function NewCampaign({ isEdit }) {
             </h1>
           </div>
           <button onClick={() => setAiOpen((v) => !v)} data-testid="ai-toggle" className="btn-pill text-xs">
-            <Sparkles className="w-3.5 h-3.5" /> AI Copilot
+            <AiIcon name="sparkles" className="w-3.5 h-3.5" /> AI Copilot
           </button>
         </div>
 

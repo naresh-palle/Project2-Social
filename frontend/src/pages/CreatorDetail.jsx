@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -56,7 +57,7 @@ export default function CreatorDetail() {
       {/* Compact hero */}
       <div className="border-b border-white/10 pb-4 mb-4 pr-20">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5" /> Directory profile
+          <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory profile
         </p>
 
         <div className="flex flex-col md:flex-row gap-4 md:items-center">

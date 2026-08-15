@@ -129,8 +129,12 @@ button, input, select, textarea {
 /* Custom cursor for interactive */
 a, button { cursor: pointer; }
 
-/* Scrollbars */
+/* Scrollbars — hide globally so app pages never show a gutter scrollbar */
 ::-webkit-scrollbar { width: 0; height: 0; }
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
 
 /* Film grain overlay */
 .grain {

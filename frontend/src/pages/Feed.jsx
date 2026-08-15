@@ -6,6 +6,7 @@ import {
   Pin, Trash2, Edit3, X, Image, Link2, BarChart2, ExternalLink, CheckCircle2,
   Loader2, Send, MoreHorizontal, Sparkle, Lock, Zap, ArrowRight, Volume2, VolumeX
 } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -281,21 +282,21 @@ export default function Feed() {
   };
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col pt-2">
       <div className="flex flex-col w-full">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-4 mb-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Community
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Community
             </p>
-            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Feed</h1>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Feed</h1>
           </div>
-          <div className="flex items-center gap-2 pr-20">
+          <div className="flex items-center gap-2 mr-24">
             <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF3B30] rounded-full">
-              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              <AiIcon name="refresh" className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
             <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF3B30] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
-              <Plus className="w-4 h-4" /> Create
+              <AiIcon name="create" className="w-4 h-4" /> Create
             </button>
           </div>
         </div>

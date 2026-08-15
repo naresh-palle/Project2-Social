@@ -4,6 +4,7 @@ import {
   User, Bell, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Sun, Moon, Eye, Loader2, ChevronRight, ChevronLeft
 , Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { useAuth, applyUserSettings } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -311,14 +312,14 @@ export default function Settings() {
   }
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <div className="flex flex-col w-full pb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4 pr-20">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col pt-2">
+      <div className="flex flex-col w-full pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-3 mb-4 mr-24">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> ⚡ Account Settings
+                <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Account Settings
               </p>
-              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Settings</h1>
+              <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Settings</h1>
             </div>
           </div>
 

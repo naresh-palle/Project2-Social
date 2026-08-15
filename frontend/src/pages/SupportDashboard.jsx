@@ -12,6 +12,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { MenuSelect } from "@/components/MenuSelect";
 import { displayAccountName } from "@/lib/username";
+import { AiIcon } from "@/components/AiIcon";
 
 
 const AI_STATUS_OPTS = [
@@ -535,7 +536,7 @@ export default function SupportDashboard() {
           <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#FF3B30]">
-                <LifeBuoy className="w-3.5 h-3.5" /> Support Ops
+                <AiIcon name="support" className="w-3.5 h-3.5" /> Support Ops
               </div>
               <h1 className="font-editorial text-3xl md:text-4xl mt-2 tracking-tight">{pageTitle}</h1>
               {tab === "dashboard" && (
@@ -644,10 +645,10 @@ export default function SupportDashboard() {
                 </div>
               </div>
               {[
-                { label: "Claim next unassigned", queue: "unassigned", icon: Inbox },
-                { label: "Review escalations", queue: "escalated", icon: AlertTriangle },
-                { label: "My open tickets", queue: "mine", icon: Clock },
-                { label: "AI escalated queue", queue: "escalated", icon: Sparkles },
+                { label: "Claim next unassigned", queue: "unassigned", icon: "tickets" },
+                { label: "Review escalations", queue: "escalated", icon: "audit" },
+                { label: "My open tickets", queue: "mine", icon: "profile" },
+                { label: "AI escalated queue", queue: "escalated", icon: "ai" },
               ].map((a) => (
                 <button
                   key={a.label}
@@ -655,7 +656,7 @@ export default function SupportDashboard() {
                   onClick={() => setTab("tickets", a.queue)}
                   className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left hover:border-[#FF3B30]/40 hover:bg-[#FF3B30]/05 transition-colors"
                 >
-                  <a.icon className="w-4 h-4 text-white/65" />
+                  <AiIcon name={a.icon} className="w-4 h-4 opacity-80" />
                   <span className="text-sm flex-1 font-medium">{a.label}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-white/30" />
                 </button>

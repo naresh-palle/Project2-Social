@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft, Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -66,7 +67,7 @@ export default function Wallet() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4 pr-20">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5" /> Escrow Wallet
+                  <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Escrow Wallet
                 </p>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Wallet</h1>
                 <p className="font-sans text-xs opacity-50 mt-1">Balance & transactions</p>

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Send, Check, RotateCw, Star, IndianRupee, MessageSquare, Upload, Sparkles, Loader2, FileText, ChevronLeft } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 
 import { api, formatApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -287,7 +288,7 @@ export default function CampaignDetail() {
                   <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ AI-ranked top matches</h3>
                   {!topMatches ? (
                     <button onClick={loadTopMatches} disabled={matchesBusy} data-testid="load-top-matches" className="btn-pill text-[10px]">
-                      {matchesBusy ? <><Loader2 className="w-3 h-3 animate-spin" /> Scoring…</> : <><Sparkles className="w-3 h-3" /> Reveal top 5</>}
+                      {matchesBusy ? <><Loader2 className="w-3 h-3 animate-spin" /> Scoring…</> : <><AiIcon name="sparkles" className="w-3 h-3" /> Reveal top 5</>}
                     </button>
                   ) : (
                     <button onClick={loadTopMatches} disabled={matchesBusy} className="font-mono text-[10px] tracking-[0.28em] uppercase kinetic-underline opacity-70">

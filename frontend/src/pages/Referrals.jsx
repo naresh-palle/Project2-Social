@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   Copy, Share2, Send, Check, Users, Sparkles, Gift, Clock, BadgeCheck
 } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { toast } from "sonner";
 
 export default function Referrals() {
@@ -78,7 +79,7 @@ export default function Referrals() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 pr-20">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Referrals
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Referrals
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">
               Refer & Earn

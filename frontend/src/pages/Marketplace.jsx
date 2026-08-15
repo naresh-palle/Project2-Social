@@ -2,13 +2,13 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowLeft, Play, ChevronLeft, Sparkles } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { api } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
-import { useLenis } from "@/lib/useLenis";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 import { getTopSocialAccount } from "@/lib/platforms";
 
@@ -145,7 +145,6 @@ function CreatorDirectoryCard({ creator, index }) {
 }
 
 export default function Marketplace() {
-  useLenis();
   const [tab, setTab] = useState("creators");
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -180,16 +179,16 @@ export default function Marketplace() {
   const onSearch = (e) => { e.preventDefault(); load(); };
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      <div className="flex flex-col w-full pb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4">
+    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col pt-2">
+      <div className="flex flex-col w-full pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> Directory
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory
             </p>
-            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Directory</h1>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Directory</h1>
           </div>
-          <div className="w-full md:w-56 md:pr-20">
+          <div className="w-full md:w-56 md:mr-24">
             <MultiSelectDropdown
               options={PLATFORM_CATEGORIES}
               selected={categories}
@@ -202,7 +201,7 @@ export default function Marketplace() {
           </div>
         </div>
 
-        <div className="mb-6 border border-white/15 rounded-3xl px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
+        <div className="mb-4 border border-white/15 rounded-3xl px-3 py-2 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex gap-5 font-sans text-[11px] tracking-[0.28em] uppercase">
             {["creators", "campaigns"].map((t) => (
               <button
@@ -217,7 +216,7 @@ export default function Marketplace() {
           </div>
           <form onSubmit={onSearch} className="flex items-center gap-2">
             <div className="flex items-center gap-2 border-b border-white/20 py-1.5 pl-1.5 pr-2">
-              <Search className="w-4 h-4 opacity-60" />
+              <AiIcon name="search" className="w-4 h-4 opacity-70" />
               <input
                 data-testid="search-input"
                 value={q}
@@ -235,7 +234,7 @@ export default function Marketplace() {
                 title="Search"
                 aria-label="Search"
               >
-                <Search className="w-4 h-4" />
+                <AiIcon name="search" className="w-4 h-4" />
               </button>
             </IconTip>
           </form>

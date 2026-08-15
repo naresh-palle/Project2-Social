@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  Edit2, Image as ImageIcon, Video as VideoIcon,
-  ExternalLink, ShieldCheck, MapPin, CheckCircle2, Sparkles
+  Image as ImageIcon, Video as VideoIcon,
+  ShieldCheck, MapPin, CheckCircle2, Sparkles
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -15,6 +15,8 @@ import {
 } from "@/lib/platforms";
 import { displayAccountName } from "@/lib/username";
 import { withBrandDisplayDefaults } from "@/lib/brandProfileDefaults";
+import { IconTip } from "@/components/IconTip";
+import { AiIcon } from "@/components/AiIcon";
 
 export default function ProfileView() {
   const nav = useNavigate();
@@ -105,37 +107,33 @@ export default function ProfileView() {
     : "—";
 
   return (
-    <div className="flex flex-col w-full pb-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-4 mb-5">
+    <div className="flex flex-col w-full pb-6 pt-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5" /> Account
+            <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Account
           </p>
-          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Profile</h1>
+          <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Profile</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2 pr-20">
-          <Link
-            to={`/u/${profile.id}`}
-            title="View as public profile"
-            aria-label="View as public profile"
-            className="group btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center justify-center gap-0 hover:gap-2 rounded-full p-2.5 hover:px-4 hover:py-2.5 text-sm shadow-lg shadow-[#FF3B30]/20 border border-[#FF3B30] transition-all duration-200"
-          >
-            <ExternalLink className="w-4 h-4 shrink-0" />
-            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[16rem] group-hover:opacity-100 transition-all duration-200 font-mono text-[10px] font-bold uppercase tracking-widest">
-              View as public profile
-            </span>
-          </Link>
-          <Link
-            to="/profile/edit"
-            title="Edit"
-            aria-label="Edit profile"
-            className="group btn-solid bg-[#FF3B30] text-white hover:bg-[#e03126] inline-flex items-center justify-center gap-0 hover:gap-2 rounded-full p-2.5 hover:px-4 hover:py-2.5 text-sm shadow-lg shadow-[#FF3B30]/20 border border-[#FF3B30] transition-all duration-200"
-          >
-            <Edit2 className="w-4 h-4 shrink-0" />
-            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[6rem] group-hover:opacity-100 transition-all duration-200 font-mono text-[10px] font-bold uppercase tracking-widest">
-              Edit
-            </span>
-          </Link>
+        <div className="flex flex-wrap items-center gap-2 mr-24">
+          <IconTip label="View as public profile" side="bottom">
+            <Link
+              to={`/u/${profile.id}`}
+              aria-label="View as public profile"
+              className="inline-flex items-center justify-center rounded-full overflow-hidden w-10 h-10 hover:scale-105 transition-transform shadow-lg shadow-[#FF3B30]/25"
+            >
+              <AiIcon name="view-public" rounded className="w-10 h-10" />
+            </Link>
+          </IconTip>
+          <IconTip label="Edit" side="bottom">
+            <Link
+              to="/profile/edit"
+              aria-label="Edit profile"
+              className="inline-flex items-center justify-center rounded-full overflow-hidden w-10 h-10 hover:scale-105 transition-transform shadow-lg shadow-[#FF3B30]/25"
+            >
+              <AiIcon name="edit" rounded className="w-10 h-10" />
+            </Link>
+          </IconTip>
         </div>
       </div>
 

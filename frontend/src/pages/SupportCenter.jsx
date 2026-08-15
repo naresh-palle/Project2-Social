@@ -14,6 +14,7 @@ import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { AiIcon } from "@/components/AiIcon";
 
 const FALLBACK_FAQ = {
   influencer: [
@@ -142,7 +143,7 @@ export default function SupportCenter() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <LifeBuoy className="w-3.5 h-3.5" /> Support Center
+              <AiIcon name="support" className="w-3.5 h-3.5" /> Support Center
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5 mb-2">Help & Support</h1>
             <p className="font-sans text-white/60 max-w-2xl text-sm">
@@ -153,7 +154,7 @@ export default function SupportCenter() {
             to="/help"
             className="inline-flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 font-mono text-[10px] tracking-widest uppercase"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" /> AI Help
+            <AiIcon name="ai" className="w-3.5 h-3.5" /> AI Help
           </Link>
         </div>
       </div>

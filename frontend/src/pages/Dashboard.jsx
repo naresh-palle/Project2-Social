@@ -9,6 +9,7 @@ import {
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
   ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass, Search
 } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { Nav } from "@/components/Nav";
 
 import { IconTip } from "@/components/IconTip";
@@ -255,7 +256,7 @@ function OwnerPanel() {
               activeTab === "work-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" /> Feed ({filteredFeed.length})
+            <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Feed ({filteredFeed.length})
           </button>
           <button
             onClick={() => setActiveTab("directory")}

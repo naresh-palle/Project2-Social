@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send, Bot, Sparkles, User, ExternalLink, X, Ticket } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -96,7 +97,7 @@ export default function HelpChat() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4 pr-20">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5" /> CR8 Help
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> CR8 Help
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">CR8 Assistant</h1>
           </div>

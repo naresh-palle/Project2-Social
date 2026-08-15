@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Save, Plus, X, Upload, Sparkles, Loader2, RefreshCw, CheckCircle2, Crop, Pencil } from "lucide-react";
+import { AiIcon } from "@/components/AiIcon";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError, firstErrorField } from "@/lib/api";
@@ -871,7 +872,7 @@ export default function ProfileEdit() {
                       <div className="flex items-center gap-2 shrink-0">
                         {isInfluencer && (
                             <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white">
-                                {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="sparkles" className="w-3 h-3" />}
                                 {aiBusy ? "Curating…" : "AI from niches + location"}
                             </button>
                         )}

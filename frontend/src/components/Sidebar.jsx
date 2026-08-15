@@ -1,9 +1,10 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Search, LifeBuoy, Bot, ShieldCheck } from "lucide-react";
 import { displayAccountName } from "@/lib/username";
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
+import { AiIcon } from "@/components/AiIcon";
+import { IconTip } from "@/components/IconTip";
 
 export function Sidebar() {
   const { user } = useAuth();
@@ -17,40 +18,40 @@ export function Sidebar() {
   const opsTab = searchParams.get("tab") || "overview";
 
   const supportItems = [
-    { to: "/support/ops?tab=dashboard", label: "Dashboard", icon: "📊", tab: "dashboard" },
-    { to: "/support/ops?tab=tickets", label: "Tickets", icon: "🎫", tab: "tickets" },
+    { to: "/support/ops?tab=dashboard", label: "Dashboard", icon: "dashboard", tab: "dashboard" },
+    { to: "/support/ops?tab=tickets", label: "Tickets", icon: "tickets", tab: "tickets" },
     ...(user?.role === "support_admin" || user?.role === "support_lead"
-      ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "👥", tab: "staff" }]
+      ? [{ to: "/support/ops?tab=staff", label: "Users", icon: "users", tab: "staff" }]
       : []),
-    { to: "/support/ops?tab=knowledge", label: "Knowledge Base", icon: "📚", tab: "knowledge" },
+    { to: "/support/ops?tab=knowledge", label: "Knowledge Base", icon: "knowledge", tab: "knowledge" },
     ...(user?.role === "support_admin"
-      ? [{ to: "/support/ops?tab=ai", label: "AI Support", icon: "🤖", tab: "ai" }]
+      ? [{ to: "/support/ops?tab=ai", label: "AI Support", icon: "ai", tab: "ai" }]
       : []),
     ...(user?.role === "support_admin" || user?.role === "support_lead"
-      ? [{ to: "/support/ops?tab=analytics", label: "Analytics", icon: "📈", tab: "analytics" }]
+      ? [{ to: "/support/ops?tab=analytics", label: "Analytics", icon: "analytics", tab: "analytics" }]
       : []),
     ...(user?.role === "support_admin" || user?.role === "support_lead"
-      ? [{ to: "/support/ops?tab=audit", label: "Audit", icon: "🧾", tab: "audit" }]
+      ? [{ to: "/support/ops?tab=audit", label: "Audit", icon: "audit", tab: "audit" }]
       : []),
-    { to: "/settings", label: "Settings", icon: "⚙️", tab: "settings" },
+    { to: "/settings", label: "Settings", icon: "settings", tab: "settings" },
   ];
 
   const items = isSupportOps
     ? supportItems
     : [
-        { to: "/dashboard", label: "Dashboard", icon: "📊" },
-        { to: "/feed", label: "Feed", icon: "📰" },
-        { to: "/marketplace", label: "Directory", icon: "📇" },
-        { to: "/leaderboard", label: "Leaderboard", icon: "🏆" },
+        { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+        { to: "/feed", label: "Feed", icon: "feed" },
+        { to: "/marketplace", label: "Directory", icon: "directory" },
+        { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
         ...(user?.role !== "admin"
           ? [
-              { to: "/referrals", label: "Referrals", icon: "👥" },
-              { to: "/invitations", label: "Invitations", icon: "✉️" },
+              { to: "/referrals", label: "Referrals", icon: "referrals" },
+              { to: "/invitations", label: "Invitations", icon: "invitations" },
             ]
           : []),
-        { to: "/wallet", label: "Wallet", icon: "💳" },
-        { to: "/profile", label: "Profile", icon: "👤" },
-        { to: "/settings", label: "Settings", icon: "⚙️" },
+        { to: "/wallet", label: "Wallet", icon: "wallet" },
+        { to: "/profile", label: "Profile", icon: "profile" },
+        { to: "/settings", label: "Settings", icon: "settings" },
       ];
 
   const handleSearch = (e) => {
@@ -118,7 +119,7 @@ export function Sidebar() {
 
           <h3 className="font-sans font-bold text-sm text-white flex items-center gap-1 justify-center leading-tight">
             {displayAccountName(user)}
-            {user?.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#34C759]" />}
+            {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5" />}
           </h3>
           <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#FF3B30] mt-0.5">
             {user?.role === "admin"
@@ -170,7 +171,7 @@ export function Sidebar() {
         </div>
 
         <form onSubmit={handleSearch} className="relative mb-4">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-2 opacity-50 text-white" />
+          <AiIcon name="search" className="w-3.5 h-3.5 absolute left-3 top-2 opacity-70" />
           <input
             name="search"
             type="text"
@@ -192,7 +193,7 @@ export function Sidebar() {
                     : "text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <span className="text-base opacity-80">{it.icon}</span>
+                <AiIcon name={it.icon} className={`w-4 h-4 shrink-0 ${isActive ? "brightness-110" : "opacity-80"}`} />
                 {it.label}
               </Link>
             );
@@ -203,12 +204,16 @@ export function Sidebar() {
       <div className="mt-auto p-4 border-t border-white/10">
         {!isSupportOps && (
           <div className="flex gap-2">
-            <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="Support">
-              <LifeBuoy className="w-4 h-4" />
-            </Link>
-            <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors" title="AI Help">
-              <Bot className="w-4 h-4" />
-            </Link>
+            <IconTip label="Support">
+              <Link to="/support" className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors inline-flex" aria-label="Support">
+                <AiIcon name="support" className="w-4 h-4 opacity-80" />
+              </Link>
+            </IconTip>
+            <IconTip label="AI Help">
+              <Link to="/help" className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors inline-flex" aria-label="AI Help">
+                <AiIcon name="ai" className="w-4 h-4 opacity-80" />
+              </Link>
+            </IconTip>
           </div>
         )}
       </div>
