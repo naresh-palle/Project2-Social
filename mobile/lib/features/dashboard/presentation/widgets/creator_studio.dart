@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/domain/entities/user_entity.dart';
@@ -27,8 +26,7 @@ String formatCompact(num n) {
   return v.round().toString();
 }
 
-int _seed(String? s) => (s ?? 'cr8').codeUnits.fold(0, (a, c) => a + c);
-
+/// Kept for unit tests / sparkline utilities (Performance chart removed from Home).
 List<double> buildTrend({required num base, required int days, required int seed}) {
   var v = math.max(1200.0, base.toDouble());
   final out = <double>[];
@@ -41,21 +39,8 @@ List<double> buildTrend({required num base, required int days, required int seed
   return out;
 }
 
-class StudioActivity {
-  const StudioActivity({
-    required this.id,
-    required this.kind,
-    required this.text,
-    this.at,
-  });
-
-  final String id;
-  final String kind;
-  final String text;
-  final DateTime? at;
-}
-
-/// Premium post-login creator home: hero, KPIs, trend, activity, actions.
+/// Premium post-login creator home (annotated layout):
+/// Brand offers → earnings + pitches/campaigns → overall social KPIs → shortcuts.
 class CreatorStudioView extends StatelessWidget {
   const CreatorStudioView({
     super.key,
@@ -80,29 +65,19 @@ class CreatorStudioView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final snapshot = CreatorSnapshot.from(user, stats, wallet, notifications, campaigns, range);
+    final snapshot = CreatorSnapshot.from(user, stats, wallet, campaigns);
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
       children: [
         _GreetingHeader(user: user, onOpenMenu: onOpenMenu),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
+        _OffersSection(offers: snapshot.offers),
+        const SizedBox(height: 14),
         _EarningsHero(snapshot: snapshot),
         const SizedBox(height: 14),
-        _KpiGrid(snapshot: snapshot),
+        _OverallAnalytics(snapshot: snapshot),
         const SizedBox(height: 18),
-        _TrendCard(
-          values: snapshot.trend,
-          range: range,
-          onRangeChanged: onRangeChanged,
-        ),
-        const SizedBox(height: 18),
-        _ActivityCard(items: snapshot.activity),
-        const SizedBox(height: 18),
-        const _QuickActions(),
-        if (snapshot.offers.isNotEmpty) ...[
-          const SizedBox(height: 18),
-          _OffersRow(offers: snapshot.offers),
-        ],
+        const _Shortcuts(),
       ],
     );
   }
@@ -111,37 +86,33 @@ class CreatorStudioView extends StatelessWidget {
 class CreatorSnapshot {
   CreatorSnapshot({
     required this.earnings,
-    required this.monthDelta,
     required this.followers,
-    required this.growth,
     required this.engagement,
+    required this.views,
     required this.activeCampaigns,
     required this.pendingCollabs,
-    required this.pendingPayout,
-    required this.trend,
-    required this.activity,
+    required this.pitches,
+    required this.openBriefs,
+    required this.connectedCount,
     required this.offers,
   });
 
   final num earnings;
-  final double monthDelta;
   final num followers;
-  final double growth;
   final double engagement;
+  final num views;
   final int activeCampaigns;
   final int pendingCollabs;
-  final num pendingPayout;
-  final List<double> trend;
-  final List<StudioActivity> activity;
+  final int pitches;
+  final int openBriefs;
+  final int connectedCount;
   final List<Map<String, dynamic>> offers;
 
   factory CreatorSnapshot.from(
     UserEntity user,
     Map<String, dynamic> stats,
     Map<String, dynamic> wallet,
-    List<Map<String, dynamic>> notifications,
     List<Map<String, dynamic>> campaigns,
-    int range,
   ) {
     final raw = user.raw;
     final platforms = raw['platform_metrics'] is Map
@@ -150,74 +121,40 @@ class CreatorSnapshot {
     num followers = 0;
     final ers = <double>[];
     num views = 0;
+    var connected = 0;
     for (final entry in platforms.entries) {
       final p = entry.value;
       if (p is! Map) continue;
       final handle = '${p['handle'] ?? ''}'.trim();
       if (handle.isEmpty) continue;
+      connected += 1;
       followers += (p['followers'] as num?) ?? (p['subscribers'] as num?) ?? 0;
-      final er = (p['engagement'] as num?)?.toDouble();
+      final er = (p['engagement'] as num?)?.toDouble() ?? (p['er'] as num?)?.toDouble();
       if (er != null && er > 0) ers.add(er);
       views += (p['views'] as num?) ?? 0;
     }
-    if (followers == 0) followers = (raw['followers'] as num?) ?? 124500;
+    if (followers == 0) {
+      followers = (stats['followers'] as num?) ?? (raw['followers'] as num?) ?? 0;
+    }
+    if (views == 0) {
+      views = (stats['views'] as num?) ?? 0;
+    }
 
     final earned = (wallet['balance'] as num?) ?? (stats['earned'] as num?) ?? user.wallet ?? 0;
-    final contracted = (stats['contracted'] as num?) ?? 0;
-    var pending = contracted - earned;
-    if (pending <= 0) pending = (earned * 0.18).round();
-    final seed = _seed(user.id);
-    final live = notifications.take(5).map((n) {
-      DateTime? at;
-      try {
-        at = DateTime.tryParse('${n['created_at'] ?? ''}');
-      } catch (_) {}
-      return StudioActivity(
-        id: '${n['id'] ?? n['text'] ?? n.hashCode}',
-        kind: '${n['kind'] ?? n['type'] ?? 'update'}',
-        text: '${n['text'] ?? n['title'] ?? n['body'] ?? 'Studio update'}',
-        at: at,
-      );
-    }).toList();
+    final openBriefs = campaigns.length;
 
     return CreatorSnapshot(
       earnings: earned,
-      monthDelta: 9.4 + (seed % 30) / 10,
       followers: followers,
-      growth: 6.8 + (seed % 40) / 10,
-      engagement: ers.isEmpty ? 5.4 : ers.reduce((a, b) => a + b) / ers.length,
-      activeCampaigns: (stats['acceptances'] as num?)?.toInt() ?? 3,
-      pendingCollabs: (stats['invitations'] as num?)?.toInt() ?? 2,
-      pendingPayout: pending,
-      trend: buildTrend(base: views == 0 ? followers * 3.2 / range : views / range, days: range, seed: seed),
-      activity: live.isNotEmpty
-          ? live
-          : [
-              StudioActivity(
-                id: 'a1',
-                kind: 'invitation',
-                text: 'Acme Brand invited you to Summer Capsule Reels',
-                at: DateTime.now().subtract(const Duration(minutes: 12)),
-              ),
-              StudioActivity(
-                id: 'a2',
-                kind: 'payment',
-                text: '${formatInr(math.max(12000, (earned * 0.2).round()))} landed from an approved deliverable',
-                at: DateTime.now().subtract(const Duration(hours: 3)),
-              ),
-              StudioActivity(
-                id: 'a3',
-                kind: 'campaign',
-                text: 'Lookbook brief was approved — escrow is live',
-                at: DateTime.now().subtract(const Duration(hours: 8)),
-              ),
-              StudioActivity(
-                id: 'a4',
-                kind: 'message',
-                text: 'New note from a brand producer',
-                at: DateTime.now().subtract(const Duration(days: 1)),
-              ),
-            ],
+      engagement: ers.isEmpty
+          ? ((stats['avg_engagement'] as num?)?.toDouble() ?? 0)
+          : ers.reduce((a, b) => a + b) / ers.length,
+      views: views,
+      activeCampaigns: (stats['acceptances'] as num?)?.toInt() ?? 0,
+      pendingCollabs: (stats['invitations'] as num?)?.toInt() ?? 0,
+      pitches: (stats['applications'] as num?)?.toInt() ?? 0,
+      openBriefs: openBriefs,
+      connectedCount: connected,
       offers: campaigns.take(4).toList(),
     );
   }
@@ -287,12 +224,83 @@ class _GreetingHeader extends StatelessWidget {
   }
 }
 
+class _OffersSection extends StatelessWidget {
+  const _OffersSection({required this.offers});
+  final List<Map<String, dynamic>> offers;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Brand offers', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
+            const Spacer(),
+            TextButton(
+              onPressed: () => context.push('/marketplace'),
+              child: Text(offers.isEmpty ? 'Browse all' : '${offers.length} live'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (offers.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+            decoration: BoxDecoration(
+              color: Cr8Colors.surface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: Cr8Colors.hairline),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'No live brand offers right now.',
+                  style: GoogleFonts.manrope(color: Cr8Colors.muted, fontSize: 13),
+                ),
+                TextButton(
+                  onPressed: () => context.push('/marketplace'),
+                  child: const Text('Open campaigns'),
+                ),
+              ],
+            ),
+          )
+        else
+          ...offers.map((c) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                onTap: () {
+                  final id = c['id'];
+                  if (id != null) context.push('/campaigns/$id');
+                },
+                tileColor: Cr8Colors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  side: const BorderSide(color: Cr8Colors.hairline),
+                ),
+                title: Text('${c['title'] ?? 'Campaign'}', maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text('${c['brand'] ?? ''}'),
+                trailing: Text(
+                  c['budget'] is num ? formatInr(c['budget'] as num) : '${c['budget'] ?? ''}',
+                  style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+                ),
+              ),
+            );
+          }),
+      ],
+    );
+  }
+}
+
 class _EarningsHero extends StatelessWidget {
   const _EarningsHero({required this.snapshot});
   final CreatorSnapshot snapshot;
 
   @override
   Widget build(BuildContext context) {
+    final campaignCount = snapshot.openBriefs > 0 ? snapshot.openBriefs : snapshot.activeCampaigns;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
       decoration: BoxDecoration(
@@ -355,35 +363,26 @@ class _EarningsHero extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.trending_up_rounded, size: 16, color: Color(0xFFB8F5C8)),
-              const SizedBox(width: 4),
-              Text(
-                '+${snapshot.monthDelta.toStringAsFixed(1)}% vs last month',
-                style: GoogleFonts.manrope(color: const Color(0xFFB8F5C8), fontSize: 13, fontWeight: FontWeight.w600),
-              ),
-            ],
+          Text(
+            '${snapshot.pendingCollabs} collabs pending · ${snapshot.activeCampaigns} active',
+            style: GoogleFonts.manrope(color: Colors.white70, fontSize: 12),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: Text(
-                  '${snapshot.activeCampaigns} campaigns live',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(color: Colors.white70, fontSize: 12),
+                child: _HeroStat(
+                  label: 'Pitches',
+                  value: '${snapshot.pitches}',
+                  hint: 'applications',
                 ),
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  '${snapshot.pendingCollabs} collabs pending',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.right,
-                  style: GoogleFonts.manrope(color: Colors.white70, fontSize: 12),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _HeroStat(
+                  label: 'Campaigns',
+                  value: '$campaignCount',
+                  hint: snapshot.openBriefs > 0 ? 'open briefs' : 'accepted',
                 ),
               ),
             ],
@@ -394,43 +393,87 @@ class _EarningsHero extends StatelessWidget {
   }
 }
 
-class _KpiGrid extends StatelessWidget {
-  const _KpiGrid({required this.snapshot});
+class _HeroStat extends StatelessWidget {
+  const _HeroStat({required this.label, required this.value, required this.hint});
+  final String label;
+  final String value;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: GoogleFonts.manrope(
+              color: Colors.white70,
+              fontSize: 10,
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.manrope(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+          ),
+          Text(hint, style: GoogleFonts.manrope(color: Colors.white60, fontSize: 11)),
+        ],
+      ),
+    );
+  }
+}
+
+class _OverallAnalytics extends StatelessWidget {
+  const _OverallAnalytics({required this.snapshot});
   final CreatorSnapshot snapshot;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 1.28,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _KpiCard(
-          label: 'Followers',
-          value: formatCompact(snapshot.followers),
-          hint: '+${snapshot.growth.toStringAsFixed(1)}%',
-          tone: Cr8Colors.success,
+        Text('Overall analytics', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        Text(
+          'Total social media presence / strength · followers, engagement & views',
+          style: GoogleFonts.manrope(fontSize: 12, color: Cr8Colors.muted),
         ),
-        _KpiCard(
-          label: 'Engagement',
-          value: '${snapshot.engagement.toStringAsFixed(1)}%',
-          hint: 'healthy',
-          tone: Cr8Colors.success,
-        ),
-        _KpiCard(
-          label: 'Active campaigns',
-          value: '${snapshot.activeCampaigns}',
-          hint: '${snapshot.pendingCollabs} pending',
-          tone: snapshot.pendingCollabs > 0 ? Cr8Colors.warning : Cr8Colors.muted,
-        ),
-        _KpiCard(
-          label: 'Pending payouts',
-          value: formatCompact(snapshot.pendingPayout),
-          hint: 'clearing',
-          tone: Cr8Colors.warning,
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 1,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10,
+          childAspectRatio: 3.4,
+          children: [
+            _KpiCard(
+              label: 'Total followers',
+              value: snapshot.followers > 0 ? formatCompact(snapshot.followers) : '—',
+              hint: snapshot.connectedCount > 0 ? '${snapshot.connectedCount} connected' : 'Connect socials',
+              tone: snapshot.followers > 0 ? Cr8Colors.success : Cr8Colors.muted,
+            ),
+            _KpiCard(
+              label: 'Engagement',
+              value: snapshot.engagement > 0 ? '${snapshot.engagement.toStringAsFixed(1)}%' : '—',
+              hint: snapshot.engagement > 0 ? 'avg. rate' : 'Sync to refresh',
+              tone: snapshot.engagement > 0 ? Cr8Colors.success : Cr8Colors.muted,
+            ),
+            _KpiCard(
+              label: 'Total views',
+              value: snapshot.views > 0 ? formatCompact(snapshot.views) : '—',
+              hint: snapshot.views > 0 ? 'platform total' : 'No views yet',
+              tone: snapshot.views > 0 ? Cr8Colors.success : Cr8Colors.muted,
+            ),
+          ],
         ),
       ],
     );
@@ -462,24 +505,30 @@ class _KpiCard extends StatelessWidget {
           BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 16, offset: const Offset(0, 8)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.manrope(
-              fontSize: 10,
-              letterSpacing: 0.8,
-              color: Cr8Colors.muted,
-              fontWeight: FontWeight.w700,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label.toUpperCase(),
+                  style: GoogleFonts.manrope(
+                    fontSize: 10,
+                    letterSpacing: 0.8,
+                    color: Cr8Colors.muted,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, height: 1.1),
+                ),
+              ],
             ),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, height: 1.1),
-          ),
-          const SizedBox(height: 2),
           Text(hint, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600, color: tone)),
         ],
       ),
@@ -487,86 +536,58 @@ class _KpiCard extends StatelessWidget {
   }
 }
 
-class _TrendCard extends StatelessWidget {
-  const _TrendCard({required this.values, required this.range, this.onRangeChanged});
-  final List<double> values;
-  final int range;
-  final ValueChanged<int>? onRangeChanged;
+class _Shortcuts extends StatelessWidget {
+  const _Shortcuts();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      decoration: BoxDecoration(
-        color: Cr8Colors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Cr8Colors.hairline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Performance', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
-                    Text(
-                      'Views · last $range days',
-                      style: GoogleFonts.manrope(fontSize: 12, color: Cr8Colors.muted),
+    // Do not duplicate Feed / Wallet — those live in the drawer / bottom nav.
+    const actions = [
+      (Icons.work_outline_rounded, 'View campaigns', '/marketplace'),
+      (Icons.mail_outline_rounded, 'Invitations', '/invitations'),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Shortcuts', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 1.7,
+          children: actions
+              .map(
+                (a) => InkWell(
+                  onTap: () => context.push(a.$3),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      color: Cr8Colors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Cr8Colors.hairline),
                     ),
-                  ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(a.$1, color: Cr8Colors.accent),
+                        const SizedBox(height: 6),
+                        Text(a.$2, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              _RangeChip(label: '7D', selected: range == 7, onTap: () => onRangeChanged?.call(7)),
-              const SizedBox(width: 6),
-              _RangeChip(label: '30D', selected: range == 30, onTap: () => onRangeChanged?.call(30)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 132,
-            width: double.infinity,
-            child: CustomPaint(painter: SparklinePainter(values: values, color: Cr8Colors.accent)),
-          ),
-        ],
-      ),
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 }
 
-class _RangeChip extends StatelessWidget {
-  const _RangeChip({required this.label, required this.selected, required this.onTap});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? Cr8Colors.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? Cr8Colors.accent : Cr8Colors.hairline),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.manrope(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: selected ? Colors.white : Cr8Colors.muted,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+/// Retained for tests / optional charts elsewhere.
 class SparklinePainter extends CustomPainter {
   SparklinePainter({required this.values, required this.color});
   final List<double> values;
@@ -619,190 +640,4 @@ class SparklinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SparklinePainter oldDelegate) => oldDelegate.values != values;
-}
-
-class _ActivityCard extends StatelessWidget {
-  const _ActivityCard({required this.items});
-  final List<StudioActivity> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      decoration: BoxDecoration(
-        color: Cr8Colors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Cr8Colors.hairline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text('Recent activity', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
-              const Spacer(),
-              TextButton(
-                onPressed: () => context.push('/invitations'),
-                child: const Text('All'),
-              ),
-            ],
-          ),
-          ...items.map((item) => _ActivityRow(item: item)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActivityRow extends StatelessWidget {
-  const _ActivityRow({required this.item});
-  final StudioActivity item;
-
-  ({IconData icon, Color color, String label}) get meta {
-    final k = item.kind.toLowerCase();
-    if (k.contains('invite') || k.contains('invitation')) {
-      return (icon: Icons.campaign_rounded, color: Cr8Colors.warning, label: 'Brand invite');
-    }
-    if (k.contains('pay') || k.contains('wallet') || k.contains('payout')) {
-      return (icon: Icons.payments_rounded, color: Cr8Colors.success, label: 'Payment');
-    }
-    if (k.contains('approv') || k.contains('campaign')) {
-      return (icon: Icons.verified_rounded, color: Cr8Colors.success, label: 'Campaign');
-    }
-    if (k.contains('message') || k.contains('dm') || k.contains('chat')) {
-      return (icon: Icons.chat_bubble_rounded, color: Cr8Colors.info, label: 'Message');
-    }
-    return (icon: Icons.bolt_rounded, color: Cr8Colors.accent, label: 'Update');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final m = meta;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: m.color.withValues(alpha: 0.12),
-            child: Icon(m.icon, size: 18, color: m.color),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  m.label.toUpperCase(),
-                  style: GoogleFonts.manrope(
-                    fontSize: 10,
-                    letterSpacing: 0.9,
-                    color: Cr8Colors.muted,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(item.text, style: GoogleFonts.manrope(fontSize: 14, height: 1.3, fontWeight: FontWeight.w500)),
-                if (item.at != null)
-                  Text(
-                    timeago.format(item.at!),
-                    style: GoogleFonts.manrope(fontSize: 11, color: Cr8Colors.muted),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-
-  @override
-  Widget build(BuildContext context) {
-    const actions = [
-      (Icons.add_rounded, 'Create content', '/feed'),
-      (Icons.work_outline_rounded, 'View campaigns', '/marketplace'),
-      (Icons.account_balance_wallet_outlined, 'Withdraw', '/wallet'),
-      (Icons.insights_rounded, 'Analytics', '/analytics'),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Quick actions', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 10),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.7,
-          children: actions
-              .map(
-                (a) => InkWell(
-                  onTap: () => context.push(a.$3),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: Cr8Colors.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Cr8Colors.hairline),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(a.$1, color: Cr8Colors.accent),
-                        const SizedBox(height: 6),
-                        Text(a.$2, style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-}
-
-class _OffersRow extends StatelessWidget {
-  const _OffersRow({required this.offers});
-  final List<Map<String, dynamic>> offers;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Brand offers', style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 10),
-        ...offers.map((c) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              onTap: () {
-                final id = c['id'];
-                if (id != null) context.push('/campaigns/$id');
-              },
-              tileColor: Cr8Colors.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: const BorderSide(color: Cr8Colors.hairline),
-              ),
-              title: Text('${c['title'] ?? 'Campaign'}', maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text('${c['brand'] ?? ''}'),
-              trailing: Text(
-                c['budget'] is num ? formatInr(c['budget'] as num) : '${c['budget'] ?? ''}',
-                style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
 }

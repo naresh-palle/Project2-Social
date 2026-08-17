@@ -445,7 +445,6 @@ function InfluencerPanel() {
   const [selectedNiches, setSelectedNiches] = useState([]); // [] = All
 
   const [wallet, setWallet] = useState(null);
-  const [notifications, setNotifications] = useState([]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -464,7 +463,6 @@ function InfluencerPanel() {
     api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
     api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
     api.get("/wallet").then((r) => setWallet(r.data)).catch(() => setWallet(null));
-    api.get("/notifications").then((r) => setNotifications(Array.isArray(r.data?.items) ? r.data.items : [])).catch(() => setNotifications([]));
   }, [refresh]);
 
   const safeApps = Array.isArray(apps) ? apps : [];
@@ -483,7 +481,6 @@ function InfluencerPanel() {
         user={user}
         stats={stats}
         wallet={wallet}
-        notifications={notifications}
         campaigns={filteredCampaigns}
         pitchCount={safeApps.length}
       />

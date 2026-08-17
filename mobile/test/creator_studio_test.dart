@@ -27,7 +27,7 @@ void main() {
     expect(buildTrend(base: 8000, days: 30, seed: 3).length, 30);
   });
 
-  testWidgets('creator studio shows hero, KPIs, and quick actions', (tester) async {
+  testWidgets('creator studio matches annotated home layout', (tester) async {
     final user = UserEntity.fromJson({
       'id': 'u1',
       'email': 'creator@cr8.studio',
@@ -35,9 +35,12 @@ void main() {
       'name': 'creatordemo',
       'username': 'creatordemo',
       'handle': 'creatordemo',
+      'platform_metrics': {
+        'instagram': {'handle': '@creator.demo1', 'followers': 12000, 'engagement': 4.2, 'views': 88000},
+      },
     });
 
-    await tester.binding.setSurfaceSize(const Size(400, 1600));
+    await tester.binding.setSurfaceSize(const Size(400, 1800));
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -46,10 +49,13 @@ void main() {
             stats: const {
               'acceptances': 3,
               'invitations': 2,
+              'applications': 5,
               'earned': 48250,
-              'contracted': 60000,
             },
             wallet: const {'balance': 48250},
+            campaigns: const [
+              {'id': 'c1', 'title': 'Summer Drop', 'brand': 'ACME', 'budget': 15000},
+            ],
           ),
         ),
       ),
@@ -57,14 +63,21 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('creatordemo'), findsWidgets);
+    expect(find.text('Brand offers'), findsOneWidget);
     expect(find.textContaining('THIS MONTH'), findsOneWidget);
-    expect(find.text('FOLLOWERS'), findsOneWidget);
+    expect(find.text('PITCHES'), findsOneWidget);
+    expect(find.text('CAMPAIGNS'), findsOneWidget);
+    expect(find.text('Overall analytics'), findsOneWidget);
+    expect(find.text('TOTAL FOLLOWERS'), findsOneWidget);
     expect(find.text('ENGAGEMENT'), findsOneWidget);
-    expect(find.text('ACTIVE CAMPAIGNS'), findsOneWidget);
-    expect(find.text('PENDING PAYOUTS'), findsOneWidget);
-    expect(find.text('Performance'), findsOneWidget);
-    expect(find.text('Recent activity'), findsOneWidget);
-    expect(find.text('Create content'), findsOneWidget);
+    expect(find.text('TOTAL VIEWS'), findsOneWidget);
     expect(find.text('View campaigns'), findsOneWidget);
+    expect(find.text('Invitations'), findsOneWidget);
+
+    // Removed per annotated feedback
+    expect(find.text('Performance'), findsNothing);
+    expect(find.text('Recent activity'), findsNothing);
+    expect(find.text('Create content'), findsNothing);
+    expect(find.text('Withdraw'), findsOneWidget); // still on earnings CTA only
   });
 }
