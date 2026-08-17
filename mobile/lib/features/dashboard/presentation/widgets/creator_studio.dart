@@ -200,7 +200,11 @@ class _GreetingHeader extends StatelessWidget {
                 style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, height: 1.15),
               ),
               Text(
-                '${user.displayHandle} · Creator',
+                [
+                  user.displayHandle,
+                  'Creator',
+                  if (user.displayLocation.isNotEmpty) user.displayLocation,
+                ].join(' · '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.manrope(color: Cr8Colors.muted, fontSize: 12),

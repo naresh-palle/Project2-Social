@@ -35,6 +35,8 @@ void main() {
       'name': 'creatordemo',
       'username': 'creatordemo',
       'handle': 'creatordemo',
+      'city': 'Hyderabad',
+      'state': 'Telangana',
       'platform_metrics': {
         'instagram': {'handle': '@creator.demo1', 'followers': 12000, 'engagement': 4.2, 'views': 88000},
       },
@@ -68,6 +70,7 @@ void main() {
     expect(find.text('PITCHES'), findsOneWidget);
     expect(find.text('CAMPAIGNS'), findsOneWidget);
     expect(find.text('Overall analytics'), findsOneWidget);
+    expect(find.textContaining('Hyderabad'), findsOneWidget);
     expect(find.text('TOTAL FOLLOWERS'), findsOneWidget);
     expect(find.text('ENGAGEMENT'), findsOneWidget);
     expect(find.text('TOTAL VIEWS'), findsOneWidget);

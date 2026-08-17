@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { displayAccountName } from "@/lib/username";
+import { formatUserLocation } from "@/lib/location";
 import { AiIcon } from "@/components/AiIcon";
 import {
   getSidebarItems,
@@ -124,18 +125,25 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               } else if (user?.industry?.trim()) {
                 category = user.industry.trim();
               }
-              const city = (user?.city || user?.location || "").trim() || null;
+              const city = formatUserLocation(user) || null;
               if (!category && !city) return null;
               return (
-                <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
+                <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate" title={[category, city].filter(Boolean).join(" · ")}>
                   {[category, city].filter(Boolean).join(" · ")}
                 </p>
               );
             })()}
-            <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 mt-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
-              <span className="font-sans text-[10px] font-medium text-white/70">Online</span>
-            </div>
+            {(() => {
+              const loc = formatUserLocation(user);
+              return (
+                <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 mt-2 max-w-[200px]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0" />
+                  <span className="font-sans text-[10px] font-medium text-white/70 truncate" title={loc || "Online"}>
+                    {loc ? `Online · ${loc}` : "Online"}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <form onSubmit={handleSearch} className="relative mb-4">

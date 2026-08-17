@@ -14,6 +14,7 @@ import {
   socialMetricOrNA,
 } from "@/lib/platforms";
 import { displayAccountName } from "@/lib/username";
+import { formatUserLocation } from "@/lib/location";
 import { withBrandDisplayDefaults } from "@/lib/brandProfileDefaults";
 import { IconTip } from "@/components/IconTip";
 import { AiIcon } from "@/components/AiIcon";
@@ -114,9 +115,7 @@ export default function ProfileView() {
     : null;
   const displayName = displayAccountName(profile, "Profile");
   const roleLabel = profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer";
-  const locationLabel = profile.city || profile.state
-    ? `${profile.city || ""}${profile.city && profile.state ? ", " : ""}${profile.state || ""}`
-    : "—";
+  const locationLabel = formatUserLocation(profile) || "—";
 
   return (
     <div className="flex flex-col w-full pb-6 pt-2">

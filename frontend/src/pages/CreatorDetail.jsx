@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatUsername } from "@/lib/username";
+import { formatUserLocation } from "@/lib/location";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 
@@ -87,7 +88,7 @@ export default function CreatorDetail() {
                 {creator.creator_level || "Beginner"}
               </span>
               <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 inline-flex items-center gap-1">
-                <MapPin className="w-3 h-3" /> {creator.city || "Global"}
+                <MapPin className="w-3 h-3" /> {formatUserLocation(creator) || "Location not set"}
               </span>
             </div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight truncate">{displayName}</h1>

@@ -9,6 +9,7 @@ import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { api } from "@/lib/api";
 import { formatUsername } from "@/lib/username";
+import { formatUserLocation } from "@/lib/location";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 import { getTopSocialAccount } from "@/lib/platforms";
 
@@ -115,7 +116,7 @@ function CreatorDirectoryCard({ creator, index }) {
   }
   const followerCount = top.followers > 0 ? top.followers : Number(c.followers) || 0;
   const niches = (c.niches || []).slice(0, 2);
-  const city = c.city || c.location || "";
+  const city = formatUserLocation(c);
   const er = top.engagement != null ? Number(top.engagement) : null;
   const rate = c.base_rate != null && Number(c.base_rate) > 0 ? Number(c.base_rate) : null;
 

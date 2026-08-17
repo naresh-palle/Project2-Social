@@ -3,6 +3,7 @@ import {
   ArrowUpRight, Briefcase, Eye, FileText, Heart, Users, Wallet,
 } from "lucide-react";
 import { displayAccountName, formatUsername } from "@/lib/username";
+import { formatUserLocation } from "@/lib/location";
 import { SOCIAL_PLATFORMS, hasPlatformHandle } from "@/lib/platforms";
 
 function greeting() {
@@ -38,6 +39,7 @@ export function CreatorDashboard({
 }) {
   const name = displayAccountName(user, "Creator");
   const handle = formatUsername(user?.handle, user?.username) || "creator";
+  const locationLabel = formatUserLocation(user);
 
   const platforms = user?.platform_metrics && typeof user.platform_metrics === "object"
     ? user.platform_metrics
@@ -80,7 +82,10 @@ export function CreatorDashboard({
         <div className="min-w-0 flex-1">
           <p className="font-sans text-[11px] text-white/50 truncate">{greeting()}</p>
           <h1 className="font-sans text-xl sm:text-2xl font-bold tracking-tight truncate">{name}</h1>
-          <p className="font-sans text-[11px] text-white/45 truncate">@{handle} · Creator studio</p>
+          <p className="font-sans text-[11px] text-white/45 truncate">
+            @{handle} · Creator studio
+            {locationLabel ? ` · ${locationLabel}` : ""}
+          </p>
         </div>
         <Link
           to="/profile"

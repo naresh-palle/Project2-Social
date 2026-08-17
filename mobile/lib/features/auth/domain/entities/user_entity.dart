@@ -71,6 +71,21 @@ class UserEntity extends Equatable {
   String get displayHandle =>
       handle?.startsWith('@') == true ? handle! : '@${handle ?? username ?? 'user'}';
 
+  /// City / state / free-form location for UI headers and cards.
+  String get displayLocation {
+    final c = (city ?? '').trim();
+    final s = (state ?? '').trim();
+    final loc = (raw['location']?.toString() ?? '').trim();
+    if (c.isNotEmpty && s.isNotEmpty) {
+      if (c.toLowerCase() == s.toLowerCase()) return c;
+      return '$c, $s';
+    }
+    if (c.isNotEmpty) return c;
+    if (s.isNotEmpty) return s;
+    if (loc.isNotEmpty) return loc;
+    return '';
+  }
+
   factory UserEntity.fromJson(Map<String, dynamic> json) {
     return UserEntity(
       id: (json['id'] ?? '').toString(),
