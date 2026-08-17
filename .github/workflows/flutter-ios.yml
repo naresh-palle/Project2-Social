@@ -1,0 +1,55 @@
+name: Flutter iOS
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/flutter-ios.yml"
+  pull_request:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/flutter-ios.yml"
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.47.0"
+          cache: true
+      - name: CocoaPods
+        run: |
+          flutter pub get
+          cd ios
+          pod install --repo-update
+      - name: Build unsigned iOS app
+        env:
+          CODE_SIGNING_ALLOWED: "NO"
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE=https://project2-social.onrender.com/api
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          APP="$(find build/ios/iphoneos -maxdepth 1 -name '*.app' | head -1)"
+          test -n "$APP"
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/Payload"
+          cp -R "$APP" "$STAGE/Payload/"
+          mkdir -p build/ios/ipa
+          (cd "$STAGE" && zip -qry "$GITHUB_WORKSPACE/mobile/build/ios/ipa/cr8-studio-release.ipa" Payload)
+          ls -lh build/ios/ipa/cr8-studio-release.ipa
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cr8-studio-release-ipa
+          path: mobile/build/ios/ipa/cr8-studio-release.ipa
+          if-no-files-found: error
+          retention-days: 14

@@ -14,11 +14,12 @@ flutter build apk --release --dart-define=API_BASE=https://project2-social.onren
 bash scripts/build_apk.sh
 ```
 
-Prebuilt APK (when available):
+Prebuilt binaries (when available):
 
-- Cursor artifact: `cr8-studio-release.apk`
-- GitHub Pages: https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk
-- After a local build: `mobile/dist/cr8-studio-release.apk`
+- Android APK: https://naresh-palle.github.io/Project2-Social/cr8-studio-release.apk
+- iOS IPA: https://naresh-palle.github.io/Project2-Social/cr8-studio-release.ipa — see [`IOS_APP.md`](IOS_APP.md) (Apple will not sideload like Android)
+- After a local Android build: `mobile/dist/cr8-studio-release.apk`
+- After a local iOS build (Mac): `mobile/dist/cr8-studio-release.ipa`
 
 Every app build must follow `.agents/skills/flutter-app-build/SKILL.md` (premium Creator Studio Home + share the APK).
 

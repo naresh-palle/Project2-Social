@@ -87,7 +87,10 @@ credentials.json
 *.key
 .credentials
 
-# Local/release APK binaries (served via GitHub Pages deploy)
+# Local/release APK / IPA binaries (served via GitHub Pages deploy)
 *.apk
+*.ipa
 frontend/public/*.apk
+frontend/public/*.ipa
 backend/web/*.apk
+backend/web/*.ipa

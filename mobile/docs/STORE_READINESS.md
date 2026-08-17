@@ -15,13 +15,17 @@ See **[PLAY_STORE_PUBLISH.md](PLAY_STORE_PUBLISH.md)** for the full “what to p
 
 ## iOS (App Store Connect)
 
-- [ ] Bundle ID + Team in Xcode (`ios/Runner.xcworkspace`)
+See **[IOS_APP.md](IOS_APP.md)** for Xcode, TestFlight, and CI IPA steps.
+
+- [ ] Apple Developer Program (\$99/year) for TestFlight / App Store
+- [ ] Bundle ID `studio.cr8.mobile` + Team in Xcode (`ios/Runner.xcworkspace`)
 - [ ] Fill usage strings already present in `Info.plist` (camera / photos / mic)
-- [ ] Build: `flutter build ipa --release`
+- [ ] Create an iOS Google OAuth client for that bundle ID
+- [ ] Build: `bash scripts/build_ios.sh` (macOS) or GitHub Action `Flutter iOS`
 - [ ] App Privacy nutrition labels (auth, messaging, analytics as applicable)
 
 ## Shared
 
 - Deep link scheme: `cr8://` (messages + reset-password)
 - No Product Catalog / Group Chat / Mutual Friends / Email OTP UI (parity with web exclusions)
-- CI: `.github/workflows/flutter-mobile.yml` (`analyze` + `test`)
+- CI: `.github/workflows/flutter-mobile.yml` (`analyze` + `test`) and `.github/workflows/flutter-ios.yml` (unsigned IPA)

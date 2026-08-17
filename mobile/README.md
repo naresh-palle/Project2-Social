@@ -13,7 +13,7 @@ Flutter client for the CR8 Studio marketplace. Uses the same Render API and JWT 
 
 1. Install [Flutter stable](https://docs.flutter.dev/get-started/install) and put it on `PATH`
 2. Android: Android Studio / cmdline-tools + an emulator or device (`flutter doctor`)
-3. iOS builds require macOS + Xcode (project under `ios/` is ready)
+3. iOS: macOS + Xcode. Project under `ios/` — see [`docs/IOS_APP.md`](docs/IOS_APP.md).
 
 ```bash
 cd mobile
@@ -111,14 +111,20 @@ Application id: `studio.cr8.cr8_mobile`. Manifest includes `INTERNET` + `cr8://`
 
 ### iOS (macOS)
 
+See [`docs/IOS_APP.md`](docs/IOS_APP.md). Bundle ID: `studio.cr8.mobile`.
+
+```bash
+bash scripts/build_ios.sh
+# IPA: mobile/dist/cr8-studio-release.ipa
+```
+
 1. Open `ios/Runner.xcworkspace` in Xcode
-2. Set Team, Bundle ID (default `studio.cr8`)
-3. `flutter build ipa --release`
-4. Photo / camera usage strings are in `Info.plist`
+2. Set Team + Bundle ID `studio.cr8.mobile`
+3. Photo / camera / mic usage strings are in `Info.plist`
 
 ### CI
 
-GitHub Actions workflow `.github/workflows/flutter-mobile.yml` runs `flutter analyze` + `flutter test` on `mobile/**` changes.
+GitHub Actions: `.github/workflows/flutter-mobile.yml` (`analyze` + `test`) and `.github/workflows/flutter-ios.yml` (unsigned IPA on macOS).
 
 ## Non-goals
 
