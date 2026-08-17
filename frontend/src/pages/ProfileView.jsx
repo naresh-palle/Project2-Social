@@ -347,38 +347,52 @@ export default function ProfileView() {
                   {SOCIAL_PLATFORMS.map((key) => {
                     const data = rawPlatforms[key] || {};
                     const connected = hasPlatformHandle(data);
+                    const followersVal = connected
+                      ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber)
+                      : "—";
+                    const erVal = connected
+                      ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`)
+                      : "—";
+                    const viewsRaw =
+                      key === "instagram" || key === "facebook" || key === "twitter"
+                        ? (data.views > 0 ? data.views : null)
+                        : data.views;
+                    const viewsVal = connected
+                      ? displayMetric(viewsRaw, {
+                          format: formatCompactNumber,
+                          allowZero: key === "youtube",
+                        })
+                      : "—";
                     return (
-                      <div key={key} className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold">
+                      <div
+                        key={key}
+                        className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}
+                      >
+                        <div className="grid grid-cols-[1fr_auto] items-center gap-2 mb-2 min-w-0">
+                          <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold truncate">
                             {SOCIAL_PLATFORM_LABELS[key] || key}
                           </span>
-                          <span className="font-sans text-[9px] truncate text-white/50 max-w-[45%]">
+                          <span className="font-sans text-[9px] truncate text-white/50 text-right max-w-[10rem] sm:max-w-[12rem]">
                             {socialOrNA(data?.handle)}
                           </span>
                         </div>
-                        <div className="flex justify-between font-sans text-sm gap-2">
-                          <span className="tabular-nums font-semibold">
-                            {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
-                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">
-                              {key === "youtube" ? "subs" : "followers"}
-                            </span>
-                          </span>
-                          <span className={`tabular-nums font-semibold ${connected ? "text-[#34C759]" : ""}`}>
-                            {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
-                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">ER</span>
-                          </span>
-                          <span className="tabular-nums font-semibold">
-                            {connected
-                              ? displayMetric(
-                                  key === "instagram" || key === "facebook" || key === "twitter"
-                                    ? (data.views > 0 ? data.views : null)
-                                    : data.views,
-                                  { format: formatCompactNumber, allowZero: key === "youtube" }
-                                )
-                              : "—"}
-                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">views</span>
-                          </span>
+                        <div className="grid grid-cols-3 gap-2 font-sans text-sm">
+                          <div className="min-w-0">
+                            <p className="tabular-nums font-semibold truncate leading-tight">{followersVal}</p>
+                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">
+                              {key === "youtube" ? "Subs" : "Followers"}
+                            </p>
+                          </div>
+                          <div className="min-w-0 text-center">
+                            <p className={`tabular-nums font-semibold truncate leading-tight ${connected ? "text-[#34C759]" : ""}`}>
+                              {erVal}
+                            </p>
+                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">ER</p>
+                          </div>
+                          <div className="min-w-0 text-right">
+                            <p className="tabular-nums font-semibold truncate leading-tight">{viewsVal}</p>
+                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">Views</p>
+                          </div>
                         </div>
                       </div>
                     );
