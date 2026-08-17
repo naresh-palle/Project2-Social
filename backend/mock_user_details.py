@@ -255,7 +255,7 @@ async def enrich_missing_user_details(db, logger=None) -> Dict[str, Any]:
     scanned = 0
     samples: List[Dict[str, Any]] = []
 
-    # Force-complete demo desks (still only fills blanks except known sparse demo bios)
+    # Force-complete demo desks — pin canonical mock location + fill other blanks
     for email, enrich in (
         ("creator@cr8.studio", CREATOR_DEMO_ENRICH),
         ("agent@cr8.studio", AGENT_DEMO_ENRICH),
@@ -263,28 +263,24 @@ async def enrich_missing_user_details(db, logger=None) -> Dict[str, Any]:
         user = await db.users.find_one({"email": email}, {"_id": 0})
         if not user:
             continue
-        patch = {}
+        patch = {
+            "city": enrich["city"],
+            "state": enrich["state"],
+            "location": enrich["location"],
+        }
         for k, v in enrich.items():
+            if k in patch:
+                continue
             if k == "bio":
                 bio = str(user.get("bio") or "").strip().lower()
                 if _blank(user.get("bio")) or bio.startswith("demo creator") or bio == "talent agent.":
                     patch[k] = v
                 continue
-            if k in {"city", "state", "location"}:
-                if _blank(user.get(k)) or str(user.get(k) or "").strip().lower() in {"remote", "n/a"}:
-                    patch[k] = v
-                continue
             if _blank(user.get(k)):
                 patch[k] = v
-        # Always normalize location when city/state present
-        city = patch.get("city", user.get("city"))
-        state = patch.get("state", user.get("state"))
-        if city and state:
-            patch["location"] = format_location(city, state)
-        if patch:
-            await db.users.update_one({"email": email}, {"$set": patch})
-            updated += 1
-            samples.append({"email": email, "fields": sorted(patch.keys())})
+        await db.users.update_one({"email": email}, {"$set": patch})
+        updated += 1
+        samples.append({"email": email, "fields": sorted(patch.keys())})
 
     cursor = db.users.find({}, {"_id": 0})
     async for user in cursor:
