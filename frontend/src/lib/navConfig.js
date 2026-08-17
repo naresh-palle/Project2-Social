@@ -37,7 +37,7 @@ export function getSidebarItems(user) {
         ]
       : []),
     { to: "/wallet", label: "Wallet", icon: "wallet" },
-    { to: "/billing", label: "Billing", icon: "wallet" },
+    { to: "/billing", label: "Billing", icon: "billing" },
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
   ];

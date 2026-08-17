@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AiIcon } from "@/components/AiIcon";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
@@ -47,7 +48,9 @@ export default function BillingSettings() {
   return (
     <form onSubmit={save} className="w-full pb-24 max-w-3xl">
       <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-white/40">← Billing</Link>
-      <h1 className="font-sans text-2xl font-bold mt-1">Billing Settings</h1>
+      <h1 className="font-sans text-2xl font-bold mt-1 flex items-center gap-2">
+        <AiIcon name="settings" className="w-6 h-6" /> Billing Settings
+      </h1>
       <p className="text-xs text-white/45 mt-1">{s.disclaimer}</p>
       <p className="text-xs text-white/50 mt-1">Next number: <span className="font-mono">{s.next_invoice_number}</span></p>
 
@@ -143,7 +146,7 @@ export default function BillingSettings() {
           <div className="flex gap-2 mb-2">
             <input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value })} placeholder="Code" className="flex-1 bg-transparent border-b border-white/15 py-1 text-xs" />
             <input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Description" className="flex-[2] bg-transparent border-b border-white/15 py-1 text-xs" />
-            <button type="button" className="btn-pill text-[10px]" onClick={async () => {
+            <button type="button" className="btn-pill text-[10px] !py-2 !px-3" onClick={async () => {
               try {
                 await api.post("/invoices/tax-codes", newCode);
                 const { data } = await api.get("/invoices/tax-codes");
@@ -158,7 +161,9 @@ export default function BillingSettings() {
         </section>
       ) : null}
 
-      <button type="submit" className="btn-solid mt-6 text-[11px] px-5">Save settings</button>
+      <button type="submit" className="btn-solid mt-6 text-[11px] px-5 inline-flex items-center gap-2">
+        <AiIcon name="save" className="w-3.5 h-3.5" /> Save settings
+      </button>
     </form>
   );
 }

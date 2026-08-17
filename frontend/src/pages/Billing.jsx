@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Download, Eye, Copy, Send, Ban, Trash2 } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
+import { IconTip } from "@/components/IconTip";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { InvoicePreview, inr } from "@/components/InvoicePreview";
@@ -61,6 +61,19 @@ export default function Billing() {
     } finally { setBusy(false); }
   };
 
+  const downloadPdf = async (r) => {
+    try {
+      const res = await api.get(`/invoices/${r.id}/pdf`, { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${r.invoice_number || "invoice"}.pdf`;
+      a.click();
+    } catch (err) {
+      toast.error("PDF failed");
+    }
+  };
+
   const cards = summary?.cards || {};
   const cardOrder = [
     ["Total Invoiced", cards.total],
@@ -76,7 +89,7 @@ export default function Billing() {
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-            <AiIcon name="wallet" className="w-3.5 h-3.5" /> Billing
+            <AiIcon name="billing" className="w-3.5 h-3.5" /> Billing
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Billing & Invoices</h1>
           <p className="font-sans text-xs text-white/50 mt-1 max-w-xl">
@@ -84,16 +97,21 @@ export default function Billing() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/billing/settings" className="btn-pill text-[10px]">Settings</Link>
+          <Link to="/billing/settings" className="btn-pill text-[10px] !py-2 !px-3">
+            <AiIcon name="settings" className="w-3.5 h-3.5" />
+            Settings
+          </Link>
           <button
             type="button"
             onClick={() => { setDemo((v) => !v); setParams((p) => { const n = new URLSearchParams(p); if (!demo) n.set("demo", "1"); else n.delete("demo"); return n; }); }}
-            className={`btn-pill text-[10px] ${demo ? "border-[#FF3B30] text-[#FF3B30]" : ""}`}
+            className={`btn-pill text-[10px] !py-2 !px-3 ${demo ? "border-[#FF3B30] text-[#FF3B30]" : ""}`}
           >
+            <AiIcon name="demo" className="w-3.5 h-3.5" />
             Demo data
           </button>
-          <Link to="/billing/new" className="btn-solid text-[10px] inline-flex items-center gap-1">
-            <Plus className="w-3 h-3" /> Create invoice
+          <Link to="/billing/new" className="btn-solid text-[10px] !py-2 !px-3 inline-flex items-center gap-1.5">
+            <AiIcon name="create" className="w-3.5 h-3.5" />
+            Create invoice
           </Link>
         </div>
       </div>
@@ -123,7 +141,9 @@ export default function Billing() {
 
       {demo && demoPack ? (
         <div className="rounded-2xl border border-[#FF3B30]/40 bg-[#FF3B30]/5 p-4 mb-5">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold">DEMO DATA — not saved to production</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold flex items-center gap-2">
+            <AiIcon name="demo" className="w-3.5 h-3.5" /> DEMO DATA — not saved to production
+          </p>
           <p className="font-sans text-xs text-white/60 mt-1">{demoPack.note}</p>
           <div className="grid md:grid-cols-2 gap-4 mt-3">
             <div className="text-xs">
@@ -154,7 +174,7 @@ export default function Billing() {
           <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40">
             <tr>
               {["Invoice", "Client", "Campaign", "Date", "Due", "Amount", "GST", "Status", ""].map((h) => (
-                <th key={h} className="p-3 font-medium">{h}</th>
+                <th key={h || "actions"} className="p-3 font-medium">{h}</th>
               ))}
             </tr>
           </thead>
@@ -172,27 +192,49 @@ export default function Billing() {
                 <td className="p-3 tabular-nums">{inr(r.gst)}</td>
                 <td className={`p-3 capitalize ${statusCls(r.status)}`}>{String(r.status || "").replace("_", " ")}</td>
                 <td className="p-3">
-                  <div className="flex flex-wrap gap-1">
-                    <Link to={`/billing/${r.id}`} className="p-1 opacity-70 hover:opacity-100" title="View"><Eye className="w-3.5 h-3.5" /></Link>
-                    {r.status === "draft" ? <Link to={`/billing/${r.id}/edit`} className="p-1 opacity-70" title="Edit">Edit</Link> : null}
-                    <button type="button" disabled={busy} title="Duplicate" onClick={() => act(() => api.post(`/invoices/${r.id}/duplicate`), "Duplicated")} className="p-1 opacity-70"><Copy className="w-3.5 h-3.5" /></button>
-                    <a href={`${api.defaults.baseURL}/invoices/${r.id}/pdf`} onClick={async (e) => {
-                      e.preventDefault();
-                      try {
-                        const res = await api.get(`/invoices/${r.id}/pdf`, { responseType: "blob" });
-                        const url = URL.createObjectURL(res.data);
-                        const a = document.createElement("a");
-                        a.href = url; a.download = `${r.invoice_number || "invoice"}.pdf`; a.click();
-                      } catch (err) { toast.error("PDF failed"); }
-                    }} className="p-1 opacity-70" title="PDF"><Download className="w-3.5 h-3.5" /></a>
+                  <div className="flex flex-wrap gap-1.5">
+                    <IconTip label="View">
+                      <Link to={`/billing/${r.id}`} className="icon-action" aria-label="View invoice">
+                        <AiIcon name="view" className="w-3.5 h-3.5" />
+                      </Link>
+                    </IconTip>
+                    {r.status === "draft" ? (
+                      <IconTip label="Edit">
+                        <Link to={`/billing/${r.id}/edit`} className="icon-action" aria-label="Edit draft">
+                          <AiIcon name="edit" className="w-3.5 h-3.5" />
+                        </Link>
+                      </IconTip>
+                    ) : null}
+                    <IconTip label="Duplicate">
+                      <button type="button" disabled={busy} aria-label="Duplicate" onClick={() => act(() => api.post(`/invoices/${r.id}/duplicate`), "Duplicated")} className="icon-action">
+                        <AiIcon name="copy" className="w-3.5 h-3.5" />
+                      </button>
+                    </IconTip>
+                    <IconTip label="Download PDF">
+                      <button type="button" aria-label="Download PDF" onClick={() => downloadPdf(r)} className="icon-action">
+                        <AiIcon name="download" className="w-3.5 h-3.5" />
+                      </button>
+                    </IconTip>
                     {r.status !== "draft" && r.status !== "cancelled" && r.status !== "paid" ? (
-                      <button type="button" disabled={busy} title="Mark paid" onClick={() => act(() => api.post(`/invoices/${r.id}/mark-paid`, {}), "Marked paid")} className="p-1 opacity-70"><Send className="w-3.5 h-3.5" /></button>
+                      <IconTip label="Mark paid">
+                        <button type="button" disabled={busy} aria-label="Mark paid" onClick={() => act(() => api.post(`/invoices/${r.id}/mark-paid`, {}), "Marked paid")} className="icon-action">
+                          <AiIcon name="send" className="w-3.5 h-3.5" />
+                        </button>
+                      </IconTip>
                     ) : null}
                     {r.status !== "cancelled" && r.status !== "draft" ? (
-                      <button type="button" disabled={busy} title="Cancel" onClick={() => act(() => api.post(`/invoices/${r.id}/cancel`), "Cancelled")} className="p-1 opacity-70"><Ban className="w-3.5 h-3.5" /></button>
+                      <IconTip label="Cancel">
+                        <button type="button" disabled={busy} aria-label="Cancel invoice" onClick={() => act(() => api.post(`/invoices/${r.id}/cancel`), "Cancelled")} className="icon-action">
+                          <AiIcon name="cancel" className="w-3.5 h-3.5" />
+                        </button>
+                      </IconTip>
                     ) : null}
                     {r.status === "draft" ? (
-                      <button type="button" disabled={busy} title="Delete draft" onClick={() => act(() => api.delete(`/invoices/${r.id}`), "Draft deleted")} className="p-1 opacity-70"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <IconTip label="Delete draft">
+                        <button type="button" disabled={busy} aria-label="Delete draft" onClick={() => act(() => api.delete(`/invoices/${r.id}`), "Draft deleted")} className="icon-action">
+                          <AiIcon name="trash" className="w-3.5 h-3.5" />
+                        </button>
+                      </IconTip>
                     ) : null}
                   </div>
                 </td>

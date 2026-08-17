@@ -11,6 +11,7 @@ const ICON_FILES = {
   staff: "nav-referrals.png",
   invitations: "nav-invitations.png",
   wallet: "nav-wallet.png",
+  billing: "nav-billing.png",
   profile: "nav-profile.png",
   settings: "nav-settings.png",
   tickets: "nav-tickets.png",
@@ -27,7 +28,18 @@ const ICON_FILES = {
   create: "action-create.png",
   refresh: "action-refresh.png",
   "view-public": "view-public.png",
-  edit: "edit-profile.png",
+  edit: "action-edit.png",
+  "edit-profile": "edit-profile.png",
+  view: "action-view.png",
+  copy: "action-copy.png",
+  download: "action-download.png",
+  send: "action-send.png",
+  cancel: "action-cancel.png",
+  trash: "action-trash.png",
+  save: "action-save.png",
+  demo: "action-demo.png",
+  review: "action-review.png",
+  generate: "action-generate.png",
 };
 
 const TONES = {
@@ -40,7 +52,7 @@ const TONES = {
 export function aiIconSrc(name) {
   const file = ICON_FILES[name] || ICON_FILES.sparkles;
   const base = process.env.PUBLIC_URL || "";
-  return `${base}/icons/${file}?v=3`;
+  return `${base}/icons/${file}?v=4`;
 }
 
 export function AiIcon({

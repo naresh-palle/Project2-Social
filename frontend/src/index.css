@@ -246,10 +246,58 @@ html {
     font-size: 0.75rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    transition: background-color 250ms ease, color 250ms ease, transform 250ms ease;
+    transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease, transform 250ms ease, opacity 250ms ease;
 }
-.btn-pill:hover { background: currentColor; color: var(--surface-0); }
-.paper .btn-pill:hover { color: var(--fg); }
+/* Never invert to surface (reads as disabled on dark). Highlight with vermilion. */
+.btn-pill:hover {
+    background: rgba(255, 59, 48, 0.14);
+    border-color: var(--vermilion);
+    color: var(--vermilion);
+    transform: translateY(-1px);
+}
+.btn-pill:disabled,
+.btn-pill[aria-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
+    transform: none;
+}
+.paper .btn-pill:hover {
+    background: rgba(255, 59, 48, 0.1);
+    border-color: var(--vermilion);
+    color: var(--vermilion);
+}
+
+/* Icon-only row / toolbar actions — stay visible on hover */
+.icon-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: inherit;
+    opacity: 1;
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.icon-action:hover {
+    border-color: var(--vermilion);
+    background: rgba(255, 59, 48, 0.16);
+    transform: translateY(-1px);
+}
+.icon-action:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    transform: none;
+}
+html.theme-light .icon-action {
+    border-color: rgba(10, 10, 10, 0.18);
+    background: rgba(10, 10, 10, 0.05);
+}
+html.theme-light .btn-pill:hover img.ai-icon {
+    filter: invert(1);
+}
 
 .btn-solid {
     display: inline-flex;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { InvoicePreview } from "@/components/InvoicePreview";
@@ -195,11 +195,26 @@ export default function InvoiceEditor() {
           <p className="text-xs text-white/45 capitalize">{inv.status?.replace("_", " ")} · {inv.invoice_kind === "non_gst" ? "Non-GST" : "GST tax invoice"}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {!locked ? <button type="button" onClick={persistCore} className="btn-pill text-[10px]" disabled={busy}>Save draft</button> : null}
-          <button type="button" onClick={runReview} className="btn-pill text-[10px]" disabled={busy}>AI review</button>
-          <button type="button" onClick={downloadPdf} className="btn-pill text-[10px]">Download PDF</button>
-          {!locked ? <button type="button" onClick={finalize} className="btn-solid text-[10px]" disabled={busy}>{busy ? <Loader2 className="w-3 h-3 animate-spin" /> : null} Generate / Finalize</button> : (
-            <button type="button" onClick={send} className="btn-solid text-[10px]" disabled={busy}>Send</button>
+          {!locked ? (
+            <button type="button" onClick={persistCore} className="btn-pill text-[10px] !py-2 !px-3" disabled={busy}>
+              <AiIcon name="save" className="w-3.5 h-3.5" /> Save draft
+            </button>
+          ) : null}
+          <button type="button" onClick={runReview} className="btn-pill text-[10px] !py-2 !px-3" disabled={busy}>
+            <AiIcon name="review" className="w-3.5 h-3.5" /> AI review
+          </button>
+          <button type="button" onClick={downloadPdf} className="btn-pill text-[10px] !py-2 !px-3">
+            <AiIcon name="download" className="w-3.5 h-3.5" /> Download PDF
+          </button>
+          {!locked ? (
+            <button type="button" onClick={finalize} className="btn-solid text-[10px] !py-2 !px-3" disabled={busy}>
+              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="generate" className="w-3.5 h-3.5" />}
+              Generate / Finalize
+            </button>
+          ) : (
+            <button type="button" onClick={send} className="btn-solid text-[10px] !py-2 !px-3" disabled={busy}>
+              <AiIcon name="send" className="w-3.5 h-3.5" /> Send
+            </button>
           )}
         </div>
       </div>
@@ -210,7 +225,7 @@ export default function InvoiceEditor() {
 
       {!locked ? (
         <form onSubmit={runAiDraft} className="rounded-2xl border border-white/10 bg-[#121212] p-3 mb-3">
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40 flex items-center gap-1"><Sparkles className="w-3 h-3 text-[#FF3B30]" /> Generate with AI</label>
+          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40 flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Generate with AI</label>
           <div className="flex gap-2 mt-1">
             <input value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder='Create an invoice for the smartphone campaign. Two reels and three stories. Total agreed fee ₹1 lakh.' className="flex-1 bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
             <button type="submit" className="btn-solid text-[10px] px-3" disabled={busy}>Draft</button>
@@ -286,7 +301,7 @@ export default function InvoiceEditor() {
             <div className="flex justify-between items-center mb-2">
               <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Line items</p>
               {!locked ? (
-                <button type="button" onClick={() => setField("line_items", [...(inv.line_items || []), emptyItem()])} className="text-[10px] inline-flex items-center gap-1"><Plus className="w-3 h-3" /> Add</button>
+                <button type="button" onClick={() => setField("line_items", [...(inv.line_items || []), emptyItem()])} className="text-[10px] inline-flex items-center gap-1"><AiIcon name="create" className="w-3 h-3" /> Add</button>
               ) : null}
             </div>
             <input value={codeQ} onChange={(e) => setCodeQ(e.target.value)} placeholder="Search SAC/HSN (admin-maintained suggestions)" className="w-full bg-transparent border-b border-white/15 py-1 mb-2 font-sans text-xs" />
@@ -320,7 +335,9 @@ export default function InvoiceEditor() {
                   <option value="amount">₹ disc.</option>
                 </select>
                 {!locked ? (
-                  <button type="button" className="col-span-1 opacity-50" onClick={() => setInv({ ...inv, line_items: inv.line_items.filter((_, i) => i !== idx) })}><Trash2 className="w-3 h-3" /></button>
+                  <button type="button" className="icon-action col-span-1" aria-label="Remove line" onClick={() => setInv({ ...inv, line_items: inv.line_items.filter((_, i) => i !== idx) })}>
+                    <AiIcon name="trash" className="w-3 h-3" />
+                  </button>
                 ) : null}
               </div>
             ))}
@@ -343,7 +360,9 @@ export default function InvoiceEditor() {
               </div>
             ) : null}
             <p className="text-[10px] text-[#FF9500] mt-2">Verify applicable TDS section/rate before finalizing.</p>
-            <button type="button" onClick={persistCore} className="btn-pill text-[10px] mt-2" disabled={locked || busy}>Recalculate</button>
+            <button type="button" onClick={persistCore} className="btn-pill text-[10px] !py-2 !px-3 mt-2" disabled={locked || busy}>
+              <AiIcon name="refresh" className="w-3.5 h-3.5" /> Recalculate
+            </button>
           </section>
 
           {!locked ? (
