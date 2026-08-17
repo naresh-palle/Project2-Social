@@ -8,7 +8,7 @@ import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
-import { api, formatApiError, friendlyAuthError } from "@/lib/api";
+import { api, friendlyAuthError } from "@/lib/api";
 import { postAuthPath } from "@/lib/supportOps";
 
 export default function Login() {
