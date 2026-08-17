@@ -1,6 +1,6 @@
 # CR8 Studio iOS app
 
-The Flutter client under `mobile/` is a **real iOS app** (same screens and Render API as Android / web). Bundle ID: `studio.cr8.mobile`.
+The Flutter client under `mobile/` is a **real iOS app** (same screens and Render API as Android / web). Bundle ID: `studio.cr8.mobile`. Minimum iOS: **16**.
 
 ## Install on an iPhone
 
