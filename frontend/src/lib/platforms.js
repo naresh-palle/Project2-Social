@@ -58,15 +58,6 @@ export function socialMetricOrNA(value, formatFn) {
   return formatFn ? formatFn(n) : String(n);
 }
 
-function oauthAnalyticsEmpty(analytics) {
-  if (!analytics || typeof analytics !== "object") return true;
-  const followers = Number(analytics.followers) || 0;
-  const er = Number(analytics.er ?? analytics.engagement) || 0;
-  const views = Number(analytics.views) || 0;
-  const posts = Number(analytics.posts) || 0;
-  return followers === 0 && er === 0 && views === 0 && posts === 0;
-}
-
 function asConnectionList(rawConnections) {
   if (Array.isArray(rawConnections)) return rawConnections;
   if (rawConnections && typeof rawConnections === "object") {
@@ -75,10 +66,47 @@ function asConnectionList(rawConnections) {
   return [];
 }
 
+function normalizePlatformId(platform) {
+  const p = String(platform || "").trim().toLowerCase();
+  if (p === "x" || p === "x (twitter)" || p === "twitter/x") return "twitter";
+  if (p === "yt" || p === "you tube") return "youtube";
+  if (p === "fb" || p === "meta") return "facebook";
+  if (p === "ig" || p === "insta") return "instagram";
+  return p;
+}
+
 /**
- * Merge profile `platform_metrics` (scraped numbers) with `oauth_connections`
- * (avatar / display name) for dashboard Platform Analytics cards.
- * Profile stores engagement; cards historically read analytics.er.
+ * Platforms that already have an active handle (profile metrics) or OAuth link.
+ * Used so Connect Social Accounts never re-offers an active platform.
+ */
+export function connectedSocialPlatforms(user) {
+  if (!user || typeof user !== "object") return [];
+  const out = new Set();
+
+  const metrics = user.platform_metrics && typeof user.platform_metrics === "object"
+    ? user.platform_metrics
+    : {};
+  for (const [plat, row] of Object.entries(metrics)) {
+    const id = normalizePlatformId(plat);
+    if (id && hasPlatformHandle(row)) out.add(id);
+  }
+
+  for (const c of asConnectionList(user.oauth_connections)) {
+    const id = normalizePlatformId(c.platform);
+    if (!id) continue;
+    const oauthHandle = String(
+      c.account_name || c.platform_username || c.handle || c.username || ""
+    ).trim();
+    if (oauthHandle || c.connected === true || c.status === "connected") out.add(id);
+  }
+
+  return SOCIAL_PLATFORMS.filter((p) => out.has(p));
+}
+
+/**
+ * Merge profile `platform_metrics` (scraped numbers + handles) with `oauth_connections`
+ * (avatar only). Profile handles/numbers win whenever a metrics handle exists so
+ * Dashboard matches Profile Social metrics.
  */
 export function analyticsConnections(user) {
   if (!user || typeof user !== "object") return [];
@@ -89,48 +117,65 @@ export function analyticsConnections(user) {
   const connections = asConnectionList(user.oauth_connections);
   const oauthByPlat = {};
   for (const c of connections) {
-    const plat = String(c.platform || "").toLowerCase();
+    const plat = normalizePlatformId(c.platform);
     if (plat) oauthByPlat[plat] = c;
   }
 
   const plats = [
     ...SOCIAL_PLATFORMS,
-    ...Object.keys(metrics).filter((p) => !SOCIAL_PLATFORMS.includes(p)),
+    ...Object.keys(metrics).map(normalizePlatformId).filter((p) => p && !SOCIAL_PLATFORMS.includes(p)),
     ...Object.keys(oauthByPlat).filter((p) => !SOCIAL_PLATFORMS.includes(p) && !(p in metrics)),
   ];
 
+  const seen = new Set();
   const out = [];
   for (const plat of plats) {
+    if (!plat || seen.has(plat)) continue;
+    seen.add(plat);
+
     const row = metrics[plat] && typeof metrics[plat] === "object" ? metrics[plat] : {};
     const oauth = oauthByPlat[plat] || {};
-    const handle = String(
-      row.handle ||
-      row.username ||
-      oauth.account_name ||
+    const metricsHandle = String(row.handle || row.username || "").trim();
+    const oauthHandle = String(
       oauth.platform_username ||
       oauth.handle ||
       oauth.username ||
+      oauth.account_name ||
       ""
     ).trim();
+    const handle = metricsHandle || oauthHandle;
     if (!handle) continue;
 
     const metricFollowers = Number(row.followers ?? row.subscribers) || 0;
     const oauthFollowers = Number(oauth.analytics?.followers ?? oauth.followers) || 0;
-    const metricEr = Number(row.engagement ?? row.er) || 0;
+    const metricEr = Number(row.engagement ?? row.er);
     const oauthEr = Number(oauth.analytics?.er ?? oauth.analytics?.engagement) || 0;
-    const preferMetrics = metricFollowers > 0 || metricEr > 0 || oauthAnalyticsEmpty(oauth.analytics);
+    const metricViews = Number(row.views) || 0;
+    const oauthViews = Number(oauth.analytics?.views) || 0;
+    const metricPosts = Number(row.posts) || 0;
+    const oauthPosts = Number(oauth.analytics?.posts) || 0;
 
-    const followers = preferMetrics ? (metricFollowers || oauthFollowers) : (oauthFollowers || metricFollowers);
-    const er = preferMetrics ? (metricEr || oauthEr) : (oauthEr || metricEr);
-    const views = Number(row.views) || Number(oauth.analytics?.views) || 0;
-    const posts = Number(row.posts) || Number(oauth.analytics?.posts) || 0;
+    // Profile metrics identity wins — do not blend a different OAuth account's stats/name.
+    const useMetrics = Boolean(metricsHandle);
+    const followers = useMetrics ? metricFollowers : oauthFollowers;
+    const er = useMetrics
+      ? (Number.isFinite(metricEr) ? metricEr : 0)
+      : oauthEr;
+    const views = useMetrics ? metricViews : oauthViews;
+    const posts = useMetrics ? metricPosts : oauthPosts;
 
     out.push({
       platform: plat,
       handle,
-      account_name: oauth.account_name || handle,
+      // Same ID the Profile "Social metrics" panel shows
+      account_name: handle,
       profile_picture: oauth.profile_picture || null,
       last_sync_time: row.last_synced || oauth.last_sync_time || user.analytics_last_synced || null,
+      followers,
+      er,
+      engagement: er,
+      views,
+      posts,
       analytics: {
         followers,
         er,

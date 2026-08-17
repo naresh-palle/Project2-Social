@@ -1,4 +1,4 @@
-import { analyticsConnections, getTopSocialAccount } from "./platforms";
+import { analyticsConnections, connectedSocialPlatforms, getTopSocialAccount } from "./platforms";
 
 describe("analyticsConnections", () => {
   const user = {
@@ -13,21 +13,38 @@ describe("analyticsConnections", () => {
       {
         platform: "instagram",
         account_name: "IG OAuth",
-        analytics: { followers: 0, er: 0, views: 0, posts: 0 },
+        analytics: { followers: 99999, er: 9.9, views: 1, posts: 1 },
       },
     ],
   };
 
-  it("prefers platform_metrics over empty oauth analytics", () => {
+  it("prefers platform_metrics handle and numbers over oauth", () => {
     const rows = analyticsConnections(user);
     const ig = rows.find((r) => r.platform === "instagram");
     const fb = rows.find((r) => r.platform === "facebook");
+    expect(ig.handle).toBe("@realcreator");
+    expect(ig.account_name).toBe("@realcreator");
     expect(ig.analytics.followers).toBe(12500);
     expect(ig.analytics.er).toBe(4.2);
     expect(ig.analytics.views).toBe(88000);
-    expect(ig.account_name).toBe("IG OAuth");
     expect(fb.analytics.followers).toBe(3200);
     expect(rows.some((r) => r.platform === "youtube")).toBe(false);
+  });
+
+  it("keeps zero engagement from metrics instead of blending oauth ER", () => {
+    const rows = analyticsConnections({
+      platform_metrics: {
+        instagram: { handle: "bc.janardhan_reddy_official", followers: 49000, engagement: 0, views: 0, posts: 10 },
+      },
+      oauth_connections: [
+        { platform: "instagram", account_name: "@creator_ig", analytics: { followers: 48960, er: 5.82, views: 0, posts: 5394 } },
+      ],
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].handle).toBe("bc.janardhan_reddy_official");
+    expect(rows[0].account_name).toBe("bc.janardhan_reddy_official");
+    expect(rows[0].analytics.followers).toBe(49000);
+    expect(rows[0].analytics.er).toBe(0);
   });
 
   it("maps engagement to er for dashboard cards", () => {
@@ -39,6 +56,28 @@ describe("analyticsConnections", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].analytics.er).toBe(7.5);
     expect(rows[0].handle).toBe("onlymetrics");
+  });
+});
+
+describe("connectedSocialPlatforms", () => {
+  it("hides platforms that already have metrics handles even without oauth", () => {
+    const plats = connectedSocialPlatforms({
+      platform_metrics: {
+        twitter: { handle: "@creator_demo", followers: 1 },
+        youtube: { handle: "@creatordemoYT", followers: 1 },
+        facebook: { handle: "", followers: 0 },
+        instagram: { handle: "ig", followers: 1 },
+      },
+      oauth_connections: [{ platform: "Facebook", account_name: "Creator FB Page" }],
+    });
+    expect(plats.sort()).toEqual(["facebook", "instagram", "twitter", "youtube"].sort());
+  });
+
+  it("treats oauth-only links as connected", () => {
+    const plats = connectedSocialPlatforms({
+      oauth_connections: [{ platform: "twitter", account_name: "@x_only" }],
+    });
+    expect(plats).toEqual(["twitter"]);
   });
 });
 

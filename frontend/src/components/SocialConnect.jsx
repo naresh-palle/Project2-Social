@@ -1,4 +1,4 @@
-import { Link2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -13,6 +13,10 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
   const [loading, setLoading] = useState(null);
   const [activePrompt, setActivePrompt] = useState(null);
   const [handleInput, setHandleInput] = useState("");
+
+  const connected = new Set(
+    (connectedPlatforms || []).map((p) => String(p || "").trim().toLowerCase())
+  );
 
   const connectAccount = async (platformId, handle) => {
     if (!handle) return;
@@ -39,19 +43,19 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       setHandleInput("");
     }
   };
-  
-  if (connectedPlatforms.length >= SOCIAL_PLATFORMS.length) return null;
+
+  const missing = SOCIAL_PLATFORMS.filter((p) => !connected.has(p));
+  if (missing.length === 0) return null;
 
   return (
-    <div className="bg-white/5 border border-white/10 px-3.5 py-3 rounded-2xl">
+    <div className="bg-white/5 border border-white/10 px-3.5 py-3 rounded-2xl" data-testid="connect-social">
       <div className="flex items-baseline justify-between gap-3 mb-2.5">
         <h2 className="font-sans text-sm font-semibold tracking-tight">Connect Social Accounts</h2>
         <p className="text-[11px] text-white/45 hidden sm:block">Link profiles to sync analytics</p>
       </div>
       
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-        {SOCIAL_PLATFORMS.filter(p => !connectedPlatforms.includes(p)).map(p => {
-          const isConnected = false;
+        {missing.map(p => {
           const Icon = SOCIAL_PLATFORM_ICONS[p];
           const name = SOCIAL_PLATFORM_LABELS[p];
           const color = SOCIAL_PLATFORM_HOVER_COLORS[p];
@@ -97,15 +101,9 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
               key={p}
               type="button"
               onClick={() => setActivePrompt(p)}
-              disabled={isConnected}
-              className={`flex items-center gap-2 px-2.5 py-2 border rounded-xl transition-all text-left group
-                ${isConnected 
-                  ? "border-[#34C759]/30 bg-[#34C759]/5 cursor-default" 
-                  : `border-white/10 bg-white/[0.02] cursor-pointer ${color}`
-                }
-              `}
+              className={`flex items-center gap-2 px-2.5 py-2 border rounded-xl transition-all text-left group border-white/10 bg-white/[0.02] cursor-pointer ${color}`}
             >
-              <div className={`p-1.5 rounded-full bg-white/5 ${isConnected ? "text-[#34C759]" : "group-hover:text-current"}`}>
+              <div className="p-1.5 rounded-full bg-white/5 group-hover:text-current">
                 <Icon className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
@@ -116,7 +114,6 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                   Connect
                 </div>
               </div>
-              {isConnected && <div className="text-[#34C759]"><Link2 className="w-3.5 h-3.5" /></div>}
             </button>
           );
         })}

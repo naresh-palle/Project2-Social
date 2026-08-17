@@ -18,7 +18,7 @@ import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
-import { analyticsConnections } from "@/lib/platforms";
+import { analyticsConnections, connectedSocialPlatforms } from "@/lib/platforms";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
@@ -486,7 +486,8 @@ function InfluencerPanel() {
       />
 
       <SocialConnect
-        connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
+        connectedPlatforms={connectedSocialPlatforms(user)}
+        onConnect={refresh}
       />
       <SocialAnalyticsCards
         connections={analyticsConnections(user)}

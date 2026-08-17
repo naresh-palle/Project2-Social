@@ -59,7 +59,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="font-sans text-xs font-semibold truncate">{c.account_name || c.handle || "Connected"}</div>
+                    <div className="font-sans text-xs font-semibold truncate">{c.handle || c.account_name || "Connected"}</div>
                     <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/45">
                       <Icon className={`w-3 h-3 ${colorClass}`} /> {platformLabel}
                     </div>
