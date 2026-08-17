@@ -185,8 +185,21 @@ def enrich_from_raw_profile(platform: str, item: Dict[str, Any]) -> Dict[str, An
         followers = parse_int(
             item.get("followers")
             or item.get("subscribers")
-            or _first_number(raw, ("numberOfSubscribers", "subscribersCount", "followersCount", "followers"))
+            or _first_number(
+                raw,
+                (
+                    "numberOfSubscribers",
+                    "subscribersCount",
+                    "subscriberCount",
+                    "followersCount",
+                    "followers",
+                ),
+            )
         )
+        # Streamers channel scraper nests totals under aboutChannelInfo
+        about = raw.get("aboutChannelInfo") if isinstance(raw.get("aboutChannelInfo"), dict) else {}
+        if followers is None and about:
+            followers = parse_int(about.get("numberOfSubscribers"))
     else:
         followers = parse_int(
             item.get("followers")
@@ -209,10 +222,19 @@ def enrich_from_raw_profile(platform: str, item: Dict[str, Any]) -> Dict[str, An
     # Lifetime / channel views — YouTube totalViews; IG/FB only when post video views exist
     views = None
     if plat == "youtube":
+        about = raw.get("aboutChannelInfo") if isinstance(raw.get("aboutChannelInfo"), dict) else {}
         views = parse_int(
             item.get("views")
-            or _first_number(raw, ("totalViews", "viewsCount", "views"))
+            or _first_number(raw, ("totalViews", "channelTotalViews", "viewsCount", "views"))
+            or (about.get("channelTotalViews") if about else None)
         )
+        if content_count is None:
+            content_count = parse_int(
+                item.get("posts")
+                or item.get("contentCount")
+                or _first_number(raw, ("numberOfVideos", "channelTotalVideos", "videosCount", "posts"))
+                or (about.get("channelTotalVideos") if about else None)
+            )
     else:
         if item.get("views") is not None and parse_int(item.get("views")) is not None:
             # Treat legacy hardcoded 0 on IG/FB as unavailable

@@ -16,7 +16,8 @@ logger = logging.getLogger("apify_service")
 logger.setLevel(logging.INFO)
 
 ACTOR_INSTAGRAM = os.environ.get("APIFY_ACTOR_INSTAGRAM", "apify~instagram-scraper")
-ACTOR_YOUTUBE = os.environ.get("APIFY_ACTOR_YOUTUBE", "streamhut~youtube-scraper")
+# streamhut/youtube-scraper does not exist on Apify (404). Use Streamers channel scraper.
+ACTOR_YOUTUBE = os.environ.get("APIFY_ACTOR_YOUTUBE", "streamers~youtube-channel-scraper")
 ACTOR_FACEBOOK = os.environ.get("APIFY_ACTOR_FACEBOOK", "apify~facebook-pages-scraper")
 
 PLATFORM_HOSTS = {
@@ -119,6 +120,38 @@ def platform_from_actor(actor_id: str) -> str:
     return "unknown"
 
 
+def _flatten_youtube_item(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Merge Streamers channel-scraper nested aboutChannelInfo into a flat profile dict."""
+    item = dict(item or {})
+    about = item.get("aboutChannelInfo") if isinstance(item.get("aboutChannelInfo"), dict) else {}
+    if about:
+        # Prefer channel totals from aboutChannelInfo over per-video fields
+        for src, dest in (
+            ("numberOfSubscribers", "numberOfSubscribers"),
+            ("channelTotalViews", "totalViews"),
+            ("channelTotalVideos", "numberOfVideos"),
+            ("channelName", "channelName"),
+            ("channelUsername", "username"),
+            ("channelDescription", "description"),
+            ("channelAvatarUrl", "avatarUrl"),
+            ("channelUrl", "channelUrl"),
+        ):
+            if about.get(src) is not None and not item.get(dest):
+                item[dest] = about.get(src)
+        if about.get("channelUsername") and not item.get("handle"):
+            item["handle"] = str(about.get("channelUsername")).lstrip("@")
+        if about.get("channelName") and not item.get("channelName"):
+            item["channelName"] = about.get("channelName")
+    # Alternate flat shapes some YouTube actors return
+    if item.get("channelTotalViews") is not None and item.get("totalViews") is None:
+        item["totalViews"] = item.get("channelTotalViews")
+    if item.get("channelTotalVideos") is not None and item.get("numberOfVideos") is None:
+        item["numberOfVideos"] = item.get("channelTotalVideos")
+    if item.get("subscriberCount") is not None and item.get("numberOfSubscribers") is None:
+        item["numberOfSubscribers"] = item.get("subscriberCount")
+    return item
+
+
 def normalize_profile_item(platform: str, item: Dict[str, Any]) -> Dict[str, Any]:
     """Unified profile shape for sync-analytics and scrape jobs.
 
@@ -138,12 +171,19 @@ def normalize_profile_item(platform: str, item: Dict[str, Any]) -> Dict[str, Any
             "raw": item,
         }
     elif platform == "youtube":
+        item = _flatten_youtube_item(item)
         base = {
             "platform": "youtube",
-            "handle": (item.get("channelName") or item.get("username") or item.get("handle") or "").lstrip("@"),
+            "handle": (
+                item.get("channelUsername")
+                or item.get("username")
+                or item.get("channelName")
+                or item.get("handle")
+                or ""
+            ).lstrip("@"),
             "display_name": item.get("channelName") or item.get("title") or item.get("name") or "",
-            "bio": item.get("description") or item.get("bio") or "",
-            "avatar": item.get("avatarUrl") or item.get("thumbnailUrl") or "",
+            "bio": item.get("description") or item.get("channelDescription") or item.get("bio") or "",
+            "avatar": item.get("avatarUrl") or item.get("channelAvatarUrl") or item.get("thumbnailUrl") or "",
             "raw": item,
         }
     else:
@@ -204,9 +244,15 @@ class ApifyService:
                 "instagram",
             )
         if platform == "youtube":
+            # Prefer channel totals from aboutChannelInfo (1 video row is enough to attach channel meta)
             return (
                 ACTOR_YOUTUBE,
-                {"startUrls": [{"url": url}], "maxResults": 1},
+                {
+                    "startUrls": [{"url": url}],
+                    "maxResults": 1,
+                    "maxResultsShorts": 0,
+                    "maxResultStreams": 0,
+                },
                 "youtube",
             )
         if platform == "facebook":

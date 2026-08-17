@@ -61,6 +61,32 @@ def test_instagram_without_posts_views_null_not_zero():
     assert n["reach"] is None
 
 
+def test_youtube_streamers_about_channel_info():
+    from apify_service import normalize_profile_item
+
+    raw = {
+        "id": "vid1",
+        "title": "Hello",
+        "viewCount": 10,
+        "channelName": "Apify",
+        "aboutChannelInfo": {
+            "channelUsername": "Apify",
+            "channelName": "Apify",
+            "numberOfSubscribers": 8390,
+            "channelTotalViews": 660763,
+            "channelTotalVideos": 169,
+            "channelDescription": "Welcome",
+            "channelAvatarUrl": "https://example.com/a.jpg",
+        },
+    }
+    n = normalize_profile_item("youtube", raw)
+    assert n["followers"] == 8390
+    assert n["views"] == 660763
+    assert n["posts"] == 169
+    assert n["reach"] is None
+    assert "Apify" in (n.get("handle") or n.get("display_name") or "")
+
+
 def test_youtube_total_views():
     n = enrich_from_raw_profile(
         "youtube",
