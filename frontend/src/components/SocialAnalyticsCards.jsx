@@ -22,8 +22,8 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
     <div className="space-y-2.5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2 min-w-0">
-          <h3 className="font-sans text-sm font-semibold tracking-tight">Platform Analytics</h3>
-          <p className="text-[10px] text-white/40 uppercase tracking-wider hidden sm:block">Connected accounts</p>
+          <h3 className="font-sans text-sm font-semibold tracking-tight">Social presence by platform</h3>
+          <p className="text-[10px] text-white/40 uppercase tracking-wider hidden sm:block">Strength per connected account</p>
         </div>
         <button
           type="button"
