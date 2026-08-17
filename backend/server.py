@@ -4676,6 +4676,8 @@ async def seed_directory_roster(demo_password_hash: str):
         },
     )
     async for u in cursor:
+        if (u.get("email") or "").lower() in {"creator@cr8.studio", "agent@cr8.studio", "company@cr8.studio"}:
+            continue
         updates = {}
         if not u.get("avatar"):
             h = sum(ord(c) for c in str(u.get("id") or u.get("email") or "x"))
