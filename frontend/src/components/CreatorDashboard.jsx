@@ -90,7 +90,7 @@ export function CreatorDashboard({
   const erVals = connected
     .map((k) => Number(platforms[k]?.engagement))
     .filter((n) => Number.isFinite(n) && n > 0);
-  const avgEr = erVals.length ? erVals.reduce((a, b) => a + b, 0) / erVals.length : 5.4;
+  const avgEr = erVals.length ? erVals.reduce((a, b) => a + b, 0) / erVals.length : 0;
   const viewsBase = SOCIAL_PLATFORMS.reduce((acc, k) => acc + (Number(platforms[k]?.views) || 0), 0) || followers * 3.2;
 
   const trend = useMemo(() => {
@@ -167,15 +167,15 @@ export function CreatorDashboard({
           </Link>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-white/80">
-          <p>{activeCampaigns || 2} campaigns paid</p>
-          <p className="text-right">{pendingCollabs || 1} collab{pendingCollabs === 1 ? "" : "s"} pending</p>
+          <p>{activeCampaigns} campaigns paid</p>
+          <p className="text-right">{pendingCollabs} collab{pendingCollabs === 1 ? "" : "s"} pending</p>
         </div>
       </section>
 
       <section className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 min-w-0">
-        <Kpi icon={Users} label="Followers" value={formatCompact(followers || 124500)} hint={`+${growth.toFixed(1)}%`} good />
-        <Kpi icon={Heart} label="Engagement" value={`${avgEr.toFixed(1)}%`} hint="healthy" good />
-        <Kpi icon={Briefcase} label="Active campaigns" value={String(activeCampaigns || 3)} hint={`${pendingCollabs || 2} pending`} warn={pendingCollabs > 0} />
+        <Kpi icon={Users} label="Followers" value={formatCompact(followers)} hint={followers ? `+${growth.toFixed(1)}%` : "from profile"} good />
+        <Kpi icon={Heart} label="Engagement" value={erVals.length ? `${avgEr.toFixed(1)}%` : "—"} hint={erVals.length ? "healthy" : "sync socials"} good={erVals.length > 0} />
+        <Kpi icon={Briefcase} label="Active campaigns" value={String(activeCampaigns)} hint={`${pendingCollabs} pending`} warn={pendingCollabs > 0} />
         <Kpi icon={Banknote} label="Pending payouts" value={formatCompact(pendingPayout)} hint="clearing" warn />
       </section>
 

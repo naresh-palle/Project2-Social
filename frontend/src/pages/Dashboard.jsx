@@ -18,6 +18,7 @@ import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { formatUsername, displayAccountName } from "@/lib/username";
+import { analyticsConnections } from "@/lib/platforms";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { AdminPanel } from "./AdminPanel";
@@ -458,12 +459,13 @@ function InfluencerPanel() {
   };
 
   useEffect(() => {
+    refresh();
     api.get("/applications/mine").then((r) => setApps(Array.isArray(r.data) ? r.data : [])).catch(() => setApps([]));
     api.get("/analytics/creator").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
     api.get("/campaigns/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
     api.get("/wallet").then((r) => setWallet(r.data)).catch(() => setWallet(null));
     api.get("/notifications").then((r) => setNotifications(Array.isArray(r.data?.items) ? r.data.items : [])).catch(() => setNotifications([]));
-  }, []);
+  }, [refresh]);
 
   const safeApps = Array.isArray(apps) ? apps : [];
   const safeMatches = Array.isArray(matches) ? matches : [];
@@ -489,14 +491,7 @@ function InfluencerPanel() {
         connectedPlatforms={(user?.oauth_connections || []).map(c => c.platform)}
       />
       <SocialAnalyticsCards
-        connections={
-          user?.oauth_connections?.length 
-            ? user.oauth_connections 
-            : Object.keys(user?.platform_metrics || {}).map(plat => ({
-                platform: plat,
-                handle: user.platform_metrics[plat].handle || user.handle || user.username
-              }))
-        }
+        connections={analyticsConnections(user)}
         onSync={handleSync}
         isSyncing={syncing}
       />

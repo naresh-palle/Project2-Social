@@ -6,6 +6,15 @@ import {
   SOCIAL_PLATFORM_COLORS
 } from "@/lib/platforms";
 
+function asNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatCount(value) {
+  return asNumber(value).toLocaleString();
+}
+
 export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
   if (!connections || connections.length === 0) return null;
 
@@ -32,6 +41,11 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           const Icon = SOCIAL_PLATFORM_ICONS[c.platform] || SOCIAL_PLATFORM_ICONS.instagram;
           const colorClass = SOCIAL_PLATFORM_COLORS[c.platform] || "text-white";
           const platformLabel = SOCIAL_PLATFORM_LABELS[c.platform] || c.platform;
+          const analytics = c.analytics && typeof c.analytics === "object" ? c.analytics : {};
+          const followers = asNumber(c.followers ?? analytics.followers);
+          const er = asNumber(c.er ?? c.engagement ?? analytics.er ?? analytics.engagement);
+          const views = asNumber(c.views ?? analytics.views);
+          const posts = asNumber(c.posts ?? analytics.posts);
           
           return (
             <div key={c.platform} className="bg-white/[0.02] border border-white/10 px-3 py-2.5 rounded-2xl hover:border-white/20 hover:bg-white/[0.04] transition-all">
@@ -61,19 +75,19 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
               <div className="grid grid-cols-4 gap-2 pt-2 border-t border-white/5">
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Followers</div>
-                  <div className="text-sm font-semibold tabular-nums">{c.analytics?.followers?.toLocaleString() || "0"}</div>
+                  <div className="text-sm font-semibold tabular-nums">{formatCount(followers)}</div>
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
-                  <div className="text-sm font-semibold tabular-nums text-[#34C759]">{c.analytics?.er || "0"}%</div>
+                  <div className="text-sm font-semibold tabular-nums text-[#34C759]">{er}%</div>
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Views</div>
-                  <div className="text-sm font-semibold tabular-nums">{c.analytics?.views || "0"}</div>
+                  <div className="text-sm font-semibold tabular-nums">{formatCount(views)}</div>
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Posts</div>
-                  <div className="text-sm font-semibold tabular-nums">{c.analytics?.posts?.toLocaleString() || "0"}</div>
+                  <div className="text-sm font-semibold tabular-nums">{formatCount(posts)}</div>
                 </div>
               </div>
             </div>

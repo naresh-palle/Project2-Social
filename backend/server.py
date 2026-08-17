@@ -22,6 +22,8 @@ from pathlib import Path as PathLib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
 
+from otp_utils import parse_otp_datetime, otp_expired
+
 import bcrypt
 import jwt
 import httpx
@@ -1026,11 +1028,12 @@ async def email_send_otp(inp: OTPRequest):
     existing = await db.otps.find_one({"email": email})
     if existing and existing.get("created_at"):
         try:
-            created_at = datetime.fromisoformat(existing["created_at"])
-            secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
-            if secs_passed < OTP_RESEND_SECONDS:
-                wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
-                raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+            created_at = parse_otp_datetime(existing["created_at"])
+            if created_at:
+                secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+                if secs_passed < OTP_RESEND_SECONDS:
+                    wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                    raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
         except HTTPException:
             raise
         except Exception:
@@ -1075,10 +1078,7 @@ async def email_verify_otp(inp: OTPVerify):
     if not doc:
         raise HTTPException(status_code=400, detail="No OTP requested for this email address")
 
-    expires_at_raw = doc.get("expires_at")
-    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
-
-    if expires_at and datetime.now(timezone.utc) > expires_at:
+    if otp_expired(doc.get("expires_at")):
         await db.otps.delete_one({"email": email})
         _otp_store.pop(email, None)
         raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
@@ -1090,9 +1090,8 @@ async def email_verify_otp(inp: OTPVerify):
         raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
 
     target_hash = hash_otp(target_code)
-    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
-
-    if target_hash != stored_hash and target_code != doc.get("code"):
+    stored_hash = doc.get("hashed_otp") or hash_otp(str(doc.get("code") or doc.get("otp") or ""))
+    if target_hash != stored_hash and str(target_code) != str(doc.get("code") or doc.get("otp") or ""):
         await db.otps.update_one({"email": email}, {"$set": {"attempts": attempts}})
         remaining = OTP_MAX_ATTEMPTS - attempts
         if remaining <= 0:
@@ -1126,11 +1125,12 @@ async def mobile_send_otp(inp: OTPRequest):
     existing = await db.otps.find_one({"mobile": mobile})
     if existing and existing.get("created_at"):
         try:
-            created_at = datetime.fromisoformat(existing["created_at"])
-            secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
-            if secs_passed < OTP_RESEND_SECONDS:
-                wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
-                raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+            created_at = parse_otp_datetime(existing["created_at"])
+            if created_at:
+                secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+                if secs_passed < OTP_RESEND_SECONDS:
+                    wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                    raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
         except HTTPException:
             raise
         except Exception:
@@ -1270,6 +1270,17 @@ class MobileRegisterInput(BaseModel):
     platform: Optional[str] = None
     handle: Optional[str] = None
 
+    @field_validator("otp", mode="before")
+    @classmethod
+    def coerce_otp(cls, v):
+        digits = "".join(ch for ch in str(v or "") if ch.isdigit())
+        return digits
+
+    @field_validator("mobile", mode="before")
+    @classmethod
+    def coerce_mobile(cls, v):
+        return "".join(ch for ch in str(v or "") if ch.isdigit())[-10:] if v else v
+
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -1278,9 +1289,9 @@ class FirebaseLoginInput(BaseModel):
     firebase_token: str
 
 
-async def consume_mobile_otp(mobile: str, target_code: str) -> None:
-    """Validate and consume a mobile OTP. Raises HTTPException on failure."""
-    mobile = (mobile or "").strip().replace(" ", "").replace("+91", "")
+async def consume_mobile_otp(mobile: str, target_code: str, *, consume: bool = True) -> dict:
+    """Validate a mobile OTP. Deletes it after a match unless consume=False."""
+    mobile = normalize_mobile(mobile)
     target_code = (target_code or "").strip()
     if len(mobile) != 10 or not mobile.isdigit():
         raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
@@ -1293,9 +1304,7 @@ async def consume_mobile_otp(mobile: str, target_code: str) -> None:
     if not doc:
         raise HTTPException(status_code=400, detail="No OTP requested for this mobile number")
 
-    expires_at_raw = doc.get("expires_at")
-    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
-    if expires_at and datetime.now(timezone.utc) > expires_at:
+    if otp_expired(doc.get("expires_at")):
         await db.otps.delete_one({"mobile": mobile})
         _otp_store.pop(mobile, None)
         raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
@@ -1307,8 +1316,8 @@ async def consume_mobile_otp(mobile: str, target_code: str) -> None:
         raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
 
     target_hash = hash_otp(target_code)
-    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
-    if target_hash != stored_hash and target_code != doc.get("code"):
+    stored_hash = doc.get("hashed_otp") or hash_otp(str(doc.get("code") or doc.get("otp") or ""))
+    if target_hash != stored_hash and str(target_code) != str(doc.get("code") or doc.get("otp") or ""):
         await db.otps.update_one({"mobile": mobile}, {"$set": {"attempts": attempts}})
         remaining = OTP_MAX_ATTEMPTS - attempts
         if remaining <= 0:
@@ -1317,12 +1326,14 @@ async def consume_mobile_otp(mobile: str, target_code: str) -> None:
             raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
         raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
 
-    await db.otps.delete_one({"mobile": mobile})
-    _otp_store.pop(mobile, None)
+    if consume:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
+    return doc
 
 
-async def consume_email_otp(email: str, target_code: str) -> None:
-    """Validate and consume an email OTP. Raises HTTPException on failure."""
+async def consume_email_otp(email: str, target_code: str, *, consume: bool = True) -> dict:
+    """Validate an email OTP. Deletes it after a match unless consume=False."""
     email = (email or "").lower().strip()
     target_code = (target_code or "").strip()
     if not email:
@@ -1336,9 +1347,7 @@ async def consume_email_otp(email: str, target_code: str) -> None:
     if not doc:
         raise HTTPException(status_code=400, detail="No OTP requested for this email address")
 
-    expires_at_raw = doc.get("expires_at")
-    expires_at = datetime.fromisoformat(expires_at_raw) if isinstance(expires_at_raw, str) else expires_at_raw
-    if expires_at and datetime.now(timezone.utc) > expires_at:
+    if otp_expired(doc.get("expires_at")):
         await db.otps.delete_one({"email": email})
         _otp_store.pop(email, None)
         raise HTTPException(status_code=400, detail="OTP expired. Please request a new verification code.")
@@ -1350,8 +1359,8 @@ async def consume_email_otp(email: str, target_code: str) -> None:
         raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
 
     target_hash = hash_otp(target_code)
-    stored_hash = doc.get("hashed_otp") or hash_otp(doc.get("code", ""))
-    if target_hash != stored_hash and target_code != doc.get("code"):
+    stored_hash = doc.get("hashed_otp") or hash_otp(str(doc.get("code") or doc.get("otp") or ""))
+    if target_hash != stored_hash and str(target_code) != str(doc.get("code") or doc.get("otp") or ""):
         await db.otps.update_one({"email": email}, {"$set": {"attempts": attempts}})
         remaining = OTP_MAX_ATTEMPTS - attempts
         if remaining <= 0:
@@ -1360,8 +1369,21 @@ async def consume_email_otp(email: str, target_code: str) -> None:
             raise HTTPException(status_code=429, detail=f"Maximum {OTP_MAX_ATTEMPTS} attempts reached. Please request a new OTP.")
         raise HTTPException(status_code=400, detail=f"Incorrect OTP code. {remaining} attempt(s) remaining.")
 
-    await db.otps.delete_one({"email": email})
-    _otp_store.pop(email, None)
+    if consume:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+    return doc
+
+
+async def _clear_signup_otps(email: Optional[str], mobile: Optional[str]) -> None:
+    email = (email or "").lower().strip()
+    mobile = normalize_mobile(mobile) if mobile else ""
+    if email:
+        await db.otps.delete_one({"email": email})
+        _otp_store.pop(email, None)
+    if mobile:
+        await db.otps.delete_one({"mobile": mobile})
+        _otp_store.pop(mobile, None)
 
 
 @api_router.post("/auth/register/send-otp")
@@ -1382,11 +1404,12 @@ async def register_send_otp(inp: OTPRequest):
         existing = await db.otps.find_one(query)
         if existing and existing.get("created_at"):
             try:
-                created_at = datetime.fromisoformat(existing["created_at"])
-                secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
-                if secs_passed < OTP_RESEND_SECONDS:
-                    wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
-                    raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
+                created_at = parse_otp_datetime(existing["created_at"])
+                if created_at:
+                    secs_passed = (datetime.now(timezone.utc) - created_at).total_seconds()
+                    if secs_passed < OTP_RESEND_SECONDS:
+                        wait_secs = int(OTP_RESEND_SECONDS - secs_passed)
+                        raise HTTPException(status_code=429, detail=f"Please wait {wait_secs} seconds before requesting another OTP.")
             except HTTPException:
                 raise
             except Exception:
@@ -1518,9 +1541,18 @@ async def _create_registered_user(
 
     social_accounts = []
     platforms = []
+    platform_metrics = {
+        "facebook": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "instagram": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "twitter": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "youtube": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+    }
     if role == "influencer" and platform and handle:
-        social_accounts.append({"platform": platform, "handle": handle, "followers": 0, "engagement_rate": 0.0})
-        platforms.append(platform)
+        plat_key = str(platform).strip().lower()
+        social_accounts.append({"platform": plat_key, "handle": handle, "followers": 0, "engagement_rate": 0.0})
+        platforms.append(plat_key)
+        if plat_key in platform_metrics:
+            platform_metrics[plat_key]["handle"] = str(handle).strip()
 
     doc = {
         "id": user_id,
@@ -1531,10 +1563,11 @@ async def _create_registered_user(
         "mobile": clean_mobile, "pincode": pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
         "location": city_val, "city": city_val, "state": state_val, "industry": None, "website": None,
-        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": (i * 1500) + (1000 if i % 2 == 0 else 500),
+        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
         "onboarding_status": "pending", "agent_approved": False,
         "created_at": now_iso(),
         "social_accounts": social_accounts,
+        "platform_metrics": platform_metrics,
         "agent_type": agent_type,
     }
     await db.users.insert_one(doc)
@@ -1555,22 +1588,16 @@ async def _create_registered_user(
 @api_router.post("/auth/mobile-register")
 async def mobile_register(inp: MobileRegisterInput):
     """Sign up using email/SMS OTP from our backend — does not require Firebase billing."""
-    # Accept the same OTP from either channel (register/send-otp stores both)
+    email = inp.email.lower().strip()
+    otp_code = str(inp.otp or "").strip()
+    # Verify first (do not burn the code) so a later create failure can retry.
     try:
-        await consume_email_otp(inp.email, inp.otp)
+        await consume_email_otp(email, otp_code, consume=False)
     except HTTPException as email_err:
         try:
-            await consume_mobile_otp(inp.mobile, inp.otp)
+            await consume_mobile_otp(inp.mobile, otp_code, consume=False)
         except HTTPException:
             raise email_err
-
-    # Clear the sibling OTP key if still present
-    clean_mobile = (inp.mobile or "").replace("+91", "").replace(" ", "").strip()
-    email = inp.email.lower().strip()
-    await db.otps.delete_one({"mobile": clean_mobile})
-    await db.otps.delete_one({"email": email})
-    _otp_store.pop(clean_mobile, None)
-    _otp_store.pop(email, None)
 
     result = await _create_registered_user(
         email=inp.email,
@@ -1588,6 +1615,7 @@ async def mobile_register(inp: MobileRegisterInput):
         handle=inp.handle,
         verified=True,
     )
+    await _clear_signup_otps(email, inp.mobile)
     await db.users.update_one({"email": email}, {"$set": {"email_verified": True}})
     if result.get("user"):
         result["user"]["email_verified"] = True
@@ -1626,13 +1654,8 @@ async def register_old(inp: RegisterInput):
     username = inp.username.lower().strip()
     mobile = inp.mobile.strip() if inp.mobile else None
 
-    # Verify OTP
-    otp_record = await db.otps.find_one({"email": email})
-    if not otp_record or otp_record["otp"] != inp.otp:
-        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
-    if otp_record["expires_at"] < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Verification code expired")
-    
+    await consume_email_otp(email, inp.otp, consume=False)
+
     if await db.users.find_one({"$or": [{"email": email}, {"username": username}, {"mobile": mobile}]}):
         raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
     if inp.role == "admin":
@@ -1675,7 +1698,7 @@ async def register_old(inp: RegisterInput):
     }
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, inp.role)
-    await db.otps.delete_one({"email": email})
+    await _clear_signup_otps(email, mobile)
     role_label = ROLE_AUDIT_LABELS.get(inp.role, (inp.role or "user").title())
     await write_audit_log(
         action=f"{role_label} Signup",
@@ -3722,6 +3745,33 @@ async def analytics_creator(current: dict = Depends(get_current_user)):
     earned = current.get("wallet", 0)
     contracted = sum(a.get("rate") or 0 for a in my_apps)
 
+    pm = current.get("platform_metrics") if isinstance(current.get("platform_metrics"), dict) else {}
+    social_followers = 0
+    social_views = 0
+    social_posts = 0
+    engagement_vals = []
+    for row in pm.values():
+        if not isinstance(row, dict) or not str(row.get("handle") or "").strip():
+            continue
+        try:
+            social_followers += int(float(row.get("followers") or row.get("subscribers") or 0))
+        except (TypeError, ValueError):
+            pass
+        try:
+            social_views += int(float(row.get("views") or 0))
+        except (TypeError, ValueError):
+            pass
+        try:
+            social_posts += int(float(row.get("posts") or 0))
+        except (TypeError, ValueError):
+            pass
+        try:
+            er = float(row.get("engagement") if row.get("engagement") is not None else row.get("er") or 0)
+        except (TypeError, ValueError):
+            er = 0.0
+        if er > 0:
+            engagement_vals.append(er)
+
     return {
         "applications": applied,
         "acceptances": accepted,
@@ -3732,6 +3782,11 @@ async def analytics_creator(current: dict = Depends(get_current_user)):
         "reviews_count": len(reviews),
         "earned": earned,
         "contracted": contracted,
+        "followers": social_followers,
+        "views": social_views,
+        "posts": social_posts,
+        "avg_engagement": round(sum(engagement_vals) / len(engagement_vals), 2) if engagement_vals else 0,
+        "platform_metrics": pm,
     }
 
 
