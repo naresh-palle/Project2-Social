@@ -5,15 +5,7 @@ import {
   SOCIAL_PLATFORM_ICONS,
   SOCIAL_PLATFORM_COLORS
 } from "@/lib/platforms";
-
-function asNumber(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function formatCount(value) {
-  return asNumber(value).toLocaleString();
-}
+import { displayMetric, formatEngagementRate, formatExactNumber, formatCompactNumber } from "@/lib/socialAnalytics";
 
 export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
   if (!connections || connections.length === 0) return null;
@@ -42,10 +34,14 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           const colorClass = SOCIAL_PLATFORM_COLORS[c.platform] || "text-white";
           const platformLabel = SOCIAL_PLATFORM_LABELS[c.platform] || c.platform;
           const analytics = c.analytics && typeof c.analytics === "object" ? c.analytics : {};
-          const followers = asNumber(c.followers ?? analytics.followers);
-          const er = asNumber(c.er ?? c.engagement ?? analytics.er ?? analytics.engagement);
-          const views = asNumber(c.views ?? analytics.views);
-          const posts = asNumber(c.posts ?? analytics.posts);
+          const followers = c.followers ?? analytics.followers;
+          const er = c.er ?? c.engagement ?? analytics.er ?? analytics.engagement;
+          let views = c.views ?? analytics.views;
+          if ((c.platform === "instagram" || c.platform === "facebook" || c.platform === "twitter") && Number(views) === 0) {
+            views = null;
+          }
+          const posts = c.posts ?? analytics.posts;
+          const reach = c.reach ?? analytics.reach ?? null;
           
           return (
             <div key={c.platform} className="bg-white/[0.02] border border-white/10 px-3 py-2.5 rounded-2xl hover:border-white/20 hover:bg-white/[0.04] transition-all">
@@ -72,22 +68,26 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 )}
               </div>
               
-              <div className="grid grid-cols-4 gap-2 pt-2 border-t border-white/5">
-                <div>
+              <div className="grid grid-cols-5 gap-2 pt-2 border-t border-white/5">
+                <div title={formatExactNumber(followers) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Followers</div>
-                  <div className="text-sm font-semibold tabular-nums">{formatCount(followers)}</div>
+                  <div className="text-sm font-semibold tabular-nums">{displayMetric(followers, { format: formatCompactNumber })}</div>
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
-                  <div className="text-sm font-semibold tabular-nums text-[#34C759]">{er}%</div>
+                  <div className="text-sm font-semibold tabular-nums text-[#34C759]">{formatEngagementRate(er)}</div>
                 </div>
-                <div>
+                <div title={formatExactNumber(views) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Views</div>
-                  <div className="text-sm font-semibold tabular-nums">{formatCount(views)}</div>
+                  <div className="text-sm font-semibold tabular-nums">{displayMetric(views, { format: formatCompactNumber, allowZero: c.platform === "youtube" })}</div>
+                </div>
+                <div title={formatExactNumber(reach) || undefined}>
+                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Reach</div>
+                  <div className="text-sm font-semibold tabular-nums">{displayMetric(reach, { format: formatCompactNumber, allowZero: false })}</div>
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Posts</div>
-                  <div className="text-sm font-semibold tabular-nums">{formatCount(posts)}</div>
+                  <div className="text-sm font-semibold tabular-nums">{displayMetric(posts, { format: formatCompactNumber })}</div>
                 </div>
               </div>
             </div>

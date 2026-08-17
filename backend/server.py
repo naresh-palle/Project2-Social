@@ -2445,13 +2445,13 @@ async def sync_analytics(
         info = pm.get(plat) if isinstance(pm.get(plat), dict) else {}
         handle = str(info.get("handle") or "").strip()
         if not handle:
-            pm[plat] = {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0}
+            pm[plat] = {"handle": "", "followers": 0, "engagement": 0, "views": None, "posts": 0}
     
-    # 2. Update Historical Data (stop mocking fake growth)
-    monthly_data = current.get("monthly_analytics") or []
-    if not monthly_data or len(monthly_data) > 12:
-        # Just keep the most recent if it exists, otherwise empty
-        monthly_data = []
+    # 2. Historical snapshots — append/replace current month from real aggregates (never invent growth)
+    from social_analytics import aggregate_creator_analytics, append_monthly_snapshot
+
+    overview = aggregate_creator_analytics(pm)
+    monthly_data = append_monthly_snapshot(current.get("monthly_analytics") or [], overview)
         
     await db.users.update_one(
         {"id": current["id"]},
@@ -2466,7 +2466,8 @@ async def sync_analytics(
         "ok": True if not failed_plats else False, 
         "message": msg,
         "metrics": pm,
-        "monthly_analytics": monthly_data
+        "monthly_analytics": monthly_data,
+        "social_overview": overview,
     }
 
 @api_router.get("/creators")
@@ -2517,7 +2518,7 @@ async def get_creator(creator_id: str):
     creator = await db.users.find_one({"id": creator_id, "role": "influencer"},
                                       {"_id": 0, "password_hash": 0})
     if not creator:
-        raise HTTPException(status_code=404, detail="Creator not found")
+        raise HTTPException(status_code=404, detail="Influencer not found")
     # avg rating
     revs = await db.reviews.find({"target_id": creator_id}, {"_id": 0}).to_list(length=200)
     if revs:
@@ -2526,6 +2527,11 @@ async def get_creator(creator_id: str):
     else:
         creator["rating"] = None
         creator["reviews_count"] = 0
+    from social_analytics import aggregate_creator_analytics
+    creator["social"] = aggregate_creator_analytics(
+        creator.get("platform_metrics"),
+        monthly_analytics=creator.get("monthly_analytics") or [],
+    )
     return creator
 
 
@@ -3762,31 +3768,16 @@ async def analytics_creator(current: dict = Depends(get_current_user)):
     contracted = sum(a.get("rate") or 0 for a in my_apps)
 
     pm = current.get("platform_metrics") if isinstance(current.get("platform_metrics"), dict) else {}
-    social_followers = 0
-    social_views = 0
-    social_posts = 0
-    engagement_vals = []
-    for row in pm.values():
-        if not isinstance(row, dict) or not str(row.get("handle") or "").strip():
-            continue
-        try:
-            social_followers += int(float(row.get("followers") or row.get("subscribers") or 0))
-        except (TypeError, ValueError):
-            pass
-        try:
-            social_views += int(float(row.get("views") or 0))
-        except (TypeError, ValueError):
-            pass
-        try:
-            social_posts += int(float(row.get("posts") or 0))
-        except (TypeError, ValueError):
-            pass
-        try:
-            er = float(row.get("engagement") if row.get("engagement") is not None else row.get("er") or 0)
-        except (TypeError, ValueError):
-            er = 0.0
-        if er > 0:
-            engagement_vals.append(er)
+    from social_analytics import aggregate_creator_analytics
+
+    snaps = await db.creator_metric_snapshots.find(
+        {"creator_id": user_id}, {"_id": 0}
+    ).sort("captured_at", -1).to_list(40)
+    social = aggregate_creator_analytics(
+        pm,
+        monthly_analytics=current.get("monthly_analytics") or [],
+        snapshots=snaps,
+    )
 
     return {
         "applications": applied,
@@ -3798,11 +3789,134 @@ async def analytics_creator(current: dict = Depends(get_current_user)):
         "reviews_count": len(reviews),
         "earned": earned,
         "contracted": contracted,
-        "followers": social_followers,
-        "views": social_views,
-        "posts": social_posts,
-        "avg_engagement": round(sum(engagement_vals) / len(engagement_vals), 2) if engagement_vals else 0,
+        # Legacy scalar fields (UI compatibility) — null-safe via social overview
+        "followers": social.get("followers") or 0,
+        "views": social.get("views"),
+        "posts": social.get("contentCount") or 0,
+        "avg_engagement": social.get("engagementRate") or 0,
         "platform_metrics": pm,
+        "social": social,
+        "total_views": social.get("views"),
+        "total_reach": social.get("reach"),
+        "total_engagement": social.get("engagement"),
+        "engagement_rate": social.get("engagementRate"),
+        "engagement_rate_basis": social.get("engagementRateBasis"),
+    }
+
+
+@api_router.get("/analytics/influencer/{influencer_id}")
+async def analytics_influencer(influencer_id: str, current: dict = Depends(get_current_user)):
+    """Normalized Apify-derived analytics for a creator (brands/admins/self)."""
+    creator = await db.users.find_one({"id": influencer_id, "role": "influencer"}, {"_id": 0, "password_hash": 0})
+    if not creator:
+        raise HTTPException(status_code=404, detail="Influencer not found")
+    is_self = current.get("id") == influencer_id
+    if not is_self and current.get("role") not in ("owner", "agent", "admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    from social_analytics import aggregate_creator_analytics
+
+    snaps = await db.creator_metric_snapshots.find(
+        {"creator_id": influencer_id}, {"_id": 0}
+    ).sort("captured_at", -1).to_list(60)
+    social = aggregate_creator_analytics(
+        creator.get("platform_metrics"),
+        monthly_analytics=creator.get("monthly_analytics") or [],
+        snapshots=snaps,
+    )
+    return {
+        "influencer_id": influencer_id,
+        "name": creator.get("name") or creator.get("username"),
+        "analytics_last_synced": creator.get("analytics_last_synced"),
+        "monthly_analytics": creator.get("monthly_analytics") or [],
+        **social,
+    }
+
+
+@api_router.get("/analytics/dashboard")
+async def analytics_dashboard(current: dict = Depends(get_current_user)):
+    """Platform dashboard cards from real Apify-derived creator metrics."""
+    await require_role(current, ["owner", "agent", "admin"])
+    from social_analytics import dashboard_from_users
+
+    users = await db.users.find({"role": "influencer"}, {"_id": 0, "password_hash": 0, "platform_metrics": 1, "role": 1}).to_list(2000)
+    if current.get("role") == "owner":
+        total_campaigns = await db.campaigns.count_documents({"owner_id": current["id"]})
+    elif current.get("role") == "admin":
+        total_campaigns = await db.campaigns.count_documents({})
+    else:
+        total_campaigns = await db.campaigns.count_documents({})
+    dash = dashboard_from_users(users)
+    dash["totalCampaigns"] = total_campaigns
+    return dash
+
+
+@api_router.get("/analytics/campaign/{campaign_id}")
+async def analytics_campaign(campaign_id: str, current: dict = Depends(get_current_user)):
+    """Campaign analytics — only campaign-linked content (not whole creator profiles)."""
+    camp = await db.campaigns.find_one({"id": campaign_id}, {"_id": 0})
+    if not camp:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if camp.get("owner_id") != current.get("id") and current.get("role") not in ("admin", "agent"):
+        # Accepted creators may view their own campaign slice
+        app = await db.applications.find_one(
+            {"campaign_id": campaign_id, "influencer_id": current["id"], "status": "accepted"}
+        )
+        if not app:
+            raise HTTPException(status_code=403, detail="Forbidden")
+
+    from social_analytics import campaign_analytics_placeholder
+
+    apps = await db.applications.find(
+        {"campaign_id": campaign_id, "status": "accepted"}, {"_id": 0, "influencer_id": 1}
+    ).to_list(200)
+    ids = [a["influencer_id"] for a in apps if a.get("influencer_id")]
+    creators = []
+    if ids:
+        creators = await db.users.find(
+            {"id": {"$in": ids}}, {"_id": 0, "password_hash": 0, "id": 1, "name": 1, "username": 1, "platform_metrics": 1}
+        ).to_list(200)
+    # Deliverables are proof URLs, not Apify metric rows — do not invent views/reach from them
+    return campaign_analytics_placeholder(campaign=camp, creators=creators, content_items=[])
+
+
+@api_router.get("/analytics/content/{content_id}")
+async def analytics_content(content_id: str, current: dict = Depends(get_current_user)):
+    """Post-level analytics when stored; profile scrapers do not create content rows."""
+    # Prefer explicit content collection if present
+    doc = await db.social_content.find_one({"id": content_id}, {"_id": 0})
+    if not doc:
+        doc = await db.posts.find_one({"id": content_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(
+            status_code=404,
+            detail="Content analytics unavailable — Apify profile scrapes do not store individual posts",
+        )
+    from social_analytics import calculate_engagement, calculate_engagement_rate, parse_int
+
+    likes = parse_int(doc.get("likes") or doc.get("likes_count"))
+    comments = parse_int(doc.get("comments") or doc.get("comments_count"))
+    shares = parse_int(doc.get("shares") or doc.get("shares_count"))
+    saves = parse_int(doc.get("saves") or doc.get("saves_count"))
+    views = parse_int(doc.get("views") or doc.get("views_count") or doc.get("videoViews"))
+    reach = parse_int(doc.get("reach"))
+    eng = calculate_engagement(likes, comments, shares, saves)
+    er, basis = calculate_engagement_rate(
+        float(eng) if eng is not None else None,
+        views=float(views) if views else None,
+        followers=None,
+    )
+    return {
+        "id": content_id,
+        "likes": likes,
+        "comments": comments,
+        "shares": shares,
+        "saves": saves,
+        "views": views,
+        "reach": reach,
+        "engagement": eng,
+        "engagementRate": er,
+        "engagementRateBasis": basis,
     }
 
 

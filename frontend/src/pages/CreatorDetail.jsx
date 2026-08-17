@@ -8,6 +8,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { formatUsername } from "@/lib/username";
 import { formatUserLocation } from "@/lib/location";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
+import { displayMetric, formatEngagementRate, engagementRateHint, formatCompactNumber, formatExactNumber } from "@/lib/socialAnalytics";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 
 export default function CreatorDetail() {
@@ -61,6 +62,7 @@ export default function CreatorDetail() {
     ? creator.category
     : (creator.category ? String(creator.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
   const nichesLabel = niches.slice(0, 3).join(" · ") || "Influencer";
+  const social = creator.social && typeof creator.social === "object" ? creator.social : null;
 
   return (
     <div className="flex flex-col w-full pb-8">
@@ -110,6 +112,27 @@ export default function CreatorDetail() {
             )}
           </div>
         </div>
+
+        {social && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4" data-testid="creator-social-overview">
+            {[
+              ["Followers", social.followers, false],
+              ["Total views", social.views, true],
+              ["Total reach", social.reach, true],
+              ["Engagement rate", social.engagementRate, false, true],
+            ].map(([label, val, zeroMissing, isEr]) => (
+              <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2" title={!isEr ? (formatExactNumber(val) || undefined) : undefined}>
+                <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+                <p className="font-sans text-base font-bold tabular-nums mt-0.5">
+                  {isEr ? formatEngagementRate(val) : displayMetric(val, { format: formatCompactNumber, allowZero: !zeroMissing })}
+                </p>
+                {isEr && engagementRateHint(social.engagementRateBasis) ? (
+                  <p className="font-mono text-[8px] text-white/35 mt-0.5">{engagementRateHint(social.engagementRateBasis)}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 mt-3">
           <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
@@ -239,7 +262,11 @@ export default function CreatorDetail() {
                       </div>
                       <div>
                         <div className="font-sans text-sm font-bold tabular-nums">
-                          {connected ? socialMetricOrNA(pm.views, (n) => `${(n / 1000).toFixed(1)}K`) : "—"}
+                          {connected
+                            ? (pm.views == null || (Number(pm.views) === 0 && plat !== "youtube")
+                              ? "N/A"
+                              : socialMetricOrNA(pm.views, (n) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n))))
+                            : "—"}
                         </div>
                         <div className="font-mono text-[8px] tracking-widest uppercase opacity-40">Views</div>
                       </div>

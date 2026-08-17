@@ -416,6 +416,14 @@ def metric_from_platforms(user: dict, key: str) -> Optional[float]:
 
 def engagement_rate(user: dict) -> Optional[float]:
     """Follower ER when likes+comments exist; else stored engagement; else None."""
+    try:
+        from social_analytics import aggregate_creator_analytics
+
+        overview = aggregate_creator_analytics(user.get("platform_metrics") or {})
+        if overview.get("engagementRate") is not None:
+            return overview["engagementRate"]
+    except Exception:
+        pass
     pm = user.get("platform_metrics") or {}
     if isinstance(pm, dict):
         for row in pm.values():
@@ -692,6 +700,27 @@ def match_breakdown(user: dict, brief: dict, intel: Optional[dict] = None) -> Di
 
 
 def snapshot_from_user(user: dict) -> Dict[str, Any]:
+    try:
+        from social_analytics import aggregate_creator_analytics
+
+        overview = aggregate_creator_analytics(user.get("platform_metrics") or {})
+        return {
+            "creator_id": user.get("id"),
+            "followers": overview.get("followers"),
+            "following": parse_number(user.get("following")),
+            "posts": overview.get("contentCount"),
+            "views": overview.get("views"),
+            "reach": overview.get("reach"),
+            "likes": overview.get("likes"),
+            "comments": overview.get("comments"),
+            "engagement": overview.get("engagementRate"),
+            "engagement_absolute": overview.get("engagement"),
+            "captured_at": utc_now(),
+            "provider": "apify_normalized",
+            "data_source": "users.platform_metrics",
+        }
+    except Exception:
+        pass
     followers = metric_from_platforms(user, "followers") or parse_number(user.get("followers"))
     return {
         "creator_id": user.get("id"),

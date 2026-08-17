@@ -766,7 +766,15 @@ function DraftsAndAnalytics() {
             ].map(([label, val]) => (
               <div key={label} className="p-2 border border-white/10 bg-black/30">
                 <div className="font-mono text-[9px] uppercase tracking-widest opacity-50">{label}</div>
-                <div className="font-editorial text-xl mt-0.5">{val ?? 0}</div>
+                <div className="font-editorial text-xl mt-0.5">
+                  {val == null || val === "" ? "N/A" : val}
+                </div>
+                {label === "Reach" && analytics.engagement_rate_basis ? (
+                  <div className="font-mono text-[8px] opacity-40 mt-0.5">Actual reach only</div>
+                ) : null}
+                {label === "Engagement %" && analytics.engagement_rate_basis ? (
+                  <div className="font-mono text-[8px] opacity-40 mt-0.5">Based on {analytics.engagement_rate_basis}</div>
+                ) : null}
               </div>
             ))}
           </div>

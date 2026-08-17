@@ -1532,19 +1532,44 @@ def setup_phase1(
     # ---------- Analytics extras ----------
     @api_router.get("/analytics/social")
     async def social_analytics(current: dict = Depends(get_current_user)):
+        """Prefer Apify-derived platform metrics; fall back to in-app feed stats.
+
+        Reach is never set equal to views.
+        """
+        from social_analytics import aggregate_creator_analytics
+
         uid = current["id"]
+        user = await db.users.find_one({"id": uid}, {"_id": 0, "platform_metrics": 1, "monthly_analytics": 1})
+        social = aggregate_creator_analytics(
+            (user or {}).get("platform_metrics"),
+            monthly_analytics=(user or {}).get("monthly_analytics") or [],
+        )
+
         posts = await db.posts.find({"author_id": uid}, {"_id": 0}).to_list(500)
-        likes = sum(p.get("likes_count") or 0 for p in posts)
-        shares = sum(p.get("shares_count") or 0 for p in posts)
-        views = sum(p.get("views_count") or 0 for p in posts)
-        comments = sum(p.get("comments_count") or 0 for p in posts)
+        feed_likes = sum(p.get("likes_count") or 0 for p in posts)
+        feed_shares = sum(p.get("shares_count") or 0 for p in posts)
+        feed_views = sum(p.get("views_count") or 0 for p in posts)
+        feed_comments = sum(p.get("comments_count") or 0 for p in posts)
         profile_views = await db.profile_views.count_documents({"target_id": uid, "kind": "profile"})
-        followers = await db.follows.count_documents({"following_id": uid, "status": "accepted"})
+        in_app_followers = await db.follows.count_documents({"following_id": uid, "status": "accepted"})
         following = await db.follows.count_documents({"follower_id": uid, "status": "accepted"})
-        engagement = 0.0
-        if views:
-            engagement = round((likes + comments + shares) / max(views, 1) * 100, 2)
-        # followers growth last 14 days (bucket by day)
+
+        # Apify-derived values take precedence when connected platforms exist
+        has_social = bool(social.get("platformsConnected"))
+        likes = social.get("likes") if has_social and social.get("likes") is not None else (feed_likes or None)
+        shares = social.get("shares") if has_social and social.get("shares") is not None else (feed_shares or None)
+        comments = social.get("comments") if has_social and social.get("comments") is not None else (feed_comments or None)
+        views = social.get("views") if has_social else (feed_views if feed_views else None)
+        if has_social and social.get("views") is None and not feed_views:
+            views = None
+        elif not has_social:
+            views = feed_views if feed_views else None
+
+        followers = social.get("followers") if has_social and social.get("followers") is not None else in_app_followers
+        engagement_rate = social.get("engagementRate")
+        if engagement_rate is None and feed_views:
+            engagement_rate = round((feed_likes + feed_comments + feed_shares) / max(feed_views, 1) * 100, 2)
+
         since = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat()
         recent_follows = await db.follows.find(
             {"following_id": uid, "status": "accepted", "created_at": {"$gte": since}},
@@ -1559,10 +1584,15 @@ def setup_phase1(
             "comments": comments,
             "followers": followers,
             "following": following,
-            "reach": views + profile_views,
-            "engagement_rate": engagement,
+            "reach": social.get("reach"),  # actual reach only — never views + profile_views
+            "estimated_reach": social.get("estimatedReach"),
+            "engagement_rate": engagement_rate,
+            "engagement_rate_basis": social.get("engagementRateBasis"),
+            "total_engagement": social.get("engagement"),
             "followers_growth": [{"date": d, "count": c} for d, c in sorted(growth.items())],
-            "posts_count": len(posts),
+            "posts_count": social.get("contentCount") if has_social else len(posts),
+            "social": social if has_social else None,
+            "source": "apify_platform_metrics" if has_social else "in_app_feed",
         }
 
     @api_router.get("/analytics/platform")

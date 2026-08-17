@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
 import {
-  ArrowUpRight, Briefcase, Eye, FileText, Heart, Users, Wallet,
+  ArrowUpRight, Briefcase, Eye, FileText, Heart, Users, Wallet, Radio,
 } from "lucide-react";
 import { displayAccountName, formatUsername } from "@/lib/username";
 import { formatUserLocation } from "@/lib/location";
 import { SOCIAL_PLATFORMS, hasPlatformHandle } from "@/lib/platforms";
+import {
+  creatorOverviewFromSources,
+  displayMetric,
+  formatEngagementRate,
+  engagementRateHint,
+  formatExactNumber,
+} from "@/lib/socialAnalytics";
 
 function greeting() {
   const h = new Date().getHours();
@@ -16,13 +23,6 @@ function greeting() {
 function formatMoney(n) {
   const v = Number(n) || 0;
   return `₹${v.toLocaleString("en-IN")}`;
-}
-
-function formatCompact(n) {
-  const v = Number(n) || 0;
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(v >= 10_000 ? 0 : 1)}K`;
-  return String(Math.round(v));
 }
 
 /**
@@ -45,19 +45,12 @@ export function CreatorDashboard({
     ? user.platform_metrics
     : {};
   const connected = SOCIAL_PLATFORMS.filter((k) => hasPlatformHandle(platforms[k] || {}));
-  const followers = connected.reduce((acc, k) => {
-    const p = platforms[k] || {};
-    return acc + (Number(p.followers || p.subscribers) || 0);
-  }, 0) || Number(stats?.followers) || Number(user?.followers) || 0;
-  const erVals = connected
-    .map((k) => Number(platforms[k]?.engagement ?? platforms[k]?.er))
-    .filter((n) => Number.isFinite(n) && n > 0);
-  const avgEr = erVals.length
-    ? erVals.reduce((a, b) => a + b, 0) / erVals.length
-    : (Number(stats?.avg_engagement) > 0 ? Number(stats.avg_engagement) : 0);
-  const views = connected.reduce((acc, k) => acc + (Number(platforms[k]?.views) || 0), 0)
-    || Number(stats?.views)
-    || 0;
+  const overview = creatorOverviewFromSources({ user, stats });
+  const followers = overview.followers;
+  const views = overview.views;
+  const reach = overview.reach;
+  const avgEr = overview.engagementRate;
+  const erBasis = engagementRateHint(overview.engagementRateBasis);
 
   const earned = Number(wallet?.balance ?? stats?.earned ?? user?.wallet) || 0;
   const activeCampaigns = Number(stats?.acceptances) || 0;
@@ -160,35 +153,45 @@ export function CreatorDashboard({
         </div>
       </section>
 
-      {/* 3) Overall analytics — total social presence (no performance chart) */}
+      {/* 3) Overall analytics — Apify-normalized KPIs */}
       <section className="min-w-0" data-testid="overall-analytics">
         <div className="mb-2">
           <h2 className="font-sans text-sm font-semibold">Overall analytics</h2>
           <p className="text-[11px] text-white/45">
-            Total social media presence / strength · followers, engagement &amp; views
+            Followers, engagement, views &amp; reach from connected socials
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 min-w-0">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 min-w-0">
           <Kpi
             icon={Users}
             label="Total followers"
-            value={followers ? formatCompact(followers) : "—"}
+            value={displayMetric(followers)}
+            title={formatExactNumber(followers) || undefined}
             hint={connected.length ? `${connected.length} connected` : "Connect socials"}
-            good={followers > 0}
+            good={Boolean(followers)}
           />
           <Kpi
             icon={Heart}
-            label="Engagement"
-            value={erVals.length || avgEr ? `${avgEr.toFixed(1)}%` : "—"}
-            hint={erVals.length || avgEr ? "avg. rate" : "Sync to refresh"}
-            good={erVals.length > 0 || avgEr > 0}
+            label="Engagement rate"
+            value={formatEngagementRate(avgEr)}
+            hint={erBasis || (avgEr != null ? "avg. rate" : "Sync to refresh")}
+            good={avgEr != null && avgEr > 0}
           />
           <Kpi
             icon={Eye}
             label="Total views"
-            value={views ? formatCompact(views) : "—"}
-            hint={views ? "platform total" : "No views yet"}
-            good={views > 0}
+            value={displayMetric(views, { allowZero: false })}
+            title={formatExactNumber(views) || undefined}
+            hint={views != null ? "platform totals" : "N/A when platform omits views"}
+            good={views != null && views > 0}
+          />
+          <Kpi
+            icon={Radio}
+            label="Total reach"
+            value={displayMetric(reach, { allowZero: false })}
+            title={formatExactNumber(reach) || undefined}
+            hint={reach != null ? "platform reach" : "Unavailable from scrapers"}
+            good={reach != null && reach > 0}
           />
         </div>
       </section>
@@ -205,9 +208,9 @@ export function CreatorDashboard({
   );
 }
 
-function Kpi({ icon: Icon, label, value, hint, good, warn }) {
+function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-3.5 min-w-0">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-3.5 min-w-0" title={title}>
       <div className="flex items-center justify-between gap-2 mb-2">
         <span className="text-[10px] uppercase tracking-wider text-white/45 truncate">{label}</span>
         <Icon className="w-3.5 h-3.5 text-white/35 shrink-0" />
@@ -224,13 +227,15 @@ function Action({ to, icon: Icon, label, hint }) {
   return (
     <Link
       to={to}
-      className="flex flex-col items-center justify-center gap-1.5 min-h-[5.5rem] rounded-2xl border border-white/10 bg-white/[0.04] hover:border-[#FF3B30]/50 hover:bg-[#FF3B30]/10 transition-colors px-2 text-center"
+      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2.5 hover:border-white/25 transition-colors min-w-0"
     >
-      <Icon className="w-5 h-5 text-[#FF3B30]" />
-      <span className="font-sans text-[11px] font-medium leading-tight">{label}</span>
-      {hint ? <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">{hint}</span> : null}
+      <span className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4 text-white/70" />
+      </span>
+      <span className="min-w-0">
+        <span className="block font-sans text-sm font-semibold truncate">{label}</span>
+        <span className="block text-[10px] text-white/45 truncate">{hint}</span>
+      </span>
     </Link>
   );
 }
-
-export default CreatorDashboard;

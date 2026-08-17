@@ -120,55 +120,51 @@ def platform_from_actor(actor_id: str) -> str:
 
 
 def normalize_profile_item(platform: str, item: Dict[str, Any]) -> Dict[str, Any]:
-    """Unified profile shape for sync-analytics and scrape jobs."""
+    """Unified profile shape for sync-analytics and scrape jobs.
+
+    Actor payloads / IDs are unchanged — only response field mapping is richer.
+    Missing views/reach stay None (not fabricated zeros).
+    """
+    from social_analytics import compact_metrics_for_storage, enrich_from_raw_profile
+
     item = item or {}
     if platform == "instagram":
-        followers = int(item.get("followersCount") or item.get("followers") or 0)
-        return {
+        base = {
             "platform": "instagram",
             "handle": item.get("username") or item.get("handle") or "",
             "display_name": item.get("fullName") or item.get("name") or "",
             "bio": item.get("biography") or item.get("bio") or "",
-            "followers": followers,
-            "posts": int(item.get("postsCount") or item.get("posts") or 0),
-            "views": 0,
-            "engagement": float(item.get("engagement") or 0),
             "avatar": item.get("profilePicUrl") or item.get("profilePicUrlHD") or "",
             "raw": item,
         }
-    if platform == "youtube":
-        subs = int(
-            item.get("numberOfSubscribers")
-            or item.get("subscribersCount")
-            or item.get("followersCount")
-            or item.get("followers")
-            or 0
-        )
-        return {
+    elif platform == "youtube":
+        base = {
             "platform": "youtube",
             "handle": (item.get("channelName") or item.get("username") or item.get("handle") or "").lstrip("@"),
             "display_name": item.get("channelName") or item.get("title") or item.get("name") or "",
             "bio": item.get("description") or item.get("bio") or "",
-            "followers": subs,
-            "subscribers": subs,
-            "posts": int(item.get("numberOfVideos") or item.get("videosCount") or item.get("posts") or 0),
-            "views": int(item.get("totalViews") or item.get("viewsCount") or item.get("views") or 0),
-            "engagement": float(item.get("engagement") or 0),
             "avatar": item.get("avatarUrl") or item.get("thumbnailUrl") or "",
             "raw": item,
         }
-    # facebook
-    followers = int(item.get("likes") or item.get("followers") or item.get("followersCount") or 0)
+    else:
+        base = {
+            "platform": "facebook",
+            "handle": item.get("pageName") or item.get("username") or item.get("handle") or "",
+            "display_name": item.get("title") or item.get("pageName") or item.get("name") or "",
+            "bio": item.get("intro") or item.get("about") or item.get("bio") or "",
+            "avatar": item.get("profilePictureUrl") or item.get("avatar") or "",
+            "raw": item,
+        }
+
+    enriched = enrich_from_raw_profile(platform, {**base, **item, "raw": item})
+    stored = compact_metrics_for_storage(enriched)
     return {
-        "platform": "facebook",
-        "handle": item.get("pageName") or item.get("username") or item.get("handle") or "",
-        "display_name": item.get("title") or item.get("pageName") or item.get("name") or "",
-        "bio": item.get("intro") or item.get("about") or item.get("bio") or "",
-        "followers": followers,
-        "posts": int(item.get("postsCount") or 0),
-        "views": 0,
-        "engagement": float(item.get("engagement") or 0),
-        "avatar": item.get("profilePictureUrl") or item.get("avatar") or "",
+        **base,
+        **stored,
+        "followers": stored.get("followers") or 0,
+        "posts": stored.get("posts") or 0,
+        "views": stored.get("views"),
+        "engagement": stored.get("engagement") if stored.get("engagement") is not None else 0,
         "raw": item,
     }
 
@@ -269,16 +265,25 @@ class ApifyService:
                 logger.warning("[APIFY] SCRAPER_EMPTY platform=%s handle=%s", platform, clean)
                 return None
             normalized = normalize_profile_item(plat, items[0] if isinstance(items[0], dict) else {})
-            # sync-analytics expects compact metrics (+ preserve handle)
+            # sync-analytics expects compact metrics (+ preserve handle); keep nulls for missing views/reach
             out = {
-                "followers": normalized.get("followers", 0),
-                "posts": normalized.get("posts", 0),
-                "views": normalized.get("views", 0),
-                "engagement": normalized.get("engagement", 0),
+                "followers": normalized.get("followers") or 0,
+                "posts": normalized.get("posts") or 0,
+                "views": normalized.get("views"),
+                "engagement": normalized.get("engagement") if normalized.get("engagement") is not None else 0,
                 "handle": clean,
+                "likes": normalized.get("likes"),
+                "comments": normalized.get("comments"),
+                "shares": normalized.get("shares"),
+                "saves": normalized.get("saves"),
+                "reach": normalized.get("reach"),
+                "impressions": normalized.get("impressions"),
+                "videoViews": normalized.get("videoViews"),
+                "engagement_absolute": normalized.get("engagement_absolute"),
+                "engagementRateBasis": normalized.get("engagementRateBasis"),
             }
             if plat == "youtube":
-                out["subscribers"] = normalized.get("subscribers", out["followers"])
+                out["subscribers"] = normalized.get("subscribers") or out["followers"]
             return out
         except Exception as e:
             logger.error("[APIFY] SCRAPER_FAILED sync %s %s: %s", platform, clean, e)

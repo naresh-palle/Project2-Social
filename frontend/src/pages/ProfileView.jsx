@@ -13,6 +13,14 @@ import {
   socialOrNA,
   socialMetricOrNA,
 } from "@/lib/platforms";
+import {
+  creatorOverviewFromSources,
+  displayMetric,
+  formatEngagementRate,
+  engagementRateHint,
+  formatCompactNumber,
+  formatExactNumber,
+} from "@/lib/socialAnalytics";
 import { displayAccountName } from "@/lib/username";
 import { formatUserLocation } from "@/lib/location";
 import { withBrandDisplayDefaults } from "@/lib/brandProfileDefaults";
@@ -87,11 +95,7 @@ export default function ProfileView() {
   const rawPlatforms = profile.platform_metrics && typeof profile.platform_metrics === "object"
     ? profile.platform_metrics
     : {};
-  const totalReach = SOCIAL_PLATFORMS.reduce((acc, key) => {
-    const p = rawPlatforms[key] || {};
-    if (!hasPlatformHandle(p)) return acc;
-    return acc + (Number(p?.followers || p?.subscribers) || 0);
-  }, 0);
+  const socialOverview = creatorOverviewFromSources({ user: profile });
   const categoriesList = uniqueLabels([
     ...(Array.isArray(profile.category) ? profile.category : (profile.category ? String(profile.category).split(/[,|]/) : [])),
     ...(Array.isArray(profile.niches) ? profile.niches : (profile.niches ? String(profile.niches).split(/[,|]/) : [])),
@@ -107,12 +111,7 @@ export default function ProfileView() {
     return Boolean(c.title || c.name || c.brand);
   }).slice(0, 5);
   const connectedPlatforms = SOCIAL_PLATFORMS.filter((key) => hasPlatformHandle(rawPlatforms[key] || {}));
-  const engagementVals = connectedPlatforms
-    .map((key) => Number(rawPlatforms[key]?.engagement))
-    .filter((n) => Number.isFinite(n) && n > 0);
-  const avgEngagement = engagementVals.length
-    ? engagementVals.reduce((a, b) => a + b, 0) / engagementVals.length
-    : null;
+  const avgEngagement = socialOverview.engagementRate;
   const displayName = displayAccountName(profile, "Profile");
   const roleLabel = profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer";
   const locationLabel = formatUserLocation(profile) || "—";
@@ -238,11 +237,26 @@ export default function ProfileView() {
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden flex-1">
                 <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-3">Highlights</h3>
                 <div className="grid grid-cols-2 gap-2 mb-4">
-                  <StatTile label="Total reach" value={formatNumber(totalReach)} />
                   <StatTile
-                    label="Avg engagement"
-                    value={avgEngagement != null ? `${avgEngagement.toFixed(1)}%` : "—"}
+                    label="Followers"
+                    value={displayMetric(socialOverview.followers, { format: formatCompactNumber })}
+                    title={formatExactNumber(socialOverview.followers) || undefined}
+                  />
+                  <StatTile
+                    label="Total views"
+                    value={displayMetric(socialOverview.views, { format: formatCompactNumber, allowZero: false })}
+                    title={formatExactNumber(socialOverview.views) || undefined}
+                  />
+                  <StatTile
+                    label="Total reach"
+                    value={displayMetric(socialOverview.reach, { format: formatCompactNumber, allowZero: false })}
+                    title={formatExactNumber(socialOverview.reach) || undefined}
+                  />
+                  <StatTile
+                    label="Engagement rate"
+                    value={formatEngagementRate(avgEngagement)}
                     accent={avgEngagement != null}
+                    hint={engagementRateHint(socialOverview.engagementRateBasis)}
                   />
                   <StatTile label="Platforms" value={`${connectedPlatforms.length}/${SOCIAL_PLATFORMS.length}`} />
                   <StatTile label="Portfolio" value={String(portfolioItems.length)} />
@@ -326,7 +340,7 @@ export default function ProfileView() {
                 <div className="flex items-center justify-between mb-3 gap-2">
                   <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
                   <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full shrink-0">
-                    {formatNumber(totalReach)} reach
+                    {displayMetric(socialOverview.followers, { format: formatCompactNumber })} followers
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -343,7 +357,7 @@ export default function ProfileView() {
                             {socialOrNA(data?.handle)}
                           </span>
                         </div>
-                        <div className="flex justify-between font-sans text-sm">
+                        <div className="flex justify-between font-sans text-sm gap-2">
                           <span className="tabular-nums font-semibold">
                             {connected ? socialMetricOrNA(data.followers ?? data.subscribers, formatNumber) : "—"}
                             <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">
@@ -353,6 +367,17 @@ export default function ProfileView() {
                           <span className={`tabular-nums font-semibold ${connected ? "text-[#34C759]" : ""}`}>
                             {connected ? socialMetricOrNA(data.engagement, (n) => `${Number(n).toFixed(1)}%`) : "—"}
                             <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">ER</span>
+                          </span>
+                          <span className="tabular-nums font-semibold">
+                            {connected
+                              ? displayMetric(
+                                  key === "instagram" || key === "facebook" || key === "twitter"
+                                    ? (data.views > 0 ? data.views : null)
+                                    : data.views,
+                                  { format: formatCompactNumber, allowZero: key === "youtube" }
+                                )
+                              : "—"}
+                            <span className="text-[9px] uppercase tracking-wider opacity-40 ml-1 font-normal">views</span>
                           </span>
                         </div>
                       </div>
@@ -426,11 +451,12 @@ function uniqueLabels(val) {
   return out;
 }
 
-function StatTile({ label, value, accent = false }) {
+function StatTile({ label, value, accent = false, title, hint }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5" title={title}>
       <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
       <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#34C759]" : "text-white"}`}>{value}</p>
+      {hint ? <p className="font-sans text-[9px] text-white/40 mt-0.5">{hint}</p> : null}
     </div>
   );
 }
