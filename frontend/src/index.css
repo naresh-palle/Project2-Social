@@ -63,10 +63,10 @@
         --surface-2: #ECECE6;
         --surface-3: #E0E0D8;
         --fg: #0A0A0A;
-        --fg-muted: rgba(10, 10, 10, 0.62);
-        --fg-subtle: rgba(10, 10, 10, 0.42);
-        --border-soft: rgba(10, 10, 10, 0.12);
-        --border-strong: rgba(10, 10, 10, 0.24);
+        --fg-muted: rgba(10, 10, 10, 0.72);
+        --fg-subtle: rgba(10, 10, 10, 0.55);
+        --border-soft: rgba(10, 10, 10, 0.18);
+        --border-strong: rgba(10, 10, 10, 0.32);
         --overlay-soft: rgba(10, 10, 10, 0.04);
         --overlay-mid: rgba(10, 10, 10, 0.08);
         --overlay-strong: rgba(10, 10, 10, 0.12);
@@ -457,14 +457,38 @@ html.theme-light .theme-keep-dark img[src*="/icons/"] {
 }
 
 /* Muted labels: opacity utilities alone wash out on light paper — boost readability */
-html.theme-light .opacity-30 { opacity: 0.52 !important; }
-html.theme-light .opacity-40 { opacity: 0.58 !important; }
-html.theme-light .opacity-45 { opacity: 0.6 !important; }
-html.theme-light .opacity-50 { opacity: 0.66 !important; }
-html.theme-light .opacity-55 { opacity: 0.7 !important; }
-html.theme-light .opacity-60 { opacity: 0.74 !important; }
-html.theme-light .opacity-65 { opacity: 0.78 !important; }
-html.theme-light .opacity-70 { opacity: 0.82 !important; }
+html.theme-light .opacity-30 { opacity: 0.62 !important; }
+html.theme-light .opacity-40 { opacity: 0.68 !important; }
+html.theme-light .opacity-45 { opacity: 0.72 !important; }
+html.theme-light .opacity-50 { opacity: 0.76 !important; }
+html.theme-light .opacity-55 { opacity: 0.8 !important; }
+html.theme-light .opacity-60 { opacity: 0.84 !important; }
+html.theme-light .opacity-65 { opacity: 0.88 !important; }
+html.theme-light .opacity-70 { opacity: 0.9 !important; }
+
+/* Header / footer icon controls stay visible on cream */
+html.theme-light header button,
+html.theme-light header a,
+html.theme-light nav[aria-label="Primary"] a {
+    color: var(--fg) !important;
+}
+html.theme-light header .border-white\/25,
+html.theme-light header .border-white\/20 {
+    border-color: rgba(10, 10, 10, 0.22) !important;
+}
+html.theme-light header .bg-white\/10 {
+    background-color: rgba(10, 10, 10, 0.06) !important;
+}
+html.theme-light .text-white\/35,
+html.theme-light .text-white\/40,
+html.theme-light .text-white\/45,
+html.theme-light .text-white\/50 {
+    color: rgba(10, 10, 10, 0.58) !important;
+}
+html.theme-light .placeholder\:text-white\/40::placeholder,
+html.theme-light .placeholder\:text-white\/35::placeholder {
+    color: rgba(10, 10, 10, 0.5) !important;
+}
 
 /* Keep white text on solid brand fills */
 html.theme-light .bg-\[\#FF3B30\],

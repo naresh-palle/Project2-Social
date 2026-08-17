@@ -1,11 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { AiIcon } from "@/components/AiIcon";
 import { getBottomNavItems, isNavItemActive } from "@/lib/navConfig";
 
+function goHome(nav) {
+  const el = document.getElementById("app-scroll");
+  if (el) el.scrollTop = 0;
+  nav("/dashboard", { replace: false });
+}
+
 export function MobileBottomNav() {
   const { user } = useAuth();
   const location = useLocation();
+  const nav = useNavigate();
   if (!user) return null;
   const items = getBottomNavItems(user);
 
@@ -18,10 +25,17 @@ export function MobileBottomNav() {
       <div className="grid min-h-[3.5rem]" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((it) => {
           const active = isNavItemActive(it, location, user);
+          const isHome = it.label === "Home" || it.to === "/dashboard" || it.tab === "dashboard";
           return (
             <Link
-              key={it.to}
+              key={`${it.to}-${it.label}`}
               to={it.to}
+              data-testid={isHome ? "footer-home" : undefined}
+              onClick={(e) => {
+                if (!isHome) return;
+                e.preventDefault();
+                goHome(nav);
+              }}
               className={`flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-w-0 ${
                 active ? "text-white" : "text-white/50"
               }`}

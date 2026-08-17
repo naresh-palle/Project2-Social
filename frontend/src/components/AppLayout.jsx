@@ -43,19 +43,22 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-0 lg:ml-64 relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
-        <div className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[80] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5">
-          <button
-            type="button"
-            className="lg:hidden w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center shrink-0"
-            aria-label="Open menu"
-            onClick={() => setNavOpen(true)}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5 overflow-visible">
           <Link to="/dashboard" className="lg:hidden font-editorial text-lg text-[#FF3B30] shrink-0">
             CR8
           </Link>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 shrink-0 relative z-[86]">
+            <IconTip label="Menu" side="bottom">
+              <button
+                type="button"
+                className="lg:hidden w-9 h-9 rounded-full border border-white/25 bg-white/10 text-[#F4F4F0] flex items-center justify-center shrink-0 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
+                aria-label="Open menu"
+                data-testid="header-menu-button"
+                onClick={() => setNavOpen(true)}
+              >
+                <Menu className="w-5 h-5 text-current" strokeWidth={2.25} />
+              </button>
+            </IconTip>
             <NotificationBell />
             <IconTip label="Sign out" side="bottom">
               <button
@@ -66,13 +69,13 @@ export function AppLayout() {
                 }}
                 aria-label="Sign out"
                 data-testid="logout-button"
-                className="w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 flex items-center justify-center transition-colors shrink-0"
               >
                 <AiIcon name="logout" className="w-5 h-5" />
               </button>
             </IconTip>
           </div>
-        </div>
+        </header>
         <div
           id="app-scroll"
           className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 pt-3 pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] lg:pb-12"

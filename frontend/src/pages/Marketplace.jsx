@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowLeft, Play, ChevronLeft, Sparkles } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
@@ -189,7 +189,16 @@ function CreatorDirectoryCard({ creator, index }) {
 }
 
 export default function Marketplace() {
-  const [tab, setTab] = useState("creators");
+  const [params, setParams] = useSearchParams();
+  const tabParam = params.get("tab");
+  const tab = tabParam === "campaigns" ? "campaigns" : "creators";
+  const setTab = (next) => {
+    setParams((prev) => {
+      const n = new URLSearchParams(prev);
+      n.set("tab", next);
+      return n;
+    }, { replace: true });
+  };
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [q, setQ] = useState("");
@@ -228,9 +237,11 @@ export default function Marketplace() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
-              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory
+              <AiIcon name="sparkles" className="w-3.5 h-3.5" /> {tab === "campaigns" ? "Campaigns" : "Influencers"}
             </p>
-            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Directory</h1>
+            <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">
+              {tab === "campaigns" ? "Campaigns" : "Influencers"}
+            </h1>
           </div>
           <div className="w-full md:w-56">
             <MultiSelectDropdown

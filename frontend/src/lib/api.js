@@ -55,7 +55,13 @@ export function fieldLabelFromLoc(loc) {
  */
 export function formatApiError(detail) {
   if (detail == null) return "Something went wrong.";
-  if (typeof detail === "string") return detail;
+  if (typeof detail === "string") {
+    const lower = detail.toLowerCase();
+    if (lower === "forbidden" || lower.includes("not enough permissions")) {
+      return "You don’t have permission to view this.";
+    }
+    return detail;
+  }
   if (Array.isArray(detail)) {
     return detail
       .map((e) => {
@@ -68,6 +74,40 @@ export function formatApiError(detail) {
   }
   if (detail?.msg) return detail.msg;
   return String(detail);
+}
+
+/** User-facing auth failure copy — never expose stack traces or raw API payloads. */
+export function friendlyAuthError(detail, fallback = "Login unsuccessful. Please check your credentials and try again.") {
+  const raw = formatApiError(detail);
+  if (!raw || raw === "Something went wrong.") return fallback;
+  const lower = String(raw).toLowerCase();
+  if (
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("err_network")
+  ) {
+    return "We couldn’t reach the server. Check your connection and try again.";
+  }
+  if (lower.includes("otp") || lower.includes("verification code") || lower.includes("expired")) {
+    return "Login unsuccessful. Please check the verification code and try again.";
+  }
+  if (
+    lower.includes("invalid") ||
+    lower.includes("incorrect") ||
+    lower.includes("unauthorized") ||
+    lower.includes("401") ||
+    lower.includes("credential") ||
+    lower.includes("password") ||
+    lower.includes("not found")
+  ) {
+    return fallback;
+  }
+  // Keep short, non-technical messages; otherwise use the safe default.
+  if (raw.length <= 120 && !/[{\\[\\]|traceback|exception|sql/i.test(raw)) {
+    return raw;
+  }
+  return fallback;
 }
 
 /** First field name from a FastAPI 422 detail array. */

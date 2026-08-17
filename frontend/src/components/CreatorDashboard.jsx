@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import {
-  ArrowUpRight, Briefcase, Eye, FileText, Heart,
-  Plus, Users, Wallet,
+  ArrowUpRight, Banknote, Briefcase, CheckCircle2, Eye, FileText, Heart,
+  Megaphone, MessageSquare, Plus, Users, Wallet, Zap,
 } from "lucide-react";
 import { displayAccountName, formatUsername } from "@/lib/username";
 import { SOCIAL_PLATFORMS, hasPlatformHandle } from "@/lib/platforms";
@@ -25,10 +25,28 @@ function formatCompact(n) {
   return String(Math.round(v));
 }
 
+function activityMeta(item) {
+  const kind = String(item.kind || item.type || "").toLowerCase();
+  if (kind.includes("invite") || kind.includes("invitation")) {
+    return { icon: Megaphone, tone: "text-[#FF9500] bg-[#FF9500]/10", label: "Brand invite" };
+  }
+  if (kind.includes("pay") || kind.includes("wallet") || kind.includes("payout")) {
+    return { icon: Banknote, tone: "text-[#34C759] bg-[#34C759]/10", label: "Payment" };
+  }
+  if (kind.includes("approv") || kind.includes("accept") || kind.includes("campaign") || kind.includes("application")) {
+    return { icon: CheckCircle2, tone: "text-[#34C759] bg-[#34C759]/10", label: "Campaign" };
+  }
+  if (kind.includes("message") || kind.includes("dm") || kind.includes("chat")) {
+    return { icon: MessageSquare, tone: "text-[#0A84FF] bg-[#0A84FF]/10", label: "Message" };
+  }
+  return { icon: Zap, tone: "text-[#FF3B30] bg-[#FF3B30]/10", label: "Update" };
+}
+
 export function CreatorDashboard({
   user,
   stats,
   wallet,
+  notifications = [],
   campaigns = [],
   pitchCount = 0,
 }) {
@@ -59,6 +77,7 @@ export function CreatorDashboard({
   const pitches = Number(stats?.applications) || Number(pitchCount) || 0;
   const openBriefs = (Array.isArray(campaigns) ? campaigns : []).length;
   const offers = (Array.isArray(campaigns) ? campaigns : []).slice(0, 4);
+  const activity = (Array.isArray(notifications) ? notifications : []).slice(0, 5);
 
   return (
     <div className="w-full min-w-0 pb-4 space-y-4" data-testid="creator-dashboard">
@@ -90,7 +109,7 @@ export function CreatorDashboard({
         <section className="min-w-0" data-testid="brand-offers-top">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-sans text-sm font-semibold">Brand offers</h2>
-            <Link to="/marketplace" className="text-[11px] text-[#FF3B30] hover:underline">
+            <Link to="/marketplace?tab=campaigns" className="text-[11px] text-[#FF3B30] hover:underline">
               {offers.length} live
             </Link>
           </div>
@@ -102,7 +121,7 @@ export function CreatorDashboard({
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 hover:border-[#FF3B30]/40 transition-colors min-w-0"
               >
                 <p className="text-[10px] uppercase tracking-wider text-[#FF3B30] truncate">{c.brand}</p>
-                <p className="font-sans text-sm font-semibold mt-0.5 line-clamp-2">{c.title}</p>
+                <p className="font-sans text-sm font-semibold mt-0.5 line-clamp-2 break-words">{c.title}</p>
                 <p className="font-sans text-xs text-white/50 mt-2 tabular-nums">
                   ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "—")}
                 </p>
@@ -121,7 +140,6 @@ export function CreatorDashboard({
               {pendingCollabs} collab{pendingCollabs === 1 ? "" : "s"} pending · {activeCampaigns} active
             </p>
           </div>
-
           <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 ml-auto">
             <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 min-w-[7.5rem]">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Pitches</p>
@@ -131,9 +149,7 @@ export function CreatorDashboard({
             <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 min-w-[7.5rem]">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Campaigns</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{openBriefs || activeCampaigns}</p>
-              <p className="text-[10px] text-white/55 mt-0.5">
-                {openBriefs ? "open briefs" : "accepted"}
-              </p>
+              <p className="text-[10px] text-white/55 mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
             </div>
             <Link
               to="/wallet"
@@ -151,39 +167,51 @@ export function CreatorDashboard({
           <p className="text-[11px] text-white/45">Overall analytics · followers, engagement &amp; views across connected platforms</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 min-w-0">
-          <Kpi
-            icon={Users}
-            label="Total followers"
-            value={followers ? formatCompact(followers) : "—"}
-            hint={connected.length ? `${connected.length} connected` : "Connect socials"}
-            good={followers > 0}
-          />
-          <Kpi
-            icon={Heart}
-            label="Engagement"
-            value={erVals.length || avgEr ? `${avgEr.toFixed(1)}%` : "—"}
-            hint={erVals.length || avgEr ? "avg. rate" : "Sync to refresh"}
-            good={erVals.length > 0 || avgEr > 0}
-          />
-          <Kpi
-            icon={Eye}
-            label="Views"
-            value={views ? formatCompact(views) : "—"}
-            hint={views ? "platform total" : "No views yet"}
-            good={views > 0}
-          />
+          <Kpi icon={Users} label="Total followers" value={followers ? formatCompact(followers) : "—"} hint={connected.length ? `${connected.length} connected` : "Connect socials"} good={followers > 0} />
+          <Kpi icon={Heart} label="Engagement" value={erVals.length || avgEr ? `${avgEr.toFixed(1)}%` : "—"} hint={erVals.length || avgEr ? "avg. rate" : "Sync to refresh"} good={erVals.length > 0 || avgEr > 0} />
+          <Kpi icon={Eye} label="Views" value={views ? formatCompact(views) : "—"} hint={views ? "platform total" : "No views yet"} good={views > 0} />
         </div>
       </section>
 
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 min-w-0">
-        <h2 className="font-sans text-sm font-semibold mb-3">Quick actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <Action to="/feed" icon={Plus} label="Create content" hint="Feed" />
-          <Action to="/wallet" icon={Wallet} label="Withdraw" hint="Wallet" />
-          <Action to="/marketplace" icon={Briefcase} label="Campaigns" hint="Directory" />
-          <Action to="/invitations" icon={FileText} label="Pitches & invites" hint="Invitations" />
-        </div>
-      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 min-w-0">
+        <section className="lg:col-span-7 rounded-3xl border border-white/10 bg-white/[0.03] p-4 min-w-0">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-sans text-sm font-semibold">Recent activity</h2>
+            <Link to="/activity" className="text-[11px] text-[#FF3B30] hover:underline" data-testid="activity-all-link">All</Link>
+          </div>
+          {activity.length === 0 ? (
+            <p className="text-sm text-white/45 py-6 text-center">No recent activity yet.</p>
+          ) : (
+            <ul className="space-y-2.5">
+              {activity.map((item) => {
+                const meta = activityMeta(item);
+                const Icon = meta.icon;
+                return (
+                  <li key={item.id || item.text} className="flex items-start gap-3 min-w-0">
+                    <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] uppercase tracking-wider text-white/40">{meta.label}</p>
+                      <p className="font-sans text-sm leading-snug text-white/90 break-words">{item.text || item.title}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <section className="lg:col-span-5 rounded-3xl border border-white/10 bg-white/[0.03] p-4 min-w-0">
+          <h2 className="font-sans text-sm font-semibold mb-3">Quick actions</h2>
+          <div className="grid grid-cols-2 gap-2">
+            <Action to="/feed?create=1" icon={Plus} label="Create content" hint="Opens composer" />
+            <Action to="/marketplace?tab=campaigns" icon={Briefcase} label="Campaigns" hint="Campaigns tab" />
+            <Action to="/wallet" icon={Wallet} label="Withdraw" hint="Wallet" />
+            <Action to="/invitations" icon={FileText} label="Invitations" hint="Invites" />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

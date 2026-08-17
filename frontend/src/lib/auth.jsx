@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { api, formatApiError } from "./api";
+import { api, formatApiError, friendlyAuthError } from "./api";
 import { readLocalSettings, mergeSettings, writeLocalSettings } from "./settingsStore";
 
 const AuthCtx = createContext(null);
@@ -198,7 +198,7 @@ export function AuthProvider({ children }) {
       storeSession(data, remember_me);
       return { ok: true, user: data.user };
     } catch (e) {
-      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
+      return { ok: false, error: friendlyAuthError(e.response?.data?.detail || e.message) };
     }
   };
 
@@ -210,7 +210,7 @@ export function AuthProvider({ children }) {
     } catch (e) {
       return {
         ok: false,
-        error: formatApiError(e.response?.data?.detail) || e.message,
+        error: friendlyAuthError(e.response?.data?.detail || e.message),
         status: e.response?.status,
         notRegistered: e.response?.status === 404,
       };
@@ -267,7 +267,10 @@ export function AuthProvider({ children }) {
     } catch (e) {
       return {
         ok: false,
-        error: formatApiError(e.response?.data?.detail) || e.message || "Invalid or expired OTP code.",
+        error: friendlyAuthError(
+          e.response?.data?.detail || e.message,
+          "Login unsuccessful. Please check the verification code and try again."
+        ),
         status: e.response?.status,
         notRegistered: e.response?.status === 404,
       };

@@ -28,7 +28,8 @@ export function getSidebarItems(user) {
     ...(user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
       ? [{ to: "/discover", label: "Discover", icon: "sparkles" }]
       : []),
-    { to: "/marketplace", label: "Directory", icon: "directory" },
+    { to: "/influencers", label: "Influencers", icon: "directory" },
+    { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
     { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
     ...(user?.role !== "admin"
       ? [
@@ -55,7 +56,20 @@ export function getBottomNavItems(user) {
   }
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
-    { to: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "/discover" : "/marketplace", label: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "Discover" : "Campaigns", icon: user?.role === "owner" || user?.role === "agent" || user?.role === "admin" ? "sparkles" : "directory" },
+    {
+      to:
+        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
+          ? "/discover"
+          : "/marketplace?tab=campaigns",
+      label:
+        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
+          ? "Discover"
+          : "Campaigns",
+      icon:
+        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
+          ? "sparkles"
+          : "directory",
+    },
     { to: "/leaderboard", label: "Analytics", icon: "analytics" },
     { to: "/messages", label: "Inbox", icon: "bell" },
     { to: "/profile", label: "Profile", icon: "profile" },
@@ -70,6 +84,19 @@ export function isNavItemActive(it, location, user) {
   if (!isSupportOps) {
     if (it.to === "/dashboard") return location.pathname === "/dashboard";
     if (it.to === "/discover") return location.pathname === "/discover";
+    if (it.to === "/influencers" || (it.to || "").startsWith("/influencers")) {
+      return (
+        location.pathname === "/influencers" ||
+        (location.pathname === "/marketplace" && (searchParams.get("tab") || "creators") === "creators") ||
+        location.pathname.startsWith("/creators")
+      );
+    }
+    if ((it.to || "").includes("tab=campaigns") || it.label === "Campaigns") {
+      return (
+        (location.pathname === "/marketplace" && searchParams.get("tab") === "campaigns") ||
+        location.pathname.startsWith("/campaigns")
+      );
+    }
     if (it.to === "/marketplace") {
       return location.pathname === "/marketplace" || location.pathname.startsWith("/campaigns");
     }

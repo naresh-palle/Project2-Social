@@ -650,8 +650,16 @@ class CampaignCreate(BaseModel):
 
 
 class ApplicationCreate(BaseModel):
-    pitch: str
-    rate: int
+    pitch: str = Field(min_length=1, max_length=5000)
+    rate: int = Field(gt=0)
+
+    @field_validator("pitch")
+    @classmethod
+    def pitch_not_blank(cls, v: str) -> str:
+        cleaned = (v or "").strip()
+        if not cleaned:
+            raise ValueError("This field is required.")
+        return cleaned
 
 
 class InvitationCreate(BaseModel):
@@ -2634,8 +2642,10 @@ async def list_apps(campaign_id: str, current: dict = Depends(get_current_user))
     camp = await db.campaigns.find_one({"id": campaign_id})
     if not camp:
         raise HTTPException(status_code=404, detail="Campaign not found")
-    if camp["owner_id"] != current["id"] and current["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Forbidden")
+    if camp["owner_id"] != current["id"] and current.get("role") not in ("admin",):
+        # Agent co-owners / brand teammates who own the campaign via owner_id already pass.
+        # Influencers get their own application via /applications/mine — not a list of peers.
+        raise HTTPException(status_code=403, detail="You don’t have permission to view applications for this brief.")
     return await db.applications.find({"campaign_id": campaign_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
 
 
@@ -3149,9 +3159,15 @@ async def list_deliverables(campaign_id: str, current: dict = Depends(get_curren
     camp = await db.campaigns.find_one({"id": campaign_id})
     if not camp:
         raise HTTPException(status_code=404, detail="Campaign not found")
-    allowed = (camp["owner_id"] == current["id"] or camp.get("accepted_creator_id") == current["id"]
-               or current["role"] == "admin")
-    if not allowed:
+    is_party = (
+        camp["owner_id"] == current["id"]
+        or camp.get("accepted_creator_id") == current["id"]
+        or current.get("role") == "admin"
+    )
+    # Influencers may open a brand offer to apply — return empty instead of Forbidden.
+    if not is_party:
+        if current.get("role") == "influencer":
+            return []
         raise HTTPException(status_code=403, detail="Forbidden")
     return await db.deliverables.find({"campaign_id": campaign_id}, {"_id": 0}).sort("created_at", -1).to_list(200)
 

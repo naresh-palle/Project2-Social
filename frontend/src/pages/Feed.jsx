@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles, Heart, MessageSquare, Share2, Plus, RefreshCw, Bookmark, Repeat2,
@@ -32,6 +32,7 @@ const FEED_API_MODE = {
 
 export default function Feed() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [cursor, setCursor] = useState(null);
   const [mode, setMode] = useState("campaigns");
@@ -39,12 +40,21 @@ export default function Feed() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [suggested, setSuggested] = useState([]);
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(() => searchParams.get("create") === "1");
   const [commentPost, setCommentPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [editingComment, setEditingComment] = useState(null);
   const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "1") {
+      setShowCreate(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("create");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const fetchFeed = useCallback(async (reset = false) => {
     if (mode === "campaigns") {

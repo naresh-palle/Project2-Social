@@ -35,6 +35,8 @@ import SupportDashboard from "@/pages/SupportDashboard";
 import HelpChat from "@/pages/HelpChat";
 import Leaderboard from "@/pages/Leaderboard";
 import Referrals from "@/pages/Referrals";
+import RecentActivity from "@/pages/RecentActivity";
+import InfluencersRedirect from "@/pages/InfluencersRedirect";
 
 import { AppLayout } from "@/components/AppLayout";
 
@@ -75,6 +77,8 @@ function App() {
               <Route path="/billing" element={<RequireAuth><Billing /></RequireAuth>} />
   
               <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
+              <Route path="/influencers" element={<RequireAuth><InfluencersRedirect /></RequireAuth>} />
+              <Route path="/activity" element={<RequireAuth><RecentActivity /></RequireAuth>} />
               <Route path="/discover" element={<RequireAuth roles={["owner", "agent", "admin"]}><Discover /></RequireAuth>} />
               <Route path="/leaderboard" element={<RequireAuth><Leaderboard /></RequireAuth>} />
               <Route path="/referrals" element={<RequireAuth><Referrals /></RequireAuth>} />

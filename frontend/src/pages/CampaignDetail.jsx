@@ -17,7 +17,12 @@ export default function CampaignDetail() {
   const [c, setC] = useState(null);
   const [pitch, setPitch] = useState("");
   const [rate, setRate] = useState("");
+  const [pitchErr, setPitchErr] = useState("");
+  const [rateErr, setRateErr] = useState("");
   const [applied, setApplied] = useState(false);
+  const [myApplication, setMyApplication] = useState(null);
+  const [applyBusy, setApplyBusy] = useState(false);
+  const [accessNote, setAccessNote] = useState("");
   const [apps, setApps] = useState([]);
   const [delivs, setDelivs] = useState([]);
   const [delivForm, setDelivForm] = useState({ url: "", caption: "", kind: "post" });
@@ -32,16 +37,50 @@ export default function CampaignDetail() {
   const [rehireBusy, setRehireBusy] = useState(false);
 
   const load = async () => {
+    setAccessNote("");
     try {
       const { data } = await api.get(`/campaigns/${id}`);
       setC(data);
-      if (user?.role === "owner" && data.owner_id === user?.id) {
-        api.get(`/campaigns/${id}/applications`).then(r => setApps(r.data));
+      const owns = data.owner_id === user?.id && (user?.role === "owner" || user?.role === "agent" || user?.role === "admin");
+      const accepted = user?.role === "influencer" && data.accepted_creator_id === user?.id;
+      if (owns || user?.role === "admin") {
+        try {
+          const r = await api.get(`/campaigns/${id}/applications`);
+          setApps(Array.isArray(r.data) ? r.data : []);
+        } catch (e) {
+          setApps([]);
+          if (e?.response?.status === 403) {
+            setAccessNote(formatApiError(e.response?.data?.detail) || "You don’t have permission to view applications for this brief.");
+          }
+        }
       }
-      if (user) {
-        api.get(`/campaigns/${id}/deliverables`).then(r => setDelivs(r.data)).catch(() => {});
+      if (owns || accepted || user?.role === "admin" || user?.role === "influencer") {
+        try {
+          const r = await api.get(`/campaigns/${id}/deliverables`);
+          setDelivs(Array.isArray(r.data) ? r.data : []);
+        } catch {
+          setDelivs([]);
+        }
       }
-    } catch { setC(false); }
+      if (user?.role === "influencer") {
+        try {
+          const { data: mine } = await api.get("/applications/mine");
+          const mineList = Array.isArray(mine) ? mine : [];
+          const existing = mineList.find((a) => a.campaign_id === id);
+          if (existing) {
+            setMyApplication(existing);
+            setApplied(true);
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+    } catch (e) {
+      setC(false);
+      if (e?.response?.status === 403) {
+        setAccessNote(formatApiError(e.response?.data?.detail) || "You don’t have permission to view this brief.");
+      }
+    }
   };
   useEffect(() => {
     load();
@@ -50,10 +89,29 @@ export default function CampaignDetail() {
 
   const apply = async (e) => {
     e.preventDefault();
+    if (applyBusy || applied) return;
+    const nextPitchErr = !String(pitch || "").trim() ? "This field is required." : "";
+    const rateNum = Number(rate);
+    const nextRateErr = !String(rate || "").trim()
+      ? "This field is required."
+      : (!Number.isFinite(rateNum) || rateNum <= 0)
+        ? "Enter a valid rate greater than 0."
+        : "";
+    setPitchErr(nextPitchErr);
+    setRateErr(nextRateErr);
+    if (nextPitchErr || nextRateErr) return;
+
+    setApplyBusy(true);
     try {
-      await api.post(`/campaigns/${id}/apply`, { pitch, rate: Number(rate) });
-      setApplied(true); toast.success("Pitch delivered.");
-    } catch (err) { toast.error(formatApiError(err.response?.data?.detail) || "Failed"); }
+      const { data } = await api.post(`/campaigns/${id}/apply`, { pitch: pitch.trim(), rate: rateNum });
+      setApplied(true);
+      setMyApplication(data);
+      toast.success("Pitch delivered.");
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail) || "Could not submit your pitch.");
+    } finally {
+      setApplyBusy(false);
+    }
   };
   const acceptApp = async (aid) => {
     try { await api.post(`/applications/${aid}/accept`, {}); toast.success("Influencer accepted."); load(); }
@@ -146,10 +204,22 @@ export default function CampaignDetail() {
     }
   };
 
-  if (c === false) return <div className="min-h-[40vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4"><h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight">Brief not on file.</h1></div>;
+  if (c === false) {
+    return (
+      <div className="min-h-[40vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4">
+        <Link to="/marketplace?tab=campaigns" className="font-mono text-[10px] uppercase tracking-widest text-white/45 hover:text-white">← Campaigns</Link>
+        <h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight mt-2">
+          {accessNote || "Brief not on file."}
+        </h1>
+        <p className="text-sm text-white/50 mt-2 max-w-lg">
+          This brand offer may have been removed, or you may not have access. Return to Campaigns to browse open briefs.
+        </p>
+      </div>
+    );
+  }
   if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
-  const isOwner = user?.role === "owner" && c.owner_id === user?.id;
+  const isOwner = (user?.role === "owner" || user?.role === "agent" || user?.role === "admin") && c.owner_id === user?.id;
   const isAcceptedInfluencer = user?.role === "influencer" && c.accepted_creator_id === user?.id;
   const canReview = c.status === "completed";
   const acceptedApp = apps.find(a => a.status === "accepted");
@@ -171,32 +241,57 @@ export default function CampaignDetail() {
   const searchParams = new URLSearchParams(location.search);
   const fromMessages = searchParams.get("from") === "messages" || location.state?.from === "/messages";
   const convoId = searchParams.get("convoId") || location.state?.convoId;
-  const backTarget = fromMessages ? (convoId ? `/messages?id=${convoId}` : "/messages") : "/marketplace";
-  const backLabel = fromMessages ? "Back to Messages" : "Back";
+  const backTarget = fromMessages ? (convoId ? `/messages?id=${convoId}` : "/messages") : "/marketplace?tab=campaigns";
+  const backLabel = fromMessages ? "Back to Messages" : "Back to Campaigns";
+
+  const appStatus = myApplication?.status || (applied ? "pending" : null);
+  const statusLabel = appStatus === "accepted" || appStatus === "approved"
+    ? "Approved"
+    : appStatus === "declined" || appStatus === "rejected"
+      ? "Rejected"
+      : appStatus === "pending"
+        ? "Pending"
+        : null;
+  const statusTone = statusLabel === "Approved"
+    ? "text-[#34C759] border-[#34C759]/40 bg-[#34C759]/10"
+    : statusLabel === "Rejected"
+      ? "text-[#FF3B30] border-[#FF3B30]/40 bg-[#FF3B30]/10"
+      : "text-[#FF9500] border-[#FF9500]/40 bg-[#FF9500]/10";
 
   return (
     <div className="flex flex-col w-full max-w-[1600px] mx-auto pb-4">
       {/* Top Static Header */}
       <div className="shrink-0 mb-4 px-4 md:px-8">
-        <div className="hairline-b pb-4 flex flex-wrap items-baseline justify-between">
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">Brief · {brief.id.slice(0, 6)} · {brief.status}</span>
-            {isOwner && (
-              <Link to={`/campaigns/${brief.id}/edit`} className="font-sans text-[10px] uppercase text-[#FF3B30] hover:underline">
-                Edit Brief
-              </Link>
-            )}
+        <Link to={backTarget} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-white/50 hover:text-white mb-2">
+          <ChevronLeft className="w-3.5 h-3.5" /> {backLabel}
+        </Link>
+        <div className="hairline-b pb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/50 break-words">
+              Brief · {brief.id.slice(0, 8)} · {brief.status}
+            </p>
+            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] mt-1 break-words">
+              {brief.brand}
+            </p>
+            <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug mt-1 break-words">
+              {brief.title}
+            </h1>
           </div>
+          {isOwner && (
+            <Link to={`/campaigns/${brief.id}/edit`} className="shrink-0 font-sans text-[10px] uppercase text-[#FF3B30] hover:underline self-start">
+              Edit Brief
+            </Link>
+          )}
         </div>
-      </div> {/* End Static Header */}
+        {accessNote ? (
+          <p className="mt-2 text-xs text-[#FF9500] border border-[#FF9500]/30 bg-[#FF9500]/10 rounded-xl px-3 py-2">{accessNote}</p>
+        ) : null}
+      </div>
 
       <div className="px-4 md:px-8 pr-2 pb-10">
         <div className="grid grid-cols-12 gap-8 mt-2">
           <div className="col-span-12 md:col-span-7">
-            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-              className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">§ {brief.brand}</motion.p>
-            <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight leading-snug mt-2">{brief.title}</h1>
-            <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
+            <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
               <Meta label="Budget" value={`₹${brief.budget}`} accent />
               <Meta label="Niches" value={(brief.niches || []).join(" · ") || "—"} />
               <Meta label="Platforms" value={(brief.platforms || []).join(" · ") || "—"} />
@@ -244,8 +339,8 @@ export default function CampaignDetail() {
                             <Check className="w-3 h-3" /> Accept
                           </button>
                         ) : (
-                          <span className={`font-mono text-[10px] tracking-[0.28em] uppercase ${a.status === "accepted" ? "text-[#FF3B30]" : "opacity-50"}`}>
-                            {a.status}
+                          <span className={`font-mono text-[10px] tracking-[0.28em] uppercase ${a.status === "accepted" ? "text-[#34C759]" : a.status === "declined" ? "text-[#FF3B30]" : "opacity-50"}`}>
+                            {a.status === "accepted" ? "Approved" : a.status === "declined" ? "Rejected" : a.status === "pending" ? "Pending" : a.status}
                           </span>
                         )}
                         {a.status === "accepted" && (
@@ -448,7 +543,7 @@ export default function CampaignDetail() {
           <div className="col-span-12 md:col-span-5">
             {/* Application (creator) */}
             {!isOwner && (
-              <div className="mb-8 hairline-t hairline-b hairline-l hairline-r p-6 bg-white/[0.02]">
+              <div className="mb-8 hairline-t hairline-b hairline-l hairline-r p-6 bg-white/[0.02] rounded-2xl">
                 <h3 className="font-editorial text-3xl italic">Pitch this brief.</h3>
                 {!user ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">
@@ -456,23 +551,69 @@ export default function CampaignDetail() {
                   </p>
                 ) : user.role !== "influencer" ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">Only influencers can pitch.</p>
-                ) : applied ? (
-                  <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30]">✓ Pitch delivered.</p>
+                ) : statusLabel ? (
+                  <div className="mt-5 space-y-3" data-testid="application-status">
+                    <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest ${statusTone}`}>
+                      Application status: {statusLabel}
+                    </div>
+                    {myApplication?.created_at ? (
+                      <p className="text-xs text-white/50">Submitted {new Date(myApplication.created_at).toLocaleString()}</p>
+                    ) : null}
+                    {myApplication?.rate != null ? (
+                      <p className="text-sm text-white/70">Your rate: ₹{Number(myApplication.rate).toLocaleString("en-IN")}</p>
+                    ) : null}
+                    {myApplication?.pitch ? (
+                      <p className="text-sm text-white/80 italic border-l-2 border-[#FF3B30]/50 pl-3">“{myApplication.pitch}”</p>
+                    ) : (
+                      <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30]">✓ Pitch delivered.</p>
+                    )}
+                    {statusLabel === "Rejected" && myApplication?.notes ? (
+                      <p className="text-xs text-[#FF3B30]">Reason: {myApplication.notes}</p>
+                    ) : null}
+                  </div>
                 ) : (
-                  <form onSubmit={apply} className="mt-4 space-y-4" data-testid="apply-form">
-                    <div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your pitch</label>
-                      <textarea required data-testid="apply-pitch" value={pitch} onChange={(e) => setPitch(e.target.value)}
+                  <form onSubmit={apply} className="mt-5 space-y-5" data-testid="apply-form" noValidate>
+                    <div className="space-y-2">
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
+                        Your pitch <span className="text-[#FF3B30]">*</span>
+                      </label>
+                      <textarea
+                        data-testid="apply-pitch"
+                        value={pitch}
+                        onChange={(e) => { setPitch(e.target.value); if (pitchErr) setPitchErr(""); }}
                         rows={5}
-                        className="mt-2 w-full bg-[#0B0B0E] border border-white/10 p-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+                        aria-invalid={!!pitchErr}
+                        className={`mt-1 w-full bg-[#0B0B0E] border p-3 focus:outline-none focus:border-[#FF3B30] resize-none rounded-xl ${pitchErr ? "border-[#FF3B30]" : "border-white/10"}`}
+                      />
+                      {pitchErr ? <p className="text-[11px] text-[#FF3B30]">{pitchErr}</p> : null}
                     </div>
-                    <div>
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Your rate (INR ₹)</label>
-                      <input required data-testid="apply-rate" type="number" value={rate} onChange={(e) => setRate(e.target.value)}
-                        className="mt-2 w-full bg-[#0B0B0E] border border-white/10 p-3 focus:outline-none focus:border-[#FF3B30] text-lg" />
+                    <div className="space-y-2">
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
+                        Your rate (INR ₹) <span className="text-[#FF3B30]">*</span>
+                      </label>
+                      <input
+                        data-testid="apply-rate"
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={rate}
+                        onChange={(e) => { setRate(e.target.value); if (rateErr) setRateErr(""); }}
+                        aria-invalid={!!rateErr}
+                        className={`mt-1 w-full bg-[#0B0B0E] border p-3 focus:outline-none focus:border-[#FF3B30] text-lg rounded-xl ${rateErr ? "border-[#FF3B30]" : "border-white/10"}`}
+                      />
+                      {rateErr ? <p className="text-[11px] text-[#FF3B30]">{rateErr}</p> : null}
                     </div>
-                    <button data-testid="apply-submit" className="btn-solid w-full justify-center">
-                      Deliver pitch <ArrowRight className="w-4 h-4" />
+                    <button
+                      type="submit"
+                      data-testid="apply-submit"
+                      disabled={applyBusy}
+                      className="btn-solid w-full justify-center mt-2 disabled:opacity-60 disabled:pointer-events-none"
+                    >
+                      {applyBusy ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
+                      ) : (
+                        <>Deliver pitch <ArrowRight className="w-4 h-4" /></>
+                      )}
                     </button>
                   </form>
                 )}

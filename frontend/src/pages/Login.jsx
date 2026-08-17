@@ -8,7 +8,7 @@ import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
-import { api, formatApiError } from "@/lib/api";
+import { api, formatApiError, friendlyAuthError } from "@/lib/api";
 import { postAuthPath } from "@/lib/supportOps";
 
 export default function Login() {
@@ -57,7 +57,12 @@ export default function Login() {
     } else if (r.requires_2fa) {
       setRequires2fa(true);
       setErr("");
-    } else setErr(r.error);
+    } else {
+      const msg = friendlyAuthError(r.error);
+      setErr(msg);
+      toast.error(msg);
+      setTotpCode("");
+    }
   };
 
   const handleGoogleCredential = async (credential) => {
@@ -86,11 +91,15 @@ export default function Login() {
           },
         });
       } else {
-        setErr(r.error || "Authentication failed");
+        const msg = friendlyAuthError(r.error || "Authentication failed");
+        setErr(msg);
+        toast.error(msg);
       }
     } catch (_) {
       setLoading(false);
-      setErr("Failed to verify Google sign in");
+      const msg = "Login unsuccessful. Please check your credentials and try again.";
+      setErr(msg);
+      toast.error(msg);
     }
   };
 
@@ -129,8 +138,12 @@ export default function Login() {
         });
       }, 1000);
     } catch (err) {
-      const detail = formatApiError(err.response?.data?.detail) || err.message || "Failed to send verification code";
-      setErr(detail);
+      const msg = friendlyAuthError(
+        err.response?.data?.detail || err.message,
+        "We couldn’t send a verification code. Please try again."
+      );
+      setErr(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -159,11 +172,24 @@ export default function Login() {
         nav(postAuthPath(r.user));
       } else if (r.notRegistered) {
         setErr("No account found for this mobile number. Please register first.");
+        toast.error("No account found for this mobile number. Please register first.");
       } else {
-        setErr(r.error || "OTP Verification failed");
+        const msg = friendlyAuthError(
+          r.error,
+          "Login unsuccessful. Please check the verification code and try again."
+        );
+        setErr(msg);
+        toast.error(msg);
+        setOtp("");
       }
     } catch (err) {
-      setErr(formatApiError(err.response?.data?.detail) || err.message || "Invalid or expired OTP code.");
+      const msg = friendlyAuthError(
+        err.response?.data?.detail || err.message,
+        "Login unsuccessful. Please check the verification code and try again."
+      );
+      setErr(msg);
+      toast.error(msg);
+      setOtp("");
     } finally {
       setLoading(false);
     }
@@ -314,7 +340,11 @@ export default function Login() {
                   mode="signin"
                   loading={loading}
                   onGoogleCredential={handleGoogleCredential}
-                  onGoogleError={() => setErr("Google Sign In Failed")}
+                  onGoogleError={() => {
+                    const msg = "Login unsuccessful. Please check your credentials and try again.";
+                    setErr(msg);
+                    toast.error(msg);
+                  }}
                 />
               </div>
             </>
