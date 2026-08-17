@@ -4392,11 +4392,22 @@ async def seed_demo():
         await db.users.insert_one({
             "id": str(uuid.uuid4()), "email": "creator@cr8.studio",
             "password_hash": demo_password_hash, "name": "Creator Demo", "username": "creatordemo",
-            "role": "influencer", "handle": "@creator.demo", "company": None, "bio": "Demo creator.",
+            "role": "influencer", "handle": "creator.demo1", "company": None,
             "avatar": None, "niches": ["tech", "lifestyle"], "followers": 10000,
-            "platforms": ["instagram"], "location": "Remote", "mobile": None,
-            "industry": None, "website": None, "portfolio": [], "rate_card": {},
-            "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
+            "platforms": ["instagram", "youtube", "twitter", "facebook"],
+            "city": "Hyderabad", "state": "Telangana", "location": "Hyderabad, Telangana",
+            "mobile": "9876500101", "industry": None, "website": None, "portfolio": [], "rate_card": {},
+            "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed",
+            "bio": (
+                "Creator Demo is a tech & lifestyle influencer on CR8 Studio — product reviews, "
+                "city lifestyle reels, and escrow-ready brand collaborations across India."
+            ),
+            "languages": ["English", "Hindi", "Telugu"],
+            "content_types": ["Instagram Reels (Short Videos)", "Static Posts", "Stories", "YouTube Videos"],
+            "availability": "Within 1 week",
+            "base_rate": 25000,
+            "category": "tech",
+            "pincode": "500081",
         })
     
     company_enrich = {
@@ -4443,14 +4454,25 @@ async def seed_demo():
         await db.users.insert_one({
             "id": str(uuid.uuid4()), "email": "agent@cr8.studio",
             "password_hash": demo_password_hash, "name": "Agent Demo", "username": "agentdemo",
-            "role": "agent", "handle": None, "company": "Talent Agency", "bio": "Talent agent.",
-            "avatar": None, "niches": [], "followers": None, "mobile": None,
-            "platforms": [], "location": "Remote", "industry": None,
-            "website": None, "portfolio": [], "rate_card": {},
+            "role": "agent", "handle": None, "company": "Talent Agency",
+            "bio": (
+                "Talent Agency represents creators across fashion, tech, and lifestyle verticals — "
+                "brief matching, rate negotiation, and escrow-backed brand deals on CR8 Studio."
+            ),
+            "avatar": None, "niches": [], "followers": None, "mobile": "9876500103",
+            "platforms": [], "city": "Mumbai", "state": "Maharashtra", "location": "Mumbai, Maharashtra",
+            "industry": "Talent Management", "website": "https://talentagency.example",
+            "portfolio": [], "rate_card": {}, "pincode": "400001",
             "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed"
         })
 
     await seed_directory_roster(demo_password_hash)
+
+    try:
+        from mock_user_details import enrich_missing_user_details
+        await enrich_missing_user_details(db, logger=logger)
+    except Exception as e:
+        logger.warning("enrich_missing_user_details failed: %s", e)
     
     # Leaderboard Mock Data
     await db.wallet_tx.delete_many({"note": {"$regex": "^Mock data"}})
@@ -4578,20 +4600,20 @@ def _directory_platform_metrics(handle: str, followers: int, i: int) -> dict:
 async def seed_directory_roster(demo_password_hash: str):
     """Ensure The Directory has a full row of creators with mock image + reel media."""
     roster = [
-        ("arjun@cr8.studio", "arjunsharma", "Arjun Sharma", "arjun.tech", ["Tech & Gadgets", "Design"], 150000, "Mumbai"),
-        ("priya@cr8.studio", "priyakapoor", "Priya Kapoor", "priyastyles", ["Fashion & Style", "Beauty"], 850000, "New Delhi"),
-        ("rohan@cr8.studio", "rohandesai", "Rohan Desai", "rohan.fit", ["Fitness & Sports"], 320000, "Bangalore"),
-        ("sneha@cr8.studio", "snehareddy", "Sneha Reddy", "sneha.travels", ["Travel", "Lifestyle"], 120000, "Hyderabad"),
-        ("karthik@cr8.studio", "karthikiyer", "Karthik Iyer", "karthik.code", ["Tech & Gadgets"], 95000, "Chennai"),
-        ("anya@cr8.studio", "anyasingh", "Anya Singh", "anya.arts", ["Fashion & Style", "Art"], 210000, "Kolkata"),
-        ("vikram@cr8.studio", "vikrampatel", "Vikram Patel", "vikram.food", ["Food & Cooking"], 450000, "Ahmedabad"),
-        ("neha@cr8.studio", "nehajoshi", "Neha Joshi", "neha.vibes", ["Beauty", "Fashion & Style"], 600000, "Pune"),
-        ("lena@cr8.studio", "lenaivory", "Lena Ivory", "lena.studio", ["Luxury", "Fashion & Style"], 410000, "Goa"),
-        ("kai@cr8.studio", "kaimonroe", "Kai Monroe", "kai.motion", ["Fitness & Sports", "Lifestyle"], 275000, "Pune"),
-        ("nova@cr8.studio", "novareyes", "Nova Reyes", "nova.reels", ["Beauty", "Lifestyle"], 530000, "Mumbai"),
-        ("mira@cr8.studio", "miradesai", "Mira Desai", "mira.frames", ["Travel", "Photography"], 188000, "Jaipur"),
+        ("arjun@cr8.studio", "arjunsharma", "Arjun Sharma", "arjun.tech", ["Tech & Gadgets", "Design"], 150000, "Mumbai", "Maharashtra"),
+        ("priya@cr8.studio", "priyakapoor", "Priya Kapoor", "priyastyles", ["Fashion & Style", "Beauty"], 850000, "New Delhi", "Delhi"),
+        ("rohan@cr8.studio", "rohandesai", "Rohan Desai", "rohan.fit", ["Fitness & Sports"], 320000, "Bangalore", "Karnataka"),
+        ("sneha@cr8.studio", "snehareddy", "Sneha Reddy", "sneha.travels", ["Travel", "Lifestyle"], 120000, "Hyderabad", "Telangana"),
+        ("karthik@cr8.studio", "karthikiyer", "Karthik Iyer", "karthik.code", ["Tech & Gadgets"], 95000, "Chennai", "Tamil Nadu"),
+        ("anya@cr8.studio", "anyasingh", "Anya Singh", "anya.arts", ["Fashion & Style", "Art"], 210000, "Kolkata", "West Bengal"),
+        ("vikram@cr8.studio", "vikrampatel", "Vikram Patel", "vikram.food", ["Food & Cooking"], 450000, "Ahmedabad", "Gujarat"),
+        ("neha@cr8.studio", "nehajoshi", "Neha Joshi", "neha.vibes", ["Beauty", "Fashion & Style"], 600000, "Pune", "Maharashtra"),
+        ("lena@cr8.studio", "lenaivory", "Lena Ivory", "lena.studio", ["Luxury", "Fashion & Style"], 410000, "Goa", "Goa"),
+        ("kai@cr8.studio", "kaimonroe", "Kai Monroe", "kai.motion", ["Fitness & Sports", "Lifestyle"], 275000, "Pune", "Maharashtra"),
+        ("nova@cr8.studio", "novareyes", "Nova Reyes", "nova.reels", ["Beauty", "Lifestyle"], 530000, "Mumbai", "Maharashtra"),
+        ("mira@cr8.studio", "miradesai", "Mira Desai", "mira.frames", ["Travel", "Photography"], 188000, "Jaipur", "Rajasthan"),
     ]
-    for i, (email, username, name, handle, niches, followers, city) in enumerate(roster):
+    for i, (email, username, name, handle, niches, followers, city, state) in enumerate(roster):
         portfolio = _directory_portfolio(i)
         avatar = DIRECTORY_AVATARS[i % len(DIRECTORY_AVATARS)]
         platform_metrics = _directory_platform_metrics(handle, followers, i)
@@ -4609,7 +4631,8 @@ async def seed_directory_roster(demo_password_hash: str):
             "platforms": ["instagram", "youtube", "twitter", "facebook"],
             "platform_metrics": platform_metrics,
             "city": city,
-            "location": city,
+            "state": state,
+            "location": f"{city}, {state}" if city.lower() != state.lower() else city,
             "portfolio": portfolio,
             "cover_photo": DIRECTORY_IMAGES[i % len(DIRECTORY_IMAGES)],
             "verified": True,
@@ -4617,8 +4640,10 @@ async def seed_directory_roster(demo_password_hash: str):
             "password_hash": demo_password_hash,
             "bio": f"{name} is a CR8 directory creator specializing in {', '.join(niches).lower()} with escrow-ready brand collaborations.",
             "content_types": ["Instagram Reels (Short Videos)", "Static Posts", "Stories"],
+            "languages": ["English", "Hindi"],
             "availability": "Within 1 week",
             "base_rate": 25000 + (i * 7500),
+            "mobile": f"98765{10000 + i:05d}"[-10:],
         }
         if existing:
             # Keep real uploaded avatar if present; always refresh empty portfolios.
@@ -4640,10 +4665,15 @@ async def seed_directory_roster(demo_password_hash: str):
                 **patch,
             })
 
-    # Backfill any other influencers missing portfolio/avatar/platform metrics
+    # Backfill any other influencers missing portfolio/avatar/platform metrics/location
     cursor = db.users.find(
         {"role": "influencer"},
-        {"_id": 0, "id": 1, "email": 1, "avatar": 1, "portfolio": 1, "handle": 1, "username": 1, "followers": 1, "platform_metrics": 1},
+        {
+            "_id": 0, "id": 1, "email": 1, "avatar": 1, "portfolio": 1, "handle": 1, "username": 1,
+            "followers": 1, "platform_metrics": 1, "city": 1, "state": 1, "location": 1,
+            "languages": 1, "content_types": 1, "availability": 1, "base_rate": 1, "bio": 1,
+            "niches": 1, "category": 1, "role": 1,
+        },
     )
     async for u in cursor:
         updates = {}
@@ -4666,6 +4696,11 @@ async def seed_directory_roster(demo_password_hash: str):
             updates["platform_metrics"] = metrics
             updates["followers"] = max(int(u.get("followers") or 0), max(int(v.get("followers") or 0) for v in metrics.values()))
             updates["platforms"] = ["instagram", "youtube", "twitter", "facebook"]
+        try:
+            from mock_user_details import missing_detail_patch
+            updates.update(missing_detail_patch({**u, **updates}))
+        except Exception:
+            pass
         if updates:
             await db.users.update_one({"id": u["id"]}, {"$set": updates})
 
@@ -4677,6 +4712,15 @@ async def admin_seed_mock_comms(current: dict = Depends(get_current_user)):
     cleared = await clear_mock_comms(db)
     result = await seed_mock_comms(db, logger=logger)
     return {"ok": True, "cleared": cleared, "seed": result}
+
+
+@api_router.post("/admin/enrich-user-details")
+async def admin_enrich_user_details(current: dict = Depends(get_current_user)):
+    """Fill blank mock/profile fields (city, state, bio, languages, …) for all users."""
+    await require_role(current, ["admin"])
+    from mock_user_details import enrich_missing_user_details
+    result = await enrich_missing_user_details(db, logger=logger)
+    return {"ok": True, **result}
 
 
 @api_router.post("/seed/mock-comms")
