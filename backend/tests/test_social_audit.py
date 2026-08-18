@@ -94,7 +94,13 @@ def test_audit_healthy_when_platforms_complete():
         assert "title" in iss and "recommended_action" in iss
 
 
-def test_scraper_failure_raises_high_issue():
+def test_raise_ticket_input_model():
+    from social_audit import RaiseTicketIn
+
+    m = RaiseTicketIn(issue_id="iss_abcdef12")
+    assert m.issue_id.startswith("iss_")
+    assert m.note is None
+
     user = {
         "id": "u3",
         "name": "X",

@@ -10,6 +10,8 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
+from pydantic import BaseModel, Field
+
 from social_analytics import (
     SOCIAL_PLATFORMS,
     aggregate_creator_analytics,
@@ -30,6 +32,11 @@ BUSINESS_ROLES = ("influencer", "owner", "agent")
 BLOCKED_AUDIT_ROLES = ("admin", "support", "support_agent", "support_lead", "support_admin")
 
 STALE_HOURS = 72
+
+
+class RaiseTicketIn(BaseModel):
+    issue_id: str = Field(min_length=3, max_length=40)
+    note: Optional[str] = Field(default=None, max_length=2000)
 
 
 def _iso() -> str:
@@ -322,12 +329,7 @@ def setup_social_audit(
     logger,
 ):
     from fastapi import Depends, HTTPException, Query, Body
-    from pydantic import BaseModel, Field
     from support_features import is_support_staff, has_perm
-
-    class RaiseTicketIn(BaseModel):
-        issue_id: str = Field(min_length=3, max_length=40)
-        note: Optional[str] = Field(default=None, max_length=2000)
 
     async def _require_business_audit_user(current: dict):
         if not can_access_social_audit(current):
@@ -409,7 +411,7 @@ def setup_social_audit(
     @api_router.post("/social-audit/{audit_id}/raise-ticket")
     async def raise_ticket_from_audit(
         audit_id: str,
-        inp: RaiseTicketIn,
+        inp: RaiseTicketIn = Body(...),
         current: dict = Depends(get_current_user),
     ):
         await _require_business_audit_user(current)
@@ -419,6 +421,10 @@ def setup_social_audit(
         issue = next((i for i in (audit.get("issues") or []) if i.get("id") == inp.issue_id), None)
         if not issue:
             raise HTTPException(status_code=404, detail="Issue not found on this audit")
+        if issue.get("status") == "Ticket Raised" and issue.get("ticket_id"):
+            existing = await db.support_tickets.find_one({"id": issue["ticket_id"]}, {"_id": 0})
+            if existing:
+                return existing
 
         # Reuse support ticket collection via direct insert + notify (avoid circular import of ticket creator)
         from support_features import user_type_from_role
@@ -444,6 +450,9 @@ def setup_social_audit(
         if severity not in ("Low", "Medium", "High", "Critical"):
             severity = "Medium"
         now = now_iso() if callable(now_iso) else _iso()
+        # SLA hours by priority (same as support_features._sla_due)
+        sla_hours = {"Critical": 4, "High": 8, "Medium": 24, "Low": 48}.get(severity, 24)
+        sla_due = (datetime.utcnow() + timedelta(hours=sla_hours)).isoformat()
         doc = {
             "id": ticket_id,
             "number": f"FLUGR-{n}",
@@ -465,7 +474,7 @@ def setup_social_audit(
             "assignee_id": None,
             "assignee_name": None,
             "escalated": False,
-            "sla_due_at": None,
+            "sla_due_at": sla_due,
             "sla_breached": False,
             "internal_notes": [],
             "created_at": now,
@@ -498,38 +507,58 @@ def setup_social_audit(
             ],
         }
         await db.support_tickets.insert_one(doc)
+        # Seed first user message so Support Center thread is not empty
+        await db.support_messages.insert_one({
+            "id": f"smsg_{uuid.uuid4().hex[:12]}",
+            "ticket_id": ticket_id,
+            "author_id": current["id"],
+            "author_name": doc["user_name"],
+            "author_role": current.get("role"),
+            "body": description[:8000],
+            "internal": False,
+            "source": "social_audit",
+            "created_at": now,
+        })
         # Mark issue linked
         await db.social_audits.update_one(
             {"id": audit_id, "issues.id": issue["id"]},
             {"$set": {"issues.$.status": "Ticket Raised", "issues.$.ticket_id": ticket_id}},
         )
-        if push_notification:
-            await push_notification(
-                current["id"],
-                "support",
-                f"Support ticket {doc['number']} created from your social audit",
-                {"ticket_id": ticket_id, "link": "/support"},
-            )
-            staff = await db.users.find(
-                {"role": {"$in": ["support", "support_agent", "support_lead", "support_admin"]}, "active": {"$ne": False}},
-                {"id": 1},
-            ).to_list(100)
-            for s in staff:
-                if s.get("id"):
-                    await push_notification(
-                        s["id"],
-                        "support",
-                        f"New social-audit ticket {doc['number']}: {issue.get('title')}",
-                        {"ticket_id": ticket_id, "link": "/support/ops?tab=tickets"},
-                    )
-        if write_audit_log:
-            await write_audit_log(
-                action="support_ticket_created",
-                user_id=current["id"],
-                username=current.get("username"),
-                details=f"Social audit ticket {doc['number']}",
-                meta={"ticket_id": ticket_id, "audit_id": audit_id, "issue_id": issue["id"], "actor_type": "user"},
-            )
+        try:
+            if push_notification:
+                await push_notification(
+                    current["id"],
+                    "support",
+                    f"Support ticket {doc['number']} created from your social audit",
+                    {"ticket_id": ticket_id, "link": "/support"},
+                )
+                staff = await db.users.find(
+                    {"role": {"$in": ["support", "support_agent", "support_lead", "support_admin"]}, "active": {"$ne": False}},
+                    {"id": 1},
+                ).to_list(100)
+                for s in staff:
+                    if s.get("id"):
+                        await push_notification(
+                            s["id"],
+                            "support",
+                            f"New social-audit ticket {doc['number']}: {issue.get('title')}",
+                            {"ticket_id": ticket_id, "link": "/support/ops?tab=tickets"},
+                        )
+        except Exception as e:
+            if logger:
+                logger.warning("social audit ticket notify failed: %s", e)
+        try:
+            if write_audit_log:
+                await write_audit_log(
+                    action="support_ticket_created",
+                    user_id=current["id"],
+                    username=current.get("username"),
+                    details=f"Social audit ticket {doc['number']}",
+                    meta={"ticket_id": ticket_id, "audit_id": audit_id, "issue_id": issue["id"], "actor_type": "user"},
+                )
+        except Exception as e:
+            if logger:
+                logger.warning("social audit ticket audit-log failed: %s", e)
         out = dict(doc)
         out.pop("_id", None)
         return out

@@ -43,23 +43,25 @@ export default function SocialMediaAudit() {
 
   const blocked = !user || user.role === "admin" || isSupportOpsRole(user.role);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ quiet = false } = {}) => {
     if (blocked) return;
-    setLoading(true);
+    if (!quiet) setLoading(true);
     try {
       const [a, h, t] = await Promise.all([
         api.get("/social-audit/me"),
         api.get("/social-audit/history?limit=12"),
-        api.get("/support/tickets?limit=30").catch(() => ({ data: [] })),
+        api.get("/support/tickets?limit=30").catch(() => ({ data: { tickets: [] } })),
       ]);
       setAudit(a.data);
       setHistory(Array.isArray(h.data) ? h.data : []);
       const list = Array.isArray(t.data) ? t.data : (t.data?.tickets || []);
       setTickets(list.filter((x) => x.category === "Social Media Audit" || x.tags?.includes("social-audit")));
     } catch (e) {
-      toast.error(e.response?.data?.detail || "Failed to load social audit");
+      const detail = e.response?.data?.detail;
+      const msg = typeof detail === "string" ? detail : Array.isArray(detail) ? detail.map((d) => d.msg || d).join("; ") : "Failed to load social audit";
+      toast.error(msg);
     } finally {
-      setLoading(false);
+      if (!quiet) setLoading(false);
     }
   }, [blocked]);
 
@@ -71,9 +73,10 @@ export default function SocialMediaAudit() {
       const { data } = await api.post("/social-audit/run");
       setAudit(data);
       toast.success(`Audit complete — ${data.status}`);
-      load();
+      await load({ quiet: true });
     } catch (e) {
-      toast.error(e.response?.data?.detail || "Audit failed");
+      const detail = e.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Audit failed");
     } finally {
       setRunning(false);
     }
@@ -84,10 +87,27 @@ export default function SocialMediaAudit() {
     setRaising(issueId);
     try {
       const { data } = await api.post(`/social-audit/${audit.id}/raise-ticket`, { issue_id: issueId });
-      toast.success(`Ticket ${data.number} created`);
-      await load();
+      const number = data?.number || data?.ticket?.number || "created";
+      toast.success(`Ticket ${number} created`);
+      // Optimistic UI — mark issue as raised so the page never blanks
+      setAudit((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          issues: (prev.issues || []).map((iss) =>
+            iss.id === issueId
+              ? { ...iss, status: "Ticket Raised", ticket_id: data?.id || data?.ticket?.id }
+              : iss
+          ),
+        };
+      });
+      await load({ quiet: true });
     } catch (e) {
-      toast.error(e.response?.data?.detail || "Could not raise ticket");
+      const detail = e.response?.data?.detail;
+      let msg = "Could not raise ticket";
+      if (typeof detail === "string") msg = detail;
+      else if (Array.isArray(detail)) msg = detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
+      toast.error(msg);
     } finally {
       setRaising(null);
     }
@@ -225,12 +245,13 @@ export default function SocialMediaAudit() {
                       disabled={raising === iss.id}
                       onClick={() => raiseTicket(iss.id)}
                       className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-full border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/10 disabled:opacity-50"
+                      data-testid={`raise-ticket-${iss.id}`}
                     >
                       <LifeBuoy className="w-3 h-3" />
                       {raising === iss.id ? "Raising…" : "Raise support ticket"}
                     </button>
                   ) : (
-                    <Link to="/support" className="text-[10px] uppercase tracking-wider text-[#34C759]">
+                    <Link to="/support" className="text-[10px] uppercase tracking-wider text-[#34C759]" data-testid={`ticket-opened-${iss.id}`}>
                       Ticket opened →
                     </Link>
                   )}
