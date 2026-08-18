@@ -217,7 +217,7 @@ def setup_invoices(
     async def _seq_reserve(issuer_id: str, settings: dict) -> tuple:
         fy = settings.get("financial_year") or financial_year()
         width = int(settings.get("number_width") or 4)
-        prefix = settings.get("prefix") or "flugr"
+        prefix = settings.get("prefix") or "FLU"
         start = int(settings.get("starting_number") or 1)
         rec = await db.invoice_sequences.find_one({"issuer_id": issuer_id, "fy": fy})
         last = int((rec or {}).get("last_seq") or (start - 1))
@@ -371,7 +371,7 @@ def setup_invoices(
         fy = settings.get("financial_year") or financial_year()
         rec = await db.invoice_sequences.find_one({"issuer_id": current["id"], "fy": fy})
         last = int((rec or {}).get("last_seq") or (int(settings.get("starting_number") or 1) - 1))
-        preview, _ = next_sequence_preview(settings.get("prefix") or "flugr", fy, last, int(settings.get("number_width") or 4))
+        preview, _ = next_sequence_preview(settings.get("prefix") or "FLU", fy, last, int(settings.get("number_width") or 4))
         settings["next_invoice_number"] = preview
         settings["gstin_format_ok"] = gstin_format_ok(settings.get("gstin")) if settings.get("gstin") else None
         return settings
