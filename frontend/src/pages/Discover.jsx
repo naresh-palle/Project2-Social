@@ -319,7 +319,7 @@ export default function Discover() {
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Brand desk
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Discover Influencers</h1>
-          <p className="font-sans text-sm text-white/50 mt-1">Search the CR8 catalog. Missing metrics show as Data unavailable — never invented.</p>
+          <p className="font-sans text-sm text-white/50 mt-1">Search the flugr catalog. Missing metrics show as Data unavailable — never invented.</p>
         </div>
         <button type="button" onClick={() => setAssistantOpen((v) => !v)} className="btn-pill inline-flex items-center gap-2 text-[10px]">
           <MessageSquare className="w-3.5 h-3.5" /> Assistant
@@ -418,7 +418,7 @@ export default function Discover() {
       {loading && creators.length === 0 ? (
         <div className="py-16 text-center font-mono text-xs tracking-widest uppercase opacity-50">Loading catalog…</div>
       ) : creators.length === 0 ? (
-        <div className="py-16 text-center font-sans text-sm text-white/50">No creators match these filters in the CR8 catalog.</div>
+        <div className="py-16 text-center font-sans text-sm text-white/50">No creators match these filters in the flugr catalog.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {creators.map((c) => (
@@ -538,7 +538,7 @@ export default function Discover() {
             ))}
           </div>
           <form onSubmit={sendAssistant} className="p-2 border-t border-white/10 flex gap-2">
-            <input value={chat} onChange={(e) => setChat(e.target.value)} className="flex-1 bg-transparent border-b border-white/15 py-1 text-sm outline-none" placeholder="Ask CR8…" />
+            <input value={chat} onChange={(e) => setChat(e.target.value)} className="flex-1 bg-transparent border-b border-white/15 py-1 text-sm outline-none" placeholder="Ask flugr…" />
             <button type="submit" className="btn-solid text-[10px] px-2">Send</button>
           </form>
         </aside>

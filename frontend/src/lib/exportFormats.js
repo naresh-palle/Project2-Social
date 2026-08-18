@@ -54,7 +54,7 @@ export function exportCsv({ rows, filename, meta = "" }) {
 }
 
 /** Excel-compatible SpreadsheetML (.xls) — opens in Excel / Sheets / LibreOffice. */
-export function exportExcel({ rows, filename, sheetName = "CR8 Export", meta = "" }) {
+export function exportExcel({ rows, filename, sheetName = "flugr Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
   const headerCells = headers.map((h) => `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`).join("");
   const bodyRows = body
@@ -91,7 +91,7 @@ export function exportExcel({ rows, filename, sheetName = "CR8 Export", meta = "
 }
 
 /** Minimal multi-page text PDF (Helvetica). */
-export function exportPdf({ rows, filename, title = "CR8 Export", meta = "" }) {
+export function exportPdf({ rows, filename, title = "flugr Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
   const linesArr = [
     meta,
@@ -241,7 +241,7 @@ function buildPdfFromBlocks(blocks, filename) {
     y -= need;
   }
   if (page.length) pages.push(page);
-  if (!pages.length) pages.push([{ text: "CR8 Report", size: 14, gap: 8, y: pageHeight - margin }]);
+  if (!pages.length) pages.push([{ text: "flugr Report", size: 14, gap: 8, y: pageHeight - margin }]);
 
   const objs = [];
   const pushObj = (bodyStr) => {
@@ -326,8 +326,8 @@ export function exportProfileReportPdf({
   const summary =
     (aiSummary && String(aiSummary).trim()) ||
     (isBrand
-      ? `${primary} is a brand account on CR8 Studio operating in ${user.industry || niches}. Based in ${city}, this profile manages campaign briefs, creator outreach, and escrow-backed collaborations. This report summarises the account’s stored profile and recent activity snapshot.`
-      : `${primary} is an influencer on CR8 Studio focused on ${niches}. Located in ${city}, this profile is positioned for brand collaborations with escrow protection. This AI-curated report presents a readable overview of the account — not a raw data dump.`);
+      ? `${primary} is a brand account on flugr operating in ${user.industry || niches}. Based in ${city}, this profile manages campaign briefs, creator outreach, and escrow-backed collaborations. This report summarises the account’s stored profile and recent activity snapshot.`
+      : `${primary} is an influencer on flugr focused on ${niches}. Located in ${city}, this profile is positioned for brand collaborations with escrow protection. This AI-curated report presents a readable overview of the account — not a raw data dump.`);
 
   const profileLines = [
     ["Display name", primary],
@@ -346,7 +346,7 @@ export function exportProfileReportPdf({
   ];
 
   const blocks = [
-    { kind: "h1", text: "CR8 Studio · Personal Data Report" },
+    { kind: "h1", text: "flugr · Personal Data Report" },
     { kind: "meta", text: `AI-curated profile summary · Generated ${dateLabel}` },
     { kind: "meta", text: `Account: ${primary} · Role: ${role}` },
     { kind: "spacer", gap: 12 },
@@ -383,7 +383,7 @@ export function exportProfileReportPdf({
       : "Share this report with brand partners as a polished portfolio snapshot. Raw JSON exports are intentionally omitted for readability.",
   });
   blocks.push({ kind: "spacer", gap: 10 });
-  blocks.push({ kind: "meta", text: "© CR8 Studio · Confidential account export · Not a legal identity document" });
+  blocks.push({ kind: "meta", text: "© flugr · Confidential account export · Not a legal identity document" });
 
   buildPdfFromBlocks(blocks, filename || `cr8-profile-${dateLabel}`);
 }
@@ -392,7 +392,7 @@ export function exportProfileReportPdf({
 export function exportAiReportPdf({
   rows,
   filename,
-  title = "CR8 Data Report",
+  title = "flugr Data Report",
   aiSummary = "Data snapshot summary.",
 }) {
   const { headers, rows: body } = normalizeRows(rows);
@@ -427,13 +427,13 @@ export function exportAiReportPdf({
   }
 
   blocks.push({ kind: "spacer", gap: 15 });
-  blocks.push({ kind: "meta", text: `© CR8 Studio · Generated on ${dateLabel}` });
+  blocks.push({ kind: "meta", text: `© flugr · Generated on ${dateLabel}` });
 
   buildPdfFromBlocks(blocks, filename || `cr8-report-${dateLabel}`);
 }
 
 /** Word-compatible HTML document (.doc). */
-export function exportDoc({ rows, filename, title = "CR8 Export", meta = "" }) {
+export function exportDoc({ rows, filename, title = "flugr Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
   const thead = headers.map((h) => `<th style="border:1px solid #ccc;padding:6px;text-align:left;background:#f4f4f0">${escapeHtml(h)}</th>`).join("");
   const tbody = body

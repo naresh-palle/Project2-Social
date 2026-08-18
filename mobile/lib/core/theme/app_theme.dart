@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Visual tokens aligned with the CR8 web app.
+/// Visual tokens aligned with the flugr web app.
 class Cr8Colors {
   Cr8Colors._();
   static const bg = Color(0xFF0B0B0E);

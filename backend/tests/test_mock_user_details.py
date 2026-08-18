@@ -35,7 +35,7 @@ def test_missing_detail_patch_fills_blank_creator():
     assert "Hyderabad" in patch["location"] or "," in patch["location"]
     assert patch["languages"]
     assert patch["mobile"]
-    assert "CR8" in patch["bio"] or "creates" in patch["bio"]
+    assert "flugr" in patch["bio"] or "creates" in patch["bio"]
 
 
 def test_missing_detail_patch_does_not_overwrite_city():

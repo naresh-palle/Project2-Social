@@ -61,12 +61,12 @@ JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60 * 24 * 7
 EMERGENT_LLM_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("EMERGENT_LLM_KEY")
 EMERGENT_EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
-EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
+EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "flugr")
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
 UPLOAD_DIR = PathLib(os.environ.get("UPLOAD_DIR", ROOT_DIR / "uploads"))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="CR8 API")
+app = FastAPI(title="flugr API")
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -244,7 +244,7 @@ async def send_email(to: str, subject: str, html: str) -> bool:
     if brevo_api_key:
         try:
             sender_email = await get_brevo_verified_sender(brevo_api_key)
-            sender_name = os.environ.get("EMAIL_FROM_NAME", "CR8 Studio")
+            sender_name = os.environ.get("EMAIL_FROM_NAME", "flugr")
             async with httpx.AsyncClient(timeout=12) as c:
                 res = await c.post(
                     "https://api.brevo.com/v3/smtp/email",
@@ -274,7 +274,7 @@ async def send_email(to: str, subject: str, html: str) -> bool:
     resend_api_key = (os.environ.get("RESEND_API_KEY") or "").strip()
     if resend_api_key:
         try:
-            from_email = os.environ.get("EMAIL_FROM", "CR8 Studio <onboarding@resend.dev>")
+            from_email = os.environ.get("EMAIL_FROM", "flugr <onboarding@resend.dev>")
             async with httpx.AsyncClient(timeout=10) as c:
                 res = await c.post(
                     "https://api.resend.com/emails",
@@ -309,7 +309,7 @@ async def send_email(to: str, subject: str, html: str) -> bool:
             from email.mime.text import MIMEText
             from email.mime.multipart import MIMEMultipart
 
-            from_header = os.environ.get("EMAIL_FROM", f"CR8 Studio <{gmail_user}>")
+            from_header = os.environ.get("EMAIL_FROM", f"flugr <{gmail_user}>")
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = from_header
@@ -388,14 +388,14 @@ def email_template(headline: str, body_html: str, cta_url: Optional[str] = None,
         '<table style="max-width:560px;margin:0 auto" cellpadding="0" cellspacing="0" width="560">'
         '<tr><td>'
         '<p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.3em;'
-        'text-transform:uppercase;color:#F4F4F0;opacity:0.6;margin:0 0 16px">§ CR8 STUDIO</p>'
+        'text-transform:uppercase;color:#F4F4F0;opacity:0.6;margin:0 0 16px">§ FLUGR</p>'
         f'<h1 style="font-family:Georgia,serif;font-size:42px;line-height:1.05;margin:0 0 12px;'
         f'font-weight:400;letter-spacing:-0.02em;color:#F4F4F0">{headline}</h1>'
         f'<div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;'
         f'color:#F4F4F0;opacity:0.9">{body_html}</div>'
         f'{cta}'
         '<p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.24em;'
-        'text-transform:uppercase;color:#F4F4F0;opacity:0.4;margin-top:48px">— CR8 Editorial</p>'
+        'text-transform:uppercase;color:#F4F4F0;opacity:0.4;margin-top:48px">— flugr Editorial</p>'
         '</td></tr></table></div>'
     )
 
@@ -822,9 +822,9 @@ async def send_ntfy_otp(topic: str, otp: str, name: str = "there") -> str:
         async with httpx.AsyncClient(timeout=12) as c:
             res = await c.post(
                 url,
-                content=f"Hello {name}, your CR8 Studio verification code is {otp}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
+                content=f"Hello {name}, your flugr verification code is {otp}. Valid for {OTP_EXPIRY_MINUTES} minutes.",
                 headers={
-                    "Title": "CR8 Studio OTP",
+                    "Title": "flugr OTP",
                     "Priority": "high",
                     "Tags": "key,cr8",
                     "Content-Type": "text/plain",
@@ -865,7 +865,7 @@ class GmailEmailProvider(EmailProvider):
             <div style="height:3px;background:linear-gradient(to right, #FF3B30, #9333EA, #34C759);width:100%;"></div>
             <div style="padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.1);">
               <span style="font-family:monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#FF3B30;font-weight:bold;">
-                § CR8 STUDIO · VERIFICATION
+                § FLUGR · VERIFICATION
               </span>
             </div>
             <div style="padding:36px 28px;background:#121212;">
@@ -884,12 +884,12 @@ class GmailEmailProvider(EmailProvider):
               </p>
             </div>
             <div style="background-color:#0A0A0C;padding:20px;text-align:center;color:rgba(244,244,240,0.4);font-size:10px;font-family:monospace;letter-spacing:0.2em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.08);">
-              CR8 STUDIO · ALL RIGHTS RESERVED
+              FLUGR · ALL RIGHTS RESERVED
             </div>
           </div>
         </div>
         """
-        await send_email_or_raise(to, "Verify your email address - CR8 Studio", html_content)
+        await send_email_or_raise(to, "Verify your email address - flugr", html_content)
 
 class Fast2SMSSmsProvider(SmsProvider):
     async def send_sms_otp(self, mobile: str, otp: str) -> None:
@@ -904,7 +904,7 @@ class Fast2SMSSmsProvider(SmsProvider):
         # Transactional OTP route bypasses DND. Quick SMS (q) is promotional and fails for most Indian numbers.
         route = (os.environ.get("FAST2SMS_ROUTE") or "otp").strip().lower() or "otp"
         message = (
-            f"CR8 Studio verification code is {otp}. "
+            f"flugr verification code is {otp}. "
             f"Valid for {OTP_EXPIRY_MINUTES} minutes. Do not share this code."
         )
 
@@ -2044,7 +2044,7 @@ async def approve_agent(agent_id: str, current: dict = Depends(get_current_user)
     
     await push_notification(
         agent_id, "agent_approval", 
-        "🎉 Congratulations! Your Agent Application has been APPROVED by Super Admin. You now have full access to the CR8 Talent Agent Console.",
+        "🎉 Congratulations! Your Agent Application has been APPROVED by Super Admin. You now have full access to the flugr Talent Agent Console.",
         {"status": "approved"}
     )
     await write_audit_log(
@@ -3422,7 +3422,7 @@ async def public_agents():
 
 @api_router.get("/")
 async def root():
-    return {"name": "CR8 API", "status": "ok"}
+    return {"name": "flugr API", "status": "ok"}
 
 
 # ---------- AI ----------
@@ -3580,7 +3580,7 @@ def parse_json(text: str) -> dict:
 async def ai_campaign_builder(inp: AIBuilderInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["owner", "admin"])
     system = (
-        "You are the CR8 AI Brand Copilot — an editorial, high-taste creative director for a "
+        "You are the flugr AI Brand Copilot — an editorial, high-taste creative director for a "
         "curated influencer studio. You draft brand briefs in a restrained, editorial voice. "
         "Always return VALID JSON matching the schema requested, and nothing else."
     )
@@ -3606,7 +3606,7 @@ async def ai_match_score(inp: AIMatchInput, current: dict = Depends(get_current_
     if not camp or not creator:
         raise HTTPException(status_code=404, detail="Campaign or creator not found")
     system = (
-        "You are the CR8 AI Match Engine. You evaluate the fit between a brand's campaign brief "
+        "You are the flugr AI Match Engine. You evaluate the fit between a brand's campaign brief "
         "and a creator's profile. You are candid, concise, and editorial. Always return VALID JSON."
     )
     prompt = (
@@ -3922,7 +3922,7 @@ async def analytics_content(content_id: str, current: dict = Depends(get_current
 
 # ---------- Top-N AI Match ----------
 async def _score_one(camp: dict, creator: dict) -> Optional[dict]:
-    system = ("You are the CR8 AI Match Engine — candid, editorial, concise. "
+    system = ("You are the flugr AI Match Engine — candid, editorial, concise. "
               "Always return VALID JSON with keys: score (0-100), verdict (one line), "
               "estimated_reach (string).")
     prompt = (
@@ -4020,12 +4020,12 @@ async def _create_contract(camp: dict, creator_id: str, rate: int) -> dict:
     owner = await db.users.find_one({"id": camp["owner_id"]}, {"_id": 0, "name": 1, "company": 1, "email": 1})
     body = (
         f"This agreement is entered between {owner.get('company') or owner.get('name')} (\"Brand\") "
-        f"and {creator.get('name')} {creator.get('handle') or ''} (\"Creator\") on the CR8 Studio platform.\n\n"
+        f"and {creator.get('name')} {creator.get('handle') or ''} (\"Creator\") on the flugr platform.\n\n"
         f"CAMPAIGN: {camp['title']} — {camp['brand']}\n"
         f"BRIEF: {camp['description']}\n\n"
         f"DELIVERABLES: {camp['deliverables']}\n\n"
         f"COMPENSATION: The Brand agrees to pay the Creator ${rate} USD upon acceptance of the "
-        f"final deliverables, held in CR8 studio escrow until release.\n\n"
+        f"final deliverables, held in flugr escrow until release.\n\n"
         f"TIMELINE: Deliverables due by {camp.get('deadline') or 'a mutually agreed date'}.\n\n"
         f"REVISIONS: Up to two rounds of revision requests may be issued. Further revisions "
         f"require additional compensation.\n\n"
@@ -4103,7 +4103,7 @@ async def forgot_password(inp: PasswordResetRequest):
         link = f"{base}/#/reset-password?token={token}"
         asyncio.create_task(send_email(
             user["email"],
-            "CR8 — reset your password",
+            "flugr — reset your password",
             email_template(
                 "Reset your password.",
                 f'<p>Someone (hopefully you) requested a password reset. '
@@ -4135,7 +4135,7 @@ async def send_verify(current: dict = Depends(get_current_user)):
     link = f"{base}/verify-email?token={token}"
     asyncio.create_task(send_email(
         current["email"],
-        "CR8 — verify your email",
+        "flugr — verify your email",
         email_template(
             "Confirm your address.",
             "<p>Tap the button below to confirm this is really you. The link expires in 24 hours.</p>",
@@ -4162,7 +4162,7 @@ async def ai_pitch(inp: AIPitchInput, current: dict = Depends(get_current_user))
     camp = await db.campaigns.find_one({"id": inp.campaign_id}, {"_id": 0})
     if not camp:
         raise HTTPException(status_code=404, detail="Campaign not found")
-    system = ("You are the CR8 AI Creator Copilot — you write short, editorial, sharp "
+    system = ("You are the flugr AI Creator Copilot — you write short, editorial, sharp "
               "pitches on behalf of the creator. Restraint over hype. First-person voice.")
     prompt = (
         f"Write a 3-4 sentence pitch from {current['name']} ({current.get('handle','')}) "
@@ -4178,7 +4178,7 @@ async def ai_pitch(inp: AIPitchInput, current: dict = Depends(get_current_user))
 @api_router.post("/ai/bio")
 async def ai_bio(inp: AIBioInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
-    system = "You are the CR8 AI Creator Copilot. Write concise, editorial creator bios."
+    system = "You are the flugr AI Creator Copilot. Write concise, editorial creator bios."
     prompt = (
         f"Draft a bio for {current['name']} ({current.get('handle','')}). "
         f"Niches: {current.get('niches',[])}. Platforms: {current.get('platforms',[])}. "
@@ -4204,7 +4204,7 @@ async def ai_data_report(current: dict = Depends(get_current_user)):
     industry = current.get("industry") or ""
     bio = (current.get("bio") or "")[:280]
     system = (
-        "You write polished personal-data report executive summaries for CR8 Studio. "
+        "You write polished personal-data report executive summaries for flugr. "
         "2-3 sentences, professional, no JSON, no bullet lists, no invented metrics."
     )
     prompt = (
@@ -4224,7 +4224,7 @@ async def ai_data_report(current: dict = Depends(get_current_user)):
 @api_router.post("/ai/pricing")
 async def ai_pricing(inp: AIPricingInput, current: dict = Depends(get_current_user)):
     await require_role(current, ["influencer"])
-    system = ("You are the CR8 AI Pricing Engine. Return VALID JSON with keys: "
+    system = ("You are the flugr AI Pricing Engine. Return VALID JSON with keys: "
               "recommended (int USD), min (int USD), max (int USD), market_average (int USD), "
               "confidence (int 0-100), rationale (short string).")
     prompt = (
@@ -4280,7 +4280,7 @@ async def ai_review_deliverable(deliverable_id: str, camp: dict) -> None:
     d = await db.deliverables.find_one({"id": deliverable_id})
     if not d:
         return
-    system = ("You are the CR8 AI Content Review Officer. You judge whether a submitted "
+    system = ("You are the flugr AI Content Review Officer. You judge whether a submitted "
               "creator deliverable is on-brief and FTC-compliant. Return VALID JSON with keys: "
               "on_brief (bool), disclosure_ok (bool), quality (int 0-100), "
               "issues (string[]), notes (string).")
@@ -4457,7 +4457,7 @@ async def seed_admin():
             "name": "Super Admin",
             "role": "admin",
             "handle": "@admin",
-            "company": "CR8 Studio",
+            "company": "flugr",
             "bio": "Super Administrator Access",
             "avatar": None, "niches": [], "followers": None, "platforms": [],
             "location": None, "industry": None, "website": None,
@@ -4513,7 +4513,7 @@ async def seed_demo():
             "mobile": "9876500101", "industry": None, "website": None, "portfolio": [], "rate_card": {},
             "verified": True, "wallet": 0, "created_at": now_iso(), "onboarding_status": "completed",
             "bio": (
-                "Creator Demo is a tech & lifestyle influencer on CR8 Studio — product reviews, "
+                "Creator Demo is a tech & lifestyle influencer on flugr — product reviews, "
                 "city lifestyle reels, and escrow-ready brand collaborations across India."
             ),
             "languages": ["English", "Hindi", "Telugu"],
@@ -4571,7 +4571,7 @@ async def seed_demo():
             "role": "agent", "handle": None, "company": "Talent Agency",
             "bio": (
                 "Talent Agency represents creators across fashion, tech, and lifestyle verticals — "
-                "brief matching, rate negotiation, and escrow-backed brand deals on CR8 Studio."
+                "brief matching, rate negotiation, and escrow-backed brand deals on flugr."
             ),
             "avatar": None, "niches": [], "followers": None, "mobile": "9876500103",
             "platforms": [], "city": "Mumbai", "state": "Maharashtra", "location": "Mumbai, Maharashtra",
@@ -4752,7 +4752,7 @@ async def seed_directory_roster(demo_password_hash: str):
             "verified": True,
             "onboarding_status": "completed",
             "password_hash": demo_password_hash,
-            "bio": f"{name} is a CR8 directory creator specializing in {', '.join(niches).lower()} with escrow-ready brand collaborations.",
+            "bio": f"{name} is a flugr directory creator specializing in {', '.join(niches).lower()} with escrow-ready brand collaborations.",
             "content_types": ["Instagram Reels (Short Videos)", "Static Posts", "Stories"],
             "languages": ["English", "Hindi"],
             "availability": "Within 1 week",
@@ -4978,7 +4978,7 @@ async def on_startup():
             await _invoice_ensure_indexes()
     except Exception as e:
         logger.warning("invoice indexes failed: %s", e)
-    logger.info("CR8 API ready.")
+    logger.info("flugr API ready.")
 
 
 @app.on_event("shutdown")
@@ -5158,7 +5158,7 @@ async def spa_root():
     index = WEB_DIR / "index.html"
     if index.is_file():
         return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
-    return {"name": "CR8 API", "status": "ok", "web": False}
+    return {"name": "flugr API", "status": "ok", "web": False}
 
 
 @app.get("/{full_path:path}")

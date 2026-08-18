@@ -2,7 +2,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'CR8 Studio';
+  static const String appName = 'flugr';
   static const String defaultApiBase =
       'https://project2-social.onrender.com/api';
 

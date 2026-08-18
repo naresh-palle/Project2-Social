@@ -1,4 +1,4 @@
-"""CR8 discovery intelligence — query builder, scoring, providers, embeddings.
+"""flugr discovery intelligence — query builder, scoring, providers, embeddings.
 
 Does not talk to Mongo directly except via helpers passed a db handle.
 Never invents creator rows. Missing metrics stay None / "Data unavailable".
@@ -975,6 +975,6 @@ def research_template(facts: Dict[str, Any], campaign: Optional[dict] = None) ->
             "wording": (facts.get("authenticity") or {}).get("wording"),
         },
         "recommendation": rec,
-        "disclaimer": "Every claim is taken from stored CR8 catalog or provider snapshots. Missing fields are marked Data unavailable.",
+        "disclaimer": "Every claim is taken from stored flugr catalog or provider snapshots. Missing fields are marked Data unavailable.",
         "facts": facts,
     }

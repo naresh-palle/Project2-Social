@@ -122,7 +122,7 @@ export default function Referrals() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-4 relative">
               <div className="bg-black/40 border border-white/15 px-4 py-3 rounded-xl flex-1 text-center sm:text-left">
                 <span className="font-mono text-xl md:text-2xl tracking-[0.18em] text-white font-semibold">
-                  {loading ? "…" : refData?.code || "CR8-CODE"}
+                  {loading ? "…" : refData?.code || "FLUGR-CODE"}
                 </span>
               </div>
               <button
@@ -138,7 +138,7 @@ export default function Referrals() {
             <textarea
               className="w-full bg-black/30 border border-white/10 rounded-xl p-3 font-sans text-xs text-white/75 resize-none h-20 focus:outline-none focus:border-white/25 transition-colors mb-3 relative"
               readOnly
-              value={refData?.share_text || "Join me on CR8 Studio using my code!"}
+              value={refData?.share_text || "Join me on flugr using my code!"}
             />
 
             <div className="flex flex-col sm:flex-row gap-2.5 relative">
@@ -174,7 +174,7 @@ export default function Referrals() {
               <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3">How it works</h3>
               <ol className="space-y-3">
                 {[
-                  { title: "Share your code", desc: "Send your link to friends joining CR8." },
+                  { title: "Share your code", desc: "Send your link to friends joining flugr." },
                   { title: "They sign up", desc: "They apply your code at registration." },
                   { title: "You both earn", desc: "Reward hits your wallet after first campaign." },
                 ].map((s, i) => (

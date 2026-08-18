@@ -72,9 +72,7 @@ export function Nav({ variant = "dark" }) {
           data-testid="nav-logo" 
           className="flex items-center gap-2 cursor-pointer"
         >
-          <span className="font-editorial italic text-2xl leading-[1.15]">CR</span>
-          <span className="font-editorial text-2xl leading-[1.15]">8</span>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 ml-3">⌘ Studio</span>
+          <span className="font-editorial italic text-2xl leading-[1.15]">flugr</span>
         </Link>
 
 
@@ -144,7 +142,7 @@ export function Nav({ variant = "dark" }) {
                   ) : (
                     <div
                       className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-white border border-white/20"
-                      style={{ backgroundColor: `hsl(${((displayAccountName(user) || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                      style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
                     >
                       {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                     </div>
@@ -161,7 +159,7 @@ export function Nav({ variant = "dark" }) {
           ) : (
             <>
               <Link to="/login" data-testid="nav-login" className="hidden sm:block font-mono text-[11px] tracking-[0.22em] uppercase kinetic-underline">Sign In</Link>
-              <Link to="/register" data-testid="nav-register" className="btn-solid">Enter Studio →</Link>
+              <Link to="/register" data-testid="nav-register" className="btn-solid">Enter flugr →</Link>
             </>
           )}
         </div>

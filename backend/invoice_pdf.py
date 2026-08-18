@@ -1,4 +1,4 @@
-"""A4 selectable-text GST invoice PDFs (reportlab). Three original CR8 templates."""
+"""A4 selectable-text GST invoice PDFs (reportlab). Three original flugr templates."""
 from __future__ import annotations
 
 import io
@@ -84,8 +84,8 @@ def build_invoice_pdf(
     theme = TEMPLATES.get(template, TEMPLATES["professional"])
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
-    c.setTitle(f"{invoice.get('invoice_number') or 'Draft'} — CR8 Invoice")
-    c.setAuthor("CR8 Studio")
+    c.setTitle(f"{invoice.get('invoice_number') or 'Draft'} — flugr Invoice")
+    c.setAuthor("flugr")
 
     kind = (invoice.get("invoice_kind") or "gst").upper()
     title = "TAX INVOICE" if kind == "GST" else "INVOICE (NON-GST)"
@@ -100,10 +100,10 @@ def build_invoice_pdf(
         _draw_image(c, logo, MARGIN, y - 18 * mm, 32 * mm, 16 * mm)
     c.setFillColor(theme["accent"])
     c.setFont("Helvetica-Bold", 16)
-    c.drawRightString(PAGE_W - MARGIN, y - 4 * mm, invoice.get("supplier", {}).get("trade_name") or "CR8 Studio")
+    c.drawRightString(PAGE_W - MARGIN, y - 4 * mm, invoice.get("supplier", {}).get("trade_name") or "flugr")
     c.setFont("Helvetica", 8)
     c.setFillColor(theme["muted"])
-    c.drawRightString(PAGE_W - MARGIN, y - 9 * mm, "CR8 Studio billing")
+    c.drawRightString(PAGE_W - MARGIN, y - 9 * mm, "flugr billing")
     y -= 22 * mm
 
     c.setFillColor(theme["accent"])

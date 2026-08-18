@@ -425,7 +425,9 @@ def setup_social_audit(
 
         last = await db.support_tickets.find_one({}, {"number": 1}, sort=[("created_at", -1)])
         n = 1000
-        if last and isinstance(last.get("number"), str) and last["number"].startswith("CR8-"):
+        if last and isinstance(last.get("number"), str) and (
+            last["number"].startswith("FLUGR-") or last["number"].startswith("CR8-")
+        ):
             try:
                 n = int(last["number"].split("-")[1]) + 1
             except Exception:
@@ -444,7 +446,7 @@ def setup_social_audit(
         now = now_iso() if callable(now_iso) else _iso()
         doc = {
             "id": ticket_id,
-            "number": f"CR8-{n}",
+            "number": f"FLUGR-{n}",
             "user_id": current["id"],
             "user_name": current.get("name") or current.get("username"),
             "user_email": current.get("email"),

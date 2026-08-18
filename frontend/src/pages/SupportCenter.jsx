@@ -147,7 +147,7 @@ export default function SupportCenter() {
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5 mb-2">Help & Support</h1>
             <p className="font-sans text-white/60 max-w-2xl text-sm">
-              Find answers or reach CR8 Support Operations. Prefer AI Help for quick questions.
+              Find answers or reach flugr Support Operations. Prefer AI Help for quick questions.
             </p>
           </div>
           <Link

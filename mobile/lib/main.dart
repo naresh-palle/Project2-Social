@@ -71,7 +71,7 @@ class _Cr8AppState extends ConsumerState<Cr8App> with WidgetsBindingObserver {
     final appearance = ref.watch(appearancePrefsProvider);
     final router = ref.watch(goRouterProvider);
     return MaterialApp.router(
-      title: 'CR8 Studio',
+      title: 'flugr',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(highContrast: appearance.highContrast, fontScale: appearance.fontScale),
       darkTheme: AppTheme.dark(highContrast: appearance.highContrast, fontScale: appearance.fontScale),

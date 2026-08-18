@@ -600,7 +600,7 @@ export function AdminPanel() {
         runExport(exportFormat, {
           rows: data,
           filename: base,
-          title: `CR8 Admin — ${tab === "users" ? (roleFilter.length > 0 ? roleFilter[0].charAt(0).toUpperCase() + roleFilter[0].slice(1) + "s" : "Users") : "Platform"} Report`,
+          title: `flugr Admin — ${tab === "users" ? (roleFilter.length > 0 ? roleFilter[0].charAt(0).toUpperCase() + roleFilter[0].slice(1) + "s" : "Users") : "Platform"} Report`,
           meta,
           aiSummary,
           sheetName: tab === "users" ? "Users" : "Stats",

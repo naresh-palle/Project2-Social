@@ -209,7 +209,7 @@ export default function Login() {
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
           <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
-            § Studio Sign In
+            § flugr Sign In
           </p>
           <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
             Return to <span className="italic text-[#FF3B30]">the studio</span>
@@ -326,7 +326,7 @@ export default function Login() {
                 data-testid="login-submit"
                 className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                {loading ? "Authenticating..." : "Sign In to Studio"} <ArrowRight className="w-4 h-4" />
+                {loading ? "Authenticating..." : "Sign In to flugr"} <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 

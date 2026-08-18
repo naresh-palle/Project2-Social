@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>CR8 Studio</string>
+	<string>flugr</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>CR8 Studio</string>
+	<string>flugr</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -52,11 +52,11 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CR8 Studio needs photo access to update your profile and attach media.</string>
+	<string>flugr needs photo access to update your profile and attach media.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>CR8 Studio needs camera access to capture profile photos and deliverables.</string>
+	<string>flugr needs camera access to capture profile photos and deliverables.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>CR8 Studio may use the microphone when recording video deliverables.</string>
+	<string>flugr may use the microphone when recording video deliverables.</string>
 	<key>GIDClientID</key>
 	<string>858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>

@@ -674,7 +674,7 @@ const toggleCategory = (c) => {
             ← Back
           </button>
           <button onClick={submitProfile} disabled={submitting} className="btn-solid disabled:opacity-50">
-            {submitting ? "Confirming..." : "Confirm & Enter Studio"}
+            {submitting ? "Confirming..." : "Confirm & Enter flugr"}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 """
-CR8 Support Operations — independent SUPPORT user category.
+flugr Support Operations — independent SUPPORT user category.
 
 Support is NOT an Influencer/Company/Agent role. Sub-roles:
   - support_agent  (legacy alias: support)
@@ -184,7 +184,7 @@ USER_TYPE_LABELS = {
 }
 
 KNOWLEDGE_BASE = """
-CR8 Studio is an influencer marketplace connecting brands (companies/owners), creators (influencers), and agencies (agents).
+flugr is an influencer marketplace connecting brands (companies/owners), creators (influencers), and agencies (agents).
 
 Payments & escrow: Brands fund campaign escrow; creators are paid after deliverable approval.
 Matching: niche, audience, past performance, campaign requirements.
@@ -357,7 +357,7 @@ def setup_support(
             "id": "default",
             "enabled": True,
             "auto_escalate": True,
-            "greeting": "Hi — I'm CR8 AI Support. How can I help?",
+            "greeting": "Hi — I'm flugr AI Support. How can I help?",
             "model_hint": "default",
             "max_history": 10,
             "updated_at": now_iso(),
@@ -368,11 +368,11 @@ def setup_support(
     async def seed_support_users():
         demo_hash = hash_password("demo1234")
         seeds = [
-            {"email": "support@cr8.studio", "username": "supportagent", "name": "CR8 Support Agent",
+            {"email": "support@cr8.studio", "username": "supportagent", "name": "flugr Support Agent",
              "role": SUPPORT_AGENT, "handle": "@support.agent"},
-            {"email": "support.lead@cr8.studio", "username": "supportlead", "name": "CR8 Support Lead",
+            {"email": "support.lead@cr8.studio", "username": "supportlead", "name": "flugr Support Lead",
              "role": SUPPORT_LEAD, "handle": "@support.lead"},
-            {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "CR8 Support Admin",
+            {"email": "support.admin@cr8.studio", "username": "supportadmin", "name": "flugr Support Admin",
              "role": SUPPORT_ADMIN, "handle": "@support.admin"},
         ]
         await _ensure_kb_seed()
@@ -388,7 +388,7 @@ def setup_support(
                 "role": s["role"],
                 "user_category": "support",
                 "handle": s["handle"],
-                "company": "CR8 Studio Support Operations",
+                "company": "flugr Support Operations",
                 "bio": "Internal Support Operations",
                 "verified": True,
                 "wallet": 0,
@@ -433,7 +433,7 @@ def setup_support(
 
     async def _next_ticket_number() -> str:
         count = await db.support_tickets.count_documents({})
-        return f"CR8-{1000 + count + 1}"
+        return f"FLUGR-{1000 + count + 1}"
 
     def _sla_due(priority: str) -> str:
         hours = {"Critical": 4, "High": 8, "Medium": 24, "Low": 48}.get(priority, 24)
@@ -508,7 +508,7 @@ def setup_support(
                 "id": f"smsg_{uuid.uuid4().hex[:12]}",
                 "ticket_id": ticket_id,
                 "author_id": "ai" if turn.get("role") == "assistant" else current["id"],
-                "author_name": "CR8 AI Support" if turn.get("role") == "assistant" else doc["user_name"],
+                "author_name": "flugr AI Support" if turn.get("role") == "assistant" else doc["user_name"],
                 "author_role": "ai" if turn.get("role") == "assistant" else current.get("role"),
                 "body": turn.get("content") or "",
                 "internal": False,
@@ -643,7 +643,7 @@ def setup_support(
             "role": inp.support_role,
             "user_category": "support",
             "handle": f"@{username}",
-            "company": "CR8 Studio Support Operations",
+            "company": "flugr Support Operations",
             "verified": True,
             "wallet": 0,
             "onboarding_status": "completed",
@@ -1203,7 +1203,7 @@ def setup_support(
                 history_lines.append(f"{r}: {c}")
 
         system = (
-            "You are CR8 Studio first-line AI Support. Be concise and accurate. "
+            "You are flugr first-line AI Support. Be concise and accurate. "
             "Use ONLY the knowledge base. If you cannot help confidently, say so and "
             "end with the exact line: ESCALATE_TICKET=yes. "
             f"The user category is {utype}."
@@ -1252,7 +1252,7 @@ def setup_support(
                     break
             if not reply:
                 reply = (
-                    "I couldn't resolve this from the CR8 knowledge base. "
+                    "I couldn't resolve this from the flugr knowledge base. "
                     "I can escalate to our Support Operations team."
                 )
                 escalate = True
@@ -1317,7 +1317,7 @@ def setup_support(
             {"ticket_id": ticket_id, "internal": {"$ne": True}}, {"_id": 0},
         ).sort("created_at", 1).to_list(80)
         thread = "\n".join(f"{m.get('author_role')}: {m.get('body')}" for m in msgs)
-        system = "You are a CR8 Support Operations agent. Draft a short professional reply. No markdown headings."
+        system = "You are a flugr Support Operations agent. Draft a short professional reply. No markdown headings."
         prompt = (
             f"Ticket {ticket.get('number')} | type={ticket.get('user_type')} | {ticket.get('category')} | {ticket.get('priority')}\n"
             f"Subject: {ticket.get('subject')}\n\nThread:\n{thread}\n\n"
@@ -1332,8 +1332,8 @@ def setup_support(
         if not draft:
             draft = (
                 f"Hi {ticket.get('user_name') or 'there'},\n\n"
-                f"Thanks for contacting CR8 Support about \"{ticket.get('subject')}\". "
-                "We're looking into this and will update you shortly.\n\n— CR8 Support Operations"
+                f"Thanks for contacting flugr Support about \"{ticket.get('subject')}\". "
+                "We're looking into this and will update you shortly.\n\n— flugr Support Operations"
             )
         await _touch_last_active(current)
         return {"ok": True, "draft": draft}

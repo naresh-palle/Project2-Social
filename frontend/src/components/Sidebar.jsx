@@ -66,9 +66,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
             onClick={onClose}
             className="flex items-center gap-2 cursor-pointer mb-5"
           >
-            <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">CR</span>
-            <span className="font-editorial text-2xl leading-[1.15] text-[#FF3B30]">8</span>
-            <span className="font-sans text-[11px] font-semibold tracking-[0.22em] uppercase text-white/50 ml-2">Studio</span>
+            <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">flugr</span>
           </Link>
 
           <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">
@@ -78,7 +76,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               ) : (
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center font-sans font-bold text-xl text-white border-2 border-white/20 shadow-xl"
-                  style={{ backgroundColor: `hsl(${((displayAccountName(user) || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                  style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
                 >
                   {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                 </div>

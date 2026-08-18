@@ -56,7 +56,7 @@ export function withBrandDisplayDefaults(profile) {
     ...d,
     bio: profile.bio && !isSparseBrandBio(profile.bio)
       ? profile.bio
-      : `${profile.company || profile.name || "This brand"} partners with influencers on CR8 Studio for escrow-backed campaigns, product storytelling, and measurable reach across priority metros.`,
+      : `${profile.company || profile.name || "This brand"} partners with influencers on flugr for escrow-backed campaigns, product storytelling, and measurable reach across priority metros.`,
     website: profile.website || "",
     linkedin: profile.linkedin || "",
     past_campaigns: Array.isArray(profile.past_campaigns) ? profile.past_campaigns : [],

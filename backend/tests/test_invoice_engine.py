@@ -1,4 +1,4 @@
-"""Unit tests for CR8 GST invoice engine — no Mongo."""
+"""Unit tests for flugr GST invoice engine — no Mongo."""
 from decimal import Decimal
 
 from invoice_engine import (
@@ -163,12 +163,12 @@ def test_money_avoids_binary_float():
 
 
 def test_invoice_number_unique_format_and_16_char_cap():
-    a = format_invoice_number("CR8", "2026-27", 1)
-    b = format_invoice_number("CR8", "2026-27", 2)
-    assert a == "CR8/2026-27/0001"
-    assert b == "CR8/2026-27/0002"
+    a = format_invoice_number("FLU", "2026-27", 1)
+    b = format_invoice_number("FLU", "2026-27", 2)
+    assert a == "FLU/2026-27/0001"
+    assert b == "FLU/2026-27/0002"
     assert a != b
-    long_prefix = format_invoice_number("CR8STUDIO", "2026-27", 12)
+    long_prefix = format_invoice_number("FLUGRSTUDIO", "2026-27", 12)
     assert len(long_prefix) <= 16
 
 
@@ -266,19 +266,19 @@ def test_pdf_is_selectable_text_not_screenshot():
     c = compute_invoice(payload)
     pdf = build_invoice_pdf({
         **c,
-        "invoice_number": "CR8/2026-27/0001",
+        "invoice_number": "FLU/2026-27/0001",
         "invoice_date": "2026-08-15",
         "status": "draft",
         "supplier": payload["supplier"],
         "recipient": payload["recipient"],
-        "campaign": {"name": "Smartphone Launch Campaign", "campaign_id": "CR8-CAMP-2026-0012"},
+        "campaign": {"name": "Smartphone Launch Campaign", "campaign_id": "FLUGR-CAMP-2026-0012"},
         "template": "professional",
         "payment_terms": "Net 15",
         "bank": {"bank_name": "Demo Bank", "account_number": "••••9012", "ifsc": "DEMO0001234"},
     })
     assert pdf.startswith(b"%PDF")
     assert b"/Font" in pdf  # text operators / embedded fonts, not a raster screenshot
-    assert b"CR8/2026-27/0001" in pdf or b"Invoice" in pdf
-    modern = build_invoice_pdf({**c, "invoice_number": "CR8/2026-27/0002", "template": "modern", "supplier": payload["supplier"], "recipient": payload["recipient"]})
-    minimal = build_invoice_pdf({**c, "invoice_number": "CR8/2026-27/0003", "template": "minimal", "supplier": payload["supplier"], "recipient": payload["recipient"]})
+    assert b"FLU/2026-27/0001" in pdf or b"Invoice" in pdf
+    modern = build_invoice_pdf({**c, "invoice_number": "FLU/2026-27/0002", "template": "modern", "supplier": payload["supplier"], "recipient": payload["recipient"]})
+    minimal = build_invoice_pdf({**c, "invoice_number": "FLU/2026-27/0003", "template": "minimal", "supplier": payload["supplier"], "recipient": payload["recipient"]})
     assert modern.startswith(b"%PDF") and minimal.startswith(b"%PDF")

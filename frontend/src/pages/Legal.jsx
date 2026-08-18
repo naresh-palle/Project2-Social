@@ -8,11 +8,11 @@ const DOCS = {
     sections: [
       {
         h: "1. Agreement",
-        p: "By accessing CR8 Studio (\"the Platform\"), operated by CR8 Studio Ltd., you agree to these Terms of Service. If you do not agree, do not use the Platform.",
+        p: "By accessing flugr (\"the Platform\"), operated by flugr, you agree to these Terms of Service. If you do not agree, do not use the Platform.",
       },
       {
         h: "2. Eligibility",
-        p: "You must be at least 16 years old (or the minimum age in your jurisdiction) to use CR8 Studio. Brands and agencies must provide accurate business registration information where required.",
+        p: "You must be at least 16 years old (or the minimum age in your jurisdiction) to use flugr. Brands and agencies must provide accurate business registration information where required.",
       },
       {
         h: "3. Accounts & Security",
@@ -20,7 +20,7 @@ const DOCS = {
       },
       {
         h: "4. Influencer & Brand Content",
-        p: "You retain ownership of content you upload. You grant CR8 Studio a non-exclusive, worldwide license to host, display, and distribute your content solely to operate the Platform. You warrant that you have all rights necessary for content you post.",
+        p: "You retain ownership of content you upload. You grant flugr a non-exclusive, worldwide license to host, display, and distribute your content solely to operate the Platform. You warrant that you have all rights necessary for content you post.",
       },
       {
         h: "5. Campaigns & Escrow",
@@ -36,7 +36,7 @@ const DOCS = {
       },
       {
         h: "8. Limitation of Liability",
-        p: "To the maximum extent permitted by law, CR8 Studio is not liable for indirect, incidental, or consequential damages arising from your use of the Platform.",
+        p: "To the maximum extent permitted by law, flugr is not liable for indirect, incidental, or consequential damages arising from your use of the Platform.",
       },
       {
         h: "9. Governing Law",
@@ -44,7 +44,7 @@ const DOCS = {
       },
       {
         h: "10. Contact",
-        p: "Legal inquiries: legal@cr8.studio",
+        p: "Legal inquiries: legal@flugr.app",
       },
     ],
   },
@@ -54,7 +54,7 @@ const DOCS = {
     sections: [
       {
         h: "1. Data Controller",
-        p: "CR8 Studio Ltd. (\"we\", \"us\") is the data controller for personal data processed through the Platform. Contact: privacy@cr8.studio.",
+        p: "flugr (\"we\", \"us\") is the data controller for personal data processed through the Platform. Contact: privacy@flugr.app.",
       },
       {
         h: "2. Data We Collect",
@@ -78,11 +78,11 @@ const DOCS = {
       },
       {
         h: "7. Retention",
-        p: "We retain account data while your account is active and for a limited period thereafter for legal and backup purposes. You may request deletion via Settings or privacy@cr8.studio.",
+        p: "We retain account data while your account is active and for a limited period thereafter for legal and backup purposes. You may request deletion via Settings or privacy@flugr.app.",
       },
       {
         h: "8. Your Rights",
-        p: "Depending on your location, you may have rights to access, rectify, erase, restrict, port, and object to processing. EU/UK users may lodge complaints with their supervisory authority. Submit requests via privacy@cr8.studio—we respond within 30 days.",
+        p: "Depending on your location, you may have rights to access, rectify, erase, restrict, port, and object to processing. EU/UK users may lodge complaints with their supervisory authority. Submit requests via privacy@flugr.app—we respond within 30 days.",
       },
       {
         h: "9. Security",
@@ -128,7 +128,7 @@ const DOCS = {
       },
       {
         h: "7. Contact",
-        p: "Cookie questions: privacy@cr8.studio",
+        p: "Cookie questions: privacy@flugr.app",
       },
     ],
   },
@@ -138,7 +138,7 @@ const DOCS = {
     sections: [
       {
         h: "1. Purpose",
-        p: "CR8 Studio requires influencers and brands to comply with FTC endorsement guidelines and equivalent regulations (ASA UK, ASCI India, EU UCPD) when posting sponsored or incentivized content.",
+        p: "flugr requires influencers and brands to comply with FTC endorsement guidelines and equivalent regulations (ASA UK, ASCI India, EU UCPD) when posting sponsored or incentivized content.",
       },
       {
         h: "2. Clear Disclosure",
@@ -153,8 +153,8 @@ const DOCS = {
         p: "Endorsements must reflect honest opinions, beliefs, and experiences. Do not make unsubstantiated claims about products or health benefits.",
       },
       {
-        h: "5. CR8 Studio Campaigns",
-        p: "Campaign briefs on CR8 Studio include disclosure requirements. Failure to comply may result in withheld payment, account warnings, or removal from the Platform.",
+        h: "5. flugr Campaigns",
+        p: "Campaign briefs on flugr include disclosure requirements. Failure to comply may result in withheld payment, account warnings, or removal from the Platform.",
       },
       {
         h: "6. Resources",
@@ -162,7 +162,7 @@ const DOCS = {
       },
       {
         h: "7. Reporting",
-        p: "Report undisclosed sponsored content via in-app reporting or compliance@cr8.studio.",
+        p: "Report undisclosed sponsored content via in-app reporting or compliance@flugr.app.",
       },
     ],
   },

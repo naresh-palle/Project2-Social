@@ -32,7 +32,7 @@ class RegisterSplashPage extends StatelessWidget {
                 children: [
                   const Cr8BackButton(fallback: '/'),
                   Text(
-                    'CR8 × STUDIO',
+                    'flugr',
                     style: GoogleFonts.manrope(
                       color: Cr8Colors.accent,
                       fontSize: 11,

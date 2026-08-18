@@ -147,7 +147,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       showCr8Snack(context, 'Preparing PDF…');
       final data = await ref.read(cr8ApiProvider).exportData();
       final lines = <String>[
-        'CR8 Studio — My Data Export',
+        'flugr — My Data Export',
         'Exported: ${data['exported_at'] ?? DateTime.now().toIso8601String()}',
         '',
       ];
@@ -186,8 +186,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'application/pdf')],
-          subject: 'CR8 Studio data export (PDF)',
-          text: 'Your CR8 Studio account data export (PDF)',
+          subject: 'flugr data export (PDF)',
+          text: 'Your flugr account data export (PDF)',
         ),
       );
     } catch (e) {

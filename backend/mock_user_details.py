@@ -53,7 +53,7 @@ CREATOR_DEMO_ENRICH = {
     "username": "creatordemo",
     "handle": "creator.demo1",
     "bio": (
-        "Creator Demo is a tech & lifestyle influencer on CR8 Studio — product reviews, "
+        "Creator Demo is a tech & lifestyle influencer on flugr — product reviews, "
         "city lifestyle reels, and escrow-ready brand collaborations across India."
     ),
     "city": "Hyderabad",
@@ -78,7 +78,7 @@ AGENT_DEMO_ENRICH = {
     "company": "Talent Agency",
     "bio": (
         "Talent Agency represents creators across fashion, tech, and lifestyle verticals — "
-        "brief matching, rate negotiation, and escrow-backed brand deals on CR8 Studio."
+        "brief matching, rate negotiation, and escrow-backed brand deals on flugr."
     ),
     "city": "Mumbai",
     "state": "Maharashtra",
@@ -188,26 +188,26 @@ def missing_detail_patch(user: Dict[str, Any]) -> Dict[str, Any]:
         updates["location"] = desired_location
 
     if _blank(user.get("bio")) or str(user.get("bio") or "").strip().lower() in {"demo creator.", "demo creator", "talent agent.", "brand account."}:
-        name = user.get("name") or user.get("username") or "CR8 member"
+        name = user.get("name") or user.get("username") or "flugr member"
         if role in {"influencer", "creator"}:
             niches = user.get("niches") or user.get("category") or ["lifestyle"]
             if isinstance(niches, str):
                 niches = [n.strip() for n in niches.replace("|", ",").split(",") if n.strip()]
             niche_txt = ", ".join(niches[:3]).lower() if niches else "lifestyle"
             updates["bio"] = (
-                f"{name} creates {niche_txt} content on CR8 Studio and collaborates with brands "
+                f"{name} creates {niche_txt} content on flugr and collaborates with brands "
                 f"on escrow-backed campaigns across {(updates.get('city') or city or 'India')}."
             )
         elif role in {"owner", "company"}:
             company = user.get("company") or name
             updates["bio"] = (
-                f"{company} partners with creators on CR8 Studio for product storytelling, "
+                f"{company} partners with creators on flugr for product storytelling, "
                 "seasonal drops, and measurable metro reach."
             )
         elif role == "agent":
             company = user.get("company") or name
             updates["bio"] = (
-                f"{company} represents creators on CR8 Studio — briefing, rates, and escrow-ready brand deals."
+                f"{company} represents creators on flugr — briefing, rates, and escrow-ready brand deals."
             )
 
     if role in {"influencer", "creator"}:

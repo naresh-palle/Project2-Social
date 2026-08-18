@@ -9,8 +9,8 @@ export function Footer() {
     >
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
         <div>
-          <div className="font-editorial text-3xl font-bold mb-3">
-            CR8 <span className="italic text-[#FF3B30]">STUDIO</span>
+          <div className="font-editorial text-3xl font-bold mb-3 italic">
+            flugr
           </div>
           <p className="text-xs text-white/60 leading-relaxed max-w-xs">
             “The studio for influencers who move markets.” Connecting elite brands with verified influencers through AI matching and escrow protection.
@@ -30,7 +30,7 @@ export function Footer() {
         <div>
           <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF3B30] font-bold mb-4">COMPANY</h4>
           <ul className="space-y-2 text-xs text-white/70">
-            <li><Link to="/" className="hover:text-white">Studio Manifesto</Link></li>
+            <li><Link to="/" className="hover:text-white">flugr Manifesto</Link></li>
             <li><Link to="/" className="hover:text-white">Transparent Pricing</Link></li>
             <li><Link to="/" className="hover:text-white">Case Studies</Link></li>
             <li><Link to="/" className="hover:text-white">FAQ &amp; Support</Link></li>
@@ -55,7 +55,7 @@ export function Footer() {
       </div>
 
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-6 flex flex-wrap items-center justify-between text-xs text-white/40 gap-4">
-        <div>© {new Date().getFullYear()} CR8 Studio. All rights reserved.</div>
+        <div>© {new Date().getFullYear()} flugr. All rights reserved.</div>
         <div className="flex gap-6">
           <Link to="/legal/privacy" className="hover:text-white">Privacy Policy</Link>
           <Link to="/legal/terms" className="hover:text-white">Terms of Service</Link>

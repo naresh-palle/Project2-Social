@@ -184,7 +184,7 @@ export default function PublicProfile() {
                 }}
               >
                 <div className="w-full h-full flex items-center justify-center opacity-10">
-                  <span className="font-editorial italic text-8xl md:text-9xl font-bold text-[#FF3B30] select-none">CR8</span>
+                  <span className="font-editorial italic text-8xl md:text-9xl font-bold text-[#FF3B30] select-none">flugr</span>
                 </div>
               </div>
             )}
@@ -197,7 +197,7 @@ export default function PublicProfile() {
               )}
               <div
                 className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
-                style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                style={{ backgroundColor: `hsl(${((displayName || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
               >
                 {(displayName || "?")[0]?.toUpperCase()}
               </div>

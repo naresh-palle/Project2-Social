@@ -34,7 +34,7 @@ export function InvoicePreview({ invoice, demo = false }) {
           {supplier.logo_url ? (
             <img src={supplier.logo_url} alt="" className="h-10 w-auto object-contain mb-2" />
           ) : (
-            <p className="font-editorial text-2xl text-[#FF3B30] italic">CR8</p>
+            <p className="font-editorial text-2xl text-[#FF3B30] italic">flugr</p>
           )}
           <p className="font-semibold text-sm">{supplier.trade_name || supplier.legal_name || "Supplier"}</p>
           <p className={theme.muted}>{supplier.address}</p>

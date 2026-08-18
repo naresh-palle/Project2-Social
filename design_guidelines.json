@@ -1,5 +1,5 @@
 {
-  "project_name": "CR8",
+  "project_name": "flugr",
   "theme": "Editorial Luxury / High-Contrast Swiss",
   "typography": {
     "headings": "Playfair Display",
@@ -37,14 +37,14 @@
   "motion_and_interactions": {
     "scroll": "Lenis for momentum scrolling. A must for the editorial feel.",
     "animations": "Framer Motion. All sections must use scroll-triggered entry (fade up + slight scale).",
-    "hero_moment": "Masked line-by-line text reveal for the 'CR8' wordmark. Oversized text (text-[15vw] or clamp). Uses framer-motion 'initial={{ y: 100% }} animate={{ y: 0 }}' wrapped in an overflow-hidden mask.",
+    "hero_moment": "Masked line-by-line text reveal for the 'flugr' wordmark. Oversized text (text-[15vw] or clamp). Uses framer-motion 'initial={{ y: 100% }} animate={{ y: 0 }}' wrapped in an overflow-hidden mask.",
     "hover_states": "Images in grids get a slight scale-up (scale-105) and a spotlight/color saturation bump on hover."
   },
   "layouts": {
     "marketing_page": [
       {
         "section": "Hero",
-        "description": "Massive kinetic CR8 wordmark. Line-by-line reveal. Background uses a subtle dark film grain texture and a clipped spotlight image of a fashion model.",
+        "description": "Massive kinetic flugr wordmark. Line-by-line reveal. Background uses a subtle dark film grain texture and a clipped spotlight image of a fashion model.",
         "grid": "grid-cols-12, heavily asymmetrical."
       },
       {

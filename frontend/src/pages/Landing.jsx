@@ -73,7 +73,7 @@ function Hero() {
       >
         <img
           src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
-          alt="CR8 Influencer Models"
+          alt="flugr Influencer Models"
           className="w-full h-full object-cover object-top"
         />
         <div className="absolute inset-0" style={{
@@ -114,8 +114,8 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.1 }}
         >
-          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">CR8 × STUDIO</span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">STUDIO ARCHITECTURE</span>
+          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">flugr</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">CREATOR MARKETPLACE</span>
         </motion.div>
 
         <div className="flex flex-col justify-center gap-2 my-auto">
@@ -225,7 +225,7 @@ function QuickValue() {
                 § Slide 02 · Quick Value
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
-                WHY INFLUENCERS &amp; BRANDS <span className="italic text-[#FF3B30]">CHOOSE CR8</span>
+                WHY INFLUENCERS &amp; BRANDS <span className="italic text-[#FF3B30]">CHOOSE FLUGR</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
@@ -339,7 +339,7 @@ const CHAPTERS_WITH_MEANS = [
   {
     n: "01",
     title: "A studio, not a marketplace.",
-    body: "CR8 is curated. Every brand is briefed, every influencer is credentialed. No open bidding wars, no race to the bottom.",
+    body: "flugr is curated. Every brand is briefed, every influencer is credentialed. No open bidding wars, no race to the bottom.",
     means: "Only serious brands. Only serious influencers. Higher quality collaborations."
   },
   {
@@ -351,7 +351,7 @@ const CHAPTERS_WITH_MEANS = [
   {
     n: "03",
     title: "Craft is contagious.",
-    body: "When brands fund culture instead of clout, work gets better on both sides. CR8 exists to keep both parties honest and slightly obsessive.",
+    body: "When brands fund culture instead of clout, work gets better on both sides. flugr exists to keep both parties honest and slightly obsessive.",
     means: "Higher quality content. Better brand storytelling. Real creative partnerships."
   },
   {
@@ -369,7 +369,7 @@ function Manifesto() {
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
-              § Slide 03 · Studio Manifesto
+              § Slide 03 · flugr Manifesto
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#F4F4F0]">
               Four Principles <span className="italic text-[#FF3B30]">of Intent</span>
@@ -457,7 +457,7 @@ function HowItWorks() {
                 § Slide 04 · Journey
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                HOW IT WORKS <span className="italic">· Two Doors · One Studio</span>
+                HOW IT WORKS <span className="italic">· Two Doors · One Marketplace</span>
               </h2>
             </div>
             <div className="hidden md:flex gap-4 font-mono text-[11px] tracking-[0.2em] uppercase font-bold">
@@ -505,7 +505,7 @@ function HowItWorks() {
         <div className="mt-8 p-6 bg-[#121212] border border-white/15 rounded-xs flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="font-mono text-xs text-white/70 space-y-1">
             <div className="flex items-center gap-2 text-white font-bold">
-              <CheckCircle2 className="w-4 h-4 text-[#34C759]" /> Contracts &amp; Deliverables Handled Inside Studio
+              <CheckCircle2 className="w-4 h-4 text-[#34C759]" /> Contracts &amp; Deliverables Handled Inside flugr
             </div>
             <p className="text-[11px] opacity-60">Escrow-protected for both sides · Timeline from brief start to payment: 2–3 weeks</p>
           </div>
@@ -536,7 +536,7 @@ function SocialProof() {
       niche: "Fashion & Style",
       followers: "150K followers",
       photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
-      quote: "Joined CR8 3 months ago. Got 5 brand deals in first week. Now I do 2-3 campaigns per month. Direct relationships with brands = way better rates than agencies.",
+      quote: "Joined flugr 3 months ago. Got 5 brand deals in first week. Now I do 2-3 campaigns per month. Direct relationships with brands = way better rates than agencies.",
       rating: "⭐⭐⭐⭐⭐ (5/5)",
       highlight: "Earnings this month: ₹2,50,000"
     },
@@ -547,7 +547,7 @@ function SocialProof() {
       niche: "Mumbai, India",
       followers: "Verified Brand",
       photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-      quote: "Used to work with traditional agencies. Now we use CR8. Direct access to influencers. Better content. Faster turnaround. 40% cost savings on agency overhead.",
+      quote: "Used to work with traditional agencies. Now we use flugr. Direct access to influencers. Better content. Faster turnaround. 40% cost savings on agency overhead.",
       rating: "⭐⭐⭐⭐⭐ (5/5)",
       highlight: "12 successful campaigns this quarter"
     },
@@ -558,7 +558,7 @@ function SocialProof() {
       niche: "Bangalore, India",
       followers: "Verified Enterprise",
       photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
-      quote: "CR8 replaced our entire influencer team. Better influencers. Better prices. Zero management overhead. This is the future of digital campaigns.",
+      quote: "flugr replaced our entire influencer team. Better influencers. Better prices. Zero management overhead. This is the future of digital campaigns.",
       rating: "⭐⭐⭐⭐⭐ (5/5)",
       highlight: "50+ influencers on monthly retainer"
     }
@@ -729,7 +729,7 @@ function FeaturedGrid() {
                 SELECTED WORK <span className="italic text-[#FF3B30]">SHOWCASE</span>
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from CR8 Influencers (Auto-Expanding Grid)</span>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from flugr Influencers (Auto-Expanding Grid)</span>
           </div>
         </FadeUp>
 
@@ -763,7 +763,7 @@ function FeaturedGrid() {
         {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
         <div className="bg-[#121212] text-[#F4F4F0] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
           <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ STUDIO SIGNAL (Metrics)</span>
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">§ FLUGR SIGNAL (Metrics)</span>
             <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#34C759] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
@@ -903,7 +903,7 @@ function PricingSection() {
    SLIDE 08: FAQ (Objection Handling)
    ========================================================================= */
 const EXPANDED_FAQS = [
-  { q: "How do I know a campaign is legitimate? (For Influencers)", a: "Every brand on CR8 is verified. We vet company registration, check bank details, and review past payment history. Escrow means we hold 100% of funds before you create. You're protected." },
+  { q: "How do I know a campaign is legitimate? (For Influencers)", a: "Every brand on flugr is verified. We vet company registration, check bank details, and review past payment history. Escrow means we hold 100% of funds before you create. You're protected." },
   { q: "What if a brand doesn't approve my deliverables? (For Influencers)", a: "Our dispute team steps in. If the brand request is unreasonable, we release payment to you. If revisions are fair, you have 5 days to resubmit. We protect both sides." },
   { q: "How does influencer matching work? (For Brands)", a: "We use AI to analyze follower demographics, engagement rates, audience overlap, and past campaign performance. Not just follower count — we find influencers whose audiences actually buy." },
   { q: "Can I work with the same influencer multiple times? (For Brands)", a: "Yes! Influencers keep all their contacts from past campaigns. Many brands hire the same influencer 5-10+ times. Direct relationships lead to better work." },

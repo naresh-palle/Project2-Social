@@ -359,7 +359,7 @@ def setup_discovery(
             "languages (string[]), location, city, state, country, "
             "followers_min, followers_max, engagement_rate_min, price_max, verified (bool), "
             "tiers (nano|micro|mid|macro|mega[]), q (string). "
-            "Do not invent creators. Niches should map to CR8 categories like "
+            "Do not invent creators. Niches should map to flugr categories like "
             "Technology & Gadgets, Fashion & Style, Beauty & Makeup, Food & Cooking."
         )
         try:
@@ -666,7 +666,7 @@ def setup_discovery(
         merged = validate_filters({**filters, **extra})
         try:
             text = await call_llm(
-                "You are the CR8 Discover assistant. Return JSON with keys: "
+                "You are the flugr Discover assistant. Return JSON with keys: "
                 "reply (string), action (search|compare|deep_research|shortlist|none), "
                 "filters (object, optional), creator_index (int, optional). "
                 "Do not invent creator names or metrics.",
@@ -691,7 +691,7 @@ def setup_discovery(
         cards = await _post_filter(cards, merged)
         cards = _sort_cards(cards, "quality")
         if not reply:
-            reply = f"I found {total} matching creators in the CR8 catalog. Showing the top {min(len(cards), 10)} by quality score."
+            reply = f"I found {total} matching creators in the flugr catalog. Showing the top {min(len(cards), 10)} by quality score."
         return {
             "reply": reply,
             "action": action,

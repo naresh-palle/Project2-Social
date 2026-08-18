@@ -13,7 +13,7 @@ class LegalPage extends StatelessWidget {
       'ftc': 'FTC Guidelines',
     };
     final bodies = {
-      'terms': 'By using CR8 Studio you agree to marketplace collaboration rules, escrow workflows, and acceptable use. Content you upload remains yours; you grant CR8 a license to display it for campaigns.',
+      'terms': 'By using flugr you agree to marketplace collaboration rules, escrow workflows, and acceptable use. Content you upload remains yours; you grant flugr a license to display it for campaigns.',
       'privacy': 'We process account, profile, messaging, and campaign data to operate the marketplace. You may export or delete your account from Settings. Contact hello@cr8.studio for privacy requests (GDPR/CCPA).',
       'cookies': 'The web app uses essential cookies/local storage for auth (cr8_token). Mobile uses secure storage instead of cookies.',
       'ftc': 'Influencers and brands must disclose paid partnerships clearly (#ad / paid partnership) in published content.',

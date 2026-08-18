@@ -1,4 +1,4 @@
-"""Deterministic Indian GST invoice engine for CR8.
+"""Deterministic Indian GST invoice engine for flugr.
 
 Source of truth for taxable value, CGST/SGST/UTGST/IGST, TDS (configurable),
 rounding, invoice numbers, GSTIN/PAN format checks, and amount-in-words.
@@ -25,7 +25,7 @@ TAX_DISCLAIMER = (
     "GST, TDS, SAC/HSN, place-of-supply and other tax treatments depend on the "
     "specific transaction and applicable Indian law. Verify the applicable "
     "treatment with your tax professional before issuing a final tax invoice. "
-    "CR8 AI is not a substitute for a CA or tax professional."
+    "flugr AI is not a substitute for a CA or tax professional."
 )
 
 # Official GST state / UT codes (GSTIN first two digits).
@@ -501,7 +501,7 @@ def amount_in_words(value: Any) -> str:
 
 
 def format_invoice_number(prefix: str, fy: str, seq: int, width: int = 4) -> str:
-    pref = re.sub(r"[^A-Za-z0-9]", "", prefix or "CR8")[:6] or "CR8"
+    pref = re.sub(r"[^A-Za-z0-9]", "", prefix or "FLU")[:6] or "flugr"
     num = str(int(seq)).zfill(max(1, min(width, 8)))
     serial = f"{pref}/{fy}/{num}"
     if len(serial) <= 16:
@@ -711,7 +711,7 @@ def party_from_user(user: Optional[Dict[str, Any]]) -> Dict[str, Any]:
 def default_settings(user: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     fy = financial_year()
     return {
-        "prefix": "CR8",
+        "prefix": "FLU",
         "financial_year": fy,
         "starting_number": 1,
         "number_width": 4,
@@ -783,10 +783,10 @@ def demo_pack() -> Dict[str, Any]:
         "company": recipient,
         "campaign": {
             "name": "Smartphone Launch Campaign",
-            "campaign_id": "CR8-CAMP-2026-0012",
+            "campaign_id": "FLUGR-CAMP-2026-0012",
         },
         "invoice": {
-            "invoice_number": "CR8/2026-27/0001",
+            "invoice_number": "FLU/2026-27/0001",
             "status": "paid",
             **computed,
         },

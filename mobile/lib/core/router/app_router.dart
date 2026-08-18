@@ -170,7 +170,7 @@ class _AuthSplashPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'CR8',
+              'flugr',
               style: TextStyle(
                 color: Cr8Colors.text,
                 fontSize: 48,
@@ -232,7 +232,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   child: Row(
                     children: [
                       Text(
-                        'CR8 × STUDIO',
+                        'flugr',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Cr8Colors.accent,
                               letterSpacing: 3.2,
@@ -255,7 +255,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   animation: _intro,
                   interval: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
                   child: Text(
-                    'CR8',
+                    'flugr',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
                           fontStyle: FontStyle.italic,
                           fontSize: 72,

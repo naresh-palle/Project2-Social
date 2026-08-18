@@ -287,7 +287,7 @@ def setup_phase1(
             email = (await db.users.find_one({"id": user_id}, {"email": 1}) or {}).get("email")
             if email:
                 try:
-                    await send_email(email, f"CR8 — {kind}", email_template(text, f"<p>{text}</p>"))
+                    await send_email(email, f"flugr — {kind}", email_template(text, f"<p>{text}</p>"))
                 except Exception:
                     pass
 
@@ -394,7 +394,7 @@ def setup_phase1(
             raise HTTPException(status_code=501, detail="2FA library not installed")
         secret = pyotp.random_base32()
         await db.users.update_one({"id": current["id"]}, {"$set": {"two_fa_secret_pending": secret}})
-        uri = pyotp.TOTP(secret).provisioning_uri(name=current.get("email") or current["id"], issuer_name="CR8 Studio")
+        uri = pyotp.TOTP(secret).provisioning_uri(name=current.get("email") or current["id"], issuer_name="flugr")
         return {"secret": secret, "otpauth_uri": uri}
 
     @api_router.post("/auth/2fa/enable")
@@ -1636,7 +1636,7 @@ def setup_phase1(
         sample = str(rows[:20]) # Limit to 20 rows to avoid token overflow
         prompt = f"Analyze this sample of exported user data and write a short, professional executive summary of the demographics and platform activity:\n{sample}"
         try:
-            summary = await _llm("You are an expert data analyst for CR8 Studio.", prompt)
+            summary = await _llm("You are an expert data analyst for flugr.", prompt)
         except Exception:
             summary = "AI analysis failed. Please try again."
             

@@ -155,7 +155,7 @@ export default function ProfileView() {
           ) : (
             <div
               className="w-20 h-20 rounded-full border-2 border-white/10 flex items-center justify-center"
-              style={{ backgroundColor: `hsl(${((displayName || "CR8").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+              style={{ backgroundColor: `hsl(${((displayName || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
             >
               <span className="font-sans text-2xl font-bold text-white">{(displayName || "?")[0]?.toUpperCase()}</span>
             </div>
