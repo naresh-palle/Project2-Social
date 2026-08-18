@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Twitter, Facebook } from "lucide-react";
+import { ChevronRight, Loader2, Plus, X, Instagram, Youtube, Facebook } from "lucide-react";
+import { XLogo } from "@/components/XLogo";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -521,7 +522,7 @@ const toggleCategory = (c) => {
                       <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#34C759] text-[#34C759] bg-[#34C759]/10" : "border-white/10 hover:border-white/30 text-white/70"}`}>
                           {plat === "instagram" && <Instagram className="w-8 h-8" />}
                           {plat === "facebook" && <Facebook className="w-8 h-8" />}
-                          {plat === "twitter" && <Twitter className="w-8 h-8" />}
+                          {plat === "twitter" && <XLogo className="w-8 h-8" />}
                           {plat === "youtube" && <Youtube className="w-8 h-8" />}
                       </button>
                    );

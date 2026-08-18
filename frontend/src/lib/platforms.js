@@ -1,4 +1,5 @@
-import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
+import { Instagram, Facebook, Youtube } from "lucide-react";
+import { XLogo } from "@/components/XLogo";
 
 /** Canonical social platform order across Edit Profile, Profile, Influencer Detail, etc. */
 export const SOCIAL_PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
@@ -6,14 +7,14 @@ export const SOCIAL_PLATFORMS = ["facebook", "instagram", "twitter", "youtube"];
 export const SOCIAL_PLATFORM_LABELS = {
   facebook: "Facebook",
   instagram: "Instagram",
-  twitter: "X (Twitter)",
+  twitter: "X",
   youtube: "YouTube",
 };
 
 export const SOCIAL_PLATFORM_ICONS = {
   facebook: Facebook,
   instagram: Instagram,
-  twitter: Twitter,
+  twitter: XLogo,
   youtube: Youtube,
 };
 

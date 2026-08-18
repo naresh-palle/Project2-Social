@@ -36,7 +36,7 @@ const SUPPORT_ROLES = new Set(["support", "support_agent", "support_lead", "supp
 
 function statusClass(status) {
   if (status === "open" || status === "new") return "bg-[#34C759]/20 text-[#34C759] border border-[#34C759]/30";
-  if (["in_progress", "waiting_user", "pending_user", "pending_support", "assigned"].includes(status)) {
+  if (["in_progress", "waiting_user", "pending_user", "pending_support", "assigned", "investigating", "action_required"].includes(status)) {
     return "bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30";
   }
   return "bg-white/10 text-white/40 border border-white/10";
@@ -269,7 +269,7 @@ export default function SupportCenter() {
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Category</label>
                       <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm">
-                        {["Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Other"].map((c) => (
+                        {["Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Social Media Audit", "Other"].map((c) => (
                           <option key={c} className="bg-[#121212]" value={c}>{c}</option>
                         ))}
                       </select>

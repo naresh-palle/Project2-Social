@@ -39,6 +39,9 @@ export function getSidebarItems(user) {
       : []),
     { to: "/wallet", label: "Wallet", icon: "wallet" },
     { to: "/billing", label: "Billing", icon: "billing" },
+    ...(user?.role === "influencer" || user?.role === "owner" || user?.role === "agent"
+      ? [{ to: "/social-audit", label: "Social Audit", icon: "audit" }]
+      : []),
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
   ];
@@ -104,6 +107,7 @@ export function isNavItemActive(it, location, user) {
     if (it.to === "/messages") return location.pathname === "/messages";
     if (it.to === "/wallet") return location.pathname === "/wallet";
     if (it.to === "/billing") return location.pathname === "/billing" || location.pathname.startsWith("/billing/");
+    if (it.to === "/social-audit") return location.pathname === "/social-audit";
     if (it.to === "/profile") return location.pathname.startsWith("/profile");
     return location.pathname === it.to;
   }

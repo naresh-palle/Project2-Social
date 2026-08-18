@@ -27,31 +27,31 @@ const AI_STATUS_OPTS = [
 const QUEUE_PRESETS = {
   all: { status: "", assignment: "", userType: "", escalated: false },
   unassigned: {
-    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    status: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling",
     assignment: "unassigned",
     userType: "",
     escalated: false,
   },
   mine: {
-    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    status: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling",
     assignment: "mine",
     userType: "",
     escalated: false,
   },
   influencer: {
-    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    status: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling",
     assignment: "",
     userType: "influencer",
     escalated: false,
   },
   company: {
-    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    status: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling",
     assignment: "",
     userType: "company",
     escalated: false,
   },
   agent: {
-    status: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling",
+    status: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling",
     assignment: "",
     userType: "agent",
     escalated: false,
@@ -61,12 +61,14 @@ const QUEUE_PRESETS = {
 };
 
 const STATUS_OPTS = [
-  { id: "new,open,assigned,in_progress,pending_user,pending_support,reopened,ai_handling", label: "Active" },
+  { id: "new,open,assigned,investigating,in_progress,action_required,pending_user,pending_support,reopened,ai_handling", label: "Active" },
   { id: "new", label: "New" },
   { id: "ai_handling", label: "AI Handling" },
   { id: "open", label: "Open" },
   { id: "assigned", label: "Assigned" },
+  { id: "investigating", label: "Investigating" },
   { id: "in_progress", label: "In Progress" },
+  { id: "action_required", label: "Action Required" },
   { id: "pending_user", label: "Pending User" },
   { id: "pending_support", label: "Pending Support" },
   { id: "resolved", label: "Resolved" },
@@ -112,6 +114,18 @@ const PRIORITY_OPTIONS = [
   { value: "Critical", label: "Critical", icon: iconSm(AlertTriangle, "text-[#FF3B30]") },
 ];
 
+const CATEGORY_OPTIONS = [
+  { value: "", label: "All categories", icon: iconSm(Filter) },
+  { value: "Social Media Audit", label: "Social Media Audit", icon: iconSm(Sparkles, "text-[#FF3B30]") },
+  { value: "Payment", label: "Payment", icon: iconSm(CircleDot) },
+  { value: "Account", label: "Account", icon: iconSm(CircleDot) },
+  { value: "Technical Bug", label: "Technical Bug", icon: iconSm(CircleDot) },
+  { value: "Dispute", label: "Dispute", icon: iconSm(CircleDot) },
+  { value: "Campaign", label: "Campaign", icon: iconSm(CircleDot) },
+  { value: "Profile", label: "Profile", icon: iconSm(CircleDot) },
+  { value: "Other", label: "Other", icon: iconSm(CircleDot) },
+];
+
 const AI_OPTIONS = AI_STATUS_OPTS.map((a) => ({
   value: a.id,
   label: a.label,
@@ -120,7 +134,7 @@ const AI_OPTIONS = AI_STATUS_OPTS.map((a) => ({
 
 function statusClass(status) {
   if (status === "new" || status === "open") return "bg-[#34C759]/20 text-[#34C759] border-[#34C759]/30";
-  if (["in_progress", "assigned", "pending_user", "pending_support", "ai_handling", "reopened"].includes(status)) {
+  if (["in_progress", "assigned", "investigating", "action_required", "pending_user", "pending_support", "ai_handling", "reopened"].includes(status)) {
     return "bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30";
   }
   return "bg-white/10 text-white/40 border-white/10";
@@ -158,12 +172,14 @@ export default function SupportDashboard() {
   const [userType, setUserType] = useState("");
   const [statusFilter, setStatusFilter] = useState(STATUS_OPTS[0].id);
   const [priority, setPriority] = useState("");
+  const [category, setCategory] = useState("");
   const [aiStatus, setAiStatus] = useState("");
   const [assignmentAgent, setAssignmentAgent] = useState("");
   const [q, setQ] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState(null);
+  const [auditHistory, setAuditHistory] = useState([]);
   const [reply, setReply] = useState("");
   const [busy, setBusy] = useState(false);
   const [newStaff, setNewStaff] = useState({
@@ -238,6 +254,7 @@ export default function SupportDashboard() {
 
       if (ut) params.set("user_type", ut);
       if (priority) params.set("priority", priority);
+      if (category) params.set("category", category);
       if (aiStatus) params.set("ai_status", aiStatus);
       if (q.trim()) params.set("q", q.trim());
       if (st) params.set("status", st);
@@ -249,7 +266,7 @@ export default function SupportDashboard() {
     } catch {
       toast.error("Failed to load tickets");
     }
-  }, [userType, priority, q, statusFilter, aiStatus, assignmentAgent, queue]);
+  }, [userType, priority, category, q, statusFilter, aiStatus, assignmentAgent, queue]);
 
   const loadAgents = useCallback(async () => {
     if (!canAssign) return;
@@ -322,6 +339,7 @@ export default function SupportDashboard() {
   const openTicket = async (id) => {
     setSelectedId(id);
     setBusy(true);
+    setAuditHistory([]);
     try {
       const { data } = await api.get(`/support/tickets/${id}`);
       setDetail(data);
@@ -329,6 +347,13 @@ export default function SupportDashboard() {
       setTagInput((data.ticket?.tags || []).join(", "));
       if (data.permissions) setPerms(data.permissions);
       if (tab !== "tickets") setTab("tickets", queue || "all");
+      const uid = data.ticket?.user_id;
+      if (uid && (data.ticket?.social_audit || data.ticket?.category === "Social Media Audit")) {
+        try {
+          const { data: ah } = await api.get(`/social-audit/user/${uid}?limit=8`);
+          setAuditHistory(ah.audits || []);
+        } catch { /* optional */ }
+      }
     } catch {
       toast.error("Failed to open ticket");
       setSelectedId(null);
@@ -477,13 +502,29 @@ export default function SupportDashboard() {
   const ticket = detail?.ticket;
 
   const statusButtons = useMemo(() => {
-    const all = ["open", "assigned", "in_progress", "pending_user", "pending_support", "resolved", "closed", "reopened"];
+    const all = ["open", "assigned", "investigating", "in_progress", "action_required", "pending_user", "pending_support", "resolved", "closed", "reopened"];
     return all.filter((s) => {
       if (s === "resolved" || s === "closed") return canResolve;
       if (s === "reopened") return canReopen;
       return perms.includes("support.tickets.update");
     });
   }, [perms, canResolve, canReopen]);
+
+  const retryAudit = async () => {
+    const uid = ticket?.user_id;
+    if (!uid) return;
+    setBusy(true);
+    try {
+      const { data } = await api.post(`/social-audit/user/${uid}/retry`);
+      toast.success(`Audit re-run — ${data.status} (score ${data.score})`);
+      const { data: ah } = await api.get(`/social-audit/user/${uid}?limit=8`);
+      setAuditHistory(ah.audits || []);
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Retry failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const pageTitle = {
     dashboard: "Dashboard",
@@ -714,6 +755,7 @@ export default function SupportDashboard() {
                 <MenuSelect label="User type" value={userType} onChange={setUserType} options={USER_TYPE_OPTIONS} />
                 <MenuSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={STATUS_OPTIONS} />
                 <MenuSelect label="Priority" value={priority} onChange={setPriority} options={PRIORITY_OPTIONS} />
+                <MenuSelect label="Category" value={category} onChange={setCategory} options={CATEGORY_OPTIONS} />
                 <MenuSelect label="AI status" value={aiStatus} onChange={setAiStatus} options={AI_OPTIONS} />
                 {canAssign ? (
                   <MenuSelect label="Assignment" value={assignmentAgent} onChange={setAssignmentAgent} options={assignmentOptions} />
@@ -777,6 +819,57 @@ export default function SupportDashboard() {
                     <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
                     {detail.user_context.handle && <div>@{String(detail.user_context.handle).replace(/^@/, "")}</div>}
                     {detail.user_context.company && <div>{detail.user_context.company}</div>}
+                  </div>
+                )}
+
+                {ticket.social_audit && (
+                  <div className="mb-3 p-3 rounded-2xl border border-[#FF3B30]/25 bg-[#FF3B30]/5 text-xs space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Social Media Audit</div>
+                      {can("support.tickets.update") && (
+                        <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF3B30]/50">
+                          Retry audit
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-white/80">
+                      Score <span className="tabular-nums font-semibold">{ticket.social_audit.audit_score ?? "—"}</span>
+                      {" · "}{ticket.social_audit.audit_status || "—"}
+                      {" · "}{ticket.social_audit.platform || "—"}
+                      {ticket.social_audit.account ? ` · @${String(ticket.social_audit.account).replace(/^@/, "")}` : ""}
+                    </div>
+                    <p className="text-white/60">{ticket.social_audit.issue_description}</p>
+                    {ticket.social_audit.recommended_action && (
+                      <p className="text-white/45">Fix: {ticket.social_audit.recommended_action}</p>
+                    )}
+                    <p className="font-mono text-[9px] text-white/35">
+                      Audit {ticket.social_audit.audit_id} · scraper {ticket.social_audit.scraper_status || "—"} · {fmtTs(ticket.social_audit.audit_timestamp)}
+                    </p>
+                    {auditHistory.length > 0 && (
+                      <div className="pt-2 border-t border-white/10 space-y-1">
+                        <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">Audit history</div>
+                        {auditHistory.slice(0, 5).map((a) => (
+                          <div key={a.id} className="flex justify-between gap-2 text-[11px] text-white/55">
+                            <span>{a.status} · score {a.score}</span>
+                            <span className="font-mono text-[9px]">{fmtTs(a.created_at)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {(ticket.history || []).length > 0 && (
+                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] max-h-28 overflow-y-auto">
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1.5">Timeline</div>
+                    {(ticket.history || []).slice().reverse().map((h, i) => (
+                      <div key={i} className="text-[11px] text-white/55 py-0.5 border-b border-white/5 last:border-0">
+                        <span className="text-white/80">{h.actor_name}</span>
+                        {" · "}{(h.action || "").replace(/_/g, " ")}
+                        {h.previous_status || h.new_status ? ` · ${h.previous_status || "—"} → ${h.new_status || "—"}` : ""}
+                        <span className="font-mono text-[9px] text-white/35 ml-1">{fmtTs(h.timestamp)}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
 

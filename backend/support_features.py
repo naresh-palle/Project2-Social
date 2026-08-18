@@ -168,11 +168,11 @@ PERMS["admin"] = set(_ALL_PERMS)
 PERMS[LEGACY_SUPPORT] = set(PERMS[SUPPORT_AGENT])
 PERMS[SUPPORT_LEAD] = PERMS[SUPPORT_LEAD] | PERMS[SUPPORT_AGENT]
 
-TICKET_CATEGORIES = ("Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Other")
+TICKET_CATEGORIES = ("Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Social Media Audit", "Other")
 TICKET_PRIORITIES = ("Low", "Medium", "High", "Critical")
 TICKET_STATUSES = (
-    "new", "ai_handling", "open", "assigned", "in_progress",
-    "pending_user", "pending_support", "resolved", "closed", "reopened",
+    "new", "ai_handling", "open", "assigned", "investigating", "in_progress",
+    "action_required", "pending_user", "pending_support", "resolved", "closed", "reopened",
 )
 AI_STATUSES = ("ai_handling", "ai_resolved", "ai_escalated", "human_handling", "none")
 
@@ -475,6 +475,18 @@ def setup_support(
             "sla_due_at": _sla_due(inp.priority),
             "sla_breached": False,
             "internal_notes": [],
+            "history": [
+                {
+                    "actor_id": current["id"],
+                    "actor_name": current.get("name") or current.get("username"),
+                    "actor_role": current.get("role"),
+                    "action": "created",
+                    "previous_status": None,
+                    "new_status": "new" if ai_status == "ai_escalated" else "open",
+                    "comment": inp.subject.strip()[:200],
+                    "timestamp": now,
+                }
+            ],
             "created_at": now,
             "updated_at": now,
         }
@@ -867,18 +879,35 @@ def setup_support(
         if ticket.get("assignee_id") and ticket.get("assignee_id") != current["id"]:
             if not has_perm(current, "support.tickets.assign"):
                 raise HTTPException(status_code=400, detail="Ticket already assigned")
+        prev = ticket.get("status")
+        now = now_iso()
+        hist = {
+            "actor_id": current["id"],
+            "actor_name": current.get("name") or current.get("username"),
+            "actor_role": current.get("role"),
+            "action": "claimed",
+            "previous_status": prev,
+            "new_status": "assigned",
+            "comment": "Ticket claimed",
+            "timestamp": now,
+        }
         await db.support_tickets.update_one(
             {"id": ticket_id},
-            {"$set": {
-                "assignee_id": current["id"],
-                "assignee_name": current.get("name"),
-                "status": "assigned",
-                "ai_status": "human_handling",
-                "updated_at": now_iso(),
-            }},
+            {
+                "$set": {
+                    "assignee_id": current["id"],
+                    "assignee_name": current.get("name"),
+                    "status": "assigned",
+                    "ai_status": "human_handling",
+                    "updated_at": now,
+                },
+                "$push": {"history": hist},
+            },
         )
         await _audit(current, "support_ticket_assigned", ticket_id=ticket_id, meta={"assignee_id": current["id"]})
         await _touch_last_active(current)
+        if ticket.get("user_id"):
+            await _notify(ticket["user_id"], f"Ticket {ticket.get('number')}", "Support assigned your ticket.")
         fresh = await _get_ticket_or_404(ticket_id)
         return {"ok": True, "ticket": _public_ticket(fresh, include_internal=True)}
 
@@ -905,8 +934,17 @@ def setup_support(
                 _require_perm(current, "support.tickets.reopen")
 
         updates: Dict[str, Any] = {"updated_at": now_iso()}
+        prev_status = ticket.get("status")
         if inp.status:
-            st = "pending_user" if inp.status == "waiting_user" else inp.status
+            st = inp.status
+            if st == "waiting_user":
+                st = "pending_user"
+            elif st == "investigating":
+                st = "investigating"
+            elif st == "action_required":
+                st = "action_required"
+            if st not in TICKET_STATUSES and st != "waiting_user":
+                raise HTTPException(status_code=400, detail="Invalid status")
             updates["status"] = st
         if inp.priority and staff:
             updates["priority"] = inp.priority
@@ -934,6 +972,23 @@ def setup_support(
                 if ticket.get("status") in ("new", "open", "ai_handling"):
                     updates["status"] = "assigned"
 
+        hist_entry = None
+        if "status" in updates and updates["status"] != prev_status:
+            hist_entry = {
+                "actor_id": current["id"],
+                "actor_name": current.get("name") or current.get("username"),
+                "actor_role": current.get("role"),
+                "action": "status_change",
+                "previous_status": prev_status,
+                "new_status": updates["status"],
+                "comment": (inp.internal_note or "").strip()[:500] if staff else "",
+                "timestamp": updates["updated_at"],
+            }
+
+        push_ops: Dict[str, Any] = {}
+        if hist_entry:
+            push_ops["history"] = hist_entry
+
         if inp.internal_note and staff:
             _require_perm(current, "support.tickets.internal_note")
             note = {
@@ -943,15 +998,26 @@ def setup_support(
                 "body": inp.internal_note.strip(),
                 "created_at": now_iso(),
             }
+            push_ops["internal_notes"] = note
             await db.support_tickets.update_one(
                 {"id": ticket_id},
-                {"$set": updates, "$push": {"internal_notes": note}},
+                {"$set": updates, "$push": push_ops} if push_ops else {"$set": updates},
             )
             await _audit(current, "support_internal_note", ticket_id=ticket_id)
         else:
-            await db.support_tickets.update_one({"id": ticket_id}, {"$set": updates})
+            op: Dict[str, Any] = {"$set": updates}
+            if push_ops:
+                op["$push"] = push_ops
+            await db.support_tickets.update_one({"id": ticket_id}, op)
             await _audit(current, "support_ticket_updated", ticket_id=ticket_id,
                          meta={k: updates[k] for k in updates if k != "updated_at"})
+
+        if staff and "status" in updates and updates["status"] != prev_status and ticket.get("user_id"):
+            label = str(updates["status"]).replace("_", " ")
+            body = f"Status is now {label}."
+            if updates["status"] in ("resolved", "closed"):
+                body = "Your ticket was resolved." if updates["status"] == "resolved" else "Your ticket was closed."
+            await _notify(ticket["user_id"], f"Ticket {ticket.get('number')}", body)
 
         fresh = await _get_ticket_or_404(ticket_id)
         if staff:

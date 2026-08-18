@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Instagram, Youtube, Twitter, Facebook, ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatUsername } from "@/lib/username";
 import { formatUserLocation } from "@/lib/location";
-import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA } from "@/lib/platforms";
+import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA, SOCIAL_PLATFORM_ICONS } from "@/lib/platforms";
 import { displayMetric, formatEngagementRate, engagementRateHint, formatCompactNumber, formatExactNumber } from "@/lib/socialAnalytics";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 
@@ -227,14 +227,14 @@ export default function CreatorDetail() {
               {SOCIAL_PLATFORMS.map((plat) => {
                 const pm = creator.platform_metrics?.[plat] || {};
                 const connected = hasPlatformHandle(pm);
-                const Icon = plat === "instagram" ? Instagram : plat === "youtube" ? Youtube : plat === "twitter" ? Twitter : Facebook;
+                const Icon = SOCIAL_PLATFORM_ICONS[plat];
                 const growth = Number(pm.growth) || 0;
                 const isGrowthPos = growth >= 0;
                 return (
                   <div key={plat} className={`p-3 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <Icon className="w-4 h-4 shrink-0 opacity-70" />
+                        {Icon ? <Icon className="w-4 h-4 shrink-0 opacity-70" /> : null}
                         <div className="min-w-0">
                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{SOCIAL_PLATFORM_LABELS[plat] || plat}</div>
                           <div className="font-mono text-xs truncate">{socialOrNA(pm.handle)}</div>

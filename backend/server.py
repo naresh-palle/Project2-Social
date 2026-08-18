@@ -4964,6 +4964,11 @@ async def on_startup():
     except Exception as e:
         logger.warning("support indexes/seed failed: %s", e)
     try:
+        if _social_audit_ensure_indexes:
+            await _social_audit_ensure_indexes()
+    except Exception as e:
+        logger.warning("social audit indexes failed: %s", e)
+    try:
         if _discovery_ensure_indexes:
             await _discovery_ensure_indexes()
     except Exception as e:
@@ -5048,6 +5053,20 @@ _support_ensure_indexes, _support_seed_users = setup_support(
     email_template=email_template,
     write_audit_log=write_audit_log,
     call_llm=call_llm,
+    logger=logger,
+)
+
+from social_audit import setup_social_audit  # noqa: E402
+
+_social_audit_ensure_indexes = setup_social_audit(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    clean=clean,
+    now_iso=now_iso,
+    push_notification=push_notification,
+    write_audit_log=write_audit_log,
     logger=logger,
 )
 

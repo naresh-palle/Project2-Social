@@ -32,6 +32,7 @@ import Onboarding from "@/pages/Onboarding";
 import { RequireAuth } from "@/components/RequireAuth";
 import SupportCenter from "@/pages/SupportCenter";
 import SupportDashboard from "@/pages/SupportDashboard";
+import SocialMediaAudit from "@/pages/SocialMediaAudit";
 import HelpChat from "@/pages/HelpChat";
 import Leaderboard from "@/pages/Leaderboard";
 import Referrals from "@/pages/Referrals";
@@ -87,6 +88,7 @@ function App() {
               <Route path="/campaigns/:id/edit" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign isEdit /></RequireAuth>} />
               <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
               <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
+              <Route path="/social-audit" element={<RequireAuth roles={["influencer", "owner", "agent"]}><SocialMediaAudit /></RequireAuth>} />
               <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />
               <Route path="/support/ops" element={<RequireAuth roles={["support", "support_agent", "support_lead", "support_admin"]}><SupportDashboard /></RequireAuth>} />
               <Route path="/help" element={<RequireAuth><HelpChat /></RequireAuth>} />
