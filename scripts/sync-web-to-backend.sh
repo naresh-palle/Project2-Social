@@ -18,5 +18,9 @@ if [[ -d build/icons ]]; then
   rm -rf "$ROOT/backend/web/icons"
   cp -a build/icons "$ROOT/backend/web/icons"
 fi
+if [[ -d build/brand ]]; then
+  rm -rf "$ROOT/backend/web/brand"
+  cp -a build/brand "$ROOT/backend/web/brand"
+fi
 echo "Synced frontend/build → backend/web (Render serves this)."
 echo "Next: push main for Render, then npm run deploy:gh-pages for GitHub Pages."
