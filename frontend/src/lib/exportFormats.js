@@ -429,7 +429,150 @@ export function exportAiReportPdf({
   blocks.push({ kind: "spacer", gap: 15 });
   blocks.push({ kind: "meta", text: `© flugr · Generated on ${dateLabel}` });
 
-  buildPdfFromBlocks(blocks, filename || `cr8-report-${dateLabel}`);
+  buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`);
+}
+
+function fmtAuditMetric(v, { allowZero = true } = {}) {
+  if (v == null || v === "") return "N/A";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return String(v);
+  if (!allowZero && n === 0) return "N/A";
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(n) >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
+const PLATFORM_LABELS = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  twitter: "X",
+  youtube: "YouTube",
+};
+
+/**
+ * Detailed Social Media Audit PDF (profile, platforms, issues, recommendations).
+ * Styled like the EdVantage-style audit sample — status, score, per-platform metrics, actions.
+ */
+export function exportSocialAuditPdf({ audit = {}, filename, exportedAt = "" } = {}) {
+  const when = exportedAt || audit.created_at || new Date().toISOString();
+  const dateLabel = String(when).slice(0, 10);
+  const timeLabel = String(when).slice(0, 19).replace("T", " ");
+  const name = audit.user_name || "Account";
+  const role = audit.user_role || "user";
+  const ov = audit.overview || {};
+  const completeness = audit.profile_completeness || {};
+  const freshness = audit.data_freshness || {};
+  const platforms = Array.isArray(audit.platforms) ? audit.platforms : [];
+  const issues = Array.isArray(audit.issues) ? audit.issues : [];
+  const warnings = Array.isArray(audit.warnings) ? audit.warnings : [];
+  const recommendations = Array.isArray(audit.recommendations) ? audit.recommendations : [];
+
+  const er =
+    ov.engagementRate == null || ov.engagementRate === ""
+      ? "N/A"
+      : `${Number(ov.engagementRate).toFixed(2)}%`;
+
+  const blocks = [
+    { kind: "h1", text: "flugr · Social Media Audit" },
+    { kind: "meta", text: `Detailed audit report · Generated ${timeLabel}` },
+    { kind: "meta", text: `Account: ${name} · Role: ${role} · Audit ID: ${audit.id || "—"}` },
+    { kind: "spacer", gap: 12 },
+    { kind: "h2", text: "1. Audit Summary" },
+    { kind: "body", text: `Overall status: ${audit.status || "—"}` },
+    { kind: "body", text: `Audit score: ${audit.score != null ? `${audit.score} / 100` : "N/A"}` },
+    { kind: "body", text: `Profile completeness: ${completeness.score != null ? `${completeness.score}%` : "N/A"}` },
+    { kind: "body", text: `Connected platforms: ${completeness.connected_platforms ?? platforms.filter((p) => p.connected).length}` },
+    { kind: "body", text: `Scraper / API status: ${audit.scraper_status || "—"}` },
+    {
+      kind: "body",
+      text: `Data freshness: ${
+        freshness.hours_since_sync != null
+          ? `${freshness.hours_since_sync}h since last sync (threshold ${freshness.stale_threshold_hours ?? 72}h)`
+          : "N/A"
+      }`,
+    },
+    { kind: "body", text: `Execution: ${audit.execution_status || "completed"}` },
+    { kind: "spacer", gap: 10 },
+    { kind: "h2", text: "2. Audience Overview" },
+    { kind: "body", text: `Followers: ${fmtAuditMetric(ov.followers)}` },
+    { kind: "body", text: `Engagement: ${fmtAuditMetric(ov.engagement)}` },
+    { kind: "body", text: `Engagement rate: ${er}${ov.engagementRateBasis ? ` (${ov.engagementRateBasis})` : ""}` },
+    { kind: "body", text: `Total views: ${fmtAuditMetric(ov.views, { allowZero: false })}` },
+    { kind: "body", text: `Total reach: ${fmtAuditMetric(ov.reach, { allowZero: false })} (actual reach only; N/A when unavailable)` },
+    { kind: "body", text: `Content count: ${fmtAuditMetric(ov.contentCount)}` },
+    { kind: "spacer", gap: 10 },
+    { kind: "h2", text: "3. Connected Platforms" },
+  ];
+
+  if (!platforms.length) {
+    blocks.push({ kind: "body", text: "No platform rows on this audit." });
+  } else {
+    platforms.forEach((p) => {
+      const label = PLATFORM_LABELS[p.platform] || p.platform || "Platform";
+      const erP =
+        p.engagementRate == null || p.engagementRate === ""
+          ? "N/A"
+          : `${Number(p.engagementRate).toFixed(2)}%`;
+      blocks.push({
+        kind: "body",
+        text: `${label}: ${p.connected ? `@${String(p.handle || "").replace(/^@/, "")}` : "Not connected"} · API ${p.api_status || "—"}`,
+      });
+      if (p.connected) {
+        blocks.push({
+          kind: "body",
+          text: `  Followers ${fmtAuditMetric(p.followers)} · Following ${fmtAuditMetric(p.following)} · ER ${erP} · Views ${fmtAuditMetric(p.views, { allowZero: false })} · Reach ${fmtAuditMetric(p.reach, { allowZero: false })} · Posts ${fmtAuditMetric(p.posts)}`,
+        });
+        if (p.last_synced) blocks.push({ kind: "body", text: `  Last synced: ${String(p.last_synced).slice(0, 19).replace("T", " ")}` });
+      }
+    });
+  }
+
+  blocks.push({ kind: "spacer", gap: 10 });
+  blocks.push({ kind: "h2", text: "4. Detected Issues" });
+  if (!issues.length) {
+    blocks.push({ kind: "body", text: "No issues detected on this audit." });
+  } else {
+    issues.forEach((iss, i) => {
+      blocks.push({
+        kind: "body",
+        text: `${i + 1}. [${iss.severity || "Medium"}] ${iss.title || "Issue"} (${PLATFORM_LABELS[iss.platform] || iss.platform || "—"})`,
+      });
+      blocks.push({ kind: "body", text: `  Account: ${iss.account || "—"} · Status: ${iss.status || "Open"}` });
+      if (iss.description) blocks.push({ kind: "body", text: `  ${iss.description}` });
+      if (iss.recommended_action) blocks.push({ kind: "body", text: `  Recommended: ${iss.recommended_action}` });
+      if (iss.detected_at) blocks.push({ kind: "body", text: `  Detected: ${String(iss.detected_at).slice(0, 19).replace("T", " ")}` });
+    });
+  }
+
+  blocks.push({ kind: "spacer", gap: 10 });
+  blocks.push({ kind: "h2", text: "5. Warnings" });
+  if (!warnings.length) {
+    blocks.push({ kind: "body", text: "No warnings." });
+  } else {
+    warnings.forEach((w, i) => blocks.push({ kind: "body", text: `${i + 1}. ${w}` }));
+  }
+
+  blocks.push({ kind: "spacer", gap: 10 });
+  blocks.push({ kind: "h2", text: "6. Recommendations" });
+  if (!recommendations.length) {
+    blocks.push({ kind: "body", text: "Keep syncing socials weekly for fresher audits." });
+  } else {
+    recommendations.forEach((r, i) => blocks.push({ kind: "body", text: `${i + 1}. ${r}` }));
+  }
+
+  blocks.push({ kind: "spacer", gap: 12 });
+  blocks.push({
+    kind: "meta",
+    text: "Metrics are taken from connected platforms / Apify sync. Reach is never inferred from views. Credentials and tokens are never included.",
+  });
+  blocks.push({ kind: "meta", text: "© flugr · Social Media Audit · Confidential" });
+
+  const safeName = String(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+  buildPdfFromBlocks(blocks, filename || `flugr-social-audit-${safeName || "report"}-${dateLabel}`);
 }
 
 /** Word-compatible HTML document (.doc). */

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { RefreshCw, AlertTriangle, CheckCircle2, LifeBuoy, Clock } from "lucide-react";
+import { RefreshCw, AlertTriangle, CheckCircle2, LifeBuoy, Clock, FileDown } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -15,6 +15,7 @@ import {
   formatEngagementRate,
   engagementRateHint,
 } from "@/lib/socialAnalytics";
+import { exportSocialAuditPdf } from "@/lib/exportFormats";
 
 const STATUS_COLOR = {
   Healthy: "text-[#34C759] border-[#34C759]/30 bg-[#34C759]/10",
@@ -92,6 +93,16 @@ export default function SocialMediaAudit() {
     }
   };
 
+  const exportPdf = () => {
+    if (!audit) return;
+    try {
+      exportSocialAuditPdf({ audit });
+      toast.success("Audit PDF downloaded");
+    } catch (e) {
+      toast.error(e?.message || "PDF export failed");
+    }
+  };
+
   if (blocked) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -113,15 +124,27 @@ export default function SocialMediaAudit() {
             Uses your connected platforms and Apify sync data — no duplicate scrapers.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={runAudit}
-          disabled={running}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF3B30]/50 text-xs uppercase tracking-wider disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${running ? "animate-spin" : ""}`} />
-          {running ? "Running…" : "Run audit"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={exportPdf}
+            disabled={!audit}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF3B30]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+            data-testid="social-audit-export-pdf"
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            Export PDF
+          </button>
+          <button
+            type="button"
+            onClick={runAudit}
+            disabled={running}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF3B30]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${running ? "animate-spin" : ""}`} />
+            {running ? "Running…" : "Run audit"}
+          </button>
+        </div>
       </div>
 
       {/* Summary */}

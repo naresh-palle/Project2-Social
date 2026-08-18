@@ -826,11 +826,38 @@ export default function SupportDashboard() {
                   <div className="mb-3 p-3 rounded-2xl border border-[#FF3B30]/25 bg-[#FF3B30]/5 text-xs space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Social Media Audit</div>
+                      <div className="flex flex-wrap gap-1.5 justify-end">
                       {can("support.tickets.update") && (
                         <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF3B30]/50">
                           Retry audit
                         </button>
                       )}
+                      <button
+                        type="button"
+                        disabled={busy || (!auditHistory[0] && !ticket.social_audit)}
+                        onClick={async () => {
+                          try {
+                            let doc = auditHistory[0];
+                            if (!doc && ticket.social_audit?.audit_id) {
+                              const { data } = await api.get(`/social-audit/${ticket.social_audit.audit_id}`);
+                              doc = data;
+                            }
+                            if (!doc) {
+                              toast.error("No audit document to export");
+                              return;
+                            }
+                            const { exportSocialAuditPdf } = await import("@/lib/exportFormats");
+                            exportSocialAuditPdf({ audit: doc });
+                            toast.success("Audit PDF downloaded");
+                          } catch (e) {
+                            toast.error(e.response?.data?.detail || e.message || "PDF export failed");
+                          }
+                        }}
+                        className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF3B30]/50"
+                      >
+                        Export PDF
+                      </button>
+                      </div>
                     </div>
                     <div className="text-white/80">
                       Score <span className="tabular-nums font-semibold">{ticket.social_audit.audit_score ?? "—"}</span>
