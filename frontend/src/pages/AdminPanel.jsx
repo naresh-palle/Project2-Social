@@ -3,7 +3,8 @@ import { api } from "@/lib/api";
 import { 
   Users, IndianRupee, Activity, Bell, Search, Download, Calendar, 
   ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, 
-  Trash2, Lock, ShieldCheck, Zap, FileText, Check, ShieldAlert, Sparkles
+  Trash2, Lock, ShieldCheck, Zap, FileText, Check, ShieldAlert, Sparkles,
+  LayoutGrid, List
 } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -32,10 +33,12 @@ const TAB_EXPORT_LABELS = {
   reports: "Reports",
   categories: "Categories",
   audit: "Audit Logs",
+  treasury: "Treasury",
+  briefs: "Briefs",
 };
 
-/** Only tabs with real, independent datasets expose Export. */
-const EXPORTABLE_TABS = new Set(["reports", "users", "categories", "audit"]);
+/** Tabs with exportable datasets. */
+const EXPORTABLE_TABS = new Set(["reports", "users", "categories", "audit", "treasury", "briefs"]);
 
 const ROLE_DISPLAY = {
   influencer: "Creator",
@@ -119,6 +122,31 @@ function shapeExportRows(tab, rows) {
       };
     });
   }
+  if (tab === "treasury") {
+    return list.map((e) => ({
+      "Escrow ID": e.id || "—",
+      Campaign: e.campaign || "—",
+      Brand: e.brand || "—",
+      Influencer: e.creator || "—",
+      Amount: e.amount != null ? `₹${Number(e.amount).toLocaleString("en-IN")}` : "—",
+      "Escrow Fee": e.fee != null ? `₹${Number(e.fee).toLocaleString("en-IN")}` : "—",
+      Status: e.status || "—",
+      Gateway: e.gateway || "—",
+    }));
+  }
+  if (tab === "briefs") {
+    return list.map((b) => ({
+      "Brief ID": b.id || "—",
+      Brand: b.brand || "—",
+      Title: b.title || "—",
+      Category: b.category || "—",
+      Budget: b.budget != null ? `₹${Number(b.budget).toLocaleString("en-IN")}` : "—",
+      Deliverables: b.deliverables || "—",
+      Timeline: b.timeline || "—",
+      "AI Safety": b.aiSafety || "—",
+      Status: b.status || "—",
+    }));
+  }
   // Fallback: flatten but drop noisy keys
   const drop = new Set([
     "password_hash", "password", "token", "avatar", "id", "_id",
@@ -163,6 +191,27 @@ function userMatchesCategories(u, selected = []) {
     .concat(u?.industry || []);
   return matchesCategoryFilter(cats, selected);
 }
+
+const DEFAULT_ESCROWS = [
+  { id: "ESC-901", campaign: "Silk & Midnight Launch", brand: "Studio Noir Apparel", creator: "Aarav Sharma", amount: 250000, fee: 32500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-902", campaign: "AI Video Editing Suite", brand: "HyperTech AI", creator: "Priya Varma", amount: 350000, fee: 45500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-903", campaign: "Hydra Glow Serum", brand: "Veda Organics", creator: "Rohan Kapoor", amount: 180000, fee: 23400, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-904", campaign: "PulseFit Activewear Series", brand: "PulseFit Global", creator: "Neha Gupta", amount: 200000, fee: 26000, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-905", campaign: "Rockerz 550 Wireless Campaign", brand: "boAt Lifestyle", creator: "Arjun Sharma", amount: 400000, fee: 52000, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-906", campaign: "Air Flex Eyewear Launch", brand: "Lenskart India", creator: "Sneha Reddy", amount: 150000, fee: 19500, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-907", campaign: "Gourmet Food Delivery Promo", brand: "Zomato Ltd.", creator: "Karthik Iyer", amount: 280000, fee: 36400, status: "Dispute Under Review", gateway: "Razorpay PCI-DSS" },
+  { id: "ESC-908", campaign: "Pro Fitness Pass Festival", brand: "Cult.fit", creator: "Anya Singh", amount: 220000, fee: 28600, status: "Pending Verification", gateway: "Razorpay PCI-DSS" },
+];
+
+const DEFAULT_BRIEFS = [
+  { id: "BRF-101", brand: "Studio Noir Apparel", title: "Cyberpunk Streetwear Editorial Launch", budget: 250000, category: "Fashion & Style", aiSafety: "99% Clean", status: "Approved & Live", deliverables: "1x Reel + 3x Stories", timeline: "14 Days" },
+  { id: "BRF-102", brand: "HyperTech AI", title: "AI Influencer Workstation Pro Review", budget: 350000, category: "Technology & SaaS", aiSafety: "98% Clean", status: "Approved & Live", deliverables: "1x Long-form Video + 2x Posts", timeline: "21 Days" },
+  { id: "BRF-103", brand: "Veda Organics", title: "Organic Hydra Glow Serum Series", budget: 180000, category: "Beauty & Makeup", aiSafety: "100% Clean", status: "Pending Review", deliverables: "2x Reels + Before/After Story", timeline: "10 Days" },
+  { id: "BRF-104", brand: "PulseFit Global", title: "Pro Performance Seamless Activewear", budget: 200000, category: "Fitness & Health", aiSafety: "97% Clean", status: "Pending Review", deliverables: "1x Fitness Workout Reel", timeline: "7 Days" },
+  { id: "BRF-105", brand: "boAt Lifestyle", title: "Rockerz 550 ANC Wireless Audio", budget: 400000, category: "Technology & Gadgets", aiSafety: "99% Clean", status: "Approved & Live", deliverables: "3x Unboxing Reels + Giveaway", timeline: "30 Days" },
+  { id: "BRF-106", brand: "Lenskart India", title: "Air Flex Ultralight Eyewear Shoot", budget: 150000, category: "Fashion & Lifestyle", aiSafety: "96% Clean", status: "Pending Review", deliverables: "2x Style Reels", timeline: "12 Days" },
+];
+
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
         <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-white/10 bg-[#121212] shadow-none">
@@ -275,6 +324,8 @@ export function AdminPanel() {
   const [auditStatusFilter, setAuditStatusFilter] = useState([]);
   const [reportStatusFilter, setReportStatusFilter] = useState("all");
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [treasuryEscrows, setTreasuryEscrows] = useState(DEFAULT_ESCROWS);
+  const [campaignBriefs, setCampaignBriefs] = useState(DEFAULT_BRIEFS);
 
   // Live system alerts from recent activity (no hardcoded demo rows)
   const notifications = (Array.isArray(activity) ? activity : []).slice(0, 20).map((a, i) => {
@@ -578,7 +629,7 @@ export function AdminPanel() {
 
     const exportData = async () => {
       if (!EXPORTABLE_TABS.has(tab)) {
-        toast.error("Export is only available on Reports, Users, Categories, and Audit");
+        toast.error("Export is only available on Reports, Users, Categories, Audit, Treasury, and Briefs");
         return;
       }
       let raw = [];
@@ -586,6 +637,8 @@ export function AdminPanel() {
       else if (tab === "reports") raw = reports;
       else if (tab === "categories") raw = categories;
       else if (tab === "audit") raw = activity;
+      else if (tab === "treasury") raw = treasuryEscrows;
+      else if (tab === "briefs") raw = campaignBriefs;
       else {
         toast.error("Nothing to export on this tab");
         return;
@@ -826,12 +879,12 @@ export function AdminPanel() {
 
         {/* TAB 3: ESCROW TREASURY DESK */}
         {tab === "treasury" && (
-            <EscrowTreasuryDesk />
+            <EscrowTreasuryDesk escrows={treasuryEscrows} setEscrows={setTreasuryEscrows} />
         )}
 
         {/* TAB 4: BRIEF MODERATION DESK */}
         {tab === "briefs" && (
-            <BriefModerationDesk />
+            <BriefModerationDesk briefs={campaignBriefs} setBriefs={setCampaignBriefs} />
         )}
 
         {/* TAB 5: USER MANAGEMENT */}
@@ -1825,22 +1878,20 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 /* =========================================================================
    ESCROW TREASURY DESK
    ========================================================================= */
-function EscrowTreasuryDesk() {
-  const [escrows, setEscrows] = useState([
-    { id: "ESC-901", campaign: "Silk & Midnight Launch", brand: "Studio Noir Apparel", creator: "Aarav Sharma", amount: 250000, fee: 32500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-902", campaign: "AI Video Editing Suite", brand: "HyperTech AI", creator: "Priya Varma", amount: 350000, fee: 45500, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-903", campaign: "Hydra Glow Serum", brand: "Veda Organics", creator: "Rohan Kapoor", amount: 180000, fee: 23400, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-904", campaign: "PulseFit Activewear Series", brand: "PulseFit Global", creator: "Neha Gupta", amount: 200000, fee: 26000, status: "Locked in Escrow", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-905", campaign: "Rockerz 550 Wireless Campaign", brand: "boAt Lifestyle", creator: "Arjun Sharma", amount: 400000, fee: 52000, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-906", campaign: "Air Flex Eyewear Launch", brand: "Lenskart India", creator: "Sneha Reddy", amount: 150000, fee: 19500, status: "Released to Wallet", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-907", campaign: "Gourmet Food Delivery Promo", brand: "Zomato Ltd.", creator: "Karthik Iyer", amount: 280000, fee: 36400, status: "Dispute Under Review", gateway: "Razorpay PCI-DSS" },
-    { id: "ESC-908", campaign: "Pro Fitness Pass Festival", brand: "Cult.fit", creator: "Anya Singh", amount: 220000, fee: 28600, status: "Pending Verification", gateway: "Razorpay PCI-DSS" }
-  ]);
-
+function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
   const handleForceRelease = (id) => {
-    setEscrows(prev => prev.map(e => e.id === id ? { ...e, status: "Released to Wallet" } : e));
-    toast.success(`🎉 Escrow #${id} override release completed!`);
+    setEscrows((prev) => prev.map((e) => (e.id === id ? { ...e, status: "Released to Wallet" } : e)));
+    toast.success(`Escrow #${id} override release completed!`);
   };
+
+  const totalVolume = escrows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const totalFees = escrows.reduce((s, e) => s + (Number(e.fee) || 0), 0);
+  const released = escrows
+    .filter((e) => e.status === "Released to Wallet")
+    .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const disputed = escrows
+    .filter((e) => String(e.status || "").toLowerCase().includes("dispute"))
+    .reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
@@ -1859,23 +1910,23 @@ function EscrowTreasuryDesk() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
-          <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹48,50,000</div>
+          <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹{totalVolume.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
         <div className="p-5 glass-panel">
-          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Protection Status</div>
-          <div className="font-sans text-3xl text-[#FF3B30] font-bold mt-3 tracking-tight tabular-nums">₹6,30,500</div>
-          <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Zero Agency Cuts</div>
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Fees</div>
+          <div className="font-sans text-3xl text-[#FF3B30] font-bold mt-3 tracking-tight tabular-nums">₹{totalFees.toLocaleString("en-IN")}</div>
+          <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Platform fees</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
-          <div className="font-sans text-3xl text-[#34C759] font-bold mt-3 tracking-tight tabular-nums">₹42,19,500</div>
+          <div className="font-sans text-3xl text-[#34C759] font-bold mt-3 tracking-tight tabular-nums">₹{released.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Disputed Claims</div>
-          <div className="font-sans text-3xl text-orange-400 font-bold mt-3 tracking-tight tabular-nums">₹1,20,000</div>
-          <div className="font-sans text-[9px] text-orange-400 uppercase tracking-wider mt-2">&lt;30m Support Resolution</div>
+          <div className="font-sans text-3xl text-orange-400 font-bold mt-3 tracking-tight tabular-nums">₹{disputed.toLocaleString("en-IN")}</div>
+          <div className="font-sans text-[9px] text-orange-400 uppercase tracking-wider mt-2">Under review</div>
         </div>
       </div>
 
@@ -1901,8 +1952,8 @@ function EscrowTreasuryDesk() {
                 <td className="p-4 font-bold text-white tabular-nums">{e.id}</td>
                 <td className="p-4"><div className="font-sans text-base text-white font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
                 <td className="p-4 text-white">{e.creator}</td>
-                <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{e.amount.toLocaleString()}</td>
-                <td className="p-4 text-[#FF3B30] font-bold tabular-nums">₹{e.fee.toLocaleString()}</td>
+                <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{Number(e.amount).toLocaleString("en-IN")}</td>
+                <td className="p-4 text-[#FF3B30] font-bold tabular-nums">₹{Number(e.fee).toLocaleString("en-IN")}</td>
                 <td className="p-4">
                   <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${
                     e.status === "Released to Wallet" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" : "bg-orange-400/10 text-orange-400 border-orange-400/30"
@@ -1912,7 +1963,7 @@ function EscrowTreasuryDesk() {
                 </td>
                 <td className="p-4 text-right">
                   {e.status === "Locked in Escrow" ? (
-                    <button onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#34C759] text-white font-sans uppercase tracking-wider">
+                    <button type="button" onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#34C759] text-white font-sans uppercase tracking-wider">
                       Force Release
                     </button>
                   ) : (
@@ -1931,134 +1982,145 @@ function EscrowTreasuryDesk() {
 /* =========================================================================
    BRIEF MODERATION & AI AUDIT DESK
    ========================================================================= */
-function BriefModerationDesk() {
-  const [briefs, setBriefs] = useState([
-    { 
-      id: "BRF-101", 
-      brand: "Studio Noir Apparel", 
-      title: "Cyberpunk Streetwear Editorial Launch", 
-      budget: 250000, 
-      category: "Fashion & Style",
-      aiSafety: "99% Clean", 
-      status: "Approved & Live",
-      deliverables: "1x Reel + 3x Stories",
-      timeline: "14 Days"
-    },
-    { 
-      id: "BRF-102", 
-      brand: "HyperTech AI", 
-      title: "AI Influencer Workstation Pro Review", 
-      budget: 350000, 
-      category: "Technology & SaaS",
-      aiSafety: "98% Clean", 
-      status: "Approved & Live",
-      deliverables: "1x Long-form Video + 2x Posts",
-      timeline: "21 Days"
-    },
-    { 
-      id: "BRF-103", 
-      brand: "Veda Organics", 
-      title: "Organic Hydra Glow Serum Series", 
-      budget: 180000, 
-      category: "Beauty & Makeup",
-      aiSafety: "100% Clean", 
-      status: "Pending Review",
-      deliverables: "2x Reels + Before/After Story",
-      timeline: "10 Days"
-    },
-    { 
-      id: "BRF-104", 
-      brand: "PulseFit Global", 
-      title: "Pro Performance Seamless Activewear", 
-      budget: 200000, 
-      category: "Fitness & Health",
-      aiSafety: "97% Clean", 
-      status: "Pending Review",
-      deliverables: "1x Fitness Workout Reel",
-      timeline: "7 Days"
-    },
-    { 
-      id: "BRF-105", 
-      brand: "boAt Lifestyle", 
-      title: "Rockerz 550 ANC Wireless Audio", 
-      budget: 400000, 
-      category: "Technology & Gadgets",
-      aiSafety: "99% Clean", 
-      status: "Approved & Live",
-      deliverables: "3x Unboxing Reels + Giveaway",
-      timeline: "30 Days"
-    },
-    { 
-      id: "BRF-106", 
-      brand: "Lenskart India", 
-      title: "Air Flex Ultralight Eyewear Shoot", 
-      budget: 150000, 
-      category: "Fashion & Lifestyle",
-      aiSafety: "96% Clean", 
-      status: "Pending Review",
-      deliverables: "2x Style Reels",
-      timeline: "12 Days"
-    }
-  ]);
+function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
+  const [viewMode, setViewMode] = useState("grid"); // grid | table
 
   const handleApproveBrief = (id) => {
-    setBriefs(prev => prev.map(b => b.id === id ? { ...b, status: "Approved & Live" } : b));
-    toast.success(`🎉 Campaign brief #${id} approved for Marketplace!`);
+    setBriefs((prev) => prev.map((b) => (b.id === id ? { ...b, status: "Approved & Live" } : b)));
+    toast.success(`Campaign brief #${id} approved for Marketplace!`);
   };
 
+  const statusClass = (status) =>
+    status === "Approved & Live"
+      ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30"
+      : "bg-orange-400/10 text-orange-400 border-orange-400/30";
+
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
-      <div className="border-b border-white/10 pb-4 flex items-center justify-between">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-6">
+      <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="font-sans text-3xl font-bold tracking-tight">Campaign Brief Moderation &amp; AI Compliance Desk</h2>
+          <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Campaign Brief Moderation</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-widest">
             Review incoming brand campaign briefs, AI logo checks, and copyright compliance
           </p>
         </div>
-        <span className="font-sans text-xs px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded-xs font-bold">
-          AI Compliance Guard Active
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {briefs.map((b) => (
-          <div key={b.id} className="p-6 bg-[#121212] border border-white/15 rounded-xs space-y-4 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="font-sans text-[10px] text-[#FF3B30] uppercase font-bold">{b.brand}</span>
-                <span className="font-sans text-[9px] px-2 py-0.5 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 rounded-xs font-bold">
-                  {b.status}
-                </span>
-              </div>
-
-              <h3 className="font-sans text-2xl font-bold mt-3 text-white">{b.title}</h3>
-              <p className="font-sans text-xs text-white/60 mt-1">Campaign Budget: ₹{b.budget.toLocaleString()}</p>
-
-              <div className="mt-4 p-3 bg-white/[0.03] border border-white/10 rounded-xs space-y-1.5 font-sans text-[11px]">
-                <div className="flex justify-between text-[#34C759]">
-                  <span>AI Content Audit:</span>
-                  <span className="font-bold">{b.aiSafety}</span>
-                </div>
-                <div className="flex justify-between text-white/70">
-                  <span>Logo Visibility Check:</span>
-                  <span>Passed ✓</span>
-                </div>
-                <div className="flex justify-between text-white/70">
-                  <span>Hashtag #ad Requirement:</span>
-                  <span>Enforced ✓</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between font-sans text-xs">
-              <span className="opacity-50">Brief #{b.id}</span>
-              <button onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1.5 px-4 text-xs bg-[#FF3B30] text-white">
-                Approve &amp; Publish ↗
-              </button>
-            </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-full border border-white/15 p-0.5 bg-white/[0.03]">
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
+                viewMode === "grid" ? "bg-[#FF3B30] text-white" : "text-white/55 hover:text-white"
+              }`}
+              aria-pressed={viewMode === "grid"}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> Grid
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
+                viewMode === "table" ? "bg-[#FF3B30] text-white" : "text-white/55 hover:text-white"
+              }`}
+              aria-pressed={viewMode === "table"}
+            >
+              <List className="w-3.5 h-3.5" /> Table
+            </button>
           </div>
-        ))}
+          <span className="font-sans text-xs px-3 py-1 bg-white/5 text-white/70 border border-white/15 rounded-xs font-bold">
+            AI Compliance Guard
+          </span>
+        </div>
       </div>
+
+      {viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {briefs.map((b) => (
+            <div key={b.id} className="p-5 bg-[#121212] border border-white/15 rounded-2xl space-y-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
+                  <span className="font-sans text-[10px] text-[#FF3B30] uppercase font-bold truncate">{b.brand}</span>
+                  <span className={`shrink-0 font-sans text-[9px] px-2 py-0.5 border rounded-xs font-bold ${statusClass(b.status)}`}>
+                    {b.status}
+                  </span>
+                </div>
+                <h3 className="font-sans text-xl font-bold mt-3 text-white leading-snug">{b.title}</h3>
+                <p className="font-sans text-xs text-white/60 mt-1">Budget: ₹{Number(b.budget).toLocaleString("en-IN")} · {b.category}</p>
+                <div className="mt-4 p-3 bg-white/[0.03] border border-white/10 rounded-xs space-y-1.5 font-sans text-[11px]">
+                  <div className="flex justify-between text-[#34C759]">
+                    <span>AI Content Audit</span>
+                    <span className="font-bold">{b.aiSafety}</span>
+                  </div>
+                  <div className="flex justify-between text-white/70">
+                    <span>Deliverables</span>
+                    <span className="text-right max-w-[55%]">{b.deliverables}</span>
+                  </div>
+                  <div className="flex justify-between text-white/70">
+                    <span>Timeline</span>
+                    <span>{b.timeline}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/10 flex items-center justify-between font-sans text-xs">
+                <span className="opacity-50">Brief #{b.id}</span>
+                {b.status === "Pending Review" ? (
+                  <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1.5 px-4 text-xs bg-[#FF3B30] text-white">
+                    Approve &amp; Publish
+                  </button>
+                ) : (
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#34C759]">Live</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="glass-panel overflow-x-auto">
+          <table className="w-full text-left border-collapse font-sans text-sm">
+            <thead>
+              <tr className="border-b border-white/10 text-[9px] tracking-widest uppercase opacity-50">
+                <th className="p-4 font-normal">Brief</th>
+                <th className="p-4 font-normal">Brand</th>
+                <th className="p-4 font-normal">Category</th>
+                <th className="p-4 font-normal">Budget</th>
+                <th className="p-4 font-normal">Deliverables</th>
+                <th className="p-4 font-normal">AI Safety</th>
+                <th className="p-4 font-normal">Status</th>
+                <th className="p-4 font-normal text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {briefs.map((b) => (
+                <tr key={b.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <td className="p-4">
+                    <div className="font-medium text-white">{b.title}</div>
+                    <div className="text-[10px] opacity-45 mt-0.5 font-mono uppercase tracking-wider">{b.id} · {b.timeline}</div>
+                  </td>
+                  <td className="p-4 text-white/85">{b.brand}</td>
+                  <td className="p-4 text-white/70 text-xs">{b.category}</td>
+                  <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{Number(b.budget).toLocaleString("en-IN")}</td>
+                  <td className="p-4 text-xs text-white/65 max-w-[180px]">{b.deliverables}</td>
+                  <td className="p-4 text-xs text-[#34C759] font-medium">{b.aiSafety}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${statusClass(b.status)}`}>
+                      {b.status}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    {b.status === "Pending Review" ? (
+                      <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#FF3B30] text-white font-sans uppercase tracking-wider">
+                        Approve
+                      </button>
+                    ) : (
+                      <span className="opacity-45 text-[10px] font-sans uppercase tracking-wider">Published</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </motion.div>
   );
 }
