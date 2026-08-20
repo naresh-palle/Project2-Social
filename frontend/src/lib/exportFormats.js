@@ -198,7 +198,10 @@ async function loadBrandLogoRgb(size = 72) {
         probe.crossOrigin = "anonymous";
         probe.src = src;
         // eslint-disable-next-line no-await-in-loop
-        await probe.decode();
+        await Promise.race([
+          probe.decode(),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("logo timeout")), 1500)),
+        ]);
         img = probe;
         break;
       } catch {
@@ -780,7 +783,7 @@ export function buildLocalExportSummary(rows = [], tab = "overview") {
   return `This export includes ${list.length} ${tab.replace(/_/g, " ")} records (${roleBits || "mixed types"}). Review the data overview and included records below for operational follow-up.`;
 }
 
-/** Generates a polished PDF report for a list of items, including an AI executive summary. */
+/** Generates a polished PDF report for a list of items, including an executive summary. */
 export async function exportAiReportPdf({
   rows,
   filename,
@@ -789,81 +792,84 @@ export async function exportAiReportPdf({
   aiSummary = "",
   tab = "overview",
 }) {
-  const { headers: rawHeaders, rows: body } = normalizeRows(rows);
-  const dateLabel = new Date().toISOString().slice(0, 10);
-  const summary =
-    (aiSummary && String(aiSummary).trim() && !/AI analysis failed/i.test(aiSummary)
-      ? String(aiSummary).trim()
-      : buildLocalExportSummary(rows, tab));
+  try {
+    const { headers: rawHeaders, rows: body } = normalizeRows(rows);
+    const dateLabel = new Date().toISOString().slice(0, 10);
+    const summary =
+      (aiSummary && String(aiSummary).trim() && !/AI analysis failed/i.test(aiSummary)
+        ? String(aiSummary).trim()
+        : buildLocalExportSummary(rows, tab));
 
-  const isSummary = body.length <= 1 && rawHeaders.length > 6;
-  const { landscape } = pickPageSize({
-    colCount: rawHeaders.length,
-    isSummary,
-    metricCount: rawHeaders.length,
-    forceLandscape: body.length > 1 && rawHeaders.length >= 5,
-  });
-
-  // Wide tabular exports: landscape table PDF is clearer than a long prose dump
-  if (!isSummary && body.length > 0 && rawHeaders.length >= 5) {
-    await exportPdf({
-      rows,
-      filename: filename || `flugr-report-${dateLabel}`,
-      title: pdfSafeText(title),
-      meta: `${pdfSafeText(meta)} · ${pdfSafeText(summary).slice(0, 120)}`,
+    const isSummary = body.length <= 1 && rawHeaders.length > 6;
+    const { landscape } = pickPageSize({
+      colCount: rawHeaders.length,
+      isSummary,
+      metricCount: rawHeaders.length,
+      forceLandscape: body.length > 1 && rawHeaders.length >= 5,
     });
-    return;
-  }
 
-  const blocks = [];
-  blocks.push({ kind: "h2", text: "Executive Summary" });
-  blocks.push({ kind: "body", text: summary });
-  blocks.push({ kind: "spacer", gap: 16 });
+    const blocks = [];
+    blocks.push({ kind: "h2", text: "Executive Summary" });
+    blocks.push({ kind: "body", text: summary });
+    blocks.push({ kind: "spacer", gap: 16 });
 
-  if (isSummary) {
-    blocks.push({ kind: "h2", text: "Key Metrics" });
-    const groups = groupMetricPairs(rawHeaders, body[0] || []);
-    Object.entries(groups).forEach(([group, pairs]) => {
-      blocks.push({ kind: "body", text: `${humanizeHeader(group)}:` });
-      if (landscape) {
-        for (let i = 0; i < pairs.length; i += 2) {
-          const a = pairs[i];
-          const b = pairs[i + 1];
-          blocks.push({
-            kind: "body",
-            text: b ? `${a.label}: ${a.value}    |    ${b.label}: ${b.value}` : `${a.label}: ${a.value}`,
-          });
+    if (isSummary) {
+      blocks.push({ kind: "h2", text: "Key Metrics" });
+      const groups = groupMetricPairs(rawHeaders, body[0] || []);
+      Object.entries(groups).forEach(([group, pairs]) => {
+        blocks.push({ kind: "body", text: `${humanizeHeader(group)}:` });
+        if (landscape) {
+          for (let i = 0; i < pairs.length; i += 2) {
+            const a = pairs[i];
+            const b = pairs[i + 1];
+            blocks.push({
+              kind: "body",
+              text: b ? `${a.label}: ${a.value}    |    ${b.label}: ${b.value}` : `${a.label}: ${a.value}`,
+            });
+          }
+        } else {
+          pairs.forEach((p) => blocks.push({ kind: "body", text: `  ${p.label}: ${p.value}` }));
         }
-      } else {
-        pairs.forEach((p) => blocks.push({ kind: "body", text: `  ${p.label}: ${p.value}` }));
-      }
-      blocks.push({ kind: "spacer", gap: 6 });
-    });
-  } else {
-    blocks.push({ kind: "h2", text: "Data Overview" });
-    blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
-    blocks.push({ kind: "spacer", gap: 8 });
-    blocks.push({ kind: "h2", text: "Included Records" });
-    const names = body.map((cols, idx) => {
-      const primary = cols.find((c) => c && String(c).trim() !== "") || `Record ${idx + 1}`;
-      return String(primary).slice(0, 48);
-    });
-    const chunkSize = landscape ? 18 : 12;
-    for (let i = 0; i < names.length; i += chunkSize) {
-      names.slice(i, i + chunkSize).forEach((n, j) => {
-        blocks.push({ kind: "body", text: `${i + j + 1}. ${n}` });
+        blocks.push({ kind: "spacer", gap: 6 });
       });
+    } else if (body.length > 0 && rawHeaders.length >= 5) {
+      // Wide lists: one landscape table PDF (browsers often block a second auto-download).
+      await exportPdf({
+        rows,
+        filename: filename || `flugr-report-${dateLabel}`,
+        title: pdfSafeText(title),
+        meta: `${pdfSafeText(meta)} · ${pdfSafeText(summary).slice(0, 160)}`,
+      });
+      return;
+    } else {
+      blocks.push({ kind: "h2", text: "Data Overview" });
+      blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
+      blocks.push({ kind: "spacer", gap: 8 });
+      blocks.push({ kind: "h2", text: "Included Records" });
+      const names = body.map((cols, idx) => {
+        const primary = cols.find((c) => c && String(c).trim() !== "") || `Record ${idx + 1}`;
+        return String(primary).slice(0, 48);
+      });
+      const chunkSize = landscape ? 18 : 12;
+      for (let i = 0; i < names.length; i += chunkSize) {
+        names.slice(i, i + chunkSize).forEach((n, j) => {
+          blocks.push({ kind: "body", text: `${i + j + 1}. ${n}` });
+        });
+      }
     }
+
+    blocks.push({ kind: "spacer", gap: 15 });
+    blocks.push({ kind: "meta", text: `Generated on ${dateLabel}` });
+
+    await buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, {
+      landscape,
+      title: pdfSafeText(title),
+      meta: pdfSafeText(meta),
+    });
+  } catch (err) {
+    console.error("PDF report failed, falling back to table PDF", err);
+    await exportPdf({ rows, filename, title, meta });
   }
-
-  blocks.push({ kind: "spacer", gap: 15 });
-  blocks.push({ kind: "meta", text: `Generated on ${dateLabel}` });
-
-  await buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, {
-    landscape,
-    title: pdfSafeText(title),
-    meta: pdfSafeText(meta),
-  });
 }
 
 function fmtAuditMetric(v, { allowZero = true } = {}) {

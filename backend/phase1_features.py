@@ -1626,10 +1626,10 @@ def setup_phase1(
         return await db.reports.find(q, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
 
     @api_router.post("/admin/reports/ai-summary")
-    async def admin_reports_ai_summary(req: dict, current: dict = Depends(get_current_user)):
+    async def admin_reports_ai_summary(req: dict = Body(...), current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
-        rows = req.get("rows", []) or []
-        tab = str(req.get("tab") or "overview")
+        rows = (req or {}).get("rows", []) or []
+        tab = str((req or {}).get("tab") or "overview")
         if not rows:
             return {"summary": "No data provided to generate a summary.", "source": "empty"}
 

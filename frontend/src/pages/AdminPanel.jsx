@@ -133,7 +133,8 @@ export function AdminPanel() {
   const [exportRange, setExportRange] = useState("monthly");
   const [exportFormat, setExportFormat] = useState("csv");
   const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState(""); 
+  const [endDate, setEndDate] = useState("");
+  const [exportBusy, setExportBusy] = useState(false);
   
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
@@ -598,17 +599,29 @@ export function AdminPanel() {
       const base = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
       
       try {
-        let aiSummary = "";
+        setExportBusy(true);
+        const { buildLocalExportSummary } = await import("@/lib/exportFormats");
+        // Always start with a local summary so PDF (Report) never depends on the LLM.
+        let aiSummary = buildLocalExportSummary(data, tab);
+
         if (exportFormat === "pdf_report") {
-            setDownloading(true);
-            toast.info("Generating report summary...");
-            try {
-              const res = await api.post("/admin/reports/ai-summary", { rows: data.slice(0, 50), tab });
-              aiSummary = res.data?.summary || "";
-            } catch {
-              aiSummary = "";
+          toast.info("Building report…");
+          // Optional polish — race with a short timeout; ignore failures.
+          try {
+            const aiPromise = api
+              .post("/admin/reports/ai-summary", { rows: data.slice(0, 50), tab })
+              .catch(() => null);
+            const res = await Promise.race([
+              aiPromise,
+              new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
+            ]);
+            const remote = res?.data?.summary;
+            if (remote && String(remote).trim() && !/AI analysis failed/i.test(remote)) {
+              aiSummary = String(remote).trim();
             }
-            setDownloading(false);
+          } catch {
+            /* keep local summary */
+          }
         }
 
         const tabLabel =
@@ -630,10 +643,12 @@ export function AdminPanel() {
           sheetName: tab === "users" ? "Users" : "Stats",
         });
         setExportModal(false);
-        toast.success(`Export ready (${exportFormat.toUpperCase()} · ${exportRange})`);
+        toast.success(`Export ready (${EXPORT_FORMATS.find((f) => f.id === exportFormat)?.label || exportFormat} · ${exportRange})`);
       } catch (e) {
-        setDownloading(false);
+        console.error(e);
         toast.error(e?.message || "Export failed");
+      } finally {
+        setExportBusy(false);
       }
   };
 
@@ -1305,8 +1320,13 @@ export function AdminPanel() {
 
             <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-sans text-xs">
               <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
-              <button type="button" onClick={exportData} className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">
-                Generate {EXPORT_FORMATS.find((f) => f.id === exportFormat)?.label || "Export"}
+              <button
+                type="button"
+                disabled={exportBusy}
+                onClick={exportData}
+                className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126] disabled:opacity-50"
+              >
+                {exportBusy ? "Generating…" : `Generate ${EXPORT_FORMATS.find((f) => f.id === exportFormat)?.label || "Export"}`}
               </button>
             </div>
           </motion.div>
