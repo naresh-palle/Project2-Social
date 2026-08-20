@@ -1628,19 +1628,57 @@ def setup_phase1(
     @api_router.post("/admin/reports/ai-summary")
     async def admin_reports_ai_summary(req: dict, current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
-        rows = req.get("rows", [])
+        rows = req.get("rows", []) or []
+        tab = str(req.get("tab") or "overview")
         if not rows:
-            return {"summary": "No data provided to generate a summary."}
-        
-        # Format the data for the LLM
-        sample = str(rows[:20]) # Limit to 20 rows to avoid token overflow
-        prompt = f"Analyze this sample of exported user data and write a short, professional executive summary of the demographics and platform activity:\n{sample}"
+            return {"summary": "No data provided to generate a summary.", "source": "empty"}
+
+        def _local_summary(sample_rows):
+            if len(sample_rows) == 1 and isinstance(sample_rows[0], dict):
+                row = sample_rows[0]
+                creators = row.get("users.creators", row.get("creators"))
+                brands = row.get("users.brands", row.get("brands"))
+                agencies = row.get("users.agencies", row.get("agencies"))
+                campaigns = row.get("campaigns.total", row.get("campaigns"))
+                revenue = row.get("financial.revenue", row.get("revenue"))
+                bits = [f"Platform snapshot for the {tab.replace('_', ' ')} export."]
+                if creators is not None or brands is not None:
+                    bits.append(
+                        f"Audience mix: {creators or 0} creators, {brands or 0} brands, {agencies or 0} agencies."
+                    )
+                else:
+                    bits.append(f"This file contains {len(row)} metrics.")
+                if campaigns is not None:
+                    bits.append(f"Campaigns on file: {campaigns}.")
+                if revenue is not None:
+                    bits.append(f"Tracked revenue figure: {revenue}.")
+                bits.append("Figures are taken from live admin stats for the selected timeframe.")
+                return " ".join(bits)
+            role_counts = {}
+            for r in sample_rows:
+                if not isinstance(r, dict):
+                    continue
+                role = r.get("role") or r.get("type") or "record"
+                role_counts[role] = role_counts.get(role, 0) + 1
+            role_bits = ", ".join(f"{v} {k}" for k, v in list(role_counts.items())[:6]) or "mixed types"
+            return (
+                f"This export includes {len(sample_rows)} {tab.replace('_', ' ')} records ({role_bits}). "
+                "Review the data overview for operational follow-up."
+            )
+
+        sample = str(rows[:20])
+        prompt = (
+            "Analyze this sample of exported admin data and write a short, professional executive "
+            f"summary of demographics and platform activity for tab '{tab}':\n{sample}"
+        )
         try:
             summary = await _llm("You are an expert data analyst for flugr.", prompt)
+            # When LLM is offline, _llm returns a prompt snippet — treat that as failure
+            if not summary or summary.strip().startswith("Analyze this sample") or len(summary.strip()) < 40:
+                raise ValueError("unusable llm output")
+            return {"summary": summary.strip(), "source": "ai"}
         except Exception:
-            summary = "AI analysis failed. Please try again."
-            
-        return {"summary": summary}
+            return {"summary": _local_summary(rows[:50]), "source": "local"}
 
     @api_router.post("/admin/reports/{report_id}")
     async def admin_report_action(report_id: str, inp: AdminReportAction, current: dict = Depends(get_current_user)):

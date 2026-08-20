@@ -90,28 +90,70 @@ export function exportExcel({ rows, filename, sheetName = "flugr Export", meta =
   );
 }
 
-/** Minimal multi-page text PDF (Helvetica). */
-export function exportPdf({ rows, filename, title = "flugr Export", meta = "" }) {
-  const { headers, rows: body } = normalizeRows(rows);
-  const linesArr = [
-    meta,
-    "",
-    headers.join(" | "),
-    "-".repeat(Math.min(90, Math.max(20, headers.join(" | ").length))),
-    ...body.map((cols) => cols.join(" | ")),
-  ].filter((l, i, arr) => !(l === "" && arr[i - 1] === ""));
+/** Map nested/raw keys to short readable labels for exports. */
+export function humanizeHeader(key) {
+  const map = {
+    "users.creators": "Creators",
+    "users.brands": "Brands",
+    "users.agencies": "Agencies",
+    "users.admins": "Admins",
+    "users.total": "Total users",
+    "campaigns.total": "Campaigns",
+    "campaigns.active": "Active campaigns",
+    "campaigns.completed": "Completed campaigns",
+    "campaigns.draft": "Draft campaigns",
+    "financial.revenue": "Revenue",
+    "financial.total_payments": "Total payments",
+    "financial.escrow_held": "Escrow held",
+    "financial.platform_fee": "Platform fee",
+    "platform.active_users": "Active users",
+    "platform.inactive_users": "Inactive users",
+    "reports.open": "Open reports",
+    "reports.resolved": "Resolved reports",
+    "approvals.pending": "Pending approvals",
+    "approvals.approved": "Approved",
+    created_at: "Created",
+    updated_at: "Updated",
+    username: "Username",
+    email: "Email",
+    name: "Name",
+    role: "Role",
+    status: "Status",
+    company: "Company",
+    city: "City",
+    state: "State",
+    action: "Action",
+    details: "Details",
+    type: "Type",
+  };
+  if (map[key]) return map[key];
+  return String(key || "")
+    .replace(/[._]/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
 
-  const pageWidth = 612;
-  const pageHeight = 792;
-  const margin = 40;
-  const lineHeight = 12;
-  const maxLines = Math.floor((pageHeight - margin * 2 - 80) / lineHeight);
-  const pages = [];
-  for (let i = 0; i < Math.max(linesArr.length, 1); i += maxLines) {
-    pages.push(linesArr.slice(i, i + maxLines));
-  }
-  if (!pages.length) pages.push(["No data"]);
+/** Helvetica/WinAnsi-safe text (avoids tofu boxes for em-dashes, etc.). */
+function pdfSafeText(s) {
+  return String(s ?? "")
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2018\u2019\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u2033]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/\u00A0/g, " ")
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
 
+function pdfEscape(s) {
+  return pdfSafeText(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)")
+    .replace(/[\r\n]+/g, " ");
+}
+
+function assemblePdf(pageWidth, pageHeight, contentBuilders) {
   const objs = [];
   const pushObj = (bodyStr) => {
     objs.push(bodyStr);
@@ -119,37 +161,10 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
   };
   const fontId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   const boldId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-
-  const pdfEscape = (str) =>
-    String(str)
-      .replace(/\\/g, "\\\\")
-      .replace(/\(/g, "\\(")
-      .replace(/\)/g, "\\)")
-      .replace(/[\r\n]+/g, " ");
-
-  const contentIds = pages.map((pageItems) => {
-    let ops = "q\n";
-    ops += "1 0.23 0.18 rg\n"; // #FF3B30 Header Background
-    ops += "0 710 612 82 re f\n";
-    ops += "1 1 1 rg\n"; // White Text
-    ops += `BT /F2 16 Tf ${margin} 750 Td (${pdfEscape(title)}) Tj ET\n`;
-    ops += "Q\n";
-    
-    ops += "q 0.15 0.15 0.15 rg\n"; // Dark Gray Text
-    ops += pageItems
-      .map((text, i) => {
-        const font = i === 0 ? "F2" : "F1";
-        const y = 680 - i * lineHeight;
-        const safe = pdfEscape(text).slice(0, 110);
-        return `BT /${font} 9 Tf ${margin} ${y} Td (${safe}) Tj ET`;
-      })
-      .join("\n");
-    ops += "\nQ";
-    
-    const stream = `${ops}\n`;
-    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+  const contentIds = contentBuilders.map((build) => {
+    const stream = `${build()}\n`;
+    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
   });
-
   const pageIds = contentIds.map((cid) =>
     pushObj(
       `<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`
@@ -176,16 +191,208 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
     pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
   }
   pdf += `trailer<< /Size ${objs.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-
-  const name = filename.replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
-  downloadBlob(new Blob([pdf], { type: "application/pdf" }), `${name}.pdf`);
+  return pdf;
 }
 
-function pdfEscape(s) {
-  return String(s ?? "")
-    .replace(/\\/g, "\\\\")
-    .replace(/\(/g, "\\(")
-    .replace(/\)/g, "\\)");
+function drawHeaderBar(ops, title, meta, pageWidth, pageHeight, margin) {
+  const barH = 56;
+  const top = pageHeight - barH;
+  ops.push("q");
+  ops.push("1 0.23 0.18 rg");
+  ops.push(`0 ${top} ${pageWidth} ${barH} re f`);
+  ops.push("1 1 1 rg");
+  ops.push(`BT /F2 15 Tf ${margin} ${pageHeight - 28} Td (${pdfEscape(title).slice(0, pageWidth > 700 ? 90 : 58)}) Tj ET`);
+  if (meta) {
+    ops.push(`BT /F1 8 Tf ${margin} ${pageHeight - 44} Td (${pdfEscape(meta).slice(0, pageWidth > 700 ? 120 : 90)}) Tj ET`);
+  }
+  ops.push("Q");
+}
+
+function pickPageSize({ colCount = 0, isSummary = false, metricCount = 0, forceLandscape = false } = {}) {
+  // Landscape when tables/metrics are wide enough to benefit from horizontal space
+  const landscape =
+    forceLandscape ||
+    colCount >= 5 ||
+    (isSummary && metricCount >= 8) ||
+    colCount * 90 > 520;
+  if (landscape) {
+    return { pageWidth: 792, pageHeight: 612, landscape: true }; // US Letter landscape
+  }
+  return { pageWidth: 612, pageHeight: 792, landscape: false };
+}
+
+function groupMetricPairs(headers, values) {
+  const pairs = headers.map((h, i) => ({
+    label: humanizeHeader(h),
+    value: values[i] == null || values[i] === "" ? "-" : String(values[i]),
+  }));
+  const groups = {};
+  headers.forEach((h, i) => {
+    const root = String(h).includes(".") ? String(h).split(".")[0] : "metrics";
+    if (!groups[root]) groups[root] = [];
+    groups[root].push(pairs[i]);
+  });
+  return groups;
+}
+
+/**
+ * Readable multi-page PDF:
+ * - wide tables / many metrics -> landscape
+ * - 1 wide summary row         -> labeled metric cards
+ * - many rows                  -> bordered table (column chunks if needed)
+ */
+export function exportPdf({ rows, filename, title = "flugr Export", meta = "" }) {
+  const { headers: rawHeaders, rows: body } = normalizeRows(rows);
+  const headers = rawHeaders.map(humanizeHeader);
+  const safeTitle = pdfSafeText(title).replace(/\s+/g, " ").trim() || "flugr Export";
+  const safeMeta = pdfSafeText(meta);
+  const isSummary = body.length <= 1 && rawHeaders.length > 6;
+  const { pageWidth, pageHeight, landscape } = pickPageSize({
+    colCount: headers.length,
+    isSummary,
+    metricCount: rawHeaders.length,
+  });
+  const margin = landscape ? 32 : 36;
+  const contentWidth = pageWidth - margin * 2;
+  const headerBottom = pageHeight - 68;
+  const startY = headerBottom - 8;
+  const orientationNote = landscape ? "Landscape" : "Portrait";
+
+  const pageOps = [];
+  let ops = [];
+  let y = startY;
+
+  const flushPage = () => {
+    pageOps.push(ops.join("\n"));
+    ops = [];
+    y = startY;
+  };
+
+  const ensureSpace = (need) => {
+    if (y - need < margin + 24) {
+      flushPage();
+      drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
+      y = startY;
+    }
+  };
+
+  drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
+
+  if (!body.length) {
+    ops.push("0.2 0.2 0.2 rg");
+    ops.push(`BT /F1 11 Tf ${margin} ${y} Td (No data available for this export.) Tj ET`);
+  } else if (isSummary) {
+    const groups = groupMetricPairs(rawHeaders, body[0] || []);
+    const cardsPerRow = landscape ? 3 : 2;
+    Object.entries(groups).forEach(([group, pairs]) => {
+      ensureSpace(40);
+      ops.push("0.12 0.12 0.12 rg");
+      ops.push(`BT /F2 11 Tf ${margin} ${y} Td (${pdfEscape(humanizeHeader(group))}) Tj ET`);
+      y -= 16;
+      const gap = 10;
+      const colW = (contentWidth - gap * (cardsPerRow - 1)) / cardsPerRow;
+      for (let i = 0; i < pairs.length; i += cardsPerRow) {
+        ensureSpace(28);
+        for (let c = 0; c < cardsPerRow; c++) {
+          const pair = pairs[i + c];
+          if (!pair) continue;
+          const x = margin + c * (colW + gap);
+          ops.push("0.95 0.95 0.95 rg");
+          ops.push(`${x} ${y - 18} ${colW} 22 re f`);
+          ops.push("0.85 0.85 0.85 RG 0.5 w");
+          ops.push(`${x} ${y - 18} ${colW} 22 re S`);
+          ops.push("0.4 0.4 0.4 rg");
+          ops.push(`BT /F1 7 Tf ${x + 6} ${y - 2} Td (${pdfEscape(pair.label).slice(0, Math.floor(colW / 5))}) Tj ET`);
+          ops.push("0.1 0.1 0.1 rg");
+          ops.push(`BT /F2 10 Tf ${x + 6} ${y - 14} Td (${pdfEscape(pair.value).slice(0, Math.floor(colW / 6))}) Tj ET`);
+        }
+        y -= 30;
+      }
+      y -= 8;
+    });
+  } else {
+    // Landscape fits more columns; portrait stays tighter
+    const maxCols = landscape ? Math.min(headers.length, 10) : Math.min(headers.length, 5);
+    const colChunks = [];
+    for (let c = 0; c < headers.length; c += maxCols) {
+      colChunks.push({
+        headers: headers.slice(c, c + maxCols),
+        start: c,
+      });
+    }
+
+    colChunks.forEach((chunk, chunkIdx) => {
+      if (chunkIdx > 0) {
+        flushPage();
+        drawHeaderBar(
+          ops,
+          safeTitle,
+          `${safeMeta} · cols ${chunk.start + 1}-${chunk.start + chunk.headers.length} · ${orientationNote}`,
+          pageWidth,
+          pageHeight,
+          margin
+        );
+        y = startY;
+      }
+      const colCount = chunk.headers.length;
+      const colW = contentWidth / colCount;
+      const rowH = landscape ? 16 : 18;
+      const headerChars = Math.max(6, Math.floor(colW / 4.8));
+      const cellChars = Math.max(6, Math.floor(colW / 4.2));
+
+      const drawTableHeader = () => {
+        ensureSpace(rowH + 8);
+        ops.push("0.12 0.12 0.12 rg");
+        ops.push(`${margin} ${y - rowH + 4} ${contentWidth} ${rowH} re f`);
+        ops.push("1 1 1 rg");
+        chunk.headers.forEach((h, i) => {
+          const x = margin + i * colW + 3;
+          ops.push(`BT /F2 7 Tf ${x} ${y - 8} Td (${pdfEscape(h).slice(0, headerChars)}) Tj ET`);
+        });
+        y -= rowH + 2;
+      };
+
+      drawTableHeader();
+      body.forEach((cols, rowIdx) => {
+        ensureSpace(rowH + 4);
+        if (y < margin + 70 && rowIdx > 0) {
+          flushPage();
+          drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
+          y = startY;
+          drawTableHeader();
+        }
+        if (rowIdx % 2 === 0) {
+          ops.push("0.97 0.97 0.97 rg");
+          ops.push(`${margin} ${y - rowH + 4} ${contentWidth} ${rowH} re f`);
+        }
+        ops.push("0.82 0.82 0.82 RG 0.4 w");
+        ops.push(`${margin} ${y - rowH + 4} ${contentWidth} ${rowH} re S`);
+        ops.push("0.12 0.12 0.12 rg");
+        chunk.headers.forEach((_, i) => {
+          const val = cols[chunk.start + i] ?? "";
+          const x = margin + i * colW + 3;
+          ops.push(`BT /F1 7 Tf ${x} ${y - 8} Td (${pdfEscape(val).slice(0, cellChars)}) Tj ET`);
+        });
+        y -= rowH;
+      });
+      y -= 12;
+    });
+  }
+
+  ops.push("0.45 0.45 0.45 rg");
+  ensureSpace(20);
+  ops.push(
+    `BT /F1 7 Tf ${margin} ${margin} Td (${pdfEscape(`flugr export · ${body.length} record(s) · ${orientationNote}`)}) Tj ET`
+  );
+  flushPage();
+
+  const pdf = assemblePdf(
+    pageWidth,
+    pageHeight,
+    pageOps.map((content) => () => content)
+  );
+  const name = filename.replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
+  downloadBlob(new Blob([pdf], { type: "application/pdf" }), `${name}.pdf`);
 }
 
 function wrapWords(text, maxChars) {
@@ -205,11 +412,11 @@ function wrapWords(text, maxChars) {
   return lines.length ? lines : [""];
 }
 
-function buildPdfFromBlocks(blocks, filename) {
-  const pageWidth = 612;
-  const pageHeight = 792;
-  const margin = 48;
-  const maxWidthChars = 88;
+function buildPdfFromBlocks(blocks, filename, { landscape = false } = {}) {
+  const pageWidth = landscape ? 792 : 612;
+  const pageHeight = landscape ? 612 : 792;
+  const margin = landscape ? 40 : 48;
+  const maxWidthChars = landscape ? 118 : 88;
   const laid = [];
 
   for (const b of blocks) {
@@ -220,8 +427,8 @@ function buildPdfFromBlocks(blocks, filename) {
     }
     const size = kind === "h1" ? 18 : kind === "h2" ? 13 : kind === "meta" ? 9 : 10;
     const gap = kind === "h1" ? 8 : kind === "h2" ? 6 : kind === "meta" ? 4 : 3;
-    const max = kind === "h1" ? 42 : kind === "h2" ? 58 : maxWidthChars;
-    for (const line of wrapWords(b.text, max)) {
+    const max = kind === "h1" ? (landscape ? 70 : 42) : kind === "h2" ? (landscape ? 90 : 58) : maxWidthChars;
+    for (const line of wrapWords(pdfSafeText(b.text), max)) {
       laid.push({ text: line, size, gap });
     }
     if (kind === "h1" || kind === "h2") laid.push({ text: " ", size: 8, gap: 4 });
@@ -243,52 +450,19 @@ function buildPdfFromBlocks(blocks, filename) {
   if (page.length) pages.push(page);
   if (!pages.length) pages.push([{ text: "flugr Report", size: 14, gap: 8, y: pageHeight - margin }]);
 
-  const objs = [];
-  const pushObj = (bodyStr) => {
-    objs.push(bodyStr);
-    return objs.length;
-  };
-  const fontId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  const boldId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-
-  const contentIds = pages.map((pageItems) => {
-    const ops = pageItems
-      .map((item) => {
-        const font = item.size >= 12 ? "F2" : "F1";
-        const safe = pdfEscape(item.text).slice(0, 120);
-        return `BT /${font} ${item.size} Tf ${margin} ${item.y} Td (${safe}) Tj ET`;
-      })
-      .join("\n");
-    const stream = `${ops}\n`;
-    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
-  });
-
-  const pageIds = contentIds.map((cid) =>
-    pushObj(
-      `<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`
+  const pdf = assemblePdf(
+    pageWidth,
+    pageHeight,
+    pages.map((pageItems) => () =>
+      pageItems
+        .map((item) => {
+          const font = item.size >= 12 ? "F2" : "F1";
+          const safe = pdfEscape(item.text).slice(0, landscape ? 140 : 120);
+          return `BT /${font} ${item.size} Tf ${margin} ${item.y} Td (${safe}) Tj ET`;
+        })
+        .join("\n")
     )
   );
-  const pagesId = pushObj(
-    `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`
-  );
-  pageIds.forEach((pid, i) => {
-    objs[pid - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentIds[i]} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`;
-  });
-  const catalogId = pushObj(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
-
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  objs.forEach((bodyStr, i) => {
-    offsets.push(pdf.length);
-    pdf += `${i + 1} 0 obj\n${bodyStr}\nendobj\n`;
-  });
-  const xref = pdf.length;
-  pdf += `xref\n0 ${objs.length + 1}\n`;
-  pdf += "0000000000 65535 f \n";
-  for (let i = 1; i <= objs.length; i++) {
-    pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
-  }
-  pdf += `trailer<< /Size ${objs.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
 
   const name = filename.replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
   downloadBlob(new Blob([pdf], { type: "application/pdf" }), `${name}.pdf`);
@@ -388,48 +562,127 @@ export function exportProfileReportPdf({
   buildPdfFromBlocks(blocks, filename || `cr8-profile-${dateLabel}`);
 }
 
+/** Deterministic narrative when LLM is unavailable. */
+export function buildLocalExportSummary(rows = [], tab = "overview") {
+  const list = Array.isArray(rows) ? rows.filter(Boolean) : [];
+  if (!list.length) return "No records were available for this export window.";
+
+  if (list.length === 1 && typeof list[0] === "object") {
+    const row = list[0];
+    const creators = row["users.creators"] ?? row.creators;
+    const brands = row["users.brands"] ?? row.brands;
+    const agencies = row["users.agencies"] ?? row.agencies;
+    const campaigns = row["campaigns.total"] ?? row.campaigns;
+    const revenue = row["financial.revenue"] ?? row.revenue;
+    const parts = [
+      `Platform snapshot for the ${tab.replace(/_/g, " ")} export.`,
+      creators != null || brands != null
+        ? `Audience mix: ${creators ?? 0} creators, ${brands ?? 0} brands, ${agencies ?? 0} agencies.`
+        : `This file contains ${Object.keys(row).length} metrics.`,
+      campaigns != null ? `Campaigns on file: ${campaigns}.` : null,
+      revenue != null ? `Tracked revenue figure: ${revenue}.` : null,
+      "Figures are taken from live admin stats for the selected timeframe.",
+    ];
+    return parts.filter(Boolean).join(" ");
+  }
+
+  const roles = {};
+  list.forEach((r) => {
+    const role = r.role || r.type || "record";
+    roles[role] = (roles[role] || 0) + 1;
+  });
+  const roleBits = Object.entries(roles)
+    .slice(0, 6)
+    .map(([k, v]) => `${v} ${k}`)
+    .join(", ");
+  return `This export includes ${list.length} ${tab.replace(/_/g, " ")} records (${roleBits || "mixed types"}). Review the data overview and included records below for operational follow-up.`;
+}
+
 /** Generates a polished PDF report for a list of items, including an AI executive summary. */
 export function exportAiReportPdf({
   rows,
   filename,
   title = "flugr Data Report",
-  aiSummary = "Data snapshot summary.",
+  meta = "",
+  aiSummary = "",
+  tab = "overview",
 }) {
-  const { headers, rows: body } = normalizeRows(rows);
+  const { headers: rawHeaders, rows: body } = normalizeRows(rows);
   const dateLabel = new Date().toISOString().slice(0, 10);
-  
-  const blocks = [];
-  blocks.push({ kind: "h1", text: title });
-  blocks.push({ kind: "spacer", gap: 10 });
-  
-  // AI Summary section
-  blocks.push({ kind: "h2", text: "Executive Summary" });
-  blocks.push({ kind: "body", text: String(aiSummary) });
-  blocks.push({ kind: "spacer", gap: 20 });
-  
-  // Data Overview
-  blocks.push({ kind: "h2", text: "Data Overview" });
-  blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
-  blocks.push({ kind: "spacer", gap: 10 });
-  
-  // Group rows for easier reading
-  blocks.push({ kind: "h2", text: "Included Records" });
-  const names = body.map((cols, idx) => {
-    // Just grab the first non-empty column (usually username or email)
-    const primary = cols.find(c => c && String(c).trim() !== "") || `Record ${idx + 1}`;
-    return primary;
+  const summary =
+    (aiSummary && String(aiSummary).trim() && !/AI analysis failed/i.test(aiSummary)
+      ? String(aiSummary).trim()
+      : buildLocalExportSummary(rows, tab));
+
+  const isSummary = body.length <= 1 && rawHeaders.length > 6;
+  const { landscape } = pickPageSize({
+    colCount: rawHeaders.length,
+    isSummary,
+    metricCount: rawHeaders.length,
+    forceLandscape: body.length > 1 && rawHeaders.length >= 5,
   });
-  
-  // Chunk names to avoid huge paragraphs
-  const chunkSize = 20;
-  for (let i = 0; i < names.length; i += chunkSize) {
-    blocks.push({ kind: "body", text: names.slice(i, i + chunkSize).join(" • ") });
+
+  // Wide tabular exports: landscape table PDF is clearer than a long prose dump
+  if (!isSummary && body.length > 0 && rawHeaders.length >= 5) {
+    exportPdf({
+      rows,
+      filename: filename || `flugr-report-${dateLabel}`,
+      title: pdfSafeText(title),
+      meta: `${pdfSafeText(meta)} · AI summary: ${pdfSafeText(summary).slice(0, 160)}`,
+    });
+    return;
+  }
+
+  const blocks = [];
+  blocks.push({ kind: "h1", text: pdfSafeText(title) });
+  if (meta) blocks.push({ kind: "meta", text: `${pdfSafeText(meta)} · ${landscape ? "Landscape" : "Portrait"}` });
+  blocks.push({ kind: "spacer", gap: 10 });
+
+  blocks.push({ kind: "h2", text: "Executive Summary" });
+  blocks.push({ kind: "body", text: summary });
+  blocks.push({ kind: "spacer", gap: 16 });
+
+  if (isSummary) {
+    blocks.push({ kind: "h2", text: "Key Metrics" });
+    const groups = groupMetricPairs(rawHeaders, body[0] || []);
+    Object.entries(groups).forEach(([group, pairs]) => {
+      blocks.push({ kind: "body", text: `${humanizeHeader(group)}:` });
+      // Landscape: pack two metrics per line for density
+      if (landscape) {
+        for (let i = 0; i < pairs.length; i += 2) {
+          const a = pairs[i];
+          const b = pairs[i + 1];
+          blocks.push({
+            kind: "body",
+            text: b ? `${a.label}: ${a.value}    |    ${b.label}: ${b.value}` : `${a.label}: ${a.value}`,
+          });
+        }
+      } else {
+        pairs.forEach((p) => blocks.push({ kind: "body", text: `  ${p.label}: ${p.value}` }));
+      }
+      blocks.push({ kind: "spacer", gap: 6 });
+    });
+  } else {
+    blocks.push({ kind: "h2", text: "Data Overview" });
+    blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
+    blocks.push({ kind: "spacer", gap: 8 });
+    blocks.push({ kind: "h2", text: "Included Records" });
+    const names = body.map((cols, idx) => {
+      const primary = cols.find((c) => c && String(c).trim() !== "") || `Record ${idx + 1}`;
+      return String(primary).slice(0, 48);
+    });
+    const chunkSize = landscape ? 18 : 12;
+    for (let i = 0; i < names.length; i += chunkSize) {
+      names.slice(i, i + chunkSize).forEach((n, j) => {
+        blocks.push({ kind: "body", text: `${i + j + 1}. ${n}` });
+      });
+    }
   }
 
   blocks.push({ kind: "spacer", gap: 15 });
-  blocks.push({ kind: "meta", text: `© flugr · Generated on ${dateLabel}` });
+  blocks.push({ kind: "meta", text: `flugr · Generated on ${dateLabel}` });
 
-  buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`);
+  buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, { landscape });
 }
 
 function fmtAuditMetric(v, { allowZero = true } = {}) {
@@ -601,7 +854,7 @@ export const EXPORT_FORMATS = [
   { id: "csv", label: "CSV", ext: "csv" },
   { id: "excel", label: "Excel (.xls)", ext: "xls" },
   { id: "pdf", label: "PDF (Table)", ext: "pdf" },
-  { id: "pdf_report", label: "PDF (AI Report)", ext: "pdf" },
+  { id: "pdf_report", label: "PDF (Report)", ext: "pdf" },
   { id: "doc", label: "Word (.doc)", ext: "doc" },
 ];
 

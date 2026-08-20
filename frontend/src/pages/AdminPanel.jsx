@@ -470,17 +470,27 @@ export function AdminPanel() {
 
   const exportAIReport = async () => {
     try {
-        toast.info("Generating AI Analysis...");
-        const res = await api.get("/admin/reports/ai-summary");
-        if (res.data && res.data.summary) {
-             const { runExport } = await import("@/lib/exportFormats");
-             await runExport([{summary: res.data.summary}], "pdf", "AI Report Summary");
-             toast.success("AI Report Exported!");
-        } else {
-             toast.error("Failed to parse AI response.");
+        toast.info("Generating report...");
+        const rows = [stats].filter(Boolean);
+        let aiSummary = "";
+        try {
+          const res = await api.post("/admin/reports/ai-summary", { rows, tab: "overview" });
+          aiSummary = res.data?.summary || "";
+        } catch {
+          /* local fallback below */
         }
+        const { exportAiReportPdf, buildLocalExportSummary } = await import("@/lib/exportFormats");
+        exportAiReportPdf({
+          rows,
+          filename: `flugr_ai_report_${new Date().toISOString().slice(0, 10)}`,
+          title: "flugr Admin Platform Report",
+          meta: "AI / analytics snapshot",
+          aiSummary: aiSummary || buildLocalExportSummary(rows, "overview"),
+          tab: "overview",
+        });
+        toast.success("Report exported");
     } catch(err) {
-        toast.error("AI Report generation failed.");
+        toast.error("Report generation failed.");
     }
   };
 
@@ -591,18 +601,30 @@ export function AdminPanel() {
         let aiSummary = "";
         if (exportFormat === "pdf_report") {
             setDownloading(true);
-            toast.info("Generating AI Analysis...");
-            const res = await api.post("/admin/reports/ai-summary", { rows: data.slice(0, 50) });
-            aiSummary = res.data?.summary || "No summary generated.";
+            toast.info("Generating report summary...");
+            try {
+              const res = await api.post("/admin/reports/ai-summary", { rows: data.slice(0, 50), tab });
+              aiSummary = res.data?.summary || "";
+            } catch {
+              aiSummary = "";
+            }
             setDownloading(false);
         }
+
+        const tabLabel =
+          tab === "users"
+            ? (roleFilter.length > 0 ? `${roleFilter[0][0].toUpperCase()}${roleFilter[0].slice(1)}s` : "Users")
+            : tab === "agent_approvals"
+              ? "Approvals"
+              : tab.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
         runExport(exportFormat, {
           rows: data,
           filename: base,
-          title: `flugr Admin — ${tab === "users" ? (roleFilter.length > 0 ? roleFilter[0].charAt(0).toUpperCase() + roleFilter[0].slice(1) + "s" : "Users") : "Platform"} Report`,
+          title: `flugr Admin - ${tabLabel} Report`,
           meta,
           aiSummary,
+          tab,
           sheetName: tab === "users" ? "Users" : "Stats",
         });
         setExportModal(false);
