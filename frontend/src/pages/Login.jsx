@@ -199,12 +199,12 @@ export default function Login() {
     <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative" data-testid="login-page">
       <Nav />
       
-      <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
+      <div className="h-full overflow-y-auto overflow-x-hidden flex items-start sm:items-center justify-center pt-14 pb-4 px-3 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-md max-h-[calc(100dvh-4rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-hidden"
+          className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-y-auto overflow-x-hidden my-2"
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 

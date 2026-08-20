@@ -659,7 +659,7 @@ export default function SupportDashboard() {
                   </button>
                 ))}
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2.5">
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {[
                   ["Influencer", stats.influencer ?? 0, "influencer", Star],
                   ["Company", stats.company ?? 0, "company", Building2],
@@ -910,11 +910,11 @@ export default function SupportDashboard() {
                   {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF9500]/30 text-[#FF9500]">Escalate</button>)}
                   {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
                   {can("support.tickets.update") && (
-                    <MenuSelect className="w-[8.5rem]" value={ticket.priority || "Medium"} onChange={(v) => patch({ priority: v })} options={PRIORITY_OPTIONS.filter((o) => o.value)} />
+                    <MenuSelect className="w-full sm:w-[8.5rem]" value={ticket.priority || "Medium"} onChange={(v) => patch({ priority: v })} options={PRIORITY_OPTIONS.filter((o) => o.value)} />
                   )}
                   {canAssign && agents.length > 0 && (
                     <MenuSelect
-                      className="w-[10rem]"
+                      className="w-full sm:w-[10rem]"
                       value={ticket.assignee_id || ""}
                       onChange={(v) => patch({ assignee_id: v })}
                       options={[{ value: "", label: "Unassigned" }, ...agents.map((a) => ({ value: a.id, label: a.name }))]}

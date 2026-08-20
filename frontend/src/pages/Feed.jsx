@@ -772,8 +772,8 @@ function CreatePostModal({ onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 my-8">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#121212] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-4 my-4 sm:my-8">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="font-editorial text-2xl font-bold">Create Post</h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5 opacity-60" /></button>

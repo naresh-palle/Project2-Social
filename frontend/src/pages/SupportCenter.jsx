@@ -208,11 +208,11 @@ export default function SupportCenter() {
                       selectedId === t.id ? "border-[#FF3B30]/50 bg-[#FF3B30]/10" : "border-white/10 bg-white/[0.02]"
                     }`}
                   >
-                    <div>
+                    <div className="min-w-0 flex-1 overflow-hidden pr-2">
                       <div className="font-mono text-[10px] tracking-widest text-white/40 mb-1">
                         {t.number} · {(t.created_at || "").slice(0, 10)}
                       </div>
-                      <div className="font-sans font-medium text-base">{t.subject}</div>
+                      <div className="font-sans font-medium text-base truncate">{t.subject}</div>
                     </div>
                     <div className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider shrink-0 ${statusClass(t.status)}`}>
                       {(t.status || "").replace(/_/g, " ")}
@@ -265,7 +265,7 @@ export default function SupportCenter() {
                     <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Subject</label>
                     <input type="text" required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Category</label>
                       <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm">

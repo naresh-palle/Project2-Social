@@ -42,9 +42,9 @@ export function AppLayout() {
       <Sidebar mobileOpen={navOpen} onClose={() => setNavOpen(false)} />
       <ThemeToaster />
 
-      <main className="flex-1 ml-0 lg:ml-64 relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
-        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5 overflow-visible">
-          <Link to="/dashboard" className="lg:hidden font-editorial text-lg text-[#FF3B30] shrink-0">
+      <main className="flex-1 ml-0 lg:ml-[16.5rem] relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
+        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5 overflow-visible safe-px">
+          <Link to="/dashboard" className="lg:hidden font-editorial text-lg text-[#FF3B30] shrink-0 truncate max-w-[40vw]">
             flugr
           </Link>
           <div className="ml-auto flex items-center gap-2 shrink-0 relative z-[86]">
@@ -78,7 +78,7 @@ export function AppLayout() {
         </header>
         <div
           id="app-scroll"
-          className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 pt-3 pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] lg:pb-12"
+          className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 pt-3 pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] lg:pb-12 safe-px"
         >
           <ErrorBoundary>
             <Outlet />

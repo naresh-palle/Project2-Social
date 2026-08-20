@@ -489,7 +489,7 @@ export default function Register() {
             data-testid={`register-form-${role}`}
             autoComplete="off"
           >
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1 min-h-0">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1 min-h-0 overflow-y-auto flex-1 pr-0.5">
             <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
             
@@ -512,7 +512,7 @@ export default function Register() {
                 <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-70 font-medium">
                   Talent Agent Type *
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
@@ -680,13 +680,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0B0E]/90 backdrop-blur-sm p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0B0E]/90 backdrop-blur-sm p-3 sm:p-6"
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0B0B0E] border border-[#F4F4F0]/20 p-8 md:p-12 max-w-md w-full relative"
+              className="bg-[#0B0B0E] border border-[#F4F4F0]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
             >
               <button 
                 type="button"

@@ -112,21 +112,21 @@ export function ImageCropModal({
     "Apply crop";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-      <div className="w-full max-w-lg bg-[#121212] border border-white/20 shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-          <h3 className="font-editorial text-xl">{title}</h3>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-4">
+      <div className="w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto bg-[#121212] border border-white/20 shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-[#121212] z-10">
+          <h3 className="font-editorial text-xl truncate pr-2">{title}</h3>
           <button
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="p-2 opacity-60 hover:opacity-100 disabled:opacity-30"
+            className="p-2 opacity-60 hover:opacity-100 disabled:opacity-30 shrink-0"
             aria-label="Cancel crop"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="relative h-72 bg-black">
+        <div className="relative h-[min(18rem,42dvh)] sm:h-72 bg-black">
           <Cropper
             image={imageSrc}
             crop={crop}

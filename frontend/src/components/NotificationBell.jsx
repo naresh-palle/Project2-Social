@@ -71,7 +71,8 @@ export function NotificationBell() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#121212] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90]"
+            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#121212] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90] left-auto"
+            style={{ maxWidth: "min(360px, calc(100vw - 1rem))" }}
             data-testid="notif-panel"
           >
             <div className="p-4 hairline-b flex items-center justify-between">

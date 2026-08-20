@@ -84,9 +84,9 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#34C759] border-2 border-[#0B0B0E] rounded-full" />
             </div>
 
-            <h3 className="font-sans font-bold text-[15px] tracking-tight text-white flex items-center gap-1 justify-center leading-tight">
-              {displayAccountName(user)}
-              {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5" tone="brand" />}
+            <h3 className="font-sans font-bold text-[15px] tracking-tight text-white flex items-center gap-1 justify-center leading-tight max-w-full px-1">
+              <span className="truncate">{displayAccountName(user)}</span>
+              {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5 shrink-0" tone="brand" />}
             </h3>
             <p className="font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-[#FF3B30] mt-1">
               {user?.role === "admin"

@@ -270,14 +270,14 @@ export default function Marketplace() {
               </button>
             ))}
           </div>
-          <form onSubmit={onSearch} className="flex items-center gap-2">
-            <div className="flex items-center gap-2 border-b border-white/20 py-1.5 pl-1.5 pr-2">
-              <AiIcon name="search" className="w-4 h-4 opacity-70" />
+          <form onSubmit={onSearch} className="flex items-center gap-2 w-full sm:w-auto min-w-0">
+            <div className="flex items-center gap-2 border-b border-white/20 py-1.5 pl-1.5 pr-2 flex-1 min-w-0 sm:flex-none">
+              <AiIcon name="search" className="w-4 h-4 opacity-70 shrink-0" />
               <input
                 data-testid="search-input"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="bg-transparent focus:outline-none w-36 md:w-56 font-sans text-sm"
+                className="bg-transparent focus:outline-none w-full min-w-0 sm:w-36 md:w-56 font-sans text-sm"
                 placeholder={tab === "creators" ? "Search influencers…" : "Search briefs…"}
                 aria-label="Search"
               />
@@ -297,7 +297,7 @@ export default function Marketplace() {
         </div>
 
         {tab === "creators" ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
             {creators.map((c, i) => (
               <CreatorDirectoryCard key={c.id} creator={c} index={i} />
             ))}
@@ -335,13 +335,13 @@ export default function Marketplace() {
                         <p className="font-sans text-xs text-white/50 mt-1 line-clamp-2">{c.description}</p>
                       ) : null}
                     </div>
-                    <div className="col-span-6 md:col-span-3 font-sans text-[10px] tracking-[0.16em] uppercase opacity-70 truncate">
+                    <div className="col-span-12 sm:col-span-6 md:col-span-3 font-sans text-[10px] tracking-[0.16em] uppercase opacity-70 truncate">
                       {(c.niches || []).slice(0, 3).join(" · ") || c.category || "General"}
                     </div>
-                    <div className="col-span-3 md:col-span-2 font-sans text-lg font-bold text-[#34C759]">
+                    <div className="col-span-6 sm:col-span-3 md:col-span-2 font-sans text-lg font-bold text-[#34C759]">
                       ₹{Number(c.budget || 0).toLocaleString()}
                     </div>
-                    <div className="col-span-3 md:col-span-1 text-right font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]">
+                    <div className="col-span-6 sm:col-span-3 md:col-span-1 text-right font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]">
                       View →
                     </div>
                   </div>

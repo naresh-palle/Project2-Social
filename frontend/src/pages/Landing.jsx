@@ -53,7 +53,7 @@ function Hero() {
   const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
 
   return (
-    <section ref={ref} className="theme-keep-dark relative h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
+    <section ref={ref} className="theme-keep-dark relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
       {/* 1. Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
@@ -103,9 +103,9 @@ function Hero() {
         />
       ))}
 
-      {/* 4. Left content area */}
-      <div className="relative z-10 flex flex-col h-full px-8 md:px-14 pt-[76px] pb-6 justify-between"
-        style={{ width: "48%", minWidth: "320px", maxWidth: "620px" }}
+      {/* 4. Left content area — full width on mobile; preserve desktop 48% column */}
+      <div
+        className="relative z-10 flex flex-col h-full w-full md:w-[48%] px-5 sm:px-8 md:px-14 pt-[76px] pb-6 justify-between min-w-0 max-w-full md:max-w-[620px]"
       >
         <motion.div
           className="flex items-center justify-between pb-3"

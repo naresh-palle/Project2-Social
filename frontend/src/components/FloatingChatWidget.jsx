@@ -42,7 +42,7 @@ export function FloatingChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
-            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[60] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#0B0B0E] border border-[#FF3B30]/35 rounded-3xl shadow-[0_20px_60px_rgba(255,59,48,0.25)] overflow-hidden flex flex-col"
+            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[60] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] min-w-0 h-[min(560px,calc(100dvh-11rem))] max-h-[calc(100dvh-7.5rem)] landscape:h-[min(420px,calc(100dvh-6.5rem))] landscape:max-h-[calc(100dvh-5.5rem)] bg-[#0B0B0E] border border-[#FF3B30]/35 rounded-3xl shadow-[0_20px_60px_rgba(255,59,48,0.25)] overflow-hidden flex flex-col"
             data-testid="messages-popup"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-[#FF3B30]/20 via-[#FF6B35]/10 to-transparent shrink-0">

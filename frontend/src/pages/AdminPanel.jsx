@@ -776,7 +776,7 @@ export function AdminPanel() {
                         <div className="flex items-center gap-2 shrink-0 pb-2">
                             <Filter className="w-3 h-3 opacity-50" />
                         </div>
-                        <div className="w-[140px]">
+                        <div className="w-full sm:w-[140px] min-w-0">
                           <MultiSelectDropdown
                             options={USER_ROLE_OPTIONS}
                             selected={roleFilter}
@@ -787,7 +787,7 @@ export function AdminPanel() {
                             label="Role"
                           />
                         </div>
-                        <div className="w-[180px]">
+                        <div className="w-full sm:w-[180px] min-w-0">
                           <MultiSelectDropdown
                             options={PLATFORM_CATEGORIES}
                             selected={categoryFilter}
@@ -798,7 +798,7 @@ export function AdminPanel() {
                             label="Category"
                           />
                         </div>
-                        <div className="w-[140px]">
+                        <div className="w-full sm:w-[140px] min-w-0">
                           <MultiSelectDropdown
                             options={USER_STATUS_OPTIONS}
                             selected={statusFilter}
@@ -809,9 +809,9 @@ export function AdminPanel() {
                             label="Status"
                           />
                         </div>
-                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
-                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
-                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-[110px]" />
+                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
                     </div>
                 </div>
                 <div className="glass-panel overflow-x-auto">
@@ -1083,7 +1083,7 @@ export function AdminPanel() {
                           className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans"
                         />
                     </div>
-                    <div className="w-[180px]">
+                    <div className="w-full sm:w-[180px] min-w-0">
                       <MultiSelectDropdown
                         options={[...new Set(activity.map((a) => a.type).filter(Boolean))]}
                         selected={auditTypeFilter}
@@ -1094,7 +1094,7 @@ export function AdminPanel() {
                         label="Action Type"
                       />
                     </div>
-                    <div className="w-[160px]">
+                    <div className="w-full sm:w-[160px] min-w-0">
                       <MultiSelectDropdown
                         options={["Completed", "Pending", "Failed"]}
                         selected={auditStatusFilter}
@@ -1186,7 +1186,7 @@ export function AdminPanel() {
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (
         <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-6 md:p-8 max-w-lg w-full rounded-3xl shadow-2xl space-y-6">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
@@ -1619,7 +1619,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       ) : (
         /* LIST VIEW */
         <div className="border border-white/15 bg-[#121212] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
-          <div className="grid grid-cols-12 px-6 py-3 border-b border-white/10 bg-white/[0.02] text-white/50 text-[10px] tracking-widest uppercase font-bold">
+          <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-white/10 bg-white/[0.02] text-white/50 text-[10px] tracking-widest uppercase font-bold">
             <div className="col-span-4">Agency / Company</div>
             <div className="col-span-3">Contact &amp; Location</div>
             <div className="col-span-2">Type / Industry</div>
@@ -1630,20 +1630,20 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             const isApproved = Boolean(ag.agent_approved);
 
             return (
-              <div key={ag.id || i} className="grid grid-cols-12 items-center px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
-                <div className="col-span-4 space-y-0.5">
-                  <div className="font-sans text-lg text-white font-bold">{companyName}</div>
-                  <div className="text-[10px] text-white/50">{ag.bio || "Talent agency partner."}</div>
+              <div key={ag.id || i} className="flex flex-col gap-3 md:grid md:grid-cols-12 md:items-center px-4 md:px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
+                <div className="md:col-span-4 space-y-0.5 min-w-0">
+                  <div className="font-sans text-lg text-white font-bold break-words">{companyName}</div>
+                  <div className="text-[10px] text-white/50 line-clamp-2">{ag.bio || "Talent agency partner."}</div>
                 </div>
-                <div className="col-span-3 space-y-0.5 text-white/70 text-[11px]">
-                  <div>{ag.name || "Agency Contact"} ({ag.email || "agency@cr8.studio"})</div>
+                <div className="md:col-span-3 space-y-0.5 text-white/70 text-[11px] min-w-0">
+                  <div className="break-words">{ag.name || "Agency Contact"} ({ag.email || "agency@cr8.studio"})</div>
                   <div className="text-[10px] text-white/40">{ag.city || "India"}</div>
                 </div>
-                <div className="col-span-2 space-y-0.5">
+                <div className="md:col-span-2 space-y-0.5">
                   <span className="text-[#FF3B30] font-bold text-[10px] uppercase block">{ag.agent_type || "Agency"}</span>
                   <span className="text-white/60 text-[10px]">{ag.industry || "Media"}</span>
                 </div>
-                <div className="col-span-3 flex items-center justify-end gap-2">
+                <div className="md:col-span-3 flex flex-wrap items-center md:justify-end gap-2">
                   {!isApproved ? (
                     <>
                       <button type="button" onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#34C759] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
@@ -1662,7 +1662,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       {/* DECLINE MODAL */}
       {declineModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4 shadow-2xl">
+          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
             <h3 className="font-sans text-2xl text-white font-bold">Decline Agency Access</h3>
             <p className="font-sans text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea
@@ -1672,7 +1672,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
               className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-white rounded-xs h-24 focus:outline-none focus:border-[#FF3B30]"
               required
             />
-            <div className="flex justify-end gap-3 font-sans text-xs">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 font-sans text-xs">
               <button type="button" onClick={() => setDeclineModal(null)} className="px-4 py-2 border border-white/20 hover:bg-white/5">Cancel</button>
               <button type="submit" className="px-4 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Confirm Decline</button>
             </div>

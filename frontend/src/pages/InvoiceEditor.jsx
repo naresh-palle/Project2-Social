@@ -314,20 +314,20 @@ export default function InvoiceEditor() {
               }}>{c.code} — {c.description}</button>
             ))}
             {(inv.line_items || []).map((it, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-1 mb-2">
-                <input disabled={locked} className="col-span-4 bg-transparent border-b border-white/15 py-1 text-xs" placeholder="Description" value={it.description || ""} onChange={(e) => {
+              <div key={idx} className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-2 sm:gap-1 mb-3 sm:mb-2">
+                <input disabled={locked} className="col-span-1 sm:col-span-6 lg:col-span-4 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Description" value={it.description || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, description: e.target.value }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-2 bg-transparent border-b border-white/15 py-1 text-xs" placeholder="SAC/HSN" value={it.sac_hsn || ""} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="SAC/HSN" value={it.sac_hsn || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, sac_hsn: e.target.value }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-1 bg-transparent border-b border-white/15 py-1 text-xs" placeholder="Qty" value={it.qty} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-1 lg:col-span-1 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Qty" value={it.qty} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, qty: Number(e.target.value) }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-2 bg-transparent border-b border-white/15 py-1 text-xs" placeholder="Rate" value={it.rate} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Rate" value={it.rate} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, rate: Number(e.target.value) }; setInv({ ...inv, line_items: items });
                 }} />
-                <select disabled={locked} className="col-span-2 bg-[#121212] border-b border-white/15 py-1 text-xs" value={it.discount_kind || ""} onChange={(e) => {
+                <select disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-[#121212] border-b border-white/15 py-1 text-xs min-w-0" value={it.discount_kind || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, discount_kind: e.target.value }; setInv({ ...inv, line_items: items });
                 }}>
                   <option value="">No disc.</option>
@@ -335,7 +335,7 @@ export default function InvoiceEditor() {
                   <option value="amount">₹ disc.</option>
                 </select>
                 {!locked ? (
-                  <button type="button" className="icon-action col-span-1" aria-label="Remove line" onClick={() => setInv({ ...inv, line_items: inv.line_items.filter((_, i) => i !== idx) })}>
+                  <button type="button" className="icon-action col-span-1 sm:col-span-1 lg:col-span-1 justify-self-start" aria-label="Remove line" onClick={() => setInv({ ...inv, line_items: inv.line_items.filter((_, i) => i !== idx) })}>
                     <AiIcon name="trash" className="w-3 h-3" />
                   </button>
                 ) : null}

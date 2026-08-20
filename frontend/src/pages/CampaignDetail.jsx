@@ -289,8 +289,8 @@ export default function CampaignDetail() {
       </div>
 
       <div className="px-4 md:px-8 pr-2 pb-10">
-        <div className="grid grid-cols-12 gap-8 mt-2">
-          <div className="col-span-12 md:col-span-7">
+        <div className="grid grid-cols-12 gap-4 md:gap-8 mt-2">
+          <div className="col-span-12 md:col-span-7 min-w-0">
             <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
               <Meta label="Budget" value={`₹${brief.budget}`} accent />
               <Meta label="Niches" value={(brief.niches || []).join(" · ") || "—"} />
@@ -326,14 +326,14 @@ export default function CampaignDetail() {
                   {apps.length === 0 ? (
                     <div className="opacity-60 italic">No applications yet.</div>
                   ) : apps.map(a => (
-                    <div key={a.id} className="hairline-b py-4 grid grid-cols-12 gap-4" data-testid={`app-row-${a.id}`}>
-                      <div className="col-span-4">
-                        <Link to={`/creators/${a.influencer_id}`} className="font-editorial text-2xl kinetic-underline">{a.influencer_name}</Link>
-                        <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{a.influencer_handle}</div>
+                    <div key={a.id} className="hairline-b py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 md:gap-4" data-testid={`app-row-${a.id}`}>
+                      <div className="md:col-span-4 min-w-0">
+                        <Link to={`/creators/${a.influencer_id}`} className="font-editorial text-2xl kinetic-underline break-words">{a.influencer_name}</Link>
+                        <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 truncate">{a.influencer_handle}</div>
                       </div>
-                      <div className="col-span-4 opacity-80 text-sm italic">"{a.pitch}"</div>
-                      <div className="col-span-2 font-sans text-xl font-medium tracking-tight">₹{a.rate}</div>
-                      <div className="col-span-2 text-right">
+                      <div className="sm:col-span-2 md:col-span-4 opacity-80 text-sm italic break-words">"{a.pitch}"</div>
+                      <div className="md:col-span-2 font-sans text-xl font-medium tracking-tight">₹{a.rate}</div>
+                      <div className="md:col-span-2 sm:text-right">
                         {a.status === "pending" ? (
                           <button onClick={() => acceptApp(a.id)} data-testid={`accept-${a.id}`} className="btn-solid text-xs">
                             <Check className="w-3 h-3" /> Accept
@@ -405,28 +405,28 @@ export default function CampaignDetail() {
                       <motion.div key={m.id}
                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: idx * 0.06 }}
-                        className="hairline-t hairline-b hairline-l hairline-r p-4 grid grid-cols-12 gap-4 items-center"
+                        className="hairline-t hairline-b hairline-l hairline-r p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 md:gap-4 items-center"
                         data-testid={`match-${m.id}`}
                       >
-                        <div className="col-span-1 font-editorial italic text-4xl text-[#FF3B30]">#{idx + 1}</div>
-                        <div className="col-span-1">
+                        <div className="md:col-span-1 font-editorial italic text-4xl text-[#FF3B30]">#{idx + 1}</div>
+                        <div className="md:col-span-1">
                           {m.avatar ? (
                             <img src={m.avatar} alt="" className="w-14 h-14 object-cover" />
                           ) : (
                             <div className="w-14 h-14 bg-white/5 flex items-center justify-center font-editorial text-2xl italic">{m.name?.[0]}</div>
                           )}
                         </div>
-                        <div className="col-span-4">
-                          <Link to={`/creators/${m.id}`} className="font-editorial text-2xl kinetic-underline">{m.name}</Link>
-                          <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60">{m.handle} · {(m.niches || []).join(" · ")}</div>
+                        <div className="sm:col-span-2 md:col-span-4 min-w-0">
+                          <Link to={`/creators/${m.id}`} className="font-editorial text-2xl kinetic-underline break-words">{m.name}</Link>
+                          <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 truncate">{m.handle} · {(m.niches || []).join(" · ")}</div>
                           <p className="text-xs italic opacity-80 mt-1 line-clamp-2">"{m.verdict}"</p>
                         </div>
-                        <div className="col-span-2 font-editorial italic text-4xl text-[#FF3B30]">{m.score}%</div>
-                        <div className="col-span-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">
+                        <div className="md:col-span-2 font-editorial italic text-4xl text-[#FF3B30]">{m.score}%</div>
+                        <div className="md:col-span-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">
                           {m.followers ? `${Math.round(m.followers / 1000)}K` : "—"}<br/>
                           <span className="opacity-70">{m.estimated_reach}</span>
                         </div>
-                        <div className="col-span-2 flex flex-col gap-1 items-end">
+                        <div className="md:col-span-2 flex flex-row sm:flex-col gap-1 sm:items-end">
                           <button onClick={() => setInviteForCreator(m)} data-testid={`invite-match-${m.id}`} className="btn-solid text-[10px]">
                             <Send className="w-3 h-3" /> Invite
                           </button>

@@ -207,7 +207,7 @@ export default function SocialMediaAudit() {
                   <span className="font-mono text-[9px] uppercase text-white/40">{p.api_status}</span>
                 </div>
                 <p className="font-sans text-[11px] text-white/50 truncate mb-2">{p.handle || "Not connected"}</p>
-                <div className="grid grid-cols-4 gap-1 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center">
                   <MiniStat label="Followers" value={displayMetric(p.followers, { format: formatCompactNumber })} />
                   <MiniStat label="ER" value={formatEngagementRate(p.engagementRate)} />
                   <MiniStat label="Views" value={displayMetric(p.views, { format: formatCompactNumber, allowZero: false })} />

@@ -355,12 +355,12 @@ export default function Discover() {
           value={filters.q}
           onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
           placeholder="Name or username"
-          className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-40"
+          className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-40 max-w-full min-w-0"
         />
         <select
           value={campaignId}
           onChange={(e) => setCampaignId(e.target.value)}
-          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs"
+          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
         >
           <option value="">No campaign brief</option>
           {campaigns.map((c) => (
@@ -379,7 +379,7 @@ export default function Discover() {
       </div>
 
       {showFilters && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4 rounded-2xl border border-white/10 p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-4 rounded-2xl border border-white/10 p-3">
           <MultiSelectDropdown label="Platform" options={PLATFORMS} selected={filters.platforms} onChange={(v) => setFilters((f) => ({ ...f, platforms: v }))} />
           <MultiSelectDropdown label="Category" options={PLATFORM_CATEGORIES} selected={filters.categories} onChange={(v) => setFilters((f) => ({ ...f, categories: v }))} />
           <MultiSelectDropdown label="Language" options={LANGS} selected={filters.languages} onChange={(v) => setFilters((f) => ({ ...f, languages: v }))} />
@@ -447,7 +447,7 @@ export default function Discover() {
       )}
 
       {compare.length > 0 && (
-        <div className="fixed bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#121212]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
+        <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#121212]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
           <GitCompare className="w-4 h-4 text-[#FF3B30]" />
           {compare.map((c) => (
             <button key={c.id} type="button" onClick={() => toggleCompare(c)} className="font-sans text-xs border border-white/15 rounded-full px-2 py-0.5">
@@ -460,12 +460,13 @@ export default function Discover() {
 
       {compareRows && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setCompareRows(null)}>
-          <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-5xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between mb-3">
+          <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-5xl w-full max-h-[min(85vh,90dvh)] overflow-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between mb-3 gap-2">
               <h2 className="font-sans text-xl font-bold">Compare</h2>
               <button type="button" onClick={() => setCompareRows(null)}><X className="w-5 h-5" /></button>
             </div>
-            <table className="w-full text-left text-xs">
+            <div className="table-scroll">
+            <table className="w-full min-w-[32rem] text-left text-xs">
               <thead>
                 <tr className="font-mono uppercase tracking-widest text-white/40">
                   <th className="p-2">Metric</th>
@@ -495,6 +496,7 @@ export default function Discover() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

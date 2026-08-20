@@ -60,7 +60,7 @@ export function Nav({ variant = "dark" }) {
         isPaper ? "bg-[#F4F4F0]/70 text-[#0A0A0A]" : "app-nav-surface"
       }`}
     >
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-10 py-4">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-4 min-w-0">
         <Link 
           to={user ? "/dashboard" : "/"} 
           onClick={() => {
@@ -70,9 +70,9 @@ export function Nav({ variant = "dark" }) {
             }
           }} 
           data-testid="nav-logo" 
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0"
         >
-          <span className="font-editorial italic text-2xl leading-[1.15]">flugr</span>
+          <span className="font-editorial italic text-xl sm:text-2xl leading-[1.15] truncate">flugr</span>
         </Link>
 
 
@@ -91,7 +91,7 @@ export function Nav({ variant = "dark" }) {
           </div>
         )}
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           {user && (
             <form
               onSubmit={(e) => {

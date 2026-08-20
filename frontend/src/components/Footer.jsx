@@ -7,7 +7,7 @@ export function Footer() {
       className="bg-[#050505] text-[#F4F4F0] pt-16 pb-16 border-t border-white/10 font-mono relative z-10"
       data-testid="site-footer"
     >
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
         <div>
           <div className="font-editorial text-3xl font-bold mb-3 italic">
             flugr

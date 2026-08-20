@@ -1275,7 +1275,7 @@ export default function ProfileEdit() {
                     </h2>
                     
                     <F label="Images and Videos">
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
                           <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10 rounded-3xl overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (

@@ -547,7 +547,7 @@ const toggleCategory = (c) => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative"
+                className="bg-[#121212] border border-white/10 p-5 sm:p-6 md:p-8 rounded-3xl w-full max-w-md max-h-[min(90dvh,36rem)] overflow-y-auto shadow-2xl relative"
               >
                 <button 
                   onClick={() => setManualAuthPlatform(null)}
@@ -636,14 +636,14 @@ const toggleCategory = (c) => {
   return (
     <Layout step={4} title="Review your profile." subtitle="Final Step / Confirmation">
       <div className="space-y-8">
-        <div className="grid grid-cols-2 gap-6 p-6 border border-[#F4F4F0]/10 bg-white/5">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 border border-[#F4F4F0]/10 bg-white/5">
+          <div className="min-w-0">
             <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Name</div>
-            <div className="font-editorial text-2xl">{user.name}</div>
+            <div className="font-editorial text-xl sm:text-2xl break-words">{user.name}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Location</div>
-            <div className="font-editorial text-2xl">{f.city || user.city}</div>
+            <div className="font-editorial text-xl sm:text-2xl break-words">{f.city || user.city}</div>
           </div>
           {user.role === "owner" && (
             <div className="col-span-2">

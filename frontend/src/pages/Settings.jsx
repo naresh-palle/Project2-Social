@@ -607,8 +607,8 @@ export default function Settings() {
             <p className="font-sans text-xs text-white/80 mb-6">
               Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
             </p>
-            <div className="flex gap-3 justify-end">
-              <button
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                <button
                 onClick={() => setShowDeleteModal(false)}
                 className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-colors"
               >

@@ -85,7 +85,7 @@ export function ApifyLookupPanel({ compact = false }) {
             ))}
           </select>
         </label>
-        <label className="flex-1 min-w-[12rem] font-mono text-[9px] uppercase tracking-widest text-white/40">
+        <label className="flex-1 min-w-0 w-full sm:min-w-[12rem] font-mono text-[9px] uppercase tracking-widest text-white/40">
           User ID or URL
           <input
             value={handle}

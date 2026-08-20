@@ -70,7 +70,8 @@ export function InvoicePreview({ invoice, demo = false }) {
         </div>
       </div>
 
-      <table className="w-full mt-5 text-left">
+      <div className="table-scroll mt-5">
+        <table className="w-full min-w-[28rem] text-left">
         <thead>
           <tr className="bg-black text-white font-mono text-[8px] uppercase tracking-widest">
             <th className="p-1.5 font-medium">Description</th>
@@ -91,7 +92,8 @@ export function InvoicePreview({ invoice, demo = false }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
 
       <div className="flex justify-end mt-4">
         <dl className="w-56 space-y-1">

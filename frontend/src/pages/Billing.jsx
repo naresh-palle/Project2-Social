@@ -161,16 +161,16 @@ export default function Billing() {
       ) : null}
 
       <div className="flex flex-wrap gap-2 mb-3">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoice, client, campaign" className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-56" />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoice, client, campaign" className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-56 max-w-full min-w-0" />
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full">
           <option value="">All statuses</option>
           {STATUS.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
         </select>
-        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">{total} invoices</span>
+        <span className="sm:ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">{total} invoices</span>
       </div>
 
-      <div className="rounded-2xl border border-white/10 overflow-auto">
-        <table className="w-full text-left text-xs">
+      <div className="rounded-2xl border border-white/10 table-scroll">
+        <table className="w-full min-w-[44rem] text-left text-xs">
           <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40">
             <tr>
               {["Invoice", "Client", "Campaign", "Date", "Due", "Amount", "GST", "Status", ""].map((h) => (

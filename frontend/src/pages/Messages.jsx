@@ -354,8 +354,8 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           </div>
         )}
 
-        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 bg-transparent" : "flex-1 flex flex-col min-h-0 border border-white/10 rounded-3xl overflow-hidden h-[min(70vh,640px)] bg-white/[0.01]"}>
-          <aside className={active ? "hidden" : "flex-1 overflow-y-auto"}>
+        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 min-w-0 bg-transparent" : "flex-1 flex flex-col md:flex-row min-h-0 min-w-0 border border-white/10 rounded-3xl overflow-hidden h-[min(70vh,640px)] md:h-[min(75vh,720px)] bg-white/[0.01]"}>
+          <aside className={`${active ? "hidden md:flex" : "flex"} flex-col flex-1 md:flex-none md:w-[min(100%,280px)] md:border-r md:border-white/10 overflow-y-auto min-w-0`}>
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
@@ -392,12 +392,12 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             )}
           </aside>
 
-          <section className={!active ? "hidden" : "flex-1 flex flex-col min-h-0 bg-[#0B0B0E]"}>
+          <section className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 bg-[#0B0B0E]`}>
             {active ? (
-              <div className="flex flex-col h-full relative">
+              <div className="flex flex-col h-full relative min-w-0">
                 <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
-                    <button onClick={() => setActive(null)} className="p-2 -ml-2 opacity-60 hover:opacity-100">
+                    <button type="button" onClick={() => setActive(null)} className="md:hidden p-2 -ml-2 opacity-60 hover:opacity-100" aria-label="Back to conversations">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                   <div className="min-w-0">

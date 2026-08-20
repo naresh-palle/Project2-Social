@@ -225,8 +225,8 @@ export default function Referrals() {
             </span>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left font-sans text-sm">
+            <div className="table-scroll">
+              <table className="w-full min-w-[36rem] text-left font-sans text-sm">
                 <thead className="bg-white/[0.04] font-mono text-[10px] tracking-widest uppercase text-white/45 border-b border-white/10">
                   <tr>
                     <th className="px-4 py-3">Name</th>

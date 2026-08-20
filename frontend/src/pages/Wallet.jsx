@@ -165,7 +165,7 @@ export default function Wallet() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF3B30] rounded-3xl w-40"
+                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF3B30] rounded-3xl w-full sm:w-40 max-w-full min-w-0"
               />
             </div>
             <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
@@ -189,8 +189,8 @@ export default function Wallet() {
           </div>
         </div>
 
-        <div className="mt-3 border border-white/10 rounded-3xl overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="mt-3 border border-white/10 rounded-3xl table-scroll">
+          <table className="w-full min-w-[36rem] text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 font-sans text-[10px] uppercase tracking-wider opacity-50 bg-white/[0.02]">
                 <th className="px-3 py-2.5 font-medium">Date</th>

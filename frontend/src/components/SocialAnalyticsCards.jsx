@@ -68,26 +68,26 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 )}
               </div>
               
-              <div className="grid grid-cols-5 gap-2 pt-2 border-t border-white/5">
-                <div title={formatExactNumber(followers) || undefined}>
+              <div className="metric-grid-5 pt-2 border-t border-white/5">
+                <div className="min-w-0" title={formatExactNumber(followers) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Followers</div>
-                  <div className="text-sm font-semibold tabular-nums">{displayMetric(followers, { format: formatCompactNumber })}</div>
+                  <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(followers, { format: formatCompactNumber })}</div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
-                  <div className="text-sm font-semibold tabular-nums text-[#34C759]">{formatEngagementRate(er)}</div>
+                  <div className="text-sm font-semibold tabular-nums text-[#34C759] truncate">{formatEngagementRate(er)}</div>
                 </div>
-                <div title={formatExactNumber(views) || undefined}>
+                <div className="min-w-0" title={formatExactNumber(views) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Views</div>
-                  <div className="text-sm font-semibold tabular-nums">{displayMetric(views, { format: formatCompactNumber, allowZero: c.platform === "youtube" })}</div>
+                  <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(views, { format: formatCompactNumber, allowZero: c.platform === "youtube" })}</div>
                 </div>
-                <div title={formatExactNumber(reach) || undefined}>
+                <div className="min-w-0" title={formatExactNumber(reach) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Reach</div>
-                  <div className="text-sm font-semibold tabular-nums">{displayMetric(reach, { format: formatCompactNumber, allowZero: false })}</div>
+                  <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(reach, { format: formatCompactNumber, allowZero: false })}</div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Posts</div>
-                  <div className="text-sm font-semibold tabular-nums">{displayMetric(posts, { format: formatCompactNumber })}</div>
+                  <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(posts, { format: formatCompactNumber })}</div>
                 </div>
               </div>
             </div>

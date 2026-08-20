@@ -132,20 +132,20 @@ export function CreatorDashboard({
               {pendingCollabs} collab{pendingCollabs === 1 ? "" : "s"} pending · {activeCampaigns} active
             </p>
           </div>
-          <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 ml-auto">
-            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 min-w-[7.5rem]" data-testid="earnings-pitches">
+          <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
+            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Pitches</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{pitches}</p>
               <p className="text-[10px] text-white/55 mt-0.5">applications</p>
             </div>
-            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 min-w-[7.5rem]" data-testid="earnings-campaigns">
+            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Campaigns</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{openBriefs || activeCampaigns}</p>
               <p className="text-[10px] text-white/55 mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
             </div>
             <Link
               to="/wallet"
-              className="inline-flex items-center gap-1.5 self-center bg-white text-[#0A0A0A] font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 self-stretch sm:self-center bg-white text-[#0A0A0A] font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0 w-full sm:w-auto"
             >
               <Wallet className="w-4 h-4" /> Withdraw
             </Link>
