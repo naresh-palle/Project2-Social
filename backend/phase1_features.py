@@ -1620,10 +1620,36 @@ def setup_phase1(
 
     # ---------- Admin extras ----------
     @api_router.get("/admin/reports")
-    async def admin_reports(status: Optional[str] = "open", current: dict = Depends(get_current_user)):
+    async def admin_reports(status: Optional[str] = "all", current: dict = Depends(get_current_user)):
         await require_role(current, ["admin"])
-        q = {} if status == "all" else {"status": status}
-        return await db.reports.find(q, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+        q = {} if not status or status == "all" else {"status": status}
+        rows = await db.reports.find(q, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+        # Resolve target labels so Reports matches Users identity fields
+        target_ids = [r.get("target_id") for r in rows if r.get("target_type") in ("user", "creator", "brand", "agency", "profile") and r.get("target_id")]
+        by_id = {}
+        if target_ids:
+            docs = await db.users.find(
+                {"id": {"$in": target_ids}},
+                {"_id": 0, "id": 1, "username": 1, "handle": 1, "name": 1, "email": 1, "role": 1},
+            ).to_list(200)
+            by_id = {d["id"]: d for d in docs}
+        for r in rows:
+            tid = r.get("target_id")
+            u = by_id.get(tid) if tid else None
+            if u:
+                label = u.get("username") or u.get("handle") or u.get("name") or u.get("email") or tid
+                role_map = {
+                    "influencer": "Creator",
+                    "owner": "Brand",
+                    "agent": "Agency",
+                    "admin": "Admin",
+                }
+                role_txt = role_map.get(u.get("role"), u.get("role") or "user")
+                r["target_username"] = str(label).lstrip("@")
+                r["target_label"] = f"{str(label).lstrip('@')} ({role_txt})"
+            else:
+                r["target_label"] = tid or "—"
+        return rows
 
     @api_router.post("/admin/reports/ai-summary")
     async def admin_reports_ai_summary(req: dict = Body(...), current: dict = Depends(get_current_user)):

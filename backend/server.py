@@ -2165,29 +2165,72 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
     await require_role(current, ["admin"])
     audit_logs = await db.audit_logs.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
     if audit_logs:
-        # Prefer username for display when we can resolve it
-        user_ids = [a.get("user_id") for a in audit_logs if a.get("user_id")]
+        # Prefer username/handle for display when we can resolve it (same fields as Users tab)
+        user_ids = list({a.get("user_id") for a in audit_logs if a.get("user_id")})
+        target_ids = []
+        for a in audit_logs:
+            meta = a.get("meta") or {}
+            for key in ("target_user_id", "user_id", "banned_user_id", "subject_id"):
+                tid = meta.get(key)
+                if tid:
+                    target_ids.append(tid)
+            # Also parse "Banned user <uuid>" style details
+            details = str(a.get("details") or "")
+            if "Banned user " in details:
+                maybe = details.split("Banned user ", 1)[-1].strip().split()[0]
+                if maybe:
+                    target_ids.append(maybe)
+        all_ids = list({*(user_ids or []), *(target_ids or [])})
         uname_by_id = {}
-        if user_ids:
-            docs = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "username": 1}).to_list(200)
-            uname_by_id = {d["id"]: d.get("username") for d in docs if d.get("username")}
+        if all_ids:
+            docs = await db.users.find(
+                {"id": {"$in": all_ids}},
+                {"_id": 0, "id": 1, "username": 1, "handle": 1, "name": 1, "email": 1, "role": 1},
+            ).to_list(400)
+            for d in docs:
+                uname_by_id[d["id"]] = d
         status_map = {
             "success": "Completed",
             "info": "Info",
             "failed": "Failed",
             "error": "Failed",
             "warning": "Warning",
+            "active": "Completed",
+            "completed": "Completed",
+            "pending": "Pending",
         }
         for a in audit_logs:
-            uname = a.get("username") or uname_by_id.get(a.get("user_id"))
+            actor = uname_by_id.get(a.get("user_id")) or {}
+            uname = a.get("username") or actor.get("username") or actor.get("handle") or actor.get("name")
+            handle = actor.get("handle") or a.get("handle")
             if uname:
                 clean_uname = str(uname).lstrip("@").rstrip(".,")
                 a["username"] = clean_uname
                 a["user"] = clean_uname
+                a["handle"] = (str(handle).lstrip("@") if handle else clean_uname)
+            # Enrich details with target identity when only an id was stored
+            meta = a.get("meta") or {}
+            target_id = meta.get("target_user_id") or meta.get("banned_user_id") or meta.get("subject_id")
+            if not target_id:
+                details = str(a.get("details") or "")
+                if "Banned user " in details:
+                    target_id = details.split("Banned user ", 1)[-1].strip().split()[0]
+            if target_id and target_id in uname_by_id:
+                t = uname_by_id[target_id]
+                t_label = (t.get("username") or t.get("handle") or t.get("name") or t.get("email") or target_id)
+                t_label = str(t_label).lstrip("@")
+                a["target_username"] = t_label
+                a["target_handle"] = t.get("handle")
+                a["target_role"] = t.get("role")
+                details = str(a.get("details") or "")
+                if target_id in details:
+                    a["details"] = details.replace(target_id, t_label)
+                elif not details:
+                    a["details"] = f"Target: {t_label}"
             a["type"] = a.get("type") or a.get("action") or "Activity"
             a["time"] = a.get("time") or a.get("created_at") or now_iso()
             raw_status = str(a.get("status") or "Completed")
-            a["status"] = status_map.get(raw_status.lower(), raw_status)
+            a["status"] = status_map.get(raw_status.lower(), raw_status if raw_status[:1].isupper() else raw_status.title())
         return audit_logs
     
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).limit(5).to_list(5)
@@ -2195,21 +2238,25 @@ async def admin_recent_activity(current: dict = Depends(get_current_user)):
     
     activity = []
     for u in users:
-        uname = (u.get("username") or "").strip()
+        uname = (u.get("username") or u.get("handle") or "").strip()
         role_label = ROLE_AUDIT_LABELS.get(u.get("role"), (u.get("role") or "user").title())
         activity.append({
             "type": f"{role_label} Signup",
             "user": uname.lstrip("@").rstrip(".,") if uname else (u.get("email") or "User"),
             "username": (uname.lstrip("@").rstrip(".,") if uname else None),
+            "handle": (u.get("handle") or uname or None),
             "status": "Completed",
-            "time": u.get("created_at", now_iso())
+            "time": u.get("created_at", now_iso()),
+            "details": f"Registered new {role_label.lower()} account",
         })
     for c in camps:
         activity.append({
             "type": "Campaign Brief Created",
             "user": c.get("brand", "Brand"),
-            "status": c.get("status", "active"),
-            "time": c.get("created_at", now_iso())
+            "username": c.get("brand"),
+            "status": "Completed" if str(c.get("status", "")).lower() in ("active", "completed", "funded") else "Pending",
+            "time": c.get("created_at", now_iso()),
+            "details": c.get("title") or "Campaign created",
         })
     activity.sort(key=lambda x: x["time"], reverse=True)
     return activity[:10]
@@ -2270,7 +2317,13 @@ async def admin_users(
             return []
         filt["role"] = mapped
     if category:
-        filt["$or"] = [{"category": category}, {"industry": category}]
+        filt["$or"] = [
+            {"category": category},
+            {"industry": category},
+            {"niches": category},
+            {"category": {"$regex": category, "$options": "i"}},
+            {"niches": {"$elemMatch": {"$regex": category, "$options": "i"}}},
+        ]
     if q:
         filt["$or"] = [
             {"username": {"$regex": q, "$options": "i"}},
@@ -2283,11 +2336,18 @@ async def admin_users(
         filt["$or"] = [{"agent_approved": False}, {"onboarding_status": "pending_approval"}, {"onboarding_status": "pending"}]
     
     if state:
-        filt["state"] = state
+        filt["state"] = {"$regex": f"^{re.escape(state)}$", "$options": "i"}
     if city:
-        filt["city"] = city
+        filt["city"] = {"$regex": f"^{re.escape(city)}$", "$options": "i"}
     if language:
-        filt["languages"] = language
+        # languages may be a string or array depending on profile write path
+        filt["$and"] = filt.get("$and", []) + [{
+            "$or": [
+                {"languages": language},
+                {"languages": {"$regex": language, "$options": "i"}},
+                {"languages": {"$elemMatch": {"$regex": language, "$options": "i"}}},
+            ]
+        }]
         
     users = await db.users.find(filt, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
     return users

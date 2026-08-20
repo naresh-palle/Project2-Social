@@ -29,16 +29,35 @@ const ROLE_DB_MAP = {
 };
 
 const TAB_EXPORT_LABELS = {
-  overview: "Overview",
   reports: "Reports",
   categories: "Categories",
   audit: "Audit Logs",
-  agent_approvals: "Agent Approvals",
-  treasury: "Escrow Treasury",
-  briefs: "Brief Moderation",
-  broadcast: "Broadcast History",
-  referrals: "Referrals"
 };
+
+/** Only tabs with real, independent datasets expose Export. */
+const EXPORTABLE_TABS = new Set(["reports", "users", "categories", "audit"]);
+
+const ROLE_DISPLAY = {
+  influencer: "Creator",
+  owner: "Brand",
+  agent: "Agency",
+  admin: "Admin",
+  support: "Support",
+  support_agent: "Support Agent",
+  support_lead: "Support Lead",
+  support_admin: "Support Admin",
+};
+
+function roleLabel(role) {
+  return ROLE_DISPLAY[role] || String(role || "—");
+}
+
+function userStatusLabel(u) {
+  if (u?.banned === true || u?.status === "banned" || u?.is_banned === true) return "Banned";
+  if (u?.onboarding_status === "declined") return "Declined";
+  if (u?.onboarding_status === "pending" || (u?.role === "agent" && u?.agent_approved === false)) return "Pending";
+  return "Active";
+}
 
 function userCategoryText(u) {
   return []
@@ -48,6 +67,7 @@ function userCategoryText(u) {
     .flatMap((x) => (Array.isArray(x) ? x : String(x).split(",")))
     .map((x) => String(x).trim())
     .filter(Boolean)
+    .filter((v, i, arr) => arr.findIndex((x) => x.toLowerCase() === v.toLowerCase()) === i)
     .join(", ");
 }
 
@@ -169,113 +189,30 @@ export function AdminPanel() {
   const [auditSearch, setAuditSearch] = useState("");
   const [auditTypeFilter, setAuditTypeFilter] = useState([]);
   const [auditStatusFilter, setAuditStatusFilter] = useState([]);
+  const [reportStatusFilter, setReportStatusFilter] = useState("all");
+  const [reportsLoading, setReportsLoading] = useState(false);
 
-  const notifications = [
-      {
-        id: 1,
-        text: "New influencer '@zara_fashion' registered",
-        time: "2 mins ago",
-        type: "success",
-        title: "New influencer registration",
-        source: "Auth · onboarding",
-        details: "Creator account '@zara_fashion' completed signup and profile bootstrap. Role assigned as influencer.",
-        issues: ["Profile photo pending verification"],
-        logs: [
-          "[07:52:11] POST /auth/register → 201",
-          "[07:52:12] user_id=usr_zara_fashion created",
-          "[07:52:14] welcome email queued",
-        ],
-        errors: [],
-      },
-      {
-        id: 2,
-        text: "Escrow locked for campaign 'HyperTech AI'",
-        time: "45 mins ago",
-        type: "success",
-        title: "Escrow lock confirmed",
-        source: "Payments · escrow",
-        details: "₹3,50,000 escrow hold placed for campaign 'AI Video Editing Suite Promotion' (HyperTech AI).",
-        issues: [],
-        logs: [
-          "[07:08:02] escrow.create camp=cmp-102 amount=350000",
-          "[07:08:03] razorpay.order captured",
-          "[07:08:04] campaign status → funded",
-        ],
-        errors: [],
-      },
-      {
-        id: 3,
-        text: "Payment of ₹45,000 completed",
-        time: "3 hrs ago",
-        type: "success",
-        title: "Creator payout completed",
-        source: "Wallet · payouts",
-        details: "Payout ₹45,000 released to creator wallet after deliverable approval on campaign cmp-103.",
-        issues: [],
-        logs: [
-          "[04:41:19] payout.initiate amount=45000",
-          "[04:41:21] ledger.entry credit wallet",
-          "[04:41:22] notify creator",
-        ],
-        errors: [],
-      },
-      {
-        id: 4,
-        text: "3 new agency verification requests pending",
-        time: "5 hrs ago",
-        type: "warning",
-        title: "Agency verification backlog",
-        source: "Compliance · agencies",
-        details: "Three agency accounts are awaiting document review. SLA target is 24h from submission.",
-        issues: [
-          "Apex Talent Management — GST certificate unclear scan",
-          "Pulse Media Agency — director ID mismatch",
-          "Starlet Influencer Studio — website unreachable",
-        ],
-        logs: [
-          "[02:12:44] queue.depth agencies=3",
-          "[02:12:45] sla.warning threshold=24h",
-        ],
-        errors: [],
-      },
-      {
-        id: 5,
-        text: "Webhook retry failed for escrow release",
-        time: "6 hrs ago",
-        type: "error",
-        title: "Escrow webhook failure",
-        source: "Payments · webhooks",
-        details: "Outbound webhook to brand endpoint failed after 3 retries. Escrow release is queued for manual review.",
-        issues: ["Brand callback URL returned 502", "Retry budget exhausted"],
-        logs: [
-          "[01:05:01] webhook.dispatch attempt=1 → 502",
-          "[01:05:31] webhook.dispatch attempt=2 → 502",
-          "[01:06:31] webhook.dispatch attempt=3 → timeout",
-          "[01:06:32] job moved to dead-letter queue",
-        ],
-        errors: [
-          "HTTP 502 Bad Gateway from partner.hypertech.ai/hooks/escrow",
-          "TimeoutError: no response within 10s on attempt 3",
-        ],
-      },
-      {
-        id: 6,
-        text: "Feed media CDN latency spike detected",
-        time: "8 hrs ago",
-        type: "error",
-        title: "CDN latency anomaly",
-        source: "Infra · media",
-        details: "p95 image fetch latency exceeded 2.4s for AP-South region. Auto-mitigation switched origin preference.",
-        issues: ["Elevated 5xx from edge POP BLR1"],
-        logs: [
-          "[23:18:09] alert.fire metric=cdn.p95_ms value=2410",
-          "[23:18:11] failover.origin → secondary",
-        ],
-        errors: [
-          "EdgeError: POP BLR1 origin_connect_timeout",
-        ],
-      },
-  ];
+  // Live system alerts from recent activity (no hardcoded demo rows)
+  const notifications = (Array.isArray(activity) ? activity : []).slice(0, 20).map((a, i) => {
+    const status = String(a.status || "").toLowerCase();
+    let type = "success";
+    if (status.includes("fail") || status.includes("error")) type = "error";
+    else if (status.includes("warn") || status.includes("pending")) type = "warning";
+    const who = formatUsername(a.username, a.user) || a.user || "System";
+    const text = a.details || a.type || "Platform activity";
+    return {
+      id: a.id || `act-${i}-${a.time || a.created_at || i}`,
+      text: `${who}: ${text}`,
+      time: a.time || a.created_at || "",
+      type,
+      title: a.type || "Activity",
+      source: "Audit · live",
+      details: a.details || text,
+      issues: [],
+      logs: [],
+      errors: type === "error" ? [a.details || text] : [],
+    };
+  });
 
   const alertFilters = [
     { id: "all", label: "All" },
@@ -319,7 +256,7 @@ export function AdminPanel() {
           if (searchQuery) params.append("q", searchQuery);
           if (stateFilter) params.append("state", stateFilter);
           if (cityFilter) params.append("city", cityFilter);
-          if (languageFilter) params.append("languages", languageFilter);
+          if (languageFilter) params.append("language", languageFilter);
           
           const { data } = await api.get(`/admin/users?${params.toString()}`);
           // Admins are never listed — prevents ban/delete access from User Management.
@@ -348,9 +285,9 @@ export function AdminPanel() {
             const wantActive = statusFilter.includes("Active");
             const wantPending = statusFilter.includes("Pending");
             list = list.filter((u) => {
-              const pending = u.onboarding_status === "pending" || (u.role === "agent" && u.agent_approved === false);
-              if (wantPending && pending) return true;
-              if (wantActive && !pending) return true;
+              const label = userStatusLabel(u);
+              if (wantPending && label === "Pending") return true;
+              if (wantActive && label === "Active") return true;
               return false;
             });
           }
@@ -361,13 +298,25 @@ export function AdminPanel() {
       } finally {
           setUsersLoading(false);
       }
-  }, [roleFilter, categoryFilter, statusFilter, searchQuery]);
+  }, [roleFilter, categoryFilter, statusFilter, searchQuery, stateFilter, cityFilter, languageFilter]);
+
+  const fetchReports = useCallback(async (status = reportStatusFilter) => {
+      setReportsLoading(true);
+      try {
+          const q = status && status !== "all" ? `?status=${encodeURIComponent(status)}` : "?status=all";
+          const { data } = await api.get(`/admin/reports${q}`);
+          setReports(Array.isArray(data) ? data : []);
+      } catch {
+          toast.error("Failed to load reports");
+          setReports([]);
+      } finally {
+          setReportsLoading(false);
+      }
+  }, [reportStatusFilter]);
 
   useEffect(() => {
       if (tab === "users") fetchUsers();
-      if (tab === "reports") {
-        api.get("/admin/reports").then(r => setReports(r.data || [])).catch(() => toast.error("Failed to load reports"));
-      }
+      if (tab === "reports") fetchReports(reportStatusFilter);
       if (tab === "categories") {
         api.get("/admin/categories").then(r => setCategories(r.data || [])).catch(() => {});
         setCategoryUsersLoading(true);
@@ -382,7 +331,7 @@ export function AdminPanel() {
       if (tab === "audit") {
         api.get("/admin/recent-activity").then(r => setActivity(r.data || [])).catch(() => toast.error("Failed to load audit logs"));
       }
-  }, [tab, fetchUsers]);
+  }, [tab, fetchUsers, fetchReports, reportStatusFilter]);
 
   // Keep Audit Logs fresh while the tab is open
   useEffect(() => {
@@ -499,8 +448,7 @@ export function AdminPanel() {
       try {
           await api.post(`/admin/reports/${reportId}`, { status, note: `Marked ${status}` });
           toast.success(`Report ${status}`);
-          const { data } = await api.get("/admin/reports");
-          setReports(data || []);
+          await fetchReports(reportStatusFilter);
       } catch {
           toast.error("Action failed");
       }
@@ -545,12 +493,19 @@ export function AdminPanel() {
     };
 
     const exportData = async () => {
+      if (!EXPORTABLE_TABS.has(tab)) {
+        toast.error("Export is only available on Reports, Users, Categories, and Audit");
+        return;
+      }
       let raw = [];
       if (tab === "users") raw = usersList;
       else if (tab === "reports") raw = reports;
       else if (tab === "categories") raw = categories;
       else if (tab === "audit") raw = activity;
-      else raw = [stats].filter(Boolean);
+      else {
+        toast.error("Nothing to export on this tab");
+        return;
+      }
       
       // Filter by Date
       const now = new Date();
@@ -716,15 +671,16 @@ export function AdminPanel() {
             </div>
             
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                {EXPORTABLE_TABS.has(tab) && (
                 <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
                     <Download className="w-4 h-4" /> Export {tab === "users" ? (
                         [
                             categoryFilter.length > 0 ? categoryFilter[0] : "",
-                            roleFilter.length > 0 ? (roleFilter[0] === "influencer" ? "Influencers" : roleFilter[0] === "owner" ? "Brands" : roleFilter[0] === "agent" ? "Agencies" : "Users") : "Users"
+                            roleFilter.length > 0 ? (roleFilter[0] === "Influencers" ? "Influencers" : roleFilter[0] === "Brands" ? "Brands" : roleFilter[0] === "Agencies" ? "Agencies" : "Users") : "Users"
                         ].filter(Boolean).join(" ")
                     ) : (TAB_EXPORT_LABELS[tab] || "Data")}
                 </button>
-
+                )}
             </div>
         </div>
 
@@ -733,11 +689,11 @@ export function AdminPanel() {
         {tab === "overview" && (
             <div className="mt-8 space-y-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <StatCard title="Total Users" value={(stats?.users?.creators || 22) + (stats?.users?.brands || 5) + (stats?.users?.agencies || 4)} sub={`${stats?.users?.creators || 22} Influencers · ${stats?.users?.brands || 5} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend="+12%" pos={true} />
+                    <StatCard title="Total Users" value={(stats?.users?.creators || 0) + (stats?.users?.brands || 0) + (stats?.users?.agencies || 0)} sub={`${stats?.users?.creators || 0} Influencers · ${stats?.users?.brands || 0} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend={stats?.users?.total != null ? `${stats.users.total} total` : "—"} pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
-                    <StatCard title="Total Escrow Processed" value="₹48.5L" sub="100% Escrow Protection Guaranteed" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend="+15%" pos={true} />
-                    <StatCard title="Active Campaigns" value={stats?.campaigns?.active || 11} sub={`Out of ${stats?.campaigns?.total || 14} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend="+8%" pos={true} />
-                    <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 2) + (stats?.requests?.creator_requests || 1)} sub={`${stats?.requests?.verification_requests || 2} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend="2 pending" pos={false} />
+                    <StatCard title="Revenue" value={stats?.financial?.revenue != null ? `₹${Number(stats.financial.revenue).toLocaleString("en-IN")}` : "—"} sub="Tracked platform revenue" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend={stats?.financial?.total_payments != null ? `${stats.financial.total_payments} payments` : "—"} pos={true} />
+                    <StatCard title="Active Campaigns" value={stats?.campaigns?.active ?? 0} sub={`Out of ${stats?.campaigns?.total ?? 0} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend={stats?.campaigns?.completed != null ? `${stats.campaigns.completed} done` : "—"} pos={true} />
+                    <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0)} sub={`${stats?.requests?.verification_requests || 0} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend={stats?.approvals?.pending != null ? `${stats.approvals.pending} approvals` : "—"} pos={false} />
                 </div>
 
                 <section className="p-6 rounded-3xl border border-white/10 bg-[#121212]">
@@ -891,8 +847,8 @@ export function AdminPanel() {
                                                 : "—"}
                                             </td>
                                             <td className="p-4">
-                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</div>
-                                              <div className="text-xs opacity-60 mt-1">{u.category || "—"}</div>
+                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{roleLabel(u.role)}</div>
+                                              <div className="text-xs opacity-60 mt-1">{userCategoryText(u) || "—"}</div>
                                               {u.role === 'influencer' && (
                                                 <select
                                                   className="mt-2 bg-white/5 border border-white/10 text-xs px-2 py-1 rounded outline-none text-[#F4F4F0]"
@@ -907,7 +863,17 @@ export function AdminPanel() {
                                             </td>
                                             <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
                                             <td className="p-4">
-                                                {u.onboarding_status === 'pending' ? <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-3xl">Pending</span> : <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-3xl">Active</span>}
+                                                {(() => {
+                                                  const st = userStatusLabel(u);
+                                                  const cls =
+                                                    st === "Active" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                                    st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                                                    st === "Banned" ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20" :
+                                                    "bg-white/5 text-white/60 border-white/15";
+                                                  return (
+                                                    <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
+                                                  );
+                                                })()}
                                             </td>
                                             <td className="p-4 text-right">
                                               {u.role === "admin" ? (
@@ -941,30 +907,75 @@ export function AdminPanel() {
 
         {/* TAB: REPORTS */}
         {tab === "reports" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 glass-panel overflow-x-auto">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-4">
+                <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-white/10 bg-[#121212]">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 mr-1">Status</span>
+                  {[
+                    { id: "all", label: "All" },
+                    { id: "open", label: "Open" },
+                    { id: "resolved", label: "Resolved" },
+                    { id: "dismissed", label: "Dismissed" },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setReportStatusFilter(f.id)}
+                      className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
+                        reportStatusFilter === f.id
+                          ? "bg-[#FF3B30] border-[#FF3B30] text-white"
+                          : "border-white/15 text-white/55 hover:border-white/35"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                  <span className="font-sans text-[10px] uppercase tracking-wider opacity-40 ml-auto">
+                    {reports.length} report{reports.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <div className="glass-panel overflow-x-auto">
+                {reportsLoading ? (
+                  <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50" /></div>
+                ) : (
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
+                        <tr className="border-b border-white/10 font-sans text-[9px] tracking-[0.16em] uppercase opacity-50">
                             <th className="p-4">Type</th><th className="p-4">Target</th><th className="p-4">Reason</th><th className="p-4">Status</th><th className="p-4 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {reports.length === 0 ? (
-                            <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No open reports</td></tr>
+                            <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No {reportStatusFilter === "all" ? "" : `${reportStatusFilter} `}reports</td></tr>
                         ) : reports.map((r) => (
                             <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                                <td className="p-4 font-sans text-xs uppercase">{r.target_type}</td>
-                                <td className="p-4 font-sans text-xs">{r.target_id}</td>
-                                <td className="p-4 text-sm">{r.reason}</td>
-                                <td className="p-4"><span className="px-2 py-1 text-[9px] uppercase font-sans bg-orange-400/10 text-orange-400 border border-orange-400/20 rounded-xs">{r.status}</span></td>
+                                <td className="p-4 font-sans text-xs uppercase">{r.target_type || "—"}</td>
+                                <td className="p-4 font-sans text-xs">
+                                  {r.target_label || r.target_username || r.target_id || "—"}
+                                </td>
+                                <td className="p-4 text-sm">{r.reason || "—"}</td>
+                                <td className="p-4">
+                                  <span className={`px-2 py-1 text-[9px] uppercase font-sans border rounded-xs ${
+                                    r.status === "open" ? "bg-orange-400/10 text-orange-400 border-orange-400/20" :
+                                    r.status === "resolved" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                    "bg-white/5 text-white/50 border-white/15"
+                                  }`}>{r.status || "—"}</span>
+                                </td>
                                 <td className="p-4 text-right space-x-2">
-                                    <button onClick={() => handleReportAction(r.id, "resolved")} className="font-sans text-[10px] text-[#34C759] uppercase">Resolve</button>
-                                    <button onClick={() => handleReportAction(r.id, "dismissed")} className="font-sans text-[10px] opacity-50 uppercase">Dismiss</button>
+                                    {r.status === "open" ? (
+                                      <>
+                                        <button onClick={() => handleReportAction(r.id, "resolved")} className="font-sans text-[10px] text-[#34C759] uppercase">Resolve</button>
+                                        <button onClick={() => handleReportAction(r.id, "dismissed")} className="font-sans text-[10px] opacity-50 uppercase">Dismiss</button>
+                                      </>
+                                    ) : (
+                                      <span className="font-sans text-[9px] uppercase tracking-widest opacity-40">Closed</span>
+                                    )}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                )}
+                </div>
             </motion.div>
         )}
 
@@ -1060,15 +1071,21 @@ export function AdminPanel() {
                               <td className="p-4 font-sans text-sm font-medium">
                                 {formatUsername(u.username, u.handle) || "—"}
                               </td>
-                              <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{u.role}</td>
+                              <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{roleLabel(u.role)}</td>
                               <td className="p-4 font-sans text-sm opacity-80">{userCategoryText(u) || "—"}</td>
                               <td className="p-4 font-sans text-sm break-all opacity-80">{u.email || "—"}</td>
                               <td className="p-4">
-                                {u.onboarding_status === "pending" ? (
-                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-3xl">Pending</span>
-                                ) : (
-                                  <span className="px-2 py-1 text-[9px] uppercase tracking-widest font-sans bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 rounded-3xl">Active</span>
-                                )}
+                                {(() => {
+                                  const st = userStatusLabel(u);
+                                  const cls =
+                                    st === "Active" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                    st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                                    st === "Banned" ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20" :
+                                    "bg-white/5 text-white/60 border-white/15";
+                                  return (
+                                    <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
+                                  );
+                                })()}
                               </td>
                               <td className="p-4">
                                 {u.role !== "admin" && (
@@ -1135,7 +1152,10 @@ export function AdminPanel() {
                     </div>
                     <div className="w-full sm:w-[160px] min-w-0">
                       <MultiSelectDropdown
-                        options={["Completed", "Pending", "Failed"]}
+                        options={[...new Set([
+                          "Completed", "Pending", "Failed", "Info", "Warning",
+                          ...activity.map((a) => a.status).filter(Boolean),
+                        ])]}
                         selected={auditStatusFilter}
                         onChange={setAuditStatusFilter}
                         placeholder="All statuses"
@@ -1185,7 +1205,7 @@ export function AdminPanel() {
                                             {new Date(a.time).toLocaleString()}
                                         </td>
                                         <td className="p-4 text-sm opacity-90">
-                                          {formatUsername(a.username, a.user) || "—"}
+                                          {formatUsername(a.username, a.handle || a.user) || "—"}
                                         </td>
                                         <td className="p-4 font-sans text-xs">{a.type}</td>
                                         <td className="p-4 font-sans text-xs opacity-70">{a.details || "-"}</td>
