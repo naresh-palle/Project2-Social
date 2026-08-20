@@ -11,6 +11,10 @@ function downloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
+function downloadPdfBytes(bytes, filename) {
+  downloadBlob(new Blob([bytes], { type: "application/pdf" }), filename.endsWith(".pdf") ? filename : `${filename}.pdf`);
+}
+
 function escapeXml(v) {
   return String(v ?? "")
     .replace(/&/g, "&amp;")
@@ -153,59 +157,215 @@ function pdfEscape(s) {
     .replace(/[\r\n]+/g, " ");
 }
 
-function assemblePdf(pageWidth, pageHeight, contentBuilders) {
+/** Normalize export titles into brand + clean headline. */
+export function formatPdfTitle(title) {
+  let raw = pdfSafeText(title).replace(/\s+/g, " ").trim();
+  raw = raw.replace(/^flugr\b[\s\-–—:|]*/i, "").trim();
+  raw = raw.replace(/^Admin\b[\s\-–—:|]*/i, "").trim();
+  if (!raw) raw = "Platform Report";
+  // Avoid "Report Report"
+  raw = raw.replace(/\bReport\s+Report\b/gi, "Report");
+  if (!/\bReport\b/i.test(raw)) raw = `${raw} Report`;
+  // Title case short labels
+  const headline = raw
+    .split(" ")
+    .map((w) => (w.length <= 2 && w === w.toUpperCase() ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ");
+  return { brand: "flugr", headline };
+}
+
+let _logoCache = null;
+
+async function loadBrandLogoRgb(size = 72) {
+  if (_logoCache && _logoCache.size === size) return _logoCache;
+  try {
+    const candidates = [];
+    try {
+      const pub = (typeof process !== "undefined" && process.env && process.env.PUBLIC_URL) || "";
+      if (pub) candidates.push(`${String(pub).replace(/\/$/, "")}/brand/flugr-avatar.png`);
+    } catch { /* ignore */ }
+    candidates.push("/brand/flugr-avatar.png", "./brand/flugr-avatar.png");
+    if (typeof window !== "undefined") {
+      candidates.push(`${window.location.origin}/brand/flugr-avatar.png`);
+      const base = String(window.location.pathname || "").replace(/\/[^/]*$/, "");
+      if (base && base !== "/") candidates.push(`${window.location.origin}${base}/brand/flugr-avatar.png`);
+    }
+    let img = null;
+    for (const src of candidates) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const probe = new Image();
+        probe.crossOrigin = "anonymous";
+        probe.src = src;
+        // eslint-disable-next-line no-await-in-loop
+        await probe.decode();
+        img = probe;
+        break;
+      } catch {
+        /* try next */
+      }
+    }
+    if (!img) return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+    const rgb = new Uint8Array(size * size * 3);
+    for (let i = 0, j = 0; i < data.length; i += 4, j += 3) {
+      const a = data[i + 3] / 255;
+      rgb[j] = Math.round(data[i] * a + 255 * (1 - a));
+      rgb[j + 1] = Math.round(data[i + 1] * a + 255 * (1 - a));
+      rgb[j + 2] = Math.round(data[i + 2] * a + 255 * (1 - a));
+    }
+    _logoCache = { width: size, height: size, rgb, size };
+    return _logoCache;
+  } catch {
+    return null;
+  }
+}
+
+function concatPdfParts(parts) {
+  let total = 0;
+  const chunks = parts.map((p) => {
+    if (typeof p === "string") {
+      const enc = new TextEncoder().encode(p);
+      total += enc.length;
+      return enc;
+    }
+    total += p.length;
+    return p;
+  });
+  const out = new Uint8Array(total);
+  let off = 0;
+  chunks.forEach((c) => {
+    out.set(c, off);
+    off += c.length;
+  });
+  return out;
+}
+
+/**
+ * Build a PDF. contentBuilders return content-stream strings.
+ * Optional logoRgb embeds the flugr avatar in every page header.
+ */
+function assemblePdf(pageWidth, pageHeight, contentBuilders, logoRgb = null) {
   const objs = [];
-  const pushObj = (bodyStr) => {
-    objs.push(bodyStr);
+  const pushObj = (body) => {
+    objs.push(body); // string | { binary: Uint8Array, dict: string }
     return objs.length;
   };
+
   const fontId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   const boldId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  const italicId = pushObj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>");
+
+  let logoId = null;
+  if (logoRgb?.rgb?.length) {
+    const dict = `<< /Type /XObject /Subtype /Image /Width ${logoRgb.width} /Height ${logoRgb.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Length ${logoRgb.rgb.length} >>`;
+    logoId = pushObj({ dict, binary: logoRgb.rgb });
+  }
+
   const contentIds = contentBuilders.map((build) => {
-    const stream = `${build()}\n`;
-    return pushObj(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
+    const stream = `${build({ logoId, italicId })}\n`;
+    const bytes = new TextEncoder().encode(stream);
+    return pushObj({ dict: `<< /Length ${bytes.length} >>`, binary: bytes, isStream: true });
   });
+
+  const fontRes = `/Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R /F3 ${italicId} 0 R >>`;
+  const xobjRes = logoId ? ` /XObject << /Im1 ${logoId} 0 R >>` : "";
   const pageIds = contentIds.map((cid) =>
     pushObj(
-      `<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`
+      `<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${cid} 0 R /Resources << ${fontRes}${xobjRes} >> >>`
     )
   );
   const pagesId = pushObj(
     `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`
   );
   pageIds.forEach((pid, i) => {
-    objs[pid - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentIds[i]} 0 R /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> >>`;
+    objs[pid - 1] = `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Contents ${contentIds[i]} 0 R /Resources << ${fontRes}${xobjRes} >> >>`;
   });
   const catalogId = pushObj(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
 
-  let pdf = "%PDF-1.4\n";
+  const parts = ["%PDF-1.4\n"];
   const offsets = [0];
-  objs.forEach((bodyStr, i) => {
-    offsets.push(pdf.length);
-    pdf += `${i + 1} 0 obj\n${bodyStr}\nendobj\n`;
+  let lengthSoFar = 9; // "%PDF-1.4\n"
+
+  objs.forEach((body, i) => {
+    offsets.push(lengthSoFar);
+    if (typeof body === "string") {
+      const chunk = `${i + 1} 0 obj\n${body}\nendobj\n`;
+      parts.push(chunk);
+      lengthSoFar += new TextEncoder().encode(chunk).length;
+    } else if (body.isStream) {
+      const head = `${i + 1} 0 obj\n${body.dict}\nstream\n`;
+      const tail = `\nendstream\nendobj\n`;
+      parts.push(head, body.binary, tail);
+      lengthSoFar += new TextEncoder().encode(head).length + body.binary.length + new TextEncoder().encode(tail).length;
+    } else {
+      const head = `${i + 1} 0 obj\n${body.dict}\nstream\n`;
+      const tail = `\nendstream\nendobj\n`;
+      parts.push(head, body.binary, tail);
+      lengthSoFar += new TextEncoder().encode(head).length + body.binary.length + new TextEncoder().encode(tail).length;
+    }
   });
-  const xref = pdf.length;
-  pdf += `xref\n0 ${objs.length + 1}\n`;
-  pdf += "0000000000 65535 f \n";
+
+  const xrefStart = lengthSoFar;
+  let xref = `xref\n0 ${objs.length + 1}\n`;
+  xref += "0000000000 65535 f \n";
   for (let i = 1; i <= objs.length; i++) {
-    pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+    xref += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
   }
-  pdf += `trailer<< /Size ${objs.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return pdf;
+  xref += `trailer<< /Size ${objs.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+  parts.push(xref);
+  return concatPdfParts(parts);
 }
 
-function drawHeaderBar(ops, title, meta, pageWidth, pageHeight, margin) {
-  const barH = 56;
+/**
+ * Brand header: flugr logo + wordmark + clean report title.
+ * Returns the Y coordinate below the header for content start.
+ */
+function drawBrandHeader(ops, { title, meta, pageWidth, pageHeight, margin, logoId }) {
+  const { brand, headline } = formatPdfTitle(title);
+  const barH = 70;
   const top = pageHeight - barH;
+  const logoSize = 40;
+  const textLeft = margin + (logoId ? logoSize + 12 : 0);
+
   ops.push("q");
+  // Brand red bar
   ops.push("1 0.23 0.18 rg");
   ops.push(`0 ${top} ${pageWidth} ${barH} re f`);
+  // Subtle bottom edge
+  ops.push("0.85 0.15 0.12 rg");
+  ops.push(`0 ${top} ${pageWidth} 1.5 re f`);
+
+  if (logoId) {
+    const lx = margin;
+    const ly = pageHeight - 55;
+    // White plate behind logo for contrast
+    ops.push("1 1 1 rg");
+    ops.push(`${lx - 2} ${ly - 2} ${logoSize + 4} ${logoSize + 4} re f`);
+    ops.push("q");
+    ops.push(`${logoSize} 0 0 ${logoSize} ${lx} ${ly} cm`);
+    ops.push("/Im1 Do");
+    ops.push("Q");
+  }
+
+  // Wordmark
   ops.push("1 1 1 rg");
-  ops.push(`BT /F2 15 Tf ${margin} ${pageHeight - 28} Td (${pdfEscape(title).slice(0, pageWidth > 700 ? 90 : 58)}) Tj ET`);
+  ops.push(`BT /F3 13 Tf ${textLeft} ${pageHeight - 26} Td (${pdfEscape(brand)}) Tj ET`);
+  // Report headline
+  ops.push(`BT /F2 16 Tf ${textLeft} ${pageHeight - 46} Td (${pdfEscape(headline).slice(0, pageWidth > 700 ? 70 : 42)}) Tj ET`);
   if (meta) {
-    ops.push(`BT /F1 8 Tf ${margin} ${pageHeight - 44} Td (${pdfEscape(meta).slice(0, pageWidth > 700 ? 120 : 90)}) Tj ET`);
+    ops.push("0.95 0.85 0.82 rg");
+    ops.push(`BT /F1 8 Tf ${textLeft} ${pageHeight - 60} Td (${pdfEscape(meta).slice(0, pageWidth > 700 ? 110 : 72)}) Tj ET`);
   }
   ops.push("Q");
+  return top - 14;
 }
 
 function pickPageSize({ colCount = 0, isSummary = false, metricCount = 0, forceLandscape = false } = {}) {
@@ -240,8 +400,9 @@ function groupMetricPairs(headers, values) {
  * - wide tables / many metrics -> landscape
  * - 1 wide summary row         -> labeled metric cards
  * - many rows                  -> bordered table (column chunks if needed)
+ * - branded header with flugr logo + clean title
  */
-export function exportPdf({ rows, filename, title = "flugr Export", meta = "" }) {
+export async function exportPdf({ rows, filename, title = "flugr Export", meta = "" }) {
   const { headers: rawHeaders, rows: body } = normalizeRows(rows);
   const headers = rawHeaders.map(humanizeHeader);
   const safeTitle = pdfSafeText(title).replace(/\s+/g, " ").trim() || "flugr Export";
@@ -254,29 +415,39 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
   });
   const margin = landscape ? 32 : 36;
   const contentWidth = pageWidth - margin * 2;
-  const headerBottom = pageHeight - 68;
-  const startY = headerBottom - 8;
   const orientationNote = landscape ? "Landscape" : "Portrait";
+  const logo = await loadBrandLogoRgb(72);
+  const logoIdPlaceholder = !!logo;
 
   const pageOps = [];
   let ops = [];
-  let y = startY;
+  let y = pageHeight - 84;
+
+  const paintHeader = (metaLine) => {
+    y = drawBrandHeader(ops, {
+      title: safeTitle,
+      meta: metaLine,
+      pageWidth,
+      pageHeight,
+      margin,
+      logoId: logoIdPlaceholder,
+    });
+  };
 
   const flushPage = () => {
     pageOps.push(ops.join("\n"));
     ops = [];
-    y = startY;
+    y = pageHeight - 84;
   };
 
   const ensureSpace = (need) => {
     if (y - need < margin + 24) {
       flushPage();
-      drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
-      y = startY;
+      paintHeader(`${safeMeta} · ${orientationNote}`);
     }
   };
 
-  drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
+  paintHeader(`${safeMeta} · ${orientationNote}`);
 
   if (!body.length) {
     ops.push("0.2 0.2 0.2 rg");
@@ -311,7 +482,6 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
       y -= 8;
     });
   } else {
-    // Landscape fits more columns; portrait stays tighter
     const maxCols = landscape ? Math.min(headers.length, 10) : Math.min(headers.length, 5);
     const colChunks = [];
     for (let c = 0; c < headers.length; c += maxCols) {
@@ -324,15 +494,7 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
     colChunks.forEach((chunk, chunkIdx) => {
       if (chunkIdx > 0) {
         flushPage();
-        drawHeaderBar(
-          ops,
-          safeTitle,
-          `${safeMeta} · cols ${chunk.start + 1}-${chunk.start + chunk.headers.length} · ${orientationNote}`,
-          pageWidth,
-          pageHeight,
-          margin
-        );
-        y = startY;
+        paintHeader(`${safeMeta} · cols ${chunk.start + 1}-${chunk.start + chunk.headers.length} · ${orientationNote}`);
       }
       const colCount = chunk.headers.length;
       const colW = contentWidth / colCount;
@@ -357,8 +519,7 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
         ensureSpace(rowH + 4);
         if (y < margin + 70 && rowIdx > 0) {
           flushPage();
-          drawHeaderBar(ops, safeTitle, `${safeMeta} · ${orientationNote}`, pageWidth, pageHeight, margin);
-          y = startY;
+          paintHeader(`${safeMeta} · ${orientationNote}`);
           drawTableHeader();
         }
         if (rowIdx % 2 === 0) {
@@ -386,13 +547,14 @@ export function exportPdf({ rows, filename, title = "flugr Export", meta = "" })
   );
   flushPage();
 
-  const pdf = assemblePdf(
+  const pdfBytes = assemblePdf(
     pageWidth,
     pageHeight,
-    pageOps.map((content) => () => content)
+    pageOps.map((content) => () => content),
+    logo
   );
   const name = filename.replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
-  downloadBlob(new Blob([pdf], { type: "application/pdf" }), `${name}.pdf`);
+  downloadPdfBytes(pdfBytes, `${name}.pdf`);
 }
 
 function wrapWords(text, maxChars) {
@@ -412,60 +574,77 @@ function wrapWords(text, maxChars) {
   return lines.length ? lines : [""];
 }
 
-function buildPdfFromBlocks(blocks, filename, { landscape = false } = {}) {
+async function buildPdfFromBlocks(blocks, filename, { landscape = false, title = "flugr Report", meta = "" } = {}) {
   const pageWidth = landscape ? 792 : 612;
   const pageHeight = landscape ? 612 : 792;
   const margin = landscape ? 40 : 48;
   const maxWidthChars = landscape ? 118 : 88;
+  const logo = await loadBrandLogoRgb(72);
   const laid = [];
 
+  // Brand header is drawn per page; body blocks follow
   for (const b of blocks) {
     const kind = b.kind || "body";
     if (kind === "spacer") {
       laid.push({ text: " ", size: 10, gap: b.gap || 10 });
       continue;
     }
-    const size = kind === "h1" ? 18 : kind === "h2" ? 13 : kind === "meta" ? 9 : 10;
-    const gap = kind === "h1" ? 8 : kind === "h2" ? 6 : kind === "meta" ? 4 : 3;
-    const max = kind === "h1" ? (landscape ? 70 : 42) : kind === "h2" ? (landscape ? 90 : 58) : maxWidthChars;
+    // Skip duplicate h1 if we paint brand header from title
+    if (kind === "h1") continue;
+    const size = kind === "h2" ? 13 : kind === "meta" ? 9 : 10;
+    const gap = kind === "h2" ? 6 : kind === "meta" ? 4 : 3;
+    const max = kind === "h2" ? (landscape ? 90 : 58) : maxWidthChars;
     for (const line of wrapWords(pdfSafeText(b.text), max)) {
-      laid.push({ text: line, size, gap });
+      laid.push({ text: line, size, gap, bold: kind === "h2" });
     }
-    if (kind === "h1" || kind === "h2") laid.push({ text: " ", size: 8, gap: 4 });
+    if (kind === "h2") laid.push({ text: " ", size: 8, gap: 4 });
   }
 
+  const headerReserve = 84;
   const pages = [];
   let page = [];
-  let y = pageHeight - margin;
+  let y = pageHeight - headerReserve;
   for (const item of laid) {
     const need = item.size + item.gap;
     if (y - need < margin) {
       pages.push(page);
       page = [];
-      y = pageHeight - margin;
+      y = pageHeight - headerReserve;
     }
     page.push({ ...item, y });
     y -= need;
   }
   if (page.length) pages.push(page);
-  if (!pages.length) pages.push([{ text: "flugr Report", size: 14, gap: 8, y: pageHeight - margin }]);
+  if (!pages.length) pages.push([{ text: " ", size: 10, gap: 4, y: pageHeight - headerReserve }]);
 
-  const pdf = assemblePdf(
+  const safeTitle = pdfSafeText(title);
+  const safeMeta = pdfSafeText(meta);
+
+  const pdfBytes = assemblePdf(
     pageWidth,
     pageHeight,
-    pages.map((pageItems) => () =>
-      pageItems
-        .map((item) => {
-          const font = item.size >= 12 ? "F2" : "F1";
-          const safe = pdfEscape(item.text).slice(0, landscape ? 140 : 120);
-          return `BT /${font} ${item.size} Tf ${margin} ${item.y} Td (${safe}) Tj ET`;
-        })
-        .join("\n")
-    )
+    pages.map((pageItems) => () => {
+      const ops = [];
+      drawBrandHeader(ops, {
+        title: safeTitle,
+        meta: safeMeta || (landscape ? "Landscape" : "Portrait"),
+        pageWidth,
+        pageHeight,
+        margin,
+        logoId: !!logo,
+      });
+      pageItems.forEach((item) => {
+        const font = item.bold || item.size >= 12 ? "F2" : "F1";
+        const safe = pdfEscape(item.text).slice(0, landscape ? 140 : 120);
+        ops.push(`BT /${font} ${item.size} Tf ${margin} ${item.y} Td (${safe}) Tj ET`);
+      });
+      return ops.join("\n");
+    }),
+    logo
   );
 
   const name = filename.replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
-  downloadBlob(new Blob([pdf], { type: "application/pdf" }), `${name}.pdf`);
+  downloadPdfBytes(pdfBytes, `${name}.pdf`);
 }
 
 function listText(v) {
@@ -478,7 +657,7 @@ function listText(v) {
  * Polished multi-section profile PDF (narrative report — not JSON / pipe tables).
  * Pass optional `aiSummary` from an LLM endpoint for an AI-written executive summary.
  */
-export function exportProfileReportPdf({
+export async function exportProfileReportPdf({
   filename,
   user = {},
   posts = [],
@@ -559,7 +738,10 @@ export function exportProfileReportPdf({
   blocks.push({ kind: "spacer", gap: 10 });
   blocks.push({ kind: "meta", text: "© flugr · Confidential account export · Not a legal identity document" });
 
-  buildPdfFromBlocks(blocks, filename || `cr8-profile-${dateLabel}`);
+  await buildPdfFromBlocks(blocks, filename || `cr8-profile-${dateLabel}`, {
+    title: "flugr Personal Data Report",
+    meta: `AI-curated profile summary · Generated ${dateLabel}`,
+  });
 }
 
 /** Deterministic narrative when LLM is unavailable. */
@@ -599,7 +781,7 @@ export function buildLocalExportSummary(rows = [], tab = "overview") {
 }
 
 /** Generates a polished PDF report for a list of items, including an AI executive summary. */
-export function exportAiReportPdf({
+export async function exportAiReportPdf({
   rows,
   filename,
   title = "flugr Data Report",
@@ -624,20 +806,16 @@ export function exportAiReportPdf({
 
   // Wide tabular exports: landscape table PDF is clearer than a long prose dump
   if (!isSummary && body.length > 0 && rawHeaders.length >= 5) {
-    exportPdf({
+    await exportPdf({
       rows,
       filename: filename || `flugr-report-${dateLabel}`,
       title: pdfSafeText(title),
-      meta: `${pdfSafeText(meta)} · AI summary: ${pdfSafeText(summary).slice(0, 160)}`,
+      meta: `${pdfSafeText(meta)} · ${pdfSafeText(summary).slice(0, 120)}`,
     });
     return;
   }
 
   const blocks = [];
-  blocks.push({ kind: "h1", text: pdfSafeText(title) });
-  if (meta) blocks.push({ kind: "meta", text: `${pdfSafeText(meta)} · ${landscape ? "Landscape" : "Portrait"}` });
-  blocks.push({ kind: "spacer", gap: 10 });
-
   blocks.push({ kind: "h2", text: "Executive Summary" });
   blocks.push({ kind: "body", text: summary });
   blocks.push({ kind: "spacer", gap: 16 });
@@ -647,7 +825,6 @@ export function exportAiReportPdf({
     const groups = groupMetricPairs(rawHeaders, body[0] || []);
     Object.entries(groups).forEach(([group, pairs]) => {
       blocks.push({ kind: "body", text: `${humanizeHeader(group)}:` });
-      // Landscape: pack two metrics per line for density
       if (landscape) {
         for (let i = 0; i < pairs.length; i += 2) {
           const a = pairs[i];
@@ -680,9 +857,13 @@ export function exportAiReportPdf({
   }
 
   blocks.push({ kind: "spacer", gap: 15 });
-  blocks.push({ kind: "meta", text: `flugr · Generated on ${dateLabel}` });
+  blocks.push({ kind: "meta", text: `Generated on ${dateLabel}` });
 
-  buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, { landscape });
+  await buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, {
+    landscape,
+    title: pdfSafeText(title),
+    meta: pdfSafeText(meta),
+  });
 }
 
 function fmtAuditMetric(v, { allowZero = true } = {}) {
@@ -706,7 +887,7 @@ const PLATFORM_LABELS = {
  * Detailed Social Media Audit PDF (profile, platforms, issues, recommendations).
  * Styled like the EdVantage-style audit sample — status, score, per-platform metrics, actions.
  */
-export function exportSocialAuditPdf({ audit = {}, filename, exportedAt = "" } = {}) {
+export async function exportSocialAuditPdf({ audit = {}, filename, exportedAt = "" } = {}) {
   const when = exportedAt || audit.created_at || new Date().toISOString();
   const dateLabel = String(when).slice(0, 10);
   const timeLabel = String(when).slice(0, 19).replace("T", " ");
@@ -726,10 +907,6 @@ export function exportSocialAuditPdf({ audit = {}, filename, exportedAt = "" } =
       : `${Number(ov.engagementRate).toFixed(2)}%`;
 
   const blocks = [
-    { kind: "h1", text: "flugr · Social Media Audit" },
-    { kind: "meta", text: `Detailed audit report · Generated ${timeLabel}` },
-    { kind: "meta", text: `Account: ${name} · Role: ${role} · Audit ID: ${audit.id || "—"}` },
-    { kind: "spacer", gap: 12 },
     { kind: "h2", text: "1. Audit Summary" },
     { kind: "body", text: `Overall status: ${audit.status || "—"}` },
     { kind: "body", text: `Audit score: ${audit.score != null ? `${audit.score} / 100` : "N/A"}` },
@@ -825,7 +1002,10 @@ export function exportSocialAuditPdf({ audit = {}, filename, exportedAt = "" } =
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 40);
-  buildPdfFromBlocks(blocks, filename || `flugr-social-audit-${safeName || "report"}-${dateLabel}`);
+  await buildPdfFromBlocks(blocks, filename || `flugr-social-audit-${safeName || "report"}-${dateLabel}`, {
+    title: "Social Media Audit",
+    meta: `Account: ${name} · Role: ${role} · Generated ${timeLabel}`,
+  });
 }
 
 /** Word-compatible HTML document (.doc). */
@@ -858,7 +1038,7 @@ export const EXPORT_FORMATS = [
   { id: "doc", label: "Word (.doc)", ext: "doc" },
 ];
 
-export function runExport(format, opts) {
+export async function runExport(format, opts) {
   if (format === "excel") return exportExcel(opts);
   if (format === "pdf") return exportPdf(opts);
   if (format === "pdf_report") return exportAiReportPdf(opts);

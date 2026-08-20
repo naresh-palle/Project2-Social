@@ -480,10 +480,10 @@ export function AdminPanel() {
           /* local fallback below */
         }
         const { exportAiReportPdf, buildLocalExportSummary } = await import("@/lib/exportFormats");
-        exportAiReportPdf({
+        await exportAiReportPdf({
           rows,
           filename: `flugr_ai_report_${new Date().toISOString().slice(0, 10)}`,
-          title: "flugr Admin Platform Report",
+          title: "Platform Report",
           meta: "AI / analytics snapshot",
           aiSummary: aiSummary || buildLocalExportSummary(rows, "overview"),
           tab: "overview",
@@ -616,12 +616,14 @@ export function AdminPanel() {
             ? (roleFilter.length > 0 ? `${roleFilter[0][0].toUpperCase()}${roleFilter[0].slice(1)}s` : "Users")
             : tab === "agent_approvals"
               ? "Approvals"
-              : tab.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+              : tab === "overview"
+                ? "Platform"
+                : tab.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-        runExport(exportFormat, {
+        await runExport(exportFormat, {
           rows: data,
           filename: base,
-          title: `flugr Admin - ${tabLabel} Report`,
+          title: `${tabLabel} Report`,
           meta,
           aiSummary,
           tab,
