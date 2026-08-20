@@ -103,19 +103,36 @@ export function humanizeHeader(key) {
     "users.admins": "Admins",
     "users.total": "Total users",
     "campaigns.total": "Campaigns",
-    "campaigns.active": "Active campaigns",
-    "campaigns.completed": "Completed campaigns",
-    "campaigns.draft": "Draft campaigns",
+    "campaigns.active": "Active",
+    "campaigns.completed": "Completed",
+    "campaigns.draft": "Draft",
+    "campaigns.pending_approval": "Pending approval",
     "financial.revenue": "Revenue",
     "financial.total_payments": "Total payments",
+    "financial.pending_payments": "Pending payments",
+    "financial.completed_payments": "Completed payments",
     "financial.escrow_held": "Escrow held",
     "financial.platform_fee": "Platform fee",
+    "requests.creator_requests": "Creator requests",
+    "requests.brand_requests": "Brand requests",
+    "requests.verification_requests": "Verification requests",
     "platform.active_users": "Active users",
     "platform.inactive_users": "Inactive users",
+    "platform.logins_today": "Logins today",
+    "platform.new_registrations": "New registrations",
+    "platform.dau": "Daily active (DAU)",
+    "platform.mau": "Monthly active (MAU)",
+    "platform.open_reports": "Open reports",
+    "platform.published_posts": "Published posts",
     "reports.open": "Open reports",
     "reports.resolved": "Resolved reports",
     "approvals.pending": "Pending approvals",
     "approvals.approved": "Approved",
+    creators: "Creators",
+    brands: "Brands",
+    agencies: "Agencies",
+    campaigns: "Campaigns",
+    revenue: "Revenue",
     created_at: "Created",
     updated_at: "Updated",
     username: "Username",
@@ -131,11 +148,55 @@ export function humanizeHeader(key) {
     type: "Type",
   };
   if (map[key]) return map[key];
-  return String(key || "")
+  const raw = String(key || "");
+  // Prefer leaf segment for nested keys so labels don't repeat the group name
+  const leaf = raw.includes(".") ? raw.split(".").slice(1).join(".") : raw;
+  if (map[leaf]) return map[leaf];
+  if (map[raw]) return map[raw];
+  return leaf
     .replace(/[._]/g, " ")
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/\b\w/g, (c) => c.toUpperCase())
     .trim();
+}
+
+function groupTitle(root) {
+  const map = {
+    users: "Users",
+    campaigns: "Campaigns",
+    financial: "Financial",
+    requests: "Requests",
+    platform: "Platform activity",
+    reports: "Reports",
+    approvals: "Approvals",
+    metrics: "Metrics",
+  };
+  return map[root] || humanizeHeader(root);
+}
+
+function groupAccent(root) {
+  // RGB 0-1 — brand red + distinct section colors (no purple)
+  const map = {
+    users: [0.04, 0.52, 1.0],
+    campaigns: [1.0, 0.58, 0.0],
+    financial: [0.2, 0.78, 0.35],
+    requests: [0.18, 0.22, 0.28],
+    platform: [0.1, 0.45, 0.55],
+    reports: [1.0, 0.23, 0.18],
+    approvals: [0.95, 0.55, 0.1],
+    metrics: [0.35, 0.35, 0.38],
+  };
+  return map[root] || [0.4, 0.4, 0.42];
+}
+
+function fmtReportValue(v) {
+  if (v == null || v === "" || v === "-") return "-";
+  const n = Number(v);
+  if (!Number.isFinite(n) || String(v).trim() !== String(n)) return String(v);
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(n) >= 10_000) return n.toLocaleString("en-US");
+  if (Math.abs(n) >= 1_000) return n.toLocaleString("en-US");
+  return String(n);
 }
 
 /** Helvetica/WinAnsi-safe text (avoids tofu boxes for em-dashes, etc.). */
@@ -386,6 +447,7 @@ function pickPageSize({ colCount = 0, isSummary = false, metricCount = 0, forceL
 
 function groupMetricPairs(headers, values) {
   const pairs = headers.map((h, i) => ({
+    key: h,
     label: humanizeHeader(h),
     value: values[i] == null || values[i] === "" ? "-" : String(values[i]),
   }));
@@ -783,6 +845,191 @@ export function buildLocalExportSummary(rows = [], tab = "overview") {
   return `This export includes ${list.length} ${tab.replace(/_/g, " ")} records (${roleBits || "mixed types"}). Review the data overview and included records below for operational follow-up.`;
 }
 
+/**
+ * Branded executive PDF: tinted summary panel, KPI strip, color-coded metric cards.
+ * Designed for admin overview / single-row stats exports.
+ */
+async function buildRichExecutiveReportPdf({
+  rawHeaders,
+  values,
+  summary,
+  filename,
+  title,
+  meta,
+  dateLabel,
+}) {
+  const pageWidth = 792;
+  const pageHeight = 612;
+  const margin = 28;
+  const contentWidth = pageWidth - margin * 2;
+  const logo = await loadBrandLogoRgb(72);
+  const groups = groupMetricPairs(rawHeaders, values);
+  const safeTitle = pdfSafeText(title);
+  const safeMeta = pdfSafeText(meta);
+  const summaryText = pdfSafeText(summary);
+
+  // Pick highlight KPIs for the top strip
+  const byKey = {};
+  rawHeaders.forEach((h, i) => {
+    byKey[h] = values[i];
+  });
+  const kpiDefs = [
+    { key: "users.creators", label: "Creators", accent: [0.04, 0.52, 1.0] },
+    { key: "users.brands", label: "Brands", accent: [1.0, 0.58, 0.0] },
+    { key: "campaigns.total", label: "Campaigns", accent: [0.1, 0.45, 0.55] },
+    { key: "financial.revenue", label: "Revenue", accent: [0.2, 0.78, 0.35] },
+  ].filter((k) => byKey[k.key] != null && byKey[k.key] !== "");
+
+  const pageOps = [];
+  let ops = [];
+  let y = pageHeight - 84;
+
+  const paintPageChrome = (metaLine) => {
+    // Soft page wash
+    ops.push("0.965 0.965 0.96 rg");
+    ops.push(`0 0 ${pageWidth} ${pageHeight} re f`);
+    y = drawBrandHeader(ops, {
+      title: safeTitle,
+      meta: metaLine || safeMeta,
+      pageWidth,
+      pageHeight,
+      margin,
+      logoId: !!logo,
+    });
+  };
+
+  const flushPage = () => {
+    // Footer
+    ops.push("0.55 0.55 0.55 rg");
+    ops.push(
+      `BT /F1 7 Tf ${margin} ${margin - 8} Td (${pdfEscape(`flugr AI Report · ${dateLabel} · Confidential`)}) Tj ET`
+    );
+    pageOps.push(ops.join("\n"));
+    ops = [];
+    y = pageHeight - 84;
+  };
+
+  const ensureSpace = (need) => {
+    if (y - need < margin + 18) {
+      flushPage();
+      paintPageChrome(`${safeMeta} · continued`);
+    }
+  };
+
+  const rgb = (arr) => `${arr[0]} ${arr[1]} ${arr[2]}`;
+
+  paintPageChrome(safeMeta || "AI-assisted platform report");
+
+  // --- Executive summary panel ---
+  const summaryLines = wrapWords(summaryText, 108);
+  const panelH = Math.max(54, 28 + summaryLines.length * 11);
+  ensureSpace(panelH + 16);
+  ops.push("1 0.94 0.93 rg");
+  ops.push(`${margin} ${y - panelH} ${contentWidth} ${panelH} re f`);
+  ops.push("1 0.23 0.18 rg");
+  ops.push(`${margin} ${y - panelH} 5 ${panelH} re f`);
+  ops.push("0.75 0.2 0.16 rg");
+  ops.push(`BT /F2 10 Tf ${margin + 14} ${y - 14} Td (Executive Summary) Tj ET`);
+  ops.push("0.18 0.18 0.18 rg");
+  let sy = y - 28;
+  summaryLines.forEach((line) => {
+    ops.push(`BT /F1 9 Tf ${margin + 14} ${sy} Td (${pdfEscape(line)}) Tj ET`);
+    sy -= 11;
+  });
+  y -= panelH + 14;
+
+  // --- KPI highlight strip ---
+  if (kpiDefs.length) {
+    const cards = kpiDefs.slice(0, 4);
+    const gap = 10;
+    const cardW = (contentWidth - gap * (cards.length - 1)) / cards.length;
+    const cardH = 48;
+    ensureSpace(cardH + 12);
+    cards.forEach((k, i) => {
+      const x = margin + i * (cardW + gap);
+      // shadow
+      ops.push("0.9 0.9 0.9 rg");
+      ops.push(`${x + 1.5} ${y - cardH - 1.5} ${cardW} ${cardH} re f`);
+      // card
+      ops.push("1 1 1 rg");
+      ops.push(`${x} ${y - cardH} ${cardW} ${cardH} re f`);
+      // accent bar top
+      ops.push(`${rgb(k.accent)} rg`);
+      ops.push(`${x} ${y - 4} ${cardW} 4 re f`);
+      ops.push("0.45 0.45 0.45 rg");
+      ops.push(`BT /F1 7 Tf ${x + 10} ${y - 16} Td (${pdfEscape(k.label).toUpperCase()}) Tj ET`);
+      ops.push("0.1 0.1 0.1 rg");
+      ops.push(
+        `BT /F2 16 Tf ${x + 10} ${y - 36} Td (${pdfEscape(fmtReportValue(byKey[k.key])).slice(0, 14)}) Tj ET`
+      );
+    });
+    y -= cardH + 16;
+  }
+
+  // --- Sectioned metric cards ---
+  ensureSpace(22);
+  ops.push("0.12 0.12 0.12 rg");
+  ops.push(`BT /F2 12 Tf ${margin} ${y} Td (Key Metrics by Category) Tj ET`);
+  y -= 16;
+
+  const cardsPerRow = 4;
+  const gap = 8;
+  const colW = (contentWidth - gap * (cardsPerRow - 1)) / cardsPerRow;
+  const cardH = 36;
+
+  Object.entries(groups).forEach(([group, pairs]) => {
+    const accent = groupAccent(group);
+    ensureSpace(28 + Math.ceil(pairs.length / cardsPerRow) * (cardH + gap));
+
+    // Section band
+    ops.push(`${rgb(accent)} rg`);
+    ops.push(`${margin} ${y - 16} ${contentWidth} 18 re f`);
+    ops.push("1 1 1 rg");
+    ops.push(`BT /F2 9 Tf ${margin + 10} ${y - 11} Td (${pdfEscape(groupTitle(group)).toUpperCase()}) Tj ET`);
+    ops.push("1 1 1 rg");
+    ops.push(
+      `BT /F1 8 Tf ${margin + contentWidth - 70} ${y - 11} Td (${pairs.length} metric${pairs.length === 1 ? "" : "s"}) Tj ET`
+    );
+    y -= 26;
+
+    for (let i = 0; i < pairs.length; i += cardsPerRow) {
+      ensureSpace(cardH + 10);
+      for (let c = 0; c < cardsPerRow; c++) {
+        const pair = pairs[i + c];
+        if (!pair) continue;
+        const x = margin + c * (colW + gap);
+        ops.push("1 1 1 rg");
+        ops.push(`${x} ${y - cardH} ${colW} ${cardH} re f`);
+        ops.push("0.88 0.88 0.88 RG 0.6 w");
+        ops.push(`${x} ${y - cardH} ${colW} ${cardH} re S`);
+        ops.push(`${rgb(accent)} rg`);
+        ops.push(`${x} ${y - cardH} 3 ${cardH} re f`);
+        ops.push("0.42 0.42 0.42 rg");
+        ops.push(
+          `BT /F1 6.5 Tf ${x + 8} ${y - 11} Td (${pdfEscape(pair.label).slice(0, Math.floor(colW / 4.2))}) Tj ET`
+        );
+        ops.push("0.1 0.1 0.1 rg");
+        ops.push(
+          `BT /F2 12 Tf ${x + 8} ${y - 27} Td (${pdfEscape(fmtReportValue(pair.value)).slice(0, Math.floor(colW / 5.5))}) Tj ET`
+        );
+      }
+      y -= cardH + gap;
+    }
+    y -= 6;
+  });
+
+  flushPage();
+
+  const pdfBytes = assemblePdf(
+    pageWidth,
+    pageHeight,
+    pageOps.map((content) => () => content),
+    logo
+  );
+  const name = String(filename || `flugr-report-${dateLabel}`).replace(/\.(csv|xlsx|xls|pdf|doc|docx)$/i, "");
+  downloadPdfBytes(pdfBytes, `${name}.pdf`);
+}
+
 /** Generates a polished PDF report for a list of items, including an executive summary. */
 export async function exportAiReportPdf({
   rows,
@@ -796,73 +1043,55 @@ export async function exportAiReportPdf({
     const { headers: rawHeaders, rows: body } = normalizeRows(rows);
     const dateLabel = new Date().toISOString().slice(0, 10);
     const summary =
-      (aiSummary && String(aiSummary).trim() && !/AI analysis failed/i.test(aiSummary)
+      aiSummary && String(aiSummary).trim() && !/AI analysis failed/i.test(aiSummary)
         ? String(aiSummary).trim()
-        : buildLocalExportSummary(rows, tab));
+        : buildLocalExportSummary(rows, tab);
 
     const isSummary = body.length <= 1 && rawHeaders.length > 6;
-    const { landscape } = pickPageSize({
-      colCount: rawHeaders.length,
-      isSummary,
-      metricCount: rawHeaders.length,
-      forceLandscape: body.length > 1 && rawHeaders.length >= 5,
-    });
-
-    const blocks = [];
-    blocks.push({ kind: "h2", text: "Executive Summary" });
-    blocks.push({ kind: "body", text: summary });
-    blocks.push({ kind: "spacer", gap: 16 });
 
     if (isSummary) {
-      blocks.push({ kind: "h2", text: "Key Metrics" });
-      const groups = groupMetricPairs(rawHeaders, body[0] || []);
-      Object.entries(groups).forEach(([group, pairs]) => {
-        blocks.push({ kind: "body", text: `${humanizeHeader(group)}:` });
-        if (landscape) {
-          for (let i = 0; i < pairs.length; i += 2) {
-            const a = pairs[i];
-            const b = pairs[i + 1];
-            blocks.push({
-              kind: "body",
-              text: b ? `${a.label}: ${a.value}    |    ${b.label}: ${b.value}` : `${a.label}: ${a.value}`,
-            });
-          }
-        } else {
-          pairs.forEach((p) => blocks.push({ kind: "body", text: `  ${p.label}: ${p.value}` }));
-        }
-        blocks.push({ kind: "spacer", gap: 6 });
+      await buildRichExecutiveReportPdf({
+        rawHeaders,
+        values: body[0] || [],
+        summary,
+        filename: filename || `flugr-report-${dateLabel}`,
+        title: pdfSafeText(title),
+        meta: pdfSafeText(meta) || `Tab: ${tab} · Generated ${dateLabel}`,
+        dateLabel,
       });
-    } else if (body.length > 0 && rawHeaders.length >= 5) {
-      // Wide lists: one landscape table PDF (browsers often block a second auto-download).
+      return;
+    }
+
+    if (body.length > 0 && rawHeaders.length >= 5) {
+      // Wide lists: branded table PDF with summary in meta (single download)
       await exportPdf({
         rows,
         filename: filename || `flugr-report-${dateLabel}`,
         title: pdfSafeText(title),
-        meta: `${pdfSafeText(meta)} · ${pdfSafeText(summary).slice(0, 160)}`,
+        meta: `${pdfSafeText(meta)} · ${pdfSafeText(summary).slice(0, 140)}`,
       });
       return;
-    } else {
-      blocks.push({ kind: "h2", text: "Data Overview" });
-      blocks.push({ kind: "body", text: `Total records in this report: ${body.length}` });
-      blocks.push({ kind: "spacer", gap: 8 });
-      blocks.push({ kind: "h2", text: "Included Records" });
-      const names = body.map((cols, idx) => {
-        const primary = cols.find((c) => c && String(c).trim() !== "") || `Record ${idx + 1}`;
-        return String(primary).slice(0, 48);
-      });
-      const chunkSize = landscape ? 18 : 12;
-      for (let i = 0; i < names.length; i += chunkSize) {
-        names.slice(i, i + chunkSize).forEach((n, j) => {
-          blocks.push({ kind: "body", text: `${i + j + 1}. ${n}` });
-        });
-      }
     }
 
-    blocks.push({ kind: "spacer", gap: 15 });
+    // Small lists: short narrative + record names with richer blocks
+    const blocks = [
+      { kind: "h2", text: "Executive Summary" },
+      { kind: "body", text: summary },
+      { kind: "spacer", gap: 12 },
+      { kind: "h2", text: "Data Overview" },
+      { kind: "body", text: `Total records in this report: ${body.length}` },
+      { kind: "spacer", gap: 8 },
+      { kind: "h2", text: "Included Records" },
+    ];
+    body.forEach((cols, idx) => {
+      const primary = cols.find((c) => c && String(c).trim() !== "") || `Record ${idx + 1}`;
+      blocks.push({ kind: "body", text: `${idx + 1}. ${String(primary).slice(0, 64)}` });
+    });
+    blocks.push({ kind: "spacer", gap: 12 });
     blocks.push({ kind: "meta", text: `Generated on ${dateLabel}` });
 
     await buildPdfFromBlocks(blocks, filename || `flugr-report-${dateLabel}`, {
-      landscape,
+      landscape: false,
       title: pdfSafeText(title),
       meta: pdfSafeText(meta),
     });
