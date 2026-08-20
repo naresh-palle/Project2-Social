@@ -221,7 +221,14 @@ class _GreetingHeader extends StatelessWidget {
         IconButton.filledTonal(
           onPressed: () => context.push('/notifications'),
           style: IconButton.styleFrom(backgroundColor: Cr8Colors.surface),
-          icon: const Icon(Icons.notifications_none_rounded),
+          icon: Badge(
+            isLabelVisible: notifications.isNotEmpty,
+            label: Text(
+              notifications.length > 9 ? '9+' : '${notifications.length}',
+              style: const TextStyle(fontSize: 10),
+            ),
+            child: const Icon(Icons.notifications_none_rounded),
+          ),
         ),
       ],
     );

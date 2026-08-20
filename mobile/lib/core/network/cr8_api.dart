@@ -298,9 +298,17 @@ class Cr8Api {
   }
 
   // ---- Notifications ----
-  Future<Map<String, dynamic>> notifications() async {
-    final res = await _client.get('/notifications');
+  Future<Map<String, dynamic>> notifications({bool unreadOnly = false}) async {
+    final res = await _client.get(
+      '/notifications',
+      query: unreadOnly ? {'unread_only': 'true'} : null,
+    );
     return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> readNotification(String id) async {
+    final res = await _client.post('/notifications/$id/read');
+    return Map<String, dynamic>.from(res.data as Map? ?? {'ok': true});
   }
 
   Future<void> readAllNotifications() async => _client.post('/notifications/read');

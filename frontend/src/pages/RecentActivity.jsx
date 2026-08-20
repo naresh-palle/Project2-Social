@@ -79,6 +79,16 @@ export default function RecentActivity() {
               <li key={item.id || `${item.created_at}-${item.text}`}>
                 <Link
                   to={linkFor(item)}
+                  onClick={() => {
+                    if (item?.id && !(item.read === true || item.read === "true")) {
+                      api.post(`/notifications/${item.id}/read`).catch(() => {});
+                      setItems((prev) =>
+                        Array.isArray(prev)
+                          ? prev.map((x) => (x.id === item.id ? { ...x, read: true } : x))
+                          : prev
+                      );
+                    }
+                  }}
                   className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#FF3B30]/35 transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>

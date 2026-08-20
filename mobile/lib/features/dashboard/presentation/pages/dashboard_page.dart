@@ -72,9 +72,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       } else {
         stats = await api.analyticsCreator();
         wallet = await api.wallet();
-        final notif = await api.notifications();
+        final notif = await api.notifications(unreadOnly: true);
         notifications = ((notif['items'] as List?) ?? [])
             .map((e) => Map<String, dynamic>.from(e as Map))
+            .where((n) {
+              final r = n['read'];
+              return !(r == true || r == 'true' || r == 1);
+            })
             .toList();
         campaigns = await api.matchCampaigns();
       }

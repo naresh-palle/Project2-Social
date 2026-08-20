@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -6,36 +6,70 @@ import { useAuth } from "@/lib/auth";
 import { IconTip } from "@/components/IconTip";
 import { AiIcon } from "@/components/AiIcon";
 
+function isUnread(n) {
+  return !(n && (n.read === true || n.read === "true" || n.read === 1));
+}
+
 export function NotificationBell() {
   const { user } = useAuth();
   const [data, setData] = useState({ items: [], unread: 0 });
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
-      const { data } = await api.get("/notifications");
-      setData(data && Array.isArray(data.items) ? data : { items: [], unread: 0 });
+      // Bell only shows unread; Recent Activity still lists full history.
+      const { data: res } = await api.get("/notifications", { params: { unread_only: true } });
+      const items = Array.isArray(res?.items) ? res.items.filter(isUnread) : [];
+      const unread = typeof res?.unread === "number" ? res.unread : items.length;
+      setData({ items, unread });
     } catch {
       setData({ items: [], unread: 0 });
     }
-  };
+  }, []);
+
   useEffect(() => {
-    if (!user) return;
+    if (!user) return undefined;
     load();
     const t = setInterval(load, 15000);
     return () => clearInterval(t);
-  }, [user]);
+  }, [user, load]);
 
   useEffect(() => {
-    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
   const markAll = async () => {
-    await api.post("/notifications/read");
-    load();
+    try {
+      await api.post("/notifications/read");
+    } catch {
+      /* ignore */
+    }
+    setData({ items: [], unread: 0 });
+  };
+
+  const markOne = async (n) => {
+    if (!n?.id) return;
+    // Optimistic: remove from panel and drop the badge immediately
+    setData((prev) => {
+      const items = prev.items.filter((x) => x.id !== n.id);
+      const unread = Math.max(0, (prev.unread || 0) - (isUnread(n) ? 1 : 0));
+      return { items, unread };
+    });
+    setOpen(false);
+    try {
+      const { data: res } = await api.post(`/notifications/${n.id}/read`);
+      if (typeof res?.unread === "number") {
+        setData((prev) => ({ ...prev, unread: res.unread, items: prev.items.filter((x) => x.id !== n.id) }));
+      }
+    } catch {
+      // Refresh from server if mark-read failed
+      load();
+    }
   };
 
   const linkFor = (n) => {
@@ -52,7 +86,7 @@ export function NotificationBell() {
     <div ref={ref} className="relative">
       <IconTip label="Notifications">
         <button
-          onClick={() => setOpen(v => !v)}
+          onClick={() => setOpen((v) => !v)}
           data-testid="notif-bell"
           title="Notifications"
           aria-label="Notifications"
@@ -88,18 +122,18 @@ export function NotificationBell() {
               <div className="p-8 text-center font-editorial italic text-lg opacity-50">Nothing on file.</div>
             ) : (
               <div>
-                {data.items.map(n => (
+                {data.items.map((n) => (
                   <Link
                     key={n.id}
                     to={linkFor(n)}
-                    onClick={() => setOpen(false)}
+                    onClick={() => { markOne(n); }}
                     data-testid={`notif-${n.id}`}
-                    className={`block p-4 hairline-b hover:bg-white/5 transition-colors ${n.read ? "opacity-60" : ""}`}
+                    className="block p-4 hairline-b hover:bg-white/5 transition-colors"
                   >
                     <div className="flex items-baseline justify-between mb-1">
-                      <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30]">{n.kind.replace(/_/g, " ")}</span>
+                      <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30]">{String(n.kind || "update").replace(/_/g, " ")}</span>
                       <span className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50">
-                        {new Date(n.created_at).toLocaleDateString()}
+                        {n.created_at ? new Date(n.created_at).toLocaleDateString() : ""}
                       </span>
                     </div>
                     <div className="text-sm leading-snug">{n.text}</div>

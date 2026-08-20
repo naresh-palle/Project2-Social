@@ -3992,23 +3992,52 @@ async def push_notification(user_id: str, kind: str, text: str, meta: Optional[d
     await db.notifications.insert_one(doc)
 
 
+def _notif_unread_query(user_id: str) -> dict:
+    """Treat missing/null/false as unread so counts stay consistent."""
+    return {
+        "user_id": user_id,
+        "$or": [{"read": False}, {"read": None}, {"read": {"$exists": False}}],
+    }
+
+
 @api_router.get("/notifications")
-async def list_notifications(current: dict = Depends(get_current_user)):
-    items = await db.notifications.find({"user_id": current["id"]}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
-    unread = await db.notifications.count_documents({"user_id": current["id"], "read": False})
+async def list_notifications(
+    unread_only: bool = Query(False),
+    current: dict = Depends(get_current_user),
+):
+    uid = current["id"]
+    q: dict = {"user_id": uid}
+    if unread_only:
+        q = _notif_unread_query(uid)
+    items = await db.notifications.find(q, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+    # Normalize so clients always see a boolean
+    for it in items:
+        it["read"] = bool(it.get("read"))
+    unread = await db.notifications.count_documents(_notif_unread_query(uid))
     return {"items": items, "unread": unread}
 
 
 @api_router.post("/notifications/read")
 async def mark_read_all(current: dict = Depends(get_current_user)):
-    await db.notifications.update_many({"user_id": current["id"], "read": False}, {"$set": {"read": True}})
-    return {"ok": True}
+    uid = current["id"]
+    await db.notifications.update_many(
+        _notif_unread_query(uid),
+        {"$set": {"read": True, "read_at": now_iso()}},
+    )
+    return {"ok": True, "unread": 0}
 
 
 @api_router.post("/notifications/{notification_id}/read")
 async def mark_read_one(notification_id: str, current: dict = Depends(get_current_user)):
-    await db.notifications.update_one({"id": notification_id, "user_id": current["id"]}, {"$set": {"read": True}})
-    return {"ok": True}
+    uid = current["id"]
+    result = await db.notifications.update_one(
+        {"id": notification_id, "user_id": uid},
+        {"$set": {"read": True, "read_at": now_iso()}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    unread = await db.notifications.count_documents(_notif_unread_query(uid))
+    return {"ok": True, "unread": unread}
 
 
 # ---------- Contracts ----------
