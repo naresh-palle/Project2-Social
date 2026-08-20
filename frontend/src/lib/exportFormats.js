@@ -547,7 +547,9 @@ export async function exportPdf({ rows, filename, title = "flugr Export", meta =
       y -= 8;
     });
   } else {
-    const maxCols = landscape ? Math.min(headers.length, 10) : Math.min(headers.length, 5);
+    const maxCols = landscape
+      ? Math.min(headers.length, headers.length <= 12 ? headers.length : 10)
+      : Math.min(headers.length, 5);
     const colChunks = [];
     for (let c = 0; c < headers.length; c += maxCols) {
       colChunks.push({
@@ -564,8 +566,9 @@ export async function exportPdf({ rows, filename, title = "flugr Export", meta =
       const colCount = chunk.headers.length;
       const colW = contentWidth / colCount;
       const rowH = landscape ? 16 : 18;
-      const headerChars = Math.max(6, Math.floor(colW / 4.8));
-      const cellChars = Math.max(6, Math.floor(colW / 4.2));
+      // Wider cells when we have fewer curated columns
+      const headerChars = Math.max(8, Math.floor(colW / (colCount <= 8 ? 4.2 : 4.8)));
+      const cellChars = Math.max(8, Math.floor(colW / (colCount <= 8 ? 3.8 : 4.2)));
 
       const drawTableHeader = () => {
         ensureSpace(rowH + 8);

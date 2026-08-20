@@ -59,6 +59,90 @@ function userStatusLabel(u) {
   return "Active";
 }
 
+const INTERNAL_EXPORT_ROLES = new Set([
+  "admin",
+  "support",
+  "support_agent",
+  "support_lead",
+  "support_admin",
+]);
+
+/** Curated columns so PDF/CSV/Excel stay readable (not a raw DB dump). */
+function shapeExportRows(tab, rows) {
+  const list = Array.isArray(rows) ? rows.filter(Boolean) : [];
+  if (tab === "users") {
+    return list
+      .filter((u) => !INTERNAL_EXPORT_ROLES.has(u.role))
+      .map((u) => ({
+        Username: formatUsername(u.username, u.handle) || u.username || "—",
+        Name: u.name || "—",
+        Email: u.email || "—",
+        Mobile: u.mobile
+          ? String(u.mobile).startsWith("+")
+            ? u.mobile
+            : `+91 ${String(u.mobile).replace(/\D/g, "").slice(-10)}`
+          : "—",
+        Role: roleLabel(u.role),
+        Category: userCategoryText(u) || "—",
+        Status: userStatusLabel(u),
+        City: u.city || "—",
+        State: u.state || "—",
+        Joined: u.created_at ? String(u.created_at).slice(0, 10) : "—",
+      }));
+  }
+  if (tab === "reports") {
+    return list.map((r) => ({
+      Type: r.target_type || "—",
+      Target: r.target_label || r.target_username || r.target_id || "—",
+      Reason: r.reason || "—",
+      Status: r.status || "—",
+      Created: r.created_at ? String(r.created_at).slice(0, 10) : "—",
+    }));
+  }
+  if (tab === "audit") {
+    return list.map((a) => ({
+      Time: (a.time || a.created_at)
+        ? String(a.time || a.created_at).slice(0, 19).replace("T", " ")
+        : "—",
+      User: formatUsername(a.username, a.handle || a.user) || a.user || "—",
+      Action: a.type || a.action || "—",
+      Details: a.details || "—",
+      Status: a.status || "—",
+    }));
+  }
+  if (tab === "categories") {
+    return list.map((c) => {
+      if (typeof c === "string") return { Category: c };
+      return {
+        Category: c.name || c.title || "—",
+        Count: c.count != null ? c.count : "—",
+      };
+    });
+  }
+  // Fallback: flatten but drop noisy keys
+  const drop = new Set([
+    "password_hash", "password", "token", "avatar", "id", "_id",
+    "platform_metrics", "notification_prefs", "sessions",
+  ]);
+  return list.map((row) => {
+    const out = {};
+    Object.entries(row || {}).forEach(([k, v]) => {
+      if (drop.has(k) || k.startsWith("password")) return;
+      if (v != null && typeof v === "object" && !Array.isArray(v)) {
+        Object.entries(v).forEach(([sk, sv]) => {
+          if (drop.has(sk)) return;
+          out[`${k}.${sk}`] = Array.isArray(sv) ? sv.join("; ") : sv;
+        });
+      } else if (Array.isArray(v)) {
+        out[k] = v.join("; ");
+      } else {
+        out[k] = v;
+      }
+    });
+    return out;
+  });
+}
+
 function userCategoryText(u) {
   return []
     .concat(u?.category || [])
@@ -534,24 +618,15 @@ export function AdminPanel() {
         toast.error("Nothing to export on this tab");
         return;
       }
-      // Flatten nested objects for tabular formats
-      const data = raw.map((row) => {
-        const out = {};
-        Object.entries(row || {}).forEach(([k, v]) => {
-          if (v != null && typeof v === "object" && !Array.isArray(v)) {
-            Object.entries(v).forEach(([sk, sv]) => {
-              out[`${k}.${sk}`] = Array.isArray(sv) ? sv.join("; ") : sv;
-            });
-          } else if (Array.isArray(v)) {
-            out[k] = v.join("; ");
-          } else {
-            out[k] = v;
-          }
-        });
-        return out;
-      });
+
+      const data = shapeExportRows(tab, raw);
+      if (!data.length) {
+        toast.error(tab === "users" ? "No member accounts to export (internal roles excluded)" : "Nothing to export on this tab");
+        return;
+      }
+
       const meta = `Export Timeframe: ${exportRange.toUpperCase()}${exportRange === "custom" ? ` (${startDate} to ${endDate || "Unlimited"})` : ""} · Tab: ${tab}`;
-      const base = `cr8_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
+      const base = `flugr_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
       
       try {
         setExportBusy(true);
@@ -581,7 +656,7 @@ export function AdminPanel() {
 
         const tabLabel =
           tab === "users"
-            ? (roleFilter.length > 0 ? `${roleFilter[0][0].toUpperCase()}${roleFilter[0].slice(1)}s` : "Users")
+            ? (roleFilter.length > 0 ? roleFilter[0] : "Users")
             : tab === "agent_approvals"
               ? "Approvals"
               : tab === "overview"
