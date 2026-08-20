@@ -69,7 +69,11 @@ class CreatorStudioView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
       children: [
-        _GreetingHeader(user: user, onOpenMenu: onOpenMenu),
+        _GreetingHeader(
+          user: user,
+          onOpenMenu: onOpenMenu,
+          unreadCount: notifications.length,
+        ),
         const SizedBox(height: 18),
         _OffersSection(offers: snapshot.offers),
         const SizedBox(height: 14),
@@ -161,9 +165,14 @@ class CreatorSnapshot {
 }
 
 class _GreetingHeader extends StatelessWidget {
-  const _GreetingHeader({required this.user, this.onOpenMenu});
+  const _GreetingHeader({
+    required this.user,
+    this.onOpenMenu,
+    this.unreadCount = 0,
+  });
   final UserEntity user;
   final VoidCallback? onOpenMenu;
+  final int unreadCount;
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +231,9 @@ class _GreetingHeader extends StatelessWidget {
           onPressed: () => context.push('/notifications'),
           style: IconButton.styleFrom(backgroundColor: Cr8Colors.surface),
           icon: Badge(
-            isLabelVisible: notifications.isNotEmpty,
+            isLabelVisible: unreadCount > 0,
             label: Text(
-              notifications.length > 9 ? '9+' : '${notifications.length}',
+              unreadCount > 9 ? '9+' : '$unreadCount',
               style: const TextStyle(fontSize: 10),
             ),
             child: const Icon(Icons.notifications_none_rounded),
