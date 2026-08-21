@@ -125,6 +125,61 @@ button, input, select, textarea {
     font-family: inherit;
 }
 
+/*
+ * Native <select> / <option> — browsers often paint the open list with the OS
+ * chrome while inheriting page text color, which makes Hire/Production and other
+ * filter options invisible (white-on-white or black-on-black). Force readable
+ * pairs from theme tokens in both dark and light mode.
+ */
+select {
+    color: var(--fg);
+    caret-color: var(--fg);
+}
+option,
+optgroup {
+    background-color: var(--surface-1) !important;
+    color: var(--fg) !important;
+}
+option:disabled,
+optgroup:disabled {
+    color: var(--fg-muted) !important;
+}
+
+/* Custom multi-select menu (portaled) — theme-token surfaces */
+.msd-menu {
+    background: var(--surface-1) !important;
+    border: 1px solid var(--border-strong) !important;
+    color: var(--fg) !important;
+    box-shadow: 0 16px 48px var(--scrim);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+}
+.msd-menu .msd-item {
+    color: var(--fg);
+    border-color: var(--border-soft);
+}
+.msd-menu .msd-item:hover {
+    background: var(--overlay-soft);
+}
+.msd-menu .msd-item-muted {
+    color: var(--fg-muted);
+}
+.msd-menu .msd-item-selected {
+    color: var(--vermilion) !important;
+    background: var(--overlay-soft);
+}
+.msd-trigger {
+    color: var(--fg);
+}
+.msd-trigger-placeholder {
+    color: var(--fg-muted);
+}
+.msd-chip {
+    background: var(--overlay-soft);
+    border: 1px solid var(--border-soft);
+    color: var(--fg);
+}
+
 .font-editorial { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em; }
 .font-mono { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em; }
 .font-sans { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -617,9 +672,16 @@ html.theme-light .inp {
     background: transparent !important;
     border-bottom-color: var(--border-soft) !important;
 }
-html.theme-light option {
-    background: var(--surface-1);
-    color: var(--fg);
+html.theme-light option,
+html.theme-light optgroup {
+    background: var(--surface-1) !important;
+    color: var(--fg) !important;
+}
+/* Portaled menus sit on body — keep token surfaces (avoid hard-coded dark remaps fighting) */
+html.theme-light .msd-menu {
+    background: var(--surface-1) !important;
+    border-color: var(--border-strong) !important;
+    color: var(--fg) !important;
 }
 
 /* Nav / sticky bars */

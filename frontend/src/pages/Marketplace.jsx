@@ -386,7 +386,7 @@ export default function Marketplace() {
             <select
               value={filters.sort}
               onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
-              className="w-full mt-1 bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none"
+              className="w-full mt-1 bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-sm text-[var(--fg)] focus:outline-none"
             >
               {SORT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -471,14 +471,14 @@ export default function Marketplace() {
           </div>
           <div>
             <label className="font-mono text-[8px] uppercase tracking-widest text-white/40">State</label>
-            <select value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="w-full mt-1 bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <select value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="w-full mt-1 bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">Any</option>
               {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           <div>
             <label className="font-mono text-[8px] uppercase tracking-widest text-white/40">City</label>
-            <select value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="w-full mt-1 bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <select value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="w-full mt-1 bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">Any</option>
               {CITIES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -495,7 +495,7 @@ export default function Marketplace() {
           <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">
             Campaign Creator Group · {selected.length} selected · est. ₹{estimatedCost.toLocaleString()}
           </span>
-          <select value={comboCampaign} onChange={(e) => setComboCampaign(e.target.value)} className="bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm min-w-[10rem]">
+          <select value={comboCampaign} onChange={(e) => setComboCampaign(e.target.value)} className="bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)] min-w-[10rem]">
             <option value="">Select campaign</option>
             {myCampaigns.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
           </select>
@@ -509,7 +509,7 @@ export default function Marketplace() {
       {tab === "brands" ? (
         <div className="mb-4 flex flex-wrap gap-2">
           <input value={brandIndustry} onChange={(e) => setBrandIndustry(e.target.value)} placeholder="Industry" className="bg-white/5 border border-white/15 rounded-xl px-3 py-1.5 text-sm" />
-          <select value={brandCity} onChange={(e) => setBrandCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-3 py-1.5 text-sm">
+          <select value={brandCity} onChange={(e) => setBrandCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-3 py-1.5 text-sm text-[var(--fg)]">
             <option value="">Any city</option>
             {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -528,17 +528,17 @@ export default function Marketplace() {
             ))}
           </div>
           <div className="flex flex-wrap gap-2 items-center">
-            <select value={prodCity} onChange={(e) => setProdCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <select value={prodCity} onChange={(e) => setProdCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">Any city</option>
               {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            <select value={prodInHouse} onChange={(e) => setProdInHouse(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <select value={prodInHouse} onChange={(e) => setProdInHouse(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">In-house + External</option>
               <option value="yes">In-House only</option>
             </select>
-            <input type="number" value={prodPriceMin} onChange={(e) => setProdPriceMin(e.target.value)} placeholder="Min ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm" />
-            <input type="number" value={prodPriceMax} onChange={(e) => setProdPriceMax(e.target.value)} placeholder="Max ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm" />
-            <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <input type="number" value={prodPriceMin} onChange={(e) => setProdPriceMin(e.target.value)} placeholder="Min ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
+            <input type="number" value={prodPriceMax} onChange={(e) => setProdPriceMax(e.target.value)} placeholder="Max ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
+            <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               {PROD_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Apply</button>

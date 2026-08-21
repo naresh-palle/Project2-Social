@@ -370,7 +370,7 @@ export default function Discover() {
         <select
           value={campaignId}
           onChange={(e) => setCampaignId(e.target.value)}
-          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
+          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)] w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
         >
           <option value="">No campaign brief</option>
           {campaigns.map((c) => (
@@ -380,7 +380,7 @@ export default function Discover() {
         <select
           value={sortBy}
           onChange={(e) => { setSortBy(e.target.value); }}
-          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs"
+          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)]"
           aria-label="Sort by"
         >
           <option value="highest_engagement">Highest Engagement</option>
@@ -445,7 +445,7 @@ export default function Discover() {
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
             Verified
-            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-xs">
+            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-xs text-[var(--fg)]">
               <option value="">Any</option>
               <option value="yes">Verified</option>
               <option value="no">Unverified</option>

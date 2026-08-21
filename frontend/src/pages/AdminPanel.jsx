@@ -1018,13 +1018,13 @@ export function AdminPanel() {
                                               <div className="text-xs opacity-60 mt-1">{userCategoryText(u) || "—"}</div>
                                               {u.role === 'influencer' && (
                                                 <select
-                                                  className="mt-2 bg-white/5 border border-white/10 text-xs px-2 py-1 rounded outline-none text-[#F4F4F0]"
+                                                  className="mt-2 bg-white/5 border border-white/10 text-xs px-2 py-1 rounded outline-none text-[var(--fg)]"
                                                   value={u.creator_level || "Beginner"}
                                                   onChange={(e) => assignCreatorLevel(u.id, e.target.value)}
                                                 >
-                                                  <option value="Beginner" className="bg-[#0B0B0E]">Beginner</option>
-                                                  <option value="Pro" className="bg-[#0B0B0E]">Pro</option>
-                                                  <option value="Elite" className="bg-[#0B0B0E]">Elite</option>
+                                                  <option value="Beginner">Beginner</option>
+                                                  <option value="Pro">Pro</option>
+                                                  <option value="Elite">Elite</option>
                                                 </select>
                                               )}
                                             </td>
@@ -1277,7 +1277,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl space-y-4">
                 <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h3>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
-                <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs">
+                <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs text-[var(--fg)]">
                     <option value="">All Users</option>
                     <option value="influencer">Influencers Only</option>
                     <option value="owner">Brands Only</option>

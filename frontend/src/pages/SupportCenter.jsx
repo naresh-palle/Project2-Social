@@ -268,17 +268,17 @@ export default function SupportCenter() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Category</label>
-                      <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm">
+                      <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm text-[var(--fg)]">
                         {["Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Social Media Audit", "Other"].map((c) => (
-                          <option key={c} className="bg-[#121212]" value={c}>{c}</option>
+                          <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
                     </div>
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Priority</label>
-                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm">
+                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm text-[var(--fg)]">
                         {["Low", "Medium", "High", "Critical"].map((p) => (
-                          <option key={p} className="bg-[#121212]" value={p}>{p}</option>
+                          <option key={p} value={p}>{p}</option>
                         ))}
                       </select>
                     </div>

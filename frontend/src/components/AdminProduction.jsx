@@ -199,7 +199,7 @@ export function AdminProduction() {
         <h3 className="sm:col-span-2 lg:col-span-3 font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">Create profile</h3>
         <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
         <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email (optional)" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <select value={form.production_category} onChange={(e) => setForm({ ...form, production_category: e.target.value })} className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm">
+        <select value={form.production_category} onChange={(e) => setForm({ ...form, production_category: e.target.value })} className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-[var(--fg)]">
           {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
         </select>
         <input value={form.production_role} onChange={(e) => setForm({ ...form, production_role: e.target.value })} placeholder="Role (e.g. Cameraman)" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />

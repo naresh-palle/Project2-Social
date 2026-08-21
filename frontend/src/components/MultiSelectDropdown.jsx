@@ -8,6 +8,7 @@ import { X, ChevronDown, Check } from "lucide-react";
  * - single=true for single-value picks (availability, etc.)
  * Menu is portaled to document.body so it is never clipped/overlapped by
  * glass-panel overflow or sibling stacking contexts.
+ * Colors use theme tokens (.msd-*) so options stay readable in dark + light mode.
  */
 export function MultiSelectDropdown({
   options = [],
@@ -107,19 +108,16 @@ export function MultiSelectDropdown({
     ? createPortal(
         <div
           ref={menuRef}
-          style={{
-            ...menuStyle,
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(255,255,255,0.2) transparent",
-          }}
-          className="overflow-y-auto bg-[#121212] border border-white/20 rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.75)]"
+          style={menuStyle}
+          className="msd-menu overflow-y-auto rounded-xl"
+          role="listbox"
         >
           {allowAll && (
             <button
               type="button"
               onClick={clearAll}
-              className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap ${
-                showAll ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
+              className={`msd-item w-full px-3 py-2 text-left border-b flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap ${
+                showAll ? "msd-item-selected" : "msd-item-muted"
               }`}
             >
               <span>All</span>
@@ -133,8 +131,8 @@ export function MultiSelectDropdown({
                 type="button"
                 key={opt}
                 onClick={() => toggle(opt)}
-                className={`w-full px-3 py-2 text-left hover:bg-white/5 border-b border-white/5 flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap transition-colors ${
-                  isSel ? "text-[#FF3B30] bg-white/[0.03]" : "opacity-70 hover:opacity-100"
+                className={`msd-item w-full px-3 py-2 text-left border-b flex justify-between items-center gap-3 font-sans text-sm whitespace-nowrap transition-colors ${
+                  isSel ? "msd-item-selected" : "msd-item-muted"
                 }`}
               >
                 <span>{opt}</span>
@@ -158,7 +156,7 @@ export function MultiSelectDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={`w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
+        className={`msd-trigger w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
           noUnderline
             ? "border border-white/15 hover:border-white/30 focus:border-[#FF3B30] px-3 rounded-3xl"
             : "border-b border-white/15 hover:border-white/30 focus:border-[#FF3B30]"
@@ -168,7 +166,7 @@ export function MultiSelectDropdown({
           {showAll || values.length === 0 ? (
             <span
               className={`font-sans ${
-                allowAll ? "text-white" : "opacity-60"
+                allowAll ? "" : "msd-trigger-placeholder"
               } ${compact ? "text-sm" : "text-base"}`}
             >
               {allowAll ? "All" : (placeholder || "Select…")}
@@ -177,7 +175,7 @@ export function MultiSelectDropdown({
             values.map((sel) => (
               <span
                 key={sel}
-                className="px-2 py-0.5 bg-white/5 border border-white/15 rounded-3xl text-[11px] font-sans inline-flex w-fit items-center gap-1.5 whitespace-nowrap"
+                className="msd-chip px-2 py-0.5 rounded-3xl text-[11px] font-sans inline-flex w-fit items-center gap-1.5 whitespace-nowrap"
               >
                 <span>{sel}</span>
                 {!single && (
