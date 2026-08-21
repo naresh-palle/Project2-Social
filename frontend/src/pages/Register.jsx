@@ -473,7 +473,9 @@ export default function Register() {
             <SocialAuthButtons
               mode="signup"
               onGoogleCredential={handleGoogleCredential}
-              onGoogleError={() => setErr("Google Login Failed")}
+              onGoogleError={(reason) =>
+                setErr(reason || "Google sign-in failed. This domain may not be authorized for Google OAuth.")
+              }
             />
           </div>
 

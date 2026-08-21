@@ -340,8 +340,10 @@ export default function Login() {
                   mode="signin"
                   loading={loading}
                   onGoogleCredential={handleGoogleCredential}
-                  onGoogleError={() => {
-                    const msg = "Login unsuccessful. Please check your credentials and try again.";
+                  onGoogleError={(reason) => {
+                    const msg =
+                      reason ||
+                      "Google sign-in failed. If this keeps happening, the site origin may not be authorized in Google Cloud Console.";
                     setErr(msg);
                     toast.error(msg);
                   }}

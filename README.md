@@ -15,6 +15,11 @@ Influencer marketplace — brands, creators, and agents.
 
 Demo: `company@cr8.studio` / `creator@cr8.studio` / `demo1234`
 
+## Google Sign-In
+
+If Google login shows **origin_mismatch**, authorize the live origins in Google Cloud Console.
+See [docs/google-oauth-setup.md](docs/google-oauth-setup.md).
+
 ## Deploy
 
 ```bash

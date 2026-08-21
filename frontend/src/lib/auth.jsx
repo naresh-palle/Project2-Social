@@ -208,11 +208,14 @@ export function AuthProvider({ children }) {
       storeSession(data, false);
       return { ok: true, user: data.user };
     } catch (e) {
+      const detail = e.response?.data?.detail || e.message;
+      const status = e.response?.status;
       return {
         ok: false,
-        error: friendlyAuthError(e.response?.data?.detail || e.message),
-        status: e.response?.status,
-        notRegistered: e.response?.status === 404,
+        error: friendlyAuthError(detail),
+        status,
+        notRegistered: status === 404,
+        incomplete: status === 400 && String(detail || "").toLowerCase().includes("incomplete"),
       };
     }
   };
