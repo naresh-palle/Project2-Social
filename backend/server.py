@@ -5044,11 +5044,23 @@ async def reset_demo_passwords():
         "zomato@cr8.studio", "boat@cr8.studio", "nykaa@cr8.studio",
         "agent.karan@cr8.studio", "agent.shruti@cr8.studio",
         "admin@cr8.studio",
+        # Hire / Production Team demos
+        "production@cr8.studio", "camera@cr8.studio", "videographer@cr8.studio",
+        "photo.team@cr8.studio", "editor@cr8.studio", "motion@cr8.studio",
+        "youtube.edit@cr8.studio", "voice@cr8.studio", "voice.male@cr8.studio",
+        "voice.regional@cr8.studio", "script@cr8.studio", "storyboard@cr8.studio",
+        "reels.writer@cr8.studio",
     ]
     count = 0
     for em in seed_emails:
         result = await db.users.update_many({"email": em}, {"$set": {"password_hash": demo_password_hash}})
         count += result.modified_count
+    # Also reset any production-role demo accounts
+    prod_reset = await db.users.update_many(
+        {"role": "production"},
+        {"$set": {"password_hash": demo_password_hash}},
+    )
+    count += prod_reset.modified_count
     return {"ok": True, "updated": count, "message": f"Reset passwords for {count} accounts to demo1234"}
 
 @api_router.post("/admin/wipe-db")

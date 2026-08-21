@@ -1249,32 +1249,52 @@ async def seed_marketplace_data(db, *, hash_password, now_iso) -> dict:
             await db.users.update_one({"id": b["id"]}, {"$set": updates})
             created["brands_enriched"] += 1
 
-    # In-house + external production team
+    # In-house + external production team (demo logins: password demo1234)
+    # Primary desk + one per category for easy testing.
     prod_seeds = [
-        ("Aarav Lens", "camera", "Cameraman", "Mumbai", "Maharashtra", True, 18000, ["English", "Hindi"]),
-        ("Pixel Crew Studio", "camera", "Videographer", "Hyderabad", "Telangana", True, 25000, ["English", "Telugu"]),
-        ("Frame & Focus", "camera", "Photography team", "Bangalore", "Karnataka", False, 22000, ["English", "Kannada"]),
-        ("ReelCut Editors", "editing", "Reels/Shorts editor", "Delhi", "Delhi", True, 12000, ["English", "Hindi"]),
-        ("MotionForge", "editing", "Motion graphics editor", "Pune", "Maharashtra", True, 20000, ["English", "Marathi"]),
-        ("YouTube Finish Lab", "editing", "YouTube editor", "Chennai", "Tamil Nadu", False, 15000, ["English", "Tamil"]),
-        ("Voice of Priya", "voiceover", "Female voice artist", "Mumbai", "Maharashtra", True, 8000, ["English", "Hindi"]),
-        ("Baritone Raj", "voiceover", "Male voice artist", "Hyderabad", "Telangana", True, 9000, ["English", "Telugu", "Hindi"]),
-        ("Regional Tone Co", "voiceover", "Regional-language voice artist", "Kochi", "Kerala", False, 7500, ["English", "Malayalam"]),
-        ("ScriptLab Ads", "script", "Advertisement scripts", "Bangalore", "Karnataka", True, 10000, ["English", "Hindi"]),
-        ("Storyboard North", "script", "Storyboards", "Delhi", "Delhi", True, 14000, ["English", "Hindi"]),
-        ("Reel Writers HQ", "script", "Reel scripts", "Jaipur", "Rajasthan", False, 6000, ["English", "Hindi"]),
+        # email, username, name, category, role, city, state, in_house, rate, langs
+        ("production@cr8.studio", "proddemo", "Production Desk Demo", "camera", "Cameraman", "Mumbai", "Maharashtra", True, 18000, ["English", "Hindi"]),
+        ("camera@cr8.studio", "camerademo", "Aarav Lens", "camera", "Cameraman", "Mumbai", "Maharashtra", True, 18000, ["English", "Hindi"]),
+        ("videographer@cr8.studio", "videodemo", "Pixel Crew Studio", "camera", "Videographer", "Hyderabad", "Telangana", True, 25000, ["English", "Telugu"]),
+        ("photo.team@cr8.studio", "photodemo", "Frame & Focus", "camera", "Photography team", "Bangalore", "Karnataka", False, 22000, ["English", "Kannada"]),
+        ("editor@cr8.studio", "editordemo", "ReelCut Editors", "editing", "Reels/Shorts editor", "Delhi", "Delhi", True, 12000, ["English", "Hindi"]),
+        ("motion@cr8.studio", "motiondemo", "MotionForge", "editing", "Motion graphics editor", "Pune", "Maharashtra", True, 20000, ["English", "Marathi"]),
+        ("youtube.edit@cr8.studio", "yteditdemo", "YouTube Finish Lab", "editing", "YouTube editor", "Chennai", "Tamil Nadu", False, 15000, ["English", "Tamil"]),
+        ("voice@cr8.studio", "voicedemo", "Voice of Priya", "voiceover", "Female voice artist", "Mumbai", "Maharashtra", True, 8000, ["English", "Hindi"]),
+        ("voice.male@cr8.studio", "voicemaledemo", "Baritone Raj", "voiceover", "Male voice artist", "Hyderabad", "Telangana", True, 9000, ["English", "Telugu", "Hindi"]),
+        ("voice.regional@cr8.studio", "voiceregdemo", "Regional Tone Co", "voiceover", "Regional-language voice artist", "Kochi", "Kerala", False, 7500, ["English", "Malayalam"]),
+        ("script@cr8.studio", "scriptdemo", "ScriptLab Ads", "script", "Advertisement scripts", "Bangalore", "Karnataka", True, 10000, ["English", "Hindi"]),
+        ("storyboard@cr8.studio", "storydemo", "Storyboard North", "script", "Storyboards", "Delhi", "Delhi", True, 14000, ["English", "Hindi"]),
+        ("reels.writer@cr8.studio", "reelwriterdemo", "Reel Writers HQ", "script", "Reel scripts", "Jaipur", "Rajasthan", False, 6000, ["English", "Hindi"]),
     ]
-    for name, cat, role, city, state, in_house, rate, langs in prod_seeds:
-        email = f"{re.sub(r'[^a-z0-9]', '', name.lower())}@flugr.production"
+    demo_hash = hash_password("demo1234")
+    created["production_accounts"] = []
+    for email, username, name, cat, role, city, state, in_house, rate, langs in prod_seeds:
         existing = await db.users.find_one({"email": email})
         if existing:
+            # Keep password aligned with other demo desks
+            await db.users.update_one(
+                {"email": email},
+                {"$set": {
+                    "password_hash": demo_hash,
+                    "role": "production",
+                    "production_category": cat,
+                    "production_role": role,
+                    "in_house": in_house,
+                    "base_rate": rate,
+                    "city": city,
+                    "state": state,
+                    "onboarding_status": "completed",
+                }},
+            )
+            created["production_accounts"].append({"email": email, "username": username, "updated": True})
             continue
         uid = str(uuid.uuid4())
         await db.users.insert_one({
             "id": uid,
             "email": email,
-            "username": re.sub(r"[^a-z0-9]", "", name.lower())[:18],
-            "password_hash": hash_password("prod12345"),
+            "username": username,
+            "password_hash": demo_hash,
             "name": name,
             "role": "production",
             "production_category": cat,
@@ -1291,15 +1311,59 @@ async def seed_marketplace_data(db, *, hash_password, now_iso) -> dict:
             "portfolio": [
                 "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800",
                 "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800",
+                "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800",
             ],
             "previous_work": [
                 {"title": "Brand launch film", "client": "Demo Brand", "year": 2025},
                 {"title": "Creator collab package", "client": "Creator Desk", "year": 2024},
+                {"title": "Festival campaign package", "client": "GlowCo", "year": 2024},
             ],
-            "avatar": f"https://api.dicebear.com/7.x/shapes/svg?seed={uid[:8]}",
+            "avatar": f"https://api.dicebear.com/7.x/shapes/svg?seed={username}",
             "in_house": in_house,
             "rating": round(random.uniform(4.2, 4.9), 1),
             "reviews_count": random.randint(4, 40),
+            "onboarding_status": "completed",
+            "created_at": now_iso(),
+        })
+        created["production"] += 1
+        created["production_accounts"].append({"email": email, "username": username, "password": "demo1234", "created": True})
+
+    # Keep legacy @flugr.production roster discoverable too (same password)
+    legacy_prod = [
+        ("Aarav Lens Legacy", "camera", "Cameraman", "Mumbai", "Maharashtra", True, 18000, ["English", "Hindi"]),
+        ("Pixel Crew Legacy", "camera", "Videographer", "Hyderabad", "Telangana", True, 25000, ["English", "Telugu"]),
+    ]
+    for name, cat, role, city, state, in_house, rate, langs in legacy_prod:
+        email = f"{re.sub(r'[^a-z0-9]', '', name.lower())}@flugr.production"
+        if await db.users.find_one({"email": email}):
+            continue
+        uid = str(uuid.uuid4())
+        await db.users.insert_one({
+            "id": uid,
+            "email": email,
+            "username": re.sub(r"[^a-z0-9]", "", name.lower())[:18],
+            "password_hash": demo_hash,
+            "name": name,
+            "role": "production",
+            "production_category": cat,
+            "production_role": role,
+            "services": PRODUCTION_CATEGORIES[cat]["roles"][:3],
+            "city": city,
+            "state": state,
+            "country": "India",
+            "bio": f"{role} — legacy demo roster entry.",
+            "experience_years": random.randint(3, 12),
+            "base_rate": rate,
+            "availability": "available",
+            "languages": langs,
+            "portfolio": [
+                "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800",
+            ],
+            "previous_work": [],
+            "avatar": f"https://api.dicebear.com/7.x/shapes/svg?seed={uid[:8]}",
+            "in_house": in_house,
+            "rating": round(random.uniform(4.2, 4.9), 1),
+            "reviews_count": random.randint(4, 20),
             "onboarding_status": "completed",
             "created_at": now_iso(),
         })
