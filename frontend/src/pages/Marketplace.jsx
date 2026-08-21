@@ -197,6 +197,10 @@ export default function Marketplace() {
   const [showFilters, setShowFilters] = useState(false);
   const [prodCategory, setProdCategory] = useState("");
   const [prodSort, setProdSort] = useState("rating");
+  const [prodCity, setProdCity] = useState("");
+  const [prodInHouse, setProdInHouse] = useState("");
+  const [prodPriceMin, setProdPriceMin] = useState("");
+  const [prodPriceMax, setProdPriceMax] = useState("");
   const [brandIndustry, setBrandIndustry] = useState("");
   const [brandCity, setBrandCity] = useState("");
   const [selected, setSelected] = useState([]);
@@ -270,12 +274,16 @@ export default function Marketplace() {
       params: {
         q: q || undefined,
         category: prodCategory || undefined,
+        city: prodCity || undefined,
+        price_min: prodPriceMin || undefined,
+        price_max: prodPriceMax || undefined,
+        in_house_only: prodInHouse === "yes" ? true : undefined,
         sort: prodSort,
         limit: 48,
       },
     });
     setProduction(data.members || []);
-  }, [q, prodCategory, prodSort]);
+  }, [q, prodCategory, prodSort, prodCity, prodInHouse, prodPriceMin, prodPriceMax]);
 
   useEffect(() => {
     if (tab === "creators") loadCreators();
@@ -510,16 +518,31 @@ export default function Marketplace() {
       ) : null}
 
       {tab === "hire" ? (
-        <div className="mb-4 flex flex-wrap gap-2 items-center">
-          <button type="button" onClick={() => setProdCategory("")} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!prodCategory ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>All</button>
-          {prodCategories.map((c) => (
-            <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${prodCategory === c.id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
-              {c.label}
-            </button>
-          ))}
-          <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="ml-auto bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
-            {PROD_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+        <div className="mb-4 space-y-3">
+          <div className="flex flex-wrap gap-2 items-center">
+            <button type="button" onClick={() => setProdCategory("")} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!prodCategory ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>All</button>
+            {prodCategories.map((c) => (
+              <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${prodCategory === c.id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2 items-center">
+            <select value={prodCity} onChange={(e) => setProdCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+              <option value="">Any city</option>
+              {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select value={prodInHouse} onChange={(e) => setProdInHouse(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+              <option value="">In-house + External</option>
+              <option value="yes">In-House only</option>
+            </select>
+            <input type="number" value={prodPriceMin} onChange={(e) => setProdPriceMin(e.target.value)} placeholder="Min ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm" />
+            <input type="number" value={prodPriceMax} onChange={(e) => setProdPriceMax(e.target.value)} placeholder="Max ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm" />
+            <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+              {PROD_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Apply</button>
+          </div>
         </div>
       ) : null}
 

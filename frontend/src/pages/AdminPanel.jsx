@@ -17,17 +17,30 @@ import { formatUsername } from "@/lib/username";
 import { ApifyLookupPanel } from "@/components/ApifyLookupPanel";
 import { AdminProduction } from "@/components/AdminProduction";
 
-const USER_ROLE_OPTIONS = ["Influencers", "Brands", "Agencies"];
+const USER_ROLE_OPTIONS = ["Influencers", "Brands", "Agencies", "Hire / Production"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
+const PRODUCTION_CATEGORY_OPTIONS = [
+  "camera",
+  "editing",
+  "voiceover",
+  "script",
+  "Camera Team",
+  "Video Editing Team",
+  "Voice Over Artists",
+  "Script Writers",
+];
+const ADMIN_CATEGORY_OPTIONS = [...PLATFORM_CATEGORIES, ...PRODUCTION_CATEGORY_OPTIONS];
 const ROLE_API_MAP = {
   Influencers: "creator",
   Brands: "brand",
   Agencies: "agency",
+  "Hire / Production": "production",
 };
 const ROLE_DB_MAP = {
   Influencers: "influencer",
   Brands: "owner",
   Agencies: "agent",
+  "Hire / Production": "production",
 };
 
 const TAB_EXPORT_LABELS = {
@@ -174,10 +187,19 @@ function shapeExportRows(tab, rows) {
 }
 
 function userCategoryText(u) {
+  const prodBits = [];
+  if (u?.role === "production") {
+    if (u.production_category_label) prodBits.push(u.production_category_label);
+    else if (u.production_category) prodBits.push(String(u.production_category));
+    if (u.production_role) prodBits.push(String(u.production_role));
+    if (u.in_house) prodBits.push("In-House");
+  }
   return []
+    .concat(prodBits)
     .concat(u?.category || [])
     .concat(u?.niches || [])
     .concat(u?.industry || [])
+    .concat(u?.services || [])
     .flatMap((x) => (Array.isArray(x) ? x : String(x).split(",")))
     .map((x) => String(x).trim())
     .filter(Boolean)
@@ -190,7 +212,11 @@ function userMatchesCategories(u, selected = []) {
   const cats = []
     .concat(u?.category || [])
     .concat(u?.niches || [])
-    .concat(u?.industry || []);
+    .concat(u?.industry || [])
+    .concat(u?.production_category || [])
+    .concat(u?.production_category_label || [])
+    .concat(u?.production_role || [])
+    .concat(u?.services || []);
   return matchesCategoryFilter(cats, selected);
 }
 
@@ -411,6 +437,10 @@ export function AdminPanel() {
                 .concat(u.category || [])
                 .concat(u.niches || [])
                 .concat(u.industry || [])
+                .concat(u.production_category || [])
+                .concat(u.production_category_label || [])
+                .concat(u.production_role || [])
+                .concat(u.services || [])
                 .flatMap((x) => (Array.isArray(x) ? x : String(x).split(",")))
                 .map((x) => String(x).trim().toLowerCase())
                 .filter(Boolean);
@@ -807,7 +837,13 @@ export function AdminPanel() {
                     <Download className="w-4 h-4" /> Export {tab === "users" ? (
                         [
                             categoryFilter.length > 0 ? categoryFilter[0] : "",
-                            roleFilter.length > 0 ? (roleFilter[0] === "Influencers" ? "Influencers" : roleFilter[0] === "Brands" ? "Brands" : roleFilter[0] === "Agencies" ? "Agencies" : "Users") : "Users"
+                            roleFilter.length > 0
+                              ? (roleFilter[0] === "Influencers" ? "Influencers"
+                                : roleFilter[0] === "Brands" ? "Brands"
+                                : roleFilter[0] === "Agencies" ? "Agencies"
+                                : roleFilter[0] === "Hire / Production" ? "Production"
+                                : "Users")
+                              : "Users"
                         ].filter(Boolean).join(" ")
                     ) : (TAB_EXPORT_LABELS[tab] || "Data")}
                 </button>
@@ -820,11 +856,11 @@ export function AdminPanel() {
         {tab === "overview" && (
             <div className="mt-8 space-y-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <StatCard title="Total Users" value={(stats?.users?.creators || 0) + (stats?.users?.brands || 0) + (stats?.users?.agencies || 0)} sub={`${stats?.users?.creators || 0} Influencers · ${stats?.users?.brands || 0} Brands`} icon={<Users className="w-5 h-5 text-blue-400" />} trend={stats?.users?.total != null ? `${stats.users.total} total` : "—"} pos={true} />
+                    <StatCard title="Total Users" value={(stats?.users?.creators || 0) + (stats?.users?.brands || 0) + (stats?.users?.agencies || 0) + (stats?.users?.production || 0)} sub={`${stats?.users?.creators || 0} Influencers · ${stats?.users?.brands || 0} Brands · ${stats?.users?.production || 0} Production`} icon={<Users className="w-5 h-5 text-blue-400" />} trend={stats?.users?.total != null ? `${stats.users.total} total` : "—"} pos={true} />
                     <StatCard title="DAU / MAU" value={platformStats ? `${platformStats.dau} / ${platformStats.mau}` : "—"} sub="Daily & Monthly Active Users" icon={<Activity className="w-5 h-5 text-cyan-400" />} trend={platformStats ? `${platformStats.posts} posts` : "—"} pos={true} />
                     <StatCard title="Revenue" value={stats?.financial?.revenue != null ? `₹${Number(stats.financial.revenue).toLocaleString("en-IN")}` : "—"} sub="Tracked platform revenue" icon={<IndianRupee className="w-5 h-5 text-green-400" />} trend={stats?.financial?.total_payments != null ? `${stats.financial.total_payments} payments` : "—"} pos={true} />
                     <StatCard title="Active Campaigns" value={stats?.campaigns?.active ?? 0} sub={`Out of ${stats?.campaigns?.total ?? 0} total`} icon={<Activity className="w-5 h-5 text-purple-400" />} trend={stats?.campaigns?.completed != null ? `${stats.campaigns.completed} done` : "—"} pos={true} />
-                    <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0)} sub={`${stats?.requests?.verification_requests || 0} agencies pending`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend={stats?.approvals?.pending != null ? `${stats.approvals.pending} approvals` : "—"} pos={false} />
+                    <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0) + (stats?.requests?.hire_requests_pending || 0)} sub={`${stats?.requests?.verification_requests || 0} agencies · ${stats?.requests?.hire_requests_pending || 0} hire reqs`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend={stats?.approvals?.pending != null ? `${stats.approvals.pending} approvals` : "—"} pos={false} />
                 </div>
 
                 <section className="p-6 rounded-3xl border border-white/10 bg-[#121212]">
@@ -915,7 +951,7 @@ export function AdminPanel() {
                         </div>
                         <div className="w-full sm:w-[180px] min-w-0">
                           <MultiSelectDropdown
-                            options={PLATFORM_CATEGORIES}
+                            options={ADMIN_CATEGORY_OPTIONS}
                             selected={categoryFilter}
                             onChange={setCategoryFilter}
                             placeholder="All"
@@ -1246,6 +1282,7 @@ export function AdminPanel() {
                     <option value="influencer">Influencers Only</option>
                     <option value="owner">Brands Only</option>
                     <option value="agent">Agencies Only</option>
+                    <option value="production">Hire / Production Only</option>
                 </select>
                 <div className="flex gap-2">
                     <input type="text" placeholder="State (optional)" value={broadcastState} onChange={e => setBroadcastState(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />

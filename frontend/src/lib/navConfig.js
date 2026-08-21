@@ -51,6 +51,9 @@ export function getSidebarItems(user) {
     ...(!isProduction
       ? [{ to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" }]
       : []),
+    ...(user?.role === "admin"
+      ? [{ to: "/hire-requests", label: "Hire Requests", icon: "invitations" }]
+      : []),
     { to: "/wishlist", label: "My Wishlist", icon: "save" },
     { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
     ...(user?.role !== "admin"

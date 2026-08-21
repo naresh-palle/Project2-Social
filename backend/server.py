@@ -2111,6 +2111,7 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
         db.users.count_documents({"role": "influencer"}),
         db.users.count_documents({"role": "owner"}),
         db.users.count_documents({"role": "agent"}),
+        db.users.count_documents({"role": "production"}),
         db.campaigns.count_documents({}),
         db.campaigns.count_documents({"status": "in_progress"}),
         db.campaigns.count_documents({"status": "completed"}),
@@ -2120,20 +2121,23 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
         db.login_history.distinct("user_id", {"created_at": {"$gte": day_ago}, "success": True}),
         db.login_history.distinct("user_id", {"created_at": {"$gte": month_ago}, "success": True}),
         db.users.count_documents({"created_at": {"$gte": day_ago}}),
+        db.hire_requests.count_documents({"status": "pending"}),
     )
 
     total_creators = results[0]
     total_brands = results[1]
     total_agencies = results[2]
-    total_campaigns = results[3]
-    active_campaigns = results[4]
-    completed_campaigns = results[5]
-    res = results[6]
-    total_requests = results[7]
-    pending_verification = results[8]
-    dau_ids = results[9]
-    mau_ids = results[10]
-    new_registrations = results[11]
+    total_production = results[3]
+    total_campaigns = results[4]
+    active_campaigns = results[5]
+    completed_campaigns = results[6]
+    res = results[7]
+    total_requests = results[8]
+    pending_verification = results[9]
+    dau_ids = results[10]
+    mau_ids = results[11]
+    new_registrations = results[12]
+    pending_hire_requests = results[13]
 
     total_payments = res[0]["total"] if res else 0
     total_revenue = total_payments * 0.15 # 15% platform commission mock
@@ -2144,7 +2148,9 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
         "users": {
             "creators": total_creators,
             "brands": total_brands,
-            "agencies": total_agencies
+            "agencies": total_agencies,
+            "production": total_production,
+            "total": total_creators + total_brands + total_agencies + total_production,
         },
         "campaigns": {
             "total": total_campaigns,
@@ -2161,7 +2167,8 @@ async def admin_dashboard_stats(current: dict = Depends(get_current_user)):
         "requests": {
             "creator_requests": total_requests,
             "brand_requests": 0,
-            "verification_requests": pending_verification
+            "verification_requests": pending_verification,
+            "hire_requests_pending": pending_hire_requests,
         },
         "platform": {
             "logins_today": logins_today,
@@ -2324,6 +2331,10 @@ async def admin_users(
         "influencer": "influencer",
         "owner": "owner",
         "agent": "agent",
+        "production": "production",
+        "hire": "production",
+        "hire_production": "production",
+        "hire / production": "production",
     }
     if role:
         mapped = role_aliases.get(role.strip().lower())
@@ -2335,6 +2346,9 @@ async def admin_users(
             {"category": category},
             {"industry": category},
             {"niches": category},
+            {"production_category": category},
+            {"production_category": {"$regex": category, "$options": "i"}},
+            {"production_role": {"$regex": category, "$options": "i"}},
             {"category": {"$regex": category, "$options": "i"}},
             {"niches": {"$elemMatch": {"$regex": category, "$options": "i"}}},
         ]
