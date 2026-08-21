@@ -3880,25 +3880,62 @@ async def analytics_owner(current: dict = Depends(get_current_user)):
     open_campaigns = await db.campaigns.count_documents({"owner_id": current["id"], "status": "open"})
     in_progress = await db.campaigns.count_documents({"owner_id": current["id"], "status": "in_progress"})
     completed = await db.campaigns.count_documents({"owner_id": current["id"], "status": "completed"})
+    # Active = open + in_progress (brand ops view)
+    active_campaigns = open_campaigns + in_progress
     my_camps = await db.campaigns.find({"owner_id": current["id"]}, {"_id": 0, "id": 1, "budget": 1,
                                                                      "escrow_funded": 1, "escrow_released": 1,
-                                                                     "applications_count": 1}).to_list(500)
+                                                                     "applications_count": 1,
+                                                                     "total_reach": 1, "total_engagement": 1,
+                                                                     "engagement_rate": 1, "revenue": 1,
+                                                                     "roas": 1}).to_list(500)
     ids = [c["id"] for c in my_camps]
     apps_total = await db.applications.count_documents({"campaign_id": {"$in": ids}}) if ids else 0
+    apps_pending = await db.applications.count_documents(
+        {"campaign_id": {"$in": ids}, "status": "pending"}
+    ) if ids else 0
+    deliverables_pending = await db.deliverables.count_documents(
+        {"campaign_id": {"$in": ids}, "status": {"$in": ["pending", "revision"]}}
+    ) if ids else 0
+    accepted_apps = await db.applications.find(
+        {"campaign_id": {"$in": ids}, "status": "accepted"},
+        {"_id": 0, "influencer_id": 1},
+    ).to_list(2000) if ids else []
+    influencers_hired = len({a.get("influencer_id") for a in accepted_apps if a.get("influencer_id")})
     escrow_held = sum((c.get("escrow_funded") or 0) - (c.get("escrow_released") or 0) for c in my_camps)
     paid = sum(c.get("escrow_released") or 0 for c in my_camps)
     total_budget = sum(c.get("budget") or 0 for c in my_camps)
+    pending_payments_count = sum(
+        1 for c in my_camps
+        if ((c.get("escrow_funded") or 0) - (c.get("escrow_released") or 0)) > 0
+    )
+    total_reach = sum(float(c.get("total_reach") or 0) for c in my_camps)
+    total_engagement = sum(float(c.get("total_engagement") or 0) for c in my_camps)
+    revenues = [float(c.get("revenue") or 0) for c in my_camps if c.get("revenue") is not None]
+    roas_vals = [float(c.get("roas") or 0) for c in my_camps if c.get("roas") is not None]
+    er_vals = [float(c.get("engagement_rate") or 0) for c in my_camps if c.get("engagement_rate") is not None]
     unread_convos = await db.conversations.count_documents({"owner_id": current["id"]})
     return {
         "total_campaigns": total_campaigns,
         "open_campaigns": open_campaigns,
+        "active_campaigns": active_campaigns,
         "in_progress": in_progress,
         "completed": completed,
         "applications_total": apps_total,
+        "applications_pending": apps_pending,
+        "deliverables_pending": deliverables_pending,
+        "influencers_hired": influencers_hired,
         "escrow_held": escrow_held,
+        "pending_payments": escrow_held,
+        "pending_payments_count": pending_payments_count,
         "paid_to_creators": paid,
+        "total_spend": paid,
         "total_budget": total_budget,
         "conversations": unread_convos,
+        "total_reach": total_reach,
+        "total_engagement": total_engagement,
+        "avg_engagement_rate": (sum(er_vals) / len(er_vals)) if er_vals else None,
+        "revenue_generated": sum(revenues) if revenues else 0,
+        "avg_roas": (sum(roas_vals) / len(roas_vals)) if roas_vals else None,
     }
 
 

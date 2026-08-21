@@ -180,256 +180,244 @@ const FEATURED_CREATOR_WORK_FEED = [
 ];
 
 function OwnerPanel() {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
-  const [matches, setMatches] = useState([]);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState("work-feed");
-  const [selectedCategories, setSelectedCategories] = useState([]); // [] = All
+  const [pendingApps, setPendingApps] = useState([]);
 
   useEffect(() => {
     api.get("/campaigns?mine=true").then((r) => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => setItems([]));
-    api.get("/analytics/owner").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
-    api.get("/creators/match").then((r) => setMatches(Array.isArray(r.data) ? r.data : [])).catch(() => setMatches([]));
-  }, []);
+    if (user?.role === "owner") {
+      api.get("/analytics/owner").then((r) => setStats(r.data && typeof r.data === "object" ? r.data : null)).catch(() => setStats(null));
+    }
+  }, [user?.role]);
+
+  useEffect(() => {
+    const loadPending = async () => {
+      const camps = Array.isArray(items) ? items : [];
+      const open = camps.filter((c) => ["open", "in_progress", "active"].includes((c.status || "").toLowerCase())).slice(0, 8);
+      const rows = [];
+      for (const c of open) {
+        try {
+          const { data } = await api.get(`/campaigns/${c.id}/applications`);
+          const apps = (Array.isArray(data) ? data : []).filter((a) => (a.status || "") === "pending");
+          apps.forEach((a) => rows.push({ ...a, campaign_title: c.title, campaign_id: c.id }));
+        } catch {
+          /* skip */
+        }
+      }
+      setPendingApps(rows.slice(0, 6));
+    };
+    if (items.length) loadPending();
+  }, [items]);
 
   const safeItems = Array.isArray(items) ? items : [];
-  const safeMatches = Array.isArray(matches) ? matches : [];
+  const activeCamps = safeItems.filter((c) => ["open", "in_progress", "active", "live"].includes((c.status || "").toLowerCase()));
+  const hasLiveStats = stats && (
+    Number(stats.total_campaigns || 0) > 0
+    || Number(stats.applications_total || 0) > 0
+    || Number(stats.open_campaigns || 0) > 0
+    || Number(stats.active_campaigns || 0) > 0
+  );
 
-  const hasLiveStats = stats && (Number(stats.total_campaigns || 0) > 0 || Number(stats.applications_total || 0) > 0 || Number(stats.open_campaigns || 0) > 0);
+  const fmtMoney = (n) => `₹${Number(n || 0).toLocaleString()}`;
+  const fmtCompact = (n) => {
+    const v = Number(n) || 0;
+    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+    if (v >= 1_000) return `${(v / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+    return String(Math.round(v));
+  };
+
   const tiles = hasLiveStats
     ? [
-        { k: "Live Briefs", v: stats?.open_campaigns ?? 0, tail: `of ${stats?.total_campaigns ?? 0} total` },
-        { k: "In Progress", v: stats?.in_progress ?? 0, tail: "shipping now" },
-        { k: "Applications", v: stats?.applications_total ?? 0, tail: "on file" },
-        { k: "Escrow Held", v: `₹${(stats?.escrow_held ?? 0).toLocaleString()}`, tail: "in studio vault" },
-        { k: "Paid Influencers", v: `₹${(stats?.paid_to_creators ?? 0).toLocaleString()}`, tail: "released" },
-        { k: "Verified Roster", v: `${safeMatches.length || 12} Influencers`, tail: "ai vetted" },
+        { k: "Active Campaigns", v: stats?.active_campaigns ?? activeCamps.length, tail: `of ${stats?.total_campaigns ?? safeItems.length} total`, to: "/marketplace?tab=campaigns" },
+        { k: "Applications Pending", v: stats?.applications_pending ?? pendingApps.length, tail: "awaiting action", to: "/marketplace?tab=campaigns" },
+        { k: "Deliverables Pending", v: stats?.deliverables_pending ?? 0, tail: "review / approve", to: "/marketplace?tab=campaigns" },
+        { k: "Pending Payments", v: fmtMoney(stats?.pending_payments ?? stats?.escrow_held ?? 0), tail: `${stats?.pending_payments_count ?? 0} payments pending`, to: "/billing" },
+        { k: "Total Spends", v: fmtMoney(stats?.total_spend ?? stats?.paid_to_creators ?? 0), tail: "released to creators", to: "/billing" },
+        { k: "Influencers Hired", v: stats?.influencers_hired ?? 0, tail: "accepted creators", to: "/influencers" },
       ]
     : [
-        { k: "Live Briefs", v: Math.max(safeItems.filter((c) => c.status === "open").length, 3), tail: "of 5 total" },
-        { k: "In Progress", v: 2, tail: "shipping now" },
-        { k: "Applications", v: 18, tail: "on file" },
-        { k: "Escrow Held", v: "₹4,85,000", tail: "in studio vault" },
-        { k: "Paid Influencers", v: "₹12,40,000", tail: "released" },
-        { k: "Verified Roster", v: `${Math.max(safeMatches.length, 12)} Influencers`, tail: "ai vetted" },
+        { k: "Active Campaigns", v: Math.max(activeCamps.length, 3), tail: `of ${Math.max(safeItems.length, 5)} total`, to: "/marketplace?tab=campaigns" },
+        { k: "Applications Pending", v: Math.max(pendingApps.length, 4), tail: "awaiting action", to: "/marketplace?tab=campaigns" },
+        { k: "Deliverables Pending", v: 2, tail: "review / approve", to: "/marketplace?tab=campaigns" },
+        { k: "Pending Payments", v: "₹1,25,000", tail: "4 payments pending", to: "/billing" },
+        { k: "Total Spends", v: "₹8,40,000", tail: "released to creators", to: "/billing" },
+        { k: "Influencers Hired", v: 18, tail: "accepted creators", to: "/influencers" },
       ];
 
-  const rosterSource = (safeMatches.length > 0 ? safeMatches : FEATURED_CREATOR_WORK_FEED).map((c, i) => ({
-    ...c,
-    id: c.id || `demo-creator-${i}`,
-    name: c.name || c.creatorName,
-    category: c.category || c.niche || c.city || "Verified Influencer",
-    avatar: c.avatar || c.workImage || FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].avatar,
-    handle: formatUsername(c.handle, c.username) || FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].handle,
-  }));
-
-  const filteredFeed = FEATURED_CREATOR_WORK_FEED.filter((f) =>
-    matchesCategoryFilter(f.category, selectedCategories)
-  );
-  const filteredRoster = rosterSource.filter((c) =>
-    matchesCategoryFilter(c.category || c.niche || c.niches, selectedCategories)
-  );
+  const perf = hasLiveStats
+    ? {
+        reach: stats?.total_reach ? fmtCompact(stats.total_reach) : "—",
+        engagement: stats?.total_engagement ? fmtCompact(stats.total_engagement) : "—",
+        er: stats?.avg_engagement_rate != null ? `${Number(stats.avg_engagement_rate).toFixed(1)}%` : "—",
+        spend: fmtMoney(stats?.total_spend ?? stats?.paid_to_creators ?? 0),
+        revenue: stats?.revenue_generated ? fmtMoney(stats.revenue_generated) : "—",
+        roas: stats?.avg_roas != null ? `${Number(stats.avg_roas).toFixed(2)}x` : "—",
+      }
+    : {
+        reach: "4.8M",
+        engagement: "386K",
+        er: "8.1%",
+        spend: "₹8.4L",
+        revenue: "₹24.6L",
+        roas: "2.93x",
+      };
 
   return (
-    <div className="flex flex-col w-full space-y-3">
-      {/* Top Static Section */}
-      <div className="space-y-3">
-      {/* Analytics Summary Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="owner-analytics">
-        {tiles.map((t, i) => (
-          <motion.div
-            key={t.k}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.05 }}
-            className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center"
+    <div className="flex flex-col w-full space-y-4 min-w-0 overflow-x-hidden">
+      {/* Header + primary actions */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-3">
+        <div className="min-w-0">
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">Brand Desk</p>
+          <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 truncate">
+            {user?.company || user?.name || "Brand Dashboard"}
+          </h1>
+          <p className="font-sans text-xs opacity-50 mt-1">Campaign operations, applications, payments & performance</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Link
+            to="/marketplace?tab=campaigns"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/20 text-[10px] uppercase tracking-widest font-mono hover:border-white/40"
           >
-            <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">{t.k}</div>
-            <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1 text-white tracking-tight">{t.v}</div>
-            <div className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-50 mt-0.5">{t.tail}</div>
-          </motion.div>
+            <Briefcase className="w-3.5 h-3.5" /> My Campaigns
+          </Link>
+          <Link
+            to="/campaigns/new"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#FF3B30] text-white text-[10px] uppercase tracking-widest font-mono font-bold hover:bg-[#e03126]"
+          >
+            <Plus className="w-3.5 h-3.5" /> New Campaign
+          </Link>
+        </div>
+      </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3" data-testid="owner-analytics">
+        {tiles.map((t, i) => (
+          <Link key={t.k} to={t.to || "/dashboard"}>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: i * 0.04 }}
+              className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF3B30]/40 transition-colors"
+            >
+              <div className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold leading-tight">{t.k}</div>
+              <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1.5 text-white tracking-tight tabular-nums">{t.v}</div>
+              <div className="font-sans text-[9px] tracking-[0.16em] uppercase opacity-50 mt-1 leading-snug">{t.tail}</div>
+            </motion.div>
+          </Link>
         ))}
       </div>
 
-      {/* Primary Tab Navigation for Brands — category filter merged into row */}
-      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-2 gap-2">
-        <div className="flex gap-3 font-sans text-[10px] tracking-[0.22em] uppercase flex-wrap items-center">
-          <button
-            onClick={() => setActiveTab("work-feed")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
-              activeTab === "work-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Feed ({filteredFeed.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("directory")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
-              activeTab === "directory" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" /> Verified Influencer Roster ({filteredRoster.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("my-briefs")}
-            className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
-              activeTab === "my-briefs" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5" /> My Campaigns ({safeItems.length > 0 ? safeItems.length : DEFAULT_CAMPAIGNS_FOR_CREATORS.length})
-          </button>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {(activeTab === "work-feed" || activeTab === "directory") && (
-            <div className="flex flex-wrap gap-2 items-center w-fit max-w-full">
-              <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
-              </span>
-              <div className="w-[12rem] max-w-full">
-                <MultiSelectDropdown
-                  options={PLATFORM_CATEGORIES}
-                  selected={selectedCategories}
-                  onChange={setSelectedCategories}
-                  placeholder="All"
-                  allowAll
-                  compact
-                  noUnderline
-                />
+      {/* Campaign performance + payment spotlight */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5" /> Campaign Performance
+            </h2>
+            <Link to="/leaderboard" className="font-mono text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100">Analytics →</Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              ["Total Reach", perf.reach],
+              ["Total Engagement", perf.engagement],
+              ["Engagement Rate", perf.er],
+              ["Total Spend", perf.spend],
+              ["Revenue Generated", perf.revenue],
+              ["ROAS", perf.roas],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
+                <div className="font-sans text-lg font-bold mt-1 tabular-nums">{value}</div>
               </div>
-            </div>
-          )}
-          <Link to="/discover" className="btn-pill py-1.5 px-3 text-xs">
-            Discover
-          </Link>
-          <Link to="/campaigns/new" className="btn-solid py-1.5 px-3 text-xs bg-[#FF3B30] text-white">
-            + New Campaign
-          </Link>
-        </div>
-      </div>
-      </div> {/* End Static Section */}
-
-      {/* Main Content Area */}
-      <div className="pb-6 min-w-0">
-      {/* VIEW 1: FEED */}
-      {activeTab === "work-feed" && (
-        <div className="space-y-3">
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredFeed.map((work, idx) => (
-              <motion.div
-                key={work.id}
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="glass-card p-4 relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <img src={work.avatar} alt={work.creatorName} className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <h4 className="font-sans text-xs font-semibold truncate">{work.creatorName}</h4>
-                        {work.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#FF3B30] shrink-0" />}
-                      </div>
-                      <p className="font-sans text-[9px] tracking-[0.16em] uppercase opacity-60 truncate">{work.handle}</p>
-                    </div>
-                  </div>
-                  <span className="font-sans text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] font-bold rounded-xs shrink-0">
-                    {work.aiAuthenticity}
-                  </span>
-                </div>
-
-                <div className="theme-keep-dark relative aspect-[16/9] overflow-hidden rounded-xs bg-[#0B0B0E] mb-2 group/media cursor-pointer">
-                  <img src={work.workImage} alt={work.workTitle} className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-700 opacity-90" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                  <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <span className="font-sans text-[8px] tracking-[0.16em] uppercase bg-[#FF3B30] text-white px-1.5 py-0.5 font-bold mb-0.5 inline-block">
-                        {work.category}
-                      </span>
-                      <h3 className="font-sans text-sm text-white font-medium leading-snug line-clamp-2">{work.workTitle}</h3>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white group-hover/media:bg-[#FF3B30] transition-colors shrink-0">
-                      <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-1.5 py-2 border-t border-b border-white/10 font-sans text-[9px] tracking-[0.14em] uppercase opacity-80 mb-2">
-                  <div>
-                    <span className="opacity-50 block">Reach</span>
-                    <span className="text-white font-bold">{work.reach}</span>
-                  </div>
-                  <div>
-                    <span className="opacity-50 block">Engagement</span>
-                    <span className="text-[#FF3B30] font-bold">{work.engagementRate}</span>
-                  </div>
-                  <div>
-                    <span className="opacity-50 block">Partner</span>
-                    <span className="text-white font-bold truncate block">{work.brandPartner}</span>
-                  </div>
-                </div>
-
-                <p className="font-sans text-xs text-[#F4F4F0]/75 leading-snug mb-2 line-clamp-2">
-                  {work.description}
-                </p>
-
-                <div className="flex items-center justify-between pt-1">
-                  <div className="font-sans text-[9px] tracking-[0.14em] uppercase opacity-50 flex items-center gap-2">
-                    <span>❤️ {work.likes}</span>
-                    <span>💬 {work.comments}</span>
-                  </div>
-                  <Link to={`/u/${work.handle}`} className="btn-solid py-1.5 px-2.5 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1">
-                    View Profile <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </motion.div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* VIEW 2: VERIFIED CREATOR DIRECTORY ROSTER */}
-      {activeTab === "directory" && (
-        <div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {filteredRoster.map((c, i) => (
-              <Link key={c.id || i} to={c.id && !String(c.id).startsWith("demo-") && !String(c.id).startsWith("feed-") ? `/creators/${c.id}` : "/marketplace"} className="flex flex-col hover:bg-white/5 transition p-2 rounded-3xl border border-white/15">
-                <div className="h-28 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
-                  <img src={c.avatar || c.workImage} alt={c.name || c.creatorName} className="w-full h-full object-cover transition duration-500" onError={(e) => { e.currentTarget.src = FEATURED_CREATOR_WORK_FEED[i % FEATURED_CREATOR_WORK_FEED.length].avatar; }} />
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold mb-3">Payments</h2>
+          <div className="space-y-3 flex-1">
+            <div>
+              <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Pending</div>
+              <div className="font-sans text-2xl font-bold mt-0.5 tabular-nums">
+                {hasLiveStats ? fmtMoney(stats?.pending_payments ?? stats?.escrow_held ?? 0) : "₹1,25,000"}
+              </div>
+              <div className="font-sans text-[10px] opacity-50 mt-0.5">
+                {hasLiveStats ? `${stats?.pending_payments_count ?? 0} payments pending` : "4 payments pending"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+              <div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Paid</div>
+                <div className="font-sans text-sm font-bold mt-0.5 tabular-nums">
+                  {hasLiveStats ? fmtMoney(stats?.paid_to_creators ?? 0) : "₹12,40,000"}
                 </div>
-                <div className="flex flex-col justify-between flex-1 min-w-0">
-                  <div>
-                    <div className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#FF3B30] font-bold truncate">{c.category || "Verified Influencer"}</div>
-                    <h3 className="font-sans text-xs leading-snug font-semibold mt-0.5 truncate">{c.name || c.creatorName}</h3>
-                    <p className="text-[10px] font-sans uppercase opacity-70 mt-0.5 truncate">{c.handle || "creator"}</p>
-                  </div>
-                  <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between font-sans text-[8px] tracking-[0.14em] uppercase">
-                    <span className="text-[#34C759]">Verified ✓</span>
-                    <span className="text-[#FF3B30]">View →</span>
-                  </div>
+              </div>
+              <div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Escrow</div>
+                <div className="font-sans text-sm font-bold mt-0.5 tabular-nums">
+                  {hasLiveStats ? fmtMoney(stats?.escrow_held ?? 0) : "₹4,85,000"}
+                </div>
+              </div>
+            </div>
+          </div>
+          <Link to="/billing" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF3B30]/50">
+            Open Billing →
+          </Link>
+        </div>
+      </div>
+
+      {/* Active campaigns */}
+      <section>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Active Campaigns</h2>
+          <Link to="/marketplace?tab=campaigns" className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">View all →</Link>
+        </div>
+        {(activeCamps.length > 0 ? activeCamps : safeItems).length === 0 ? (
+          <Empty label="No campaigns yet. Create your first campaign." />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {(activeCamps.length > 0 ? activeCamps : safeItems).slice(0, 4).map((c) => (
+              <CampaignRow key={c.id} c={c} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Pending applications */}
+      <section>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Pending Applications</h2>
+          <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Discover influencers →</Link>
+        </div>
+        {pendingApps.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-6 text-center font-sans text-sm opacity-50">
+            No applications waiting right now.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {pendingApps.map((a) => (
+              <Link
+                key={a.id || `${a.campaign_id}-${a.influencer_id}`}
+                to={`/campaigns/${a.campaign_id}`}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:border-[#FF3B30]/40 transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="font-sans text-sm font-semibold truncate">{a.influencer_name || a.name || "Creator"}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 truncate">{a.campaign_title}</div>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  {a.rate != null ? (
+                    <span className="font-sans text-sm font-bold text-[#34C759]">₹{Number(a.rate).toLocaleString()}</span>
+                  ) : null}
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Review →</span>
                 </div>
               </Link>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* VIEW 3: MY CAMPAIGNS */}
-      {activeTab === "my-briefs" && (
-        <div className="space-y-3">
-          {(safeItems.length > 0 ? safeItems : DEFAULT_CAMPAIGNS_FOR_CREATORS).length === 0 ? (
-            <Empty label="No briefs posted yet. Post your first campaign." />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {(safeItems.length > 0 ? safeItems : DEFAULT_CAMPAIGNS_FOR_CREATORS).map((c) => (
-                <CampaignRow key={c.id} c={c} />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-      </div> {/* End Scrollable Area */}
+        )}
+      </section>
     </div>
   );
 }

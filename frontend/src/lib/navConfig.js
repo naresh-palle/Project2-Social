@@ -44,9 +44,7 @@ export function getSidebarItems(user) {
     { to: "/feed", label: "Feed", icon: "feed" },
     ...(isBrand ? [{ to: "/discover", label: "Discover", icon: "sparkles" }] : []),
     { to: "/influencers", label: "Influencers", icon: "directory" },
-    ...(isCreator || user?.role === "admin"
-      ? [{ to: "/marketplace?tab=brands", label: "Brands", icon: "directory" }]
-      : []),
+    { to: "/marketplace?tab=brands", label: "Brands", icon: "directory" },
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
     ...(!isProduction
       ? [{ to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" }]
