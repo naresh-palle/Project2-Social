@@ -1,7 +1,8 @@
 """
 Social Media Audit — evaluates connected platform_metrics / Apify sync health.
 
-Eligible: influencer, owner, agent (NOT admin, NOT support category).
+Eligible: all end-user roles (influencer, owner, agent, production, admin).
+Blocked: support category roles (they use Support Ops audit tools instead).
 Reuses users.platform_metrics, social_analytics, scraper_jobs, support tickets.
 """
 from __future__ import annotations
@@ -28,8 +29,8 @@ AUDIT_STATUSES = (
 
 ISSUE_SEVERITIES = ("Low", "Medium", "High", "Critical")
 
-BUSINESS_ROLES = ("influencer", "owner", "agent")
-BLOCKED_AUDIT_ROLES = ("admin", "support", "support_agent", "support_lead", "support_admin")
+BUSINESS_ROLES = ("influencer", "owner", "agent", "production", "admin")
+BLOCKED_AUDIT_ROLES = ("support", "support_agent", "support_lead", "support_admin")
 
 STALE_HOURS = 72
 
@@ -44,10 +45,15 @@ def _iso() -> str:
 
 
 def can_access_social_audit(user: dict) -> bool:
+    """Any authenticated end-user role may run / view their own social audit report."""
     role = (user or {}).get("role") or ""
+    if not role:
+        return False
     if role in BLOCKED_AUDIT_ROLES:
         return False
-    return role in BUSINESS_ROLES
+    if role in BUSINESS_ROLES:
+        return True
+    return not str(role).startswith("support")
 
 
 def _parse_ts(raw: Any) -> Optional[datetime]:

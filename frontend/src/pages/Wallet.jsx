@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown, ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Search, Wallet as WalletIcon, TrendingUp, TrendingDown } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
+
+function isWithdrawTx(t) {
+  const kind = String(t?.kind || "").toLowerCase();
+  const note = String(t?.note || "").toLowerCase();
+  return kind.includes("withdraw") || note.includes("withdraw");
+}
+
+function isSpendTx(t) {
+  if (!(Number(t?.amount) < 0)) return false;
+  return !isWithdrawTx(t);
+}
 
 export default function Wallet() {
   const { user, refresh } = useAuth();
@@ -43,10 +53,18 @@ export default function Wallet() {
 
   if (!user) return null;
   const isOwner = user.role === "owner";
+  const isBrandWallet = user.role === "owner" || user.role === "agent";
 
   const transactions = w.transactions || [];
   const totalIncome = transactions.filter((t) => t.amount > 0).reduce((acc, t) => acc + t.amount, 0);
-  const totalWithdrawn = Math.abs(transactions.filter((t) => t.amount < 0).reduce((acc, t) => acc + t.amount, 0));
+  const withdrawnSum = Math.abs(
+    transactions
+      .filter((t) => (isBrandWallet ? isWithdrawTx(t) : Number(t.amount) < 0))
+      .reduce((acc, t) => acc + Number(t.amount || 0), 0)
+  );
+  const totalSpend = Math.abs(
+    transactions.filter((t) => isSpendTx(t)).reduce((acc, t) => acc + Number(t.amount || 0), 0)
+  );
 
   const filteredTx = transactions.filter((t) => {
     const matchesSearch =
@@ -54,15 +72,31 @@ export default function Wallet() {
       (t.kind || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (t.id || "").toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
+    if (isBrandWallet) {
+      if (filterType === "withdraw") return isWithdrawTx(t);
+      if (filterType === "spends") return isSpendTx(t);
+      return true;
+    }
     if (filterType === "income") return t.amount > 0;
     if (filterType === "withdrawal") return t.amount < 0;
     if (filterType === "escrow") return (t.kind || "").toLowerCase().includes("escrow");
     return true;
   });
 
+  const filterOptions = isBrandWallet
+    ? [
+        ["all", "All"],
+        ["withdraw", "Withdraw"],
+        ["spends", "Spends"],
+      ]
+    : [
+        ["all", "All"],
+        ["income", "Income"],
+        ["withdrawal", "Out"],
+      ];
+
   return (
     <div className="flex flex-col w-full pb-8" data-testid="wallet-page">
-      {/* Top Static Section */}
       <div className="shrink-0 space-y-4 mb-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4">
               <div>
@@ -82,19 +116,29 @@ export default function Wallet() {
             </div>
             <div className="font-sans text-2xl font-bold mt-2 tabular-nums">₹{Number(w.balance || 0).toLocaleString()}</div>
           </div>
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
-            <div className="flex items-center justify-between">
-              <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Income</span>
-              <TrendingUp className="w-4 h-4 text-[#34C759]" />
+          {isBrandWallet ? (
+            <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Total Spend</span>
+                <TrendingDown className="w-4 h-4 text-[#FF3B30]" />
+              </div>
+              <div className="font-sans text-2xl font-bold mt-2 text-[#FF3B30] tabular-nums">₹{totalSpend.toLocaleString()}</div>
             </div>
-            <div className="font-sans text-2xl font-bold mt-2 text-[#34C759] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
-          </div>
+          ) : (
+            <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Income</span>
+                <TrendingUp className="w-4 h-4 text-[#34C759]" />
+              </div>
+              <div className="font-sans text-2xl font-bold mt-2 text-[#34C759] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
+            </div>
+          )}
           <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Withdrawn</span>
               <TrendingDown className="w-4 h-4 text-[#FF9500]" />
             </div>
-            <div className="font-sans text-2xl font-bold mt-2 tabular-nums">-₹{totalWithdrawn.toLocaleString()}</div>
+            <div className="font-sans text-2xl font-bold mt-2 tabular-nums">-₹{withdrawnSum.toLocaleString()}</div>
           </div>
         </div>
 
@@ -153,7 +197,6 @@ export default function Wallet() {
         </div>
       </div>
 
-      {/* Transactions */}
       <div className="pr-2 pb-6">
         <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="font-sans text-sm font-semibold">Transactions ({filteredTx.length})</h2>
@@ -169,11 +212,7 @@ export default function Wallet() {
               />
             </div>
             <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
-              {[
-                ["all", "All"],
-                ["income", "Income"],
-                ["withdrawal", "Out"],
-              ].map(([id, label]) => (
+              {filterOptions.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
@@ -245,7 +284,7 @@ export default function Wallet() {
             </tbody>
           </table>
         </div>
-      </div> {/* End Scrollable Area */}
+      </div>
     </div>
   );
 }

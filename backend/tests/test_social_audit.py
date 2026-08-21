@@ -7,14 +7,16 @@ from social_audit import (
 )
 
 
-def test_rbac_blocks_admin_and_support():
+def test_rbac_blocks_support_allows_end_users():
     assert can_access_social_audit({"role": "influencer"}) is True
     assert can_access_social_audit({"role": "owner"}) is True
     assert can_access_social_audit({"role": "agent"}) is True
-    assert can_access_social_audit({"role": "admin"}) is False
+    assert can_access_social_audit({"role": "production"}) is True
+    assert can_access_social_audit({"role": "admin"}) is True
     assert can_access_social_audit({"role": "support_agent"}) is False
     assert can_access_social_audit({"role": "support_admin"}) is False
     assert can_access_social_audit({"role": "support"}) is False
+    assert can_access_social_audit({"role": "support_lead"}) is False
 
 
 def test_audit_detects_no_platforms_critical():

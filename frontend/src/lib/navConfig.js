@@ -23,9 +23,10 @@ export function getSidebarItems(user) {
     ];
   }
 
-  const isBrand = user?.role === "owner" || user?.role === "agent" || user?.role === "admin";
+  const isBrandDesk = user?.role === "owner" || user?.role === "agent";
   const isCreator = user?.role === "influencer";
   const isProduction = user?.role === "production";
+  const isAdmin = user?.role === "admin";
 
   if (isProduction) {
     return [
@@ -34,6 +35,23 @@ export function getSidebarItems(user) {
       { to: "/wishlist", label: "My Wishlist", icon: "save" },
       { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/social-audit", label: "Social Audit", icon: "audit" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+      { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
+
+  // Brand desk: lean ops nav — no Feed / Discover / Brands / Leaderboard / Referrals / Invitations / Billing
+  if (isBrandDesk) {
+    return [
+      { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+      { to: "/influencers", label: "Influencers", icon: "directory" },
+      { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+      { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
+      { to: "/wishlist", label: "My Wishlist", icon: "save" },
+      { to: "/messages", label: "Messages", icon: "bell" },
+      { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/social-audit", label: "Social Audit", icon: "audit" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
@@ -42,29 +60,24 @@ export function getSidebarItems(user) {
   return [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/feed", label: "Feed", icon: "feed" },
-    ...(isBrand ? [{ to: "/discover", label: "Discover", icon: "sparkles" }] : []),
     { to: "/influencers", label: "Influencers", icon: "directory" },
-    { to: "/marketplace?tab=brands", label: "Brands", icon: "directory" },
+    ...(isCreator || isAdmin
+      ? [{ to: "/marketplace?tab=brands", label: "Brands", icon: "directory" }]
+      : []),
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
-    ...(!isProduction
-      ? [{ to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" }]
-      : []),
-    ...(user?.role === "admin"
-      ? [{ to: "/hire-requests", label: "Hire Requests", icon: "invitations" }]
-      : []),
+    { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
+    ...(isAdmin ? [{ to: "/hire-requests", label: "Hire Requests", icon: "invitations" }] : []),
     { to: "/wishlist", label: "My Wishlist", icon: "save" },
     { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
-    ...(user?.role !== "admin"
+    ...(!isAdmin
       ? [
           { to: "/referrals", label: "Referrals", icon: "referrals" },
           { to: "/invitations", label: "Invitations", icon: "invitations" },
         ]
       : []),
     { to: "/wallet", label: "Wallet", icon: "wallet" },
-    { to: "/billing", label: "Billing", icon: "billing" },
-    ...(isCreator || isBrand
-      ? [{ to: "/social-audit", label: "Social Audit", icon: "audit" }]
-      : []),
+    ...(isAdmin ? [{ to: "/billing", label: "Billing", icon: "billing" }] : []),
+    { to: "/social-audit", label: "Social Audit", icon: "audit" },
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
   ];
@@ -89,22 +102,18 @@ export function getBottomNavItems(user) {
       { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
+  if (user?.role === "owner" || user?.role === "agent") {
+    return [
+      { to: "/dashboard", label: "Home", icon: "dashboard" },
+      { to: "/influencers", label: "Influencers", icon: "directory" },
+      { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+      { to: "/messages", label: "Inbox", icon: "bell" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+    ];
+  }
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
-    {
-      to:
-        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
-          ? "/discover"
-          : "/marketplace?tab=campaigns",
-      label:
-        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
-          ? "Discover"
-          : "Campaigns",
-      icon:
-        user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
-          ? "sparkles"
-          : "directory",
-    },
+    { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "directory" },
     { to: "/leaderboard", label: "Analytics", icon: "analytics" },
     { to: "/messages", label: "Inbox", icon: "bell" },
     { to: "/profile", label: "Profile", icon: "profile" },

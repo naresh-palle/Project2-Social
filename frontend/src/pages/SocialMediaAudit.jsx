@@ -41,7 +41,7 @@ export default function SocialMediaAudit() {
   const [running, setRunning] = useState(false);
   const [raising, setRaising] = useState(null);
 
-  const blocked = !user || user.role === "admin" || isSupportOpsRole(user.role);
+  const blocked = !user || isSupportOpsRole(user.role);
 
   const load = useCallback(async ({ quiet = false } = {}) => {
     if (blocked) return;
@@ -138,10 +138,10 @@ export default function SocialMediaAudit() {
     <div className="w-full min-w-0 pb-8 space-y-4" data-testid="social-media-audit">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Diagnostics</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Audit Report</p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Social Media Audit</h1>
           <p className="text-[12px] text-white/45 mt-1">
-            Uses your connected platforms and Apify sync data — no duplicate scrapers.
+            Available for all accounts — uses your connected platforms and Apify sync data.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

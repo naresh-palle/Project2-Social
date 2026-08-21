@@ -624,8 +624,8 @@ export default function Marketplace() {
           <span className="font-sans text-xs opacity-70">
             Total spend <strong className="text-white">₹{Number(paySummary.total_spend ?? paySummary.paid_to_creators ?? 0).toLocaleString()}</strong>
           </span>
-          <Link to="/billing" className="ml-auto font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] hover:underline">
-            Billing →
+          <Link to="/wallet" className="ml-auto font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] hover:underline">
+            Wallet →
           </Link>
         </div>
       ) : null}

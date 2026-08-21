@@ -233,16 +233,16 @@ function OwnerPanel() {
         { k: "Active Campaigns", v: stats?.active_campaigns ?? activeCamps.length, tail: `of ${stats?.total_campaigns ?? safeItems.length} total`, to: "/marketplace?tab=campaigns" },
         { k: "Applications Pending", v: stats?.applications_pending ?? pendingApps.length, tail: "awaiting action", to: "/marketplace?tab=campaigns" },
         { k: "Deliverables Pending", v: stats?.deliverables_pending ?? 0, tail: "review / approve", to: "/marketplace?tab=campaigns" },
-        { k: "Pending Payments", v: fmtMoney(stats?.pending_payments ?? stats?.escrow_held ?? 0), tail: `${stats?.pending_payments_count ?? 0} payments pending`, to: "/billing" },
-        { k: "Total Spends", v: fmtMoney(stats?.total_spend ?? stats?.paid_to_creators ?? 0), tail: "released to creators", to: "/billing" },
+        { k: "Pending Payments", v: fmtMoney(stats?.pending_payments ?? stats?.escrow_held ?? 0), tail: `${stats?.pending_payments_count ?? 0} payments pending`, to: "/wallet" },
+        { k: "Total Spends", v: fmtMoney(stats?.total_spend ?? stats?.paid_to_creators ?? 0), tail: "released to creators", to: "/wallet" },
         { k: "Influencers Hired", v: stats?.influencers_hired ?? 0, tail: "accepted creators", to: "/influencers" },
       ]
     : [
         { k: "Active Campaigns", v: Math.max(activeCamps.length, 3), tail: `of ${Math.max(safeItems.length, 5)} total`, to: "/marketplace?tab=campaigns" },
         { k: "Applications Pending", v: Math.max(pendingApps.length, 4), tail: "awaiting action", to: "/marketplace?tab=campaigns" },
         { k: "Deliverables Pending", v: 2, tail: "review / approve", to: "/marketplace?tab=campaigns" },
-        { k: "Pending Payments", v: "₹1,25,000", tail: "4 payments pending", to: "/billing" },
-        { k: "Total Spends", v: "₹8,40,000", tail: "released to creators", to: "/billing" },
+        { k: "Pending Payments", v: "₹1,25,000", tail: "4 payments pending", to: "/wallet" },
+        { k: "Total Spends", v: "₹8,40,000", tail: "released to creators", to: "/wallet" },
         { k: "Influencers Hired", v: 18, tail: "accepted creators", to: "/influencers" },
       ];
 
@@ -316,7 +316,7 @@ function OwnerPanel() {
             <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5" /> Campaign Performance
             </h2>
-            <Link to="/leaderboard" className="font-mono text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100">Analytics →</Link>
+            <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100">Discover influencers →</Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
@@ -362,8 +362,8 @@ function OwnerPanel() {
               </div>
             </div>
           </div>
-          <Link to="/billing" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF3B30]/50">
-            Open Billing →
+          <Link to="/wallet" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF3B30]/50">
+            Open Wallet →
           </Link>
         </div>
       </div>
