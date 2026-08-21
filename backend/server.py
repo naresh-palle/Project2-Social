@@ -193,6 +193,7 @@ ROLE_AUDIT_LABELS = {
     "owner": "Brand",
     "agent": "Agency",
     "admin": "Admin",
+    "production": "Hire / Production Team",
     "support": "Support Agent",
     "support_agent": "Support Agent",
     "support_lead": "Support Lead",
@@ -501,10 +502,10 @@ async def require_role(current: dict, roles: list) -> dict:
 
 # ---------- Models ----------
 UserRole = Literal[
-    "owner", "influencer", "admin", "agent",
+    "owner", "influencer", "admin", "agent", "production",
     "support", "support_agent", "support_lead", "support_admin",
 ]
-PublicRegisterRole = Literal["owner", "influencer", "agent"]
+PublicRegisterRole = Literal["owner", "influencer", "agent", "production"]
 
 
 class RegisterInput(BaseModel):
@@ -1704,6 +1705,19 @@ async def register_old(inp: RegisterInput):
         "created_at": now_iso(),
         "social_accounts": social_accounts,
     }
+    if inp.role == "production":
+        doc.update({
+            "production_category": "camera",
+            "production_role": "Cameraman",
+            "services": [],
+            "in_house": False,
+            "availability": "available",
+            "languages": ["English", "Hindi"],
+            "country": "India",
+            "base_rate": None,
+            "experience_years": None,
+            "previous_work": [],
+        })
     await db.users.insert_one(doc)
     token = create_access_token(user_id, email, inp.role)
     await _clear_signup_otps(email, mobile)
@@ -2531,15 +2545,30 @@ async def sync_analytics(
     }
 
 @api_router.get("/creators")
-async def list_creators(niche: Optional[str] = None, platform: Optional[str] = None,
-                        q: Optional[str] = None, limit: int = Query(default=60, le=100)):
+async def list_creators(
+    niche: Optional[str] = None,
+    platform: Optional[str] = None,
+    q: Optional[str] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    country: Optional[str] = None,
+    followers_min: Optional[float] = None,
+    followers_max: Optional[float] = None,
+    engagement_min: Optional[float] = None,
+    engagement_max: Optional[float] = None,
+    price_min: Optional[float] = None,
+    price_max: Optional[float] = None,
+    sort: Optional[str] = None,
+    limit: int = Query(default=60, le=100),
+):
     filt: Dict[str, Any] = {"role": "influencer"}
+    ands: List[Dict[str, Any]] = []
     if niche:
         filt["niches"] = niche
     if platform:
         filt["platforms"] = platform
     if q:
-        filt["$or"] = [
+        ands.append({"$or": [
             {"name": {"$regex": q, "$options": "i"}},
             {"username": {"$regex": q, "$options": "i"}},
             {"handle": {"$regex": q, "$options": "i"}},
@@ -2548,9 +2577,68 @@ async def list_creators(niche: Optional[str] = None, platform: Optional[str] = N
             {"platform_metrics.youtube.handle": {"$regex": q, "$options": "i"}},
             {"platform_metrics.twitter.handle": {"$regex": q, "$options": "i"}},
             {"platform_metrics.facebook.handle": {"$regex": q, "$options": "i"}},
-        ]
-    cursor = db.users.find(filt, {"_id": 0, "password_hash": 0}).limit(limit)
-    return await cursor.to_list(length=limit)
+        ]})
+    if city:
+        filt["city"] = {"$regex": city, "$options": "i"}
+    if state:
+        filt["state"] = {"$regex": state, "$options": "i"}
+    if country:
+        filt["country"] = {"$regex": country, "$options": "i"}
+    fol: Dict[str, Any] = {}
+    if followers_min is not None:
+        fol["$gte"] = float(followers_min)
+    if followers_max is not None:
+        fol["$lte"] = float(followers_max)
+    if fol:
+        filt["followers"] = fol
+    price: Dict[str, Any] = {}
+    if price_min is not None:
+        price["$gte"] = float(price_min)
+    if price_max is not None:
+        price["$lte"] = float(price_max)
+    if price:
+        filt["base_rate"] = price
+    if ands:
+        filt["$and"] = ands
+    creators = await db.users.find(filt, {"_id": 0, "password_hash": 0}).to_list(length=min(limit * 3, 200))
+
+    def _er(c):
+        if c.get("engagement_rate") is not None:
+            try:
+                return float(c["engagement_rate"])
+            except (TypeError, ValueError):
+                return None
+        rates = []
+        for row in (c.get("platform_metrics") or {}).values():
+            if isinstance(row, dict) and row.get("engagement") is not None:
+                try:
+                    rates.append(float(row["engagement"]))
+                except (TypeError, ValueError):
+                    pass
+        return sum(rates) / len(rates) if rates else None
+
+    out = []
+    for c in creators:
+        er = _er(c)
+        if engagement_min is not None and (er is None or er < float(engagement_min)):
+            continue
+        if engagement_max is not None and (er is None or er > float(engagement_max)):
+            continue
+        c["engagement_rate"] = er
+        out.append(c)
+
+    key = (sort or "").lower()
+    if key in ("engagement", "highest_engagement"):
+        out.sort(key=lambda c: float(c.get("engagement_rate") or -1), reverse=True)
+    elif key == "newest":
+        out.sort(key=lambda c: c.get("created_at") or "", reverse=True)
+    elif key in ("cost_asc", "price_asc"):
+        out.sort(key=lambda c: float(c.get("base_rate") if c.get("base_rate") is not None else 1e18))
+    elif key in ("cost_desc", "price_desc"):
+        out.sort(key=lambda c: float(c.get("base_rate") or -1), reverse=True)
+    elif key == "nearest":
+        out.sort(key=lambda c: (c.get("city") or "").lower())
+    return out[:limit]
 
 
 @api_router.get("/creators/match")
@@ -5067,6 +5155,12 @@ async def on_startup():
             await _invoice_ensure_indexes()
     except Exception as e:
         logger.warning("invoice indexes failed: %s", e)
+    try:
+        if _marketplace_ensure_indexes:
+            await _marketplace_ensure_indexes()
+        await seed_marketplace_data(db, hash_password=hash_password, now_iso=now_iso)
+    except Exception as e:
+        logger.warning("marketplace indexes/seed failed: %s", e)
     logger.info("flugr API ready.")
 
 
@@ -5185,6 +5279,21 @@ _invoice_ensure_indexes = setup_invoices(
     write_audit_log=write_audit_log,
     store_upload_bytes=store_upload_bytes,
     load_upload_bytes=load_upload_bytes,
+    logger=logger,
+)
+
+from marketplace_features import setup_marketplace, seed_marketplace_data  # noqa: E402
+
+_marketplace_ensure_indexes = setup_marketplace(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
+    push_notification=push_notification,
+    now_iso=now_iso,
+    hash_password=hash_password,
+    clean=clean,
+    write_audit_log=write_audit_log,
     logger=logger,
 )
 

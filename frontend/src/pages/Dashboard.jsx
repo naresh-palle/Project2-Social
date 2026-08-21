@@ -61,6 +61,8 @@ export default function Dashboard() {
           <OwnerPanel />
         ) : user?.role === "agent" ? (
           <AgentPanel />
+        ) : user?.role === "production" ? (
+          <ProductionPanel />
         ) : (
           <InfluencerPanel />
         )}
@@ -707,6 +709,45 @@ function AgentPanel() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ProductionPanel() {
+  const nav = useNavigate();
+  const [requests, setRequests] = useState([]);
+  useEffect(() => {
+    api.get("/marketplace/hire-requests").then((r) => setRequests(r.data?.requests || [])).catch(() => {});
+  }, []);
+  const pending = requests.filter((r) => r.status === "pending").length;
+  return (
+    <div className="w-full pb-8">
+      <div className="border-b border-white/10 pb-4 mb-5">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Hire / Production Team</p>
+        <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Production desk</h1>
+        <p className="font-sans text-sm text-white/50 mt-1">Manage hire requests from brands and creators.</p>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Pending requests</p>
+          <p className="font-sans text-2xl font-bold mt-1">{pending}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Total requests</p>
+          <p className="font-sans text-2xl font-bold mt-1">{requests.length}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => nav("/hire-requests")} className="px-4 py-2 rounded-full bg-[#FF3B30] text-white font-mono text-[10px] uppercase tracking-widest font-bold">
+          Open hire requests
+        </button>
+        <button type="button" onClick={() => nav("/profile")} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
+          Edit profile
+        </button>
+        <button type="button" onClick={() => nav("/wishlist")} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
+          Wishlist
+        </button>
+      </div>
     </div>
   );
 }

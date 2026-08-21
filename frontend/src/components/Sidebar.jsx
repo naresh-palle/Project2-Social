@@ -95,9 +95,11 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                   ? "Brand Desk"
                   : user?.role === "agent"
                     ? "Agency Desk"
-                    : isSupportOps
-                      ? supportRoleLabel(user?.role)
-                      : "Influencer"}
+                    : user?.role === "production"
+                      ? "Hire / Production"
+                      : isSupportOps
+                        ? supportRoleLabel(user?.role)
+                        : "Influencer"}
             </p>
             {(() => {
               if (user?.role === "admin") {

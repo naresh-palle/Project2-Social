@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowUpRight, ArrowDownRight, Activity, Users, MapPin, Sparkles } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Activity, MapPin, Heart } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -10,16 +10,33 @@ import { formatUserLocation } from "@/lib/location";
 import { SOCIAL_PLATFORMS, SOCIAL_PLATFORM_LABELS, hasPlatformHandle, socialOrNA, socialMetricOrNA, SOCIAL_PLATFORM_ICONS } from "@/lib/platforms";
 import { displayMetric, formatEngagementRate, engagementRateHint, formatCompactNumber, formatExactNumber } from "@/lib/socialAnalytics";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
+import { useAuth } from "@/lib/auth";
+
+function fmt(n) {
+  if (n == null) return "—";
+  const v = Number(n);
+  if (!Number.isFinite(v)) return "—";
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (v >= 1_000) return `${Math.round(v / 1000)}K`;
+  return String(Math.round(v));
+}
 
 export default function CreatorDetail() {
   const { id } = useParams();
   const nav = useNavigate();
+  const { user } = useAuth();
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartRange, setChartRange] = useState(6);
   const [intel, setIntel] = useState(null);
   const [tab, setTab] = useState("overview");
   const [research, setResearch] = useState(null);
+  const [past, setPast] = useState({ campaigns: [], summary: {} });
+  const [roi, setRoi] = useState(null);
+  const [similar, setSimilar] = useState([]);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [comboSelected, setComboSelected] = useState([]);
+  const isBrand = user?.role === "owner" || user?.role === "agent" || user?.role === "admin";
 
   useEffect(() => {
     async function load() {
@@ -32,6 +49,27 @@ export default function CreatorDetail() {
         } catch {
           setIntel(null);
         }
+        try {
+          const pastRes = await api.get(`/marketplace/creators/${id}/past-campaigns`);
+          setPast(pastRes.data || { campaigns: [], summary: {} });
+        } catch {
+          setPast({ campaigns: [], summary: {} });
+        }
+        try {
+          const roiRes = await api.get(`/marketplace/creators/${id}/roi-profile`);
+          setRoi(roiRes.data);
+          setWishlisted(!!roiRes.data?.wishlisted);
+        } catch {
+          setRoi(null);
+        }
+        if (isBrand) {
+          try {
+            const sim = await api.post("/marketplace/creators/similar", { creator_id: id, limit: 8 });
+            setSimilar(sim.data.creators || []);
+          } catch {
+            setSimilar([]);
+          }
+        }
       } catch {
         toast.error("Failed to load influencer");
         nav("/marketplace");
@@ -40,7 +78,17 @@ export default function CreatorDetail() {
       }
     }
     load();
-  }, [id, nav]);
+  }, [id, nav, isBrand]);
+
+  const toggleWishlist = async () => {
+    try {
+      const { data } = await api.post("/wishlist", { target_id: id, target_type: "influencer", action: "toggle" });
+      setWishlisted(!!data.wishlisted);
+      toast.success(data.wishlisted ? "Saved to wishlist" : "Removed");
+    } catch {
+      toast.error("Wishlist failed");
+    }
+  };
 
   if (loading) {
     return (
@@ -63,10 +111,11 @@ export default function CreatorDetail() {
     : (creator.category ? String(creator.category).split(",").map((s) => s.trim()).filter(Boolean) : []);
   const nichesLabel = niches.slice(0, 3).join(" · ") || "Influencer";
   const social = creator.social && typeof creator.social === "object" ? creator.social : null;
+  const kpis = roi?.kpis || past?.summary || {};
+  const pastCampaigns = past?.campaigns || [];
 
   return (
     <div className="flex flex-col w-full pb-8">
-      {/* Compact hero */}
       <div className="border-b border-white/10 pb-4 mb-4">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2 mb-3">
           <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory profile
@@ -134,7 +183,26 @@ export default function CreatorDetail() {
           </div>
         )}
 
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mt-3" data-testid="creator-roi-kpis">
+          {[
+            ["Avg campaign reach", fmt(kpis.average_campaign_reach || kpis.avg_reach)],
+            ["Avg campaign eng.", fmt(kpis.average_campaign_engagement || kpis.avg_engagement)],
+            ["Success rate", kpis.campaign_success_rate != null ? `${kpis.campaign_success_rate}%` : (kpis.success_rate != null ? `${kpis.success_rate}%` : "—")],
+            ["Campaigns done", kpis.completed_campaigns ?? "—"],
+            ["Avg ROI", kpis.average_roi != null ? kpis.average_roi : (kpis.avg_roi ?? "—")],
+            ["Avg ROAS", kpis.average_roas != null ? `${kpis.average_roas}x` : (kpis.avg_roas != null ? `${kpis.avg_roas}x` : "—")],
+          ].map(([label, val]) => (
+            <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+              <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+              <p className="font-sans text-base font-bold tabular-nums mt-0.5">{val}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="flex flex-wrap gap-2 mt-3">
+          <button type="button" onClick={toggleWishlist} className={`px-3 py-1 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${wishlisted ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
+            <Heart className={`w-3 h-3 ${wishlisted ? "fill-current" : ""}`} /> Wishlist
+          </button>
           <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
             try { await api.post("/discover/shortlist", { creator_id: creator.id, action: "add" }); toast.success("Shortlisted"); }
             catch { toast.error("Shortlist requires a brand login"); }
@@ -145,12 +213,6 @@ export default function CreatorDetail() {
               setResearch(data.report); setTab("research");
             } catch { toast.error("Deep Research failed"); }
           }}>Deep Research</button>
-          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
-            try {
-              const { data } = await api.post(`/creators/${creator.id}/refresh`, {});
-              toast.message(data.message || (data.ok ? "Refresh queued" : "Data source not configured"));
-            } catch { toast.error("Refresh failed"); }
-          }}>Refresh data</button>
           <Link to="/discover" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">Discover</Link>
         </div>
         {intel?.quality && (
@@ -164,14 +226,82 @@ export default function CreatorDetail() {
           </div>
         )}
         <div className="flex flex-wrap gap-2 mt-3 font-mono text-[9px] uppercase tracking-widest">
-          {["overview", "analytics", "audience", "research"].map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent text-white/45"}`}>{t}</button>
+          {["overview", "campaigns", "analytics", "audience", "research"].map((t) => (
+            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent text-white/45"}`}>{t === "campaigns" ? "Past campaigns" : t}</button>
           ))}
         </div>
       </div>
 
+      {tab === "campaigns" ? (
+        <div className="space-y-4 mb-6">
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Campaign performance case studies</h2>
+          {pastCampaigns.length === 0 ? (
+            <p className="font-sans italic opacity-50">No past campaign performance on file yet.</p>
+          ) : pastCampaigns.map((c) => (
+            <article key={c.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4" data-testid={`past-campaign-${c.id}`}>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-sans text-lg font-semibold">{c.campaign_name || c.title}</h3>
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
+                    {c.brand_name} · {c.campaign_category} · {c.campaign_objective} · {c.campaign_date}
+                  </p>
+                </div>
+                {c.roas != null ? (
+                  <span className="font-sans text-xl font-bold text-[#34C759]">{c.roas}x ROAS</span>
+                ) : null}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 mt-3">
+                {[
+                  ["Reach", fmt(c.total_reach)],
+                  ["Views", fmt(c.total_views)],
+                  ["Impressions", fmt(c.total_impressions)],
+                  ["Engagement", fmt(c.total_engagement)],
+                  ["ER", c.engagement_rate != null ? `${c.engagement_rate}%` : "—"],
+                  ["Posts", c.posts_count ?? "—"],
+                  ["Likes", fmt(c.likes)],
+                  ["Comments", fmt(c.comments)],
+                  ["Shares", fmt(c.shares)],
+                  ["Saves", fmt(c.saves)],
+                  ["Clicks", fmt(c.clicks)],
+                  ["Leads", fmt(c.leads)],
+                ].map(([label, val]) => (
+                  <div key={label} className="rounded-lg border border-white/10 px-2 py-1.5">
+                    <div className="font-mono text-[8px] uppercase text-white/40">{label}</div>
+                    <div className="font-sans text-sm font-bold tabular-nums">{val}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                  <div className="font-mono text-[8px] uppercase text-white/40">Campaign cost</div>
+                  <div className="font-sans text-sm font-bold">{c.campaign_cost != null ? `₹${Number(c.campaign_cost).toLocaleString()}` : "—"}</div>
+                </div>
+                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                  <div className="font-mono text-[8px] uppercase text-white/40">Revenue</div>
+                  <div className="font-sans text-sm font-bold">{c.revenue_generated != null ? `₹${Number(c.revenue_generated).toLocaleString()}` : "—"}</div>
+                </div>
+                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                  <div className="font-mono text-[8px] uppercase text-white/40">ROI</div>
+                  <div className="font-sans text-sm font-bold">{c.roi ?? "—"}</div>
+                </div>
+                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                  <div className="font-mono text-[8px] uppercase text-white/40">Content</div>
+                  <div className="font-sans text-sm font-bold truncate">{c.content_produced || "—"}</div>
+                </div>
+              </div>
+              {(c.key_outcome || c.brand_impact) && (
+                <div className="mt-3 font-sans text-sm text-white/70 space-y-1">
+                  {c.key_outcome ? <p><span className="text-white/40">Outcome:</span> {c.key_outcome}</p> : null}
+                  {c.brand_impact ? <p><span className="text-white/40">Brand impact:</span> {c.brand_impact}</p> : null}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      {tab !== "campaigns" ? (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left: about + rate + campaigns */}
         <div className="lg:col-span-4 space-y-4">
           <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
             <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">About</h3>
@@ -190,28 +320,25 @@ export default function CreatorDetail() {
                 <div className="font-sans text-lg font-semibold">{creator.availability || "—"}</div>
               </div>
             </div>
-            {creator.content_types?.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {creator.content_types.map((ct) => (
-                  <span key={ct} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 font-mono text-[9px] uppercase tracking-widest text-white/55">
-                    {ct}
-                  </span>
-                ))}
-              </div>
-            )}
           </section>
 
-          {creator.past_campaigns?.length > 0 && (
+          {pastCampaigns.length > 0 && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Past campaigns</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Past campaigns</h3>
+                <button type="button" onClick={() => setTab("campaigns")} className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">View all</button>
+              </div>
               <div className="space-y-2">
-                {creator.past_campaigns.slice(0, 6).map((c, i) => (
-                  <div key={i} className="py-1.5 border-b border-white/5 last:border-0">
+                {pastCampaigns.slice(0, 4).map((c) => (
+                  <div key={c.id} className="py-1.5 border-b border-white/5 last:border-0">
                     <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">
-                      {[c.brand, c.date].filter(Boolean).join(" · ")}
+                      {[c.brand_name, c.campaign_date].filter(Boolean).join(" · ")}
                     </div>
-                    <div className="font-sans text-sm font-medium">{c.title || c.name || "Campaign"}</div>
-                    {c.result && <div className="font-mono text-[10px] text-[#34C759] mt-0.5">{c.result}</div>}
+                    <div className="font-sans text-sm font-medium">{c.campaign_name}</div>
+                    <div className="font-mono text-[10px] text-[#34C759] mt-0.5">
+                      Reach {fmt(c.total_reach)} · ER {c.engagement_rate != null ? `${c.engagement_rate}%` : "—"}
+                      {c.roas != null ? ` · ROAS ${c.roas}x` : ""}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -219,7 +346,6 @@ export default function CreatorDetail() {
           )}
         </div>
 
-        {/* Right: platforms + portfolio + charts */}
         <div className="lg:col-span-8 space-y-4">
           <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
             <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Audience</h3>
@@ -258,15 +384,11 @@ export default function CreatorDetail() {
                         <div className="font-sans text-sm font-bold tabular-nums">
                           {connected ? socialMetricOrNA(pm.engagement, (n) => `${n}%`) : "—"}
                         </div>
-                        <div className="font-mono text-[8px] tracking-widest uppercase opacity-40">ER</div>
+                        <div className="font-mono text-[8px] tracking-widest uppercase opacity-40">Engagement</div>
                       </div>
                       <div>
                         <div className="font-sans text-sm font-bold tabular-nums">
-                          {connected
-                            ? (pm.views == null || (Number(pm.views) === 0 && plat !== "youtube")
-                              ? "N/A"
-                              : socialMetricOrNA(pm.views, (n) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n))))
-                            : "—"}
+                          {connected ? socialMetricOrNA(pm.views, (n) => formatCompactNumber(n)) : "—"}
                         </div>
                         <div className="font-mono text-[8px] tracking-widest uppercase opacity-40">Views</div>
                       </div>
@@ -277,96 +399,98 @@ export default function CreatorDetail() {
             </div>
           </section>
 
-          {creator.portfolio?.length > 0 && (
+          {tab === "analytics" && chartData.length > 0 && (
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 flex items-center gap-1">
+                  <Activity className="w-3 h-3" /> Growth
+                </h3>
+                <div className="flex gap-1">
+                  {[3, 6, 12].map((n) => (
+                    <button key={n} type="button" onClick={() => setChartRange(n)} className={`px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest ${chartRange === n ? "bg-[#FF3B30] text-white" : "border border-white/15"}`}>{n}m</button>
+                  ))}
+                </div>
+              </div>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 10 }} />
+                    <YAxis tick={{ fill: "#666", fontSize: 10 }} />
+                    <Tooltip contentStyle={{ background: "#121212", border: "1px solid #333" }} />
+                    <Area type="monotone" dataKey="followers" stroke="#FF3B30" fill="#FF3B30" fillOpacity={0.15} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </section>
+          )}
+
+          {tab === "research" && research && (
+            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Deep research</h3>
+              <pre className="whitespace-pre-wrap font-sans text-sm text-white/80">{typeof research === "string" ? research : JSON.stringify(research, null, 2)}</pre>
+            </section>
+          )}
+
+          {(creator.portfolio || []).length > 0 && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
               <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Portfolio</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {creator.portfolio.map((media, i) => (
-                  isVideoUrl(media) ? (
-                    <div key={i} className="relative w-full aspect-video overflow-hidden bg-black/40 rounded-lg border border-white/10">
-                      <video src={media} className="w-full h-full object-cover" muted loop playsInline autoPlay preload="metadata" />
-                      <span className="theme-keep-dark absolute bottom-1.5 left-1.5 font-mono text-[8px] tracking-widest uppercase bg-black/55 px-1.5 py-0.5 rounded text-white">Reel</span>
-                    </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {creator.portfolio.slice(0, 9).map((src, i) => (
+                  isVideoUrl(src) ? (
+                    <video key={i} src={src} className="aspect-square object-cover rounded-xl" muted playsInline />
                   ) : (
-                    <img key={i} src={media} alt="" className="w-full aspect-square object-cover rounded-lg border border-white/10" />
+                    <img key={i} src={src} alt="" className="aspect-square object-cover rounded-xl" />
                   )
                 ))}
               </div>
             </section>
           )}
-
-          {chartData.length > 0 && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <div className="flex justify-between items-center mb-3 gap-2">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Trends</h3>
-                <div className="flex gap-1">
-                  {[1, 3, 6, 12].map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setChartRange(r)}
-                      className={`font-mono text-[9px] tracking-widest uppercase px-2 py-1 border rounded-full transition-colors ${
-                        chartRange === r ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/10 opacity-50 hover:opacity-100"
-                      }`}
-                    >
-                      {r === 1 ? "30D" : r === 3 ? "90D" : `${r}M`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="h-44">
-                  <div className="font-mono text-[10px] mb-2 flex items-center gap-1.5 opacity-70">
-                    <Users className="w-3.5 h-3.5 text-[#FF3B30]" /> Followers
-                  </div>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="colorF" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#FF3B30" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#FF3B30" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="month" stroke="rgba(244,244,240,0.2)" fontSize={9} tickMargin={6} />
-                      <YAxis stroke="rgba(244,244,240,0.2)" fontSize={9} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} width={32} />
-                      <Tooltip contentStyle={{ backgroundColor: "#0A0A0A", borderColor: "rgba(244,244,240,0.1)" }} itemStyle={{ color: "#F4F4F0" }} />
-                      <Area type="monotone" dataKey="followers" stroke="#FF3B30" fillOpacity={1} fill="url(#colorF)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="h-44">
-                  <div className="font-mono text-[10px] mb-2 flex items-center gap-1.5 opacity-70">
-                    <Activity className="w-3.5 h-3.5 text-[#34C759]" /> Engagement %
-                  </div>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="colorE" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#34C759" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#34C759" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="month" stroke="rgba(244,244,240,0.2)" fontSize={9} tickMargin={6} />
-                      <YAxis stroke="rgba(244,244,240,0.2)" fontSize={9} width={28} />
-                      <Tooltip contentStyle={{ backgroundColor: "#0A0A0A", borderColor: "rgba(244,244,240,0.1)" }} itemStyle={{ color: "#F4F4F0" }} />
-                      <Area type="monotone" dataKey="engagement" stroke="#34C759" fillOpacity={1} fill="url(#colorE)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </section>
-          )}
         </div>
       </div>
+      ) : null}
 
-      {tab === "research" && (
-        <section className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <h3 className="font-mono text-[10px] uppercase tracking-widest text-white/45 mb-2">Deep Research</h3>
-          {!research ? <p className="text-sm text-white/50">Run Deep Research to generate an evidence-based report from stored catalog data.</p> : (
-            <div className="space-y-3 text-sm">
-              <p>{research.recommendation}</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{research.disclaimer}</p>
-              <pre className="whitespace-pre-wrap text-xs text-white/70 overflow-auto">{JSON.stringify({ overview: research.overview, performance: research.performance, risk: research.risk }, null, 2)}</pre>
+      {isBrand && similar.length > 0 && (
+        <section className="mt-8 border-t border-white/10 pt-6">
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] mb-1">Creators similar to this profile</h2>
+          <p className="font-sans text-sm text-white/50 mb-4">Matched on niche, audience, location, followers, engagement, content type, and pricing.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {similar.map((c) => {
+              const selected = comboSelected.find((x) => x.id === c.id);
+              return (
+                <div key={c.id} className={`rounded-2xl border p-3 ${selected ? "border-[#FF3B30]" : "border-white/10"}`}>
+                  <Link to={`/creators/${c.id}`} className="flex gap-2">
+                    {c.avatar ? <img src={c.avatar} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-white/10" />}
+                    <div className="min-w-0">
+                      <div className="font-sans text-sm font-semibold truncate">{c.name}</div>
+                      <div className="font-mono text-[8px] uppercase tracking-widest text-white/40 truncate">
+                        {fmt(c.followers)} · {c.engagement_rate != null ? `${c.engagement_rate}%` : "—"} · sim {c.similarity_score}
+                      </div>
+                    </div>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setComboSelected((prev) => {
+                      if (prev.find((x) => x.id === c.id)) return prev.filter((x) => x.id !== c.id);
+                      if (prev.length >= 10) { toast.error("Max 10"); return prev; }
+                      return [...prev, c];
+                    })}
+                    className="mt-2 w-full px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest"
+                  >
+                    {selected ? "Selected" : "Select for combo"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {comboSelected.length > 0 && (
+            <div className="mt-4 rounded-2xl border border-[#FF3B30]/40 p-3 flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">
+                Group · {comboSelected.length} · est. ₹{comboSelected.reduce((s, c) => s + (Number(c.base_rate) || 0), 0).toLocaleString()}
+              </span>
+              <Link to="/marketplace?tab=creators" className="px-3 py-1 rounded-full bg-[#FF3B30] text-white font-mono text-[9px] uppercase tracking-widest">
+                Continue in marketplace
+              </Link>
+              <button type="button" onClick={() => setComboSelected([])} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Clear</button>
             </div>
           )}
         </section>

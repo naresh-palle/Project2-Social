@@ -22,14 +22,36 @@ export function getSidebarItems(user) {
       { to: "/settings", label: "Settings", icon: "settings", tab: "settings" },
     ];
   }
+
+  const isBrand = user?.role === "owner" || user?.role === "agent" || user?.role === "admin";
+  const isCreator = user?.role === "influencer";
+  const isProduction = user?.role === "production";
+
+  if (isProduction) {
+    return [
+      { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+      { to: "/hire-requests", label: "Hire Requests", icon: "invitations" },
+      { to: "/wishlist", label: "My Wishlist", icon: "save" },
+      { to: "/messages", label: "Messages", icon: "bell" },
+      { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+      { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
+
   return [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/feed", label: "Feed", icon: "feed" },
-    ...(user?.role === "owner" || user?.role === "agent" || user?.role === "admin"
-      ? [{ to: "/discover", label: "Discover", icon: "sparkles" }]
-      : []),
+    ...(isBrand ? [{ to: "/discover", label: "Discover", icon: "sparkles" }] : []),
     { to: "/influencers", label: "Influencers", icon: "directory" },
+    ...(isCreator || user?.role === "admin"
+      ? [{ to: "/marketplace?tab=brands", label: "Brands", icon: "directory" }]
+      : []),
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+    ...(!isProduction
+      ? [{ to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" }]
+      : []),
+    { to: "/wishlist", label: "My Wishlist", icon: "save" },
     { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
     ...(user?.role !== "admin"
       ? [
@@ -39,7 +61,7 @@ export function getSidebarItems(user) {
       : []),
     { to: "/wallet", label: "Wallet", icon: "wallet" },
     { to: "/billing", label: "Billing", icon: "billing" },
-    ...(user?.role === "influencer" || user?.role === "owner" || user?.role === "agent"
+    ...(isCreator || isBrand
       ? [{ to: "/social-audit", label: "Social Audit", icon: "audit" }]
       : []),
     { to: "/profile", label: "Profile", icon: "profile" },
@@ -55,6 +77,15 @@ export function getBottomNavItems(user) {
       { to: "/support/ops?tab=tickets", label: "Tickets", icon: "tickets", tab: "tickets" },
       { to: "/support/ops?tab=knowledge", label: "Knowledge", icon: "knowledge", tab: "knowledge" },
       { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
+  if (user?.role === "production") {
+    return [
+      { to: "/dashboard", label: "Home", icon: "dashboard" },
+      { to: "/hire-requests", label: "Requests", icon: "invitations" },
+      { to: "/wishlist", label: "Wishlist", icon: "save" },
+      { to: "/messages", label: "Inbox", icon: "bell" },
+      { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
   return [
@@ -87,6 +118,16 @@ export function isNavItemActive(it, location, user) {
   if (!isSupportOps) {
     if (it.to === "/dashboard") return location.pathname === "/dashboard";
     if (it.to === "/discover") return location.pathname === "/discover";
+    if (it.to === "/wishlist") return location.pathname === "/wishlist";
+    if (it.to === "/hire-requests") return location.pathname === "/hire-requests";
+    if ((it.to || "").includes("tab=brands") || it.label === "Brands") {
+      return location.pathname === "/marketplace" && searchParams.get("tab") === "brands"
+        || location.pathname.startsWith("/brands");
+    }
+    if ((it.to || "").includes("tab=hire") || it.label === "Hire / Production") {
+      return (location.pathname === "/marketplace" && searchParams.get("tab") === "hire")
+        || location.pathname.startsWith("/production");
+    }
     if (it.to === "/influencers" || (it.to || "").startsWith("/influencers")) {
       return (
         location.pathname === "/influencers" ||

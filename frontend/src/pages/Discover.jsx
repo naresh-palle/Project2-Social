@@ -121,12 +121,17 @@ const emptyFilters = () => ({
   languages: [],
   tiers: [],
   city: "",
+  state: "",
+  country: "",
   q: "",
   followers_min: "",
   followers_max: "",
   engagement_rate_min: "",
+  engagement_rate_max: "",
+  price_min: "",
   price_max: "",
   verified: "",
+  sort: "highest_engagement",
 });
 
 export default function Discover() {
@@ -147,6 +152,7 @@ export default function Discover() {
   const [campaignId, setCampaignId] = useState("");
   const [research, setResearch] = useState(null);
   const [researchOpen, setResearchOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("highest_engagement");
 
   const payloadFilters = useMemo(() => {
     const f = {};
@@ -155,10 +161,14 @@ export default function Discover() {
     if (filters.languages?.length) f.languages = filters.languages;
     if (filters.tiers?.length) f.tiers = filters.tiers;
     if (filters.city) f.city = filters.city;
+    if (filters.state) f.state = filters.state;
+    if (filters.country) f.country = filters.country;
     if (filters.q) f.q = filters.q;
     if (filters.followers_min) f.followers_min = Number(filters.followers_min);
     if (filters.followers_max) f.followers_max = Number(filters.followers_max);
     if (filters.engagement_rate_min) f.engagement_rate_min = Number(filters.engagement_rate_min);
+    if (filters.engagement_rate_max) f.engagement_rate_max = Number(filters.engagement_rate_max);
+    if (filters.price_min) f.price_min = Number(filters.price_min);
     if (filters.price_max) f.price_max = Number(filters.price_max);
     if (filters.verified === "yes") f.verified = true;
     if (filters.verified === "no") f.verified = false;
@@ -173,7 +183,7 @@ export default function Discover() {
         campaign_id: campaignId || undefined,
         page: nextPage,
         limit: 24,
-        sort: extra.sort || "quality",
+        sort: extra.sort || sortBy || "highest_engagement",
       });
       setCreators(data.creators || []);
       setTotal(data.total || 0);
@@ -184,7 +194,7 @@ export default function Discover() {
     } finally {
       setLoading(false);
     }
-  }, [payloadFilters, campaignId]);
+  }, [payloadFilters, campaignId, sortBy]);
 
   const didMount = useRef(false);
   useEffect(() => {
@@ -367,6 +377,19 @@ export default function Discover() {
             <option key={c.id} value={c.id}>{c.title}</option>
           ))}
         </select>
+        <select
+          value={sortBy}
+          onChange={(e) => { setSortBy(e.target.value); }}
+          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs"
+          aria-label="Sort by"
+        >
+          <option value="highest_engagement">Highest Engagement</option>
+          <option value="newest">Newest</option>
+          <option value="cost_asc">Cost — Low to High</option>
+          <option value="cost_desc">Cost — High to Low</option>
+          <option value="nearest">Nearest</option>
+          <option value="quality">Quality</option>
+        </select>
         <button type="button" onClick={() => search(1)} className="btn-solid text-[10px] px-3 py-1">
           Apply filters
         </button>
@@ -389,6 +412,14 @@ export default function Discover() {
             <input value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+            State
+            <input value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+          </label>
+          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+            Country
+            <input value={filters.country} onChange={(e) => setFilters((f) => ({ ...f, country: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+          </label>
+          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
             Min followers
             <input value={filters.followers_min} onChange={(e) => setFilters((f) => ({ ...f, followers_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
@@ -401,7 +432,15 @@ export default function Discover() {
             <input value={filters.engagement_rate_min} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
-            Max rate ₹
+            Max ER %
+            <input value={filters.engagement_rate_max} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+          </label>
+          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+            Min price ₹
+            <input value={filters.price_min} onChange={(e) => setFilters((f) => ({ ...f, price_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+          </label>
+          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+            Max price ₹
             <input value={filters.price_max} onChange={(e) => setFilters((f) => ({ ...f, price_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">

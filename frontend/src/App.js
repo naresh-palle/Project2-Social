@@ -38,6 +38,10 @@ import Leaderboard from "@/pages/Leaderboard";
 import Referrals from "@/pages/Referrals";
 import RecentActivity from "@/pages/RecentActivity";
 import InfluencersRedirect from "@/pages/InfluencersRedirect";
+import Wishlist from "@/pages/Wishlist";
+import BrandDetail from "@/pages/BrandDetail";
+import ProductionDetail from "@/pages/ProductionDetail";
+import HireRequests from "@/pages/HireRequests";
 
 import { AppLayout } from "@/components/AppLayout";
 
@@ -78,6 +82,10 @@ function App() {
               <Route path="/billing" element={<RequireAuth><Billing /></RequireAuth>} />
   
               <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
+              <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
+              <Route path="/brands/:id" element={<RequireAuth><BrandDetail /></RequireAuth>} />
+              <Route path="/production/:id" element={<RequireAuth><ProductionDetail /></RequireAuth>} />
+              <Route path="/hire-requests" element={<RequireAuth><HireRequests /></RequireAuth>} />
               <Route path="/influencers" element={<RequireAuth><InfluencersRedirect /></RequireAuth>} />
               <Route path="/activity" element={<RequireAuth><RecentActivity /></RequireAuth>} />
               <Route path="/discover" element={<RequireAuth roles={["owner", "agent", "admin"]}><Discover /></RequireAuth>} />

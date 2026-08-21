@@ -236,16 +236,17 @@ def setup_discovery(
             cards.append(card)
         return cards
 
-    def _sort_cards(cards: List[dict], sort: str) -> List[dict]:
+    def _sort_cards(cards: List[dict], sort: str, origin: Optional[dict] = None) -> List[dict]:
         key = (sort or "quality").lower()
         def num(c, k):
             v = c.get(k)
             return float(v) if isinstance(v, (int, float)) else -1
-        if key in {"followers", "engagement", "engagement_rate", "quality", "quality_score", "match", "ai_match_score", "growth"}:
+        if key in {"followers", "engagement", "engagement_rate", "highest_engagement", "quality", "quality_score", "match", "ai_match_score", "growth"}:
             field = {
                 "followers": "followers",
                 "engagement": "engagement_rate",
                 "engagement_rate": "engagement_rate",
+                "highest_engagement": "engagement_rate",
                 "quality": "quality_score",
                 "quality_score": "quality_score",
                 "match": "ai_match_score",
@@ -253,6 +254,26 @@ def setup_discovery(
                 "growth": "growth_30d",
             }[key]
             cards.sort(key=lambda c: num(c, field), reverse=True)
+        elif key in {"newest", "new"}:
+            cards.sort(key=lambda c: c.get("data_freshness") or c.get("created_at") or "", reverse=True)
+        elif key in {"cost_asc", "price_asc", "cost_low"}:
+            cards.sort(key=lambda c: num(c, "base_rate") if num(c, "base_rate") >= 0 else 1e18)
+        elif key in {"cost_desc", "price_desc", "cost_high"}:
+            cards.sort(key=lambda c: num(c, "base_rate"), reverse=True)
+        elif key == "nearest" and origin:
+            ocity = (origin.get("city") or "").lower()
+            ostate = (origin.get("state") or "").lower()
+
+            def near_key(c):
+                cc = (c.get("city") or "").lower()
+                cs = (c.get("state") or "").lower()
+                if ocity and cc == ocity:
+                    return 0
+                if ostate and cs == ostate:
+                    return 1
+                return 2
+
+            cards.sort(key=near_key)
         return cards
 
     async def _post_filter(cards: List[dict], filters: dict) -> List[dict]:
@@ -337,7 +358,7 @@ def setup_discovery(
             brief = brief or camp
         cards = await _enrich(users, brief)
         cards = await _post_filter(cards, filters)
-        cards = _sort_cards(cards, filters.get("sort") or body.sort)
+        cards = _sort_cards(cards, filters.get("sort") or body.sort, origin=current)
         cards = cards[:limit]
         return {
             "filters": filters,

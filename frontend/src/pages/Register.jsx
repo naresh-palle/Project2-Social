@@ -17,7 +17,7 @@ export default function Register() {
   const { role: urlRole } = useParams();
   
   // Enforce valid roles
-  const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
+  const role = ["owner", "influencer", "agent", "production"].includes(urlRole) ? urlRole : "influencer";
 
   const socialPrefill = location.state?.fromGoogleLogin ? location.state : null;
 
@@ -138,7 +138,7 @@ export default function Register() {
   }, [resendCooldown]);
 
   // Format label based on role
-  const roleLabel = role === "owner" ? "a Brand" : role === "agent" ? "an Agent" : "an Influencer";
+  const roleLabel = role === "owner" ? "a Brand" : role === "agent" ? "an Agent" : role === "production" ? "Hire / Production" : "an Influencer";
 
   // Debounced Validation for Email
   useEffect(() => {
@@ -421,7 +421,7 @@ export default function Register() {
           }
         }
         toast.success("Account created successfully");
-        nav(`/onboarding/${role}`);
+        nav(role === "production" ? "/dashboard" : `/onboarding/${role}`);
       } else {
         setOtpError(r.error);
       }
@@ -434,7 +434,7 @@ export default function Register() {
   const allFieldsFilled = 
     form.firstName.trim() !== "" &&
     form.lastName.trim() !== "" &&
-    (role === "influencer" || form.company.trim() !== "") &&
+    (role === "influencer" || role === "production" || form.company.trim() !== "") &&
     form.username.trim() !== "" &&
     form.email.trim() !== "" &&
     form.mobile.trim() !== "" &&

@@ -15,6 +15,7 @@ import { PLATFORM_CATEGORIES, matchesCategoryFilter } from "@/lib/categories";
 import { EXPORT_FORMATS, runExport } from "@/lib/exportFormats";
 import { formatUsername } from "@/lib/username";
 import { ApifyLookupPanel } from "@/components/ApifyLookupPanel";
+import { AdminProduction } from "@/components/AdminProduction";
 
 const USER_ROLE_OPTIONS = ["Influencers", "Brands", "Agencies"];
 const USER_STATUS_OPTIONS = ["Active", "Pending"];
@@ -45,6 +46,7 @@ const ROLE_DISPLAY = {
   owner: "Brand",
   agent: "Agency",
   admin: "Admin",
+  production: "Hire / Production",
   support: "Support",
   support_agent: "Support Agent",
   support_lead: "Support Lead",
@@ -794,6 +796,7 @@ export function AdminPanel() {
                     <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit</button>
                     <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match</button>
                     <button onClick={() => setTab("discovery")} className={`pb-2 border-b-2 transition-colors ${tab === "discovery" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Discovery</button>
+                    <button onClick={() => setTab("production")} className={`pb-2 border-b-2 transition-colors ${tab === "production" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Production</button>
                     <button onClick={() => setTab("referrals")} className={`pb-2 border-b-2 transition-colors ${tab === "referrals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Referrals</button>
                 </div>
             </div>
@@ -1362,6 +1365,10 @@ export function AdminPanel() {
 
         {tab === "discovery" && (
             <DiscoveryOps />
+        )}
+
+        {tab === "production" && (
+            <AdminProduction />
         )}
 
         {/* TAB 8: REFERRAL CONFIG */}
