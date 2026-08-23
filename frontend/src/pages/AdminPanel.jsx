@@ -1287,7 +1287,7 @@ export function AdminPanel() {
         })()}
 
         {/* TAB: BROADCAST */}
-        {tab === "broadcast" && (
+        {tab === "growth" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl space-y-4">
                 <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h3>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
@@ -1410,7 +1410,7 @@ export function AdminPanel() {
         )}
 
         {/* TAB 7: MATCH ALGORITHM CONFIG */}
-        {tab === "algorithm" && (
+        {tab === "growth" && (
             <MatchAlgorithmConfig />
         )}
 
@@ -1423,7 +1423,7 @@ export function AdminPanel() {
         )}
 
         {/* TAB 8: REFERRAL CONFIG */}
-        {tab === "referrals" && (
+        {tab === "growth" && (
             <ReferralConfig />
         )}
         </div>

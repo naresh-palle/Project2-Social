@@ -36,6 +36,8 @@ export function getSidebarItems(user) {
       { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
+      { to: "/search?q=locations", label: "Locations", icon: "directory" },
+      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
@@ -52,6 +54,8 @@ export function getSidebarItems(user) {
       { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
+      { to: "/search?q=locations", label: "Locations", icon: "directory" },
+      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
@@ -69,6 +73,8 @@ export function getSidebarItems(user) {
       { to: "/wishlist", label: "Wishlist", icon: "save" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
+      { to: "/search?q=locations", label: "Locations", icon: "directory" },
+      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
