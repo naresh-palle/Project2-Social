@@ -1,3 +1,5 @@
+import { BrandLogo } from "@/components/BrandLogo";
+
 const TEMPLATES = {
   professional: { bar: "bg-[#FF3B30]", panel: "bg-white text-[#111]", muted: "text-black/45" },
   modern: { bar: "bg-[#FF3B30]", panel: "bg-[#FAFAF8] text-[#0B0B0E]", muted: "text-black/40" },
@@ -34,7 +36,7 @@ export function InvoicePreview({ invoice, demo = false }) {
           {supplier.logo_url ? (
             <img src={supplier.logo_url} alt="" className="h-10 w-auto object-contain mb-2" />
           ) : (
-            <p className="font-editorial text-2xl text-[#FF3B30] italic">flugr</p>
+            <BrandLogo variant="wordmark" height={40} className="mb-2" />
           )}
           <p className="font-semibold text-sm">{supplier.trade_name || supplier.legal_name || "Supplier"}</p>
           <p className={theme.muted}>{supplier.address}</p>

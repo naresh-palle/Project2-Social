@@ -8,6 +8,7 @@ import '../../../../core/network/cr8_api.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/studio_backdrop.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterSplashPage extends StatelessWidget {
@@ -31,15 +32,7 @@ class RegisterSplashPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Cr8BackButton(fallback: '/'),
-                  Text(
-                    'flugr',
-                    style: GoogleFonts.manrope(
-                      color: Cr8Colors.accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 3,
-                    ),
-                  ),
+                  const BrandLogo(height: 36),
                   const SizedBox(height: 12),
                   Text(
                     'Choose your door.',

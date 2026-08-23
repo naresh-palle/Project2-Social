@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/BrandLogo";
 
 /** Shared site footer — matches the Homepage ExpandedFooter. */
 export function Footer() {
@@ -9,11 +10,7 @@ export function Footer() {
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
         <div>
-          <img
-            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
-            alt="flugr"
-            className="h-9 w-auto mb-3 object-contain object-left"
-          />
+          <BrandLogo variant="wordmark" height={36} className="mb-3" />
           <p className="text-xs text-white/60 leading-relaxed max-w-xs">
             “The studio for influencers who move markets.” Connecting elite brands with verified influencers through AI matching and escrow protection.
           </p>

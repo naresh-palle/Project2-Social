@@ -11,6 +11,7 @@ import { AiIcon } from "@/components/AiIcon";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Menu } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function AppLayout() {
   const { logout, user } = useAuth();
@@ -43,9 +44,9 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-0 lg:ml-[16.5rem] relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
-        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-b border-white/5 overflow-visible safe-px">
-          <Link to="/dashboard" className="lg:hidden font-editorial text-lg text-[#FF3B30] shrink-0 truncate max-w-[40vw]">
-            flugr
+        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-0 overflow-visible safe-px">
+          <Link to="/dashboard" className="lg:hidden shrink-0 max-w-[48vw] border-0 outline-none" aria-label="flugr home">
+            <BrandLogo variant="wordmark" height={28} />
           </Link>
           <div className="ml-auto flex items-center gap-2 shrink-0 relative z-[86]">
             <IconTip label="Menu" side="bottom">

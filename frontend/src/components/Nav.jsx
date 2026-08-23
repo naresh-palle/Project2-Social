@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown, LifeBuoy, Bot, MessageSquare, Search } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function Nav({ variant = "dark" }) {
   const { user, logout } = useAuth();
@@ -72,11 +73,7 @@ export function Nav({ variant = "dark" }) {
           data-testid="nav-logo" 
           className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0 border-0 outline-none"
         >
-          <img
-            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
-            alt="flugr"
-            className="h-8 sm:h-9 w-auto max-w-[160px] object-contain object-left border-0"
-          />
+          <BrandLogo variant="wordmark" height={36} className="h-8 sm:h-9 max-w-[168px]" />
         </Link>
 
 

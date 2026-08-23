@@ -27,6 +27,7 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../widgets/app_widgets.dart';
 import '../widgets/studio_backdrop.dart';
+import '../widgets/brand_logo.dart';
 import '../theme/app_theme.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
@@ -188,17 +189,7 @@ class _AuthSplashPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'flugr',
-              style: TextStyle(
-                color: Cr8Colors.text,
-                fontSize: 48,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text('STUDIO', style: TextStyle(color: Colors.white54, letterSpacing: 6, fontSize: 12)),
+            BrandLogo(height: 56),
             SizedBox(height: 28),
             SizedBox(
               width: 28,
@@ -250,14 +241,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.15, 0.55, curve: Curves.easeOutCubic),
                   child: Row(
                     children: [
-                      Text(
-                        'flugr',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Cr8Colors.accent,
-                              letterSpacing: 3.2,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
+                      const BrandLogo(height: 28),
                       const Spacer(),
                       Text(
                         'MOBILE',
@@ -273,22 +257,14 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                 FadeSlideIn(
                   animation: _intro,
                   interval: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
-                  child: Text(
-                    'flugr',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 72,
-                          height: 0.95,
-                          color: Cr8Colors.text,
-                        ),
-                  ),
+                  child: const BrandLogo(height: 64),
                 ),
                 FadeSlideIn(
                   animation: _intro,
                   interval: const Interval(0.32, 0.8, curve: Curves.easeOutCubic),
                   child: Text(
-                    'STUDIO',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 8, color: Colors.white70),
+                    'Creator marketplace',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 4, color: Colors.white70),
                   ),
                 ),
                 const Spacer(),

@@ -183,8 +183,12 @@ export default function PublicProfile() {
                   background: "linear-gradient(135deg, #0B0B0E 0%, #1a0a0a 30%, #2d0505 55%, #1a0505 75%, #0B0B0E 100%)",
                 }}
               >
-                <div className="w-full h-full flex items-center justify-center opacity-10">
-                  <span className="font-editorial italic text-8xl md:text-9xl font-bold text-[#FF3B30] select-none">flugr</span>
+                <div className="w-full h-full flex items-center justify-center opacity-20">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
+                    alt=""
+                    className="h-16 md:h-24 w-auto object-contain select-none"
+                  />
                 </div>
               </div>
             )}

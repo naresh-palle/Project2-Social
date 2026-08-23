@@ -1,7 +1,7 @@
 name: cr8_mobile
 description: flugr — influencer marketplace mobile client (Android + iOS). Shares the same backend APIs as the web app.
 publish_to: "none"
-version: 1.0.13+14
+version: 1.0.14+15
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
@@ -46,3 +46,6 @@ flutter:
     - assets/
     - assets/images/
     - assets/images/hero_models_bg.jpg
+    - assets/images/flugr-logo.png
+    - assets/images/flugr-mark.png
+    - assets/images/flugr-avatar.png

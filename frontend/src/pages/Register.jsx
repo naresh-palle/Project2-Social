@@ -464,10 +464,17 @@ export default function Register() {
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
-            <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold">
-              § Apply for access
-            </p>
-            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold">
+            <div className="flex items-center gap-2 min-w-0">
+              <img
+                src={`${process.env.PUBLIC_URL}/brand/flugr-mark.png`}
+                alt=""
+                className="h-7 w-auto object-contain shrink-0"
+              />
+              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold truncate">
+                Apply for access
+              </p>
+            </div>
+            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold shrink-0">
               ← Change Door
             </Link>
           </div>

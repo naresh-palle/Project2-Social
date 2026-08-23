@@ -9,6 +9,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/studio_backdrop.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../providers/auth_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -223,7 +224,9 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('§ STUDIO SIGN IN', style: Theme.of(context).textTheme.labelSmall),
+                              const BrandLogo(height: 40),
+                              const SizedBox(height: 12),
+                              Text('SIGN IN', style: Theme.of(context).textTheme.labelSmall),
                               const SizedBox(height: 8),
                               Text(
                                 'Return to the studio.',

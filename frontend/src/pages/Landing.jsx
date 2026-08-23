@@ -126,7 +126,7 @@ function Hero() {
             src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
             alt="flugr"
             data-testid="hero-brand-logo"
-            className="h-12 sm:h-14 md:h-16 w-auto object-contain mb-5 sm:mb-6"
+            className="h-14 sm:h-16 md:h-[4.5rem] w-auto object-contain mb-5 sm:mb-6 border-0"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.0 }}

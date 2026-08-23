@@ -10,6 +10,7 @@ import {
   supportHomePath,
   supportRoleLabel,
 } from "@/lib/navConfig";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function Sidebar({ mobileOpen = false, onClose }) {
   const { user } = useAuth();
@@ -64,13 +65,9 @@ export function Sidebar({ mobileOpen = false, onClose }) {
           <Link
             to={isSupportOps ? supportHomePath() : "/dashboard"}
             onClick={onClose}
-            className="flex items-center gap-2 cursor-pointer mb-5"
+            className="flex items-center gap-2 cursor-pointer mb-5 border-0 outline-none"
           >
-            <img
-              src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
-              alt="flugr"
-              className="h-8 w-auto max-w-[148px] object-contain object-left"
-            />
+            <BrandLogo variant="wordmark" height={32} className="max-w-[148px]" />
           </Link>
 
           <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">

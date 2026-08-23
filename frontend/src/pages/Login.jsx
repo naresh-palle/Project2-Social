@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Smartphone, ShieldCheck, KeyRound, Loader2 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { BrandLogo } from "@/components/BrandLogo";
 import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -208,8 +209,9 @@ export default function Login() {
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
 
+          <BrandLogo variant="wordmark" height={34} className="mb-2" />
           <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
-            § flugr Sign In
+            Sign In
           </p>
           <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
             Return to <span className="italic text-[#FF3B30]">the studio</span>

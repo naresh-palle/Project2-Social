@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class HomeShell extends ConsumerWidget {
@@ -40,7 +41,8 @@ class HomeShell extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('flugr', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontStyle: FontStyle.italic)),
+                    const BrandLogo(height: 36),
+                    const SizedBox(height: 8),
                     Text(user?.displayName ?? '', style: Theme.of(context).textTheme.bodyMedium),
                     Text(user?.role.toUpperCase() ?? '', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent)),
                   ],
