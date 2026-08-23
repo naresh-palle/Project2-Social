@@ -505,7 +505,7 @@ UserRole = Literal[
     "owner", "influencer", "admin", "agent", "production",
     "support", "support_agent", "support_lead", "support_admin",
 ]
-PublicRegisterRole = Literal["owner", "influencer", "agent", "production"]
+PublicRegisterRole = Literal["owner", "influencer", "agent"]
 
 
 class RegisterInput(BaseModel):
@@ -1682,6 +1682,11 @@ async def register_old(inp: RegisterInput):
         raise HTTPException(status_code=400, detail="User with this email, username, or mobile already exists")
     if inp.role == "admin":
         raise HTTPException(status_code=400, detail="Cannot self-register as admin")
+    if inp.role == "production":
+        raise HTTPException(
+            status_code=403,
+            detail="Hire / Production teams can only be created by Admin",
+        )
     if inp.role in ("support", "support_agent", "support_lead", "support_admin"):
         raise HTTPException(status_code=400, detail="Cannot self-register as Support Operations staff")
     

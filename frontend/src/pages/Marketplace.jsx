@@ -344,15 +344,27 @@ export default function Marketplace() {
   const [filters, setFilters] = useState(emptyCreatorFilters);
   const [draftFilters, setDraftFilters] = useState(emptyCreatorFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [brandFilters, setBrandFilters] = useState(emptyBrandFilters);
-  const [brandDraft, setBrandDraft] = useState(emptyBrandFilters);
+  const [brandFilters, setBrandFilters] = useState(() => ({
+    ...emptyBrandFilters(),
+    city: (user?.city || "").trim(),
+    state: (user?.state || "").trim(),
+    country: "India",
+  }));
+  const [brandDraft, setBrandDraft] = useState(() => ({
+    ...emptyBrandFilters(),
+    city: (user?.city || "").trim(),
+    state: (user?.state || "").trim(),
+    country: "India",
+  }));
   const [brandFiltersOpen, setBrandFiltersOpen] = useState(false);
   const [prodCategory, setProdCategory] = useState("");
   const [prodSort, setProdSort] = useState("rating");
-  const [prodCity, setProdCity] = useState("");
+  const [prodCity, setProdCity] = useState(() => (user?.city || "").trim());
   const [prodInHouse, setProdInHouse] = useState("");
   const [prodPriceMin, setProdPriceMin] = useState("");
   const [prodPriceMax, setProdPriceMax] = useState("");
+  const [campaignCity, setCampaignCity] = useState(() => (user?.city || "").trim());
+  const [campaignState, setCampaignState] = useState(() => (user?.state || "").trim());
   const [selected, setSelected] = useState([]);
   const [comboCampaign, setComboCampaign] = useState("");
   const [myCampaigns, setMyCampaigns] = useState([]);
@@ -415,8 +427,19 @@ export default function Marketplace() {
 
   const loadCampaigns = useCallback(async () => {
     const { data } = await api.get("/campaigns", { params: { q: q || undefined } });
-    setCampaigns(Array.isArray(data) ? data : []);
-  }, [q]);
+    let list = Array.isArray(data) ? data : [];
+    const cityQ = (campaignCity || "").trim().toLowerCase();
+    const stateQ = (campaignState || "").trim().toLowerCase();
+    if (cityQ || stateQ) {
+      list = list.filter((c) => {
+        const blob = `${c.location || ""} ${c.influencer_location || ""} ${c.city || ""} ${c.state || ""} ${c.brand || ""}`.toLowerCase();
+        if (cityQ && !blob.includes(cityQ)) return false;
+        if (stateQ && !blob.includes(stateQ)) return false;
+        return true;
+      });
+    }
+    setCampaigns(list);
+  }, [q, campaignCity, campaignState]);
 
   const loadBrands = useCallback(async () => {
     const { data } = await api.post("/marketplace/brands", {
@@ -908,9 +931,9 @@ export default function Marketplace() {
       {tab === "hire" ? (
         <div className="mb-4 space-y-3">
           <div className="flex flex-wrap gap-2 items-center">
-            <button type="button" onClick={() => setProdCategory("")} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!prodCategory ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>All</button>
+            <button type="button" onClick={() => setProdCategory("")} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${!prodCategory ? "border-[#FF3B30] text-[#FF3B30] bg-[#FF3B30]/10" : "border-white/15 text-white/80"}`}>All</button>
             {prodCategories.map((c) => (
-              <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${prodCategory === c.id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
+              <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${prodCategory === c.id ? "border-[#FF3B30] text-[#FF3B30] bg-[#FF3B30]/10" : "border-white/15 text-white/85"}`}>
                 {c.label}
               </button>
             ))}
@@ -931,6 +954,50 @@ export default function Marketplace() {
             </select>
             <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Apply</button>
           </div>
+          <p className="font-sans text-[11px] text-white/45">
+            Showing talent near <span className="text-white/80">{prodCity || "any city"}</span>
+            {user?.city ? " · defaults to your profile city" : ""}
+          </p>
+        </div>
+      ) : null}
+
+      {tab === "campaigns" ? (
+        <div className="mb-4 flex flex-wrap gap-2 items-center">
+          <MapPin className="w-3.5 h-3.5 text-[#FF3B30]" />
+          <select value={campaignCity} onChange={(e) => setCampaignCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+            <option value="">Any city</option>
+            {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select value={campaignState} onChange={(e) => setCampaignState(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+            <option value="">Any state</option>
+            {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button type="button" onClick={loadCampaigns} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find campaigns</button>
+          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
+        </div>
+      ) : null}
+
+      {tab === "brands" ? (
+        <div className="mb-4 flex flex-wrap gap-2 items-center">
+          <MapPin className="w-3.5 h-3.5 text-[#FF3B30]" />
+          <select
+            value={brandFilters.city}
+            onChange={(e) => setBrandFilters((f) => ({ ...f, city: e.target.value }))}
+            className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
+          >
+            <option value="">Any city</option>
+            {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select
+            value={brandFilters.state}
+            onChange={(e) => setBrandFilters((f) => ({ ...f, state: e.target.value }))}
+            className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
+          >
+            <option value="">Any state</option>
+            {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button type="button" onClick={loadBrands} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find brands</button>
+          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
         </div>
       ) : null}
 
@@ -1000,7 +1067,7 @@ export default function Marketplace() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap gap-1 mb-0.5">
                     {m.in_house ? <span className="font-mono text-[8px] uppercase tracking-widest text-[#34C759]">In-House</span> : null}
-                    <span className="font-mono text-[8px] uppercase tracking-widest text-[#FF3B30]">{m.production_category_label}</span>
+                    <span className="font-sans text-xs font-semibold tracking-wide text-[#FF3B30]">{m.production_category_label}</span>
                   </div>
                   <h3 className="font-sans font-semibold truncate hover:italic">{m.name}</h3>
                   <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 truncate">

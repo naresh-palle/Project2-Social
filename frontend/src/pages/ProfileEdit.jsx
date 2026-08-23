@@ -43,7 +43,7 @@ const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
 const EXPERIENCES = ["0-6 months", "6-12 months", "1-2 years", "2-5 years", "5+ years"];
 const CONTENT_TYPES = [
   "Instagram Posts (Photos)", "Instagram Reels (Short Videos)", "Instagram Stories",
-  "YouTube Shorts", "YouTube Long-form", "Twitter/X Threads", "Blog Posts / Articles", "Podcasts"
+  "YouTube Shorts", "YouTube Long-form", "Twitter/X Threads", "Blog Posts / Articles", "Podcasts", "Other"
 ];
 const RESPONSE_TIMES = ["Within 2 hours", "Within 24 hours", "Within 2 days", "Within 1 week"];
 const PLATFORMS = SOCIAL_PLATFORMS;
@@ -98,6 +98,10 @@ function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
   const category = Array.isArray(f.category) ? f.category.map(asStr).filter(Boolean) : toList(f.category);
   const languages = Array.isArray(f.languages) ? f.languages.map(asStr).filter(Boolean) : toList(f.languages);
   const content_types = Array.isArray(f.content_types) ? f.content_types.map(asStr).filter(Boolean) : toList(f.content_types);
+  const otherCustom = asStr(f.content_type_other).trim();
+  const contentTypesOut = content_types.includes("Other") && otherCustom
+    ? [...content_types.filter((t) => t !== "Other"), `Other: ${otherCustom}`]
+    : content_types;
   const portfolio = (Array.isArray(f.portfolio) ? f.portfolio : []).map(asStr).filter(Boolean);
   const past_campaigns = (f.past_campaigns || [])
     .filter((c) => c.brand?.trim() || c.title?.trim() || c.post_url?.trim() || c.result?.trim() || c.date?.trim())
@@ -124,7 +128,8 @@ function buildProfilePayload(f, { handleValue, platformHandlesOnly }) {
     category: category.length ? category.join(", ") : null,
     niches: category,
     languages,
-    content_types,
+    content_types: contentTypesOut,
+    content_type_other: otherCustom || null,
     city: asStr(f.city).trim() || null,
     state: asStr(f.state).trim() || null,
     location: asStr(f.city).trim() || asStr(f.location).trim() || null,
@@ -197,6 +202,7 @@ export default function ProfileEdit() {
         past_campaigns: user.past_campaigns || [],
         experience: user.experience || "",
         content_types: toList(user.content_types),
+        content_type_other: user.content_type_other || "",
         response_time: user.response_time || "",
         
         // for owners/agents
@@ -376,6 +382,10 @@ export default function ProfileEdit() {
       if (!f.experience?.trim()) { toast.error("Years of Experience is required."); return false; }
       if (!f.response_time?.trim()) { toast.error("Response Time is required."); return false; }
       if (!f.content_types || f.content_types.length === 0) { toast.error("Please select Content Types."); return false; }
+      if (f.content_types.includes("Other") && !String(f.content_type_other || "").trim()) {
+        toast.error("Please describe your Other content type.");
+        return false;
+      }
     }
     return true;
   };
@@ -1220,6 +1230,16 @@ export default function ProfileEdit() {
                       compact
                       label="Content types *"
                     />
+                    {(Array.isArray(f.content_types) ? f.content_types : []).includes("Other") && (
+                      <F label="Other content type (describe)">
+                        <input
+                          className="inp"
+                          value={f.content_type_other || ""}
+                          onChange={(e) => setF({ ...f, content_type_other: e.target.value })}
+                          placeholder="e.g. LinkedIn carousels, Newsletter, Live streams"
+                        />
+                      </F>
+                    )}
                 </section>
                 </div>
                 </>

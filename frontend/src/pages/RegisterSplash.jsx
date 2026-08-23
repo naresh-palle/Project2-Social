@@ -66,14 +66,6 @@ export default function RegisterSplash() {
                 badge: "Brand Desk",
                 bgHover: "hover:border-[#FF3B30] hover:bg-[#FF3B30]/10" 
               },
-              {
-                k: "production",
-                num: "03",
-                label: "I'm Hire / Production",
-                sub: "Camera • Editing • Voice-over • Scripts — get hired by brands & creators",
-                badge: "Production Desk",
-                bgHover: "hover:border-[#FF3B30] hover:bg-[#FF3B30]/10"
-              },
             ].map((r) => (
               <Link
                 key={r.k}

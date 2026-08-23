@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
 import { 
   Users, IndianRupee, Activity, Bell, Search, Download, Calendar, 
@@ -309,7 +310,32 @@ function DiscoveryOps() {
 }
 
 export function AdminPanel() {
-  const [tab, setTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ADMIN_TABS = useMemo(
+    () => new Set([
+      "overview", "agent_approvals", "treasury", "briefs", "users", "reports",
+      "categories", "broadcast", "audit", "algorithm", "discovery", "production", "referrals",
+    ]),
+    [],
+  );
+  const tabFromUrl = searchParams.get("adminTab");
+  const [tab, setTabState] = useState(ADMIN_TABS.has(tabFromUrl) ? tabFromUrl : "overview");
+
+  const setTab = useCallback((next) => {
+    setTabState(next);
+    setSearchParams((prev) => {
+      const n = new URLSearchParams(prev);
+      n.set("adminTab", next);
+      return n;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  useEffect(() => {
+    if (ADMIN_TABS.has(tabFromUrl) && tabFromUrl !== tab) {
+      setTabState(tabFromUrl);
+    }
+  }, [tabFromUrl, tab]);
+
   const [exportModal, setExportModal] = useState(false);
   const [exportRange, setExportRange] = useState("monthly");
   const [exportFormat, setExportFormat] = useState("csv");
@@ -355,33 +381,39 @@ export function AdminPanel() {
   const [treasuryEscrows, setTreasuryEscrows] = useState(DEFAULT_ESCROWS);
   const [campaignBriefs, setCampaignBriefs] = useState(DEFAULT_BRIEFS);
 
-  // Live system alerts from recent activity (no hardcoded demo rows)
-  const notifications = (Array.isArray(activity) ? activity : []).slice(0, 20).map((a, i) => {
-    const status = String(a.status || "").toLowerCase();
-    let type = "success";
-    if (status.includes("fail") || status.includes("error")) type = "error";
-    else if (status.includes("warn") || status.includes("pending")) type = "warning";
-    const who = formatUsername(a.username, a.user) || a.user || "System";
-    const text = a.details || a.type || "Platform activity";
-    return {
-      id: a.id || `act-${i}-${a.time || a.created_at || i}`,
-      text: `${who}: ${text}`,
-      time: a.time || a.created_at || "",
-      type,
-      title: a.type || "Activity",
-      source: "Audit · live",
-      details: a.details || text,
-      issues: [],
-      logs: [],
-      errors: type === "error" ? [a.details || text] : [],
-    };
-  });
+  // Live system alerts — emergency / technical failures only (not routine audit noise)
+  const notifications = (Array.isArray(activity) ? activity : [])
+    .filter((a) => {
+      const status = String(a.status || "").toLowerCase();
+      const blob = `${a.type || ""} ${a.details || ""} ${a.status || ""} ${a.user || ""}`.toLowerCase();
+      if (status.includes("fail") || status.includes("error") || status.includes("critical")) return true;
+      return /emergency|outage|server\s*down|api\s*error|timeout|exception|crash|build\s*fail|500|503|critical|unavailable|degraded/.test(blob);
+    })
+    .slice(0, 20)
+    .map((a, i) => {
+      const status = String(a.status || "").toLowerCase();
+      let type = "error";
+      if (status.includes("warn")) type = "warning";
+      const who = formatUsername(a.username, a.user) || a.user || "System";
+      const text = a.details || a.type || "Platform incident";
+      return {
+        id: a.id || `act-${i}-${a.time || a.created_at || i}`,
+        text: `${who}: ${text}`,
+        time: a.time || a.created_at || "",
+        type,
+        title: a.type || "Emergency",
+        source: "System · technical",
+        details: a.details || text,
+        issues: [],
+        logs: [],
+        errors: [a.details || text],
+      };
+    });
 
   const alertFilters = [
-    { id: "all", label: "All" },
-    { id: "success", label: "Success" },
-    { id: "warning", label: "Warning" },
-    { id: "error", label: "Error" },
+    { id: "all", label: "All emergencies" },
+    { id: "error", label: "Errors" },
+    { id: "warning", label: "Warnings" },
   ];
   const filteredAlerts = alertFilter === "all"
     ? notifications
@@ -808,27 +840,9 @@ export function AdminPanel() {
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Admin
               </p>
               <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Admin</h1>
-                <div className="flex gap-4 mt-6 font-sans text-[11px] uppercase tracking-widest overflow-x-auto whitespace-nowrap custom-scrollbar pb-1">
-                    <button onClick={() => setTab("overview")} className={`pb-2 border-b-2 transition-colors ${tab === "overview" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Overview</button>
-                    <button onClick={() => setTab("agent_approvals")} className={`pb-2 border-b-2 transition-colors ${tab === "agent_approvals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Approvals
-                    </button>
-                    <button onClick={() => setTab("treasury")} className={`pb-2 border-b-2 transition-colors ${tab === "treasury" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Treasury
-                    </button>
-                    <button onClick={() => setTab("briefs")} className={`pb-2 border-b-2 transition-colors ${tab === "briefs" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>
-                      Briefs
-                    </button>
-                    <button onClick={() => setTab("users")} className={`pb-2 border-b-2 transition-colors ${tab === "users" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Users</button>
-                    <button onClick={() => setTab("reports")} className={`pb-2 border-b-2 transition-colors ${tab === "reports" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Reports</button>
-                    <button onClick={() => setTab("categories")} className={`pb-2 border-b-2 transition-colors ${tab === "categories" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Categories</button>
-                    <button onClick={() => setTab("broadcast")} className={`pb-2 border-b-2 transition-colors ${tab === "broadcast" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Broadcast</button>
-                    <button onClick={() => setTab("audit")} className={`pb-2 border-b-2 transition-colors ${tab === "audit" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Audit</button>
-                    <button onClick={() => setTab("algorithm")} className={`pb-2 border-b-2 transition-colors ${tab === "algorithm" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Match</button>
-                    <button onClick={() => setTab("discovery")} className={`pb-2 border-b-2 transition-colors ${tab === "discovery" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Discovery</button>
-                    <button onClick={() => setTab("production")} className={`pb-2 border-b-2 transition-colors ${tab === "production" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Production</button>
-                    <button onClick={() => setTab("referrals")} className={`pb-2 border-b-2 transition-colors ${tab === "referrals" ? "border-[#FF3B30] text-[#FF3B30] font-bold" : "border-transparent opacity-60 hover:opacity-100"}`}>Referrals</button>
-                </div>
+              <p className="font-sans text-xs text-white/45 mt-2">
+                Use the left panel to switch desks · Profile &amp; Settings stay in the sidebar
+              </p>
             </div>
             
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">

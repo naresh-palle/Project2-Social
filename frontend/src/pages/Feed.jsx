@@ -40,6 +40,8 @@ export default function Feed() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [suggested, setSuggested] = useState([]);
+  const [feedCity, setFeedCity] = useState(() => (user?.city || "").trim());
+  const [feedState, setFeedState] = useState(() => (user?.state || "").trim());
   const [showCreate, setShowCreate] = useState(() => searchParams.get("create") === "1");
   const [commentPost, setCommentPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -145,8 +147,18 @@ export default function Feed() {
     fetchFeed(true);
   };
 
-  const showSuggested = suggested.length > 0;
+  const showSuggested = false;
   const isReelMode = REEL_MODES.has(mode);
+
+  const campaignCards = MOCK_CAMPAIGNS.filter((c) => {
+    const cityQ = (feedCity || "").trim().toLowerCase();
+    const stateQ = (feedState || "").trim().toLowerCase();
+    if (!cityQ && !stateQ) return true;
+    const blob = `${c.location || ""} ${c.city || ""} ${c.state || ""} ${c.brand || ""} ${c.title || ""}`.toLowerCase();
+    if (cityQ && !blob.includes(cityQ)) return false;
+    if (stateQ && !blob.includes(stateQ)) return false;
+    return true;
+  });
 
   const toggleLike = async (post) => {
     try {
@@ -311,7 +323,7 @@ export default function Feed() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {MODES.map((m) => (
             <button
               key={m.id}
@@ -326,16 +338,35 @@ export default function Feed() {
           ))}
         </div>
 
-        <div className={`grid grid-cols-1 gap-4 items-start ${showSuggested ? "lg:grid-cols-[minmax(0,1fr)_220px]" : ""}`}>
+        <div className="flex flex-wrap gap-2 items-center mb-4">
+          <select value={feedCity} onChange={(e) => setFeedCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <option value="">Any city</option>
+            {["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Kochi"].map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <select value={feedState} onChange={(e) => setFeedState(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+            <option value="">Any state</option>
+            {["Maharashtra", "Delhi", "Karnataka", "Telangana", "Tamil Nadu", "West Bengal", "Rajasthan", "Kerala"].map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 items-start">
           <div className={isReelMode ? "w-full" : "space-y-4"}>
             {mode === "campaigns" ? (
               loading ? (
                 <div className="flex justify-center py-16"><Loader2 className="w-7 h-7 animate-spin opacity-50" /></div>
               ) : (
                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                  {MOCK_CAMPAIGNS.map((c, idx) => (
+                  {campaignCards.map((c, idx) => (
                     <CampaignCard key={c.id} campaign={c} index={idx} />
                   ))}
+                  {campaignCards.length === 0 && (
+                    <div className="col-span-full py-12 text-center font-sans text-white/50">No campaigns for this location.</div>
+                  )}
                 </div>
               )
             ) : loading ? (
@@ -383,44 +414,6 @@ export default function Feed() {
               {loadingMore && <Loader2 className="w-5 h-5 animate-spin mx-auto opacity-50" />}
             </div>}
           </div>
-
-          {showSuggested && (
-            <aside className="self-start lg:sticky lg:top-2">
-              <div className="px-3 py-3 border border-white/15 bg-[#121212] rounded-2xl">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] font-bold mb-1.5">Suggested</h3>
-                <div className="divide-y divide-white/5">
-                  {suggested.slice(0, 6).map((u) => {
-                    const label = formatUsername(u.username, u.handle) || "user";
-                    return (
-                      <Link
-                        key={u.id}
-                        to={`/u/${u.id}`}
-                        className="flex items-center gap-2 py-1.5 hover:bg-white/5 rounded-lg px-1 -mx-1"
-                      >
-                        <div className="w-7 h-7 rounded-full border border-white/15 bg-white/[0.04] overflow-hidden shrink-0 flex items-center justify-center">
-                          {u.avatar ? (
-                            <img
-                              src={u.avatar}
-                              alt=""
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          ) : (
-                            <span className="font-sans text-[10px] font-bold text-white/70">
-                              {(label || "U")[0]?.toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-sans text-xs text-white/85 truncate">{label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </aside>
-          )}
         </div>
       </div>
 

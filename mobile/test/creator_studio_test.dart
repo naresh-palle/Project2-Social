@@ -65,7 +65,7 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('creatordemo'), findsWidgets);
-    expect(find.text('Brand offers'), findsOneWidget);
+    expect(find.text('Brand offers'), findsNothing);
     expect(find.textContaining('THIS MONTH'), findsOneWidget);
     expect(find.text('PITCHES'), findsOneWidget);
     expect(find.text('CAMPAIGNS'), findsOneWidget);

@@ -57,7 +57,6 @@ export function CreatorDashboard({
   const pendingCollabs = Number(stats?.invitations) || 0;
   const pitches = Number(stats?.applications) || Number(pitchCount) || 0;
   const openBriefs = (Array.isArray(campaigns) ? campaigns : []).length;
-  const offers = (Array.isArray(campaigns) ? campaigns : []).slice(0, 4);
 
   return (
     <div className="w-full min-w-0 pb-4 space-y-4" data-testid="creator-dashboard">
@@ -88,39 +87,7 @@ export function CreatorDashboard({
         </Link>
       </header>
 
-      {/* 1) Brand offers — top of main content */}
-      <section className="min-w-0" data-testid="brand-offers-top">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-sans text-sm font-semibold">Brand offers</h2>
-          <Link to="/marketplace?tab=campaigns" className="text-[11px] text-[#FF3B30] hover:underline">
-            {offers.length ? `${offers.length} live` : "Browse all"}
-          </Link>
-        </div>
-        {offers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
-            {offers.map((c) => (
-              <Link
-                key={c.id}
-                to={`/campaigns/${c.id}`}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 hover:border-[#FF3B30]/40 transition-colors min-w-0"
-              >
-                <p className="text-[10px] uppercase tracking-wider text-[#FF3B30] truncate">{c.brand}</p>
-                <p className="font-sans text-sm font-semibold mt-0.5 line-clamp-2 break-words">{c.title}</p>
-                <p className="font-sans text-xs text-white/50 mt-2 tabular-nums">
-                  ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "—")}
-                </p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-6 text-center">
-            <p className="font-sans text-sm text-white/55">No live brand offers right now.</p>
-            <Link to="/marketplace?tab=campaigns" className="inline-block mt-2 text-[11px] text-[#FF3B30] hover:underline">
-              Open campaigns
-            </Link>
-          </div>
-        )}
-      </section>
+      {/* Brand offers hidden for now — keep campaigns discoverable via Marketplace */}
 
       {/* 2) Earnings + Pitches / Campaigns in the banner */}
       <section className="theme-keep-dark relative overflow-hidden rounded-3xl p-5 sm:p-6 text-white bg-gradient-to-br from-[#FF3B30] via-[#E6352B] to-[#1A0A0A] shadow-[0_18px_40px_-18px_rgba(255,59,48,0.55)]">

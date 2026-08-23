@@ -87,7 +87,8 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
-.cdm-loc input {
+.cdm-loc input,
+.cdm-loc-select {
   flex: 1;
   min-width: 0;
   background: transparent;
@@ -95,6 +96,11 @@
   outline: none;
   color: inherit;
   font-size: 0.8rem;
+}
+
+.cdm-loc-select {
+  max-width: 8.5rem;
+  cursor: pointer;
 }
 
 .cdm-chip {

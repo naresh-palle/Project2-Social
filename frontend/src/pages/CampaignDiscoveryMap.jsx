@@ -142,7 +142,7 @@ function CampaignCard({ c, onClose, compact }) {
 }
 
 const emptyFilters = () => ({
-  radius: null, // Anywhere — match grid discovery (all eligible campaigns)
+  radius: 100, // default local discovery from profile city; switch to Anywhere for all India
   budgetPreset: null,
   min_budget: "",
   max_budget: "",
@@ -212,6 +212,10 @@ export default function CampaignDiscoveryMap() {
       }
     }
     setOrigin({ lat: center[0], lng: center[1] });
+    if (city) {
+      const known = Object.keys(CITY_COORDS).find((k) => city === k || city.includes(k));
+      if (known) setLocQuery(known);
+    }
   }, [user]);
 
   const buildParams = useCallback((bounds) => {
@@ -501,11 +505,34 @@ export default function CampaignDiscoveryMap() {
         </div>
         <div className="cdm-loc">
           <MapPin className="w-3.5 h-3.5 text-[#FF3B30] shrink-0" />
+          <select
+            value={locQuery}
+            onChange={(e) => {
+              const v = e.target.value;
+              setLocQuery(v);
+              if (!v) return;
+              const hit = CITY_COORDS[v.toLowerCase()];
+              if (hit) {
+                setOrigin({ lat: hit[0], lng: hit[1] });
+                if (mapRef.current) {
+                  skipMove.current = true;
+                  mapRef.current.setView(hit, 10);
+                }
+              }
+            }}
+            aria-label="Campaign city"
+            className="cdm-loc-select"
+          >
+            <option value="">Pick city</option>
+            {Object.keys(CITY_COORDS).filter((k) => !["bengaluru"].includes(k)).map((k) => (
+              <option key={k} value={k}>{k.charAt(0).toUpperCase() + k.slice(1)}</option>
+            ))}
+          </select>
           <input
             value={locQuery}
             onChange={(e) => setLocQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && applyLocationSearch()}
-            placeholder="City / location"
+            placeholder="Or type city"
             aria-label="Location"
           />
           <button type="button" className="cdm-chip" onClick={applyLocationSearch}>Go</button>

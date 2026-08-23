@@ -40,7 +40,6 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           if ((c.platform === "instagram" || c.platform === "facebook" || c.platform === "twitter") && Number(views) === 0) {
             views = null;
           }
-          const posts = c.posts ?? analytics.posts;
           const reach = c.reach ?? analytics.reach ?? null;
           
           return (
@@ -55,9 +54,24 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="font-sans text-xs font-semibold truncate">{c.handle || c.account_name || "Connected"}</div>
-                    <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/45">
+                    <div className="font-sans text-sm font-bold tracking-tight truncate text-white">
+                      {c.handle || c.account_name ? (
+                        <span className="text-[#FF3B30]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
+                      ) : (
+                        <span className="text-white/50">Not connected</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-white/45 mt-0.5">
                       <Icon className={`w-3 h-3 ${colorClass}`} /> {platformLabel}
+                      <span
+                        className={`ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider ${
+                          c.verified || c.is_verified
+                            ? "bg-[#34C759]/15 text-[#34C759] border border-[#34C759]/35"
+                            : "bg-white/5 text-white/50 border border-white/10"
+                        }`}
+                      >
+                        {c.verified || c.is_verified ? "Verified" : "Unverified"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -77,6 +91,12 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
                   <div className="text-sm font-semibold tabular-nums text-[#34C759] truncate">{formatEngagementRate(er)}</div>
                 </div>
+                <div className="min-w-0">
+                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Status</div>
+                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#34C759]" : "text-white/55"}`}>
+                    {c.verified || c.is_verified ? "Verified" : "Unverified"}
+                  </div>
+                </div>
                 <div className="min-w-0" title={formatExactNumber(views) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Views</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(views, { format: formatCompactNumber, allowZero: c.platform === "youtube" })}</div>
@@ -84,10 +104,6 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 <div className="min-w-0" title={formatExactNumber(reach) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Reach</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(reach, { format: formatCompactNumber, allowZero: false })}</div>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Posts</div>
-                  <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(posts, { format: formatCompactNumber })}</div>
                 </div>
               </div>
             </div>

@@ -55,6 +55,8 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
   const [text, setText] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [userHits, setUserHits] = useState([]);
+  const [searchingUsers, setSearchingUsers] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
   const [editingMsg, setEditingMsg] = useState(null);
   const [editText, setEditText] = useState("");
@@ -241,12 +243,36 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
   };
 
   const searchMessages = async () => {
-    if (!searchQ.trim()) return;
+    const q = searchQ.trim();
+    if (!q) return;
+    setSearchingUsers(true);
     try {
-      const { data } = await api.get("/messages/search", { params: { q: searchQ } });
-      setSearchResults(data || []);
+      const [msgRes, userRes] = await Promise.all([
+        api.get("/messages/search", { params: { q } }).catch(() => ({ data: [] })),
+        api.get("/search", { params: { q, kind: "users" } }).catch(() => ({ data: { users: [] } })),
+      ]);
+      setSearchResults(Array.isArray(msgRes.data) ? msgRes.data : []);
+      const users = userRes.data?.users || [];
+      setUserHits(users.filter((u) => u.id && u.id !== user?.id));
     } catch {
       toast.error("Search failed");
+    } finally {
+      setSearchingUsers(false);
+    }
+  };
+
+  const startChatWith = async (u) => {
+    if (!u?.id) return;
+    try {
+      const { data } = await api.post("/conversations/dm", { user_id: u.id });
+      setSearchResults([]);
+      setUserHits([]);
+      setSearchQ("");
+      await loadConvos();
+      setActive(data);
+      toast.success(`Chat with ${displayPartnerName(data, user) || u.name || u.username || "user"}`);
+    } catch (e) {
+      toast.error(formatApiError(e?.response?.data?.detail) || "Could not start chat");
     }
   };
 
@@ -336,19 +362,50 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             value={searchQ}
             onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && searchMessages()}
-            placeholder={miniWidget ? "Search users or messages..." : "Search messages…"}
+            placeholder="Search people or messages…"
             className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-3xl"
           />
           <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-3xl">
             <Search className="w-4 h-4" />
           </button>
         </div>
-        {searchResults.length > 0 && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-3xl space-y-1.5 shrink-0">
-            {searchResults.map((m) => (
-              <div key={m.id} className="font-sans text-xs opacity-80 truncate">{m.content}</div>
-            ))}
-            <button type="button" onClick={() => setSearchResults([])} className="font-sans text-[10px] text-[#FF3B30] uppercase">
+        {(userHits.length > 0 || searchResults.length > 0) && (
+          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-3xl space-y-2 shrink-0 max-h-48 overflow-y-auto">
+            {searchingUsers ? <p className="font-sans text-xs opacity-50">Searching…</p> : null}
+            {userHits.length > 0 && (
+              <div className="space-y-1">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">People</p>
+                {userHits.map((u) => (
+                  <button
+                    key={u.id}
+                    type="button"
+                    onClick={() => startChatWith(u)}
+                    className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/5"
+                  >
+                    {u.avatar ? (
+                      <img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                        {(u.name || u.username || "?")[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <span className="font-sans text-xs truncate">
+                      {u.name || u.username}
+                      {u.username ? <span className="text-white/40"> · @{String(u.username).replace(/^@/, "")}</span> : null}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchResults.length > 0 && (
+              <div className="space-y-1">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-white/45">Messages</p>
+                {searchResults.map((m) => (
+                  <div key={m.id} className="font-sans text-xs opacity-80 truncate px-2">{m.content}</div>
+                ))}
+              </div>
+            )}
+            <button type="button" onClick={() => { setSearchResults([]); setUserHits([]); }} className="font-sans text-[10px] text-[#FF3B30] uppercase">
               Clear
             </button>
           </div>

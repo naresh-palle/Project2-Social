@@ -5,6 +5,7 @@ import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { formatUsername } from "@/lib/username";
 import { formatUserLocation } from "@/lib/location";
+import { MOCK_WISHLIST } from "@/lib/mockWishlist";
 
 const TABS = [
   { id: "all", label: "All" },
@@ -16,6 +17,7 @@ const TABS = [
 function profileHref(item) {
   const t = item.target_type;
   const id = item.target_id;
+  if (item._mock) return "/marketplace";
   if (t === "brand") return `/brands/${id}`;
   if (t === "production") return `/production/${id}`;
   return `/creators/${id}`;
@@ -25,15 +27,27 @@ export default function Wishlist() {
   const [tab, setTab] = useState("all");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [usingMock, setUsingMock] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const params = tab === "all" ? {} : { target_type: tab };
       const { data } = await api.get("/wishlist", { params });
-      setItems(data.items || []);
+      const list = data.items || [];
+      if (list.length === 0) {
+        const mock = tab === "all" ? MOCK_WISHLIST : MOCK_WISHLIST.filter((x) => x.target_type === tab);
+        setItems(mock);
+        setUsingMock(true);
+      } else {
+        setItems(list);
+        setUsingMock(false);
+      }
     } catch (e) {
-      toast.error(formatApiError(e?.response?.data?.detail) || "Failed to load wishlist");
+      const mock = tab === "all" ? MOCK_WISHLIST : MOCK_WISHLIST.filter((x) => x.target_type === tab);
+      setItems(mock);
+      setUsingMock(true);
+      toast.error(formatApiError(e?.response?.data?.detail) || "Showing demo wishlist");
     } finally {
       setLoading(false);
     }
@@ -44,6 +58,11 @@ export default function Wishlist() {
   }, [load]);
 
   const remove = async (item) => {
+    if (item._mock) {
+      setItems((prev) => prev.filter((x) => x.id !== item.id));
+      toast.success("Removed demo item");
+      return;
+    }
     try {
       await api.post("/wishlist", {
         target_id: item.target_id,
@@ -65,6 +84,9 @@ export default function Wishlist() {
         </p>
         <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Wishlist</h1>
         <p className="font-sans text-sm text-white/50 mt-1">Influencers, brands, and production talent you saved.</p>
+        {usingMock ? (
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]/80 mt-2">Demo wishlist · save real profiles from Marketplace</p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-4 mb-5 font-sans text-[11px] tracking-[0.28em] uppercase">

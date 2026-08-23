@@ -74,19 +74,30 @@ export function getSidebarItems(user) {
     ];
   }
 
-  // Admin (and any other roles)
+  // Admin: dashboard desks live in the left panel; Profile + Settings only otherwise
+  if (isAdmin) {
+    return [
+      { to: "/dashboard?adminTab=overview", label: "Overview", icon: "dashboard" },
+      { to: "/dashboard?adminTab=agent_approvals", label: "Approvals", icon: "invitations" },
+      { to: "/dashboard?adminTab=treasury", label: "Treasury", icon: "wallet" },
+      { to: "/dashboard?adminTab=briefs", label: "Briefs", icon: "sparkles" },
+      { to: "/dashboard?adminTab=users", label: "Users", icon: "directory" },
+      { to: "/dashboard?adminTab=reports", label: "Reports", icon: "audit" },
+      { to: "/dashboard?adminTab=categories", label: "Categories", icon: "feed" },
+      { to: "/dashboard?adminTab=broadcast", label: "Broadcast", icon: "bell" },
+      { to: "/dashboard?adminTab=audit", label: "Audit", icon: "audit" },
+      { to: "/dashboard?adminTab=algorithm", label: "Match", icon: "sparkles" },
+      { to: "/dashboard?adminTab=discovery", label: "Discovery", icon: "directory" },
+      { to: "/dashboard?adminTab=production", label: "Production", icon: "directory" },
+      { to: "/dashboard?adminTab=referrals", label: "Referrals", icon: "save" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+      { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
+
+  // Fallback for any other roles
   return [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-    { to: "/feed", label: "Feed", icon: "feed" },
-    { to: "/influencers", label: "Influencers", icon: "directory" },
-    { to: "/marketplace?tab=brands", label: "Brands", icon: "directory" },
-    { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
-    { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
-    { to: "/hire-requests", label: "Hire Requests", icon: "invitations" },
-    { to: "/wishlist", label: "Wishlist", icon: "save" },
-    { to: "/wallet", label: "Wallet", icon: "wallet" },
-    { to: "/billing", label: "Billing", icon: "billing" },
-    { to: "/social-audit", label: "Social Audit", icon: "audit" },
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
   ];
@@ -120,6 +131,15 @@ export function getBottomNavItems(user) {
       { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
+  if (user?.role === "admin") {
+    return [
+      { to: "/dashboard?adminTab=overview", label: "Home", icon: "dashboard" },
+      { to: "/dashboard?adminTab=users", label: "Users", icon: "directory" },
+      { to: "/dashboard?adminTab=production", label: "Production", icon: "directory" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+      { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
   // Creators — Campaigns includes grid/map; no separate Map / Influencers / Leaderboard
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
@@ -135,6 +155,15 @@ export function isNavItemActive(it, location, user) {
   const searchParams = new URLSearchParams(location.search);
   const opsTab = searchParams.get("tab") || "overview";
   if (it.to === "/settings") return location.pathname === "/settings";
+  if (it.to === "/profile") return location.pathname.startsWith("/profile");
+
+  // Admin desk tabs live in the left panel via ?adminTab=
+  if (user?.role === "admin" && (it.to || "").includes("adminTab=")) {
+    const want = new URLSearchParams((it.to.split("?")[1] || "")).get("adminTab") || "overview";
+    const have = searchParams.get("adminTab") || "overview";
+    return location.pathname === "/dashboard" && want === have;
+  }
+
   if (!isSupportOps) {
     if (it.to === "/dashboard") return location.pathname === "/dashboard";
     if (it.to === "/discover") return location.pathname === "/discover";
@@ -170,7 +199,7 @@ export function isNavItemActive(it, location, user) {
     if (it.to === "/wallet") return location.pathname === "/wallet";
     if (it.to === "/billing") return location.pathname === "/billing" || location.pathname.startsWith("/billing/");
     if (it.to === "/social-audit") return location.pathname === "/social-audit";
-    if (it.to === "/profile") return location.pathname.startsWith("/profile");
+    if (it.to === "/feed") return location.pathname === "/feed";
     return location.pathname === it.to;
   }
   if (location.pathname !== "/support/ops") return it.to === "/settings" && location.pathname === "/settings";

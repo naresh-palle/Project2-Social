@@ -75,8 +75,6 @@ class CreatorStudioView extends StatelessWidget {
           unreadCount: notifications.length,
         ),
         const SizedBox(height: 18),
-        _OffersSection(offers: snapshot.offers),
-        const SizedBox(height: 14),
         _EarningsHero(snapshot: snapshot),
         const SizedBox(height: 14),
         _OverallAnalytics(snapshot: snapshot),
