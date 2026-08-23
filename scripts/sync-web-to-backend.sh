@@ -5,7 +5,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT/frontend"
-npm run build
+# Render serves from site root — use relative asset URLs, not the GH Pages prefix
+PUBLIC_URL=. npm run build
 # Preserve legal/static extras already on backend/web
 cp -f build/index.html "$ROOT/backend/web/index.html"
 cp -f build/asset-manifest.json "$ROOT/backend/web/asset-manifest.json"
@@ -22,8 +23,8 @@ if [[ -d build/brand ]]; then
   rm -rf "$ROOT/backend/web/brand"
   cp -a build/brand "$ROOT/backend/web/brand"
 fi
-# Root public assets used by landing / branding
-for f in flugr-logo.png favicon.ico apple-touch-icon.png hero_bg.png hero_bg.jpg hero_models_bg.jpg splash_bg.png splash_bg_2.png splash_bg_3.png splash_bg_4.png; do
+# Root public assets used by landing / branding / chat
+for f in flugr-logo.png favicon.ico apple-touch-icon.png hero_bg.png hero_bg.jpg hero_models_bg.jpg splash_bg.png splash_bg_2.png splash_bg_3.png splash_bg_4.png chat-panel-bg.png icon.jpg; do
   if [[ -f "build/$f" ]]; then
     cp -f "build/$f" "$ROOT/backend/web/$f"
   fi
