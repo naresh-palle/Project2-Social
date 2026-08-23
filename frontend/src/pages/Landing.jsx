@@ -72,9 +72,9 @@ function Hero() {
         transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
       >
         <img
-          src={`${process.env.PUBLIC_URL}/hero_models_bg.jpg`}
-          alt="flugr Influencer Models"
-          className="w-full h-full object-cover object-top"
+          src={`${process.env.PUBLIC_URL}/hero_bg.png`}
+          alt=""
+          className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0" style={{
           background: "linear-gradient(90deg, #0A0A0A 0%, #0A0A0A 38%, rgba(10,10,10,0.78) 55%, rgba(10,10,10,0.25) 100%)"
