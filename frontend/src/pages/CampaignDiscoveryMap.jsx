@@ -20,10 +20,7 @@ const BUDGET_PRESETS = [
 ];
 
 const RADIUS_OPTS = [
-  { v: 5, label: "5 km" },
-  { v: 10, label: "10 km" },
   { v: 25, label: "25 km" },
-  { v: 50, label: "50 km" },
   { v: 100, label: "100 km" },
   { v: null, label: "Anywhere" },
 ];
@@ -513,6 +510,19 @@ export default function CampaignDiscoveryMap() {
           />
           <button type="button" className="cdm-chip" onClick={applyLocationSearch}>Go</button>
           <button type="button" className="cdm-chip" onClick={useMyLocation}>Near me</button>
+        </div>
+        <div className="cdm-radius" role="group" aria-label="Search radius">
+          {RADIUS_OPTS.map((r) => (
+            <button
+              key={String(r.v)}
+              type="button"
+              className={filters.radius === r.v ? "is-on" : ""}
+              onClick={() => setFilters((f) => ({ ...f, radius: r.v }))}
+              data-testid={`campaign-map-radius-${r.v ?? "anywhere"}`}
+            >
+              {r.label}
+            </button>
+          ))}
         </div>
         <div className="cdm-toggle" role="tablist">
           <button

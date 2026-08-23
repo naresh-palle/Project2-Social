@@ -250,35 +250,75 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
             top: 8,
             left: 12,
             right: 12,
-            child: Material(
-              color: Cr8Colors.surface,
-              elevation: 4,
-              borderRadius: BorderRadius.circular(28),
-              child: TextField(
-                controller: _search,
-                decoration: InputDecoration(
-                  hintText: 'Search campaigns, brands or categories',
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.near_me_outlined),
-                    onPressed: () {
-                      _map.move(_center, 12);
-                      _fetch();
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: Cr8Colors.surface,
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(28),
+                  child: TextField(
+                    controller: _search,
+                    decoration: InputDecoration(
+                      hintText: 'Search campaigns, brands or categories',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.near_me_outlined),
+                        onPressed: () {
+                          _map.move(_center, 12);
+                          _fetch(fit: _radius == null);
+                        },
+                      ),
+                    ),
+                    onChanged: (_) {
+                      _debounce?.cancel();
+                      _debounce = Timer(const Duration(milliseconds: 350), () => _fetch(fit: _radius == null));
                     },
                   ),
                 ),
-                onChanged: (_) {
-                  _debounce?.cancel();
-                  _debounce = Timer(const Duration(milliseconds: 350), _fetch);
-                },
-              ),
+                const SizedBox(height: 8),
+                Material(
+                  color: Cr8Colors.surface,
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Row(
+                      children: [
+                        for (final opt in [
+                          (25.0, '25 km'),
+                          (100.0, '100 km'),
+                          (null, 'Anywhere'),
+                        ])
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2),
+                              child: ChoiceChip(
+                                label: Center(child: Text(opt.$2)),
+                                selected: _radius == opt.$1,
+                                onSelected: (_) {
+                                  setState(() => _radius = opt.$1);
+                                  _fetch(fit: opt.$1 == null);
+                                },
+                                showCheckmark: false,
+                                visualDensity: VisualDensity.compact,
+                                labelPadding: EdgeInsets.zero,
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           if (_loading)
             const Positioned(
-              top: 64,
+              top: 112,
               left: 0,
               right: 0,
               child: Center(child: CircularProgressIndicator(color: Cr8Colors.accent)),
@@ -624,11 +664,11 @@ class _FiltersSheet extends StatelessWidget {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              for (final opt in [(5.0, '5 km'), (10.0, '10 km'), (25.0, '25 km'), (50.0, '50 km'), (100.0, '100 km')])
+                              for (final opt in [(25.0, '25 km'), (100.0, '100 km')])
                                 ChoiceChip(
                                   label: Text(opt.$2),
                                   selected: r == opt.$1,
-                                  onSelected: (_) => setLocal(() => r = r == opt.$1 ? null : opt.$1),
+                                  onSelected: (_) => setLocal(() => r = opt.$1),
                                 ),
                               ChoiceChip(
                                 label: const Text('Anywhere'),

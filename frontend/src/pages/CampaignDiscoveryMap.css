@@ -112,6 +112,37 @@
   background: rgba(255, 59, 48, 0.08);
 }
 
+.cdm-radius {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  padding: 0.2rem;
+  border: 1px solid var(--cdm-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cdm-radius button {
+  height: 2.1rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: inherit;
+  opacity: 0.55;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.cdm-radius button.is-on {
+  opacity: 1;
+  color: var(--cdm-accent);
+  background: rgba(255, 59, 48, 0.18);
+}
+
 .cdm-toggle {
   display: inline-flex;
   border: 1px solid var(--cdm-border);
