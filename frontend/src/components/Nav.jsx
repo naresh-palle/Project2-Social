@@ -75,7 +75,7 @@ export function Nav({ variant = "dark" }) {
           <img
             src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
             alt="flugr"
-            className="h-7 sm:h-8 w-auto max-w-[140px] object-contain object-left"
+            className="h-8 sm:h-9 w-auto max-w-[160px] object-contain object-left"
           />
         </Link>
 
