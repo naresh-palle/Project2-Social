@@ -121,31 +121,13 @@ function Hero() {
 
       {/* Entire hero section centered between the background beams */}
       <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
-        <motion.div
-          className="flex items-center justify-between gap-4 pb-4"
-          style={{ borderBottom: "1px solid rgba(244,244,240,0.12)" }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.05 }}
-        >
-          <img
-            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
-            alt="flugr"
-            className="h-7 sm:h-8 md:h-9 w-auto object-contain object-left"
-            data-testid="hero-brand-logo"
-          />
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 shrink-0">
-            CREATOR MARKETPLACE
-          </span>
-        </motion.div>
-
         <div className="flex flex-1 flex-col items-center justify-center text-center gap-1 my-auto py-8">
           {[
             { text: "The Bridge", className: "text-[#F4F4F0] font-medium" },
             { text: "Between", className: "text-[#F4F4F0] font-medium" },
             { text: "Brands & Influence.", className: "italic text-[#FF3B30] font-normal" },
           ].map((line, i) => (
-            <MaskLine key={line.text} delay={1.25 + i * 0.14}>
+            <MaskLine key={line.text} delay={1.15 + i * 0.14}>
               <span
                 className={`block font-editorial leading-[1.12] tracking-tighter pb-1 ${line.className}`}
                 style={{ fontSize: "clamp(34px, 6.2vw, 72px)" }}
@@ -159,7 +141,7 @@ function Hero() {
             className="mt-5 text-[#F4F4F0]/72 text-[14px] sm:text-[15px] leading-[1.7] max-w-[520px]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.75 }}
+            transition={{ duration: 0.7, delay: 1.65 }}
           >
             Connect with influencers who move audiences.{" "}
             <span className="text-white font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
@@ -169,7 +151,7 @@ function Hero() {
             className="flex flex-wrap items-center justify-center gap-3 mt-7"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.95 }}
+            transition={{ duration: 0.7, delay: 1.85 }}
           >
             <Link
               to="/register/owner"
@@ -191,7 +173,7 @@ function Hero() {
             className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#F4F4F0]/50 mt-4 flex items-center justify-center gap-1.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2.15 }}
+            transition={{ delay: 2.05 }}
           >
             <Clock className="w-3 h-3 text-[#FF3B30]" /> Takes 2 minutes. No credit card required.
           </motion.p>
