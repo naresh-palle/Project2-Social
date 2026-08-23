@@ -189,7 +189,7 @@ class _AuthSplashPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            BrandLogo(height: 56),
+            BrandLogo(variant: BrandLogoVariant.mark, height: 72),
             SizedBox(height: 28),
             SizedBox(
               width: 28,
