@@ -153,9 +153,9 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
         </div>
         <div className="mt-3 space-y-2">
           <div>
-            <div className="font-sans text-sm leading-tight truncate font-semibold group-hover:italic transition-all" title={displayName}>{displayName}</div>
+            <div className="font-sans text-base leading-tight truncate font-bold group-hover:italic transition-all" title={displayName}>{displayName}</div>
             <div className="flex items-baseline justify-between gap-1.5 mt-0.5">
-              <div className="font-sans text-[11px] leading-tight truncate opacity-60" title={displayHandle}>{displayHandle}</div>
+              <div className="font-sans font-medium text-xs leading-tight truncate opacity-70" title={displayHandle}>{displayHandle}</div>
               <div className="shrink-0 font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">{formatFollowers(followerCount)}</div>
             </div>
           </div>

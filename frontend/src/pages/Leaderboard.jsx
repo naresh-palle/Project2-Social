@@ -164,14 +164,14 @@ export default function Leaderboard() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <div className="font-sans font-semibold text-sm text-white truncate">{entry.name}</div>
+                      <div className="font-sans font-bold text-base text-white truncate">{entry.name}</div>
                       {entry.level && (
                         <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-[#FF3B30]/15 text-[#FF3B30] text-[8px] font-mono tracking-wider uppercase border border-[#FF3B30]/25">
                           L{entry.level}
                         </span>
                       )}
                     </div>
-                    <div className="font-mono text-[10px] text-white/40 truncate">@{entry.handle || "user"}</div>
+                    <div className="font-sans font-medium text-xs text-white/70 truncate">@{entry.handle || "user"}</div>
                   </div>
 
                   <div className="text-right shrink-0">
