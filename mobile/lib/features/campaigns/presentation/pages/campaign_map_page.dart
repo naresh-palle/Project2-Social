@@ -31,7 +31,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
   bool _listMode = false;
   bool _filtersOpen = false;
   String _sort = 'recommended';
-  double? _radius = 50;
+  double? _radius; // null = Anywhere (match grid discovery)
   String? _platform;
   String? _category;
   String? _deadline;
@@ -56,7 +56,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _resolveOrigin();
-      _fetch();
+      _fetch(fit: true);
     });
   }
 
@@ -84,13 +84,15 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
     setState(() {});
   }
 
-  Future<void> _fetch({LatLngBounds? bounds}) async {
+  Future<void> _fetch({LatLngBounds? bounds, bool fit = false}) async {
     setState(() => _loading = true);
     try {
+      // Anywhere mode: never clip by viewport so map matches grid counts.
+      final useBounds = bounds != null && _radius != null;
       final data = await ref.read(cr8ApiProvider).creatorCampaignsMap(
             latitude: _center.latitude,
             longitude: _center.longitude,
-            radius: bounds == null ? _radius : null,
+            radius: useBounds ? null : _radius,
             minBudget: _budgetMin?.toDouble(),
             maxBudget: _budgetMax?.toDouble(),
             category: _category,
@@ -98,10 +100,10 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
             deadline: _deadline,
             search: _search.text.trim().isEmpty ? null : _search.text.trim(),
             sort: _sort,
-            north: bounds?.north,
-            south: bounds?.south,
-            east: bounds?.east,
-            west: bounds?.west,
+            north: useBounds ? bounds.north : null,
+            south: useBounds ? bounds.south : null,
+            east: useBounds ? bounds.east : null,
+            west: useBounds ? bounds.west : null,
           );
       final list = (data['campaigns'] as List? ?? [])
           .map((e) => Map<String, dynamic>.from(e as Map))
@@ -115,6 +117,9 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
           _center = LatLng((o['latitude'] as num).toDouble(), (o['longitude'] as num).toDouble());
         }
       });
+      if (fit && _radius == null && list.isNotEmpty) {
+        _fitToCampaigns(list);
+      }
     } catch (e) {
       if (mounted) showCr8Snack(context, e.toString(), error: true);
     } finally {
@@ -122,8 +127,29 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
     }
   }
 
+  void _fitToCampaigns(List<Map<String, dynamic>> list) {
+    final pts = <LatLng>[];
+    for (final c in list) {
+      final lat = (c['latitude'] as num?)?.toDouble();
+      final lng = (c['longitude'] as num?)?.toDouble();
+      if (lat != null && lng != null) pts.add(LatLng(lat, lng));
+    }
+    if (pts.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (pts.length == 1) {
+        _map.move(pts.first, 6);
+      } else {
+        final bounds = LatLngBounds.fromPoints(pts);
+        _map.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(48)));
+      }
+    });
+  }
+
   void _onMapEvent(MapEvent event) {
     if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
+      // Only refetch by viewport when a local radius filter is active
+      if (_radius == null) return;
       _debounce?.cancel();
       _debounce = Timer(const Duration(milliseconds: 400), () {
         _fetch(bounds: _map.camera.visibleBounds);
@@ -165,7 +191,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
               mapController: _map,
               options: MapOptions(
                 initialCenter: _center,
-                initialZoom: 11,
+                initialZoom: 5,
                 onMapEvent: _onMapEvent,
                 onTap: (_, __) => setState(() => _selected = null),
               ),
@@ -289,7 +315,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
                       label: 'Clear filters',
                       onPressed: () {
                         setState(() {
-                          _radius = 50;
+                          _radius = null;
                           _platform = null;
                           _category = null;
                           _deadline = null;
@@ -297,7 +323,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
                           _budgetMax = null;
                           _search.clear();
                         });
-                        _fetch();
+                        _fetch(fit: true);
                       },
                     ),
                   ],
@@ -324,7 +350,7 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
                   _budgetMax = maxB;
                   _filtersOpen = false;
                 });
-                _fetch();
+                _fetch(fit: r == null);
               },
             ),
         ],

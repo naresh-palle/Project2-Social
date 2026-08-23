@@ -145,7 +145,7 @@ function CampaignCard({ c, onClose, compact }) {
 }
 
 const emptyFilters = () => ({
-  radius: 50,
+  radius: null, // Anywhere — match grid discovery (all eligible campaigns)
   budgetPreset: null,
   min_budget: "",
   max_budget: "",
@@ -167,6 +167,7 @@ export default function CampaignDiscoveryMap() {
   const savedView = useRef(null);
   const fetchTimer = useRef(null);
   const skipMove = useRef(false);
+  const radiusRef = useRef(null);
 
   const [viewMode, setViewMode] = useState("map"); // map | list
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -187,6 +188,10 @@ export default function CampaignDiscoveryMap() {
     () => campaigns.find((c) => c.id === selectedId) || null,
     [campaigns, selectedId],
   );
+
+  useEffect(() => {
+    radiusRef.current = filters.radius;
+  }, [filters.radius]);
 
   useEffect(() => {
     const t = setTimeout(() => setSearchDebounced(search.trim()), 320);
@@ -240,7 +245,9 @@ export default function CampaignDiscoveryMap() {
     if (filters.creator_type) p.creator_type = filters.creator_type;
     if (filters.min_followers !== "") p.min_followers = Number(filters.min_followers);
     if (filters.deadline) p.deadline = filters.deadline;
-    if (bounds) {
+    // Only clip to viewport when a local radius is set (pan = search this area).
+    // Anywhere mode must return the full discovery set like the grid.
+    if (bounds && filters.radius != null) {
       p.north = bounds.getNorth();
       p.south = bounds.getSouth();
       p.east = bounds.getEast();
@@ -249,15 +256,36 @@ export default function CampaignDiscoveryMap() {
     return p;
   }, [filters, origin, searchDebounced, sort]);
 
-  const fetchCampaigns = useCallback(async (bounds) => {
+  const fitMapToCampaigns = useCallback((list) => {
+    const map = mapRef.current;
+    if (!map || !list?.length) return;
+    const pts = list
+      .filter((c) => c.latitude != null && c.longitude != null)
+      .map((c) => L.latLng(c.latitude, c.longitude));
+    if (!pts.length) return;
+    skipMove.current = true;
+    if (pts.length === 1) {
+      map.setView(pts[0], Math.max(map.getZoom(), 6), { animate: true });
+    } else {
+      map.fitBounds(L.latLngBounds(pts).pad(0.18), { animate: true, maxZoom: 11 });
+    }
+    setZoom(map.getZoom());
+  }, []);
+
+  const fetchCampaigns = useCallback(async (bounds, { fit = false } = {}) => {
     setLoading(true);
     setError("");
     try {
       const { data } = await api.get("/creator/campaigns/map", { params: buildParams(bounds) });
-      setCampaigns(Array.isArray(data?.campaigns) ? data.campaigns : []);
+      const list = Array.isArray(data?.campaigns) ? data.campaigns : [];
+      setCampaigns(list);
       setTotal(data?.total ?? 0);
       if (data?.origin && !origin) {
         setOrigin({ lat: data.origin.latitude, lng: data.origin.longitude });
+      }
+      if (fit && filters.radius == null) {
+        // Defer so markers render after state flush
+        requestAnimationFrame(() => fitMapToCampaigns(list));
       }
     } catch (e) {
       setError(formatApiError(e?.response?.data?.detail) || "Could not load campaigns");
@@ -266,11 +294,11 @@ export default function CampaignDiscoveryMap() {
     } finally {
       setLoading(false);
     }
-  }, [buildParams, origin]);
+  }, [buildParams, origin, filters.radius, fitMapToCampaigns]);
 
-  const scheduleFetch = useCallback((bounds) => {
+  const scheduleFetch = useCallback((bounds, opts) => {
     if (fetchTimer.current) clearTimeout(fetchTimer.current);
-    fetchTimer.current = setTimeout(() => fetchCampaigns(bounds), 350);
+    fetchTimer.current = setTimeout(() => fetchCampaigns(bounds, opts), 350);
   }, [fetchCampaigns]);
 
   // Init map once origin ready
@@ -278,7 +306,7 @@ export default function CampaignDiscoveryMap() {
     if (!origin || !mapEl.current || mapRef.current) return undefined;
     const map = L.map(mapEl.current, {
       center: [origin.lat, origin.lng],
-      zoom: 11,
+      zoom: 5,
       zoomControl: false,
       attributionControl: true,
     });
@@ -295,10 +323,13 @@ export default function CampaignDiscoveryMap() {
         return;
       }
       setZoom(map.getZoom());
-      scheduleFetch(map.getBounds());
+      // Viewport refetch only when searching within a radius
+      if (radiusRef.current != null) {
+        scheduleFetch(map.getBounds());
+      }
     });
     mapRef.current = map;
-    scheduleFetch(map.getBounds());
+    scheduleFetch(null, { fit: true });
     return () => {
       map.remove();
       mapRef.current = null;
@@ -306,10 +337,11 @@ export default function CampaignDiscoveryMap() {
     };
   }, [origin, scheduleFetch]);
 
-  // Refetch when filters/search/sort change (keep map position)
+  // Refetch when filters/search/sort change (keep map position unless Anywhere → fit)
   useEffect(() => {
     if (!mapRef.current) return;
-    scheduleFetch(mapRef.current.getBounds());
+    const bounds = filters.radius != null ? mapRef.current.getBounds() : null;
+    scheduleFetch(bounds, { fit: filters.radius == null });
   }, [filters, searchDebounced, sort, scheduleFetch]);
 
   // List-only fetch without bounds when in list mode
@@ -401,7 +433,7 @@ export default function CampaignDiscoveryMap() {
     if (filters.creator_type) n += 1;
     if (filters.min_followers) n += 1;
     if (filters.deadline) n += 1;
-    if (filters.radius != null && filters.radius !== 50) n += 1;
+    if (filters.radius != null) n += 1;
     return n;
   }, [filters]);
 
@@ -425,7 +457,8 @@ export default function CampaignDiscoveryMap() {
     if (mapRef.current) {
       skipMove.current = true;
       mapRef.current.setView(hit, 11);
-      scheduleFetch(mapRef.current.getBounds());
+      const bounds = radiusRef.current != null ? mapRef.current.getBounds() : null;
+      scheduleFetch(bounds, { fit: radiusRef.current == null });
     }
   };
 
@@ -442,7 +475,8 @@ export default function CampaignDiscoveryMap() {
         if (mapRef.current) {
           skipMove.current = true;
           mapRef.current.setView([lat, lng], 12);
-          scheduleFetch(mapRef.current.getBounds());
+          const bounds = radiusRef.current != null ? mapRef.current.getBounds() : null;
+          scheduleFetch(bounds, { fit: radiusRef.current == null });
         }
       },
       () => toast.error("Could not get your location"),
@@ -526,7 +560,7 @@ export default function CampaignDiscoveryMap() {
               <button
                 type="button"
                 className="cdm-btn cdm-btn--ghost mt-3"
-                onClick={() => mapRef.current && fetchCampaigns(mapRef.current.getBounds())}
+                onClick={() => fetchCampaigns(radiusRef.current != null && mapRef.current ? mapRef.current.getBounds() : null, { fit: radiusRef.current == null })}
               >
                 Retry
               </button>

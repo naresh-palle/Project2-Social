@@ -53,12 +53,37 @@ def _coords_for_campaign(camp: dict) -> Optional[Tuple[float, float]]:
         raw = (camp.get(key) or "").strip().lower()
         if not raw:
             continue
+        # "Bangalore, India" / "Mumbai Metro" — match city tokens
         if raw in CITY_COORDS:
             return CITY_COORDS[raw]
+        for part in re.split(r"[,/|\-–]+", raw):
+            part = part.strip()
+            if part in CITY_COORDS:
+                return CITY_COORDS[part]
         for k, v in CITY_COORDS.items():
             if k in raw:
                 return v
     return None
+
+
+def _fallback_coords(camp: dict) -> Tuple[float, float]:
+    """Place campaigns with no geo on an India-centered spiral so they still appear on the map."""
+    seed = abs(hash(str(camp.get("id") or camp.get("title") or "c"))) % 10_000
+    # Spread around central India so markers are distinct and findable when zoomed out
+    base_lat, base_lng = 21.1465, 79.0882
+    ring = (seed % 40) + 1
+    angle = (seed % 360) * (math.pi / 180.0)
+    dlat = (ring * 0.12) * math.cos(angle)
+    dlng = (ring * 0.12) * math.sin(angle)
+    return base_lat + dlat, base_lng + dlng
+
+
+def _jitter_same_spot(lat: float, lng: float, camp_id: str) -> Tuple[float, float]:
+    """Tiny offset so multiple campaigns in the same city aren't a single overlapping pin."""
+    seed = abs(hash(str(camp_id))) % 997
+    ang = (seed / 997.0) * 2 * math.pi
+    r = 0.004 + (seed % 7) * 0.0015
+    return lat + r * math.cos(ang), lng + r * math.sin(ang)
 
 
 def format_budget_display(camp: dict) -> Dict[str, Any]:
@@ -192,12 +217,15 @@ def _match_score(creator: dict, camp: dict) -> int:
 
 def _public_card(camp: dict, creator: dict, origin: Optional[tuple]) -> Optional[dict]:
     coords = _coords_for_campaign(camp)
-    if not coords:
-        return None
-    lat, lng = coords
+    approx = False
+    if coords:
+        lat, lng = _jitter_same_spot(coords[0], coords[1], str(camp.get("id") or ""))
+    else:
+        lat, lng = _fallback_coords(camp)
+        approx = True
     budget = format_budget_display(camp)
     dist = None
-    if origin:
+    if origin and not approx:
         dist = _haversine_km(origin[0], origin[1], lat, lng)
         if dist is not None:
             dist = round(dist, 1)
@@ -247,6 +275,7 @@ def _public_card(camp: dict, creator: dict, origin: Optional[tuple]) -> Optional
         "languages": camp.get("languages") or [],
         "content_types": camp.get("content_types") or [],
         "distance_km": dist,
+        "location_approx": approx,
         "match_score": _match_score(creator, camp),
         "status": camp.get("status") or "open",
         "accepting_applications": camp.get("accepting_applications", True),
@@ -287,14 +316,14 @@ def setup_campaign_map(
     logger=None,
 ):
     def _eligible(camp: dict, now: datetime) -> bool:
-        status = (camp.get("status") or "").lower()
-        if status not in ("open", "active", "accepting", "live", "published"):
+        status = (camp.get("status") or "").lower().strip()
+        # Align with marketplace grid: show discoverable campaigns, only drop clearly closed ones
+        if status in ("draft", "cancelled", "canceled", "archived", "deleted", "closed", "completed", "rejected"):
             return False
-        if camp.get("accepting_applications") is False:
+        if camp.get("accepting_applications") is False and status not in ("", "open", "active", "live", "published"):
             return False
-        # treat missing as accepting when status is open
         deadline = _parse_date(camp.get("application_deadline") or camp.get("deadline"))
-        if deadline and deadline.date() < now.date():
+        if deadline and deadline.date() < now.date() and status in ("closed", "completed", "expired"):
             return False
         return True
 
