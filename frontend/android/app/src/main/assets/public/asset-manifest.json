@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Project2-Social/static/css/main.64afe0d1.css",
+    "main.js": "/Project2-Social/static/js/main.1d0390a9.js",
+    "index.html": "/Project2-Social/index.html",
+    "main.64afe0d1.css.map": "/Project2-Social/static/css/main.64afe0d1.css.map",
+    "main.1d0390a9.js.map": "/Project2-Social/static/js/main.1d0390a9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.64afe0d1.css",
+    "static/js/main.1d0390a9.js"
+  ]
+}

@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Project2Social</string>
-    <string name="title_activity_main">Project2Social</string>
-    <string name="package_name">com.project2social.app</string>
-    <string name="custom_url_scheme">com.project2social.app</string>
-</resources>

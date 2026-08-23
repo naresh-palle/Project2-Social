@@ -13,38 +13,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Frontend Dependencies & Capacitor
-        working-directory: ./frontend
-        run: |
-          npm install --legacy-peer-deps
-          npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
-        
-      - name: Build React App
-        working-directory: ./frontend
-        run: npm run build
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
 
-      - name: Sync Capacitor Android
-        working-directory: ./frontend
-        run: |
-          npx cap sync android
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
 
       - name: Build APK
-        working-directory: ./frontend/android
-        run: ./gradlew assembleDebug
+        working-directory: ./mobile
+        run: flutter build apk --release
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: CR8-Studio-App
-          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk

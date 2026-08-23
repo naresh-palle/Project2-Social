@@ -9,13 +9,15 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_widgets.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
-  const SearchPage({super.key});
+  const SearchPage({super.key, this.initialQuery});
+  final String? initialQuery;
+
   @override
   ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
-  final q = TextEditingController();
+  late final TextEditingController q;
   String kind = 'all';
   Map<String, dynamic>? result;
   List<Map<String, dynamic>> recent = [];

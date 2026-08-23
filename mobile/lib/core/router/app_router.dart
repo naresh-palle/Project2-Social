@@ -125,7 +125,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
-      GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
+      GoRoute(
+        path: '/search', 
+        builder: (_, state) => SearchPage(initialQuery: state.uri.queryParameters['q']),
+      ),
       GoRoute(
         path: '/campaigns/map',
         redirect: (_, __) => '/marketplace',

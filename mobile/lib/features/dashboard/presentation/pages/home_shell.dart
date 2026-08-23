@@ -50,6 +50,10 @@ class HomeShell extends ConsumerWidget {
               ),
               ListTile(leading: const Icon(Icons.dynamic_feed_outlined), title: const Text('Feed'), onTap: () { Navigator.pop(context); context.push('/feed'); }),
               ListTile(leading: const Icon(Icons.search), title: const Text('Search'), onTap: () { Navigator.pop(context); context.push('/search'); }),
+              if (user?.isAdmin != true) ...[
+                ListTile(leading: const Icon(Icons.location_on_outlined), title: const Text('Locations'), onTap: () { Navigator.pop(context); context.push('/search?q=locations'); }),
+                ListTile(leading: const Icon(Icons.data_usage), title: const Text('All Data'), onTap: () { Navigator.pop(context); context.push('/search?q=all+data'); }),
+              ],
               ListTile(
                 leading: const Icon(Icons.work_outline_rounded),
                 title: const Text('Campaigns'),
