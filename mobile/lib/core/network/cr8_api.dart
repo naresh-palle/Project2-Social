@@ -669,6 +669,21 @@ class Cr8Api {
     return Map<String, dynamic>.from(res.data as Map);
   }
 
+  Future<Map<String, dynamic>> invoicesSummary({String box = 'issued'}) async {
+    final res = await _client.get('/invoices/summary', query: {'box': box});
+    return Map<String, dynamic>.from(res.data is Map ? res.data as Map : {});
+  }
+
+  Future<List<Map<String, dynamic>>> invoices({String box = 'issued', String q = '', String status = ''}) async {
+    final res = await _client.get('/invoices', query: {
+      'box': box,
+      if (q.isNotEmpty) 'q': q,
+      if (status.isNotEmpty) 'status': status,
+      'limit': 40,
+    });
+    return _list(res.data is Map ? (res.data as Map)['items'] ?? res.data : res.data);
+  }
+
   List<Map<String, dynamic>> _list(dynamic data) {
     if (data is List) {
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();

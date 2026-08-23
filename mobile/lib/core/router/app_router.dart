@@ -25,6 +25,7 @@ import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/settings/presentation/pages/legal_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
+import '../../features/billing/presentation/pages/billing_page.dart';
 import '../widgets/app_widgets.dart';
 import '../widgets/studio_backdrop.dart';
 import '../widgets/brand_logo.dart';
@@ -161,6 +162,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/invitations', builder: (_, __) => const InvitationsPage()),
       GoRoute(path: '/wallet', builder: (_, __) => const WalletPage()),
+      GoRoute(path: '/billing', builder: (_, __) => const BillingPage()),
       GoRoute(path: '/wishlist', builder: (_, __) => const WishlistPage()),
       GoRoute(path: '/leaderboard', builder: (_, __) => const LeaderboardPage()),
       GoRoute(path: '/referrals', builder: (_, __) => const ReferralsPage()),

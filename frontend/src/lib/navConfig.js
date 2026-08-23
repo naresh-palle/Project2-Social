@@ -33,36 +33,29 @@ export function getSidebarItems(user) {
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
       { to: "/hire-requests", label: "Hire Requests", icon: "invitations" },
       { to: "/wishlist", label: "Wishlist", icon: "save" },
-      { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/billing", label: "Billing", icon: "billing" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
-      { to: "/search?q=locations", label: "Locations", icon: "directory" },
-      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
   }
 
-  // Brand desk: lean ops nav
   if (isBrandDesk) {
     return [
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
       { to: "/influencers", label: "Influencers", icon: "directory" },
-      { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
       { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
       { to: "/wishlist", label: "Wishlist", icon: "save" },
-      { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/billing", label: "Billing", icon: "billing" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
-      { to: "/search?q=locations", label: "Locations", icon: "directory" },
-      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
   }
 
-  // Creators: no Influencers / Leaderboard / Invitations / separate Campaign Map / Referrals in nav
-  // Campaign Map lives inside Campaigns (grid | map). Referrals live under Settings.
+  // Creators: Campaign Map lives inside Campaigns. Referrals under Settings.
   if (isCreator) {
     return [
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -72,15 +65,14 @@ export function getSidebarItems(user) {
       { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
       { to: "/wishlist", label: "Wishlist", icon: "save" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/billing", label: "Billing", icon: "billing" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
-      { to: "/search?q=locations", label: "Locations", icon: "directory" },
-      { to: "/search?q=all+data", label: "All Data", icon: "directory" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
   }
 
-  // Admin: dashboard desks live in the left panel; Profile + Settings only otherwise
+  // Admin desks; Growth Hub merges Broadcast + Match + Referrals
   if (isAdmin) {
     return [
       { to: "/dashboard?adminTab=overview", label: "Overview", icon: "dashboard" },
@@ -93,17 +85,16 @@ export function getSidebarItems(user) {
       { to: "/dashboard?adminTab=audit", label: "Audit", icon: "audit" },
       { to: "/dashboard?adminTab=discovery", label: "Discovery", icon: "directory" },
       { to: "/dashboard?adminTab=production", label: "Production", icon: "directory" },
-      { to: "/dashboard?adminTab=broadcast", label: "Broadcast", icon: "bell" },
-      { to: "/dashboard?adminTab=algorithm", label: "Match", icon: "sparkles" },
-      { to: "/dashboard?adminTab=referrals", label: "Referrals", icon: "save" },
+      { to: "/dashboard?adminTab=growth", label: "Growth Hub", icon: "sparkles" },
+      { to: "/billing", label: "Billing", icon: "billing" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
   }
 
-  // Fallback for any other roles
   return [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+    { to: "/billing", label: "Billing", icon: "billing" },
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
   ];
@@ -124,7 +115,7 @@ export function getBottomNavItems(user) {
       { to: "/dashboard", label: "Home", icon: "dashboard" },
       { to: "/hire-requests", label: "Requests", icon: "invitations" },
       { to: "/wishlist", label: "Wishlist", icon: "save" },
-      { to: "/messages", label: "Inbox", icon: "bell" },
+      { to: "/billing", label: "Billing", icon: "billing" },
       { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
@@ -132,8 +123,8 @@ export function getBottomNavItems(user) {
     return [
       { to: "/dashboard", label: "Home", icon: "dashboard" },
       { to: "/influencers", label: "Influencers", icon: "directory" },
-      { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
-      { to: "/messages", label: "Inbox", icon: "bell" },
+      { to: "/marketplace?tab=hire", label: "Hire", icon: "directory" },
+      { to: "/wishlist", label: "Wishlist", icon: "save" },
       { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
@@ -141,17 +132,16 @@ export function getBottomNavItems(user) {
     return [
       { to: "/dashboard?adminTab=overview", label: "Home", icon: "dashboard" },
       { to: "/dashboard?adminTab=users", label: "Users", icon: "directory" },
-      { to: "/dashboard?adminTab=production", label: "Production", icon: "directory" },
+      { to: "/dashboard?adminTab=growth", label: "Growth", icon: "sparkles" },
       { to: "/profile", label: "Profile", icon: "profile" },
       { to: "/settings", label: "Settings", icon: "settings" },
     ];
   }
-  // Creators — Campaigns includes grid/map; no separate Map / Influencers / Leaderboard
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
     { to: "/wishlist", label: "Wishlist", icon: "save" },
-    { to: "/messages", label: "Inbox", icon: "bell" },
+    { to: "/billing", label: "Billing", icon: "billing" },
     { to: "/profile", label: "Profile", icon: "profile" },
   ];
 }
@@ -163,10 +153,13 @@ export function isNavItemActive(it, location, user) {
   if (it.to === "/settings") return location.pathname === "/settings";
   if (it.to === "/profile") return location.pathname.startsWith("/profile");
 
-  // Admin desk tabs live in the left panel via ?adminTab=
   if (user?.role === "admin" && (it.to || "").includes("adminTab=")) {
     const want = new URLSearchParams((it.to.split("?")[1] || "")).get("adminTab") || "overview";
     const have = searchParams.get("adminTab") || "overview";
+    // Legacy deep-links to broadcast/algorithm/referrals highlight Growth Hub
+    if (want === "growth" && ["growth", "broadcast", "algorithm", "referrals"].includes(have)) {
+      return location.pathname === "/dashboard";
+    }
     return location.pathname === "/dashboard" && want === have;
   }
 

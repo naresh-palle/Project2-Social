@@ -77,7 +77,8 @@ void main() {
     expect(find.text('Shortcuts'), findsOneWidget);
     expect(find.text('Campaigns'), findsWidgets);
     expect(find.text('Wishlist'), findsOneWidget);
-    expect(find.text('Social audit'), findsOneWidget);
+    expect(find.text('Billing'), findsOneWidget);
+    expect(find.text('Wallet'), findsOneWidget);
 
     // Removed per annotated feedback
     expect(find.text('Performance'), findsNothing);

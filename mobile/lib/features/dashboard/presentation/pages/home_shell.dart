@@ -17,6 +17,7 @@ class HomeShell extends ConsumerWidget {
     final isCreator = user?.isInfluencer == true;
     final isBrand = user?.isOwner == true || user?.role == 'agent';
     final isProduction = user?.role == 'production';
+    final isAdmin = user?.isAdmin == true;
 
     return Scaffold(
       key: scaffoldKey,
@@ -41,44 +42,43 @@ class HomeShell extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const BrandLogo(height: 36),
-                    const SizedBox(height: 8),
+                    const BrandLogo(variant: BrandLogoVariant.mark, height: 40),
+                    const SizedBox(height: 10),
                     Text(user?.displayName ?? '', style: Theme.of(context).textTheme.bodyMedium),
                     Text(user?.role.toUpperCase() ?? '', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent)),
                   ],
                 ),
               ),
-              ListTile(leading: const Icon(Icons.dynamic_feed_outlined), title: const Text('Feed'), onTap: () { Navigator.pop(context); context.push('/feed'); }),
-              ListTile(leading: const Icon(Icons.search), title: const Text('Search'), onTap: () { Navigator.pop(context); context.push('/search'); }),
-              if (user?.isAdmin != true) ...[
-                ListTile(leading: const Icon(Icons.location_on_outlined), title: const Text('Locations'), onTap: () { Navigator.pop(context); context.push('/search?q=locations'); }),
-                ListTile(leading: const Icon(Icons.data_usage), title: const Text('All Data'), onTap: () { Navigator.pop(context); context.push('/search?q=all+data'); }),
+              if (isCreator) ...[
+                _item(context, Icons.dynamic_feed_outlined, 'Feed', '/feed'),
+                _item(context, Icons.storefront_outlined, 'Brands', '/marketplace?tab=brands'),
+                _item(context, Icons.work_outline_rounded, 'Campaigns', '/marketplace?tab=campaigns'),
+                _item(context, Icons.handshake_outlined, 'Hire / Production', '/marketplace?tab=hire'),
+              ] else if (isBrand) ...[
+                _item(context, Icons.groups_outlined, 'Influencers', '/marketplace?tab=creators'),
+                _item(context, Icons.handshake_outlined, 'Hire / Production', '/marketplace?tab=hire'),
+                _item(context, Icons.mail_outline, 'Invitations', '/invitations'),
+                _item(context, Icons.assignment_outlined, 'Hire Requests', '/hire-requests'),
+              ] else if (isProduction) ...[
+                _item(context, Icons.assignment_outlined, 'Hire Requests', '/hire-requests'),
+                _item(context, Icons.work_outline_rounded, 'Campaigns', '/marketplace'),
+              ] else ...[
+                _item(context, Icons.dynamic_feed_outlined, 'Feed', '/feed'),
+                _item(context, Icons.work_outline_rounded, 'Campaigns', '/marketplace'),
               ],
-              ListTile(
-                leading: const Icon(Icons.work_outline_rounded),
-                title: const Text('Campaigns'),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.go('/marketplace');
-                },
-              ),
-              if (!isCreator)
-                ListTile(leading: const Icon(Icons.storefront), title: const Text('Marketplace'), onTap: () { Navigator.pop(context); context.push('/marketplace'); }),
-              ListTile(leading: const Icon(Icons.favorite_border), title: const Text('Wishlist'), onTap: () { Navigator.pop(context); context.push('/wishlist'); }),
-              ListTile(leading: const Icon(Icons.account_balance_wallet_outlined), title: const Text('Wallet'), onTap: () { Navigator.pop(context); context.push('/wallet'); }),
-              ListTile(leading: const Icon(Icons.verified_user_outlined), title: const Text('Social Audit'), onTap: () { Navigator.pop(context); context.push('/social-audit'); }),
-              if (isBrand || isProduction || user?.isAdmin == true)
-                ListTile(leading: const Icon(Icons.handshake_outlined), title: const Text('Hire Requests'), onTap: () { Navigator.pop(context); context.push('/hire-requests'); }),
-              if (!isCreator)
-                ListTile(leading: const Icon(Icons.mail_outline), title: const Text('Invitations'), onTap: () { Navigator.pop(context); context.push('/invitations'); }),
-              ListTile(leading: const Icon(Icons.support_agent_outlined), title: const Text('Support'), onTap: () { Navigator.pop(context); context.push('/support'); }),
-              ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('Notifications'), onTap: () { Navigator.pop(context); context.push('/notifications'); }),
-              ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('Settings'), onTap: () { Navigator.pop(context); context.push('/settings'); }),
-              if (user?.isAdmin == true)
-                ListTile(leading: const Icon(Icons.admin_panel_settings), title: const Text('Admin'), onTap: () { Navigator.pop(context); context.push('/admin'); }),
+              _item(context, Icons.search_rounded, 'Search', '/search'),
+              _item(context, Icons.favorite_border, 'Wishlist', '/wishlist'),
+              _item(context, Icons.account_balance_wallet_outlined, 'Wallet', '/wallet'),
+              _item(context, Icons.receipt_long_outlined, 'Billing', '/billing'),
+              _item(context, Icons.verified_user_outlined, 'Social Audit', '/social-audit'),
+              _item(context, Icons.support_agent_outlined, 'Support', '/support'),
+              _item(context, Icons.notifications_outlined, 'Notifications', '/notifications'),
+              _item(context, Icons.settings_outlined, 'Settings', '/settings'),
+              if (isAdmin)
+                _item(context, Icons.admin_panel_settings_outlined, 'Admin', '/admin'),
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.logout, color: Cr8Colors.accent),
+                leading: const Icon(Icons.logout_rounded, color: Cr8Colors.accent),
                 title: const Text('Sign Out'),
                 onTap: () async {
                   await ref.read(authProvider.notifier).logout();
@@ -89,6 +89,21 @@ class HomeShell extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  static Widget _item(BuildContext context, IconData icon, String title, String path) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white70),
+      title: Text(title),
+      onTap: () {
+        Navigator.pop(context);
+        if (path.startsWith('/marketplace')) {
+          context.go(path);
+        } else {
+          context.push(path);
+        }
+      },
     );
   }
 }

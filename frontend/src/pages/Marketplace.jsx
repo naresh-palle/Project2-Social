@@ -38,8 +38,16 @@ const PROD_SORT = [
   { value: "nearest", label: "Nearest" },
 ];
 
-const CITIES = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Kochi"];
-const STATES = ["Maharashtra", "Delhi", "Karnataka", "Telangana", "Tamil Nadu", "West Bengal", "Rajasthan", "Kerala"];
+const CITIES = [
+  "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Kochi",
+  "Ahmedabad", "Surat", "Lucknow", "Chandigarh", "Indore", "Bhopal", "Nagpur", "Coimbatore",
+  "Visakhapatnam", "Thiruvananthapuram", "Goa", "Noida", "Gurgaon",
+];
+const STATES = [
+  "Andhra Pradesh", "Delhi", "Goa", "Gujarat", "Haryana", "Karnataka", "Kerala",
+  "Madhya Pradesh", "Maharashtra", "Punjab", "Rajasthan", "Tamil Nadu", "Telangana",
+  "Uttar Pradesh", "West Bengal",
+];
 
 function formatFollowers(n) {
   const v = Number(n) || 0;
@@ -305,6 +313,16 @@ const emptyCreatorFilters = () => ({
   sort: "engagement",
 });
 
+/** Brand default: influencers near their own city/state; still overridable in filters. */
+const creatorFiltersFromUser = (user) => {
+  const base = emptyCreatorFilters();
+  const city = String(user?.city || "").trim();
+  const state = String(user?.state || "").trim();
+  if (city) base.city = city;
+  if (state) base.state = state;
+  return base;
+};
+
 const emptyBrandFilters = () => ({
   industry: "",
   city: "",
@@ -341,8 +359,8 @@ export default function Marketplace() {
   const [production, setProduction] = useState([]);
   const [prodCategories, setProdCategories] = useState([]);
   const [q, setQ] = useState("");
-  const [filters, setFilters] = useState(emptyCreatorFilters);
-  const [draftFilters, setDraftFilters] = useState(emptyCreatorFilters);
+  const [filters, setFilters] = useState(() => creatorFiltersFromUser(user));
+  const [draftFilters, setDraftFilters] = useState(() => creatorFiltersFromUser(user));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [brandFilters, setBrandFilters] = useState(() => ({
     ...emptyBrandFilters(),
@@ -371,6 +389,28 @@ export default function Marketplace() {
   const [total, setTotal] = useState(0);
   const [paySummary, setPaySummary] = useState(null);
   const isBrand = user?.role === "owner" || user?.role === "agent" || user?.role === "admin";
+
+  // When auth user loads late, apply profile city/state as influencer defaults (once empty)
+  useEffect(() => {
+    const city = String(user?.city || "").trim();
+    const state = String(user?.state || "").trim();
+    if (!city && !state) return;
+    setFilters((f) => (f.city || f.state ? f : { ...f, city, state }));
+    setDraftFilters((f) => (f.city || f.state ? f : { ...f, city, state }));
+  }, [user?.id, user?.city, user?.state]);
+
+  // Brands do not use Campaigns desk — keep them on influencer discovery
+  useEffect(() => {
+    const brandDesk = user?.role === "owner" || user?.role === "agent";
+    if (brandDesk && tabParam === "campaigns") {
+      setParams((prev) => {
+        const n = new URLSearchParams(prev);
+        n.set("tab", "creators");
+        n.delete("view");
+        return n;
+      }, { replace: true });
+    }
+  }, [user?.role, tabParam, setParams]);
 
   // Lock URL to a single marketplace mode — no cross-category tabs
   useEffect(() => {
@@ -568,10 +608,10 @@ export default function Marketplace() {
   };
 
   const resetCreatorFilters = () => {
-    const empty = emptyCreatorFilters();
-    empty.sort = filters.sort;
-    setDraftFilters(empty);
-    setFilters(empty);
+    const next = creatorFiltersFromUser(user);
+    next.sort = filters.sort;
+    setDraftFilters(next);
+    setFilters(next);
     setFiltersOpen(false);
   };
 
@@ -766,6 +806,9 @@ export default function Marketplace() {
                   </div>
                   <div>
                     <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] mb-2">Location</p>
+                    <p className="font-sans text-[10px] text-white/45 mb-2">
+                      Defaults to your city/state. Choose Any or another city/state to widen search.
+                    </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <FilterField label="Country">
                         <input value={draftFilters.country} onChange={(e) => setDraftFilters((f) => ({ ...f, country: e.target.value }))} className={filterInputClass} />
@@ -773,12 +816,18 @@ export default function Marketplace() {
                       <FilterField label="State">
                         <select value={draftFilters.state} onChange={(e) => setDraftFilters((f) => ({ ...f, state: e.target.value }))} className={filterInputClass}>
                           <option value="">Any</option>
+                          {draftFilters.state && !STATES.includes(draftFilters.state) ? (
+                            <option value={draftFilters.state}>{draftFilters.state}</option>
+                          ) : null}
                           {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </FilterField>
                       <FilterField label="City">
                         <select value={draftFilters.city} onChange={(e) => setDraftFilters((f) => ({ ...f, city: e.target.value }))} className={filterInputClass}>
                           <option value="">Any</option>
+                          {draftFilters.city && !CITIES.includes(draftFilters.city) ? (
+                            <option value={draftFilters.city}>{draftFilters.city}</option>
+                          ) : null}
                           {CITIES.map((s) => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </FilterField>

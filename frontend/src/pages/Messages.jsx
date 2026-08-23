@@ -449,7 +449,15 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             )}
           </aside>
 
-          <section className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 bg-[#0B0B0E]`}>
+          <section
+            className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 relative overflow-hidden`}
+            style={{
+              backgroundColor: "#0B0B0E",
+              backgroundImage: `linear-gradient(180deg, rgba(11,11,14,0.55) 0%, rgba(11,11,14,0.82) 45%, rgba(11,11,14,0.92) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             {active ? (
               <div className="flex flex-col h-full relative min-w-0">
                 <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
@@ -486,7 +494,11 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   </div>
                 </header>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1a1f] via-[#0B0B0E] to-[#0B0B0E] no-scrollbar" data-testid="thread">
+                <div
+                  ref={scrollRef}
+                  className="flex-1 overflow-y-auto px-4 py-6 space-y-6 no-scrollbar bg-transparent"
+                  data-testid="thread"
+                >
                   {loadingMsgs && <div className="text-center opacity-40 font-sans text-xs py-6">Loading…</div>}
                   {groupMessages(visible).map((group, gIdx) => (
                     <div key={`group-${gIdx}`} className="space-y-4">

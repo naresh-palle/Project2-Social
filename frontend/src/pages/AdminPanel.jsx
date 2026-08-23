@@ -314,11 +314,15 @@ export function AdminPanel() {
   const ADMIN_TABS = useMemo(
     () => new Set([
       "overview", "agent_approvals", "treasury", "briefs", "users", "reports",
-      "categories", "broadcast", "audit", "algorithm", "discovery", "production", "referrals",
+      "categories", "growth", "broadcast", "audit", "algorithm", "discovery", "production", "referrals",
     ]),
     [],
   );
-  const tabFromUrl = searchParams.get("adminTab");
+  const tabFromUrlRaw = searchParams.get("adminTab");
+  // Legacy Broadcast / Match / Referrals deep-links open the merged Growth Hub
+  const tabFromUrl = ["broadcast", "algorithm", "referrals"].includes(tabFromUrlRaw)
+    ? "growth"
+    : tabFromUrlRaw;
   const [tab, setTabState] = useState(ADMIN_TABS.has(tabFromUrl) ? tabFromUrl : "overview");
 
   const setTab = useCallback((next) => {
@@ -1286,10 +1290,21 @@ export function AdminPanel() {
             );
         })()}
 
-        {/* TAB: BROADCAST */}
+        {/* TAB: GROWTH HUB — Broadcast · Match · Referrals */}
         {tab === "growth" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl space-y-4">
-                <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h3>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-10">
+            <div className="border-b border-white/10 pb-4">
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Engage · Match · Refer</p>
+              <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Growth Hub</h2>
+              <p className="font-sans text-xs text-white/50 mt-2 max-w-2xl">
+                Broadcast announcements, tune creator–campaign matching, and manage referral rewards — one ops desk.
+              </p>
+            </div>
+
+            <section className="space-y-3">
+              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">1 · Broadcast</h3>
+              <div className="p-6 glass-panel max-w-xl space-y-4">
+                <h4 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h4>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
                 <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs text-[var(--fg)]">
                     <option value="">All Users</option>
@@ -1304,7 +1319,19 @@ export function AdminPanel() {
                     <input type="text" placeholder="Language (optional)" value={broadcastLanguage} onChange={e => setBroadcastLanguage(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
                 </div>
                 <button onClick={sendBroadcast} className="btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase">Send Broadcast</button>
-            </motion.div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">2 · Match</h3>
+              <MatchAlgorithmConfig />
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">3 · Referrals</h3>
+              <ReferralConfig />
+            </section>
+          </motion.div>
         )}
 
         {/* TAB 6: AUDIT LOGS */}
@@ -1409,22 +1436,12 @@ export function AdminPanel() {
             </motion.div>
         )}
 
-        {/* TAB 7: MATCH ALGORITHM CONFIG */}
-        {tab === "growth" && (
-            <MatchAlgorithmConfig />
-        )}
-
         {tab === "discovery" && (
             <DiscoveryOps />
         )}
 
         {tab === "production" && (
             <AdminProduction />
-        )}
-
-        {/* TAB 8: REFERRAL CONFIG */}
-        {tab === "growth" && (
-            <ReferralConfig />
         )}
         </div>
 

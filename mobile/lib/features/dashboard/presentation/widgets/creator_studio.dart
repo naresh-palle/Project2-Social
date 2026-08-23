@@ -491,9 +491,9 @@ class _Shortcuts extends StatelessWidget {
   Widget build(BuildContext context) {
     // Do not duplicate Feed / Wallet — those live in the drawer / bottom nav.
     const actions = [
-      (Icons.grid_view_rounded, 'Campaigns', '/marketplace'),
+      (Icons.grid_view_rounded, 'Campaigns', '/marketplace?tab=campaigns'),
       (Icons.favorite_border, 'Wishlist', '/wishlist'),
-      (Icons.verified_user_outlined, 'Social audit', '/social-audit'),
+      (Icons.receipt_long_outlined, 'Billing', '/billing'),
       (Icons.account_balance_wallet_outlined, 'Wallet', '/wallet'),
     ];
     return Column(
