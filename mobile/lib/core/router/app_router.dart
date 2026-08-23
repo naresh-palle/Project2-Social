@@ -10,9 +10,11 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/domain/entities/user_entity.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/campaigns/presentation/pages/campaign_detail_page.dart';
+import '../../features/campaigns/presentation/pages/campaign_map_page.dart';
 import '../../features/dashboard/presentation/pages/analytics_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/home_shell.dart';
+import '../../features/discovery/presentation/pages/extra_pages.dart';
 import '../../features/feed/presentation/pages/feed_page.dart';
 import '../../features/invitations/presentation/pages/invitations_page.dart';
 import '../../features/marketplace/presentation/pages/creator_detail_page.dart';
@@ -124,6 +126,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
       GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
+      GoRoute(path: '/campaigns/map', builder: (_, __) => const CampaignMapPage()),
       GoRoute(path: '/campaigns/new', builder: (_, __) => const NewCampaignPage()),
       GoRoute(
         path: '/campaigns/:id',
@@ -132,6 +135,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/creators/:id',
         builder: (_, state) => CreatorDetailPage(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/brands/:id',
+        builder: (_, state) => BrandDetailPage(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/production/:id',
+        builder: (_, state) => ProductionDetailPage(id: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/messages/:id',
@@ -144,6 +155,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/invitations', builder: (_, __) => const InvitationsPage()),
       GoRoute(path: '/wallet', builder: (_, __) => const WalletPage()),
+      GoRoute(path: '/wishlist', builder: (_, __) => const WishlistPage()),
+      GoRoute(path: '/leaderboard', builder: (_, __) => const LeaderboardPage()),
+      GoRoute(path: '/referrals', builder: (_, __) => const ReferralsPage()),
+      GoRoute(path: '/social-audit', builder: (_, __) => const SocialAuditPage()),
+      GoRoute(path: '/hire-requests', builder: (_, __) => const HireRequestsPage()),
+      GoRoute(path: '/support', builder: (_, __) => const SupportPage()),
       GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage()),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
       GoRoute(path: '/admin', builder: (_, __) => const AdminPage()),

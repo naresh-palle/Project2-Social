@@ -563,8 +563,12 @@ class _Shortcuts extends StatelessWidget {
   Widget build(BuildContext context) {
     // Do not duplicate Feed / Wallet — those live in the drawer / bottom nav.
     const actions = [
+      (Icons.map_outlined, 'Campaign map', '/campaigns/map'),
       (Icons.work_outline_rounded, 'View campaigns', '/marketplace'),
       (Icons.mail_outline_rounded, 'Invitations', '/invitations'),
+      (Icons.verified_user_outlined, 'Social audit', '/social-audit'),
+      (Icons.card_giftcard_outlined, 'Referrals', '/referrals'),
+      (Icons.favorite_border, 'Wishlist', '/wishlist'),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

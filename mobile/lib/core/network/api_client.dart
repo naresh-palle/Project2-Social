@@ -66,6 +66,13 @@ class ApiClient {
   }) =>
       _wrap(() => _dio.patch<T>(path, data: data, options: options));
 
+  Future<Response<T>> put<T>(
+    String path, {
+    dynamic data,
+    Options? options,
+  }) =>
+      _wrap(() => _dio.put<T>(path, data: data, options: options));
+
   Future<Response<T>> delete<T>(
     String path, {
     dynamic data,

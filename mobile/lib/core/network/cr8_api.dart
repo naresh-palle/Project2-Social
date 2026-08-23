@@ -449,6 +449,226 @@ class Cr8Api {
     return Map<String, dynamic>.from(res.data as Map);
   }
 
+  // ---- Creator campaign map ----
+  Future<Map<String, dynamic>> creatorCampaignsMap({
+    double? latitude,
+    double? longitude,
+    double? radius,
+    double? minBudget,
+    double? maxBudget,
+    String? category,
+    String? platform,
+    String? campaignType,
+    String? deadline,
+    String? search,
+    String sort = 'recommended',
+    double? north,
+    double? south,
+    double? east,
+    double? west,
+    int page = 1,
+    int limit = 80,
+  }) async {
+    final res = await _client.get('/creator/campaigns/map', query: {
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (radius != null) 'radius': radius,
+      if (minBudget != null) 'min_budget': minBudget,
+      if (maxBudget != null) 'max_budget': maxBudget,
+      if (category != null && category.isNotEmpty) 'category': category,
+      if (platform != null && platform.isNotEmpty) 'platform': platform,
+      if (campaignType != null && campaignType.isNotEmpty) 'campaign_type': campaignType,
+      if (deadline != null && deadline.isNotEmpty) 'deadline': deadline,
+      if (search != null && search.isNotEmpty) 'search': search,
+      'sort': sort,
+      if (north != null) 'north': north,
+      if (south != null) 'south': south,
+      if (east != null) 'east': east,
+      if (west != null) 'west': west,
+      'page': page,
+      'limit': limit,
+    });
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  // ---- Marketplace expand ----
+  Future<Map<String, dynamic>> marketplaceBrands({
+    String? q,
+    String? sort,
+    String? city,
+    int page = 1,
+    int limit = 40,
+  }) async {
+    final res = await _client.post('/marketplace/brands', data: {
+      if (q != null && q.isNotEmpty) 'q': q,
+      if (sort != null) 'sort': sort,
+      if (city != null && city.isNotEmpty) 'city': city,
+      'page': page,
+      'limit': limit,
+    });
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> marketplaceBrand(String id) async {
+    final res = await _client.get('/marketplace/brands/$id');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> marketplaceProduction({
+    String? q,
+    String? category,
+    String? sort,
+    int page = 1,
+    int limit = 40,
+  }) async {
+    final res = await _client.post('/marketplace/production', data: {
+      if (q != null && q.isNotEmpty) 'q': q,
+      if (category != null && category.isNotEmpty) 'category': category,
+      if (sort != null) 'sort': sort,
+      'page': page,
+      'limit': limit,
+    });
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> marketplaceProductionMember(String id) async {
+    final res = await _client.get('/marketplace/production/$id');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<List<Map<String, dynamic>>> hireRequests() async {
+    final res = await _client.get('/marketplace/hire-requests');
+    return _list(res.data is Map ? (res.data as Map)['requests'] ?? res.data : res.data);
+  }
+
+  Future<void> createHireRequest(Map<String, dynamic> body) async {
+    await _client.post('/marketplace/hire-requests', data: body);
+  }
+
+  Future<void> hireRequestAction(String id, String status, {double? quote, String? note}) async {
+    await _client.post('/marketplace/hire-requests/$id/action', data: {
+      'status': status,
+      if (quote != null) 'quote': quote,
+      if (note != null) 'note': note,
+    });
+  }
+
+  // ---- Wishlist ----
+  Future<List<Map<String, dynamic>>> wishlist({String? targetType}) async {
+    final res = await _client.get('/wishlist', query: {
+      if (targetType != null) 'target_type': targetType,
+    });
+    if (res.data is Map) {
+      return _list((res.data as Map)['items'] ?? (res.data as Map)['wishlist']);
+    }
+    return _list(res.data);
+  }
+
+  Future<Map<String, dynamic>> wishlistToggle({
+    required String targetId,
+    required String targetType,
+    String action = 'toggle',
+  }) async {
+    final res = await _client.post('/wishlist', data: {
+      'target_id': targetId,
+      'target_type': targetType,
+      'action': action,
+    });
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  // ---- Referrals ----
+  Future<Map<String, dynamic>> referralCode() async {
+    final res = await _client.get('/referrals/my-code');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> referralStatus() async {
+    final res = await _client.get('/referrals/status');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> applyReferral(String code) async {
+    final res = await _client.post('/referrals/apply', data: {'code': code});
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  // ---- Leaderboard ----
+  Future<Map<String, dynamic>> leaderboard({String period = 'weekly'}) async {
+    final res = await _client.get('/leaderboard', query: {'period': period});
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> myLeaderboardRank({String period = 'weekly'}) async {
+    final res = await _client.get('/leaderboard/my-rank', query: {'period': period});
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  // ---- Social audit ----
+  Future<Map<String, dynamic>> socialAuditMe() async {
+    final res = await _client.get('/social-audit/me');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<List<Map<String, dynamic>>> socialAuditHistory() async {
+    final res = await _client.get('/social-audit/history');
+    return _list(res.data is Map ? (res.data as Map)['items'] ?? res.data : res.data);
+  }
+
+  Future<Map<String, dynamic>> runSocialAudit({String? platform, String? handle}) async {
+    final res = await _client.post('/social-audit/run');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> socialAudit(String id) async {
+    final res = await _client.get('/social-audit/$id');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> raiseSocialAuditTicket(String auditId, Map<String, dynamic> body) async {
+    final res = await _client.post('/social-audit/$auditId/raise-ticket', data: body);
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  // ---- Wallet bonus / campaign extras ----
+  Future<Map<String, dynamic>> bonusProgress() async {
+    try {
+      final res = await _client.get('/bonus/my-progress');
+      return Map<String, dynamic>.from(res.data as Map);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> updateCampaign(String id, Map<String, dynamic> body) async {
+    final res = await _client.put('/campaigns/$id', data: body);
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<List<Map<String, dynamic>>> campaignTopMatches(String id) async {
+    final res = await _client.get('/campaigns/$id/top-matches');
+    return _list(res.data is Map ? (res.data as Map)['items'] ?? res.data : res.data);
+  }
+
+  Future<void> syncCreatorAnalytics() async {
+    await _client.post('/creators/sync-analytics');
+  }
+
+  Future<Map<String, dynamic>> supportFaqs() async {
+    final res = await _client.get('/support/faqs');
+    return Map<String, dynamic>.from(res.data is Map ? res.data as Map : {'items': res.data});
+  }
+
+  Future<List<Map<String, dynamic>>> supportTickets() async {
+    final res = await _client.get('/support/tickets');
+    return _list(res.data is Map ? (res.data as Map)['items'] ?? res.data : res.data);
+  }
+
+  Future<Map<String, dynamic>> createSupportTicket(Map<String, dynamic> body) async {
+    final res = await _client.post('/support/tickets', data: body);
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
   List<Map<String, dynamic>> _list(dynamic data) {
     if (data is List) {
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
