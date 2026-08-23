@@ -413,7 +413,9 @@ html.theme-light .btn-pill:hover img.ai-icon {
     padding: 0.95rem 1.5rem;
     background: var(--vermilion);
     color: #F4F4F0;
+    border: 0;
     border-radius: 0;
+    box-shadow: none;
     font-size: 0.75rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -858,6 +860,13 @@ html.reduced-motion *::after {
 .app-nav-surface {
     background-color: color-mix(in srgb, var(--surface-0) 82%, transparent);
     color: var(--fg);
+}
+.app-nav-surface--borderless,
+.app-nav-surface--borderless::before,
+.app-nav-surface--borderless::after {
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
 }
 
 .inp-select,
