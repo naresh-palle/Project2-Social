@@ -22,5 +22,11 @@ if [[ -d build/brand ]]; then
   rm -rf "$ROOT/backend/web/brand"
   cp -a build/brand "$ROOT/backend/web/brand"
 fi
+# Root public assets used by landing / branding
+for f in flugr-logo.png hero_bg.png hero_bg.jpg hero_models_bg.jpg splash_bg.png splash_bg_2.png splash_bg_3.png splash_bg_4.png; do
+  if [[ -f "build/$f" ]]; then
+    cp -f "build/$f" "$ROOT/backend/web/$f"
+  fi
+done
 echo "Synced frontend/build → backend/web (Render serves this)."
 echo "Next: push main for Render, then npm run deploy:gh-pages for GitHub Pages."
