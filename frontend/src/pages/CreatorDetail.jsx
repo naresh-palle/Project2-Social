@@ -363,7 +363,9 @@ export default function CreatorDetail() {
                         {Icon ? <Icon className="w-4 h-4 shrink-0 opacity-70" /> : null}
                         <div className="min-w-0">
                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{SOCIAL_PLATFORM_LABELS[plat] || plat}</div>
-                          <div className="font-mono text-xs truncate">{socialOrNA(pm.handle)}</div>
+                          <div className={`font-sans text-sm font-bold truncate ${connected ? "text-white" : "text-white/40"}`}>
+                            {connected ? `@${String(pm.handle || "").replace(/^@/, "")}` : "Not connected"}
+                          </div>
                         </div>
                       </div>
                       {connected ? (

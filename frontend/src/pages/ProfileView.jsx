@@ -10,7 +10,6 @@ import {
   SOCIAL_PLATFORMS,
   SOCIAL_PLATFORM_LABELS,
   hasPlatformHandle,
-  socialOrNA,
   socialMetricOrNA,
 } from "@/lib/platforms";
 import {
@@ -366,31 +365,49 @@ export default function ProfileView() {
                     return (
                       <div
                         key={key}
-                        className={`px-3 py-2.5 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}
+                        className={`px-3 py-3 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}
                       >
-                        <div className="grid grid-cols-[1fr_auto] items-center gap-2 mb-2 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-2.5 min-w-0">
                           <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold truncate">
                             {SOCIAL_PLATFORM_LABELS[key] || key}
                           </span>
-                          <span className="font-sans text-[9px] truncate text-white/50 text-right max-w-[10rem] sm:max-w-[12rem]">
-                            {socialOrNA(data?.handle)}
+                          <span
+                            className={`font-sans text-sm sm:text-base font-bold truncate text-right ${
+                              connected ? "text-white" : "text-white/40"
+                            }`}
+                            title={connected ? String(data?.handle || "") : undefined}
+                            data-testid={`social-handle-${key}`}
+                          >
+                            {connected
+                              ? `@${String(data?.handle || "").replace(/^@/, "")}`
+                              : "Not connected"}
                           </span>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 font-sans text-sm">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-sans text-sm">
                           <div className="min-w-0">
-                            <p className="tabular-nums font-semibold truncate leading-tight">{followersVal}</p>
+                            <p className="tabular-nums font-semibold truncate leading-tight text-base">{followersVal}</p>
                             <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">
                               {key === "youtube" ? "Subs" : "Followers"}
                             </p>
                           </div>
-                          <div className="min-w-0 text-center">
-                            <p className={`tabular-nums font-semibold truncate leading-tight ${connected ? "text-[#34C759]" : ""}`}>
+                          <div className="min-w-0 sm:text-center">
+                            <p className={`tabular-nums font-semibold truncate leading-tight text-base ${connected ? "text-[#34C759]" : ""}`}>
                               {erVal}
                             </p>
                             <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">ER</p>
                           </div>
-                          <div className="min-w-0 text-right">
-                            <p className="tabular-nums font-semibold truncate leading-tight">{viewsVal}</p>
+                          <div className="min-w-0 sm:text-center">
+                            <p className={`font-semibold truncate leading-tight text-sm ${
+                              data.verified || data.is_verified ? "text-[#34C759]" : "text-white/70"
+                            }`}>
+                              {connected
+                                ? (data.verified || data.is_verified ? "Verified" : "Unverified")
+                                : "—"}
+                            </p>
+                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">Status</p>
+                          </div>
+                          <div className="min-w-0 sm:text-right">
+                            <p className="tabular-nums font-semibold truncate leading-tight text-base">{viewsVal}</p>
                             <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">Views</p>
                           </div>
                         </div>
