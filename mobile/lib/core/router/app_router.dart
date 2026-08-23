@@ -241,7 +241,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.15, 0.55, curve: Curves.easeOutCubic),
                   child: Row(
                     children: [
-                      const BrandLogo(height: 28),
+                      const BrandLogo(variant: BrandLogoVariant.mark, height: 32),
                       const Spacer(),
                       Text(
                         'MOBILE',
@@ -257,7 +257,16 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                 FadeSlideIn(
                   animation: _intro,
                   interval: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
-                  child: const BrandLogo(height: 64),
+                  child: Text(
+                    'FLUGR',
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 64,
+                          height: 0.95,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 4,
+                          color: Cr8Colors.accent,
+                        ),
+                  ),
                 ),
                 FadeSlideIn(
                   animation: _intro,

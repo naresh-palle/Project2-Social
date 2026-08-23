@@ -67,7 +67,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
             onClick={onClose}
             className="flex items-center gap-2 cursor-pointer mb-5 border-0 outline-none"
           >
-            <BrandLogo variant="wordmark" height={32} className="max-w-[148px]" />
+            <BrandLogo variant="mark" height={36} />
           </Link>
 
           <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">

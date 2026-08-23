@@ -20,7 +20,7 @@ export function BrandLogo({
       alt={alt}
       height={height}
       className={`w-auto object-contain object-left border-0 select-none ${className}`}
-      style={{ height, maxWidth: variant === "mark" ? height * 1.4 : undefined }}
+      style={{ height, maxWidth: variant === "mark" ? Math.round(height * 1.55) : undefined }}
       draggable={false}
     />
   );

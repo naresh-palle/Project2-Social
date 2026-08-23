@@ -122,15 +122,16 @@ function Hero() {
       {/* Entire hero section centered between the background beams */}
       <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
         <div className="flex flex-1 flex-col items-center justify-center text-center gap-1 my-auto py-8">
-          <motion.img
-            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
-            alt="flugr"
+          <motion.h1
             data-testid="hero-brand-logo"
-            className="h-14 sm:h-16 md:h-[4.5rem] w-auto object-contain mb-5 sm:mb-6 border-0"
+            className="font-sans font-extrabold uppercase tracking-[0.12em] text-[#FF3B30] mb-5 sm:mb-6 select-none"
+            style={{ fontSize: "clamp(42px, 8vw, 72px)", lineHeight: 1 }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.0 }}
-          />
+          >
+            FLUGR
+          </motion.h1>
           {[
             { text: "The Bridge", className: "text-[#F4F4F0] font-medium" },
             { text: "Between", className: "text-[#F4F4F0] font-medium" },
