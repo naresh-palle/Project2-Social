@@ -3,6 +3,9 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/android-build.yml"
   workflow_dispatch:
 
 jobs:
@@ -22,8 +25,9 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
+          channel: stable
+          flutter-version: "3.47.0"
+          cache: true
 
       - name: Install dependencies
         working-directory: ./mobile
