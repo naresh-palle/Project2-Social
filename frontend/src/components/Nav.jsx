@@ -72,7 +72,11 @@ export function Nav({ variant = "dark" }) {
           data-testid="nav-logo" 
           className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0"
         >
-          <span className="font-editorial italic text-xl sm:text-2xl leading-[1.15] truncate">flugr</span>
+          <img
+            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
+            alt="flugr"
+            className="h-7 sm:h-8 w-auto max-w-[140px] object-contain object-left"
+          />
         </Link>
 
 

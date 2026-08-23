@@ -66,7 +66,11 @@ export function Sidebar({ mobileOpen = false, onClose }) {
             onClick={onClose}
             className="flex items-center gap-2 cursor-pointer mb-5"
           >
-            <span className="font-editorial italic text-2xl leading-[1.15] text-[#FF3B30]">flugr</span>
+            <img
+              src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
+              alt="flugr"
+              className="h-8 w-auto max-w-[148px] object-contain object-left"
+            />
           </Link>
 
           <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">

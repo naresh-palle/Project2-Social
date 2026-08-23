@@ -9,9 +9,11 @@ export function Footer() {
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
         <div>
-          <div className="font-editorial text-3xl font-bold mb-3 italic">
-            flugr
-          </div>
+          <img
+            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
+            alt="flugr"
+            className="h-9 w-auto mb-3 object-contain object-left"
+          />
           <p className="text-xs text-white/60 leading-relaxed max-w-xs">
             “The studio for influencers who move markets.” Connecting elite brands with verified influencers through AI matching and escrow protection.
           </p>

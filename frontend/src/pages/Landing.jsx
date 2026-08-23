@@ -50,102 +50,126 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
 function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
 
   return (
-    <section ref={ref} className="theme-keep-dark relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#0B0B0E] flex flex-col justify-between" data-testid="slide-hero">
-      {/* 1. Curtain reveal */}
+    <section
+      ref={ref}
+      className="theme-keep-dark relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#050506] flex flex-col"
+      data-testid="slide-hero"
+    >
+      {/* Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
-        style={{ background: "#0A0A0A" }}
+        style={{ background: "#050506" }}
         initial={{ scaleY: 1 }}
         animate={{ scaleY: 0 }}
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* 2. Full-width background image */}
+      {/* Full-bleed framed background — red beams left/right, clear center lane */}
       <motion.div
         style={{ y: yImg }}
         className="absolute inset-0 z-0"
-        initial={{ scale: 1.08, opacity: 0 }}
+        initial={{ scale: 1.06, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
+        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.55 }}
       >
         <img
           src={`${process.env.PUBLIC_URL}/hero_bg.png`}
           alt=""
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(90deg, #0A0A0A 0%, #0A0A0A 38%, rgba(10,10,10,0.78) 55%, rgba(10,10,10,0.25) 100%)"
-        }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
+        {/* Soft vignette so copy sits in the middle of the beams */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 52% 70% at 50% 46%, rgba(5,5,6,0.78) 0%, rgba(5,5,6,0.42) 48%, rgba(5,5,6,0.18) 72%, transparent 100%)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050506] via-transparent to-[#050506]/55" />
       </motion.div>
 
-      {/* 3. Subtle Floating Glow Orbs */}
-      {[
-        { color: "#FF3B30", x: "8%",  y: "30%", size: 240, delay: 1.2 },
-        { color: "#7000FF", x: "20%", y: "60%", size: 180, delay: 1.6 },
-        { color: "#007AFF", x: "5%",  y: "80%", size: 140, delay: 2.0 },
-      ].map((orb, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            left: orb.x, top: orb.y,
-            width: orb.size, height: orb.size,
-            background: orb.color,
-            filter: "blur(80px)",
-            opacity: 0,
-          }}
-          animate={{ opacity: [0, 0.08, 0.04, 0.08] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: orb.delay }}
-        />
-      ))}
+      {/* Ambient motion — red only (no purple) */}
+      <motion.div
+        className="absolute pointer-events-none rounded-full z-[1]"
+        style={{
+          left: "6%",
+          top: "18%",
+          width: 220,
+          height: 220,
+          background: "#FF3B30",
+          filter: "blur(90px)",
+        }}
+        animate={{ opacity: [0.04, 0.1, 0.05] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+      />
+      <motion.div
+        className="absolute pointer-events-none rounded-full z-[1]"
+        style={{
+          right: "8%",
+          top: "22%",
+          width: 260,
+          height: 260,
+          background: "#FF3B30",
+          filter: "blur(100px)",
+        }}
+        animate={{ opacity: [0.03, 0.09, 0.04] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      />
 
-      {/* 4. Left content area — full width on mobile; preserve desktop 48% column */}
-      <div
-        className="relative z-10 flex flex-col h-full w-full md:w-[48%] px-5 sm:px-8 md:px-14 pt-[76px] pb-6 justify-between min-w-0 max-w-full md:max-w-[620px]"
-      >
+      {/* Entire hero section centered between the background beams */}
+      <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
         <motion.div
-          className="flex items-center justify-between pb-3"
-          style={{ borderBottom: "1px solid rgba(244,244,240,0.10)" }}
+          className="flex items-center justify-between gap-4 pb-4"
+          style={{ borderBottom: "1px solid rgba(244,244,240,0.12)" }}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
+          transition={{ duration: 0.6, delay: 1.05 }}
         >
-          <span className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#FF3B30] font-bold">flugr</span>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 hidden md:inline">CREATOR MARKETPLACE</span>
+          <img
+            src={`${process.env.PUBLIC_URL}/flugr-logo.png`}
+            alt="flugr"
+            className="h-7 sm:h-8 md:h-9 w-auto object-contain object-left"
+            data-testid="hero-brand-logo"
+          />
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#F4F4F0]/45 shrink-0">
+            CREATOR MARKETPLACE
+          </span>
         </motion.div>
 
-        <div className="flex flex-col justify-center gap-2 my-auto">
-          {["The Bridge Between", "Brands & Influence."].map((line, i) => (
-            <MaskLine key={line} delay={1.3 + i * 0.18}>
-              <span className={`block font-editorial leading-[1.18] tracking-tighter pb-1 ${
-                i === 1 ? "italic text-[#FF3B30] font-normal" : "text-[#F4F4F0] font-medium"
-              }`}
-                style={{ fontSize: "clamp(30px, 4.5vw, 64px)" }}
+        <div className="flex flex-1 flex-col items-center justify-center text-center gap-1 my-auto py-8">
+          {[
+            { text: "The Bridge", className: "text-[#F4F4F0] font-medium" },
+            { text: "Between", className: "text-[#F4F4F0] font-medium" },
+            { text: "Brands & Influence.", className: "italic text-[#FF3B30] font-normal" },
+          ].map((line, i) => (
+            <MaskLine key={line.text} delay={1.25 + i * 0.14}>
+              <span
+                className={`block font-editorial leading-[1.12] tracking-tighter pb-1 ${line.className}`}
+                style={{ fontSize: "clamp(34px, 6.2vw, 72px)" }}
               >
-                {line}
+                {line.text}
               </span>
             </MaskLine>
           ))}
 
           <motion.p
-            className="mt-4 text-[#F4F4F0]/70 text-[14px] leading-[1.65] max-w-[420px]"
+            className="mt-5 text-[#F4F4F0]/72 text-[14px] sm:text-[15px] leading-[1.7] max-w-[520px]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.8 }}
+            transition={{ duration: 0.7, delay: 1.75 }}
           >
-            Connect with influencers who move audiences. <span className="text-white font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
+            Connect with influencers who move audiences.{" "}
+            <span className="text-white font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
           </motion.p>
 
-          {/* Color-Coded Dual CTAs (48px height) */}
           <motion.div
-            className="flex flex-wrap items-center gap-3 mt-6"
+            className="flex flex-wrap items-center justify-center gap-3 mt-7"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 2.0 }}
+            transition={{ duration: 0.7, delay: 1.95 }}
           >
             <Link
               to="/register/owner"
@@ -164,12 +188,12 @@ function Hero() {
           </motion.div>
 
           <motion.p
-            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#F4F4F0]/50 mt-3 flex items-center gap-1.5"
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#F4F4F0]/50 mt-4 flex items-center justify-center gap-1.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2.2 }}
+            transition={{ delay: 2.15 }}
           >
-            <Clock className="w-3 h-3 text-[#FF3B30]" /> ⏱️ Takes 2 minutes. No credit card required.
+            <Clock className="w-3 h-3 text-[#FF3B30]" /> Takes 2 minutes. No credit card required.
           </motion.p>
         </div>
       </div>
