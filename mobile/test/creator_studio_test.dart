@@ -74,13 +74,16 @@ void main() {
     expect(find.text('TOTAL FOLLOWERS'), findsOneWidget);
     expect(find.text('ENGAGEMENT'), findsOneWidget);
     expect(find.text('TOTAL VIEWS'), findsOneWidget);
-    expect(find.text('View campaigns'), findsOneWidget);
-    expect(find.text('Invitations'), findsOneWidget);
+    expect(find.text('Shortcuts'), findsOneWidget);
+    expect(find.text('Campaigns'), findsWidgets);
+    expect(find.text('Wishlist'), findsOneWidget);
+    expect(find.text('Social audit'), findsOneWidget);
 
     // Removed per annotated feedback
     expect(find.text('Performance'), findsNothing);
     expect(find.text('Recent activity'), findsNothing);
     expect(find.text('Create content'), findsNothing);
+    expect(find.text('View campaigns'), findsNothing);
     expect(find.text('Withdraw'), findsOneWidget); // still on earnings CTA only
   });
 }
