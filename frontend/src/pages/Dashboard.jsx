@@ -506,6 +506,12 @@ function InfluencerPanel() {
         </div>
         {activeTab === "campaigns-feed" && (
           <div className="flex flex-wrap gap-2 items-center">
+            <Link
+              to="/campaigns/map"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF3B30]/45 text-[#FF3B30] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF3B30]/10"
+            >
+              <Compass className="w-3.5 h-3.5" /> Map
+            </Link>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
               <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
             </span>

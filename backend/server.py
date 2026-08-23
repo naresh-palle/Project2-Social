@@ -648,6 +648,19 @@ class CampaignCreate(BaseModel):
     influencer_type: Optional[str] = None
     min_reach: Optional[str] = None
     min_engagement: Optional[str] = None
+    # Creator map / discovery fields
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    budget_per_creator: Optional[float] = None
+    minimum_budget: Optional[float] = None
+    maximum_budget: Optional[float] = None
+    payment_type: Optional[str] = None
+    campaign_type: Optional[str] = None
+    required_creators: Optional[int] = None
+    application_deadline: Optional[str] = None
+    show_budget_to_creator: Optional[bool] = True
+    accepting_applications: Optional[bool] = True
+    brand_logo: Optional[str] = None
 
 
 class ApplicationCreate(BaseModel):
@@ -2703,6 +2716,12 @@ async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_curre
     await require_role(current, ["owner", "agent", "admin"])
     cid = str(uuid.uuid4())
     cover_url = inp.cover or "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=1200"
+    from marketplace_features import _coords_for as _geo_city
+    lat, lng = inp.latitude, inp.longitude
+    if lat is None or lng is None:
+        geo = _geo_city({"city": inp.location or inp.influencer_location or ""})
+        if geo:
+            lat, lng = geo[0], geo[1]
     doc = {
         "id": cid, "owner_id": current["id"], "title": inp.title, "brand": inp.brand or current.get("company") or "Brand Studio",
         "description": inp.description, "budget": inp.budget, "niches": inp.niches or ["General"],
@@ -2712,6 +2731,16 @@ async def create_campaign(inp: CampaignCreate, current: dict = Depends(get_curre
         "location": inp.location, "timeline": inp.timeline, "min_followers": inp.min_followers,
         "influencer_location": inp.influencer_location, "influencer_experience": inp.influencer_experience,
         "influencer_type": inp.influencer_type, "min_reach": inp.min_reach, "min_engagement": inp.min_engagement,
+        "latitude": lat, "longitude": lng,
+        "budget_per_creator": inp.budget_per_creator,
+        "minimum_budget": inp.minimum_budget, "maximum_budget": inp.maximum_budget,
+        "payment_type": inp.payment_type or "Paid",
+        "campaign_type": inp.campaign_type or inp.payment_type or "Paid",
+        "required_creators": inp.required_creators,
+        "application_deadline": inp.application_deadline or inp.deadline,
+        "show_budget_to_creator": True if inp.show_budget_to_creator is None else bool(inp.show_budget_to_creator),
+        "accepting_applications": True if inp.accepting_applications is None else bool(inp.accepting_applications),
+        "brand_logo": inp.brand_logo,
     }
     await db.campaigns.insert_one(doc)
     doc.pop("_id", None)
@@ -5357,6 +5386,16 @@ _marketplace_ensure_indexes = setup_marketplace(
     hash_password=hash_password,
     clean=clean,
     write_audit_log=write_audit_log,
+    logger=logger,
+)
+
+from campaign_map import setup_campaign_map  # noqa: E402
+
+setup_campaign_map(
+    api_router,
+    db=db,
+    get_current_user=get_current_user,
+    require_role=require_role,
     logger=logger,
 )
 

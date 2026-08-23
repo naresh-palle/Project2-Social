@@ -65,6 +65,9 @@ export function getSidebarItems(user) {
       ? [{ to: "/marketplace?tab=brands", label: "Brands", icon: "directory" }]
       : []),
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+    ...(isCreator || isAdmin
+      ? [{ to: "/campaigns/map", label: "Campaign Map", icon: "directory" }]
+      : []),
     { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
     ...(isAdmin ? [{ to: "/hire-requests", label: "Hire Requests", icon: "invitations" }] : []),
     { to: "/wishlist", label: "My Wishlist", icon: "save" },
@@ -113,8 +116,8 @@ export function getBottomNavItems(user) {
   }
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
-    { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "directory" },
-    { to: "/leaderboard", label: "Analytics", icon: "analytics" },
+    { to: "/campaigns/map", label: "Map", icon: "directory" },
+    { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
     { to: "/messages", label: "Inbox", icon: "bell" },
     { to: "/profile", label: "Profile", icon: "profile" },
   ];
@@ -145,10 +148,13 @@ export function isNavItemActive(it, location, user) {
         location.pathname.startsWith("/creators")
       );
     }
+    if (it.to === "/campaigns/map" || it.label === "Campaign Map" || it.label === "Map") {
+      return location.pathname === "/campaigns/map";
+    }
     if ((it.to || "").includes("tab=campaigns") || it.label === "Campaigns") {
       return (
         (location.pathname === "/marketplace" && searchParams.get("tab") === "campaigns") ||
-        location.pathname.startsWith("/campaigns")
+        (location.pathname.startsWith("/campaigns") && location.pathname !== "/campaigns/map")
       );
     }
     if (it.to === "/marketplace") {

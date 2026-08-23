@@ -33,6 +33,10 @@ export default function NewCampaign({ isEdit }) {
     influencer_type: "Micro",
     min_reach: "",
     min_engagement: "",
+    budget_per_creator: "",
+    required_creators: "",
+    show_budget_to_creator: true,
+    payment_type: "Paid",
   });
   const [niches, setNiches] = useState(["fashion", "lifestyle"]);
   const [platforms, setPlatforms] = useState(["instagram"]);
@@ -72,6 +76,10 @@ export default function NewCampaign({ isEdit }) {
             influencer_type: c.influencer_type || "Micro",
             min_reach: c.min_reach || "",
             min_engagement: c.min_engagement || "",
+            budget_per_creator: c.budget_per_creator ?? "",
+            required_creators: c.required_creators ?? "",
+            show_budget_to_creator: c.show_budget_to_creator !== false,
+            payment_type: c.payment_type || "Paid",
           });
           if (c.niches) setNiches(c.niches);
           if (c.platforms) setPlatforms(c.platforms);
@@ -141,6 +149,9 @@ export default function NewCampaign({ isEdit }) {
         brand: brandLocked ? user?.company || f.brand : f.brand,
         budget: Number(f.budget),
         min_followers: f.min_followers ? Number(f.min_followers) : null,
+        budget_per_creator: f.budget_per_creator !== "" ? Number(f.budget_per_creator) : null,
+        required_creators: f.required_creators !== "" ? Number(f.required_creators) : null,
+        show_budget_to_creator: !!f.show_budget_to_creator,
         niches,
         platforms,
       };
@@ -292,6 +303,32 @@ export default function NewCampaign({ isEdit }) {
           <Row label="Budget (INR ₹)">
             <input required type="number" data-testid="cf-budget" value={f.budget} onChange={change("budget")} className="inp" />
           </Row>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Row label="Budget per creator (optional)">
+              <input type="number" data-testid="cf-budget-per" value={f.budget_per_creator} onChange={change("budget_per_creator")} placeholder="Shown as ₹10K / Creator on map" className="inp" />
+            </Row>
+            <Row label="Creators required">
+              <input type="number" data-testid="cf-required-creators" value={f.required_creators} onChange={change("required_creators")} placeholder="e.g. 10" className="inp" />
+            </Row>
+            <Row label="Payment type">
+              <select data-testid="cf-payment-type" value={f.payment_type} onChange={change("payment_type")} className="inp bg-[#0B0B0E]">
+                {["Paid", "Product Exchange", "Affiliate", "Hybrid", "Negotiable"].map((t) => (
+                  <option key={t} value={t} className="bg-[#0B0B0E]">{t}</option>
+                ))}
+              </select>
+            </Row>
+            <Row label="Show budget on creator map">
+              <label className="flex items-center gap-2 mt-2 font-sans text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!!f.show_budget_to_creator}
+                  onChange={(e) => setF({ ...f, show_budget_to_creator: e.target.checked })}
+                  data-testid="cf-show-budget"
+                />
+                Creators can see budget bubbles
+              </label>
+            </Row>
+          </div>
           <Row label="Cover Image *">
             <div className="flex items-center gap-3 mt-2">
               {f.cover && <img src={f.cover} alt="Cover Preview" className="w-16 h-20 object-cover border border-white/20 p-0.5 rounded-3xl" />}

@@ -715,8 +715,24 @@ def setup_phase1(
             raise HTTPException(status_code=403, detail="Not your campaign")
         
         # Merge allowed fields
-        allowed = ["title", "brand", "description", "deliverables", "location", "influencer_type", "min_reach", "min_followers", "min_engagement", "influencer_experience", "timeline", "influencer_location", "budget", "niches", "platforms", "cover", "status"]
+        allowed = [
+            "title", "brand", "description", "deliverables", "location", "influencer_type",
+            "min_reach", "min_followers", "min_engagement", "influencer_experience", "timeline",
+            "influencer_location", "budget", "niches", "platforms", "cover", "status", "deadline",
+            "latitude", "longitude", "budget_per_creator", "minimum_budget", "maximum_budget",
+            "payment_type", "campaign_type", "required_creators", "application_deadline",
+            "show_budget_to_creator", "accepting_applications", "brand_logo", "category",
+            "creators_selected", "minimum_followers", "maximum_followers", "minimum_engagement_rate",
+            "creator_categories", "languages", "content_types", "service_radius",
+        ]
         updates = {k: v for k, v in campaign.items() if k in allowed}
+        # Geocode location when lat/lng missing
+        if ("latitude" not in updates or "longitude" not in updates) and updates.get("location"):
+            from marketplace_features import _coords_for as _geo_city
+            geo = _geo_city({"city": updates.get("location") or updates.get("influencer_location") or ""})
+            if geo:
+                updates.setdefault("latitude", geo[0])
+                updates.setdefault("longitude", geo[1])
         
         await db.campaigns.update_one({"id": campaign_id}, {"$set": updates})
         updated = await db.campaigns.find_one({"id": campaign_id}, {"_id": 0})

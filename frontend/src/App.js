@@ -16,6 +16,7 @@ import PublicProfile from "@/pages/PublicProfile";
 import Marketplace from "@/pages/Marketplace";
 import Discover from "@/pages/Discover";
 import CampaignDetail from "@/pages/CampaignDetail";
+import CampaignDiscoveryMap from "@/pages/CampaignDiscoveryMap";
 import CreatorDetail from "@/pages/CreatorDetail";
 import NewCampaign from "@/pages/NewCampaign";
 import ProfileEdit from "@/pages/ProfileEdit";
@@ -94,6 +95,7 @@ function App() {
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
               <Route path="/campaigns/new" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign /></RequireAuth>} />
               <Route path="/campaigns/:id/edit" element={<RequireAuth roles={["owner", "admin"]}><NewCampaign isEdit /></RequireAuth>} />
+              <Route path="/campaigns/map" element={<RequireAuth roles={["influencer", "agent", "admin"]}><CampaignDiscoveryMap /></RequireAuth>} />
               <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
               <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
               <Route path="/social-audit" element={<RequireAuth roles={["influencer", "owner", "agent"]}><SocialMediaAudit /></RequireAuth>} />

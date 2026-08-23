@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Play, Heart, SlidersHorizontal, X } from "lucide-react";
+import { Search, Play, Heart, SlidersHorizontal, X, MapPin } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -606,6 +606,15 @@ export default function Marketplace() {
             <span className="ml-2 font-sans text-base font-normal opacity-40 tabular-nums">{pageCount}</span>
           </h1>
         </div>
+        {tab === "campaigns" && (user?.role === "influencer" || user?.role === "admin") ? (
+          <Link
+            to="/campaigns/map"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#FF3B30]/50 text-[#FF3B30] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF3B30]/10 shrink-0"
+            data-testid="open-campaign-map"
+          >
+            <MapPin className="w-3.5 h-3.5" /> Campaign Map
+          </Link>
+        ) : null}
       </div>
 
       {/* Influencers: payment strip for brand accounts */}
