@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Play, Heart, SlidersHorizontal, X, MapPin } from "lucide-react";
+import { Search, Play, Heart, SlidersHorizontal, X, MapPin, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
 import { IconTip } from "@/components/IconTip";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -14,6 +14,7 @@ import { formatUserLocation } from "@/lib/location";
 import { withDirectoryMedia, isVideoUrl } from "@/lib/directoryMedia";
 import { getTopSocialAccount } from "@/lib/platforms";
 import { useAuth } from "@/lib/auth";
+import CampaignDiscoveryMap from "@/pages/CampaignDiscoveryMap";
 
 const SORT_OPTIONS = [
   { value: "engagement", label: "Highest Engagement" },
@@ -328,7 +329,11 @@ export default function Marketplace() {
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const tabParam = params.get("tab");
-  const tab = ["creators", "campaigns", "brands", "hire"].includes(tabParam) ? tabParam : "creators";
+  const viewParam = params.get("view");
+  const isCreatorUser = user?.role === "influencer";
+  const defaultTab = isCreatorUser ? "campaigns" : "creators";
+  const tab = ["creators", "campaigns", "brands", "hire"].includes(tabParam) ? tabParam : defaultTab;
+  const campaignView = viewParam === "map" ? "map" : "grid";
 
   const [creators, setCreators] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -360,11 +365,11 @@ export default function Marketplace() {
     if (!tabParam || !["creators", "campaigns", "brands", "hire"].includes(tabParam)) {
       setParams((prev) => {
         const n = new URLSearchParams(prev);
-        n.set("tab", "creators");
+        n.set("tab", isCreatorUser ? "campaigns" : "creators");
         return n;
       }, { replace: true });
     }
-  }, [tabParam, setParams]);
+  }, [tabParam, setParams, isCreatorUser]);
 
   const loadCreators = useCallback(async () => {
     try {
@@ -607,13 +612,46 @@ export default function Marketplace() {
           </h1>
         </div>
         {tab === "campaigns" && (user?.role === "influencer" || user?.role === "admin") ? (
-          <Link
-            to="/campaigns/map"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#FF3B30]/50 text-[#FF3B30] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF3B30]/10 shrink-0"
-            data-testid="open-campaign-map"
-          >
-            <MapPin className="w-3.5 h-3.5" /> Campaign Map
-          </Link>
+          <div className="inline-flex rounded-full border border-white/20 overflow-hidden shrink-0" role="tablist" aria-label="Campaign view">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={campaignView === "grid"}
+              data-testid="campaigns-view-grid"
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold ${
+                campaignView === "grid" ? "bg-[#FF3B30] text-white" : "text-white/60 hover:text-white"
+              }`}
+              onClick={() => {
+                setParams((prev) => {
+                  const n = new URLSearchParams(prev);
+                  n.set("tab", "campaigns");
+                  n.delete("view");
+                  return n;
+                }, { replace: true });
+              }}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> Grid
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={campaignView === "map"}
+              data-testid="campaigns-view-map"
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold ${
+                campaignView === "map" ? "bg-[#FF3B30] text-white" : "text-white/60 hover:text-white"
+              }`}
+              onClick={() => {
+                setParams((prev) => {
+                  const n = new URLSearchParams(prev);
+                  n.set("tab", "campaigns");
+                  n.set("view", "map");
+                  return n;
+                }, { replace: true });
+              }}
+            >
+              <MapIcon className="w-3.5 h-3.5" /> Map
+            </button>
+          </div>
         ) : null}
       </div>
 
@@ -640,6 +678,7 @@ export default function Marketplace() {
       ) : null}
 
       {/* Toolbar — Filters | Sort | Search (no mixed category tabs) */}
+      {!(tab === "campaigns" && campaignView === "map") ? (
       <div className="mb-3 rounded-2xl border border-white/15 px-3 py-2.5 flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
         {tab === "creators" ? (
           <>
@@ -833,6 +872,7 @@ export default function Marketplace() {
           </IconTip>
         </form>
       </div>
+      ) : null}
 
       {tab === "creators" && activeCreatorChips.length > 0 ? (
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -913,6 +953,11 @@ export default function Marketplace() {
       ) : null}
 
       {tab === "campaigns" ? (
+        campaignView === "map" ? (
+          <div className="min-h-[70vh] -mx-1">
+            <CampaignDiscoveryMap />
+          </div>
+        ) : (
         <div className="space-y-2">
           {campaigns.map((c, i) => (
             <motion.div key={c.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: Math.min(i, 10) * 0.03 }} data-testid={`campaign-row-${c.id}`}>
@@ -932,6 +977,7 @@ export default function Marketplace() {
           ))}
           {campaigns.length === 0 && <div className="py-24 text-center font-sans italic text-3xl opacity-60">No briefs on file.</div>}
         </div>
+        )
       ) : null}
 
       {tab === "brands" ? (

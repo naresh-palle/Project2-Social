@@ -507,7 +507,7 @@ function InfluencerPanel() {
         {activeTab === "campaigns-feed" && (
           <div className="flex flex-wrap gap-2 items-center">
             <Link
-              to="/campaigns/map"
+              to="/marketplace?tab=campaigns&view=map"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF3B30]/45 text-[#FF3B30] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF3B30]/10"
             >
               <Compass className="w-3.5 h-3.5" /> Map

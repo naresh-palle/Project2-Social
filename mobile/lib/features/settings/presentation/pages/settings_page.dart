@@ -242,6 +242,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          if (ref.watch(authProvider).user?.isInfluencer == true) ...[
+            const ListTile(title: Cr8SectionLabel('Growth')),
+            ListTile(
+              leading: const Icon(Icons.card_giftcard_outlined),
+              title: const Text('Referrals'),
+              subtitle: const Text('Your invite code and rewards'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/referrals'),
+            ),
+          ],
           const ListTile(title: Cr8SectionLabel('Appearance')),
           ListTile(
             title: const Text('Theme'),

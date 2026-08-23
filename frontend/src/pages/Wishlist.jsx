@@ -63,7 +63,7 @@ export default function Wishlist() {
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
           <Heart className="w-3.5 h-3.5" /> Saved for later
         </p>
-        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">My Wishlist</h1>
+        <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Wishlist</h1>
         <p className="font-sans text-sm text-white/50 mt-1">Influencers, brands, and production talent you saved.</p>
       </div>
 

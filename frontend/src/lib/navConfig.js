@@ -32,7 +32,7 @@ export function getSidebarItems(user) {
     return [
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
       { to: "/hire-requests", label: "Hire Requests", icon: "invitations" },
-      { to: "/wishlist", label: "My Wishlist", icon: "save" },
+      { to: "/wishlist", label: "Wishlist", icon: "save" },
       { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
@@ -41,14 +41,14 @@ export function getSidebarItems(user) {
     ];
   }
 
-  // Brand desk: lean ops nav — no Feed / Discover / Brands / Leaderboard / Referrals / Invitations / Billing
+  // Brand desk: lean ops nav
   if (isBrandDesk) {
     return [
       { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
       { to: "/influencers", label: "Influencers", icon: "directory" },
       { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
       { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
-      { to: "/wishlist", label: "My Wishlist", icon: "save" },
+      { to: "/wishlist", label: "Wishlist", icon: "save" },
       { to: "/messages", label: "Messages", icon: "bell" },
       { to: "/wallet", label: "Wallet", icon: "wallet" },
       { to: "/social-audit", label: "Social Audit", icon: "audit" },
@@ -57,29 +57,35 @@ export function getSidebarItems(user) {
     ];
   }
 
+  // Creators: no Influencers / Leaderboard / Invitations / separate Campaign Map / Referrals in nav
+  // Campaign Map lives inside Campaigns (grid | map). Referrals live under Settings.
+  if (isCreator) {
+    return [
+      { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+      { to: "/feed", label: "Feed", icon: "feed" },
+      { to: "/marketplace?tab=brands", label: "Brands", icon: "directory" },
+      { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+      { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
+      { to: "/wishlist", label: "Wishlist", icon: "save" },
+      { to: "/wallet", label: "Wallet", icon: "wallet" },
+      { to: "/social-audit", label: "Social Audit", icon: "audit" },
+      { to: "/profile", label: "Profile", icon: "profile" },
+      { to: "/settings", label: "Settings", icon: "settings" },
+    ];
+  }
+
+  // Admin (and any other roles)
   return [
     { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
     { to: "/feed", label: "Feed", icon: "feed" },
     { to: "/influencers", label: "Influencers", icon: "directory" },
-    ...(isCreator || isAdmin
-      ? [{ to: "/marketplace?tab=brands", label: "Brands", icon: "directory" }]
-      : []),
+    { to: "/marketplace?tab=brands", label: "Brands", icon: "directory" },
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
-    ...(isCreator || isAdmin
-      ? [{ to: "/campaigns/map", label: "Campaign Map", icon: "directory" }]
-      : []),
     { to: "/marketplace?tab=hire", label: "Hire / Production", icon: "directory" },
-    ...(isAdmin ? [{ to: "/hire-requests", label: "Hire Requests", icon: "invitations" }] : []),
-    { to: "/wishlist", label: "My Wishlist", icon: "save" },
-    { to: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
-    ...(!isAdmin
-      ? [
-          { to: "/referrals", label: "Referrals", icon: "referrals" },
-          { to: "/invitations", label: "Invitations", icon: "invitations" },
-        ]
-      : []),
+    { to: "/hire-requests", label: "Hire Requests", icon: "invitations" },
+    { to: "/wishlist", label: "Wishlist", icon: "save" },
     { to: "/wallet", label: "Wallet", icon: "wallet" },
-    ...(isAdmin ? [{ to: "/billing", label: "Billing", icon: "billing" }] : []),
+    { to: "/billing", label: "Billing", icon: "billing" },
     { to: "/social-audit", label: "Social Audit", icon: "audit" },
     { to: "/profile", label: "Profile", icon: "profile" },
     { to: "/settings", label: "Settings", icon: "settings" },
@@ -114,10 +120,11 @@ export function getBottomNavItems(user) {
       { to: "/profile", label: "Profile", icon: "profile" },
     ];
   }
+  // Creators — Campaigns includes grid/map; no separate Map / Influencers / Leaderboard
   return [
     { to: "/dashboard", label: "Home", icon: "dashboard" },
-    { to: "/campaigns/map", label: "Map", icon: "directory" },
     { to: "/marketplace?tab=campaigns", label: "Campaigns", icon: "sparkles" },
+    { to: "/wishlist", label: "Wishlist", icon: "save" },
     { to: "/messages", label: "Inbox", icon: "bell" },
     { to: "/profile", label: "Profile", icon: "profile" },
   ];
@@ -131,7 +138,7 @@ export function isNavItemActive(it, location, user) {
   if (!isSupportOps) {
     if (it.to === "/dashboard") return location.pathname === "/dashboard";
     if (it.to === "/discover") return location.pathname === "/discover";
-    if (it.to === "/wishlist") return location.pathname === "/wishlist";
+    if (it.to === "/wishlist" || it.label === "Wishlist") return location.pathname === "/wishlist";
     if (it.to === "/hire-requests") return location.pathname === "/hire-requests";
     if ((it.to || "").includes("tab=brands") || it.label === "Brands") {
       return location.pathname === "/marketplace" && searchParams.get("tab") === "brands"
@@ -148,13 +155,11 @@ export function isNavItemActive(it, location, user) {
         location.pathname.startsWith("/creators")
       );
     }
-    if (it.to === "/campaigns/map" || it.label === "Campaign Map" || it.label === "Map") {
-      return location.pathname === "/campaigns/map";
-    }
     if ((it.to || "").includes("tab=campaigns") || it.label === "Campaigns") {
       return (
         (location.pathname === "/marketplace" && searchParams.get("tab") === "campaigns") ||
-        (location.pathname.startsWith("/campaigns") && location.pathname !== "/campaigns/map")
+        location.pathname === "/campaigns/map" ||
+        (location.pathname.startsWith("/campaigns") && !location.pathname.startsWith("/campaigns/new"))
       );
     }
     if (it.to === "/marketplace") {

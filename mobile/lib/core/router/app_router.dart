@@ -10,7 +10,6 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/domain/entities/user_entity.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/campaigns/presentation/pages/campaign_detail_page.dart';
-import '../../features/campaigns/presentation/pages/campaign_map_page.dart';
 import '../../features/dashboard/presentation/pages/analytics_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/home_shell.dart';
@@ -126,7 +125,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
       GoRoute(path: '/search', builder: (_, __) => const SearchPage()),
-      GoRoute(path: '/campaigns/map', builder: (_, __) => const CampaignMapPage()),
+      GoRoute(
+        path: '/campaigns/map',
+        redirect: (_, __) => '/marketplace',
+      ),
       GoRoute(path: '/campaigns/new', builder: (_, __) => const NewCampaignPage()),
       GoRoute(
         path: '/campaigns/:id',

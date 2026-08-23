@@ -326,6 +326,16 @@ export default function Settings() {
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
           <div className="space-y-3">
             <Section title="Account" icon={Monitor} dense>
+              {user?.role === "influencer" ? (
+                <Link
+                  to="/referrals"
+                  className="flex items-center justify-between py-3 border-b border-white/10 hover:text-[#FF3B30] transition-colors"
+                  data-testid="settings-referrals"
+                >
+                  <span className="font-sans text-sm">Referrals</span>
+                  <ChevronRight className="w-4 h-4 opacity-50" />
+                </Link>
+              ) : null}
               <Field label="Theme">
                 <div className="mt-2 flex gap-2">
                   {THEME_OPTIONS.map(({ id, label, Icon }) => {

@@ -14,7 +14,8 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// OYO-style campaign discovery map for creators.
 class CampaignMapPage extends ConsumerStatefulWidget {
-  const CampaignMapPage({super.key});
+  const CampaignMapPage({super.key, this.embedded = false});
+  final bool embedded;
 
   @override
   ConsumerState<CampaignMapPage> createState() => _CampaignMapPageState();
@@ -157,24 +158,8 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Campaign Map'),
-        actions: [
-          IconButton(
-            tooltip: _listMode ? 'Map' : 'List',
-            onPressed: () => setState(() => _listMode = !_listMode),
-            icon: Icon(_listMode ? Icons.map_outlined : Icons.list_alt_rounded),
-          ),
-          IconButton(
-            tooltip: 'Filters',
-            onPressed: () => setState(() => _filtersOpen = true),
-            icon: const Icon(Icons.tune_rounded),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
+    final mapBody = Stack(
+      children: [
           if (!_listMode)
             FlutterMap(
               mapController: _map,
@@ -343,7 +328,37 @@ class _CampaignMapPageState extends ConsumerState<CampaignMapPage> {
               },
             ),
         ],
+      );
+
+    if (widget.embedded) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        floatingActionButton: FloatingActionButton.small(
+          onPressed: () => setState(() => _filtersOpen = true),
+          backgroundColor: Cr8Colors.surface,
+          child: const Icon(Icons.tune_rounded),
+        ),
+        body: mapBody,
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Campaigns · Map'),
+        actions: [
+          IconButton(
+            tooltip: _listMode ? 'Map' : 'List',
+            onPressed: () => setState(() => _listMode = !_listMode),
+            icon: Icon(_listMode ? Icons.map_outlined : Icons.list_alt_rounded),
+          ),
+          IconButton(
+            tooltip: 'Filters',
+            onPressed: () => setState(() => _filtersOpen = true),
+            icon: const Icon(Icons.tune_rounded),
+          ),
+        ],
       ),
+      body: mapBody,
     );
   }
 }
