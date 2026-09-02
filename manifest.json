@@ -1,7 +1,7 @@
 {
-  "name": "flugr",
-  "short_name": "flugr",
-  "description": "Connect brands with creators. Collaborate, negotiate, and grow on flugr.",
+  "name": "CR8 Studio",
+  "short_name": "CR8",
+  "description": "Connect brands with creators. Collaborate, negotiate, and grow on CR8 Studio.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0B0E",
@@ -12,18 +12,6 @@
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
-    },
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
     }
   ]
 }
