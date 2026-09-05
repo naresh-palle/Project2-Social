@@ -5,7 +5,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT/frontend"
-# Render serves from site root — use relative asset URLs, not the GH Pages prefix
+# Render serves from site root - use relative asset URLs, not the GH Pages prefix
 PUBLIC_URL=. npm run build
 # Preserve legal/static extras already on backend/web
 cp -f build/index.html "$ROOT/backend/web/index.html"
