@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "homepage": "https://naresh-palle.github.io/Project2-Social",
+  "homepage": "https://flugr.in",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^8.5.0",
