@@ -1,10 +1,10 @@
 /* Creator Campaign Discovery Map — flugr styling */
 
 .cdm-root {
-  --cdm-bg: #0b0b0e;
-  --cdm-ink: #f4f4f0;
-  --cdm-accent: #ff3b30;
-  --cdm-ok: #34c759;
+  --cdm-bg: #0B1020;
+  --cdm-ink: #F7F5ED;
+  --cdm-accent: #FF5C5C;
+  --cdm-ok: #52D4B5;
   --cdm-panel: #12182A;
   --cdm-border: rgba(255, 255, 255, 0.12);
   position: relative;
@@ -46,7 +46,7 @@
   align-items: center;
   padding: 0.65rem 0.75rem;
   border-bottom: 1px solid var(--cdm-border);
-  background: rgba(11, 11, 14, 0.92);
+  background: rgba(11, 16, 32, 0.92);
   backdrop-filter: blur(10px);
   z-index: 20;
 }
@@ -109,13 +109,13 @@
   min-width: 2.75rem;
   padding: 0 0.65rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 59, 48, 0.45);
+  border: 1px solid rgba(255, 92, 92, 0.45);
   color: var(--cdm-accent);
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: rgba(255, 59, 48, 0.08);
+  background: rgba(255, 92, 92, 0.08);
 }
 
 .cdm-radius {
@@ -146,7 +146,7 @@
 .cdm-radius button.is-on {
   opacity: 1;
   color: var(--cdm-accent);
-  background: rgba(255, 59, 48, 0.18);
+  background: rgba(255, 92, 92, 0.18);
 }
 
 .cdm-toggle {
@@ -172,7 +172,7 @@
 
 .cdm-toggle button.is-active {
   opacity: 1;
-  background: rgba(255, 59, 48, 0.18);
+  background: rgba(255, 92, 92, 0.18);
   color: var(--cdm-accent);
 }
 

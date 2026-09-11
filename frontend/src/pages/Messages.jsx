@@ -432,7 +432,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   data-testid={`convo-${c.id}`}
                   className={`w-full text-left p-3 mb-2 border rounded-3xl transition-all ${
                     active?.id === c.id
-                      ? "border-[#FF5C5C]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,59,48,0.1)]"
+                      ? "border-[#FF5C5C]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,92,92,0.1)]"
                       : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
                   }`}
                 >
@@ -453,7 +453,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 relative overflow-hidden`}
             style={{
               backgroundColor: "#0B1020",
-              backgroundImage: `linear-gradient(180deg, rgba(11,11,14,0.55) 0%, rgba(11,11,14,0.82) 45%, rgba(11,11,14,0.92) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
+              backgroundImage: `linear-gradient(180deg, rgba(11,16,32,0.55) 0%, rgba(11,16,32,0.82) 45%, rgba(11,16,32,0.92) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

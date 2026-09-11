@@ -339,7 +339,7 @@ html {
 }
 
 .glass-card {
-    background: rgba(18, 18, 18, 0.6);
+    background: color-mix(in srgb, var(--surface-1) 76%, transparent);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 20px !important;
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4);
@@ -361,7 +361,7 @@ html {
 }
 /* Never invert to surface (reads as disabled on dark). Highlight with vermilion. */
 .btn-pill:hover {
-    background: rgba(255, 59, 48, 0.14);
+    background: rgba(255, 92, 92, 0.14);
     border-color: var(--vermilion);
     color: var(--vermilion);
     transform: translateY(-1px);
@@ -373,7 +373,7 @@ html {
     transform: none;
 }
 .paper .btn-pill:hover {
-    background: rgba(255, 59, 48, 0.1);
+    background: rgba(255, 92, 92, 0.1);
     border-color: var(--vermilion);
     color: var(--vermilion);
 }
@@ -394,7 +394,7 @@ html {
 }
 .icon-action:hover {
     border-color: var(--vermilion);
-    background: rgba(255, 59, 48, 0.16);
+    background: rgba(255, 92, 92, 0.16);
     transform: translateY(-1px);
 }
 .icon-action:disabled {
@@ -425,7 +425,7 @@ html.theme-light .btn-pill:hover img.ai-icon {
     text-transform: uppercase;
     transition: transform 250ms ease, background-color 250ms ease;
 }
-.btn-solid:hover { transform: translateY(-2px); background: #ff5548; }
+.btn-solid:hover { transform: translateY(-2px); background: #E5484D; }
 
 /* ---- Appearance: font scale for rem + fixed px labels ---- */
 html {
