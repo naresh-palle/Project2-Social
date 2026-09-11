@@ -21,7 +21,7 @@ if [[ -d build/brand ]]; then
   rm -rf "$ROOT/backend/web/brand"
   cp -a build/brand "$ROOT/backend/web/brand"
 fi
-for f in flugr-logo.png favicon.ico apple-touch-icon.png hero_bg.png hero_bg.jpg hero_models_bg.jpg splash_bg.png splash_bg_2.png splash_bg_3.png splash_bg_4.png chat-panel-bg.png icon.jpg; do
+for f in flugr-logo.png favicon.ico apple-touch-icon.png hero_bg.png hero_bg.jpg hero_models_bg.jpg flugr-home-midnight-aurora-hero.png splash_bg.png splash_bg_2.png splash_bg_3.png splash_bg_4.png chat-panel-bg.png icon.jpg; do
   if [[ -f "build/$f" ]]; then
     cp -f "build/$f" "$ROOT/backend/web/$f"
   fi
