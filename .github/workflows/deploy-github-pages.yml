@@ -34,11 +34,11 @@ jobs:
         working-directory: frontend
         run: npm ci --legacy-peer-deps
 
-      - name: Build SPA for GitHub Pages
+      - name: Build SPA for flugr.in
         working-directory: frontend
         env:
           CI: "false"
-          PUBLIC_URL: /Project2-Social
+          PUBLIC_URL: /
         run: npx craco build
 
       - name: Publish gh-pages
