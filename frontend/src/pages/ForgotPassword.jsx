@@ -29,24 +29,24 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+    <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex flex-col">
       <ThemeToaster />
       <Nav />
       <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-[#121212] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl"
+          className="w-full max-w-md bg-[#12182A] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl"
         >
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] to-purple-500 absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#FF5C5C] to-purple-500 absolute top-0 left-0" />
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Account Recovery</p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">
-            Forgot <span className="italic text-[#FF3B30]">password?</span>
+            Forgot <span className="italic text-[#FF5C5C]">password?</span>
           </h1>
 
           {sent ? (
-            <div className="mt-8 p-4 bg-[#34C759]/10 border border-[#34C759]/30 rounded-xs">
-              <p className="font-mono text-sm text-[#34C759]">
+            <div className="mt-8 p-4 bg-[#52D4B5]/10 border border-[#52D4B5]/30 rounded-xs">
+              <p className="font-mono text-sm text-[#52D4B5]">
                 Check your inbox for a password reset link. The link expires in 1 hour.
               </p>
               <Link to="/login" className="inline-flex items-center gap-2 mt-4 font-mono text-xs uppercase tracking-widest text-white/70 hover:text-white">
@@ -56,7 +56,7 @@ export default function ForgotPassword() {
           ) : (
             <form onSubmit={submit} className="mt-8 space-y-6">
               {err && (
-                <div className="p-3 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-mono text-xs rounded-xs flex items-center gap-2">
+                <div className="p-3 bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-[#FF5C5C] font-mono text-xs rounded-xs flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 shrink-0" /> {err}
                 </div>
               )}
@@ -69,7 +69,7 @@ export default function ForgotPassword() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent hairline-b py-3 pl-7 focus:outline-none focus:border-[#FF3B30]"
+                    className="w-full bg-transparent hairline-b py-3 pl-7 focus:outline-none focus:border-[#FF5C5C]"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2"
+                className="w-full bg-[#FF5C5C] hover:bg-[#E5484D] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2"
               >
                 {loading ? "Sending…" : "Send Reset Link"} <ArrowRight className="w-4 h-4" />
               </button>

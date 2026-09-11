@@ -92,7 +92,7 @@ export default function CreatorDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] flex items-center justify-center text-[#F4F4F0]">
+      <div className="min-h-screen bg-[#0B1020] flex items-center justify-center text-[#F7F5ED]">
         <div className="animate-pulse font-mono tracking-widest text-sm">Loading…</div>
       </div>
     );
@@ -117,7 +117,7 @@ export default function CreatorDetail() {
   return (
     <div className="flex flex-col w-full pb-8">
       <div className="border-b border-white/10 pb-4 mb-4">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2 mb-3">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2 mb-3">
           <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory profile
         </p>
 
@@ -132,10 +132,10 @@ export default function CreatorDetail() {
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-[#34C759]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" /> Online
+              <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-[#52D4B5]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#52D4B5]" /> Online
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">
                 {creator.creator_level || "Beginner"}
               </span>
               <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 inline-flex items-center gap-1">
@@ -200,7 +200,7 @@ export default function CreatorDetail() {
         </div>
 
         <div className="flex flex-wrap gap-2 mt-3">
-          <button type="button" onClick={toggleWishlist} className={`px-3 py-1 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${wishlisted ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
+          <button type="button" onClick={toggleWishlist} className={`px-3 py-1 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${wishlisted ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"}`}>
             <Heart className={`w-3 h-3 ${wishlisted ? "fill-current" : ""}`} /> Wishlist
           </button>
           <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
@@ -227,7 +227,7 @@ export default function CreatorDetail() {
         )}
         <div className="flex flex-wrap gap-2 mt-3 font-mono text-[9px] uppercase tracking-widest">
           {["overview", "campaigns", "analytics", "audience", "research"].map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF3B30] text-[#FF3B30]" : "border-transparent text-white/45"}`}>{t === "campaigns" ? "Past campaigns" : t}</button>
+            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-transparent text-white/45"}`}>{t === "campaigns" ? "Past campaigns" : t}</button>
           ))}
         </div>
       </div>
@@ -247,7 +247,7 @@ export default function CreatorDetail() {
                   </p>
                 </div>
                 {c.roas != null ? (
-                  <span className="font-sans text-xl font-bold text-[#34C759]">{c.roas}x ROAS</span>
+                  <span className="font-sans text-xl font-bold text-[#52D4B5]">{c.roas}x ROAS</span>
                 ) : null}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 mt-3">
@@ -311,7 +311,7 @@ export default function CreatorDetail() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="font-mono text-[9px] tracking-widest uppercase opacity-45 mb-0.5">Base rate</div>
-                <div className="font-sans text-lg font-bold text-[#FF3B30]">
+                <div className="font-sans text-lg font-bold text-[#FF5C5C]">
                   {creator.base_rate ? `₹${Number(creator.base_rate).toLocaleString()}` : "—"}
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function CreatorDetail() {
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Past campaigns</h3>
-                <button type="button" onClick={() => setTab("campaigns")} className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">View all</button>
+                <button type="button" onClick={() => setTab("campaigns")} className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">View all</button>
               </div>
               <div className="space-y-2">
                 {pastCampaigns.slice(0, 4).map((c) => (
@@ -335,7 +335,7 @@ export default function CreatorDetail() {
                       {[c.brand_name, c.campaign_date].filter(Boolean).join(" · ")}
                     </div>
                     <div className="font-sans text-sm font-medium">{c.campaign_name}</div>
-                    <div className="font-mono text-[10px] text-[#34C759] mt-0.5">
+                    <div className="font-mono text-[10px] text-[#52D4B5] mt-0.5">
                       Reach {fmt(c.total_reach)} · ER {c.engagement_rate != null ? `${c.engagement_rate}%` : "—"}
                       {c.roas != null ? ` · ROAS ${c.roas}x` : ""}
                     </div>
@@ -369,7 +369,7 @@ export default function CreatorDetail() {
                         </div>
                       </div>
                       {connected ? (
-                        <div className={`flex items-center gap-0.5 font-mono text-[10px] ${isGrowthPos ? "text-[#34C759]" : "text-[#FF3B30]"}`}>
+                        <div className={`flex items-center gap-0.5 font-mono text-[10px] ${isGrowthPos ? "text-[#52D4B5]" : "text-[#FF5C5C]"}`}>
                           {isGrowthPos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                           {Math.abs(growth)}%
                         </div>
@@ -409,7 +409,7 @@ export default function CreatorDetail() {
                 </h3>
                 <div className="flex gap-1">
                   {[3, 6, 12].map((n) => (
-                    <button key={n} type="button" onClick={() => setChartRange(n)} className={`px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest ${chartRange === n ? "bg-[#FF3B30] text-white" : "border border-white/15"}`}>{n}m</button>
+                    <button key={n} type="button" onClick={() => setChartRange(n)} className={`px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest ${chartRange === n ? "bg-[#FF5C5C] text-white" : "border border-white/15"}`}>{n}m</button>
                   ))}
                 </div>
               </div>
@@ -418,8 +418,8 @@ export default function CreatorDetail() {
                   <AreaChart data={chartData}>
                     <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 10 }} />
                     <YAxis tick={{ fill: "#666", fontSize: 10 }} />
-                    <Tooltip contentStyle={{ background: "#121212", border: "1px solid #333" }} />
-                    <Area type="monotone" dataKey="followers" stroke="#FF3B30" fill="#FF3B30" fillOpacity={0.15} />
+                    <Tooltip contentStyle={{ background: "#12182A", border: "1px solid #333" }} />
+                    <Area type="monotone" dataKey="followers" stroke="#FF5C5C" fill="#FF5C5C" fillOpacity={0.15} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -453,13 +453,13 @@ export default function CreatorDetail() {
 
       {isBrand && similar.length > 0 && (
         <section className="mt-8 border-t border-white/10 pt-6">
-          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF3B30] mb-1">Creators similar to this profile</h2>
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF5C5C] mb-1">Creators similar to this profile</h2>
           <p className="font-sans text-sm text-white/50 mb-4">Matched on niche, audience, location, followers, engagement, content type, and pricing.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {similar.map((c) => {
               const selected = comboSelected.find((x) => x.id === c.id);
               return (
-                <div key={c.id} className={`rounded-2xl border p-3 ${selected ? "border-[#FF3B30]" : "border-white/10"}`}>
+                <div key={c.id} className={`rounded-2xl border p-3 ${selected ? "border-[#FF5C5C]" : "border-white/10"}`}>
                   <Link to={`/creators/${c.id}`} className="flex gap-2">
                     {c.avatar ? <img src={c.avatar} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-white/10" />}
                     <div className="min-w-0">
@@ -485,11 +485,11 @@ export default function CreatorDetail() {
             })}
           </div>
           {comboSelected.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-[#FF3B30]/40 p-3 flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">
+            <div className="mt-4 rounded-2xl border border-[#FF5C5C]/40 p-3 flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C]">
                 Group · {comboSelected.length} · est. ₹{comboSelected.reduce((s, c) => s + (Number(c.base_rate) || 0), 0).toLocaleString()}
               </span>
-              <Link to="/marketplace?tab=creators" className="px-3 py-1 rounded-full bg-[#FF3B30] text-white font-mono text-[9px] uppercase tracking-widest">
+              <Link to="/marketplace?tab=creators" className="px-3 py-1 rounded-full bg-[#FF5C5C] text-white font-mono text-[9px] uppercase tracking-widest">
                 Continue in marketplace
               </Link>
               <button type="button" onClick={() => setComboSelected([])} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Clear</button>

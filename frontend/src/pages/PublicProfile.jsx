@@ -119,7 +119,7 @@ export default function PublicProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
@@ -127,9 +127,9 @@ export default function PublicProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0]">
-        
-        
+      <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED]">
+
+
         <div className="pt-4 px-0 sm:px-2 max-w-4xl mx-auto flex flex-col items-start gap-8">
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
@@ -156,9 +156,9 @@ export default function PublicProfile() {
   const busy = !!actionBusy;
 
   return (
-    <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
-      
-      
+    <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex flex-col">
+
+
       <div className="pt-2 flex-1">
         <div className="max-w-4xl mx-auto px-0 sm:px-2 mb-6 flex flex-col items-start gap-4">
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
@@ -166,7 +166,7 @@ export default function PublicProfile() {
           </button>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Public Profile
                 </p>
                 <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Profile</h1>
@@ -180,7 +180,7 @@ export default function PublicProfile() {
               <div
                 className="w-full h-full"
                 style={{
-                  background: "linear-gradient(135deg, #0B0B0E 0%, #1a0a0a 30%, #2d0505 55%, #1a0505 75%, #0B0B0E 100%)",
+                  background: "linear-gradient(135deg, #0B1020 0%, #182142 30%, #273454 55%, #182842 75%, #0B1020 100%)",
                 }}
               >
                 <div className="w-full h-full flex items-center justify-center opacity-20">
@@ -197,10 +197,10 @@ export default function PublicProfile() {
           <div className="flex items-end gap-6">
             <div className="relative w-28 h-28 shrink-0">
               {profile.avatar && (
-                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#0B0B0E] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#0B1020] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
               )}
               <div
-                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#0B0B0E] flex items-center justify-center font-sans text-4xl font-bold"
+                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#0B1020] flex items-center justify-center font-sans text-4xl font-bold"
                 style={{ backgroundColor: `hsl(${((displayName || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
               >
                 {(displayName || "?")[0]?.toUpperCase()}
@@ -235,7 +235,7 @@ export default function PublicProfile() {
                   Cancel request
                 </button>
               ) : (
-                <button type="button" onClick={follow} disabled={busy} className="btn-action bg-[#FF3B30] disabled:opacity-50">
+                <button type="button" onClick={follow} disabled={busy} className="btn-action bg-[#FF5C5C] disabled:opacity-50">
                   {actionBusy === "follow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                   Follow
                 </button>
@@ -247,7 +247,7 @@ export default function PublicProfile() {
               <button type="button" onClick={() => setShowReport(true)} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
                 <Flag className="w-4 h-4" /> Report
               </button>
-              <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#FF3B30]/40 text-[#FF3B30] disabled:opacity-50">
+              <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#FF5C5C]/40 text-[#FF5C5C] disabled:opacity-50">
                 <Ban className="w-4 h-4" /> Block
               </button>
             </div>
@@ -258,7 +258,7 @@ export default function PublicProfile() {
               <span className="font-mono text-[10px] tracking-widest uppercase text-white/40 px-3 py-2 border border-white/10 rounded-full">
                 This is you
               </span>
-              <Link to="/profile/edit" className="inline-block btn-action bg-[#FF3B30]">Edit Profile</Link>
+              <Link to="/profile/edit" className="inline-block btn-action bg-[#FF5C5C]">Edit Profile</Link>
               <Link to="/profile" className="inline-block btn-action bg-white/10">Back to Profile</Link>
             </div>
           )}
@@ -267,7 +267,7 @@ export default function PublicProfile() {
 
       {showReport && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4">
+          <div className="bg-[#12182A] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4">
             <h3 className="font-editorial text-2xl">Report User</h3>
             <textarea
               value={reportReason}
@@ -277,7 +277,7 @@ export default function PublicProfile() {
             />
             <div className="flex justify-end gap-3">
               <button type="button" onClick={() => setShowReport(false)} className="font-mono text-xs uppercase px-4 py-2 border border-white/20">Cancel</button>
-              <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF3B30] font-bold disabled:opacity-50">Submit</button>
+              <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF5C5C] font-bold disabled:opacity-50">Submit</button>
             </div>
           </div>
         </div>

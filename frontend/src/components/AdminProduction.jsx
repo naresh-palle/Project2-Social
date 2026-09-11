@@ -148,12 +148,12 @@ export function AdminProduction() {
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
-        <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">Filters</h3>
+        <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C]">Filters</h3>
         <div className="flex flex-wrap gap-2 items-center">
           <button
             type="button"
             onClick={() => setCategoryFilter("")}
-            className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!categoryFilter ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}
+            className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!categoryFilter ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"}`}
           >
             All categories
           </button>
@@ -162,7 +162,7 @@ export function AdminProduction() {
               key={c.id}
               type="button"
               onClick={() => setCategoryFilter(c.id)}
-              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${categoryFilter === c.id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}
+              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${categoryFilter === c.id ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"}`}
             >
               {c.label}
             </button>
@@ -178,7 +178,7 @@ export function AdminProduction() {
               key={id}
               type="button"
               onClick={() => setTeamFilter(id)}
-              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${teamFilter === id ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}
+              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${teamFilter === id ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"}`}
             >
               {label}
             </button>
@@ -196,7 +196,7 @@ export function AdminProduction() {
       </div>
 
       <form onSubmit={create} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <h3 className="sm:col-span-2 lg:col-span-3 font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">Create profile</h3>
+        <h3 className="sm:col-span-2 lg:col-span-3 font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C]">Create profile</h3>
         <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
         <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email (optional)" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
         <select value={form.production_category} onChange={(e) => setForm({ ...form, production_category: e.target.value })} className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-[var(--fg)]">
@@ -211,7 +211,7 @@ export function AdminProduction() {
           In-House Team
         </label>
         <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Bio / services" className="sm:col-span-2 lg:col-span-3 bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" rows={2} />
-        <button type="submit" className="sm:col-span-2 lg:col-span-3 px-4 py-2 rounded-full bg-[#FF3B30] text-white font-mono text-[10px] uppercase tracking-widest font-bold w-fit">
+        <button type="submit" className="sm:col-span-2 lg:col-span-3 px-4 py-2 rounded-full bg-[#FF5C5C] text-white font-mono text-[10px] uppercase tracking-widest font-bold w-fit">
           Create member
         </button>
       </form>
@@ -249,7 +249,7 @@ export function AdminProduction() {
                       toast.error(formatApiError(e?.response?.data?.detail) || "Delete failed");
                     }
                   }}
-                  className="px-2 py-1 rounded-full border border-[#FF3B30]/40 text-[#FF3B30] text-[9px] uppercase tracking-widest"
+                  className="px-2 py-1 rounded-full border border-[#FF5C5C]/40 text-[#FF5C5C] text-[9px] uppercase tracking-widest"
                 >
                   Delete
                 </button>

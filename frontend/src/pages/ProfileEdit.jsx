@@ -34,9 +34,9 @@ function toList(val) {
 }
 
 const LANGUAGES = [
-  "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri", 
-  "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili", 
-  "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia", 
+  "English", "Hindi", "Assamese", "Bengali", "Bodo", "Dogri",
+  "Gujarati", "Kannada", "Kashmiri", "Konkani", "Maithili",
+  "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia",
   "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu"
 ];
 const AVAILABILITIES = ["Immediately", "2 weeks", "1 month"];
@@ -204,7 +204,7 @@ export default function ProfileEdit() {
         content_types: toList(user.content_types),
         content_type_other: user.content_type_other || "",
         response_time: user.response_time || "",
-        
+
         // for owners/agents
         company: user.company || "",
         industry: user.industry || "",
@@ -625,7 +625,7 @@ export default function ProfileEdit() {
         handlesOnly[plat] = { handle: h };
       });
       const { data } = await api.post("/creators/sync-analytics", { platform_metrics: handlesOnly });
-      
+
       if (!silent) {
         if (data.message?.includes("No social media platforms connected")) {
             toast.info(data.message);
@@ -633,9 +633,9 @@ export default function ProfileEdit() {
             toast.success(data.message || "Metrics auto-fetched");
         }
       }
-      
-      setF(prev => ({ 
-          ...prev, 
+
+      setF(prev => ({
+          ...prev,
           platform_metrics: data.metrics || prev.platform_metrics,
           monthly_analytics: data.monthly_analytics || prev.monthly_analytics
       }));
@@ -730,9 +730,9 @@ export default function ProfileEdit() {
   };
 
   const INDUSTRIES = [
-    "Fashion & Apparel", "Beauty & Cosmetics", "E-Commerce & Retail", 
-    "Technology & SaaS", "Food & Beverages (F&B)", "Health & Fitness", 
-    "Gaming & Esports", "Luxury Goods", "Travel & Hospitality", 
+    "Fashion & Apparel", "Beauty & Cosmetics", "E-Commerce & Retail",
+    "Technology & SaaS", "Food & Beverages (F&B)", "Health & Fitness",
+    "Gaming & Esports", "Luxury Goods", "Travel & Hospitality",
     "Entertainment & Media", "Automotive", "Financial & FinTech", "Other"
   ];
 
@@ -767,11 +767,11 @@ export default function ProfileEdit() {
       {/* Top Static Header */}
       <div className="shrink-0 space-y-4 mb-4">
         <div className="flex items-center justify-between gap-3">
-            <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">Edit profile</p>
+            <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF5C5C] font-semibold">Edit profile</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
-                  <div className="w-9 h-9 rounded-full border-2 border-[#FF3B30]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
-                      <div className="absolute inset-0 bg-[#FF3B30] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
+                  <div className="w-9 h-9 rounded-full border-2 border-[#FF5C5C]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
+                      <div className="absolute inset-0 bg-[#FF5C5C] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
                       <span className="font-sans text-[10px] font-bold z-10 text-white">{completion}%</span>
                   </div>
                   <div className="text-right">
@@ -783,10 +783,10 @@ export default function ProfileEdit() {
                       )}
                   </div>
               </div>
-              <button 
-                type="button" 
-                onClick={() => nav("/profile")} 
-                className="p-2.5 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-lg transition-all duration-300 shrink-0"
+              <button
+                type="button"
+                onClick={() => nav("/profile")}
+                className="p-2.5 bg-[#1B2540] border border-white/20 hover:border-[#FF5C5C] hover:bg-[#FF5C5C] text-white rounded-full shadow-lg transition-all duration-300 shrink-0"
                 title="Close (Esc)"
                 data-testid="profile-edit-close-btn"
               >
@@ -798,12 +798,12 @@ export default function ProfileEdit() {
         <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-white/10 bg-white/[0.02] rounded-3xl">
           <div className="flex items-center gap-2">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF3B30] text-white" : "bg-white/10 text-white/50"}`}>
+              <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF5C5C] text-white" : "bg-white/10 text-white/50"}`}>
                 {s}
               </div>
             ))}
           </div>
-          <div className="text-xs uppercase tracking-widest text-[#FF3B30] font-semibold">
+          <div className="text-xs uppercase tracking-widest text-[#FF5C5C] font-semibold">
             {step === 1 ? "Step 1: Basic Info" : step === 2 ? "Step 2: Details" : "Step 3: Media & Review"}
           </div>
         </div>
@@ -812,25 +812,25 @@ export default function ProfileEdit() {
       {/* Form Container */}
       <div className="pr-2 pb-10">
 
-        <motion.form 
-          noValidate 
-          onSubmit={submit} 
+        <motion.form
+          noValidate
+          onSubmit={submit}
           onKeyDown={(e) => {
             if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.tagName !== "BUTTON") {
               e.preventDefault();
             }
           }}
-          className="mt-4 space-y-4" 
-          initial={{ opacity: 0, y: 12 }} 
-          animate={{ opacity: 1, y: 0 }} 
+          className="mt-4 space-y-4"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
         >
-          
+
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-              
+
               <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                     <span className="mr-2">01</span>
                     Basic Info
                   </h2>
@@ -881,7 +881,7 @@ export default function ProfileEdit() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {isInfluencer && (
-                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#F4F4F0] text-[#0A0A0A] hover:bg-[#FF3B30] hover:text-white">
+                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#F7F5ED] text-[#070B16] hover:bg-[#FF5C5C] hover:text-white">
                                 {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="sparkles" className="w-3 h-3" />}
                                 {aiBusy ? "Curating…" : "AI from niches + location"}
                             </button>
@@ -902,11 +902,11 @@ export default function ProfileEdit() {
                   />
                 </F>
                 <F label="Gender *">
-                  <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                    <option value="" className="bg-[#0B0B0E]">Select gender…</option>
-                    <option value="male" className="bg-[#0B0B0E]">Male</option>
-                    <option value="female" className="bg-[#0B0B0E]">Female</option>
-                    <option value="other" className="bg-[#0B0B0E]">Others</option>
+                  <select required className="inp bg-[#0B1020] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                    <option value="" className="bg-[#0B1020]">Select gender…</option>
+                    <option value="male" className="bg-[#0B1020]">Male</option>
+                    <option value="female" className="bg-[#0B1020]">Female</option>
+                    <option value="other" className="bg-[#0B1020]">Others</option>
                   </select>
                 </F>
                 <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer min-h-[48px]">
@@ -918,7 +918,7 @@ export default function ProfileEdit() {
                     type="checkbox"
                     checked={!!f.is_private}
                     onChange={(e) => setF({ ...f, is_private: e.target.checked })}
-                    className="accent-[#FF3B30] w-5 h-5"
+                    className="accent-[#FF5C5C] w-5 h-5"
                   />
                 </label>
               </div>
@@ -926,7 +926,7 @@ export default function ProfileEdit() {
 
           {/* SECTION 2: LOCATION */}
           <section id="sec-location" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
-              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                 <span className="mr-2">02</span>
                 Location
               </h2>
@@ -959,14 +959,14 @@ export default function ProfileEdit() {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               {!isInfluencer && (
                 <section id="sec-company" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                     Company Details
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <F label="Brand Industry Category *">
-                      <select required className="inp bg-[#0B0B0E] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
-                        <option value="" className="bg-[#0B0B0E]">Select Industry Category...</option>
-                        {INDUSTRIES.map(ind => <option key={ind} value={ind} className="bg-[#0B0B0E]">{ind}</option>)}
+                      <select required className="inp bg-[#0B1020] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
+                        <option value="" className="bg-[#0B1020]">Select Industry Category...</option>
+                        {INDUSTRIES.map(ind => <option key={ind} value={ind} className="bg-[#0B1020]">{ind}</option>)}
                       </select>
                     </F>
                     <F label="Official Website URL *">
@@ -976,9 +976,9 @@ export default function ProfileEdit() {
                       <input type="text" inputMode="url" className="inp font-sans text-sm" placeholder="https://linkedin.com/company/…" value={f.linkedin || ""} onChange={e=>setF({...f, linkedin: e.target.value})} />
                     </F>
                     <F label="Size · Employees">
-                      <select className="inp bg-[#0B0B0E] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
-                        <option value="" className="bg-[#0B0B0E]">Select company size…</option>
-                        {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => <option key={s} value={s} className="bg-[#0B0B0E]">{s}</option>)}
+                      <select className="inp bg-[#0B1020] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
+                        <option value="" className="bg-[#0B1020]">Select company size…</option>
+                        {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => <option key={s} value={s} className="bg-[#0B1020]">{s}</option>)}
                       </select>
                     </F>
                   </div>
@@ -987,7 +987,7 @@ export default function ProfileEdit() {
 
               {isInfluencer && (
                 <section id="sec-niche" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                     Niches & Languages
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1013,10 +1013,10 @@ export default function ProfileEdit() {
 
           <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
               {isInfluencer && (
-                <div className="border border-[#FF3B30]/30 bg-[#FF3B30]/5 p-3 rounded-2xl mb-3">
+                <div className="border border-[#FF5C5C]/30 bg-[#FF5C5C]/5 p-3 rounded-2xl mb-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="font-sans text-sm font-bold text-[#FF3B30] flex items-center gap-1.5">
+                      <h3 className="font-sans text-sm font-bold text-[#FF5C5C] flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 shrink-0" /> Auto-Fill from Social Media
                       </h3>
                       <p className="font-sans text-[11px] opacity-70 mt-1">
@@ -1027,7 +1027,7 @@ export default function ProfileEdit() {
                       <button
                         type="button"
                         onClick={() => setShowScrapeInput(true)}
-                        className="btn-solid bg-[#FF3B30] hover:bg-[#e03126] text-white !px-3 !py-1.5 text-xs shrink-0"
+                        className="btn-solid bg-[#FF5C5C] hover:bg-[#E5484D] text-white !px-3 !py-1.5 text-xs shrink-0"
                       >
                         Start
                       </button>
@@ -1062,7 +1062,7 @@ export default function ProfileEdit() {
                 </div>
               )}
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
-                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold">
+                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold">
                   <span className="mr-2">03</span>
                   Social accounts
                 </h2>
@@ -1071,7 +1071,7 @@ export default function ProfileEdit() {
                     type="button"
                     onClick={() => refreshAnalytics(false)}
                     disabled={syncBusy || !!savingPlat}
-                    className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white"
+                    className="edit-btn bg-white/10 hover:bg-[#FF5C5C] text-white"
                   >
                     {syncBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {syncBusy ? "Fetching…" : "Refresh all metrics"}
@@ -1081,7 +1081,7 @@ export default function ProfileEdit() {
               <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">
                 Edit or rename each platform ID, then Save — followers, ER, views &amp; posts fetch automatically.
               </p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
                     {PLATFORMS.map(plat => {
                         const metrics = f.platform_metrics?.[plat] || {};
@@ -1090,11 +1090,11 @@ export default function ProfileEdit() {
                         const isEditing = editingPlat === plat;
                         const isSaving = savingPlat === plat;
                         return (
-                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-3xl ${isConnected ? "border-[#34C759] bg-[#34C759]/5" : "border-white/10 bg-white/[0.02]"}`}>
+                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-3xl ${isConnected ? "border-[#52D4B5] bg-[#52D4B5]/5" : "border-white/10 bg-white/[0.02]"}`}>
                             <div className="flex justify-between items-center mb-2 gap-2">
-                                <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF3B30] font-semibold">
+                                <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF5C5C] font-semibold">
                                     {SOCIAL_PLATFORM_LABELS[plat] || plat} {plat === "instagram" && isInfluencer && "*"}
-                                    {isConnected && !isEditing && <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" />}
+                                    {isConnected && !isEditing && <CheckCircle2 className="w-3.5 h-3.5 text-[#52D4B5]" />}
                                 </div>
                                 {!isEditing ? (
                                   <button
@@ -1108,7 +1108,7 @@ export default function ProfileEdit() {
                                   </button>
                                 ) : null}
                             </div>
-                            
+
                             <div>
                                 <label className="font-sans text-[9px] opacity-50 uppercase tracking-widest block mb-0.5">ID / Handle</label>
                                 {isEditing ? (
@@ -1136,7 +1136,7 @@ export default function ProfileEdit() {
                                         type="button"
                                         disabled={isSaving}
                                         onClick={() => savePlatformAccount(plat)}
-                                        className="edit-btn bg-[#FF3B30] text-white flex-1 justify-center"
+                                        className="edit-btn bg-[#FF5C5C] text-white flex-1 justify-center"
                                         data-testid={`social-save-${plat}`}
                                       >
                                         {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
@@ -1193,7 +1193,7 @@ export default function ProfileEdit() {
                 <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <section id="sec-rate" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">05</span>
                       Pricing &amp; rates
                     </h2>
@@ -1203,22 +1203,22 @@ export default function ProfileEdit() {
                 </section>
 
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-content-types">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">07</span>
                       Additional
                     </h2>
-                    
+
                     <F label="Years of Experience *">
                         <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
-                            <option value="" className="bg-[#0B0B0E]">Select Experience...</option>
-                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0B0B0E]">{ex}</option>)}
+                            <option value="" className="bg-[#0B1020]">Select Experience...</option>
+                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#0B1020]">{ex}</option>)}
                         </select>
                     </F>
 
                     <F label="Response Time *">
                         <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
-                            <option value="" className="bg-[#0B0B0E]">Select Response Time...</option>
-                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0B0B0E]">{r}</option>)}
+                            <option value="" className="bg-[#0B1020]">Select Response Time...</option>
+                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#0B1020]">{r}</option>)}
                         </select>
                     </F>
 
@@ -1250,7 +1250,7 @@ export default function ProfileEdit() {
           {step === 3 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                   Media & Assets
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1258,7 +1258,7 @@ export default function ProfileEdit() {
                     <div className="flex items-center gap-2 flex-wrap">
                       {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-3xl" />}
                       <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                      <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                      <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF5C5C] text-white">
                         <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
                       </button>
                       {f.avatar && (
@@ -1272,7 +1272,7 @@ export default function ProfileEdit() {
                     <div className="flex items-center gap-2 flex-wrap">
                       {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-3xl" />}
                       <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                      <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF3B30] text-white">
+                      <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#FF5C5C] text-white">
                         <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
                       </button>
                       {f.cover_photo && (
@@ -1289,21 +1289,21 @@ export default function ProfileEdit() {
                 <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                       <span className="mr-2">06</span>
                       Portfolio
                     </h2>
-                    
+
                     <F label="Images and Videos">
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#0B0B0E] border border-white/10 rounded-3xl overflow-hidden">
+                          <div key={i} className="relative group aspect-square bg-[#0B1020] border border-white/10 rounded-3xl overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
                                 <video src={p} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                             ) : (
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
-                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#0B0B0E]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#0B1020]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <X className="w-3 h-3 text-white" />
                             </button>
                           </div>
@@ -1311,7 +1311,7 @@ export default function ProfileEdit() {
                       </div>
                       <div className="mt-3">
                         <input ref={portfolioRef} type="file" accept="image/*,video/*" multiple hidden onChange={onPortfolioPick} />
-                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="edit-btn bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                        <button type="button" onClick={()=>portfolioRef.current?.click()} className="edit-btn bg-[#1B2540] hover:bg-[#273454] text-white">
                           <Upload className="w-3 h-3" /> Add images / videos
                         </button>
                       </div>
@@ -1320,7 +1320,7 @@ export default function ProfileEdit() {
                 </div>
 
                 <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-campaigns">
-                        <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF3B30] font-semibold border-b border-white/10 pb-2">
+                        <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF5C5C] font-semibold border-b border-white/10 pb-2">
                           Past campaigns
                         </h2>
                         <F label="Optional · max 5">
@@ -1352,7 +1352,7 @@ export default function ProfileEdit() {
                                             <input type="text" inputMode="url" className="inp text-xs py-1.5 font-sans" placeholder="https://" value={c.post_url || ""} onChange={e=>setCampaign(i, 'post_url', e.target.value)} />
                                         </div>
                                         <div className="md:col-span-1 text-right">
-                                            <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-opacity">
+                                            <button type="button" onClick={()=>removeCampaign(i)} className="p-2 opacity-60 hover:opacity-100 hover:text-[#FF5C5C] transition-opacity">
                                                 <X className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -1383,11 +1383,11 @@ export default function ProfileEdit() {
               </button>
             ) : <div />}
             {step < 3 ? (
-              <button key="btn-next" type="button" onClick={nextStep} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+              <button key="btn-next" type="button" onClick={nextStep} className="edit-btn bg-[#FF5C5C] text-white hover:bg-[#E5484D] px-5 py-2.5 text-[11px]">
                 Next Step
               </button>
             ) : (
-              <button key="btn-submit" type="submit" disabled={busy} className="edit-btn bg-[#FF3B30] text-white hover:bg-[#e03126] px-5 py-2.5 text-[11px]">
+              <button key="btn-submit" type="submit" disabled={busy} className="edit-btn bg-[#FF5C5C] text-white hover:bg-[#E5484D] px-5 py-2.5 text-[11px]">
                 <Save className="w-3.5 h-3.5" /> {busy ? "Saving…" : "Save profile"}
               </button>
             )}

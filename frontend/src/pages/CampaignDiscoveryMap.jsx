@@ -504,7 +504,7 @@ export default function CampaignDiscoveryMap() {
           ) : null}
         </div>
         <div className="cdm-loc">
-          <MapPin className="w-3.5 h-3.5 text-[#FF3B30] shrink-0" />
+          <MapPin className="w-3.5 h-3.5 text-[#FF5C5C] shrink-0" />
           <select
             value={locQuery}
             onChange={(e) => {
@@ -593,7 +593,7 @@ export default function CampaignDiscoveryMap() {
           ) : null}
           {error ? (
             <div className="cdm-empty">
-              <p className="font-sans text-sm text-[#FF3B30]">{error}</p>
+              <p className="font-sans text-sm text-[#FF5C5C]">{error}</p>
               <button
                 type="button"
                 className="cdm-btn cdm-btn--ghost mt-3"
@@ -635,12 +635,12 @@ export default function CampaignDiscoveryMap() {
                 >
                   <div className="flex justify-between gap-2">
                     <div className="min-w-0 text-left">
-                      <p className="text-[10px] uppercase tracking-widest text-[#FF3B30] truncate">{c.brand}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-[#FF5C5C] truncate">{c.brand}</p>
                       <p className="font-semibold text-sm truncate">{c.name}</p>
                       <p className="text-xs opacity-60 truncate">{c.location} · {c.budget_display}</p>
                     </div>
                     {c.match_score != null ? (
-                      <span className="text-[10px] text-[#34C759] shrink-0">{c.match_score}%</span>
+                      <span className="text-[10px] text-[#52D4B5] shrink-0">{c.match_score}%</span>
                     ) : null}
                   </div>
                 </button>

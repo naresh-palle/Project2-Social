@@ -27,7 +27,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           {isSyncing ? "Syncing…" : "Sync"}
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {connections.map(c => {
           const Icon = SOCIAL_PLATFORM_ICONS[c.platform] || SOCIAL_PLATFORM_ICONS.instagram;
@@ -41,7 +41,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
             views = null;
           }
           const reach = c.reach ?? analytics.reach ?? null;
-          
+
           return (
             <div key={c.platform} className="bg-white/[0.02] border border-white/10 px-3 py-2.5 rounded-2xl hover:border-white/20 hover:bg-white/[0.04] transition-all">
               <div className="flex items-center justify-between mb-2">
@@ -56,7 +56,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   <div className="min-w-0">
                     <div className="font-sans text-base sm:text-lg font-bold tracking-tight truncate text-white">
                       {c.handle || c.account_name ? (
-                        <span className="text-[#FF3B30]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
+                        <span className="text-[#FF5C5C]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
                       ) : (
                         <span className="text-white/50">Not connected</span>
                       )}
@@ -66,7 +66,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                       <span
                         className={`ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider ${
                           c.verified || c.is_verified
-                            ? "bg-[#34C759]/15 text-[#34C759] border border-[#34C759]/35"
+                            ? "bg-[#52D4B5]/15 text-[#52D4B5] border border-[#52D4B5]/35"
                             : "bg-white/5 text-white/50 border border-white/10"
                         }`}
                       >
@@ -81,7 +81,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   </div>
                 )}
               </div>
-              
+
               <div className="metric-grid-5 pt-2 border-t border-white/5">
                 <div className="min-w-0" title={formatExactNumber(followers) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Followers</div>
@@ -89,11 +89,11 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
-                  <div className="text-sm font-semibold tabular-nums text-[#34C759] truncate">{formatEngagementRate(er)}</div>
+                  <div className="text-sm font-semibold tabular-nums text-[#52D4B5] truncate">{formatEngagementRate(er)}</div>
                 </div>
                 <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Status</div>
-                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#34C759]" : "text-white/55"}`}>
+                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#52D4B5]" : "text-white/55"}`}>
                     {c.verified || c.is_verified ? "Verified" : "Unverified"}
                   </div>
                 </div>

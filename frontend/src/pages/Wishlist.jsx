@@ -77,15 +77,15 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] pb-10">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED] pb-10">
       <div className="border-b border-white/10 pb-3 mb-4">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
           <Heart className="w-3.5 h-3.5" /> Saved for later
         </p>
         <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Wishlist</h1>
         <p className="font-sans text-sm text-white/50 mt-1">Influencers, brands, and production talent you saved.</p>
         {usingMock ? (
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]/80 mt-2">Demo wishlist · save real profiles from Marketplace</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C]/80 mt-2">Demo wishlist · save real profiles from Marketplace</p>
         ) : null}
       </div>
 
@@ -95,7 +95,7 @@ export default function Wishlist() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`kinetic-underline py-1 ${tab === t.id ? "text-[#FF3B30]" : "opacity-60"}`}
+            className={`kinetic-underline py-1 ${tab === t.id ? "text-[#FF5C5C]" : "opacity-60"}`}
           >
             {t.label}
           </button>

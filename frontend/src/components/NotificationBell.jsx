@@ -90,11 +90,11 @@ export function NotificationBell() {
           data-testid="notif-bell"
           title="Notifications"
           aria-label="Notifications"
-          className="relative w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:bg-[#FF3B30]/15 hover:border-[#FF3B30] flex items-center justify-center transition-colors"
+          className="relative w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:bg-[#FF5C5C]/15 hover:border-[#FF5C5C] flex items-center justify-center transition-colors"
         >
           <AiIcon name="bell" className="w-5 h-5" />
           {data.unread > 0 && (
-            <span data-testid="notif-badge" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF3B30] text-[#F4F4F0] text-[10px] font-mono flex items-center justify-center">
+            <span data-testid="notif-badge" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF5C5C] text-[#F7F5ED] text-[10px] font-mono flex items-center justify-center">
               {data.unread > 9 ? "9+" : data.unread}
             </span>
           )}
@@ -105,7 +105,7 @@ export function NotificationBell() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#121212] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90] left-auto"
+            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#12182A] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90] left-auto"
             style={{ maxWidth: "min(360px, calc(100vw - 1rem))" }}
             data-testid="notif-panel"
           >
@@ -113,7 +113,7 @@ export function NotificationBell() {
               <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">§ Correspondence</span>
               {data.unread > 0 && (
                 <button onClick={markAll} data-testid="notif-mark-all"
-                  className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] kinetic-underline">
+                  className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF5C5C] kinetic-underline">
                   Mark all read
                 </button>
               )}
@@ -131,7 +131,7 @@ export function NotificationBell() {
                     className="block p-4 hairline-b hover:bg-white/5 transition-colors"
                   >
                     <div className="flex items-baseline justify-between mb-1">
-                      <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF3B30]">{String(n.kind || "update").replace(/_/g, " ")}</span>
+                      <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF5C5C]">{String(n.kind || "update").replace(/_/g, " ")}</span>
                       <span className="font-mono text-[9px] tracking-[0.22em] uppercase opacity-50">
                         {n.created_at ? new Date(n.created_at).toLocaleDateString() : ""}
                       </span>

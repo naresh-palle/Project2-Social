@@ -155,7 +155,7 @@ export default function NewCampaign({ isEdit }) {
         niches,
         platforms,
       };
-      
+
       let data;
       if (isEdit && id) {
         const res = await api.put(`/campaigns/${id}`, payload);
@@ -176,22 +176,22 @@ export default function NewCampaign({ isEdit }) {
 
   if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
-      <div className="min-h-[50vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4">
-        
+      <div className="min-h-[50vh] bg-[#0B1020] text-[#F7F5ED] pt-6 px-4">
+
         <h1 className="font-sans text-2xl font-bold tracking-tight">Brand Owners, Agents &amp; Admins only, please</h1>
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0]">
-      
-      
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED]">
+
+
       <div className="pt-1 max-w-3xl mx-auto px-1 sm:px-4 md:px-6 pb-16 relative">
         <button
           type="button"
           onClick={() => nav("/dashboard")}
-          className="absolute top-0 right-0 p-2 bg-[#1A1A1A] border border-white/20 hover:border-[#FF3B30] hover:bg-[#FF3B30] text-white rounded-full shadow-xl transition-all duration-300 z-20"
+          className="absolute top-0 right-0 p-2 bg-[#1B2540] border border-white/20 hover:border-[#FF5C5C] hover:bg-[#FF5C5C] text-white rounded-full shadow-xl transition-all duration-300 z-20"
           title="Cancel / Close (Esc)"
           data-testid="new-campaign-cancel-btn"
         >
@@ -213,7 +213,7 @@ export default function NewCampaign({ isEdit }) {
         {aiOpen && (
           <div className="mt-4 border border-white/10 p-4 rounded-3xl" data-testid="ai-panel">
             <div className="flex items-baseline gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#FF5C5C]" />
               <span className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-70">AI Brand Copilot</span>
             </div>
             <p className="mt-1 text-xs opacity-70">Describe your goal in one line. We&apos;ll draft the brief.</p>
@@ -222,7 +222,7 @@ export default function NewCampaign({ isEdit }) {
               data-testid="ai-goal"
               value={aiGoal}
               onChange={(e) => setAiGoal(e.target.value)}
-              className="mt-2 w-full bg-transparent border-b border-white/15 py-2 focus:outline-none focus:border-[#FF3B30] resize-none text-sm"
+              className="mt-2 w-full bg-transparent border-b border-white/15 py-2 focus:outline-none focus:border-[#FF5C5C] resize-none text-sm"
             />
             <div className="mt-3 flex justify-end">
               <button onClick={runAI} disabled={aiBusy} data-testid="ai-generate" className="btn-solid text-xs">
@@ -273,18 +273,18 @@ export default function NewCampaign({ isEdit }) {
               <input data-testid="cf-inf-location" value={f.influencer_location} onChange={change("influencer_location")} placeholder="e.g. Mumbai, Delhi NCR" className="inp" />
             </Row>
             <Row label="Type of influencers">
-              <select data-testid="cf-inf-type" value={f.influencer_type} onChange={change("influencer_type")} className="inp bg-[#0B0B0E]">
+              <select data-testid="cf-inf-type" value={f.influencer_type} onChange={change("influencer_type")} className="inp bg-[#0B1020]">
                 {INFLUENCER_TYPES.map((t) => (
-                  <option key={t} value={t} className="bg-[#0B0B0E]">
+                  <option key={t} value={t} className="bg-[#0B1020]">
                     {t}
                   </option>
                 ))}
               </select>
             </Row>
             <Row label="Past experience of influencers">
-              <select data-testid="cf-inf-exp" value={f.influencer_experience} onChange={change("influencer_experience")} className="inp bg-[#0B0B0E]">
+              <select data-testid="cf-inf-exp" value={f.influencer_experience} onChange={change("influencer_experience")} className="inp bg-[#0B1020]">
                 {EXPERIENCE_OPTS.map((t) => (
-                  <option key={t} value={t} className="bg-[#0B0B0E]">
+                  <option key={t} value={t} className="bg-[#0B1020]">
                     {t}
                   </option>
                 ))}
@@ -311,9 +311,9 @@ export default function NewCampaign({ isEdit }) {
               <input type="number" data-testid="cf-required-creators" value={f.required_creators} onChange={change("required_creators")} placeholder="e.g. 10" className="inp" />
             </Row>
             <Row label="Payment type">
-              <select data-testid="cf-payment-type" value={f.payment_type} onChange={change("payment_type")} className="inp bg-[#0B0B0E]">
+              <select data-testid="cf-payment-type" value={f.payment_type} onChange={change("payment_type")} className="inp bg-[#0B1020]">
                 {["Paid", "Product Exchange", "Affiliate", "Hybrid", "Negotiable"].map((t) => (
-                  <option key={t} value={t} className="bg-[#0B0B0E]">{t}</option>
+                  <option key={t} value={t} className="bg-[#0B1020]">{t}</option>
                 ))}
               </select>
             </Row>
@@ -336,7 +336,7 @@ export default function NewCampaign({ isEdit }) {
               <button
                 type="button"
                 onClick={() => coverRef.current?.click()}
-                className="btn-solid bg-white/10 hover:bg-[#FF3B30] text-white px-3 py-2 text-xs flex items-center gap-2"
+                className="btn-solid bg-white/10 hover:bg-[#FF5C5C] text-white px-3 py-2 text-xs flex items-center gap-2"
                 data-testid="cf-cover-upload"
               >
                 <Upload className="w-3.5 h-3.5" /> Upload Cover Image
@@ -352,7 +352,7 @@ export default function NewCampaign({ isEdit }) {
                   data-testid={`niche-toggle-${n}`}
                   onClick={() => toggle(niches, setNiches, n)}
                   className={`px-3 py-1 rounded-full font-sans text-[10px] tracking-[0.16em] uppercase ${
-                    niches.includes(n) ? "bg-[#FF3B30] text-[#F4F4F0]" : "border border-white/15"
+                    niches.includes(n) ? "bg-[#FF5C5C] text-[#F7F5ED]" : "border border-white/15"
                   }`}
                 >
                   {n}
@@ -369,7 +369,7 @@ export default function NewCampaign({ isEdit }) {
                   data-testid={`platform-toggle-${n}`}
                   onClick={() => toggle(platforms, setPlatforms, n)}
                   className={`px-3 py-1 rounded-full font-sans text-[10px] tracking-[0.16em] uppercase ${
-                    platforms.includes(n) ? "bg-[#FF3B30] text-[#F4F4F0]" : "border border-white/15"
+                    platforms.includes(n) ? "bg-[#FF5C5C] text-[#F7F5ED]" : "border border-white/15"
                   }`}
                 >
                   {n}
@@ -389,7 +389,7 @@ export default function NewCampaign({ isEdit }) {
         </form>
       </div>
       <style>{`.inp { margin-top: 0.25rem; width: 100%; background: transparent; border-bottom: 1px solid var(--border-soft); padding: 0.45rem 0; outline: none; font-size: 0.95rem; color: var(--fg); }
-      .inp:focus { border-color: #FF3B30; }
+      .inp:focus { border-color: #FF5C5C; }
       .inp:disabled { opacity: 0.75; }`}</style>
     </div>
   );

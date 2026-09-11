@@ -49,7 +49,7 @@ export default function ProfileView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="animate-pulse font-sans tracking-widest text-xs uppercase text-[#FF3B30]">Loading profile...</div>
+        <div className="animate-pulse font-sans tracking-widest text-xs uppercase text-[#FF5C5C]">Loading profile...</div>
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default function ProfileView() {
     <div className="flex flex-col w-full pb-6 pt-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Account
           </p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Profile</h1>
@@ -129,7 +129,7 @@ export default function ProfileView() {
             <Link
               to={`/u/${profile.id}`}
               aria-label="View as public profile"
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 transition-colors"
             >
               <AiIcon name="view-public" className="w-5 h-5" />
             </Link>
@@ -138,7 +138,7 @@ export default function ProfileView() {
             <Link
               to="/profile/edit"
               aria-label="Edit profile"
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 transition-colors"
             >
               <AiIcon name="edit" className="w-5 h-5" />
             </Link>
@@ -160,7 +160,7 @@ export default function ProfileView() {
             </div>
           )}
           {profile.verified && (
-            <div className="absolute bottom-0 right-0 bg-[#34C759] border-2 border-[#0B0B0E] p-0.5 rounded-full">
+            <div className="absolute bottom-0 right-0 bg-[#52D4B5] border-2 border-[#0B1020] p-0.5 rounded-full">
               <ShieldCheck className="w-3.5 h-3.5 text-white" />
             </div>
           )}
@@ -169,12 +169,12 @@ export default function ProfileView() {
         <div className="flex-1 min-w-0 w-full">
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <h2 className="font-sans text-xl font-bold text-white tracking-tight truncate">{displayName}</h2>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#34C759]/10 border border-[#34C759]/30 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
-              <span className="font-mono text-[8px] uppercase tracking-widest text-[#34C759] font-bold">Active</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#52D4B5]/10 border border-[#52D4B5]/30 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#52D4B5]" />
+              <span className="font-mono text-[8px] uppercase tracking-widest text-[#52D4B5] font-bold">Active</span>
             </span>
             {isInfluencer && (
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/20 px-2 py-0.5 rounded-full">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C] bg-[#FF5C5C]/10 border border-[#FF5C5C]/20 px-2 py-0.5 rounded-full">
                 {profile.creator_level || "Beginner"}
               </span>
             )}
@@ -191,7 +191,7 @@ export default function ProfileView() {
             {profile.website && (
               <div>
                 <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Website</p>
-                <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-sm text-[#FF3B30] hover:underline inline-flex items-center gap-1 truncate max-w-full">
+                <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-sm text-[#FF5C5C] hover:underline inline-flex items-center gap-1 truncate max-w-full">
                   Visit <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -204,18 +204,18 @@ export default function ProfileView() {
         <div className="w-full md:w-44 shrink-0 bg-black/25 border border-white/10 rounded-xl p-3">
           <div className="flex justify-between font-sans text-[10px] mb-1.5">
             <span className="text-white/50 uppercase tracking-widest">Complete</span>
-            <span className="text-[#FF3B30] font-bold">{completionScore}%</span>
+            <span className="text-[#FF5C5C] font-bold">{completionScore}%</span>
           </div>
           <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden mb-2">
-            <div className="bg-[#FF3B30] h-full rounded-full" style={{ width: `${completionScore}%` }} />
+            <div className="bg-[#FF5C5C] h-full rounded-full" style={{ width: `${completionScore}%` }} />
           </div>
           {completionScore === 100 ? (
-            <div className="flex items-center gap-1.5 text-[#34C759]">
+            <div className="flex items-center gap-1.5 text-[#52D4B5]">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span className="font-sans text-[10px]">All set</span>
             </div>
           ) : (
-            <Link to="/profile/edit" className="font-sans text-[10px] text-[#FF3B30] hover:underline">
+            <Link to="/profile/edit" className="font-sans text-[10px] text-[#FF5C5C] hover:underline">
               Finish {missingFields[0] || "profile"} →
             </Link>
           )}
@@ -265,7 +265,7 @@ export default function ProfileView() {
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Base rate</p>
-                    <p className="font-sans text-lg font-bold text-[#FF3B30] tabular-nums">
+                    <p className="font-sans text-lg font-bold text-[#FF5C5C] tabular-nums">
                       {profile.base_rate ? `$${Number(profile.base_rate).toLocaleString()}` : "—"}
                     </p>
                   </div>
@@ -302,7 +302,7 @@ export default function ProfileView() {
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Past campaigns</h3>
-                  <Link to="/profile/edit#sec-campaigns" className="font-sans text-[10px] text-[#FF3B30] hover:underline shrink-0">
+                  <Link to="/profile/edit#sec-campaigns" className="font-sans text-[10px] text-[#FF5C5C] hover:underline shrink-0">
                     {pastCampaigns.length ? "Edit" : "Add"}
                   </Link>
                 </div>
@@ -324,7 +324,7 @@ export default function ProfileView() {
                 ) : (
                   <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-4">
                     <p className="font-sans text-sm text-white/70">No brand work on file yet.</p>
-                    <Link to="/profile/edit#sec-campaigns" className="font-sans text-[11px] text-[#FF3B30] hover:underline mt-1 inline-block">
+                    <Link to="/profile/edit#sec-campaigns" className="font-sans text-[11px] text-[#FF5C5C] hover:underline mt-1 inline-block">
                       Add campaign history →
                     </Link>
                   </div>
@@ -338,7 +338,7 @@ export default function ProfileView() {
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden h-full">
                 <div className="flex items-center justify-between mb-3 gap-2">
                   <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
-                  <span className="px-2 py-0.5 bg-[#FF3B30]/10 text-[#FF3B30] text-[9px] font-bold rounded-full shrink-0">
+                  <span className="px-2 py-0.5 bg-[#FF5C5C]/10 text-[#FF5C5C] text-[9px] font-bold rounded-full shrink-0">
                     {displayMetric(socialOverview.followers, { format: formatCompactNumber })} followers
                   </span>
                 </div>
@@ -368,7 +368,7 @@ export default function ProfileView() {
                         className={`px-3 py-3 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-2.5 min-w-0">
-                          <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF3B30] font-semibold truncate">
+                          <span className="font-sans text-[11px] uppercase tracking-wider text-[#FF5C5C] font-semibold truncate">
                             {SOCIAL_PLATFORM_LABELS[key] || key}
                           </span>
                           <span
@@ -391,14 +391,14 @@ export default function ProfileView() {
                             </p>
                           </div>
                           <div className="min-w-0 sm:text-center">
-                            <p className={`tabular-nums font-semibold truncate leading-tight text-base ${connected ? "text-[#34C759]" : ""}`}>
+                            <p className={`tabular-nums font-semibold truncate leading-tight text-base ${connected ? "text-[#52D4B5]" : ""}`}>
                               {erVal}
                             </p>
                             <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">ER</p>
                           </div>
                           <div className="min-w-0 sm:text-center">
                             <p className={`font-semibold truncate leading-tight text-sm ${
-                              data.verified || data.is_verified ? "text-[#34C759]" : "text-white/70"
+                              data.verified || data.is_verified ? "text-[#52D4B5]" : "text-white/70"
                             }`}>
                               {connected
                                 ? (data.verified || data.is_verified ? "Verified" : "Unverified")
@@ -426,7 +426,7 @@ export default function ProfileView() {
             {portfolioImages.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
-                  <ImageIcon className="w-3 h-3 text-[#FF3B30]" /> Images
+                  <ImageIcon className="w-3 h-3 text-[#FF5C5C]" /> Images
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                   {portfolioImages.map((media, i) => (
@@ -440,7 +440,7 @@ export default function ProfileView() {
             {portfolioVideos.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
-                  <VideoIcon className="w-3 h-3 text-[#FF3B30]" /> Videos
+                  <VideoIcon className="w-3 h-3 text-[#FF5C5C]" /> Videos
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {portfolioVideos.map((media, i) => (
@@ -486,7 +486,7 @@ function StatTile({ label, value, accent = false, title, hint }) {
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5" title={title}>
       <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
-      <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#34C759]" : "text-white"}`}>{value}</p>
+      <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#52D4B5]" : "text-white"}`}>{value}</p>
       {hint ? <p className="font-sans text-[9px] text-white/40 mt-0.5">{hint}</p> : null}
     </div>
   );
@@ -497,7 +497,7 @@ function ChipRow({ label, items, href, empty, tone = "default" }) {
     ? "bg-[#0A84FF]/10 border-[#0A84FF]/20 text-[#0A84FF]"
     : tone === "muted"
       ? "bg-white/5 border-white/10 text-white/60"
-      : "bg-[#FF3B30]/10 border-[#FF3B30]/20 text-[#FF3B30]";
+      : "bg-[#FF5C5C]/10 border-[#FF5C5C]/20 text-[#FF5C5C]";
   return (
     <div className="mb-2 last:mb-0">
       <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-1">{label}</p>
@@ -510,7 +510,7 @@ function ChipRow({ label, items, href, empty, tone = "default" }) {
           ))}
         </div>
       ) : (
-        <Link to={href} className="font-sans text-[11px] text-white/45 hover:text-[#FF3B30] transition-colors">
+        <Link to={href} className="font-sans text-[11px] text-white/45 hover:text-[#FF5C5C] transition-colors">
           {empty} →
         </Link>
       )}

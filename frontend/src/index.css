@@ -6,90 +6,94 @@
 
 @layer base {
     :root {
-        --ink: #0A0A0A;
-        --paper: #F4F4F0;
-        --vermilion: #FF3B30;
-        --muted-ink: #6B6B66;
-        --hairline: rgba(244, 244, 240, 0.14);
-        --hairline-dark: rgba(10, 10, 10, 0.14);
+        /* flugr midnight: ink, lunar paper, ember, aurora */
+        --ink: #070B16;
+        --paper: #F7F5ED;
+        --vermilion: #FF5C5C;
+        --aurora: #52D4B5;
+        --violet: #8B7CFF;
+        --gold: #F7B955;
+        --muted-ink: #77809B;
+        --hairline: rgba(247, 245, 237, 0.14);
+        --hairline-dark: rgba(7, 11, 22, 0.14);
 
         /* App surfaces (dark default) */
-        --surface-0: #0B0B0E;
-        --surface-1: #121212;
-        --surface-2: #1A1A1A;
-        --surface-3: #2A2A2A;
-        --fg: #F4F4F0;
-        --fg-muted: rgba(244, 244, 240, 0.62);
-        --fg-subtle: rgba(244, 244, 240, 0.42);
-        --border-soft: rgba(244, 244, 240, 0.14);
-        --border-strong: rgba(244, 244, 240, 0.28);
-        --overlay-soft: rgba(255, 255, 255, 0.05);
-        --overlay-mid: rgba(255, 255, 255, 0.10);
-        --overlay-strong: rgba(255, 255, 255, 0.15);
-        --scrim: rgba(0, 0, 0, 0.55);
+        --surface-0: #0B1020;
+        --surface-1: #12182A;
+        --surface-2: #1B2540;
+        --surface-3: #273454;
+        --fg: #F7F5ED;
+        --fg-muted: rgba(247, 245, 237, 0.66);
+        --fg-subtle: rgba(247, 245, 237, 0.45);
+        --border-soft: rgba(169, 183, 226, 0.16);
+        --border-strong: rgba(191, 202, 239, 0.32);
+        --overlay-soft: rgba(139, 124, 255, 0.07);
+        --overlay-mid: rgba(139, 124, 255, 0.12);
+        --overlay-strong: rgba(139, 124, 255, 0.18);
+        --scrim: rgba(2, 5, 15, 0.72);
 
-        --background: 0 0% 3.9%;
-        --foreground: 60 5% 96%;
-        --card: 0 0% 7%;
-        --card-foreground: 60 5% 96%;
-        --popover: 0 0% 7%;
-        --popover-foreground: 60 5% 96%;
-        --primary: 60 5% 96%;
-        --primary-foreground: 0 0% 3.9%;
-        --secondary: 0 0% 10%;
-        --secondary-foreground: 60 5% 96%;
-        --muted: 0 0% 12%;
-        --muted-foreground: 60 4% 65%;
-        --accent: 4 100% 59%;
-        --accent-foreground: 60 5% 96%;
-        --destructive: 4 100% 59%;
-        --destructive-foreground: 60 5% 96%;
-        --border: 60 5% 96% / 0.14;
-        --input: 60 5% 96% / 0.14;
-        --ring: 4 100% 59%;
+        --background: 228 48% 6%;
+        --foreground: 45 28% 95%;
+        --card: 228 38% 12%;
+        --card-foreground: 45 28% 95%;
+        --popover: 228 38% 12%;
+        --popover-foreground: 45 28% 95%;
+        --primary: 45 28% 95%;
+        --primary-foreground: 228 48% 6%;
+        --secondary: 226 36% 16%;
+        --secondary-foreground: 45 28% 95%;
+        --muted: 226 30% 17%;
+        --muted-foreground: 226 17% 67%;
+        --accent: 0 100% 68%;
+        --accent-foreground: 45 28% 95%;
+        --destructive: 0 100% 68%;
+        --destructive-foreground: 45 28% 95%;
+        --border: 225 32% 78% / 0.16;
+        --input: 225 32% 78% / 0.16;
+        --ring: 0 100% 68%;
         --radius: 0px;
         color-scheme: dark;
     }
 
     html.theme-light {
-        --ink: #F4F4F0;
-        --paper: #0A0A0A;
-        --muted-ink: #5C5C56;
-        --hairline: rgba(10, 10, 10, 0.12);
-        --hairline-dark: rgba(10, 10, 10, 0.12);
+        --ink: #F7F5ED;
+        --paper: #070B16;
+        --muted-ink: #5B6683;
+        --hairline: rgba(7, 11, 22, 0.12);
+        --hairline-dark: rgba(7, 11, 22, 0.12);
 
-        --surface-0: #F4F4F0;
-        --surface-1: #FFFFFF;
-        --surface-2: #ECECE6;
-        --surface-3: #E0E0D8;
-        --fg: #0A0A0A;
-        --fg-muted: rgba(10, 10, 10, 0.72);
-        --fg-subtle: rgba(10, 10, 10, 0.55);
-        --border-soft: rgba(10, 10, 10, 0.18);
-        --border-strong: rgba(10, 10, 10, 0.32);
-        --overlay-soft: rgba(10, 10, 10, 0.04);
-        --overlay-mid: rgba(10, 10, 10, 0.08);
-        --overlay-strong: rgba(10, 10, 10, 0.12);
-        --scrim: rgba(244, 244, 240, 0.72);
+        --surface-0: #F7F5ED;
+        --surface-1: #FFFDF7;
+        --surface-2: #EEF0F5;
+        --surface-3: #DEE4F0;
+        --fg: #070B16;
+        --fg-muted: rgba(7, 11, 22, 0.72);
+        --fg-subtle: rgba(7, 11, 22, 0.55);
+        --border-soft: rgba(28, 42, 76, 0.16);
+        --border-strong: rgba(28, 42, 76, 0.30);
+        --overlay-soft: rgba(91, 105, 175, 0.06);
+        --overlay-mid: rgba(91, 105, 175, 0.10);
+        --overlay-strong: rgba(91, 105, 175, 0.15);
+        --scrim: rgba(7, 11, 22, 0.22);
 
-        --background: 60 11% 95%;
-        --foreground: 0 0% 4%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 4%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 4%;
-        --primary: 0 0% 4%;
-        --primary-foreground: 60 11% 95%;
-        --secondary: 60 8% 92%;
-        --secondary-foreground: 0 0% 4%;
-        --muted: 60 8% 90%;
-        --muted-foreground: 0 0% 32%;
-        --accent: 4 100% 59%;
+        --background: 45 28% 95%;
+        --foreground: 228 48% 6%;
+        --card: 45 55% 99%;
+        --card-foreground: 228 48% 6%;
+        --popover: 45 55% 99%;
+        --popover-foreground: 228 48% 6%;
+        --primary: 228 48% 6%;
+        --primary-foreground: 45 28% 95%;
+        --secondary: 220 30% 94%;
+        --secondary-foreground: 228 48% 6%;
+        --muted: 220 25% 92%;
+        --muted-foreground: 226 17% 35%;
+        --accent: 0 100% 68%;
         --accent-foreground: 0 0% 100%;
-        --destructive: 4 100% 59%;
+        --destructive: 0 100% 68%;
         --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 4% / 0.12;
-        --input: 0 0% 4% / 0.12;
+        --border: 228 32% 18% / 0.14;
+        --input: 228 32% 18% / 0.14;
         color-scheme: light;
     }
 }
@@ -186,8 +190,8 @@ optgroup:disabled {
 
 /* Selection */
 ::selection {
-    background: #FF3B30;
-    color: #F4F4F0;
+    background: #FF5C5C;
+    color: #F7F5ED;
 }
 
 /* Custom cursor for interactive */
@@ -412,7 +416,7 @@ html.theme-light .btn-pill:hover img.ai-icon {
     gap: 0.6rem;
     padding: 0.95rem 1.5rem;
     background: var(--vermilion);
-    color: #F4F4F0;
+    color: #F7F5ED;
     border: 0;
     border-radius: 0;
     box-shadow: none;
@@ -446,24 +450,24 @@ html.theme-light #root {
 }
 
 /* Hardcoded dark page / panel backgrounds → light surfaces */
-html.theme-light .bg-\[\#0B0B0E\],
-html.theme-light .bg-\[\#0A0A0A\],
-html.theme-light .bg-\[\#050505\],
-html.theme-light .bg-\[\#0D0D0D\],
+html.theme-light .bg-\[\#0B1020\],
+html.theme-light .bg-\[\#070B16\],
+html.theme-light .bg-\[\#060914\],
+html.theme-light .bg-\[\#0E1426\],
 html.theme-light .bg-\[\#111\],
 html.theme-light .bg-\[\#000\],
 html.theme-light .bg-black {
     background-color: var(--surface-0) !important;
 }
-html.theme-light .bg-\[\#121212\] {
+html.theme-light .bg-\[\#12182A\] {
     background-color: var(--surface-1) !important;
 }
-html.theme-light .bg-\[\#1A1A1A\],
-html.theme-light .bg-\[\#1a1a1a\] {
+html.theme-light .bg-\[\#1B2540\],
+html.theme-light .bg-\[\#1B2540\] {
     background-color: var(--surface-2) !important;
 }
-html.theme-light .bg-\[\#2A2A2A\],
-html.theme-light .bg-\[\#2a2a2a\] {
+html.theme-light .bg-\[\#273454\],
+html.theme-light .bg-\[\#273454\] {
     background-color: var(--surface-3) !important;
 }
 
@@ -479,7 +483,7 @@ html.theme-light .bg-white\/20 { background-color: rgba(10, 10, 10, 0.14) !impor
 html.theme-light .hover\:bg-white\/5:hover { background-color: rgba(10, 10, 10, 0.05) !important; }
 html.theme-light .hover\:bg-white\/10:hover { background-color: rgba(10, 10, 10, 0.09) !important; }
 html.theme-light .hover\:bg-white\/15:hover { background-color: rgba(10, 10, 10, 0.12) !important; }
-html.theme-light .hover\:bg-\[\#2A2A2A\]:hover { background-color: var(--surface-3) !important; }
+html.theme-light .hover\:bg-\[\#273454\]:hover { background-color: var(--surface-3) !important; }
 
 html.theme-light .bg-black\/20 { background-color: rgba(10, 10, 10, 0.06) !important; }
 html.theme-light .bg-black\/30 { background-color: rgba(10, 10, 10, 0.08) !important; }
@@ -488,54 +492,54 @@ html.theme-light .bg-black\/50 { background-color: rgba(10, 10, 10, 0.12) !impor
 html.theme-light .bg-black\/60 { background-color: rgba(255, 255, 255, 0.85) !important; }
 html.theme-light .bg-black\/70,
 html.theme-light .bg-black\/80 { background-color: rgba(244, 244, 240, 0.88) !important; }
-html.theme-light .bg-\[\#0B0B0E\]\/40,
-html.theme-light .bg-\[\#0B0B0E\]\/60,
-html.theme-light .bg-\[\#0B0B0E\]\/70,
-html.theme-light .bg-\[\#0B0B0E\]\/80,
-html.theme-light .bg-\[\#0B0B0E\]\/90,
-html.theme-light .bg-\[\#121212\]\/90,
-html.theme-light .bg-\[\#121212\]\/95 {
+html.theme-light .bg-\[\#0B1020\]\/40,
+html.theme-light .bg-\[\#0B1020\]\/60,
+html.theme-light .bg-\[\#0B1020\]\/70,
+html.theme-light .bg-\[\#0B1020\]\/80,
+html.theme-light .bg-\[\#0B1020\]\/90,
+html.theme-light .bg-\[\#12182A\]\/90,
+html.theme-light .bg-\[\#12182A\]\/95 {
     background-color: rgba(244, 244, 240, 0.92) !important;
 }
 
 /* Foreground / font colors — cover all common white / paper variants */
-html.theme-light .text-\[\#F4F4F0\],
+html.theme-light .text-\[\#F7F5ED\],
 html.theme-light .text-white {
     color: var(--fg) !important;
 }
 html.theme-light .text-white\/90,
-html.theme-light .text-\[\#F4F4F0\]\/90,
-html.theme-light .text-\[\#F4F4F0\]\/85 { color: rgba(10, 10, 10, 0.92) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/90,
+html.theme-light .text-\[\#F7F5ED\]\/85 { color: rgba(10, 10, 10, 0.92) !important; }
 html.theme-light .text-white\/85 { color: rgba(10, 10, 10, 0.88) !important; }
 html.theme-light .text-white\/80,
-html.theme-light .text-\[\#F4F4F0\]\/80,
-html.theme-light .text-\[\#F4F4F0\]\/75 { color: rgba(10, 10, 10, 0.8) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/80,
+html.theme-light .text-\[\#F7F5ED\]\/75 { color: rgba(10, 10, 10, 0.8) !important; }
 html.theme-light .text-white\/70,
-html.theme-light .text-\[\#F4F4F0\]\/70 { color: rgba(10, 10, 10, 0.72) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/70 { color: rgba(10, 10, 10, 0.72) !important; }
 html.theme-light .text-white\/65,
-html.theme-light .text-\[\#F4F4F0\]\/65 { color: rgba(10, 10, 10, 0.68) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/65 { color: rgba(10, 10, 10, 0.68) !important; }
 html.theme-light .text-white\/60,
-html.theme-light .text-\[\#F4F4F0\]\/60 { color: rgba(10, 10, 10, 0.62) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/60 { color: rgba(10, 10, 10, 0.62) !important; }
 html.theme-light .text-white\/55,
-html.theme-light .text-\[\#F4F4F0\]\/55 { color: rgba(10, 10, 10, 0.58) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/55 { color: rgba(10, 10, 10, 0.58) !important; }
 html.theme-light .text-white\/50,
-html.theme-light .text-\[\#F4F4F0\]\/50,
-html.theme-light .text-\[\#F4F4F0\]\/45 { color: rgba(10, 10, 10, 0.55) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/50,
+html.theme-light .text-\[\#F7F5ED\]\/45 { color: rgba(10, 10, 10, 0.55) !important; }
 html.theme-light .text-white\/45 { color: rgba(10, 10, 10, 0.52) !important; }
 html.theme-light .text-white\/40,
-html.theme-light .text-\[\#F4F4F0\]\/40 { color: rgba(10, 10, 10, 0.48) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/40 { color: rgba(10, 10, 10, 0.48) !important; }
 html.theme-light .text-white\/35,
-html.theme-light .text-\[\#F4F4F0\]\/35 { color: rgba(10, 10, 10, 0.45) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/35 { color: rgba(10, 10, 10, 0.45) !important; }
 html.theme-light .text-white\/30,
 html.theme-light .text-white\/25,
-html.theme-light .text-\[\#F4F4F0\]\/25 { color: rgba(10, 10, 10, 0.4) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/25 { color: rgba(10, 10, 10, 0.4) !important; }
 html.theme-light .text-white\/20,
 html.theme-light .text-white\/15,
-html.theme-light .text-\[\#F4F4F0\]\/15 { color: rgba(10, 10, 10, 0.36) !important; }
+html.theme-light .text-\[\#F7F5ED\]\/15 { color: rgba(10, 10, 10, 0.36) !important; }
 html.theme-light .hover\:text-white:hover { color: var(--fg) !important; }
 html.theme-light .hover\:text-white\/90:hover { color: rgba(10, 10, 10, 0.92) !important; }
 html.theme-light .hover\:text-white\/80:hover { color: rgba(10, 10, 10, 0.8) !important; }
-html.theme-light .group:hover .group-hover\:text-\[\#F4F4F0\]\/70 {
+html.theme-light .group:hover .group-hover\:text-\[\#F7F5ED\]\/70 {
     color: rgba(10, 10, 10, 0.72) !important;
 }
 html.theme-light .placeholder\:opacity-50::placeholder,
@@ -554,9 +558,9 @@ html.theme-light img.ai-icon,
 html.theme-light img[src*="/icons/"] {
     filter: invert(1);
 }
-html.theme-light .bg-\[\#FF3B30\] img.ai-icon,
-html.theme-light .bg-\[\#FF3B30\] img[src*="/icons/"],
-html.theme-light .bg-\[\#e03126\] img.ai-icon,
+html.theme-light .bg-\[\#FF5C5C\] img.ai-icon,
+html.theme-light .bg-\[\#FF5C5C\] img[src*="/icons/"],
+html.theme-light .bg-\[\#E5484D\] img.ai-icon,
 html.theme-light .bg-\[\#007AFF\] img.ai-icon,
 html.theme-light .btn-solid img.ai-icon,
 html.theme-light .btn-sm-solid img.ai-icon,
@@ -600,34 +604,34 @@ html.theme-light .placeholder\:text-white\/35::placeholder {
 }
 
 /* Keep white text on solid brand fills */
-html.theme-light .bg-\[\#FF3B30\],
-html.theme-light .bg-\[\#FF3B30\] .text-white,
-html.theme-light .bg-\[\#FF3B30\].text-white,
-html.theme-light .bg-\[\#e03126\],
+html.theme-light .bg-\[\#FF5C5C\],
+html.theme-light .bg-\[\#FF5C5C\] .text-white,
+html.theme-light .bg-\[\#FF5C5C\].text-white,
+html.theme-light .bg-\[\#E5484D\],
 html.theme-light .bg-\[\#007AFF\],
 html.theme-light .bg-\[\#007AFF\].text-white,
 html.theme-light .btn-solid,
 html.theme-light .btn-sm-solid,
-html.theme-light .hover\:bg-\[\#FF3B30\]:hover,
-html.theme-light .hover\:bg-\[\#FF3B30\]:hover.text-white,
-html.theme-light button.bg-\[\#FF3B30\],
-html.theme-light a.bg-\[\#FF3B30\] {
+html.theme-light .hover\:bg-\[\#FF5C5C\]:hover,
+html.theme-light .hover\:bg-\[\#FF5C5C\]:hover.text-white,
+html.theme-light button.bg-\[\#FF5C5C\],
+html.theme-light a.bg-\[\#FF5C5C\] {
     color: #FFFFFF !important;
 }
 /* Green success fills: keep intended text-black when present */
-html.theme-light .bg-\[\#34C759\]:not(.text-black),
-html.theme-light .bg-\[\#34C759\].text-white {
+html.theme-light .bg-\[\#52D4B5\]:not(.text-black),
+html.theme-light .bg-\[\#52D4B5\].text-white {
     color: #FFFFFF !important;
 }
-html.theme-light .bg-\[\#34C759\].text-black,
-html.theme-light .bg-\[\#34C759\] .text-black {
-    color: #0A0A0A !important;
+html.theme-light .bg-\[\#52D4B5\].text-black,
+html.theme-light .bg-\[\#52D4B5\] .text-black {
+    color: #070B16 !important;
 }
-html.theme-light .hover\:bg-\[\#FF3B30\]:hover {
+html.theme-light .hover\:bg-\[\#FF5C5C\]:hover {
     color: #FFFFFF !important;
 }
-html.theme-light .hover\:text-white:hover.bg-\[\#FF3B30\],
-html.theme-light .bg-\[\#FF3B30\]:hover {
+html.theme-light .hover\:text-white:hover.bg-\[\#FF5C5C\],
+html.theme-light .bg-\[\#FF5C5C\]:hover {
     color: #FFFFFF !important;
 }
 
@@ -643,14 +647,14 @@ html.theme-light .hover\:border-white\/40:hover { border-color: rgba(10, 10, 10,
 html.theme-light .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
     border-color: rgba(10, 10, 10, 0.10) !important;
 }
-html.theme-light .border-\[\#F4F4F0\]\/10,
-html.theme-light .border-\[\#F4F4F0\]\/20 {
+html.theme-light .border-\[\#F7F5ED\]\/10,
+html.theme-light .border-\[\#F7F5ED\]\/20 {
     border-color: rgba(10, 10, 10, 0.14) !important;
 }
 
 /* Soft light paper chips that become dark-on-light */
-html.theme-light .bg-\[\#F4F4F0\].text-\[\#0A0A0A\],
-html.theme-light .bg-\[\#F4F4F0\] {
+html.theme-light .bg-\[\#F7F5ED\].text-\[\#070B16\],
+html.theme-light .bg-\[\#F7F5ED\] {
     background-color: var(--surface-2) !important;
     color: var(--fg) !important;
 }
@@ -709,13 +713,13 @@ html.theme-light .grain {
  * (hero, marquee, manifesto). Preserve light type on dark plates.
  */
 html.theme-light .theme-keep-dark,
-html.theme-light .theme-keep-dark.bg-\[\#0B0B0E\],
-html.theme-light .theme-keep-dark.bg-\[\#0A0A0A\],
+html.theme-light .theme-keep-dark.bg-\[\#0B1020\],
+html.theme-light .theme-keep-dark.bg-\[\#070B16\],
 html.theme-light .theme-keep-dark.bg-black {
-    background-color: #0A0A0A !important;
-    color: #F4F4F0 !important;
+    background-color: #070B16 !important;
+    color: #F7F5ED !important;
 }
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\],
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\],
 html.theme-light .theme-keep-dark .text-white,
 html.theme-light .theme-keep-dark .text-white\/90,
 html.theme-light .theme-keep-dark .text-white\/85,
@@ -729,17 +733,17 @@ html.theme-light .theme-keep-dark .text-white\/45,
 html.theme-light .theme-keep-dark .text-white\/40,
 html.theme-light .theme-keep-dark .text-white\/35,
 html.theme-light .theme-keep-dark .text-white\/30,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/90,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/80,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/75,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/70,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/65,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/60,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/55,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/50,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/45,
-html.theme-light .theme-keep-dark .text-\[\#F4F4F0\]\/40 {
-    color: #F4F4F0 !important;
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/90,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/80,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/75,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/70,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/65,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/60,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/55,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/50,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/45,
+html.theme-light .theme-keep-dark .text-\[\#F7F5ED\]\/40 {
+    color: #F7F5ED !important;
 }
 html.theme-light .theme-keep-dark .opacity-30,
 html.theme-light .theme-keep-dark .opacity-40,
@@ -762,7 +766,7 @@ html.theme-light .theme-keep-dark .bg-black\/60 {
 }
 html.theme-light .theme-keep-dark .hover\:text-white:hover,
 html.theme-light .theme-keep-dark .hover\:text-white\/80:hover {
-    color: #F4F4F0 !important;
+    color: #F7F5ED !important;
 }
 html.theme-light .theme-keep-dark .bg-white\/\[0\.02\],
 html.theme-light .theme-keep-dark .bg-white\/\[0\.03\],
@@ -793,13 +797,13 @@ html.high-contrast #root {
     background: #000 !important;
     color: #fff !important;
 }
-html.high-contrast .bg-\[\#0B0B0E\],
-html.high-contrast .bg-\[\#121212\],
-html.high-contrast .bg-\[\#0A0A0A\],
-html.high-contrast .bg-\[\#050505\] {
+html.high-contrast .bg-\[\#0B1020\],
+html.high-contrast .bg-\[\#12182A\],
+html.high-contrast .bg-\[\#070B16\],
+html.high-contrast .bg-\[\#060914\] {
     background-color: #000 !important;
 }
-html.high-contrast .text-\[\#F4F4F0\],
+html.high-contrast .text-\[\#F7F5ED\],
 html.high-contrast .opacity-60,
 html.high-contrast .opacity-50,
 html.high-contrast .opacity-70 {
@@ -815,7 +819,7 @@ html.high-contrast [role="switch"] {
     outline-offset: 2px;
 }
 html.high-contrast .btn-solid,
-html.high-contrast button[class*="bg-[#FF3B30]"] {
+html.high-contrast button[class*="bg-[#FF5C5C]"] {
     outline: 2px solid #fff;
 }
 html.high-contrast input,
@@ -834,14 +838,14 @@ html.theme-light.high-contrast #root {
     background: #fff !important;
     color: #000 !important;
 }
-html.theme-light.high-contrast .bg-\[\#0B0B0E\],
-html.theme-light.high-contrast .bg-\[\#121212\],
-html.theme-light.high-contrast .bg-\[\#0A0A0A\],
-html.theme-light.high-contrast .bg-\[\#050505\],
+html.theme-light.high-contrast .bg-\[\#0B1020\],
+html.theme-light.high-contrast .bg-\[\#12182A\],
+html.theme-light.high-contrast .bg-\[\#070B16\],
+html.theme-light.high-contrast .bg-\[\#060914\],
 html.theme-light.high-contrast .bg-black {
     background-color: #fff !important;
 }
-html.theme-light.high-contrast .text-\[\#F4F4F0\],
+html.theme-light.high-contrast .text-\[\#F7F5ED\],
 html.theme-light.high-contrast .text-white {
     color: #000 !important;
 }
@@ -858,7 +862,7 @@ html.reduced-motion *::after {
 
 /* Shared form control helpers (theme-aware) */
 .app-nav-surface {
-    background-color: color-mix(in srgb, var(--surface-0) 82%, transparent);
+    background: linear-gradient(100deg, color-mix(in srgb, var(--surface-0) 94%, #8B7CFF 6%), color-mix(in srgb, var(--surface-0) 96%, #52D4B5 4%));
     color: var(--fg);
 }
 .app-nav-surface--borderless,
@@ -895,6 +899,7 @@ html.reduced-motion *::after {
     letter-spacing: 0.15em;
     font-weight: bold;
     color: #fff !important;
+    box-shadow: 0 8px 24px rgba(255, 92, 92, 0.22);
 }
 .btn-sm-outline {
     padding: 0.4rem 0.85rem;

@@ -57,7 +57,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
         }`}
       />
       <aside
-        className={`fixed top-0 left-0 h-[100dvh] w-[min(16.5rem,86vw)] bg-[#0B0B0E] border-r border-white/10 flex flex-col z-[90] overflow-y-auto no-scrollbar font-sans transition-transform duration-300 ease-out
+        className={`fixed top-0 left-0 h-[100dvh] w-[min(16.5rem,86vw)] bg-[#0B1020] border-r border-white/10 flex flex-col z-[90] overflow-y-auto no-scrollbar font-sans transition-transform duration-300 ease-out
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0`}
       >
@@ -82,14 +82,14 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                   {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                 </div>
               )}
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#34C759] border-2 border-[#0B0B0E] rounded-full" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#52D4B5] border-2 border-[#0B1020] rounded-full" />
             </div>
 
             <h3 className="font-sans font-bold text-[15px] tracking-tight text-white flex items-center gap-1 justify-center leading-tight max-w-full px-1">
               <span className="truncate">{displayAccountName(user)}</span>
               {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5 shrink-0" tone="brand" />}
             </h3>
-            <p className="font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-[#FF3B30] mt-1">
+            <p className="font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-[#FF5C5C] mt-1">
               {user?.role === "admin"
                 ? "Admin Console"
                 : user?.role === "owner"
@@ -138,7 +138,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               const loc = formatUserLocation(user);
               return (
                 <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 mt-2 max-w-[200px]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#52D4B5] shrink-0" />
                   <span className="font-sans text-[10px] font-medium text-white/70 truncate" title={loc || "Online"}>
                     {loc ? `Online · ${loc}` : "Online"}
                   </span>
@@ -167,7 +167,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                   onClick={onClose}
                   className={`font-sans text-[13px] tracking-tight px-3.5 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
                     isActive
-                      ? "bg-[#FF3B30] text-white shadow-lg shadow-[#FF3B30]/20 font-semibold"
+                      ? "bg-[#FF5C5C] text-white shadow-lg shadow-[#FF5C5C]/20 font-semibold"
                       : "text-white/65 hover:text-white hover:bg-white/10 font-medium"
                   }`}
                 >
@@ -185,7 +185,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               <Link
                 to="/support"
                 onClick={onClose}
-                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 text-white transition-colors"
                 aria-label="Support"
               >
                 <AiIcon name="support" className="w-5 h-5" tone="white" />
@@ -194,7 +194,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               <Link
                 to="/help"
                 onClick={onClose}
-                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 text-white transition-colors"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 text-white transition-colors"
                 aria-label="AI Help"
               >
                 <AiIcon name="ai" className="w-5 h-5" tone="white" />

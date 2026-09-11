@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
+import {
   User, Bell, Trash2, Download, Ban, VolumeX, UserX,
   Monitor, Sun, Moon, Eye, Loader2, ChevronRight, ChevronLeft
 , Sparkles } from "lucide-react";
@@ -304,19 +304,19 @@ export default function Settings() {
 
   if (!user || !settings) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
-      
+      <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex items-center justify-center">
+
         <Loader2 className="w-6 h-6 animate-spin opacity-50" />
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col pt-2">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED] flex flex-col pt-2">
       <div className="flex flex-col w-full pb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-3 mb-4">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Account Settings
               </p>
               <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Settings</h1>
@@ -329,7 +329,7 @@ export default function Settings() {
               {user?.role === "influencer" ? (
                 <Link
                   to="/referrals"
-                  className="flex items-center justify-between py-3 border-b border-white/10 hover:text-[#FF3B30] transition-colors"
+                  className="flex items-center justify-between py-3 border-b border-white/10 hover:text-[#FF5C5C] transition-colors"
                   data-testid="settings-referrals"
                 >
                   <span className="font-sans text-sm">Referrals</span>
@@ -350,7 +350,7 @@ export default function Settings() {
                         onClick={() => patch({ theme: id })}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 border transition-colors ${
                           active
-                            ? "border-[#FF3B30] bg-[#FF3B30]/15 text-[color:var(--fg)]"
+                            ? "border-[#FF5C5C] bg-[#FF5C5C]/15 text-[color:var(--fg)]"
                             : "border-white/15 bg-black/30 text-white/60 hover:text-white hover:border-white/30"
                         }`}
                       >
@@ -406,7 +406,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setSecurityOpen(true)}
-                  className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px] w-full text-left"
+                  className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF5C5C] transition-colors group min-h-[36px] w-full text-left"
                   data-testid="settings-reset-password"
                 >
                   Reset Password
@@ -422,7 +422,7 @@ export default function Settings() {
                 {blocks.map((b) => (
                   <div key={b.block?.id || b.user?.id} className="flex items-center justify-between py-1">
                     <span className="font-editorial text-sm">{formatUsername(b.user?.username, b.user?.handle, b.user?.name) || b.block?.blocked_id}</span>
-                    <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">
+                    <button type="button" onClick={() => unblock(b.user?.id || b.block?.blocked_id)} className="font-mono text-[10px] text-[#FF5C5C] uppercase">
                       Unblock
                     </button>
                   </div>
@@ -435,7 +435,7 @@ export default function Settings() {
                 {mutes.map((m) => (
                   <div key={m.id} className="flex items-center justify-between py-1">
                     <span className="font-mono text-sm">{m.muted_id}</span>
-                    <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unmute</button>
+                    <button type="button" onClick={() => unmute(m.muted_id)} className="font-mono text-[10px] text-[#FF5C5C] uppercase">Unmute</button>
                   </div>
                 ))}
               </Section>
@@ -446,7 +446,7 @@ export default function Settings() {
                 {restricted.map((r) => (
                   <div key={r.id} className="flex items-center justify-between py-1">
                     <span className="font-mono text-sm">{r.restricted_id}</span>
-                    <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Unrestrict</button>
+                    <button type="button" onClick={() => unrestrict(r.restricted_id)} className="font-mono text-[10px] text-[#FF5C5C] uppercase">Unrestrict</button>
                   </div>
                 ))}
               </Section>
@@ -474,7 +474,7 @@ export default function Settings() {
                   type="button"
                   disabled={deleteConfirm !== "DELETE"}
                   onClick={() => setShowDeleteModal(true)}
-                  className="px-4 py-2 bg-[#FF3B30] font-mono text-xs uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-[#FF5C5C] font-mono text-xs uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Delete Account
                 </button>
@@ -486,18 +486,18 @@ export default function Settings() {
 
       {securityOpen && (
         <div
-          className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#0B1020]/80 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setSecurityOpen(false)}
           data-testid="security-modal-backdrop"
         >
           <div
-            className="bg-[#121212] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="bg-[#12182A] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             data-testid="security-modal"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">Security</p>
+                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF5C5C] font-bold">Security</p>
                 <h3 className="font-sans text-xl font-bold mt-0.5">Reset password &amp; account security</h3>
               </div>
               <button
@@ -544,8 +544,8 @@ export default function Settings() {
             <div className="border-t border-white/10 pt-4 space-y-2">
               <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Two-factor authentication</h4>
               {settings.two_fa_enabled ? (
-                <div className="p-3 border border-[#34C759]/30 bg-[#34C759]/5 rounded-xs space-y-2">
-                  <p className="font-mono text-xs text-[#34C759]">2FA is enabled</p>
+                <div className="p-3 border border-[#52D4B5]/30 bg-[#52D4B5]/5 rounded-xs space-y-2">
+                  <p className="font-mono text-xs text-[#52D4B5]">2FA is enabled</p>
                   <input
                     type="password"
                     placeholder="Current password"
@@ -590,14 +590,14 @@ export default function Settings() {
                       <div className="font-mono text-xs truncate">{s.device_name || "Device"}</div>
                       <div className="font-mono text-[10px] opacity-50">{s.ip}</div>
                     </div>
-                    <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF3B30] font-mono text-[10px] uppercase shrink-0">
+                    <button type="button" onClick={() => revokeSession(s.id)} className="text-[#FF5C5C] font-mono text-[10px] uppercase shrink-0">
                       Revoke
                     </button>
                   </div>
                 ))}
                 {loginHistory.slice(0, 5).map((h) => (
                   <div key={h.id} className="py-1 border-b border-white/5 font-mono text-[10px]">
-                    <span className={h.success ? "text-[#34C759]" : "text-[#FF3B30]"}>{h.success ? "✓" : "✗"}</span>
+                    <span className={h.success ? "text-[#52D4B5]" : "text-[#FF5C5C]"}>{h.success ? "✓" : "✗"}</span>
                     {" "}{h.ip} · {h.created_at?.slice(0, 16)}
                   </div>
                 ))}
@@ -613,7 +613,7 @@ export default function Settings() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121215] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-6">
-            <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF3B30] font-semibold mb-2">Confirm Deletion</h3>
+            <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF5C5C] font-semibold mb-2">Confirm Deletion</h3>
             <p className="font-sans text-xs text-white/80 mb-6">
               Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
             </p>
@@ -626,7 +626,7 @@ export default function Settings() {
               </button>
               <button
                 onClick={deleteAccount}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-3xl transition-colors shadow-lg shadow-[#FF3B30]/20"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#FF5C5C] hover:bg-[#E5484D] text-white rounded-3xl transition-colors shadow-lg shadow-[#FF5C5C]/20"
               >
                 Yes, Delete My Account
               </button>
@@ -642,8 +642,8 @@ export default function Settings() {
 
 function Section({ title, icon: Icon, children, dense = false }) {
   return (
-    <section className={`border border-white/10 bg-[#121212] rounded-xs ${dense ? "p-4" : "p-6"}`}>
-      <h2 className={`font-mono text-xs uppercase tracking-widest text-[#FF3B30] flex items-center gap-2 ${dense ? "mb-2" : "mb-4"}`}>
+    <section className={`border border-white/10 bg-[#12182A] rounded-xs ${dense ? "p-4" : "p-6"}`}>
+      <h2 className={`font-mono text-xs uppercase tracking-widest text-[#FF5C5C] flex items-center gap-2 ${dense ? "mb-2" : "mb-4"}`}>
         <Icon className="w-4 h-4" /> {title}
       </h2>
       <div className={dense ? "space-y-1" : "space-y-4"}>{children}</div>
@@ -672,7 +672,7 @@ function Toggle({ label, checked, onChange }) {
       <span className="font-mono text-sm">{label}</span>
       <span
         className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-[#FF3B30]" : "bg-white/20"
+          checked ? "bg-[#FF5C5C]" : "bg-white/20"
         }`}
       >
         <span
@@ -687,7 +687,7 @@ function Toggle({ label, checked, onChange }) {
 
 function QuickLink({ to, label }) {
   return (
-    <Link to={to} className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF3B30] transition-colors group min-h-[36px]">
+    <Link to={to} className="flex items-center justify-between py-1.5 font-mono text-sm hover:text-[#FF5C5C] transition-colors group min-h-[36px]">
       {label}
       <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100" />
     </Link>
@@ -737,8 +737,8 @@ function DraftsAndAnalytics() {
                 <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
                   <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
                   <div className="flex gap-2 shrink-0">
-                    <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#34C759] uppercase">Publish</button>
-                    <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF3B30] uppercase">Delete</button>
+                    <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#52D4B5] uppercase">Publish</button>
+                    <button type="button" onClick={() => deletePost(p.id, drafts, setDrafts)} className="font-mono text-[10px] text-[#FF5C5C] uppercase">Delete</button>
                   </div>
                 </div>
               ))}
@@ -753,7 +753,7 @@ function DraftsAndAnalytics() {
                     <span className="font-editorial text-sm block truncate">{p.title || p.text || "Untitled"}</span>
                     <span className="font-mono text-[9px] opacity-60 text-indigo-300 block">{new Date(p.scheduled_for).toLocaleString()}</span>
                   </div>
-                  <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF3B30] uppercase shrink-0">Delete</button>
+                  <button type="button" onClick={() => deletePost(p.id, scheduled, setScheduled)} className="font-mono text-[10px] text-[#FF5C5C] uppercase shrink-0">Delete</button>
                 </div>
               ))}
             </>

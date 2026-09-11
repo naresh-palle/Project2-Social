@@ -68,17 +68,17 @@ export default function Referrals() {
 
   const stats = [
     { label: "Referrals", value: summary.total || 0, icon: Users, accent: "text-white" },
-    { label: "Qualified", value: summary.qualified || 0, icon: BadgeCheck, accent: "text-[#34C759]" },
+    { label: "Qualified", value: summary.qualified || 0, icon: BadgeCheck, accent: "text-[#52D4B5]" },
     { label: "Pending", value: summary.pending || 0, icon: Clock, accent: "text-white/80" },
-    { label: "Potential", value: `₹${Number(summary.potential_reward || 0).toLocaleString()}`, icon: Gift, accent: "text-[#FF3B30]" },
+    { label: "Potential", value: `₹${Number(summary.potential_reward || 0).toLocaleString()}`, icon: Gift, accent: "text-[#FF5C5C]" },
   ];
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED] flex flex-col">
       <div className="flex flex-col w-full pb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Referrals
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">
@@ -115,7 +115,7 @@ export default function Referrals() {
             animate={{ opacity: 1, y: 0 }}
             className="xl:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-40 h-40 bg-[#FF3B30]/15 blur-[80px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#FF5C5C]/15 blur-[80px] rounded-full pointer-events-none" />
             <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3 relative">
               Your referral code
             </h2>
@@ -128,7 +128,7 @@ export default function Referrals() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="px-5 py-3 bg-[#FF3B30] hover:bg-[#e03126] text-white rounded-xl font-mono text-[10px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 shrink-0"
+                className="px-5 py-3 bg-[#FF5C5C] hover:bg-[#E5484D] text-white rounded-xl font-mono text-[10px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 shrink-0"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? "Copied" : "Copy code"}
@@ -179,7 +179,7 @@ export default function Referrals() {
                   { title: "You both earn", desc: "Reward hits your wallet after first campaign." },
                 ].map((s, i) => (
                   <li key={s.title} className="flex gap-3">
-                    <span className="w-7 h-7 rounded-full bg-[#FF3B30]/15 border border-[#FF3B30]/30 text-[#FF3B30] font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                    <span className="w-7 h-7 rounded-full bg-[#FF5C5C]/15 border border-[#FF5C5C]/30 text-[#FF5C5C] font-mono text-xs font-bold flex items-center justify-center shrink-0">
                       {i + 1}
                     </span>
                     <div className="min-w-0 pt-0.5">
@@ -199,13 +199,13 @@ export default function Referrals() {
                       placeholder="Enter code"
                       value={applyCode}
                       onChange={(e) => setApplyCode(e.target.value)}
-                      className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 font-mono text-xs uppercase flex-1 focus:outline-none focus:border-[#FF3B30]"
+                      className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 font-mono text-xs uppercase flex-1 focus:outline-none focus:border-[#FF5C5C]"
                     />
                     <button
                       type="button"
                       onClick={handleApply}
                       disabled={applying || !applyCode.trim()}
-                      className="px-4 py-2 bg-[#FF3B30] disabled:opacity-50 text-white rounded-xl font-mono text-[10px] tracking-widest uppercase"
+                      className="px-4 py-2 bg-[#FF5C5C] disabled:opacity-50 text-white rounded-xl font-mono text-[10px] tracking-widest uppercase"
                     >
                       {applying ? "…" : "Apply"}
                     </button>
@@ -249,7 +249,7 @@ export default function Referrals() {
                               ref.status === "rewarded"
                                 ? "bg-green-500/15 text-green-400 border border-green-500/25"
                                 : ref.status === "qualified"
-                                  ? "bg-[#FF3B30]/15 text-[#FF3B30] border border-[#FF3B30]/25"
+                                  ? "bg-[#FF5C5C]/15 text-[#FF5C5C] border border-[#FF5C5C]/25"
                                   : "bg-white/8 text-white/65 border border-white/15"
                             }`}
                           >

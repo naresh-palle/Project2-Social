@@ -206,7 +206,7 @@ export default function CampaignDetail() {
 
   if (c === false) {
     return (
-      <div className="min-h-[40vh] bg-[#0B0B0E] text-[#F4F4F0] pt-6 px-4">
+      <div className="min-h-[40vh] bg-[#0B1020] text-[#F7F5ED] pt-6 px-4">
         <Link to="/marketplace?tab=campaigns" className="font-mono text-[10px] uppercase tracking-widest text-white/45 hover:text-white">← Campaigns</Link>
         <h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight mt-2">
           {accessNote || "Brief not on file."}
@@ -217,7 +217,7 @@ export default function CampaignDetail() {
       </div>
     );
   }
-  if (!c) return <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
+  if (!c) return <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = (user?.role === "owner" || user?.role === "agent" || user?.role === "admin") && c.owner_id === user?.id;
   const isAcceptedInfluencer = user?.role === "influencer" && c.accepted_creator_id === user?.id;
@@ -253,10 +253,10 @@ export default function CampaignDetail() {
         ? "Pending"
         : null;
   const statusTone = statusLabel === "Approved"
-    ? "text-[#34C759] border-[#34C759]/40 bg-[#34C759]/10"
+    ? "text-[#52D4B5] border-[#52D4B5]/40 bg-[#52D4B5]/10"
     : statusLabel === "Rejected"
-      ? "text-[#FF3B30] border-[#FF3B30]/40 bg-[#FF3B30]/10"
-      : "text-[#FF9500] border-[#FF9500]/40 bg-[#FF9500]/10";
+      ? "text-[#FF5C5C] border-[#FF5C5C]/40 bg-[#FF5C5C]/10"
+      : "text-[#F7B955] border-[#F7B955]/40 bg-[#F7B955]/10";
 
   return (
     <div className="flex flex-col w-full max-w-[1600px] mx-auto pb-4">
@@ -270,7 +270,7 @@ export default function CampaignDetail() {
             <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/50 break-words">
               Brief · {brief.id.slice(0, 8)} · {brief.status}
             </p>
-            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] mt-1 break-words">
+            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF5C5C] mt-1 break-words">
               {brief.brand}
             </p>
             <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-snug mt-1 break-words">
@@ -278,13 +278,13 @@ export default function CampaignDetail() {
             </h1>
           </div>
           {isOwner && (
-            <Link to={`/campaigns/${brief.id}/edit`} className="shrink-0 font-sans text-[10px] uppercase text-[#FF3B30] hover:underline self-start">
+            <Link to={`/campaigns/${brief.id}/edit`} className="shrink-0 font-sans text-[10px] uppercase text-[#FF5C5C] hover:underline self-start">
               Edit Brief
             </Link>
           )}
         </div>
         {accessNote ? (
-          <p className="mt-2 text-xs text-[#FF9500] border border-[#FF9500]/30 bg-[#FF9500]/10 rounded-xl px-3 py-2">{accessNote}</p>
+          <p className="mt-2 text-xs text-[#F7B955] border border-[#F7B955]/30 bg-[#F7B955]/10 rounded-xl px-3 py-2">{accessNote}</p>
         ) : null}
       </div>
 
@@ -339,7 +339,7 @@ export default function CampaignDetail() {
                             <Check className="w-3 h-3" /> Accept
                           </button>
                         ) : (
-                          <span className={`font-mono text-[10px] tracking-[0.28em] uppercase ${a.status === "accepted" ? "text-[#34C759]" : a.status === "declined" ? "text-[#FF3B30]" : "opacity-50"}`}>
+                          <span className={`font-mono text-[10px] tracking-[0.28em] uppercase ${a.status === "accepted" ? "text-[#52D4B5]" : a.status === "declined" ? "text-[#FF5C5C]" : "opacity-50"}`}>
                             {a.status === "accepted" ? "Approved" : a.status === "declined" ? "Rejected" : a.status === "pending" ? "Pending" : a.status}
                           </span>
                         )}
@@ -360,7 +360,7 @@ export default function CampaignDetail() {
                         <IndianRupee className="w-4 h-4" /> Fund escrow · ₹{c.budget}
                       </button>
                     ) : c.escrow_released ? (
-                      <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF3B30]">✓ Payment released</span>
+                      <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF5C5C]">✓ Payment released</span>
                     ) : (
                       <button onClick={release} disabled={c.status !== "completed"} data-testid="release-btn" className="btn-solid">
                         <Check className="w-4 h-4" /> Release ₹{c.escrow_funded}
@@ -408,7 +408,7 @@ export default function CampaignDetail() {
                         className="hairline-t hairline-b hairline-l hairline-r p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 md:gap-4 items-center"
                         data-testid={`match-${m.id}`}
                       >
-                        <div className="md:col-span-1 font-editorial italic text-4xl text-[#FF3B30]">#{idx + 1}</div>
+                        <div className="md:col-span-1 font-editorial italic text-4xl text-[#FF5C5C]">#{idx + 1}</div>
                         <div className="md:col-span-1">
                           {m.avatar ? (
                             <img src={m.avatar} alt="" className="w-14 h-14 object-cover" />
@@ -421,7 +421,7 @@ export default function CampaignDetail() {
                           <div className="font-mono text-[10px] tracking-[0.22em] uppercase opacity-60 truncate">{m.handle} · {(m.niches || []).join(" · ")}</div>
                           <p className="text-xs italic opacity-80 mt-1 line-clamp-2">"{m.verdict}"</p>
                         </div>
-                        <div className="md:col-span-2 font-editorial italic text-4xl text-[#FF3B30]">{m.score}%</div>
+                        <div className="md:col-span-2 font-editorial italic text-4xl text-[#FF5C5C]">{m.score}%</div>
                         <div className="md:col-span-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">
                           {m.followers ? `${Math.round(m.followers / 1000)}K` : "—"}<br/>
                           <span className="opacity-70">{m.estimated_reach}</span>
@@ -452,10 +452,10 @@ export default function CampaignDetail() {
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Offer (INR ₹)</label>
                       <input type="number" data-testid="quick-invite-offer" value={inviteOffer} onChange={e=>setInviteOffer(e.target.value)}
                         placeholder={`${c.budget}`}
-                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
+                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF5C5C]" />
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mt-4 block">Note</label>
                       <textarea rows={3} data-testid="quick-invite-msg" value={inviteMsg} onChange={e=>setInviteMsg(e.target.value)}
-                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+                        className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF5C5C] resize-none" />
                       <button onClick={sendInviteQuick} data-testid="quick-invite-send" className="btn-solid mt-6 w-full justify-center">
                         <Send className="w-4 h-4" /> Send invitation
                       </button>
@@ -472,12 +472,12 @@ export default function CampaignDetail() {
                 <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 hairline-b pb-3">§ Submit deliverable</h3>
                 <form onSubmit={submitDeliv} className="mt-4 space-y-4" data-testid="deliv-form">
                   <select data-testid="deliv-kind" value={delivForm.kind} onChange={e=>setDelivForm({...delivForm,kind:e.target.value})}
-                    className="w-full bg-[#0B0B0E] hairline-b py-3 focus:outline-none">
+                    className="w-full bg-[#0B1020] hairline-b py-3 focus:outline-none">
                     {["reel","story","post","video","document","other"].map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                   <input data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}
                     placeholder="https://… or upload a file below"
-                    className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30]" />
+                    className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF5C5C]" />
                   <div className="flex flex-wrap items-center gap-3">
                     <input
                       ref={delivFileRef}
@@ -501,7 +501,7 @@ export default function CampaignDetail() {
                   <textarea data-testid="deliv-caption" value={delivForm.caption} onChange={e=>setDelivForm({...delivForm,caption:e.target.value})}
                     rows={2}
                     placeholder="Caption / notes"
-                    className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+                    className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF5C5C] resize-none" />
                   <button data-testid="deliv-submit" className="btn-solid"><Upload className="w-4 h-4" /> Submit</button>
                 </form>
               </div>
@@ -516,11 +516,11 @@ export default function CampaignDetail() {
                     <div key={d.id} className="hairline-b py-3 grid grid-cols-12 gap-3 items-baseline" data-testid={`deliv-${d.id}`}>
                       <div className="col-span-2 font-mono text-[10px] tracking-[0.22em] uppercase opacity-70">{d.kind}</div>
                       <div className="col-span-6">
-                        <a href={d.url} target="_blank" rel="noreferrer" className="kinetic-underline text-[#FF3B30] break-all">{d.url}</a>
+                        <a href={d.url} target="_blank" rel="noreferrer" className="kinetic-underline text-[#FF5C5C] break-all">{d.url}</a>
                         {d.caption && <p className="text-xs opacity-70 mt-1">{d.caption}</p>}
                       </div>
                       <div className="col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase">
-                        <span className={d.status === "approved" ? "text-[#FF3B30]" : "opacity-70"}>{d.status}</span>
+                        <span className={d.status === "approved" ? "text-[#FF5C5C]" : "opacity-70"}>{d.status}</span>
                       </div>
                       {isOwner && d.status === "pending" && (
                         <div className="col-span-2 flex gap-1 justify-end">
@@ -547,7 +547,7 @@ export default function CampaignDetail() {
                 <h3 className="font-editorial text-3xl italic">Pitch this brief.</h3>
                 {!user ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">
-                    <Link to="/login" className="text-[#FF3B30] kinetic-underline">Sign in</Link> as an influencer to apply.
+                    <Link to="/login" className="text-[#FF5C5C] kinetic-underline">Sign in</Link> as an influencer to apply.
                   </p>
                 ) : user.role !== "influencer" ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">Only influencers can pitch.</p>
@@ -563,19 +563,19 @@ export default function CampaignDetail() {
                       <p className="text-sm text-white/70">Your rate: ₹{Number(myApplication.rate).toLocaleString("en-IN")}</p>
                     ) : null}
                     {myApplication?.pitch ? (
-                      <p className="text-sm text-white/80 italic border-l-2 border-[#FF3B30]/50 pl-3">“{myApplication.pitch}”</p>
+                      <p className="text-sm text-white/80 italic border-l-2 border-[#FF5C5C]/50 pl-3">“{myApplication.pitch}”</p>
                     ) : (
-                      <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF3B30]">✓ Pitch delivered.</p>
+                      <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF5C5C]">✓ Pitch delivered.</p>
                     )}
                     {statusLabel === "Rejected" && myApplication?.notes ? (
-                      <p className="text-xs text-[#FF3B30]">Reason: {myApplication.notes}</p>
+                      <p className="text-xs text-[#FF5C5C]">Reason: {myApplication.notes}</p>
                     ) : null}
                   </div>
                 ) : (
                   <form onSubmit={apply} className="mt-5 space-y-5" data-testid="apply-form" noValidate>
                     <div className="space-y-2">
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
-                        Your pitch <span className="text-[#FF3B30]">*</span>
+                        Your pitch <span className="text-[#FF5C5C]">*</span>
                       </label>
                       <textarea
                         data-testid="apply-pitch"
@@ -583,13 +583,13 @@ export default function CampaignDetail() {
                         onChange={(e) => { setPitch(e.target.value); if (pitchErr) setPitchErr(""); }}
                         rows={5}
                         aria-invalid={!!pitchErr}
-                        className={`mt-1 w-full bg-[#0B0B0E] border p-3 focus:outline-none focus:border-[#FF3B30] resize-none rounded-xl ${pitchErr ? "border-[#FF3B30]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#0B1020] border p-3 focus:outline-none focus:border-[#FF5C5C] resize-none rounded-xl ${pitchErr ? "border-[#FF5C5C]" : "border-white/10"}`}
                       />
-                      {pitchErr ? <p className="text-[11px] text-[#FF3B30]">{pitchErr}</p> : null}
+                      {pitchErr ? <p className="text-[11px] text-[#FF5C5C]">{pitchErr}</p> : null}
                     </div>
                     <div className="space-y-2">
                       <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
-                        Your rate (INR ₹) <span className="text-[#FF3B30]">*</span>
+                        Your rate (INR ₹) <span className="text-[#FF5C5C]">*</span>
                       </label>
                       <input
                         data-testid="apply-rate"
@@ -599,9 +599,9 @@ export default function CampaignDetail() {
                         value={rate}
                         onChange={(e) => { setRate(e.target.value); if (rateErr) setRateErr(""); }}
                         aria-invalid={!!rateErr}
-                        className={`mt-1 w-full bg-[#0B0B0E] border p-3 focus:outline-none focus:border-[#FF3B30] text-lg rounded-xl ${rateErr ? "border-[#FF3B30]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#0B1020] border p-3 focus:outline-none focus:border-[#FF5C5C] text-lg rounded-xl ${rateErr ? "border-[#FF5C5C]" : "border-white/10"}`}
                       />
-                      {rateErr ? <p className="text-[11px] text-[#FF3B30]">{rateErr}</p> : null}
+                      {rateErr ? <p className="text-[11px] text-[#FF5C5C]">{rateErr}</p> : null}
                     </div>
                     <button
                       type="submit"
@@ -622,7 +622,7 @@ export default function CampaignDetail() {
 
             {c.cover && (
               <div className="w-full rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] p-2 mt-8">
-                <div className="aspect-square overflow-hidden rounded-xl bg-[#0B0B0E]">
+                <div className="aspect-square overflow-hidden rounded-xl bg-[#0B1020]">
                   <img src={c.cover} alt={c.title} className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
@@ -638,7 +638,7 @@ export default function CampaignDetail() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0B0B0E] border border-white/10 p-6 max-w-md w-full relative"
+              className="bg-[#0B1020] border border-white/10 p-6 max-w-md w-full relative"
             >
               <h3 className="font-editorial text-2xl italic">Rehire {creatorName}</h3>
               <p className="mt-4 font-sans text-sm opacity-80">
@@ -662,7 +662,7 @@ function Meta({ label, value, accent }) {
   return (
     <div className="flex flex-col">
       <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 mb-2">{label}</div>
-      <div className={`font-sans uppercase tracking-[0.05em] leading-snug ${accent ? "text-xl font-bold text-[#FF3B30]" : "text-sm font-semibold text-white/90"}`}>
+      <div className={`font-sans uppercase tracking-[0.05em] leading-snug ${accent ? "text-xl font-bold text-[#FF5C5C]" : "text-sm font-semibold text-white/90"}`}>
         {value}
       </div>
     </div>
@@ -688,11 +688,11 @@ function ReviewBlock({ campaignId, targetId }) {
           <div className="flex gap-2">
             {[1,2,3,4,5].map(i => (
               <button key={i} onClick={() => setRating(i)} data-testid={`star-${i}`}>
-                <Star className={`w-8 h-8 ${i <= rating ? "fill-[#FF3B30] text-[#FF3B30]" : "text-white/30"}`} />
+                <Star className={`w-8 h-8 ${i <= rating ? "fill-[#FF5C5C] text-[#FF5C5C]" : "text-white/30"}`} />
               </button>
             ))}
           </div>
-          <textarea data-testid="review-text" value={text} onChange={e=>setText(e.target.value)} rows={3} className="mt-4 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF3B30] resize-none" />
+          <textarea data-testid="review-text" value={text} onChange={e=>setText(e.target.value)} rows={3} className="mt-4 w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF5C5C] resize-none" />
           <button onClick={submit} data-testid="review-submit" className="btn-solid mt-4">
             <Send className="w-4 h-4" /> Submit review
           </button>

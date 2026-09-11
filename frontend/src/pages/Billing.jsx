@@ -10,10 +10,10 @@ import { useAuth } from "@/lib/auth";
 const STATUS = ["draft", "sent", "viewed", "partially_paid", "paid", "overdue", "cancelled"];
 
 function statusCls(s) {
-  if (s === "paid") return "text-[#34C759]";
-  if (s === "overdue" || s === "cancelled") return "text-[#FF3B30]";
+  if (s === "paid") return "text-[#52D4B5]";
+  if (s === "overdue" || s === "cancelled") return "text-[#FF5C5C]";
   if (s === "draft") return "text-white/45";
-  return "text-[#FF9500]";
+  return "text-[#F7B955]";
 }
 
 export default function Billing() {
@@ -85,10 +85,10 @@ export default function Billing() {
   ];
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] pb-24" data-testid="billing-page">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED] pb-24" data-testid="billing-page">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
             <AiIcon name="billing" className="w-3.5 h-3.5" /> Billing
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Billing & Invoices</h1>
@@ -104,7 +104,7 @@ export default function Billing() {
           <button
             type="button"
             onClick={() => { setDemo((v) => !v); setParams((p) => { const n = new URLSearchParams(p); if (!demo) n.set("demo", "1"); else n.delete("demo"); return n; }); }}
-            className={`btn-pill text-[10px] !py-2 !px-3 ${demo ? "border-[#FF3B30] text-[#FF3B30]" : ""}`}
+            className={`btn-pill text-[10px] !py-2 !px-3 ${demo ? "border-[#FF5C5C] text-[#FF5C5C]" : ""}`}
           >
             <AiIcon name="demo" className="w-3.5 h-3.5" />
             Demo data
@@ -122,7 +122,7 @@ export default function Billing() {
             key={b}
             type="button"
             onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("box", b); return n; })}
-            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15 text-white/50"}`}
+            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15 text-white/50"}`}
           >
             {b}
           </button>
@@ -131,7 +131,7 @@ export default function Billing() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
         {cardOrder.map(([label, v]) => (
-          <div key={label} className="rounded-2xl border border-white/10 bg-[#121212] p-3">
+          <div key={label} className="rounded-2xl border border-white/10 bg-[#12182A] p-3">
             <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
             <div className="font-sans text-lg font-bold tabular-nums mt-1">{inr(v?.amount)}</div>
             <div className="font-mono text-[9px] text-white/35">{v?.count || 0}</div>
@@ -140,8 +140,8 @@ export default function Billing() {
       </div>
 
       {demo && demoPack ? (
-        <div className="rounded-2xl border border-[#FF3B30]/40 bg-[#FF3B30]/5 p-4 mb-5">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold flex items-center gap-2">
+        <div className="rounded-2xl border border-[#FF5C5C]/40 bg-[#FF5C5C]/5 p-4 mb-5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C] font-bold flex items-center gap-2">
             <AiIcon name="demo" className="w-3.5 h-3.5" /> DEMO DATA — not saved to production
           </p>
           <p className="font-sans text-xs text-white/60 mt-1">{demoPack.note}</p>
@@ -151,7 +151,7 @@ export default function Billing() {
               <p><span className="text-white/40">Company</span> {demoPack.company?.legal_name} · {demoPack.company?.gstin}</p>
               <p><span className="text-white/40">Campaign</span> {demoPack.campaign?.name} ({demoPack.campaign?.campaign_id})</p>
               <p className="mt-2">{demoPack.invoice?.invoice_number} · {inr(demoPack.invoice?.grand_total)} · GST {inr(demoPack.invoice?.total_gst)}</p>
-              <p className="text-[#FF9500] mt-1">Example GSTIN checksum: supplier {demoPack.gstin_valid_supplier ? "valid format" : "invalid (intentional demo)"} / recipient {demoPack.gstin_valid_recipient ? "valid format" : "invalid (intentional demo)"}</p>
+              <p className="text-[#F7B955] mt-1">Example GSTIN checksum: supplier {demoPack.gstin_valid_supplier ? "valid format" : "invalid (intentional demo)"} / recipient {demoPack.gstin_valid_recipient ? "valid format" : "invalid (intentional demo)"}</p>
             </div>
             <div className="max-h-[420px] overflow-auto rounded-xl">
               <InvoicePreview invoice={{ ...demoPack.invoice, supplier: demoPack.creator, recipient: demoPack.company, campaign: demoPack.campaign, template: "professional" }} demo />
@@ -162,7 +162,7 @@ export default function Billing() {
 
       <div className="flex flex-wrap gap-2 mb-3">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoice, client, campaign" className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-56 max-w-full min-w-0" />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full">
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#12182A] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full">
           <option value="">All statuses</option>
           {STATUS.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
         </select>

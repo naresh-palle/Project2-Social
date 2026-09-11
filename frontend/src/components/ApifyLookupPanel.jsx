@@ -31,10 +31,10 @@ export function ApifyLookupPanel({ compact = false }) {
   const badge = !health
     ? { label: "Checking Apify…", cls: "text-white/45" }
     : connected
-      ? { label: "Apify connected", cls: "text-[#34C759]" }
+      ? { label: "Apify connected", cls: "text-[#52D4B5]" }
       : status === "not_configured"
-        ? { label: "Data source not configured", cls: "text-[#FF9500]" }
-        : { label: "Apify error", cls: "text-[#FF3B30]" };
+        ? { label: "Data source not configured", cls: "text-[#F7B955]" }
+        : { label: "Apify error", cls: "text-[#FF5C5C]" };
 
   const verify = async (e) => {
     e?.preventDefault();
@@ -61,7 +61,7 @@ export function ApifyLookupPanel({ compact = false }) {
   const profile = result?.profile;
 
   return (
-    <section className={`rounded-2xl border border-white/10 bg-[#121212] ${compact ? "p-3" : "p-4"}`}>
+    <section className={`rounded-2xl border border-white/10 bg-[#12182A] ${compact ? "p-3" : "p-4"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div>
           <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Verify a social ID</p>
@@ -78,7 +78,7 @@ export function ApifyLookupPanel({ compact = false }) {
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="mt-1 block bg-[#0B0B0E] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
+            className="mt-1 block bg-[#0B1020] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
           >
             {LOOKUP_PLATFORMS.map((p) => (
               <option key={p} value={p}>{p}</option>
@@ -104,7 +104,7 @@ export function ApifyLookupPanel({ compact = false }) {
       ) : null}
       {result ? (
         <div className="mt-3 rounded-xl border border-white/10 p-3">
-          <p className={`font-sans text-xs ${result.ok ? "text-[#34C759]" : "text-[#FF9500]"}`}>
+          <p className={`font-sans text-xs ${result.ok ? "text-[#52D4B5]" : "text-[#F7B955]"}`}>
             {result.message || (result.ok ? "Live Apify result" : "No result")}
           </p>
           {profile ? (

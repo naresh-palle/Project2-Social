@@ -61,7 +61,7 @@ function App() {
             <Route path="/privacy-policy" element={<Navigate to="/legal/privacy" replace />} />
             <Route path="/register" element={<RegisterSplash />} />
             <Route path="/register/:role" element={<Register />} />
-            
+
             {/* Authenticated Routes wrapped in AppLayout (Sidebar + Main Grid) */}
             <Route element={<AppLayout />}>
               <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
@@ -80,7 +80,7 @@ function App() {
               <Route path="/billing/:id/edit" element={<RequireAuth><InvoiceEditor /></RequireAuth>} />
               <Route path="/billing/:id" element={<RequireAuth><InvoiceEditor /></RequireAuth>} />
               <Route path="/billing" element={<RequireAuth><Billing /></RequireAuth>} />
-  
+
               <Route path="/marketplace" element={<RequireAuth><Marketplace /></RequireAuth>} />
               <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
               <Route path="/brands/:id" element={<RequireAuth><BrandDetail /></RequireAuth>} />

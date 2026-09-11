@@ -16,7 +16,7 @@ export default function Login() {
   const { login, googleLogin, mobileOtpLogin } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
-  
+
   const [mode, setMode] = useState(location.state?.mode || "password");
   const [identifier, setIdentifier] = useState(location.state?.identifier || "");
   const [password, setPassword] = useState("");
@@ -31,7 +31,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const { user } = useAuth();
-  
+
   useEffect(() => {
     if (user) {
       nav(postAuthPath(user), { replace: true });
@@ -197,24 +197,24 @@ export default function Login() {
   };
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative" data-testid="login-page">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B1020] text-[#F7F5ED] relative" data-testid="login-page">
       <Nav />
-      
+
       <div className="h-full overflow-y-auto overflow-x-hidden flex items-start sm:items-center justify-center pt-14 pb-4 px-3 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] bg-[#121212] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-y-auto overflow-x-hidden my-2"
+          className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] bg-[#12182A] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-y-auto overflow-x-hidden my-2"
         >
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#FF5C5C] via-purple-500 to-[#52D4B5] absolute top-0 left-0" />
 
           <BrandLogo variant="wordmark" height={34} className="mb-2" />
           <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
             Sign In
           </p>
           <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
-            Return to <span className="italic text-[#FF3B30]">the studio</span>
+            Return to <span className="italic text-[#FF5C5C]">the studio</span>
           </h1>
 
           {/* LOGIN METHOD SWITCHER (Password vs Mobile OTP) */}
@@ -223,7 +223,7 @@ export default function Login() {
               type="button"
               onClick={() => { setMode("password"); setErr(""); }}
               className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
-                mode === "password" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                mode === "password" ? "bg-[#FF5C5C] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" /> Password
@@ -232,7 +232,7 @@ export default function Login() {
               type="button"
               onClick={() => { setMode("otp"); setErr(""); }}
               className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
-                mode === "otp" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                mode === "otp" ? "bg-[#FF5C5C] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" /> Mobile OTP
@@ -240,7 +240,7 @@ export default function Login() {
           </div>
 
           {err && (
-            <div className="mt-2 p-2 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-sans text-[11px] rounded-xs flex items-center gap-2">
+            <div className="mt-2 p-2 bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-[#FF5C5C] font-sans text-[11px] rounded-xs flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> {err}
             </div>
           )}
@@ -260,7 +260,7 @@ export default function Login() {
                   autoComplete="username"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="mt-0.5 w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
+                  className="mt-0.5 w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF5C5C] font-sans text-sm"
                   placeholder=""
                 />
               </div>
@@ -277,7 +277,7 @@ export default function Login() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-0.5 w-full bg-transparent hairline-b py-1.5 pr-10 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
+                    className="mt-0.5 w-full bg-transparent hairline-b py-1.5 pr-10 focus:outline-none focus:border-[#FF5C5C] font-sans text-sm"
                     placeholder=""
                   />
                   <button
@@ -295,11 +295,11 @@ export default function Login() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="accent-[#FF3B30]"
+                      className="accent-[#FF5C5C]"
                     />
                     Remember Me
                   </label>
-                  <Link to="/forgot-password" className="font-sans text-[10px] uppercase tracking-wider text-[#FF3B30] hover:underline font-medium">
+                  <Link to="/forgot-password" className="font-sans text-[10px] uppercase tracking-wider text-[#FF5C5C] hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -307,7 +307,7 @@ export default function Login() {
 
               {requires2fa && (
                 <div>
-                  <label className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#34C759] font-semibold leading-none block">
+                  <label className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#52D4B5] font-semibold leading-none block">
                     2FA Authentication Code
                   </label>
                   <input
@@ -316,7 +316,7 @@ export default function Login() {
                     maxLength={6}
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
-                    className="mt-1 w-full bg-black/80 border-2 border-[#34C759] p-3 font-sans text-center text-2xl tracking-[0.4em] text-[#34C759] focus:outline-none"
+                    className="mt-1 w-full bg-black/80 border-2 border-[#52D4B5] p-3 font-sans text-center text-2xl tracking-[0.4em] text-[#52D4B5] focus:outline-none"
                     placeholder="000000"
                   />
                 </div>
@@ -326,7 +326,7 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 data-testid="login-submit"
-                className="w-full bg-[#FF3B30] hover:bg-[#e03126] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full bg-[#FF5C5C] hover:bg-[#E5484D] text-white py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {loading ? "Authenticating..." : "Sign In to flugr"} <ArrowRight className="w-4 h-4" />
               </button>
@@ -334,9 +334,9 @@ export default function Login() {
 
               <div className={`mt-3 space-y-2 ${loading ? "pointer-events-none opacity-50" : ""}`}>
                 <div className="flex items-center gap-3 opacity-50">
-                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                  <div className="h-px bg-[#F7F5ED]/20 flex-1" />
                   <span className="font-sans text-[10px] tracking-widest uppercase">Or continue with</span>
-                  <div className="h-px bg-[#F4F4F0]/20 flex-1" />
+                  <div className="h-px bg-[#F7F5ED]/20 flex-1" />
                 </div>
                 <SocialAuthButtons
                   mode="signin"
@@ -367,7 +367,7 @@ export default function Login() {
                     disabled={otpSent}
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF3B30] font-sans text-sm"
+                    className="w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF5C5C] font-sans text-sm"
                     placeholder=""
                   />
                 </div>
@@ -377,10 +377,10 @@ export default function Login() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
                   <div>
                     <div className="flex justify-between items-center mb-0.5">
-                      <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#34C759] font-semibold">
+                      <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#52D4B5] font-semibold">
                         6-Digit Verification Code
                       </label>
-                      <span className="font-sans text-[9px] text-[#34C759] bg-[#34C759]/10 px-1.5 py-0.5 border border-[#34C759]/30 tracking-wider uppercase font-medium">
+                      <span className="font-sans text-[9px] text-[#52D4B5] bg-[#52D4B5]/10 px-1.5 py-0.5 border border-[#52D4B5]/30 tracking-wider uppercase font-medium">
                         Sent ✓
                       </span>
                     </div>
@@ -391,7 +391,7 @@ export default function Login() {
                       maxLength={6}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="w-full bg-black/80 border border-[#34C759] py-2 font-sans text-center text-xl tracking-[0.4em] text-[#34C759] focus:outline-none"
+                      className="w-full bg-black/80 border border-[#52D4B5] py-2 font-sans text-center text-xl tracking-[0.4em] text-[#52D4B5] focus:outline-none"
                       placeholder="123456"
                     />
                   </div>
@@ -436,7 +436,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#34C759] hover:bg-[#2fb24f] text-black py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full bg-[#52D4B5] hover:bg-[#2fb24f] text-black py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] font-bold transition-all shadow-lg flex items-center justify-center gap-2"
                 >
                   {loading ? "Verifying OTP..." : "Verify & Sign In"}
                 </button>

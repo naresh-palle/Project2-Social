@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
-import { 
-  Users, IndianRupee, Activity, Bell, Search, Download, Calendar, 
-  ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter, 
+import {
+  Users, IndianRupee, Activity, Bell, Search, Download, Calendar,
+  ArrowUpRight, ArrowDownRight, Loader2, CheckCircle2, XCircle, Filter,
   Trash2, Lock, ShieldCheck, Zap, FileText, Check, ShieldAlert, Sparkles,
   LayoutGrid, List
 } from "lucide-react";
@@ -243,7 +243,7 @@ const DEFAULT_BRIEFS = [
 
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-white/10 bg-[#121212] shadow-none">
+        <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-white/10 bg-[#12182A] shadow-none">
             <div className="flex justify-between items-start gap-2">
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
                 <div className="p-2 bg-white/5 rounded-3xl shrink-0">{icon}</div>
@@ -251,7 +251,7 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
             <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-white truncate">{value}</div>
             <div className="flex justify-between items-center mt-3 gap-2">
                 <div className="font-sans text-[10px] tracking-wider uppercase opacity-50 leading-snug min-w-0">{sub}</div>
-                <div className={`flex items-center gap-1 font-sans text-[10px] shrink-0 ${pos ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+                <div className={`flex items-center gap-1 font-sans text-[10px] shrink-0 ${pos ? 'text-[#52D4B5]' : 'text-[#FF5C5C]'}`}>
                     {pos ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                     {trend}
                 </div>
@@ -281,7 +281,7 @@ function DiscoveryOps() {
           ["Pending research", stats.pending_research_jobs],
           ["Apify", stats.apify_configured ? "Configured" : "Data source not configured"],
         ].map(([k, v]) => (
-          <div key={k} className="rounded-2xl border border-white/10 bg-[#121212] p-4">
+          <div key={k} className="rounded-2xl border border-white/10 bg-[#12182A] p-4">
             <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{k}</div>
             <div className="font-sans text-xl font-bold mt-1">{v}</div>
           </div>
@@ -346,16 +346,16 @@ export function AdminPanel() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [exportBusy, setExportBusy] = useState(false);
-  
+
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
   const [payments, setPayments] = useState([]);
-  
+
   const [usersList, setUsersList] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
-  
+
   const [loading, setLoading] = useState(true);
-  
+
   const [roleFilter, setRoleFilter] = useState([]); // [] = All
   const [categoryFilter, setCategoryFilter] = useState([]); // [] = All
   const [statusFilter, setStatusFilter] = useState([]); // [] = All
@@ -456,7 +456,7 @@ export function AdminPanel() {
           if (stateFilter) params.append("state", stateFilter);
           if (cityFilter) params.append("city", cityFilter);
           if (languageFilter) params.append("language", languageFilter);
-          
+
           const { data } = await api.get(`/admin/users?${params.toString()}`);
           // Admins are never listed — prevents ban/delete access from User Management.
           let list = (Array.isArray(data) ? data : []).filter((u) => u?.role !== "admin");
@@ -711,7 +711,7 @@ export function AdminPanel() {
         toast.error("Nothing to export on this tab");
         return;
       }
-      
+
       // Filter by Date
       const now = new Date();
       let filterStart = null;
@@ -724,7 +724,7 @@ export function AdminPanel() {
           if (startDate) filterStart = new Date(startDate);
           if (endDate) { filterEnd = new Date(endDate); filterEnd.setHours(23, 59, 59, 999); }
       }
-      
+
       if (filterStart || filterEnd) {
           raw = raw.filter(item => {
               if (!item.created_at) return true; // If no date, include it
@@ -748,7 +748,7 @@ export function AdminPanel() {
 
       const meta = `Export Timeframe: ${exportRange.toUpperCase()}${exportRange === "custom" ? ` (${startDate} to ${endDate || "Unlimited"})` : ""} · Tab: ${tab}`;
       const base = `flugr_export_${tab}_${exportRange}_${new Date().toISOString().slice(0, 10)}`;
-      
+
       try {
         setExportBusy(true);
         const { buildLocalExportSummary } = await import("@/lib/exportFormats");
@@ -804,7 +804,7 @@ export function AdminPanel() {
   };
 
   if (loading) return (
-      <div className="flex items-center justify-center py-20 text-[#F4F4F0]">
+      <div className="flex items-center justify-center py-20 text-[#F7F5ED]">
         <div className="animate-pulse font-sans tracking-widest text-sm flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading admin…
         </div>
@@ -813,8 +813,8 @@ export function AdminPanel() {
 
   if (!stats) {
       return (
-          <div className="flex flex-col items-center justify-center text-[#F4F4F0] py-20 text-center">
-              <div className="font-sans text-3xl text-[#FF3B30] mb-2">Studio Offline</div>
+          <div className="flex flex-col items-center justify-center text-[#F7F5ED] py-20 text-center">
+              <div className="font-sans text-3xl text-[#FF5C5C] mb-2">Studio Offline</div>
               <div className="font-sans text-xs opacity-60 max-w-md">The admin console could not retrieve secure data from the server. Please ensure the backend is running.</div>
               <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 border border-white/20 text-xs font-sans uppercase tracking-widest hover:bg-white/5 transition">Hard Refresh</button>
           </div>
@@ -834,13 +834,13 @@ export function AdminPanel() {
       { name: 'Active', value: stats?.platform?.active_users || 18 },
       { name: 'Inactive', value: ((stats?.users?.creators || 22) + (stats?.users?.brands || 5)) - (stats?.platform?.active_users || 18) }
   ];
-  const COLORS = ['#34C759', '#FF3B30'];
+  const COLORS = ['#52D4B5', '#FF5C5C'];
 
   return (
     <div className="w-full flex flex-col">
         <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Admin
               </p>
               <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Admin</h1>
@@ -848,10 +848,10 @@ export function AdminPanel() {
                 Use the left panel to switch desks · Profile &amp; Settings stay in the sidebar
               </p>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
                 {EXPORTABLE_TABS.has(tab) && (
-                <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF3B30] text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
+                <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF5C5C] text-[#FF5C5C] hover:bg-[#FF5C5C] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
                     <Download className="w-4 h-4" /> Export {tab === "users" ? (
                         [
                             categoryFilter.length > 0 ? categoryFilter[0] : "",
@@ -881,10 +881,10 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0) + (stats?.requests?.hire_requests_pending || 0)} sub={`${stats?.requests?.verification_requests || 0} agencies · ${stats?.requests?.hire_requests_pending || 0} hire reqs`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend={stats?.approvals?.pending != null ? `${stats.approvals.pending} approvals` : "—"} pos={false} />
                 </div>
 
-                <section className="p-6 rounded-3xl border border-white/10 bg-[#121212]">
+                <section className="p-6 rounded-3xl border border-white/10 bg-[#12182A]">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                       <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium flex items-center gap-2 mb-0">
-                        <Bell className="w-3 h-3 text-[#FF3B30]" /> System Alerts
+                        <Bell className="w-3 h-3 text-[#FF5C5C]" /> System Alerts
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {alertFilters.map((f) => (
@@ -894,7 +894,7 @@ export function AdminPanel() {
                             onClick={() => setAlertFilter(f.id)}
                             className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                               alertFilter === f.id
-                                ? "bg-[#FF3B30] border-[#FF3B30] text-white"
+                                ? "bg-[#FF5C5C] border-[#FF5C5C] text-white"
                                 : "border-white/15 text-white/55 hover:border-white/35"
                             }`}
                           >
@@ -914,8 +914,8 @@ export function AdminPanel() {
                               onClick={() => setSelectedAlert(n)}
                               className="w-full text-left flex items-start gap-3 p-3 rounded-2xl border border-transparent hover:border-white/10 hover:bg-white/[0.03] transition-colors"
                             >
-                                {n.type === "success" && <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />}
-                                {n.type === "error" && <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />}
+                                {n.type === "success" && <CheckCircle2 className="w-4 h-4 text-[#52D4B5] shrink-0 mt-0.5" />}
+                                {n.type === "error" && <XCircle className="w-4 h-4 text-[#FF5C5C] shrink-0 mt-0.5" />}
                                 {n.type === "warning" && <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />}
                                 <div className="min-w-0 flex-1">
                                     <p className="font-sans text-sm opacity-90 leading-snug">{n.text}</p>
@@ -947,7 +947,7 @@ export function AdminPanel() {
         {/* TAB 5: USER MANAGEMENT */}
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-white/10 bg-[#121212] overflow-visible">
+                <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-white/10 bg-[#12182A] overflow-visible">
                     <div className="flex items-center gap-2 w-full max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
                         <Search className="w-4 h-4 opacity-50 shrink-0" />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
@@ -1032,7 +1032,7 @@ export function AdminPanel() {
                                                 : "—"}
                                             </td>
                                             <td className="p-4">
-                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{roleLabel(u.role)}</div>
+                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF5C5C]">{roleLabel(u.role)}</div>
                                               <div className="text-xs opacity-60 mt-1">{userCategoryText(u) || "—"}</div>
                                               {u.role === 'influencer' && (
                                                 <select
@@ -1051,9 +1051,9 @@ export function AdminPanel() {
                                                 {(() => {
                                                   const st = userStatusLabel(u);
                                                   const cls =
-                                                    st === "Active" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                                    st === "Active" ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/20" :
                                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
-                                                    st === "Banned" ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20" :
+                                                    st === "Banned" ? "bg-[#FF5C5C]/10 text-[#FF5C5C] border-[#FF5C5C]/20" :
                                                     "bg-white/5 text-white/60 border-white/15";
                                                   return (
                                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
@@ -1076,7 +1076,7 @@ export function AdminPanel() {
                                                     </>
                                                   )}
                                                   <button onClick={() => banUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-orange-400 transition-colors" title="Ban User"><Lock className="w-4 h-4" /></button>
-                                                  <button onClick={() => deleteUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF3B30] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
+                                                  <button onClick={() => deleteUser(u.id, u.role)} className="p-2 opacity-50 hover:opacity-100 hover:text-[#FF5C5C] transition-colors" title="Delete User"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
                                               )}
                                             </td>
@@ -1093,7 +1093,7 @@ export function AdminPanel() {
         {/* TAB: REPORTS */}
         {tab === "reports" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-4">
-                <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-white/10 bg-[#121212]">
+                <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-white/10 bg-[#12182A]">
                   <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 mr-1">Status</span>
                   {[
                     { id: "all", label: "All" },
@@ -1107,7 +1107,7 @@ export function AdminPanel() {
                       onClick={() => setReportStatusFilter(f.id)}
                       className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                         reportStatusFilter === f.id
-                          ? "bg-[#FF3B30] border-[#FF3B30] text-white"
+                          ? "bg-[#FF5C5C] border-[#FF5C5C] text-white"
                           : "border-white/15 text-white/55 hover:border-white/35"
                       }`}
                     >
@@ -1141,14 +1141,14 @@ export function AdminPanel() {
                                 <td className="p-4">
                                   <span className={`px-2 py-1 text-[9px] uppercase font-sans border rounded-xs ${
                                     r.status === "open" ? "bg-orange-400/10 text-orange-400 border-orange-400/20" :
-                                    r.status === "resolved" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                    r.status === "resolved" ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/20" :
                                     "bg-white/5 text-white/50 border-white/15"
                                   }`}>{r.status || "—"}</span>
                                 </td>
                                 <td className="p-4 text-right space-x-2">
                                     {r.status === "open" ? (
                                       <>
-                                        <button onClick={() => handleReportAction(r.id, "resolved")} className="font-sans text-[10px] text-[#34C759] uppercase">Resolve</button>
+                                        <button onClick={() => handleReportAction(r.id, "resolved")} className="font-sans text-[10px] text-[#52D4B5] uppercase">Resolve</button>
                                         <button onClick={() => handleReportAction(r.id, "dismissed")} className="font-sans text-[10px] opacity-50 uppercase">Dismiss</button>
                                       </>
                                     ) : (
@@ -1217,7 +1217,7 @@ export function AdminPanel() {
                       }}
                       className={`p-3 border text-left transition-colors ${
                         platformCategoryFilter.length === 0 || platformCategoryFilter.includes(name)
-                          ? "border-[#FF3B30]/40 bg-[#FF3B30]/5"
+                          ? "border-[#FF5C5C]/40 bg-[#FF5C5C]/5"
                           : "border-white/10 bg-white/[0.02] opacity-60 hover:opacity-100"
                       }`}
                     >
@@ -1256,16 +1256,16 @@ export function AdminPanel() {
                               <td className="p-4 font-sans text-sm font-medium">
                                 {formatUsername(u.username, u.handle) || "—"}
                               </td>
-                              <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF3B30]">{roleLabel(u.role)}</td>
+                              <td className="p-4 font-sans text-[10px] uppercase tracking-widest text-[#FF5C5C]">{roleLabel(u.role)}</td>
                               <td className="p-4 font-sans text-sm opacity-80">{userCategoryText(u) || "—"}</td>
                               <td className="p-4 font-sans text-sm break-all opacity-80">{u.email || "—"}</td>
                               <td className="p-4">
                                 {(() => {
                                   const st = userStatusLabel(u);
                                   const cls =
-                                    st === "Active" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                    st === "Active" ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/20" :
                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
-                                    st === "Banned" ? "bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20" :
+                                    st === "Banned" ? "bg-[#FF5C5C]/10 text-[#FF5C5C] border-[#FF5C5C]/20" :
                                     "bg-white/5 text-white/60 border-white/15";
                                   return (
                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
@@ -1294,7 +1294,7 @@ export function AdminPanel() {
         {tab === "growth" && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-10">
             <div className="border-b border-white/10 pb-4">
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Engage · Match · Refer</p>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold">Engage · Match · Refer</p>
               <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Growth Hub</h2>
               <p className="font-sans text-xs text-white/50 mt-2 max-w-2xl">
                 Broadcast announcements, tune creator–campaign matching, and manage referral rewards — one ops desk.
@@ -1304,7 +1304,7 @@ export function AdminPanel() {
             <section className="space-y-3">
               <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">1 · Broadcast</h3>
               <div className="p-6 glass-panel max-w-xl space-y-4">
-                <h4 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30]">Broadcast Notification</h4>
+                <h4 className="font-sans text-xs uppercase tracking-widest text-[#FF5C5C]">Broadcast Notification</h4>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
                 <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs text-[var(--fg)]">
                     <option value="">All Users</option>
@@ -1318,7 +1318,7 @@ export function AdminPanel() {
                     <input type="text" placeholder="City (optional)" value={broadcastCity} onChange={e => setBroadcastCity(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
                     <input type="text" placeholder="Language (optional)" value={broadcastLanguage} onChange={e => setBroadcastLanguage(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
                 </div>
-                <button onClick={sendBroadcast} className="btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase">Send Broadcast</button>
+                <button onClick={sendBroadcast} className="btn-solid bg-[#FF5C5C] text-white px-6 py-2 font-sans text-xs uppercase">Send Broadcast</button>
               </div>
             </section>
 
@@ -1337,7 +1337,7 @@ export function AdminPanel() {
         {/* TAB 6: AUDIT LOGS */}
         {tab === "audit" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-4">
-                <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-white/10 bg-[#121212] overflow-visible">
+                <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-white/10 bg-[#12182A] overflow-visible">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
                         <Search className="w-4 h-4 opacity-50 shrink-0" />
                         <input
@@ -1420,7 +1420,7 @@ export function AdminPanel() {
                                         <td className="p-4 font-sans text-xs opacity-70">{a.details || "-"}</td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border rounded-xs ${
-                                                a.status === "Completed" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" :
+                                                a.status === "Completed" ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/30" :
                                                 a.status === "Pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/30" :
                                                 "bg-white/5 text-white/50 border-white/10"
                                             }`}>
@@ -1447,11 +1447,11 @@ export function AdminPanel() {
 
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (
-        <div className="fixed inset-0 z-50 bg-[#0B0B0E]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#121212] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-50 bg-[#0B1020]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#12182A] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF3B30] font-bold">⚡ Data Export Engine</span>
+                <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF5C5C] font-bold">⚡ Data Export Engine</span>
                 <h3 className="font-sans text-2xl mt-1 text-white">Select Export Timeframe</h3>
               </div>
               <button onClick={() => setExportModal(false)} className="text-white/60 hover:text-white text-xl">✕</button>
@@ -1467,7 +1467,7 @@ export function AdminPanel() {
                     onClick={() => setExportFormat(opt.id)}
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportFormat === opt.id
-                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                        ? "bg-[#FF5C5C] border-[#FF5C5C] text-white font-bold shadow-md"
                         : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
                     }`}
                   >
@@ -1490,7 +1490,7 @@ export function AdminPanel() {
                     onClick={() => setExportRange(opt.id)}
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportRange === opt.id
-                        ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                        ? "bg-[#FF5C5C] border-[#FF5C5C] text-white font-bold shadow-md"
                         : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
                     }`}
                   >
@@ -1504,7 +1504,7 @@ export function AdminPanel() {
                 onClick={() => setExportRange("custom")}
                 className={`w-full p-3 text-left border rounded-xs font-sans text-xs transition-all ${
                   exportRange === "custom"
-                    ? "bg-[#FF3B30] border-[#FF3B30] text-white font-bold shadow-md"
+                    ? "bg-[#FF5C5C] border-[#FF5C5C] text-white font-bold shadow-md"
                     : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
                 }`}
               >
@@ -1524,7 +1524,7 @@ export function AdminPanel() {
                           setEndDate(e.target.value);
                         }
                       }}
-                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                      className="w-full bg-[#0B1020]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF5C5C] outline-none"
                     />
                   </div>
                   <div>
@@ -1534,7 +1534,7 @@ export function AdminPanel() {
                       value={endDate}
                       min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-[#0B0B0E]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF3B30] outline-none"
+                      className="w-full bg-[#0B1020]/60 border border-white/20 p-2 text-white rounded-xs focus:border-[#FF5C5C] outline-none"
                     />
                   </div>
                 </div>
@@ -1547,7 +1547,7 @@ export function AdminPanel() {
                 type="button"
                 disabled={exportBusy}
                 onClick={exportData}
-                className="px-6 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126] disabled:opacity-50"
+                className="px-6 py-2 bg-[#FF5C5C] text-white font-bold hover:bg-[#E5484D] disabled:opacity-50"
               >
                 {exportBusy ? "Generating…" : `Generate ${EXPORT_FORMATS.find((f) => f.id === exportFormat)?.label || "Export"}`}
               </button>
@@ -1565,13 +1565,13 @@ export function AdminPanel() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto"
+                    className="bg-[#12182A] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto"
                   >
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div>
                           <p className={`font-mono text-[9px] uppercase tracking-widest mb-2 ${
-                            selectedAlert.type === "error" ? "text-[#FF3B30]" :
-                            selectedAlert.type === "warning" ? "text-orange-400" : "text-[#34C759]"
+                            selectedAlert.type === "error" ? "text-[#FF5C5C]" :
+                            selectedAlert.type === "warning" ? "text-orange-400" : "text-[#52D4B5]"
                           }`}>
                             {selectedAlert.type} · {selectedAlert.time}
                           </p>
@@ -1606,10 +1606,10 @@ export function AdminPanel() {
 
                       {(selectedAlert.errors?.length > 0) && (
                         <section className="mb-5">
-                          <h4 className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]/80 mb-2">Errors</h4>
+                          <h4 className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]/80 mb-2">Errors</h4>
                           <div className="space-y-2">
                             {selectedAlert.errors.map((err, i) => (
-                              <pre key={i} className="font-mono text-[11px] leading-relaxed p-3 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#ffb4ae] whitespace-pre-wrap break-words">{err}</pre>
+                              <pre key={i} className="font-mono text-[11px] leading-relaxed p-3 rounded-xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/25 text-[#ffb4ae] whitespace-pre-wrap break-words">{err}</pre>
                             ))}
                           </div>
                         </section>
@@ -1640,8 +1640,8 @@ export function AdminPanel() {
       <AnimatePresence>
           {userToDelete && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#121212] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative">
-                      <h3 className="font-editorial text-3xl mb-2 text-[#FF3B30]">Delete User?</h3>
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#12182A] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative">
+                      <h3 className="font-editorial text-3xl mb-2 text-[#FF5C5C]">Delete User?</h3>
                       <p className="font-mono text-xs opacity-60 mb-8">
                           Are you sure you want to permanently delete this user? This action cannot be undone and will erase all their campaigns, applications, and data.
                       </p>
@@ -1649,7 +1649,7 @@ export function AdminPanel() {
                           <button onClick={() => setUserToDelete(null)} className="px-4 py-2 font-mono text-xs text-white/60 hover:text-white transition-colors">
                               Cancel
                           </button>
-                          <button onClick={confirmDeleteUser} className="btn-solid py-2 px-6 bg-[#FF3B30] text-white hover:bg-[#e03126]">
+                          <button onClick={confirmDeleteUser} className="btn-solid py-2 px-6 bg-[#FF5C5C] text-white hover:bg-[#E5484D]">
                               Delete Permanently
                           </button>
                       </div>
@@ -1778,7 +1778,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50 text-[#FF3B30]" /></div>;
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="w-6 h-6 animate-spin opacity-50 text-[#FF5C5C]" /></div>;
 
   const displayAgents = (agents && agents.length > 0) ? agents : FALLBACK_AGENTS;
 
@@ -1799,7 +1799,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
               type="button"
               onClick={() => setViewMode("grid")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
-                viewMode === "grid" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                viewMode === "grid" ? "bg-[#FF5C5C] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
               ▦ Thumbnail View (4 in Row)
@@ -1808,7 +1808,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
               type="button"
               onClick={() => setViewMode("list")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
-                viewMode === "list" ? "bg-[#FF3B30] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                viewMode === "list" ? "bg-[#FF5C5C] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
               }`}
             >
               ☰ List View
@@ -1832,14 +1832,14 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             const agentType = ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent";
 
             return (
-              <div key={ag.id || i} className="p-4 border border-white/15 bg-[#121212] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF3B30]/50 transition-all">
+              <div key={ag.id || i} className="p-4 border border-white/15 bg-[#12182A] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF5C5C]/50 transition-all">
                 <div className="space-y-3">
                   {/* Thumbnail Avatar/Banner Box */}
-                  <div className="relative w-full h-32 bg-gradient-to-br from-[#FF3B30]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-32 bg-gradient-to-br from-[#FF5C5C]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
                     <span className="font-sans text-4xl font-bold text-white/80">{companyInitial}</span>
                     <span className={`absolute top-2 right-2 font-sans text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
-                      isApproved ? "bg-[#34C759] text-black border-[#34C759]" :
-                      isDeclined ? "bg-[#FF3B30] text-white border-[#FF3B30]" :
+                      isApproved ? "bg-[#52D4B5] text-black border-[#52D4B5]" :
+                      isDeclined ? "bg-[#FF5C5C] text-white border-[#FF5C5C]" :
                       "bg-orange-500 text-black border-orange-500"
                     }`}>
                       {isApproved ? "Approved" : isDeclined ? "Declined" : "Pending"}
@@ -1847,7 +1847,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                   </div>
 
                   <div>
-                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#FF3B30] font-bold block">
+                    <span className="font-sans text-[9px] uppercase tracking-widest text-[#FF5C5C] font-bold block">
                       {agentType}
                     </span>
                     <h3 className="font-sans text-xl font-bold text-white mt-1 leading-snug line-clamp-1">{companyName}</h3>
@@ -1866,15 +1866,15 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                 <div className="pt-3 border-t border-white/10 flex items-center gap-2 font-sans text-[10px]">
                   {!isApproved ? (
                     <>
-                      <button type="button" onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#34C759] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
+                      <button type="button" onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#52D4B5] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
                         Approve ⚡
                       </button>
-                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2.5 py-1.5 border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/20 rounded-xs font-bold transition-all">
+                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2.5 py-1.5 border border-[#FF5C5C]/40 text-[#FF5C5C] hover:bg-[#FF5C5C]/20 rounded-xs font-bold transition-all">
                         Decline ✖
                       </button>
                     </>
                   ) : (
-                    <div className="w-full py-1.5 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 text-center font-bold rounded-xs">
+                    <div className="w-full py-1.5 bg-[#52D4B5]/10 text-[#52D4B5] border border-[#52D4B5]/30 text-center font-bold rounded-xs">
                       Verified Studio Access ✓
                     </div>
                   )}
@@ -1885,7 +1885,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
         </div>
       ) : (
         /* LIST VIEW */
-        <div className="border border-white/15 bg-[#121212] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
+        <div className="border border-white/15 bg-[#12182A] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
           <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-white/10 bg-white/[0.02] text-white/50 text-[10px] tracking-widest uppercase font-bold">
             <div className="col-span-4">Agency / Company</div>
             <div className="col-span-3">Contact &amp; Location</div>
@@ -1907,17 +1907,17 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                   <div className="text-[10px] text-white/40">{ag.city || "India"}</div>
                 </div>
                 <div className="md:col-span-2 space-y-0.5">
-                  <span className="text-[#FF3B30] font-bold text-[10px] uppercase block">{ag.agent_type || "Agency"}</span>
+                  <span className="text-[#FF5C5C] font-bold text-[10px] uppercase block">{ag.agent_type || "Agency"}</span>
                   <span className="text-white/60 text-[10px]">{ag.industry || "Media"}</span>
                 </div>
                 <div className="md:col-span-3 flex flex-wrap items-center md:justify-end gap-2">
                   {!isApproved ? (
                     <>
-                      <button type="button" onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#34C759] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
-                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2 py-1.5 border border-[#FF3B30]/50 text-[#FF3B30] font-bold text-[10px] uppercase rounded-xs hover:bg-[#FF3B30]/10">Decline</button>
+                      <button type="button" onClick={() => handleApprove(ag)} className="px-3 py-1.5 bg-[#52D4B5] text-black font-bold text-[10px] uppercase rounded-xs hover:bg-[#2fb24f]">Approve ⚡</button>
+                      <button type="button" onClick={() => setDeclineModal(ag)} className="px-2 py-1.5 border border-[#FF5C5C]/50 text-[#FF5C5C] font-bold text-[10px] uppercase rounded-xs hover:bg-[#FF5C5C]/10">Decline</button>
                     </>
                   ) : (
-                    <span className="text-[#34C759] bg-[#34C759]/10 px-3 py-1 border border-[#34C759]/30 rounded-xs font-bold text-[10px] uppercase">Verified Agent ✓</span>
+                    <span className="text-[#52D4B5] bg-[#52D4B5]/10 px-3 py-1 border border-[#52D4B5]/30 rounded-xs font-bold text-[10px] uppercase">Verified Agent ✓</span>
                   )}
                 </div>
               </div>
@@ -1929,19 +1929,19 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       {/* DECLINE MODAL */}
       {declineModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <form onSubmit={handleDeclineSubmit} className="bg-[#121212] border border-white/20 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
+          <form onSubmit={handleDeclineSubmit} className="bg-[#12182A] border border-white/20 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
             <h3 className="font-sans text-2xl text-white font-bold">Decline Agency Access</h3>
             <p className="font-sans text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
               placeholder=""
-              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-white rounded-xs h-24 focus:outline-none focus:border-[#FF3B30]"
+              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-white rounded-xs h-24 focus:outline-none focus:border-[#FF5C5C]"
               required
             />
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 font-sans text-xs">
               <button type="button" onClick={() => setDeclineModal(null)} className="px-4 py-2 border border-white/20 hover:bg-white/5">Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-[#FF3B30] text-white font-bold hover:bg-[#e03126]">Confirm Decline</button>
+              <button type="submit" className="px-4 py-2 bg-[#FF5C5C] text-white font-bold hover:bg-[#E5484D]">Confirm Decline</button>
             </div>
           </form>
         </div>
@@ -1977,7 +1977,7 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
             Audit live escrow locks, Escrow verification policy, and manual override releases
           </p>
         </div>
-        <span className="font-sans text-xs px-3 py-1 bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/30 rounded-xs font-bold uppercase tracking-wider">
+        <span className="font-sans text-xs px-3 py-1 bg-[#52D4B5]/10 text-[#52D4B5] border border-[#52D4B5]/30 rounded-xs font-bold uppercase tracking-wider">
           100% Funds Held Secure
         </span>
       </div>
@@ -1986,17 +1986,17 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
           <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹{totalVolume.toLocaleString("en-IN")}</div>
-          <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">100% Escrow Protected</div>
+          <div className="font-sans text-[9px] text-[#52D4B5] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Fees</div>
-          <div className="font-sans text-3xl text-[#FF3B30] font-bold mt-3 tracking-tight tabular-nums">₹{totalFees.toLocaleString("en-IN")}</div>
+          <div className="font-sans text-3xl text-[#FF5C5C] font-bold mt-3 tracking-tight tabular-nums">₹{totalFees.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Platform fees</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
-          <div className="font-sans text-3xl text-[#34C759] font-bold mt-3 tracking-tight tabular-nums">₹{released.toLocaleString("en-IN")}</div>
-          <div className="font-sans text-[9px] text-[#34C759] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
+          <div className="font-sans text-3xl text-[#52D4B5] font-bold mt-3 tracking-tight tabular-nums">₹{released.toLocaleString("en-IN")}</div>
+          <div className="font-sans text-[9px] text-[#52D4B5] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Disputed Claims</div>
@@ -2006,7 +2006,7 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
       </div>
 
       <div className="glass-panel overflow-x-auto">
-        <div className="p-4 border-b border-white/10 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF3B30] font-bold">
+        <div className="p-4 border-b border-white/10 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF5C5C] font-bold">
           Live Escrow Ledger &amp; Manual Override Control
         </div>
         <table className="w-full text-left border-collapse font-sans text-sm">
@@ -2027,18 +2027,18 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
                 <td className="p-4 font-bold text-white tabular-nums">{e.id}</td>
                 <td className="p-4"><div className="font-sans text-base text-white font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
                 <td className="p-4 text-white">{e.creator}</td>
-                <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{Number(e.amount).toLocaleString("en-IN")}</td>
-                <td className="p-4 text-[#FF3B30] font-bold tabular-nums">₹{Number(e.fee).toLocaleString("en-IN")}</td>
+                <td className="p-4 text-[#52D4B5] font-bold tabular-nums">₹{Number(e.amount).toLocaleString("en-IN")}</td>
+                <td className="p-4 text-[#FF5C5C] font-bold tabular-nums">₹{Number(e.fee).toLocaleString("en-IN")}</td>
                 <td className="p-4">
                   <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${
-                    e.status === "Released to Wallet" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30" : "bg-orange-400/10 text-orange-400 border-orange-400/30"
+                    e.status === "Released to Wallet" ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/30" : "bg-orange-400/10 text-orange-400 border-orange-400/30"
                   }`}>
                     {e.status}
                   </span>
                 </td>
                 <td className="p-4 text-right">
                   {e.status === "Locked in Escrow" ? (
-                    <button type="button" onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#34C759] text-white font-sans uppercase tracking-wider">
+                    <button type="button" onClick={() => handleForceRelease(e.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#52D4B5] text-white font-sans uppercase tracking-wider">
                       Force Release
                     </button>
                   ) : (
@@ -2067,7 +2067,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
 
   const statusClass = (status) =>
     status === "Approved & Live"
-      ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/30"
+      ? "bg-[#52D4B5]/10 text-[#52D4B5] border-[#52D4B5]/30"
       : "bg-orange-400/10 text-orange-400 border-orange-400/30";
 
   return (
@@ -2085,7 +2085,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               type="button"
               onClick={() => setViewMode("grid")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
-                viewMode === "grid" ? "bg-[#FF3B30] text-white" : "text-white/55 hover:text-white"
+                viewMode === "grid" ? "bg-[#FF5C5C] text-white" : "text-white/55 hover:text-white"
               }`}
               aria-pressed={viewMode === "grid"}
             >
@@ -2095,7 +2095,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               type="button"
               onClick={() => setViewMode("table")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
-                viewMode === "table" ? "bg-[#FF3B30] text-white" : "text-white/55 hover:text-white"
+                viewMode === "table" ? "bg-[#FF5C5C] text-white" : "text-white/55 hover:text-white"
               }`}
               aria-pressed={viewMode === "table"}
             >
@@ -2111,10 +2111,10 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {briefs.map((b) => (
-            <div key={b.id} className="p-5 bg-[#121212] border border-white/15 rounded-2xl space-y-4 flex flex-col justify-between">
+            <div key={b.id} className="p-5 bg-[#12182A] border border-white/15 rounded-2xl space-y-4 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
-                  <span className="font-sans text-[10px] text-[#FF3B30] uppercase font-bold truncate">{b.brand}</span>
+                  <span className="font-sans text-[10px] text-[#FF5C5C] uppercase font-bold truncate">{b.brand}</span>
                   <span className={`shrink-0 font-sans text-[9px] px-2 py-0.5 border rounded-xs font-bold ${statusClass(b.status)}`}>
                     {b.status}
                   </span>
@@ -2122,7 +2122,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                 <h3 className="font-sans text-xl font-bold mt-3 text-white leading-snug">{b.title}</h3>
                 <p className="font-sans text-xs text-white/60 mt-1">Budget: ₹{Number(b.budget).toLocaleString("en-IN")} · {b.category}</p>
                 <div className="mt-4 p-3 bg-white/[0.03] border border-white/10 rounded-xs space-y-1.5 font-sans text-[11px]">
-                  <div className="flex justify-between text-[#34C759]">
+                  <div className="flex justify-between text-[#52D4B5]">
                     <span>AI Content Audit</span>
                     <span className="font-bold">{b.aiSafety}</span>
                   </div>
@@ -2139,11 +2139,11 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               <div className="pt-3 border-t border-white/10 flex items-center justify-between font-sans text-xs">
                 <span className="opacity-50">Brief #{b.id}</span>
                 {b.status === "Pending Review" ? (
-                  <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1.5 px-4 text-xs bg-[#FF3B30] text-white">
+                  <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1.5 px-4 text-xs bg-[#FF5C5C] text-white">
                     Approve &amp; Publish
                   </button>
                 ) : (
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#34C759]">Live</span>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#52D4B5]">Live</span>
                 )}
               </div>
             </div>
@@ -2173,9 +2173,9 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                   </td>
                   <td className="p-4 text-white/85">{b.brand}</td>
                   <td className="p-4 text-white/70 text-xs">{b.category}</td>
-                  <td className="p-4 text-[#34C759] font-bold tabular-nums">₹{Number(b.budget).toLocaleString("en-IN")}</td>
+                  <td className="p-4 text-[#52D4B5] font-bold tabular-nums">₹{Number(b.budget).toLocaleString("en-IN")}</td>
                   <td className="p-4 text-xs text-white/65 max-w-[180px]">{b.deliverables}</td>
-                  <td className="p-4 text-xs text-[#34C759] font-medium">{b.aiSafety}</td>
+                  <td className="p-4 text-xs text-[#52D4B5] font-medium">{b.aiSafety}</td>
                   <td className="p-4">
                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${statusClass(b.status)}`}>
                       {b.status}
@@ -2183,7 +2183,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                   </td>
                   <td className="p-4 text-right">
                     {b.status === "Pending Review" ? (
-                      <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#FF3B30] text-white font-sans uppercase tracking-wider">
+                      <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1 px-3 text-[10px] bg-[#FF5C5C] text-white font-sans uppercase tracking-wider">
                         Approve
                       </button>
                     ) : (
@@ -2211,7 +2211,7 @@ function MatchAlgorithmConfig() {
   if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl">
-       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Match Algorithm Configuration</h3>
+       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF5C5C] mb-4">Match Algorithm Configuration</h3>
        <div className="space-y-4">
          {Object.entries(config).map(([key, val]) => (
            <div key={key} className="flex flex-col gap-1">
@@ -2220,7 +2220,7 @@ function MatchAlgorithmConfig() {
            </div>
          ))}
        </div>
-       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#e03126]">Save Configuration</button>
+       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF5C5C] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#E5484D]">Save Configuration</button>
     </motion.div>
   );
 }
@@ -2236,7 +2236,7 @@ function ReferralConfig() {
   if (!config) return <div className="p-8 text-center opacity-50">Loading config...</div>;
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-6 glass-panel max-w-xl">
-       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF3B30] mb-4">Referral Configuration</h3>
+       <h3 className="font-sans text-xs uppercase tracking-widest text-[#FF5C5C] mb-4">Referral Configuration</h3>
        <div className="space-y-4">
          <div className="flex flex-col gap-1">
            <label className="font-sans text-[10px] uppercase opacity-70">Referrer Reward</label>
@@ -2247,7 +2247,7 @@ function ReferralConfig() {
            <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
          </div>
        </div>
-       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF3B30] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#e03126]">Save Configuration</button>
+       <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF5C5C] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#E5484D]">Save Configuration</button>
     </motion.div>
   );
 }

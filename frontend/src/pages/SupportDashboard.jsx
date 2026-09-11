@@ -78,24 +78,24 @@ const STATUS_OPTS = [
 ];
 
 const FILTER_INPUT =
-  "w-full bg-gradient-to-b from-white/[0.07] to-white/[0.02] text-[#F4F4F0] border border-white/15 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-white/35 focus:outline-none focus:border-[#FF3B30]/60";
+  "w-full bg-gradient-to-b from-white/[0.07] to-white/[0.02] text-[#F7F5ED] border border-white/15 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-white/35 focus:outline-none focus:border-[#FF5C5C]/60";
 
 const iconSm = (Icon, cls = "text-white/60") => <Icon className={`w-3.5 h-3.5 ${cls}`} />;
 
 const QUEUE_OPTIONS = [
   { value: "all", label: "All Tickets", description: "Full unified queue", icon: iconSm(Inbox) },
-  { value: "unassigned", label: "Unassigned", description: "Ready to claim", icon: iconSm(CircleDot, "text-[#FF3B30]") },
+  { value: "unassigned", label: "Unassigned", description: "Ready to claim", icon: iconSm(CircleDot, "text-[#FF5C5C]") },
   { value: "mine", label: "My Tickets", description: "Assigned to you", icon: iconSm(UserRound) },
-  { value: "influencer", label: "Influencer", description: "Creator tickets", icon: iconSm(Star, "text-[#FF9500]") },
+  { value: "influencer", label: "Influencer", description: "Creator tickets", icon: iconSm(Star, "text-[#F7B955]") },
   { value: "company", label: "Company", description: "Brand tickets", icon: iconSm(Building2) },
   { value: "agent", label: "Agent", description: "Agency tickets", icon: iconSm(Handshake) },
-  { value: "escalated", label: "Escalated", description: "Needs senior review", icon: iconSm(AlertTriangle, "text-[#FF9500]") },
-  { value: "resolved", label: "Resolved", description: "Closed / done", icon: iconSm(CheckCircle2, "text-[#34C759]") },
+  { value: "escalated", label: "Escalated", description: "Needs senior review", icon: iconSm(AlertTriangle, "text-[#F7B955]") },
+  { value: "resolved", label: "Resolved", description: "Closed / done", icon: iconSm(CheckCircle2, "text-[#52D4B5]") },
 ];
 
 const USER_TYPE_OPTIONS = [
   { value: "", label: "All user types", icon: iconSm(Users) },
-  { value: "influencer", label: "Influencer", icon: iconSm(Star, "text-[#FF9500]") },
+  { value: "influencer", label: "Influencer", icon: iconSm(Star, "text-[#F7B955]") },
   { value: "company", label: "Company", icon: iconSm(Building2) },
   { value: "agent", label: "Agent", icon: iconSm(Handshake) },
 ];
@@ -109,14 +109,14 @@ const STATUS_OPTIONS = STATUS_OPTS.map((s) => ({
 const PRIORITY_OPTIONS = [
   { value: "", label: "All priorities", icon: iconSm(Filter) },
   { value: "Low", label: "Low", icon: iconSm(CircleDot, "text-white/40") },
-  { value: "Medium", label: "Medium", icon: iconSm(CircleDot, "text-[#34C759]") },
-  { value: "High", label: "High", icon: iconSm(CircleDot, "text-[#FF9500]") },
-  { value: "Critical", label: "Critical", icon: iconSm(AlertTriangle, "text-[#FF3B30]") },
+  { value: "Medium", label: "Medium", icon: iconSm(CircleDot, "text-[#52D4B5]") },
+  { value: "High", label: "High", icon: iconSm(CircleDot, "text-[#F7B955]") },
+  { value: "Critical", label: "Critical", icon: iconSm(AlertTriangle, "text-[#FF5C5C]") },
 ];
 
 const CATEGORY_OPTIONS = [
   { value: "", label: "All categories", icon: iconSm(Filter) },
-  { value: "Social Media Audit", label: "Social Media Audit", icon: iconSm(Sparkles, "text-[#FF3B30]") },
+  { value: "Social Media Audit", label: "Social Media Audit", icon: iconSm(Sparkles, "text-[#FF5C5C]") },
   { value: "Payment", label: "Payment", icon: iconSm(CircleDot) },
   { value: "Account", label: "Account", icon: iconSm(CircleDot) },
   { value: "Technical Bug", label: "Technical Bug", icon: iconSm(CircleDot) },
@@ -129,13 +129,13 @@ const CATEGORY_OPTIONS = [
 const AI_OPTIONS = AI_STATUS_OPTS.map((a) => ({
   value: a.id,
   label: a.label,
-  icon: iconSm(Bot, a.id ? "text-[#FF3B30]" : "text-white/50"),
+  icon: iconSm(Bot, a.id ? "text-[#FF5C5C]" : "text-white/50"),
 }));
 
 function statusClass(status) {
-  if (status === "new" || status === "open") return "bg-[#34C759]/20 text-[#34C759] border-[#34C759]/30";
+  if (status === "new" || status === "open") return "bg-[#52D4B5]/20 text-[#52D4B5] border-[#52D4B5]/30";
   if (["in_progress", "assigned", "investigating", "action_required", "pending_user", "pending_support", "ai_handling", "reopened"].includes(status)) {
-    return "bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30";
+    return "bg-[#F7B955]/15 text-[#F7B955] border-[#F7B955]/30";
   }
   return "bg-white/10 text-white/40 border-white/10";
 }
@@ -538,7 +538,7 @@ export default function SupportDashboard() {
 
   const assignmentOptions = useMemo(() => ([
     { value: "", label: "Any assignment", icon: iconSm(Users) },
-    { value: "unassigned", label: "Unassigned", icon: iconSm(CircleDot, "text-[#FF3B30]") },
+    { value: "unassigned", label: "Unassigned", icon: iconSm(CircleDot, "text-[#FF5C5C]") },
     { value: "mine", label: "My Tickets", icon: iconSm(UserRound) },
     ...agents.map((a) => ({ value: a.id, label: a.name, description: a.role, icon: iconSm(UserRound) })),
   ]), [agents]);
@@ -571,12 +571,12 @@ export default function SupportDashboard() {
         transition={{ duration: 0.35 }}
         className="mb-6"
       >
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#121216] to-[#0B0B0E] px-5 py-5 md:px-7 md:py-6">
-          <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF3B30]/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 left-10 w-48 h-48 rounded-full bg-[#34C759]/08 blur-3xl" />
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#121216] to-[#0B1020] px-5 py-5 md:px-7 md:py-6">
+          <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF5C5C]/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 left-10 w-48 h-48 rounded-full bg-[#52D4B5]/08 blur-3xl" />
           <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#FF3B30]">
+              <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#FF5C5C]">
                 <AiIcon name="support" className="w-3.5 h-3.5" /> Support Ops
               </div>
               <h1 className="font-editorial text-3xl md:text-4xl mt-2 tracking-tight">{pageTitle}</h1>
@@ -592,8 +592,8 @@ export default function SupportDashboard() {
                   <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Open</div>
                   <div className="text-xl font-bold tabular-nums">{stats.open ?? stats.unassigned ?? 0}</div>
                 </div>
-                <div className="rounded-2xl border border-[#FF3B30]/25 bg-[#FF3B30]/10 px-3 py-2 min-w-[5.5rem]">
-                  <div className="font-mono text-[8px] uppercase tracking-widest text-[#FF3B30]/80">Unassigned</div>
+                <div className="rounded-2xl border border-[#FF5C5C]/25 bg-[#FF5C5C]/10 px-3 py-2 min-w-[5.5rem]">
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-[#FF5C5C]/80">Unassigned</div>
                   <div className="text-xl font-bold tabular-nums">{stats.unassigned ?? 0}</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
@@ -610,10 +610,10 @@ export default function SupportDashboard() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {[
-              { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, accent: "from-[#FF3B30]/25 to-transparent", iconCls: "text-[#FF3B30]" },
+              { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, accent: "from-[#FF5C5C]/25 to-transparent", iconCls: "text-[#FF5C5C]" },
               { label: "My open", value: stats.my_open ?? 0, hint: "On your desk", queue: "mine", icon: Users, accent: "from-white/10 to-transparent", iconCls: "text-white" },
-              { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached / overdue", queue: "all", icon: AlertTriangle, accent: "from-[#FF9500]/25 to-transparent", iconCls: "text-[#FF9500]" },
-              { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, accent: "from-[#34C759]/20 to-transparent", iconCls: "text-[#34C759]" },
+              { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached / overdue", queue: "all", icon: AlertTriangle, accent: "from-[#F7B955]/25 to-transparent", iconCls: "text-[#F7B955]" },
+              { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, accent: "from-[#52D4B5]/20 to-transparent", iconCls: "text-[#52D4B5]" },
             ].map((card, i) => (
               <motion.button
                 key={card.label}
@@ -642,13 +642,13 @@ export default function SupportDashboard() {
                   <h2 className="font-sans font-bold text-lg">Priority focus</h2>
                   <p className="text-xs text-white/40 mt-0.5">Triage by severity and origin</p>
                 </div>
-                <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] inline-flex items-center gap-1 hover:opacity-80">
+                <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C] inline-flex items-center gap-1 hover:opacity-80">
                   Open queue <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
-                  ["Critical", stats.critical ?? 0, "all", "border-[#FF3B30]/30 bg-[#FF3B30]/10"],
+                  ["Critical", stats.critical ?? 0, "all", "border-[#FF5C5C]/30 bg-[#FF5C5C]/10"],
                   ["AI escalated", stats.ai_escalated ?? 0, "escalated", "border-white/10 bg-white/[0.03]"],
                   ["Pending user", stats.pending_user ?? 0, "all", "border-white/10 bg-white/[0.03]"],
                   ["Pending support", stats.pending_support ?? 0, "all", "border-white/10 bg-white/[0.03]"],
@@ -677,8 +677,8 @@ export default function SupportDashboard() {
 
             <div className="rounded-3xl border border-white/10 bg-[#121216] p-5 space-y-2.5">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-xl bg-[#FF3B30]/15 border border-[#FF3B30]/25 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-[#FF3B30]" />
+                <div className="w-8 h-8 rounded-xl bg-[#FF5C5C]/15 border border-[#FF5C5C]/25 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-[#FF5C5C]" />
                 </div>
                 <div>
                   <h2 className="font-sans font-bold text-lg leading-tight">Quick actions</h2>
@@ -695,7 +695,7 @@ export default function SupportDashboard() {
                   key={a.label}
                   type="button"
                   onClick={() => setTab("tickets", a.queue)}
-                  className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left hover:border-[#FF3B30]/40 hover:bg-[#FF3B30]/05 transition-colors"
+                  className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left hover:border-[#FF5C5C]/40 hover:bg-[#FF5C5C]/05 transition-colors"
                 >
                   <AiIcon name={a.icon} className="w-4 h-4 opacity-80" />
                   <span className="text-sm flex-1 font-medium">{a.label}</span>
@@ -728,7 +728,7 @@ export default function SupportDashboard() {
                     onClick={() => { setTab("tickets", "all"); openTicket(t.id); }}
                     className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3.5 py-3 text-left hover:bg-white/[0.05] hover:border-white/20 transition-colors"
                   >
-                    <div className={`w-1.5 self-stretch rounded-full shrink-0 ${t.priority === "Critical" ? "bg-[#FF3B30]" : t.priority === "High" ? "bg-[#FF9500]" : "bg-white/20"}`} />
+                    <div className={`w-1.5 self-stretch rounded-full shrink-0 ${t.priority === "Critical" ? "bg-[#FF5C5C]" : t.priority === "High" ? "bg-[#F7B955]" : "bg-white/20"}`} />
                     <div className="min-w-0 flex-1">
                       <div className="font-mono text-[9px] text-white/40 tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
                       <div className="text-sm font-medium truncate mt-0.5">{t.subject}</div>
@@ -747,7 +747,7 @@ export default function SupportDashboard() {
           <div className="lg:col-span-2 space-y-3">
             <div className="rounded-3xl border border-white/10 bg-[#121216] p-3.5 space-y-3">
               <div className="flex items-center gap-2 px-0.5">
-                <Filter className="w-3.5 h-3.5 text-[#FF3B30]" />
+                <Filter className="w-3.5 h-3.5 text-[#FF5C5C]" />
                 <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">Filters</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -779,14 +779,14 @@ export default function SupportDashboard() {
                   onClick={() => openTicket(t.id)}
                   className={`w-full text-left p-3.5 rounded-2xl border transition-all ${
                     selectedId === t.id
-                      ? "border-[#FF3B30]/50 bg-[#FF3B30]/10 shadow-[0_0_0_1px_rgba(255,59,48,0.12)]"
+                      ? "border-[#FF5C5C]/50 bg-[#FF5C5C]/10 shadow-[0_0_0_1px_rgba(255,59,48,0.12)]"
                       : "border-white/10 bg-[#121216] hover:border-white/25 hover:bg-white/[0.03]"
                   }`}
                 >
                   <div className="font-mono text-[9px] tracking-widest text-white/40 mb-1.5 flex flex-wrap gap-x-2">
                     <span>{t.number}</span>
                     <span>{typeLabel(t.user_type || t.user_role)}</span>
-                    <span className={t.priority === "Critical" ? "text-[#FF3B30]" : t.priority === "High" ? "text-[#FF9500]" : ""}>{t.priority}</span>
+                    <span className={t.priority === "Critical" ? "text-[#FF5C5C]" : t.priority === "High" ? "text-[#F7B955]" : ""}>{t.priority}</span>
                   </div>
                   <div className="font-sans font-semibold text-sm truncate">{t.subject}</div>
                   <div className="mt-2.5 flex justify-between items-center gap-2">
@@ -807,7 +807,7 @@ export default function SupportDashboard() {
                     <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
                     <p className="text-xs text-white/50 mt-1">{ticket.user_name} · {ticket.category} · {(ticket.status || "").replace(/_/g, " ")}{ticket.assignee_name ? ` · ${ticket.assignee_name}` : " · Unassigned"}</p>
                     {ticket.sla_due_at && (
-                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF3B30]" : "text-white/40"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
+                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF5C5C]" : "text-white/40"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
                     )}
                   </div>
                   <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0"><X className="w-4 h-4" /></button>
@@ -823,12 +823,12 @@ export default function SupportDashboard() {
                 )}
 
                 {ticket.social_audit && (
-                  <div className="mb-3 p-3 rounded-2xl border border-[#FF3B30]/25 bg-[#FF3B30]/5 text-xs space-y-1.5">
+                  <div className="mb-3 p-3 rounded-2xl border border-[#FF5C5C]/25 bg-[#FF5C5C]/5 text-xs space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Social Media Audit</div>
+                      <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">Social Media Audit</div>
                       <div className="flex flex-wrap gap-1.5 justify-end">
                       {can("support.tickets.update") && (
-                        <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF3B30]/50">
+                        <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF5C5C]/50">
                           Retry audit
                         </button>
                       )}
@@ -853,7 +853,7 @@ export default function SupportDashboard() {
                             toast.error(e.response?.data?.detail || e.message || "PDF export failed");
                           }
                         }}
-                        className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF3B30]/50"
+                        className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF5C5C]/50"
                       >
                         Export PDF
                       </button>
@@ -902,13 +902,13 @@ export default function SupportDashboard() {
 
                 <div className="flex flex-wrap gap-2 mb-3">
                   {!ticket.assignee_id && can("support.tickets.claim") && (
-                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF3B30]/40 text-[#FF3B30] bg-[#FF3B30]/10"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
+                    <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF5C5C]/40 text-[#FF5C5C] bg-[#FF5C5C]/10"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
                   )}
                   {statusButtons.map((s) => (
-                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF3B30] text-[#FF3B30] bg-[#FF3B30]/10" : "border-white/15 text-white/50 hover:border-white/30"}`}>{s.replace(/_/g, " ")}</button>
+                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF5C5C] text-[#FF5C5C] bg-[#FF5C5C]/10" : "border-white/15 text-white/50 hover:border-white/30"}`}>{s.replace(/_/g, " ")}</button>
                   ))}
-                  {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF9500]/30 text-[#FF9500]">Escalate</button>)}
-                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF3B30]">AI draft</button>)}
+                  {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#F7B955]/30 text-[#F7B955]">Escalate</button>)}
+                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF5C5C]">AI draft</button>)}
                   {can("support.tickets.update") && (
                     <MenuSelect className="w-full sm:w-[8.5rem]" value={ticket.priority || "Medium"} onChange={(v) => patch({ priority: v })} options={PRIORITY_OPTIONS.filter((o) => o.value)} />
                   )}
@@ -925,14 +925,14 @@ export default function SupportDashboard() {
                 {can("support.tickets.update") && (
                   <div className="flex gap-2 mb-3 items-center">
                     <Tag className="w-3.5 h-3.5 text-white/40" />
-                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-white/[0.04] text-[#F4F4F0] border border-white/15 px-2.5 py-1.5 text-xs rounded-xl" />
+                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-white/[0.04] text-[#F7F5ED] border border-white/15 px-2.5 py-1.5 text-xs rounded-xl" />
                     <button type="button" disabled={busy} onClick={saveTags} className="px-2.5 py-1.5 text-[10px] font-mono uppercase border border-white/15 rounded-xl hover:border-white/30">Save</button>
                   </div>
                 )}
 
                 <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 no-scrollbar min-h-[180px]">
                   {(detail.messages || []).map((m) => (
-                    <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF3B30]/15 border border-[#FF3B30]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
+                    <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF5C5C]/15 border border-[#FF5C5C]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
                       <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
                         <MessageSquare className="w-3 h-3" />
                         {m.author_name}{m.internal ? " · internal" : ""}{m.source === "ai" ? " · AI" : ""} · {fmtTs(m.created_at)}
@@ -943,10 +943,10 @@ export default function SupportDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-white/[0.04] text-[#F4F4F0] border border-white/15 px-3 py-2.5 text-sm outline-none focus:border-[#FF3B30]/60 resize-none rounded-2xl" />
+                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-white/[0.04] text-[#F7F5ED] border border-white/15 px-3 py-2.5 text-sm outline-none focus:border-[#FF5C5C]/60 resize-none rounded-2xl" />
                   <div className="flex gap-2">
                     {canReply && (
-                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"><Send className="w-3.5 h-3.5" /> Reply</button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF5C5C] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"><Send className="w-3.5 h-3.5" /> Reply</button>
                     )}
                     {canInternal && (
                       <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-4 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50 rounded-xl">Internal</button>
@@ -1030,7 +1030,7 @@ export default function SupportDashboard() {
                 ]}
               />
               <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">
+              <button type="submit" disabled={busy} className="bg-[#FF5C5C] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">
                 Create
               </button>
             </form>
@@ -1062,7 +1062,7 @@ export default function SupportDashboard() {
               <input required value={newKb.title} onChange={(e) => setNewKb({ ...newKb, title: e.target.value })} placeholder="Title" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <textarea required value={newKb.body} onChange={(e) => setNewKb({ ...newKb, body: e.target.value })} rows={4} placeholder="Body" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
               <input value={newKb.tags} onChange={(e) => setNewKb({ ...newKb, tags: e.target.value })} placeholder="Tags (comma-separated)" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <button type="submit" disabled={busy} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">Create</button>
+              <button type="submit" disabled={busy} className="bg-[#FF5C5C] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">Create</button>
             </form>
           )}
         </div>
@@ -1087,7 +1087,7 @@ export default function SupportDashboard() {
             <div className="font-mono text-[9px] uppercase text-white/40 mb-1">Max history turns</div>
             <input type="number" min={2} max={40} value={aiConfig.max_history || 10} onChange={(e) => setAiConfig({ ...aiConfig, max_history: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
           </div>
-          <button type="button" disabled={busy} onClick={saveAiConfig} className="bg-[#FF3B30] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">
+          <button type="button" disabled={busy} onClick={saveAiConfig} className="bg-[#FF5C5C] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">
             Save
           </button>
         </div>
@@ -1098,7 +1098,7 @@ export default function SupportDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {Object.entries(analytics.by_user_type || {}).map(([ut, row]) => (
               <div key={ut} className="border border-white/10 rounded-2xl p-4">
-                <div className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30]">{typeLabel(ut)}</div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C]">{typeLabel(ut)}</div>
                 <div className="mt-2 text-sm text-white/70 space-y-1">
                   <div>Open: {row.open}</div>
                   <div>Resolved: {row.resolved}</div>

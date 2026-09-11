@@ -9,18 +9,18 @@ import { toast } from "sonner";
 function activityMeta(item) {
   const kind = String(item.kind || item.type || "").toLowerCase();
   if (kind.includes("invite") || kind.includes("invitation")) {
-    return { icon: Megaphone, tone: "text-[#FF9500] bg-[#FF9500]/10", label: "Brand invite" };
+    return { icon: Megaphone, tone: "text-[#F7B955] bg-[#F7B955]/10", label: "Brand invite" };
   }
   if (kind.includes("pay") || kind.includes("wallet") || kind.includes("payout")) {
-    return { icon: Banknote, tone: "text-[#34C759] bg-[#34C759]/10", label: "Payment" };
+    return { icon: Banknote, tone: "text-[#52D4B5] bg-[#52D4B5]/10", label: "Payment" };
   }
   if (kind.includes("approv") || kind.includes("accept") || kind.includes("campaign") || kind.includes("application")) {
-    return { icon: CheckCircle2, tone: "text-[#34C759] bg-[#34C759]/10", label: "Campaign" };
+    return { icon: CheckCircle2, tone: "text-[#52D4B5] bg-[#52D4B5]/10", label: "Campaign" };
   }
   if (kind.includes("message") || kind.includes("dm") || kind.includes("chat")) {
     return { icon: MessageSquare, tone: "text-[#0A84FF] bg-[#0A84FF]/10", label: "Message" };
   }
-  return { icon: Zap, tone: "text-[#FF3B30] bg-[#FF3B30]/10", label: "Update" };
+  return { icon: Zap, tone: "text-[#FF5C5C] bg-[#FF5C5C]/10", label: "Update" };
 }
 
 function linkFor(n) {
@@ -89,7 +89,7 @@ export default function RecentActivity() {
                       );
                     }
                   }}
-                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#FF3B30]/35 transition-colors"
+                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#FF5C5C]/35 transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>
                     <Icon className="w-4 h-4" />

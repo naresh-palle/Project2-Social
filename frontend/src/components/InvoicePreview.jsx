@@ -1,8 +1,8 @@
 import { BrandLogo } from "@/components/BrandLogo";
 
 const TEMPLATES = {
-  professional: { bar: "bg-[#FF3B30]", panel: "bg-white text-[#111]", muted: "text-black/45" },
-  modern: { bar: "bg-[#FF3B30]", panel: "bg-[#FAFAF8] text-[#0B0B0E]", muted: "text-black/40" },
+  professional: { bar: "bg-[#FF5C5C]", panel: "bg-white text-[#111]", muted: "text-black/45" },
+  modern: { bar: "bg-[#FF5C5C]", panel: "bg-[#FAFAF8] text-[#0B1020]", muted: "text-black/40" },
   minimal: { bar: "bg-black", panel: "bg-white text-black", muted: "text-black/40" },
 };
 
@@ -29,7 +29,7 @@ export function InvoicePreview({ invoice, demo = false }) {
     <article className={`${theme.panel} shadow-2xl min-h-[640px] p-6 md:p-8 font-sans text-[11px] leading-snug`} data-testid="invoice-preview">
       <div className={`${theme.bar} h-1.5 -mt-6 md:-mt-8 -mx-6 md:-mx-8 mb-5`} />
       {demo || invoice.demo ? (
-        <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30] font-bold mb-2">DEMO DATA — example identifiers only</p>
+        <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C] font-bold mb-2">DEMO DATA — example identifiers only</p>
       ) : null}
       <div className="flex justify-between gap-4 items-start">
         <div>

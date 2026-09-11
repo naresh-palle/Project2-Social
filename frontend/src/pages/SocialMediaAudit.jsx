@@ -18,18 +18,18 @@ import {
 import { exportSocialAuditPdf } from "@/lib/exportFormats";
 
 const STATUS_COLOR = {
-  Healthy: "text-[#34C759] border-[#34C759]/30 bg-[#34C759]/10",
-  "Needs Attention": "text-[#FF9500] border-[#FF9500]/30 bg-[#FF9500]/10",
-  "Action Required": "text-[#FF3B30] border-[#FF3B30]/30 bg-[#FF3B30]/10",
+  Healthy: "text-[#52D4B5] border-[#52D4B5]/30 bg-[#52D4B5]/10",
+  "Needs Attention": "text-[#F7B955] border-[#F7B955]/30 bg-[#F7B955]/10",
+  "Action Required": "text-[#FF5C5C] border-[#FF5C5C]/30 bg-[#FF5C5C]/10",
   "Audit In Progress": "text-[#0A84FF] border-[#0A84FF]/30 bg-[#0A84FF]/10",
-  "Audit Failed": "text-[#FF3B30] border-[#FF3B30]/30 bg-[#FF3B30]/10",
+  "Audit Failed": "text-[#FF5C5C] border-[#FF5C5C]/30 bg-[#FF5C5C]/10",
 };
 
 const SEV_COLOR = {
   Low: "text-white/60",
-  Medium: "text-[#FF9500]",
-  High: "text-[#FF3B30]",
-  Critical: "text-[#FF3B30] font-bold",
+  Medium: "text-[#F7B955]",
+  High: "text-[#FF5C5C]",
+  Critical: "text-[#FF5C5C] font-bold",
 };
 
 export default function SocialMediaAudit() {
@@ -128,7 +128,7 @@ export default function SocialMediaAudit() {
   }
 
   if (loading && !audit) {
-    return <div className="p-6 font-mono text-xs uppercase tracking-widest text-[#FF3B30]">Loading audit…</div>;
+    return <div className="p-6 font-mono text-xs uppercase tracking-widest text-[#FF5C5C]">Loading audit…</div>;
   }
 
   const ov = audit?.overview || {};
@@ -138,7 +138,7 @@ export default function SocialMediaAudit() {
     <div className="w-full min-w-0 pb-8 space-y-4" data-testid="social-media-audit">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Audit Report</p>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold">Audit Report</p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Social Media Audit</h1>
           <p className="text-[12px] text-white/45 mt-1">
             Available for all accounts — uses your connected platforms and Apify sync data.
@@ -149,7 +149,7 @@ export default function SocialMediaAudit() {
             type="button"
             onClick={exportPdf}
             disabled={!audit}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF3B30]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF5C5C]/50 text-xs uppercase tracking-wider disabled:opacity-50"
             data-testid="social-audit-export-pdf"
           >
             <FileDown className="w-3.5 h-3.5" />
@@ -159,7 +159,7 @@ export default function SocialMediaAudit() {
             type="button"
             onClick={runAudit}
             disabled={running}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF3B30]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF5C5C]/50 text-xs uppercase tracking-wider disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${running ? "animate-spin" : ""}`} />
             {running ? "Running…" : "Run audit"}
@@ -222,12 +222,12 @@ export default function SocialMediaAudit() {
       {/* Issues */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
         <div className="flex items-center gap-2 mb-3">
-          <AlertTriangle className="w-4 h-4 text-[#FF9500]" />
+          <AlertTriangle className="w-4 h-4 text-[#F7B955]" />
           <h2 className="font-sans text-sm font-semibold">Detected issues</h2>
           <span className="text-[11px] text-white/40">{(audit?.issues || []).length}</span>
         </div>
         {(audit?.issues || []).length === 0 ? (
-          <p className="text-sm text-white/50 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#34C759]" /> No issues detected on the last audit.</p>
+          <p className="text-sm text-white/50 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#52D4B5]" /> No issues detected on the last audit.</p>
         ) : (
           <div className="space-y-2">
             {audit.issues.map((iss) => (
@@ -244,14 +244,14 @@ export default function SocialMediaAudit() {
                       type="button"
                       disabled={raising === iss.id}
                       onClick={() => raiseTicket(iss.id)}
-                      className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-full border border-[#FF3B30]/40 text-[#FF3B30] hover:bg-[#FF3B30]/10 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-full border border-[#FF5C5C]/40 text-[#FF5C5C] hover:bg-[#FF5C5C]/10 disabled:opacity-50"
                       data-testid={`raise-ticket-${iss.id}`}
                     >
                       <LifeBuoy className="w-3 h-3" />
                       {raising === iss.id ? "Raising…" : "Raise support ticket"}
                     </button>
                   ) : (
-                    <Link to="/support" className="text-[10px] uppercase tracking-wider text-[#34C759]" data-testid={`ticket-opened-${iss.id}`}>
+                    <Link to="/support" className="text-[10px] uppercase tracking-wider text-[#52D4B5]" data-testid={`ticket-opened-${iss.id}`}>
                       Ticket opened →
                     </Link>
                   )}
@@ -310,7 +310,7 @@ export default function SocialMediaAudit() {
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-sans text-sm font-semibold">My support tickets</h2>
-            <Link to="/support" className="text-[11px] text-[#FF3B30]">All tickets →</Link>
+            <Link to="/support" className="text-[11px] text-[#FF5C5C]">All tickets →</Link>
           </div>
           <div className="space-y-1.5 max-h-56 overflow-y-auto">
             {tickets.map((t) => (

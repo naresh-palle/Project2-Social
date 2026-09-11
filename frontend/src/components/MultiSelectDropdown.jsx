@@ -158,8 +158,8 @@ export function MultiSelectDropdown({
         aria-expanded={open}
         className={`msd-trigger w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
           noUnderline
-            ? "border border-white/15 hover:border-white/30 focus:border-[#FF3B30] px-3 rounded-3xl"
-            : "border-b border-white/15 hover:border-white/30 focus:border-[#FF3B30]"
+            ? "border border-white/15 hover:border-white/30 focus:border-[#FF5C5C] px-3 rounded-3xl"
+            : "border-b border-white/15 hover:border-white/30 focus:border-[#FF5C5C]"
         } ${compact ? "py-2 min-h-[36px]" : "py-3 min-h-[48px]"}`}
       >
         <div className="flex flex-wrap gap-1.5 items-center flex-1 min-w-0">

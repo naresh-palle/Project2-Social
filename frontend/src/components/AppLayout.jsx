@@ -34,17 +34,17 @@ export function AppLayout() {
   }, [navOpen]);
 
   return (
-    <div className="h-[100dvh] bg-[#0B0B0E] text-[#F4F4F0] relative overflow-hidden flex min-w-0">
+    <div className="h-[100dvh] bg-[#0B1020] text-[#F7F5ED] relative overflow-hidden flex min-w-0">
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-[min(500px,80vw)] h-[min(500px,80vw)] bg-[#FF3B30] opacity-[0.02] blur-[100px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-0 right-0 w-[min(500px,80vw)] h-[min(500px,80vw)] bg-[#34C759] opacity-[0.02] blur-[100px] rounded-full mix-blend-screen" />
+        <div className="absolute top-0 left-0 w-[min(560px,84vw)] h-[min(560px,84vw)] bg-[#8B7CFF] opacity-[0.055] blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-0 right-0 w-[min(520px,80vw)] h-[min(520px,80vw)] bg-[#52D4B5] opacity-[0.035] blur-[110px] rounded-full mix-blend-screen" />
       </div>
 
       <Sidebar mobileOpen={navOpen} onClose={() => setNavOpen(false)} />
       <ThemeToaster />
 
       <main className="flex-1 ml-0 lg:ml-[16.5rem] relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
-        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B0B0E]/95 backdrop-blur-sm border-0 overflow-visible safe-px">
+        <header className="shrink-0 h-12 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#0B1020]/95 backdrop-blur-sm border-0 overflow-visible safe-px">
           <Link to="/dashboard" className="lg:hidden shrink-0 max-w-[48vw] border-0 outline-none" aria-label="flugr home">
             <BrandLogo variant="wordmark" height={28} />
           </Link>
@@ -52,7 +52,7 @@ export function AppLayout() {
             <IconTip label="Menu" side="bottom">
               <button
                 type="button"
-                className="lg:hidden w-9 h-9 rounded-full border border-white/25 bg-white/10 text-[#F4F4F0] flex items-center justify-center shrink-0 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 transition-colors"
+                className="lg:hidden w-9 h-9 rounded-full border border-white/25 bg-white/10 text-[#F7F5ED] flex items-center justify-center shrink-0 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 transition-colors"
                 aria-label="Open menu"
                 data-testid="header-menu-button"
                 onClick={() => setNavOpen(true)}
@@ -70,7 +70,7 @@ export function AppLayout() {
                 }}
                 aria-label="Sign out"
                 data-testid="logout-button"
-                className="w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF3B30] hover:bg-[#FF3B30]/15 flex items-center justify-center transition-colors shrink-0"
+                className="w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:border-[#FF5C5C] hover:bg-[#FF5C5C]/15 flex items-center justify-center transition-colors shrink-0"
               >
                 <AiIcon name="logout" className="w-5 h-5" />
               </button>

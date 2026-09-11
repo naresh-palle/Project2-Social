@@ -4,9 +4,9 @@ import { SocialAnalyticsCards } from "@/components/SocialAnalyticsCards";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play, 
-  Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock, 
+import {
+  Plus, Send, Users, Sparkles, ShieldCheck, Eye, Star, Play,
+  Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock,
   ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass, Search
 } from "lucide-react";
 import { AiIcon } from "@/components/AiIcon";
@@ -45,8 +45,8 @@ export default function Dashboard() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0B0B0E] text-[#F4F4F0] flex items-center justify-center">
-        <div className="font-sans text-[11px] tracking-[0.3em] uppercase text-[#FF3B30] animate-pulse">Opening the studio…</div>
+      <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex items-center justify-center">
+        <div className="font-sans text-[11px] tracking-[0.3em] uppercase text-[#FF5C5C] animate-pulse">Opening the studio…</div>
       </div>
     );
   }
@@ -269,7 +269,7 @@ function OwnerPanel() {
       {/* Header + primary actions */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-3">
         <div className="min-w-0">
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF3B30] font-bold">Brand Desk</p>
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF5C5C] font-bold">Brand Desk</p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 truncate">
             {user?.company || user?.name || "Brand Dashboard"}
           </h1>
@@ -284,7 +284,7 @@ function OwnerPanel() {
           </Link>
           <Link
             to="/campaigns/new"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#FF3B30] text-white text-[10px] uppercase tracking-widest font-mono font-bold hover:bg-[#e03126]"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#FF5C5C] text-white text-[10px] uppercase tracking-widest font-mono font-bold hover:bg-[#E5484D]"
           >
             <Plus className="w-3.5 h-3.5" /> New Campaign
           </Link>
@@ -299,9 +299,9 @@ function OwnerPanel() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: i * 0.04 }}
-              className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF3B30]/40 transition-colors"
+              className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF5C5C]/40 transition-colors"
             >
-              <div className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold leading-tight">{t.k}</div>
+              <div className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF5C5C] font-bold leading-tight">{t.k}</div>
               <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1.5 text-white tracking-tight tabular-nums">{t.v}</div>
               <div className="font-sans text-[9px] tracking-[0.16em] uppercase opacity-50 mt-1 leading-snug">{t.tail}</div>
             </motion.div>
@@ -313,7 +313,7 @@ function OwnerPanel() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold flex items-center gap-1.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C] font-bold flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5" /> Campaign Performance
             </h2>
             <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100">Discover influencers →</Link>
@@ -336,7 +336,7 @@ function OwnerPanel() {
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF3B30] font-bold mb-3">Payments</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF5C5C] font-bold mb-3">Payments</h2>
           <div className="space-y-3 flex-1">
             <div>
               <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Pending</div>
@@ -362,7 +362,7 @@ function OwnerPanel() {
               </div>
             </div>
           </div>
-          <Link to="/wallet" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF3B30]/50">
+          <Link to="/wallet" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF5C5C]/50">
             Open Wallet →
           </Link>
         </div>
@@ -372,7 +372,7 @@ function OwnerPanel() {
       <section>
         <div className="flex items-center justify-between gap-2 mb-2">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Active Campaigns</h2>
-          <Link to="/marketplace?tab=campaigns" className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">View all →</Link>
+          <Link to="/marketplace?tab=campaigns" className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">View all →</Link>
         </div>
         {(activeCamps.length > 0 ? activeCamps : safeItems).length === 0 ? (
           <Empty label="No campaigns yet. Create your first campaign." />
@@ -389,7 +389,7 @@ function OwnerPanel() {
       <section>
         <div className="flex items-center justify-between gap-2 mb-2">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Pending Applications</h2>
-          <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Discover influencers →</Link>
+          <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">Discover influencers →</Link>
         </div>
         {pendingApps.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-6 text-center font-sans text-sm opacity-50">
@@ -401,7 +401,7 @@ function OwnerPanel() {
               <Link
                 key={a.id || `${a.campaign_id}-${a.influencer_id}`}
                 to={`/campaigns/${a.campaign_id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:border-[#FF3B30]/40 transition-colors"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:border-[#FF5C5C]/40 transition-colors"
               >
                 <div className="min-w-0">
                   <div className="font-sans text-sm font-semibold truncate">{a.influencer_name || a.name || "Creator"}</div>
@@ -409,9 +409,9 @@ function OwnerPanel() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {a.rate != null ? (
-                    <span className="font-sans text-sm font-bold text-[#34C759]">₹{Number(a.rate).toLocaleString()}</span>
+                    <span className="font-sans text-sm font-bold text-[#52D4B5]">₹{Number(a.rate).toLocaleString()}</span>
                   ) : null}
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">Review →</span>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">Review →</span>
                 </div>
               </Link>
             ))}
@@ -490,15 +490,15 @@ function InfluencerPanel() {
           <button
             onClick={() => setActiveTab("campaigns-feed")}
             className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
-              activeTab === "campaigns-feed" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+              activeTab === "campaigns-feed" ? "text-[#FF5C5C] font-bold border-b-2 border-[#FF5C5C]" : "opacity-60 hover:opacity-100"
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-[#FF3B30]" /> Live Campaign Briefs ({filteredCampaigns.length})
+            <Zap className="w-3.5 h-3.5 text-[#FF5C5C]" /> Live Campaign Briefs ({filteredCampaigns.length})
           </button>
           <button
             onClick={() => setActiveTab("my-pitches")}
             className={`kinetic-underline py-1.5 flex items-center gap-1.5 ${
-              activeTab === "my-pitches" ? "text-[#FF3B30] font-bold border-b-2 border-[#FF3B30]" : "opacity-60 hover:opacity-100"
+              activeTab === "my-pitches" ? "text-[#FF5C5C] font-bold border-b-2 border-[#FF5C5C]" : "opacity-60 hover:opacity-100"
             }`}
           >
             <FileText className="w-3.5 h-3.5" /> My Pitches & Applications ({pitchList.length})
@@ -508,12 +508,12 @@ function InfluencerPanel() {
           <div className="flex flex-wrap gap-2 items-center">
             <Link
               to="/marketplace?tab=campaigns&view=map"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF3B30]/45 text-[#FF3B30] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF3B30]/10"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF5C5C]/45 text-[#FF5C5C] text-[10px] uppercase tracking-widest font-bold hover:bg-[#FF5C5C]/10"
             >
               <Compass className="w-3.5 h-3.5" /> Map
             </Link>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 flex items-center gap-1 shrink-0">
-              <Filter className="w-3.5 h-3.5 text-[#FF3B30]" /> Category
+              <Filter className="w-3.5 h-3.5 text-[#FF5C5C]" /> Category
             </span>
             <div className="w-[13rem] max-w-full">
               <MultiSelectDropdown
@@ -540,19 +540,19 @@ function InfluencerPanel() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className="glass-card p-4 relative overflow-hidden group hover:border-[#FF3B30]/50 transition-all duration-500 flex flex-col justify-between"
+              className="glass-card p-4 relative overflow-hidden group hover:border-[#FF5C5C]/50 transition-all duration-500 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-sans text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 text-[#FF3B30] font-bold rounded-xs flex items-center gap-1">
+                  <span className="font-sans text-[9px] tracking-[0.18em] uppercase px-2 py-0.5 bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-[#FF5C5C] font-bold rounded-xs flex items-center gap-1">
                     <Zap className="w-3 h-3" /> {c.aiMatch || "96% AI Match"}
                   </span>
-                  <span className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 border border-[#34C759]/30 rounded-xs flex items-center gap-1 font-bold">
+                  <span className="font-sans text-[8px] tracking-[0.16em] uppercase text-[#52D4B5] bg-[#52D4B5]/10 px-2 py-0.5 border border-[#52D4B5]/30 rounded-xs flex items-center gap-1 font-bold">
                     <Lock className="w-3 h-3" /> Escrow
                   </span>
                 </div>
                 <p className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-60 mb-0.5">{c.brand}</p>
-                <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF3B30] transition-colors">
+                <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF5C5C] transition-colors">
                   {c.title}
                 </h3>
                 <p className="font-sans text-xs opacity-70 mt-2 leading-relaxed line-clamp-2">
@@ -560,7 +560,7 @@ function InfluencerPanel() {
                 </p>
                 <div className="mt-2 pt-2 border-t border-white/10 space-y-1 font-sans text-[10px] opacity-75">
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3 h-3 text-[#FF3B30] shrink-0" />
+                    <CheckCircle2 className="w-3 h-3 text-[#FF5C5C] shrink-0" />
                     <span className="truncate">{c.deliverables || "2x Reels + 4x Stories"}</span>
                   </div>
                 </div>
@@ -574,7 +574,7 @@ function InfluencerPanel() {
                 </div>
                 <Link
                   to={`/campaigns/${c.id}`}
-                  className="btn-solid py-1.5 px-3 text-[10px] bg-[#FF3B30] text-white hover:bg-[#e03126] flex items-center gap-1"
+                  className="btn-solid py-1.5 px-3 text-[10px] bg-[#FF5C5C] text-white hover:bg-[#E5484D] flex items-center gap-1"
                 >
                   Pitch <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -592,9 +592,9 @@ function InfluencerPanel() {
           ) : (
             <div className="space-y-3">
               {pitchList.map((a) => (
-                <div key={a.id} className="p-3 bg-[#121212]/90 border border-white/15 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div key={a.id} className="p-3 bg-[#12182A]/90 border border-white/15 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                   <div>
-                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{a.campaign_brand || a.brand}</p>
+                    <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF5C5C] font-bold">{a.campaign_brand || a.brand}</p>
                     <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
                     <p className="font-sans text-xs opacity-60 mt-0.5">
                       {a.note || `Pitch Rate: ₹${a.rate ? Number(a.rate).toLocaleString() : (a.budget ? Number(a.budget).toLocaleString() : "—")}`}
@@ -602,13 +602,13 @@ function InfluencerPanel() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
-                      a.status === "accepted" ? "bg-[#34C759]/10 border-[#34C759]/40 text-[#34C759]"
-                        : a.status === "shortlisted" ? "bg-[#FF9500]/10 border-[#FF9500]/40 text-[#FF9500]"
+                      a.status === "accepted" ? "bg-[#52D4B5]/10 border-[#52D4B5]/40 text-[#52D4B5]"
+                        : a.status === "shortlisted" ? "bg-[#F7B955]/10 border-[#F7B955]/40 text-[#F7B955]"
                         : "bg-white/5 border-white/20 text-white/70"
                     }`}>
                       {a.status}
                     </span>
-                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-white/10 hover:bg-[#FF3B30] text-white">
+                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-white/10 hover:bg-[#FF5C5C] text-white">
                       View ↗
                     </Link>
                   </div>
@@ -649,9 +649,9 @@ function AgentPanel() {
 
   return (
     <div className="w-full space-y-3 pb-8">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B0B0E]/95 backdrop-blur-sm z-10 pt-1">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#0B1020]/95 backdrop-blur-sm z-10 pt-1">
         <div>
-          <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">
+          <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold">
             § Talent Representative Console
           </span>
           <h2 className="font-sans text-base font-bold mt-0.5">
@@ -666,11 +666,11 @@ function AgentPanel() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {creatorList.map((c) => (
               <Link key={c.id} to={String(c.id).startsWith("demo-") ? "/marketplace" : `/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-3xl">
-                <div className="h-24 w-full border-b border-[#F4F4F0]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
+                <div className="h-24 w-full border-b border-[#F7F5ED]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
                   <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
                 </div>
                 <h4 className="font-sans text-xs font-semibold truncate">{c.name}</h4>
-                <p className="text-[9px] font-sans uppercase opacity-70 text-[#FF3B30] mt-0.5 truncate">{c.niches?.join(", ")}</p>
+                <p className="text-[9px] font-sans uppercase opacity-70 text-[#FF5C5C] mt-0.5 truncate">{c.niches?.join(", ")}</p>
               </Link>
             ))}
           </div>
@@ -682,7 +682,7 @@ function AgentPanel() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {associatedBrands.map((b) => (
                 <div key={b.name} className="p-4 border border-white/15 rounded-3xl bg-white/[0.02]">
-                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF3B30]">{b.tier || "Client"}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">{b.tier || "Client"}</div>
                   <h4 className="font-sans text-sm font-bold mt-1">{b.name}</h4>
                   <p className="text-xs text-white/50 mt-1">{b.industry}</p>
                   <div className="mt-3 flex justify-between text-[10px] font-mono uppercase tracking-wider text-white/60">
@@ -717,7 +717,7 @@ function ProductionPanel() {
   return (
     <div className="w-full pb-8">
       <div className="border-b border-white/10 pb-4 mb-5">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold">Hire / Production Team</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold">Hire / Production Team</p>
         <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Production desk</h1>
         <p className="font-sans text-sm text-white/50 mt-1">Manage hire requests from brands and creators.</p>
       </div>
@@ -732,7 +732,7 @@ function ProductionPanel() {
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => nav("/hire-requests")} className="px-4 py-2 rounded-full bg-[#FF3B30] text-white font-mono text-[10px] uppercase tracking-widest font-bold">
+        <button type="button" onClick={() => nav("/hire-requests")} className="px-4 py-2 rounded-full bg-[#FF5C5C] text-white font-mono text-[10px] uppercase tracking-widest font-bold">
           Open hire requests
         </button>
         <button type="button" onClick={() => nav("/profile")} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
@@ -761,10 +761,10 @@ function CampaignRow({ c }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="p-3 bg-[#121212]/90 border border-white/15 rounded-3xl flex flex-col justify-between min-h-0 hover:border-[#FF3B30]/50 transition-all"
+      className="p-3 bg-[#12182A]/90 border border-white/15 rounded-3xl flex flex-col justify-between min-h-0 hover:border-[#FF5C5C]/50 transition-all"
     >
       <div>
-        <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF3B30] font-bold">{c.brand}</div>
+        <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF5C5C] font-bold">{c.brand}</div>
         <h3 className="font-sans text-sm leading-snug font-semibold mt-1">{c.title}</h3>
         <p className="text-xs font-sans opacity-70 mt-1.5 line-clamp-2 leading-relaxed">{c.description}</p>
       </div>

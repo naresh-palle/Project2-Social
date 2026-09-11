@@ -72,18 +72,18 @@ export function AIAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
-            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#0B0B0E] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#0B1020] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/[0.02]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 flex items-center justify-center border border-[#FF3B30]/30 text-[#FF3B30]">
+                <div className="w-8 h-8 rounded-full bg-[#FF5C5C]/20 flex items-center justify-center border border-[#FF5C5C]/30 text-[#FF5C5C]">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="font-sans text-sm font-bold tracking-wide flex items-center gap-2">
                     AI Assistant
-                    <span className="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_#34C759]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#52D4B5] shadow-[0_0_8px_#52D4B5]"></span>
                   </h3>
                   <p className="font-sans text-[10px] text-white/50">Online and ready to help</p>
                 </div>
@@ -105,7 +105,7 @@ export function AIAssistant() {
                   <div
                     className={`max-w-[85%] rounded-2xl p-3 ${
                       m.role === "user"
-                        ? "bg-[#FF3B30] text-white rounded-tr-sm"
+                        ? "bg-[#FF5C5C] text-white rounded-tr-sm"
                         : "bg-white/[0.05] border border-white/10 text-white/90 rounded-tl-sm"
                     }`}
                   >
@@ -113,7 +113,7 @@ export function AIAssistant() {
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-white/[0.05] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
@@ -138,12 +138,12 @@ export function AIAssistant() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask AI anything..."
-                  className="w-full bg-[#121212] border border-white/10 focus:border-[#FF3B30] focus:ring-1 focus:ring-[#FF3B30] rounded-3xl pl-4 pr-12 py-3 font-sans text-xs outline-none transition-all"
+                  className="w-full bg-[#12182A] border border-white/10 focus:border-[#FF5C5C] focus:ring-1 focus:ring-[#FF5C5C] rounded-3xl pl-4 pr-12 py-3 font-sans text-xs outline-none transition-all"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping}
-                  className="absolute right-2 w-8 h-8 flex items-center justify-center bg-[#FF3B30] text-white rounded-full hover:bg-[#e03126] disabled:opacity-50 disabled:hover:bg-[#FF3B30] transition-colors"
+                  className="absolute right-2 w-8 h-8 flex items-center justify-center bg-[#FF5C5C] text-white rounded-full hover:bg-[#E5484D] disabled:opacity-50 disabled:hover:bg-[#FF5C5C] transition-colors"
                 >
                   <Send className="w-3.5 h-3.5 -ml-0.5" />
                 </button>

@@ -58,19 +58,19 @@ export function Nav({ variant = "dark" }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-0 shadow-none ${
-        isPaper ? "bg-[#F4F4F0]/70 text-[#0A0A0A]" : "app-nav-surface app-nav-surface--borderless"
+        isPaper ? "bg-[#F7F5ED]/70 text-[#070B16]" : "app-nav-surface app-nav-surface--borderless"
       }`}
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-4 min-w-0 border-0">
-        <Link 
-          to={user ? "/dashboard" : "/"} 
+        <Link
+          to={user ? "/dashboard" : "/"}
           onClick={() => {
             if (!user) {
               window.dispatchEvent(new Event("resetHomeDeck"));
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-          }} 
-          data-testid="nav-logo" 
+          }}
+          data-testid="nav-logo"
           className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0 border-0 outline-none"
         >
           <BrandLogo variant="wordmark" height={36} className="h-8 sm:h-9" />
@@ -113,10 +113,10 @@ export function Nav({ variant = "dark" }) {
               className="relative hidden md:flex items-center mr-2"
             >
               <Search className="w-3.5 h-3.5 absolute left-3 opacity-50 text-white" />
-              <input 
+              <input
                 name="search"
-                type="text" 
-                placeholder="⌘ Search / Jump..." 
+                type="text"
+                placeholder="⌘ Search / Jump..."
                 className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-[10px] uppercase tracking-widest font-mono text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all w-48 focus:w-64"
               />
             </form>
@@ -136,7 +136,7 @@ export function Nav({ variant = "dark" }) {
                   </>
               )}
               <NotificationBell />
-              
+
               <div className="flex items-center gap-3 pl-2 border-l border-white/20">
                   {user?.avatar ? (
                     <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20" />
@@ -151,7 +151,7 @@ export function Nav({ variant = "dark" }) {
                   <button
                     onClick={() => { logout(); nav("/"); }}
                     data-testid="nav-logout"
-                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF3B30] hover:text-[#ff6b63] transition-colors"
+                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF5C5C] hover:text-[#ff6b63] transition-colors"
                   >
                     Sign Out
                   </button>
@@ -162,7 +162,7 @@ export function Nav({ variant = "dark" }) {
               <Link
                 to="/login"
                 data-testid="nav-login"
-                className="hidden sm:inline-flex items-center font-sans text-base sm:text-[17px] font-semibold tracking-[0.04em] text-white hover:text-[#FF3B30] transition-colors px-3 py-2 border-0"
+                className="hidden sm:inline-flex items-center font-sans text-base sm:text-[17px] font-semibold tracking-[0.04em] text-white hover:text-[#FF5C5C] transition-colors px-3 py-2 border-0"
               >
                 Sign In
               </Link>

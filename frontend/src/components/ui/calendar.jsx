@@ -24,7 +24,7 @@ function Calendar({
         dropdown_month: "relative inline-flex",
         dropdown_year: "relative inline-flex",
         dropdown:
-          "appearance-none bg-[#0B0B0E] text-[#F4F4F0] border border-white/20 rounded-3xl px-2 py-1 text-xs font-medium cursor-pointer focus:outline-none focus:border-[#FF3B30] max-w-[7.5rem]",
+          "appearance-none bg-[#0B1020] text-[#F7F5ED] border border-white/20 rounded-3xl px-2 py-1 text-xs font-medium cursor-pointer focus:outline-none focus:border-[#FF5C5C] max-w-[7.5rem]",
         vhidden: "sr-only",
         nav: "space-x-1 flex items-center",
         nav_button: cn(

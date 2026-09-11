@@ -8,7 +8,7 @@ export function RequireAuth({ children, roles = [] }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-[#F4F4F0] font-mono text-[10px] tracking-[0.3em] uppercase">
+      <div className="min-h-screen bg-[#070B16] flex items-center justify-center text-[#F7F5ED] font-mono text-[10px] tracking-[0.3em] uppercase">
         Loading...
       </div>
     );

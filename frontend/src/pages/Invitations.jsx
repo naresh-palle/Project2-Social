@@ -66,11 +66,11 @@ export default function Invitations() {
   };
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0]">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED]">
       <div className="flex flex-col w-full pb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 w-full">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Invitations
               </p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">{title}</h1>
@@ -103,7 +103,7 @@ export default function Invitations() {
                 <div className="col-span-12 md:col-span-7 min-w-0">
                   <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-50">
                     <span>#{String(idx + 1).padStart(2, "0")}</span>
-                    {i.mock ? <span className="text-[#FF3B30]">Demo</span> : null}
+                    {i.mock ? <span className="text-[#FF5C5C]">Demo</span> : null}
                     <span>· {i.campaign_brand}</span>
                   </div>
                   <div className="font-sans text-base md:text-lg font-semibold mt-1 leading-snug">{i.campaign_title}</div>
@@ -117,7 +117,7 @@ export default function Invitations() {
                 </div>
                 <div className="col-span-6 md:col-span-2">
                   <div className="font-sans text-[10px] uppercase tracking-wider opacity-50">Offer</div>
-                  <div className="font-sans text-lg font-semibold text-[#FF3B30] mt-0.5">
+                  <div className="font-sans text-lg font-semibold text-[#FF5C5C] mt-0.5">
                     ₹{Number(i.offer || i.budget || 15000).toLocaleString()}
                   </div>
                   {i.counter_offer ? (
@@ -132,7 +132,7 @@ export default function Invitations() {
                 <div className="col-span-6 md:col-span-3 flex flex-col items-end justify-between gap-2">
                   <div
                     className={`font-sans text-[10px] tracking-wider uppercase ${
-                      i.status === "accepted" ? "text-[#34C759]" : i.status === "rejected" ? "opacity-40" : "opacity-70"
+                      i.status === "accepted" ? "text-[#52D4B5]" : i.status === "rejected" ? "opacity-40" : "opacity-70"
                     }`}
                   >
                     {i.status}
@@ -157,7 +157,7 @@ export default function Invitations() {
                           <input
                             type="number"
                             data-testid={`inv-counter-input-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-1.5 font-sans text-sm"
+                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF5C5C] outline-none py-1.5 font-sans text-sm"
                             value={counter}
                             onChange={(e) => setCounter(e.target.value)}
                           />
@@ -166,7 +166,7 @@ export default function Invitations() {
                           <label className="font-sans text-[10px] uppercase tracking-wider opacity-50">Note</label>
                           <input
                             data-testid={`inv-note-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF3B30] outline-none py-1.5 font-sans text-sm"
+                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF5C5C] outline-none py-1.5 font-sans text-sm"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                           />
@@ -183,7 +183,7 @@ export default function Invitations() {
                       </div>
                     ) : (
                       <button
-                        className="mt-1 font-sans text-xs uppercase tracking-wider text-[#FF3B30]"
+                        className="mt-1 font-sans text-xs uppercase tracking-wider text-[#FF5C5C]"
                         data-testid={`inv-counter-btn-${i.id}`}
                         onClick={() => setCounterId(i.id)}
                       >

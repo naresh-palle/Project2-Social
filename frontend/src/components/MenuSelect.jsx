@@ -101,18 +101,18 @@ export function MenuSelect({
         onClick={() => !disabled && setOpen((v) => !v)}
         className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left transition-all disabled:opacity-50 ${
           open
-            ? "border-[#FF3B30]/60 bg-[#1A1212] shadow-[0_0_0_1px_rgba(255,59,48,0.15)]"
+            ? "border-[#FF5C5C]/60 bg-[#1A1212] shadow-[0_0_0_1px_rgba(255,59,48,0.15)]"
             : "border-white/15 bg-gradient-to-b from-white/[0.07] to-white/[0.02] hover:border-white/30 hover:from-white/[0.09]"
         }`}
       >
         {selected?.icon ? (
           <span className="text-white/70 shrink-0">{selected.icon}</span>
         ) : null}
-        <span className={`flex-1 text-[12px] font-medium truncate ${selected ? "text-[#F4F4F0]" : "text-white/45"}`}>
+        <span className={`flex-1 text-[12px] font-medium truncate ${selected ? "text-[#F7F5ED]" : "text-white/45"}`}>
           {display}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 shrink-0 text-white/55 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B30]" : ""}`}
+          className={`w-3.5 h-3.5 shrink-0 text-white/55 transition-transform duration-200 ${open ? "rotate-180 text-[#FF5C5C]" : ""}`}
         />
       </button>
 
@@ -143,11 +143,11 @@ export function MenuSelect({
                         setOpen(false);
                       }}
                       className={`w-full flex items-start gap-2.5 px-3 py-2.5 text-left transition-colors ${
-                        active ? "bg-[#FF3B30]/15" : "hover:bg-white/[0.06]"
+                        active ? "bg-[#FF5C5C]/15" : "hover:bg-white/[0.06]"
                       }`}
                     >
                       {opt.icon ? (
-                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF3B30]" : "text-white/55"}`}>
+                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF5C5C]" : "text-white/55"}`}>
                           {opt.icon}
                         </span>
                       ) : null}
@@ -159,7 +159,7 @@ export function MenuSelect({
                           <span className="block text-[10px] text-white/40 mt-0.5 leading-snug">{opt.description}</span>
                         ) : null}
                       </span>
-                      {active ? <Check className="w-3.5 h-3.5 text-[#FF3B30] shrink-0 mt-0.5" /> : null}
+                      {active ? <Check className="w-3.5 h-3.5 text-[#FF5C5C] shrink-0 mt-0.5" /> : null}
                     </button>
                   );
                 })}

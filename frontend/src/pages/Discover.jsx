@@ -34,16 +34,16 @@ function fmtPct(n) {
 }
 
 function riskTone(risk) {
-  if (risk === "high") return "text-[#FF3B30]";
-  if (risk === "medium") return "text-[#FF9500]";
-  if (risk === "low") return "text-[#34C759]";
+  if (risk === "high") return "text-[#FF5C5C]";
+  if (risk === "medium") return "text-[#F7B955]";
+  if (risk === "low") return "text-[#52D4B5]";
   return "text-white/45";
 }
 
 function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch }) {
   const handle = formatUsername(c.handle, c.username, c.name) || "creator";
   return (
-    <article className="rounded-2xl border border-white/10 bg-[#121212] overflow-hidden flex flex-col h-full">
+    <article className="rounded-2xl border border-white/10 bg-[#12182A] overflow-hidden flex flex-col h-full">
       <Link to={`/creators/${c.id}`} className="relative block aspect-[4/3] bg-white/5">
         {c.avatar ? (
           <img src={c.avatar} alt="" className="h-full w-full object-cover" />
@@ -59,11 +59,11 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
             </span>
           ))}
           {c.verified ? (
-            <span className="theme-keep-dark bg-[#34C759]/30 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white rounded-full">Verified</span>
+            <span className="theme-keep-dark bg-[#52D4B5]/30 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white rounded-full">Verified</span>
           ) : null}
         </div>
         {c.ai_match_score != null ? (
-          <span className="absolute top-2 right-2 bg-[#34C759]/20 text-[#34C759] border border-[#34C759]/30 px-2 py-0.5 font-sans text-[10px] uppercase rounded-full">
+          <span className="absolute top-2 right-2 bg-[#52D4B5]/20 text-[#52D4B5] border border-[#52D4B5]/30 px-2 py-0.5 font-sans text-[10px] uppercase rounded-full">
             {Math.round(c.ai_match_score)} match
           </span>
         ) : null}
@@ -97,10 +97,10 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
           <span className={riskTone(c.risk)}>Risk {c.risk || UNAVAILABLE}</span>
         </div>
         <div className="mt-auto flex flex-wrap gap-1">
-          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-[#FF3B30]">
+          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-[#FF5C5C]">
             Profile
           </Link>
-          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#FF3B30] text-[#FF3B30]" : "border-white/15"}`}>
+          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"}`}>
             Compare
           </button>
           <button type="button" onClick={() => onShortlist(c)} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">
@@ -322,10 +322,10 @@ export default function Discover() {
   const pages = Math.max(1, Math.ceil(total / 24));
 
   return (
-    <div className="w-full bg-[#0B0B0E] text-[#F4F4F0] pb-28">
+    <div className="w-full bg-[#0B1020] text-[#F7F5ED] pb-28">
       <div className="flex items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Brand desk
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Discover Influencers</h1>
@@ -336,11 +336,11 @@ export default function Discover() {
         </button>
       </div>
 
-      <form onSubmit={runNl} className="rounded-2xl border border-white/10 bg-[#121212] p-3 mb-3">
+      <form onSubmit={runNl} className="rounded-2xl border border-white/10 bg-[#12182A] p-3 mb-3">
         <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">AI natural-language search</label>
         <div className="flex gap-2 mt-1">
           <div className="relative flex-1">
-            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF3B30]" />
+            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF5C5C]" />
             <input
               value={nl}
               onChange={(e) => setNl(e.target.value)}
@@ -350,7 +350,7 @@ export default function Discover() {
           </div>
           <button type="submit" className="btn-solid text-[10px] px-4">Search</button>
         </div>
-        {note ? <p className="mt-2 font-sans text-[11px] text-[#FF9500]">{note}</p> : null}
+        {note ? <p className="mt-2 font-sans text-[11px] text-[#F7B955]">{note}</p> : null}
       </form>
 
       <div className="mb-3">
@@ -370,7 +370,7 @@ export default function Discover() {
         <select
           value={campaignId}
           onChange={(e) => setCampaignId(e.target.value)}
-          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)] w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
+          className="bg-[#12182A] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)] w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
         >
           <option value="">No campaign brief</option>
           {campaigns.map((c) => (
@@ -380,7 +380,7 @@ export default function Discover() {
         <select
           value={sortBy}
           onChange={(e) => { setSortBy(e.target.value); }}
-          className="bg-[#121212] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)]"
+          className="bg-[#12182A] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)]"
           aria-label="Sort by"
         >
           <option value="highest_engagement">Highest Engagement</option>
@@ -445,7 +445,7 @@ export default function Discover() {
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
             Verified
-            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-xs text-[var(--fg)]">
+            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#12182A] border-b border-white/15 py-1 font-sans text-xs text-[var(--fg)]">
               <option value="">Any</option>
               <option value="yes">Verified</option>
               <option value="no">Unverified</option>
@@ -486,8 +486,8 @@ export default function Discover() {
       )}
 
       {compare.length > 0 && (
-        <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#121212]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
-          <GitCompare className="w-4 h-4 text-[#FF3B30]" />
+        <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#12182A]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
+          <GitCompare className="w-4 h-4 text-[#FF5C5C]" />
           {compare.map((c) => (
             <button key={c.id} type="button" onClick={() => toggleCompare(c)} className="font-sans text-xs border border-white/15 rounded-full px-2 py-0.5">
               {c.name} <X className="inline w-3 h-3" />
@@ -499,7 +499,7 @@ export default function Discover() {
 
       {compareRows && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setCompareRows(null)}>
-          <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-5xl w-full max-h-[min(85vh,90dvh)] overflow-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#12182A] border border-white/15 rounded-3xl max-w-5xl w-full max-h-[min(85vh,90dvh)] overflow-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-3 gap-2">
               <h2 className="font-sans text-xl font-bold">Compare</h2>
               <button type="button" onClick={() => setCompareRows(null)}><X className="w-5 h-5" /></button>
@@ -525,7 +525,7 @@ export default function Discover() {
                         : m === "base_rate" || m === "followers" || m === "average_views" ? fmtNum(c[m])
                         : c[m] == null ? UNAVAILABLE : c[m];
                       return (
-                        <td key={c.id} className={`p-2 ${win ? "text-[#34C759] font-bold" : ""}`}>
+                        <td key={c.id} className={`p-2 ${win ? "text-[#52D4B5] font-bold" : ""}`}>
                           {win ? <Check className="inline w-3 h-3 mr-1" /> : null}
                           {val}
                         </td>
@@ -542,13 +542,13 @@ export default function Discover() {
 
       {researchOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setResearchOpen(false)}>
-          <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#12182A] border border-white/15 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-3">
-              <h2 className="font-sans text-xl font-bold inline-flex items-center gap-2"><FileSearch className="w-5 h-5 text-[#FF3B30]" /> Deep Research</h2>
+              <h2 className="font-sans text-xl font-bold inline-flex items-center gap-2"><FileSearch className="w-5 h-5 text-[#FF5C5C]" /> Deep Research</h2>
               <button type="button" onClick={() => setResearchOpen(false)}><X className="w-5 h-5" /></button>
             </div>
             {research?.loading ? <p className="font-mono text-xs tracking-widest uppercase opacity-50">Generating from stored facts…</p> : null}
-            {research?.error ? <p className="text-[#FF3B30] text-sm">{research.error}</p> : null}
+            {research?.error ? <p className="text-[#FF5C5C] text-sm">{research.error}</p> : null}
             {research?.overview && (
               <div className="space-y-4 font-sans text-sm">
                 <p className="text-white/70">{research.recommendation}</p>
@@ -566,7 +566,7 @@ export default function Discover() {
       )}
 
       {assistantOpen && (
-        <aside className="fixed right-3 top-24 bottom-24 z-30 w-[min(360px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#121212] flex flex-col overflow-hidden">
+        <aside className="fixed right-3 top-24 bottom-24 z-30 w-[min(360px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#12182A] flex flex-col overflow-hidden">
           <div className="p-3 border-b border-white/10 flex justify-between">
             <span className="font-mono text-[10px] uppercase tracking-widest">Discover assistant</span>
             <button type="button" onClick={() => setAssistantOpen(false)}><X className="w-4 h-4" /></button>
@@ -575,7 +575,7 @@ export default function Discover() {
             {messages.length === 0 ? (
               <p className="text-white/45">Ask for Telugu fashion creators, then “only show 100K+ followers”, “compare the top 5”, or “deep research creator number 2”.</p>
             ) : messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "text-right text-[#FF3B30]" : "text-white/80"}>{m.text}</div>
+              <div key={i} className={m.role === "user" ? "text-right text-[#FF5C5C]" : "text-white/80"}>{m.text}</div>
             ))}
           </div>
           <form onSubmit={sendAssistant} className="p-2 border-t border-white/10 flex gap-2">

@@ -25,9 +25,9 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
       const platform_metrics = {
         [platformId]: { handle }
       };
-      
+
       const res = await api.post("/creators/sync-analytics", { platform_metrics });
-      
+
       if (res.data?.ok) {
         toast.success(res.data?.message || `Successfully connected ${SOCIAL_PLATFORM_LABELS[platformId]}!`);
         if (onConnect) onConnect();
@@ -53,14 +53,14 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
         <h2 className="font-sans text-sm font-semibold tracking-tight">Connect Social Accounts</h2>
         <p className="text-[11px] text-white/45 hidden sm:block">Link profiles to sync analytics</p>
       </div>
-      
+
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
         {missing.map(p => {
           const Icon = SOCIAL_PLATFORM_ICONS[p];
           const name = SOCIAL_PLATFORM_LABELS[p];
           const color = SOCIAL_PLATFORM_HOVER_COLORS[p];
           const isPrompting = activePrompt === p;
-          
+
           if (isPrompting) {
             return (
               <div key={p} className={`flex flex-col p-2.5 border border-white/20 bg-white/5 rounded-xl transition-all ${color}`}>
@@ -73,8 +73,8 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                      <X className="w-3.5 h-3.5" />
                    </button>
                  </div>
-                 <input 
-                   type="text" 
+                 <input
+                   type="text"
                    autoFocus
                    placeholder="@handle or URL"
                    value={handleInput}
@@ -84,11 +84,11 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                    }}
                    className="w-full bg-black/40 border border-white/10 rounded-full px-2.5 py-1.5 font-sans text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-2"
                  />
-                 <button 
+                 <button
                    type="button"
                    onClick={() => connectAccount(p, handleInput)}
                    disabled={loading === p || !handleInput}
-                   className="w-full bg-[#FF3B30] text-white hover:bg-[#e03126] font-sans text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-full disabled:opacity-50"
+                   className="w-full bg-[#FF5C5C] text-white hover:bg-[#E5484D] font-sans text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-full disabled:opacity-50"
                  >
                    {loading === p ? "Connecting..." : "Confirm"}
                  </button>

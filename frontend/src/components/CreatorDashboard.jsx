@@ -90,7 +90,7 @@ export function CreatorDashboard({
       {/* Brand offers hidden for now — keep campaigns discoverable via Marketplace */}
 
       {/* 2) Earnings + Pitches / Campaigns in the banner */}
-      <section className="theme-keep-dark relative overflow-hidden rounded-3xl p-5 sm:p-6 text-white bg-gradient-to-br from-[#FF3B30] via-[#E6352B] to-[#1A0A0A] shadow-[0_18px_40px_-18px_rgba(255,59,48,0.55)]">
+      <section className="theme-keep-dark relative overflow-hidden rounded-3xl p-5 sm:p-6 text-white bg-gradient-to-br from-[#8B7CFF] via-[#5C6FE8] to-[#14213D] shadow-[0_18px_40px_-18px_rgba(92,111,232,0.48)]">
         <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/70">This month’s earnings</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
@@ -112,7 +112,7 @@ export function CreatorDashboard({
             </div>
             <Link
               to="/wallet"
-              className="inline-flex items-center justify-center gap-1.5 self-stretch sm:self-center bg-white text-[#0A0A0A] font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 self-stretch sm:self-center bg-white text-[#070B16] font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0 w-full sm:w-auto"
             >
               <Wallet className="w-4 h-4" /> Withdraw
             </Link>
@@ -183,7 +183,7 @@ function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
         <Icon className="w-3.5 h-3.5 text-white/35 shrink-0" />
       </div>
       <p className="font-sans text-lg sm:text-xl font-bold tabular-nums tracking-tight truncate">{value}</p>
-      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#34C759]" : warn ? "text-[#FF9500]" : "text-white/45"}`}>
+      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#52D4B5]" : warn ? "text-[#F7B955]" : "text-white/45"}`}>
         {hint}
       </p>
     </div>

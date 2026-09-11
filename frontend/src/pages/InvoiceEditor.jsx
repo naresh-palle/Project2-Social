@@ -224,7 +224,7 @@ export default function InvoiceEditor() {
       </p>
 
       {!locked ? (
-        <form onSubmit={runAiDraft} className="rounded-2xl border border-white/10 bg-[#121212] p-3 mb-3">
+        <form onSubmit={runAiDraft} className="rounded-2xl border border-white/10 bg-[#12182A] p-3 mb-3">
           <label className="font-mono text-[9px] uppercase tracking-widest text-white/40 flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Generate with AI</label>
           <div className="flex gap-2 mt-1">
             <input value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder='Create an invoice for the smartphone campaign. Two reels and three stories. Total agreed fee ₹1 lakh.' className="flex-1 bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
@@ -238,8 +238,8 @@ export default function InvoiceEditor() {
         <div className="rounded-2xl border border-white/10 p-3 mb-3">
           <p className="font-sans text-sm font-semibold">Invoice health {review.health}/100</p>
           <p className="text-xs text-white/60">{review.summary}</p>
-          {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#FF3B30] mt-1">{e}</p>)}
-          {(review.warnings || []).map((e) => <p key={e} className="text-xs text-[#FF9500] mt-1">{e}</p>)}
+          {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#FF5C5C] mt-1">{e}</p>)}
+          {(review.warnings || []).map((e) => <p key={e} className="text-xs text-[#F7B955] mt-1">{e}</p>)}
         </div>
       ) : null}
 
@@ -263,7 +263,7 @@ export default function InvoiceEditor() {
           <section className="rounded-2xl border border-white/10 p-3 grid sm:grid-cols-3 gap-2">
             <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
               Treatment
-              <select disabled={locked} value={inv.gst_treatment || "taxable"} onChange={(e) => setField("gst_treatment", e.target.value)} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-xs">
+              <select disabled={locked} value={inv.gst_treatment || "taxable"} onChange={(e) => setField("gst_treatment", e.target.value)} className="mt-1 w-full bg-[#12182A] border-b border-white/15 py-1 font-sans text-xs">
                 <option value="taxable">GST invoice — taxable</option>
                 <option value="zero_rated">GST — zero-rated</option>
                 <option value="exempt">GST — exempt</option>
@@ -289,7 +289,7 @@ export default function InvoiceEditor() {
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
               Template
-              <select disabled={locked} value={inv.template || "professional"} onChange={(e) => setField("template", e.target.value)} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-xs">
+              <select disabled={locked} value={inv.template || "professional"} onChange={(e) => setField("template", e.target.value)} className="mt-1 w-full bg-[#12182A] border-b border-white/15 py-1 font-sans text-xs">
                 <option value="professional">Professional</option>
                 <option value="modern">Modern</option>
                 <option value="minimal">Minimal</option>
@@ -327,7 +327,7 @@ export default function InvoiceEditor() {
                 <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Rate" value={it.rate} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, rate: Number(e.target.value) }; setInv({ ...inv, line_items: items });
                 }} />
-                <select disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-[#121212] border-b border-white/15 py-1 text-xs min-w-0" value={it.discount_kind || ""} onChange={(e) => {
+                <select disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-[#12182A] border-b border-white/15 py-1 text-xs min-w-0" value={it.discount_kind || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, discount_kind: e.target.value }; setInv({ ...inv, line_items: items });
                 }}>
                   <option value="">No disc.</option>
@@ -359,7 +359,7 @@ export default function InvoiceEditor() {
                 <input disabled={locked} placeholder="TDS %" value={inv.tds_rate ?? ""} onChange={(e) => setField("tds_rate", Number(e.target.value))} className="bg-transparent border-b border-white/15 py-1 text-xs" />
               </div>
             ) : null}
-            <p className="text-[10px] text-[#FF9500] mt-2">Verify applicable TDS section/rate before finalizing.</p>
+            <p className="text-[10px] text-[#F7B955] mt-2">Verify applicable TDS section/rate before finalizing.</p>
             <button type="button" onClick={persistCore} className="btn-pill text-[10px] !py-2 !px-3 mt-2" disabled={locked || busy}>
               <AiIcon name="refresh" className="w-3.5 h-3.5" /> Recalculate
             </button>

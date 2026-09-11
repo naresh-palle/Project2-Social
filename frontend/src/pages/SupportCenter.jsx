@@ -35,9 +35,9 @@ const FALLBACK_FAQ = {
 const SUPPORT_ROLES = new Set(["support", "support_agent", "support_lead", "support_admin"]);
 
 function statusClass(status) {
-  if (status === "open" || status === "new") return "bg-[#34C759]/20 text-[#34C759] border border-[#34C759]/30";
+  if (status === "open" || status === "new") return "bg-[#52D4B5]/20 text-[#52D4B5] border border-[#52D4B5]/30";
   if (["in_progress", "waiting_user", "pending_user", "pending_support", "assigned", "investigating", "action_required"].includes(status)) {
-    return "bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30";
+    return "bg-[#F7B955]/15 text-[#F7B955] border border-[#F7B955]/30";
   }
   return "bg-white/10 text-white/40 border border-white/10";
 }
@@ -142,7 +142,7 @@ export default function SupportCenter() {
       <div className="mb-6 border-b border-white/10 pb-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
               <AiIcon name="support" className="w-3.5 h-3.5" /> Support Center
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5 mb-2">Help & Support</h1>
@@ -205,7 +205,7 @@ export default function SupportCenter() {
                     type="button"
                     onClick={() => openTicket(t.id)}
                     className={`w-full text-left p-4 border rounded-2xl flex items-center justify-between ${
-                      selectedId === t.id ? "border-[#FF3B30]/50 bg-[#FF3B30]/10" : "border-white/10 bg-white/[0.02]"
+                      selectedId === t.id ? "border-[#FF5C5C]/50 bg-[#FF5C5C]/10" : "border-white/10 bg-white/[0.02]"
                     }`}
                   >
                     <div className="min-w-0 flex-1 overflow-hidden pr-2">
@@ -226,7 +226,7 @@ export default function SupportCenter() {
 
         <div>
           {selectedId && ticket ? (
-            <div className="border border-white/10 bg-[#121212] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
+            <div className="border border-white/10 bg-[#12182A] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <div className="font-mono text-[10px] text-white/40 tracking-widest">{ticket.number} · {ticket.category}</div>
@@ -238,7 +238,7 @@ export default function SupportCenter() {
               </div>
               <div className="flex-1 overflow-y-auto space-y-3 mb-4 min-h-[160px]">
                 {(detail.messages || []).map((m) => (
-                  <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.author_id === user?.id ? "bg-[#FF3B30]/15 ml-6" : "bg-white/[0.04] mr-6 border border-white/10"}`}>
+                  <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.author_id === user?.id ? "bg-[#FF5C5C]/15 ml-6" : "bg-white/[0.04] mr-6 border border-white/10"}`}>
                     <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
                       <MessageSquare className="w-3 h-3" /> {m.author_name}
                     </div>
@@ -247,15 +247,15 @@ export default function SupportCenter() {
                 ))}
               </div>
               <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Add more details…" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl mb-2" />
-              <button type="button" disabled={busyDetail || !reply.trim()} onClick={sendReply} className="w-full bg-[#FF3B30] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2">
+              <button type="button" disabled={busyDetail || !reply.trim()} onClick={sendReply} className="w-full bg-[#FF5C5C] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2">
                 <Send className="w-3.5 h-3.5" /> Send
               </button>
             </div>
           ) : (
-            <div className="border border-white/10 bg-[#121212] rounded-3xl p-6 sticky top-4">
+            <div className="border border-white/10 bg-[#12182A] rounded-3xl p-6 sticky top-4">
               <h2 className="font-sans text-2xl font-bold mb-6">Raise a Ticket</h2>
               {success ? (
-                <div className="bg-[#34C759]/10 border border-[#34C759]/30 text-[#34C759] p-6 rounded-3xl text-center space-y-3">
+                <div className="bg-[#52D4B5]/10 border border-[#52D4B5]/30 text-[#52D4B5] p-6 rounded-3xl text-center space-y-3">
                   <CheckCircle2 className="w-10 h-10 mx-auto" />
                   <p className="font-sans text-sm font-semibold tracking-wider uppercase">Ticket Submitted</p>
                 </div>
@@ -287,7 +287,7 @@ export default function SupportCenter() {
                     <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Description</label>
                     <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm resize-none" />
                   </div>
-                  <button type="submit" disabled={isSubmitting} className="w-full bg-[#FF3B30] text-white font-mono text-xs tracking-widest uppercase py-3 font-bold disabled:opacity-50">
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-[#FF5C5C] text-white font-mono text-xs tracking-widest uppercase py-3 font-bold disabled:opacity-50">
                     {isSubmitting ? "Submitting..." : "Submit Ticket"}
                   </button>
                 </form>

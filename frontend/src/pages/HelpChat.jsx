@@ -92,18 +92,18 @@ export default function HelpChat() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-1.5rem)] bg-[#0B0B0E] text-[#F4F4F0] flex flex-col">
+    <div className="w-full min-h-[calc(100vh-1.5rem)] bg-[#0B1020] text-[#F7F5ED] flex flex-col">
       <div className="mb-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF3B30] font-bold flex items-center gap-2">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> flugr Help
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">flugr Assistant</h1>
           </div>
           <div className="flex items-center gap-3">
             <p className="font-sans text-white/50 text-xs flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#52D4B5] animate-pulse" />
               Online
             </p>
             <Link
@@ -141,7 +141,7 @@ export default function HelpChat() {
                 className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
                   msg.role === "user"
                     ? "bg-white/10 text-white"
-                    : "bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30"
+                    : "bg-[#FF5C5C]/20 text-[#FF5C5C] border border-[#FF5C5C]/30"
                 }`}
               >
                 {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
@@ -149,7 +149,7 @@ export default function HelpChat() {
               <div
                 className={`p-4 rounded-3xl ${
                   msg.role === "user"
-                    ? "bg-[#FF3B30] text-white"
+                    ? "bg-[#FF5C5C] text-white"
                     : "bg-white/[0.04] border border-white/10 text-white/90"
                 }`}
               >
@@ -160,13 +160,13 @@ export default function HelpChat() {
 
           {isTyping && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4 max-w-[85%]">
-              <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 flex items-center justify-center shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-full bg-[#FF5C5C]/20 text-[#FF5C5C] border border-[#FF5C5C]/30 flex items-center justify-center shrink-0 mt-1">
                 <Bot className="w-4 h-4" />
               </div>
               <div className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 text-white/90 flex flex-row items-center gap-1 w-16 justify-center">
-                <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
-                <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
-                <motion.div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
+                <motion.div className="w-1.5 h-1.5 bg-[#FF5C5C] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
+                <motion.div className="w-1.5 h-1.5 bg-[#FF5C5C] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
+                <motion.div className="w-1.5 h-1.5 bg-[#FF5C5C] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
               </div>
             </motion.div>
           )}
@@ -179,7 +179,7 @@ export default function HelpChat() {
               type="button"
               onClick={escalateNow}
               disabled={isTyping}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FF3B30]/40 text-[#FF3B30] text-xs font-mono uppercase tracking-widest hover:bg-[#FF3B30]/10 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FF5C5C]/40 text-[#FF5C5C] text-xs font-mono uppercase tracking-widest hover:bg-[#FF5C5C]/10 disabled:opacity-50"
             >
               <Ticket className="w-3.5 h-3.5" /> Create support ticket from this chat
             </button>
@@ -191,12 +191,12 @@ export default function HelpChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about payments, disputes, matching…"
-            className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-3 text-sm outline-none focus:border-[#FF3B30]"
+            className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-3 text-sm outline-none focus:border-[#FF5C5C]"
           />
           <button
             type="submit"
             disabled={isTyping || !input.trim()}
-            className="w-12 h-12 rounded-full bg-[#FF3B30] text-white flex items-center justify-center disabled:opacity-50"
+            className="w-12 h-12 rounded-full bg-[#FF5C5C] text-white flex items-center justify-center disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -205,7 +205,7 @@ export default function HelpChat() {
 
       <p className="mt-3 text-center text-[11px] text-white/35">
         Still stuck?{" "}
-        <Link to="/support" className="text-[#FF3B30] hover:underline">
+        <Link to="/support" className="text-[#FF5C5C] hover:underline">
           Open Support Center
         </Link>
       </p>

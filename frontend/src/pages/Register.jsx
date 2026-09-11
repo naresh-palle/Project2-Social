@@ -15,7 +15,7 @@ export default function Register() {
   const nav = useNavigate();
   const location = useLocation();
   const { role: urlRole } = useParams();
-  
+
   // Public self-serve roles only — Hire / Production is admin-created
   const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
 
@@ -28,19 +28,19 @@ export default function Register() {
 
   const socialPrefill = location.state?.fromGoogleLogin ? location.state : null;
 
-  const [form, setForm] = useState({ 
+  const [form, setForm] = useState({
     email: socialPrefill?.email || "",
     username: socialPrefill?.email ? socialPrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
     password: "",
     firstName: socialPrefill?.firstName || "",
-    lastName: socialPrefill?.lastName || "", 
+    lastName: socialPrefill?.lastName || "",
     company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
     agent_type: "company_agent"
   });
   const [err, setErr] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  
+
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
@@ -308,7 +308,7 @@ export default function Register() {
     let errs = {};
     if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
     if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
-    
+
     // 1. Username validation & suggestion check (Alphanumeric combination, min 6 chars)
     if (!form.username.trim()) {
       errs.username = "Username is required";
@@ -354,7 +354,7 @@ export default function Register() {
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
     setErr("");
-    
+
     const errs = validateForm();
     if (Object.keys(errs).length > 0) {
       setFieldErrors(errs);
@@ -438,7 +438,7 @@ export default function Register() {
     }
   };
 
-  const allFieldsFilled = 
+  const allFieldsFilled =
     form.firstName.trim() !== "" &&
     form.lastName.trim() !== "" &&
     (role === "influencer" || role === "production" || form.company.trim() !== "") &&
@@ -449,19 +449,19 @@ export default function Register() {
     form.password.trim() !== "";
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B0B0E] text-[#F4F4F0] relative">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B1020] text-[#F7F5ED] relative">
       <Nav />
       <ThemeToaster />
-      
+
       <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#121212]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#12182A]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
         >
           {/* Same top gradient bar as Sign In */}
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF3B30] via-purple-500 to-[#34C759] absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#FF5C5C] via-purple-500 to-[#52D4B5] absolute top-0 left-0" />
 
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
@@ -470,17 +470,17 @@ export default function Register() {
                 alt=""
                 className="h-7 w-auto object-contain shrink-0"
               />
-              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF3B30]/90 font-semibold truncate">
+              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF5C5C]/90 font-semibold truncate">
                 Apply for access
               </p>
             </div>
-            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] transition-colors font-semibold shrink-0">
+            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF5C5C] transition-colors font-semibold shrink-0">
               ← Change Door
             </Link>
           </div>
 
           <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0">
-            Register as <span className="italic text-[#FF3B30]">{roleLabel}</span>
+            Register as <span className="italic text-[#FF5C5C]">{roleLabel}</span>
           </h1>
 
           <div className="mt-1.5 w-full shrink-0">
@@ -494,9 +494,9 @@ export default function Register() {
           </div>
 
           <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F5ED]/20 flex-1"></div>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#F4F4F0]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F5ED]/20 flex-1"></div>
           </div>
 
           <form
@@ -508,17 +508,17 @@ export default function Register() {
           <div className="grid grid-cols-2 gap-x-3 gap-y-1 min-h-0 overflow-y-auto flex-1 pr-0.5">
             <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
             <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
-            
+
             {(role === "owner" || role === "agent") && (
               <div className="col-span-2">
-                <Field 
-                  label={role === "owner" ? "Brand / Company" : "Agency Name"} 
-                  testid="reg-company" 
-                  value={form.company} 
-                  onChange={change("company")} 
-                  placeholder={role === "owner" ? "Company name" : "Agency name"} 
+                <Field
+                  label={role === "owner" ? "Brand / Company" : "Agency Name"}
+                  testid="reg-company"
+                  value={form.company}
+                  onChange={change("company")}
+                  placeholder={role === "owner" ? "Company name" : "Agency name"}
                   error={fieldErrors.company}
-                  required 
+                  required
                 />
               </div>
             )}
@@ -534,7 +534,7 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
-                        ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
+                        ? "border-[#FF5C5C] bg-[#FF5C5C]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -549,7 +549,7 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
-                        ? "border-[#FF3B30] bg-[#FF3B30]/10 text-white font-bold"
+                        ? "border-[#FF5C5C] bg-[#FF5C5C]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -567,7 +567,7 @@ export default function Register() {
                 <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-white/50">Checking…</span>
               )}
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
+              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
               {usernameStatus === "taken" && usernameSuggestions.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {usernameSuggestions.map((s) => (
@@ -575,7 +575,7 @@ export default function Register() {
                       key={s}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, username: s }))}
-                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#FF3B30] hover:text-[#FF3B30] transition-colors"
+                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#FF5C5C] hover:text-[#FF5C5C] transition-colors"
                     >
                       {s}
                     </button>
@@ -583,21 +583,21 @@ export default function Register() {
                 </div>
               )}
             </div>
-            
+
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
               {emailStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
+              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
             </div>
 
             <div className="relative">
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
               {mobileStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF3B30]" />}
+              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
             </div>
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
-            
+
             {/* City / State from pincode — plain values, no autofill badges */}
             <div className="select-none pointer-events-none opacity-80">
               <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
@@ -621,8 +621,8 @@ export default function Register() {
           </div>
 
           {(emailStatus === "taken" || mobileStatus === "taken") && (
-            <div className="mt-1.5 p-1.5 bg-[#FF3B30]/10 border border-[#FF3B30]/30 font-sans text-[10px] space-y-1 shrink-0">
-              <p className="text-[#FF3B30] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+            <div className="mt-1.5 p-1.5 bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 font-sans text-[10px] space-y-1 shrink-0">
+              <p className="text-[#FF5C5C] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
                 <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
               </p>
               <p className="text-white/80 leading-snug">
@@ -639,7 +639,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
-                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#FF3B30] text-white"
+                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#FF5C5C] text-white"
                 >
                   Sign In via Mobile OTP
                 </button>
@@ -648,7 +648,7 @@ export default function Register() {
           )}
 
           {err && (
-            <p data-testid="register-error" className="mt-1 text-[#FF3B30] font-sans text-[10px] tracking-wider uppercase shrink-0">
+            <p data-testid="register-error" className="mt-1 text-[#FF5C5C] font-sans text-[10px] tracking-wider uppercase shrink-0">
               {err}
             </p>
           )}
@@ -663,10 +663,10 @@ export default function Register() {
               disabled={!allFieldsFilled}
               onChange={(e) => setTermsAgreed(e.target.checked)}
               tabIndex={0}
-              className="accent-[#FF3B30] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="accent-[#FF5C5C] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label htmlFor="terms-check" className="font-sans text-[11px] text-white/90 cursor-pointer select-none leading-snug">
-              I agree to <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF3B30] font-bold underline hover:opacity-80">Privacy Policy</span>.
+              I agree to <span className="text-[#FF5C5C] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF5C5C] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
 
@@ -674,14 +674,14 @@ export default function Register() {
             type="submit"
             data-testid="register-submit"
             disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed || !allFieldsFilled}
-            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF3B30] text-white font-bold text-sm hover:bg-[#e03126] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
+            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF5C5C] text-white font-bold text-sm hover:bg-[#E5484D] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
           >
             {loading ? "Sending Code…" : "Signup"}
           </button>
 
           <p className="mt-1.5 font-sans text-[10px] tracking-wider opacity-70 text-center shrink-0">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#FF3B30] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
+            <Link to="/login" className="text-[#FF5C5C] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
               Login
             </Link>
           </p>
@@ -692,19 +692,19 @@ export default function Register() {
       {/* OTP Verification Modal */}
       <AnimatePresence>
         {showOtpModal && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0B0E]/90 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1020]/90 backdrop-blur-sm p-3 sm:p-6"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0B0B0E] border border-[#F4F4F0]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
+              className="bg-[#0B1020] border border-[#F7F5ED]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
             >
-              <button 
+              <button
                 type="button"
                 onClick={() => setShowOtpModal(false)}
                 className="absolute top-6 right-6 opacity-60 hover:opacity-100 transition-opacity"
@@ -718,18 +718,18 @@ export default function Register() {
               </p>
 
               <form onSubmit={verifyAndRegister}>
-                <Field 
-                  label="Verification Code" 
-                  testid="otp-input" 
-                  value={form.otp} 
-                  onChange={change("otp")} 
-                  error={otpError} 
+                <Field
+                  label="Verification Code"
+                  testid="otp-input"
+                  value={form.otp}
+                  onChange={change("otp")}
+                  error={otpError}
                   maxLength={6}
-                  required 
+                  required
                   autoFocus
                   className="w-full py-3 focus:outline-none text-2xl tracking-widest text-center bg-transparent"
                 />
-                
+
                 <button
                   type="submit"
                   disabled={otpLoading}
@@ -744,7 +744,7 @@ export default function Register() {
                     type="button"
                     disabled={resendCooldown > 0}
                     onClick={handleResendOtp}
-                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#FF3B30] disabled:opacity-30 disabled:hover:text-current transition-colors"
+                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#FF5C5C] disabled:opacity-30 disabled:hover:text-current transition-colors"
                   >
                     {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
                   </button>
@@ -762,9 +762,9 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
   return (
     <div className="space-y-0">
       <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
-        {label} {props.required && <span className="text-[#FF3B30] ml-0.5">*</span>}
+        {label} {props.required && <span className="text-[#FF5C5C] ml-0.5">*</span>}
       </label>
-      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF3B30] text-[#FF3B30]" : "hairline-b focus-within:border-[#FF3B30]"}`}>
+      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF5C5C] text-[#FF5C5C]" : "hairline-b focus-within:border-[#FF5C5C]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
@@ -774,7 +774,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
           className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
       </div>
-      {error && <p className="text-[#FF3B30] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
+      {error && <p className="text-[#FF5C5C] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }

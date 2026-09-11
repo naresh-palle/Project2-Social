@@ -82,14 +82,14 @@ export default function BillingSettings() {
           </label>
         </div>
         <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Default template
-          <select value={s.default_template || "professional"} onChange={(e) => setS({ ...s, default_template: e.target.value })} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-sm">
+          <select value={s.default_template || "professional"} onChange={(e) => setS({ ...s, default_template: e.target.value })} className="mt-1 w-full bg-[#12182A] border-b border-white/15 py-1 font-sans text-sm">
             <option value="professional">Professional</option>
             <option value="modern">Modern</option>
             <option value="minimal">Minimal</option>
           </select>
         </label>
         <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Rounding
-          <select value={s.rounding || "nearest_rupee"} onChange={(e) => setS({ ...s, rounding: e.target.value })} className="mt-1 w-full bg-[#121212] border-b border-white/15 py-1 font-sans text-sm">
+          <select value={s.rounding || "nearest_rupee"} onChange={(e) => setS({ ...s, rounding: e.target.value })} className="mt-1 w-full bg-[#12182A] border-b border-white/15 py-1 font-sans text-sm">
             <option value="nearest_rupee">Nearest rupee</option>
             <option value="none">None (paise)</option>
           </select>
