@@ -4,6 +4,13 @@
  * - wordmark: F + ivory italic flugr (dark UI)
  * - surface="paper": ink wordmark for light invoices
  */
+export const LOGO_CACHE = "v3";
+
+export function brandAsset(path) {
+  const base = `${process.env.PUBLIC_URL || ""}/${String(path).replace(/^\//, "")}`;
+  return `${base}${base.includes("?") ? "&" : "?"}v=${LOGO_CACHE}`;
+}
+
 export function BrandLogo({
   variant = "wordmark",
   surface = "dark",
@@ -13,10 +20,10 @@ export function BrandLogo({
 }) {
   const src =
     variant === "mark"
-      ? `${process.env.PUBLIC_URL}/brand/flugr-mark.png`
+      ? brandAsset("brand/flugr-mark.png")
       : surface === "paper"
-        ? `${process.env.PUBLIC_URL}/brand/flugr-logo-paper.png`
-        : `${process.env.PUBLIC_URL}/flugr-logo.png`;
+        ? brandAsset("brand/flugr-logo-paper.png")
+        : brandAsset("flugr-logo.png");
 
   return (
     <img

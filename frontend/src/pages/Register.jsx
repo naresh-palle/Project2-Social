@@ -466,7 +466,7 @@ export default function Register() {
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <img
-                src={`${process.env.PUBLIC_URL}/brand/flugr-mark.png`}
+                src={`${process.env.PUBLIC_URL}/brand/flugr-mark.png?v=v3`}
                 alt=""
                 className="h-7 w-auto object-contain shrink-0"
               />
