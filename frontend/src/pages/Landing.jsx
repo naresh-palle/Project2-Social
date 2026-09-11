@@ -68,7 +68,7 @@ function Hero() {
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* Full-bleed framed background — red beams left/right, clear center lane */}
+      {/* Full-bleed AI art: ember ribbons, violet and aurora edge light. */}
       <motion.div
         style={{ y: yImg }}
         className="absolute inset-0 z-0"
@@ -77,7 +77,7 @@ function Hero() {
         transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.55 }}
       >
         <img
-          src={`${process.env.PUBLIC_URL}/hero_bg.png`}
+          src={`${process.env.PUBLIC_URL}/flugr-home-midnight-aurora-hero.png`}
           alt=""
           className="w-full h-full object-cover object-center"
         />
@@ -86,7 +86,7 @@ function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 52% 70% at 50% 46%, rgba(5,5,6,0.78) 0%, rgba(5,5,6,0.42) 48%, rgba(5,5,6,0.18) 72%, transparent 100%)",
+              "radial-gradient(ellipse 52% 70% at 50% 46%, rgba(6,9,20,0.76) 0%, rgba(6,9,20,0.38) 48%, rgba(6,9,20,0.14) 72%, transparent 100%)",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#060914] via-transparent to-[#060914]/55" />
