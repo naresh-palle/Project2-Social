@@ -223,7 +223,7 @@
   width: min(22rem, 34vw);
   flex-shrink: 0;
   border-left: 1px solid var(--cdm-border);
-  background: rgba(11, 11, 14, 0.96);
+  background: rgba(11, 16, 32, 0.96);
   flex-direction: column;
   min-height: 0;
   z-index: 5;
@@ -265,7 +265,7 @@
 
 .cdm-side__item:hover,
 .cdm-side__item.is-selected {
-  background: rgba(255, 59, 48, 0.08);
+  background: rgba(255, 92, 92, 0.08);
 }
 
 .cdm-select {
@@ -585,7 +585,7 @@
 }
 
 .cdm-bottombar__btn:hover {
-  background: rgba(255, 59, 48, 0.12);
+  background: rgba(255, 92, 92, 0.12);
   color: var(--cdm-accent);
 }
 
@@ -683,7 +683,7 @@
 .cdm-pills button.is-on {
   border-color: var(--cdm-accent);
   color: var(--cdm-accent);
-  background: rgba(255, 59, 48, 0.12);
+  background: rgba(255, 92, 92, 0.12);
 }
 
 .cdm-row {
