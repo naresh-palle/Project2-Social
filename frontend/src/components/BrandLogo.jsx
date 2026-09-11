@@ -1,10 +1,12 @@
 /**
- * flugr brand mark / wordmark.
- * - mark: speed-F icon (favicons, compact headers)
- * - wordmark: F + FLUGR lockup (nav, splash, auth)
+ * flugr brand mark / wordmark (logo 3 lockup).
+ * - mark: vermilion F (compact headers)
+ * - wordmark: F + ivory italic flugr (dark UI)
+ * - surface="paper": ink wordmark for light invoices
  */
 export function BrandLogo({
   variant = "wordmark",
+  surface = "dark",
   className = "",
   alt = "flugr",
   height = 36,
@@ -12,7 +14,9 @@ export function BrandLogo({
   const src =
     variant === "mark"
       ? `${process.env.PUBLIC_URL}/brand/flugr-mark.png`
-      : `${process.env.PUBLIC_URL}/flugr-logo.png`;
+      : surface === "paper"
+        ? `${process.env.PUBLIC_URL}/brand/flugr-logo-paper.png`
+        : `${process.env.PUBLIC_URL}/flugr-logo.png`;
 
   return (
     <img
@@ -20,7 +24,13 @@ export function BrandLogo({
       alt={alt}
       height={height}
       className={`w-auto object-contain object-left border-0 select-none ${className}`}
-      style={{ height, maxWidth: variant === "mark" ? Math.round(height * 1.55) : undefined }}
+      style={{
+        height,
+        maxWidth:
+          variant === "mark"
+            ? Math.round(height * 1.55)
+            : Math.round(height * 3.4),
+      }}
       draggable={false}
     />
   );

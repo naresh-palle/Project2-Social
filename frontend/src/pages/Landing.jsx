@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useLenis } from "@/lib/useLenis";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -122,16 +123,15 @@ function Hero() {
       {/* Entire hero section centered between the background beams */}
       <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
         <div className="flex flex-1 flex-col items-center justify-center text-center gap-1 my-auto py-8">
-          <motion.h1
+          <motion.div
             data-testid="hero-brand-logo"
-            className="font-sans font-extrabold uppercase tracking-[0.12em] text-[#FF3B30] mb-5 sm:mb-6 select-none"
-            style={{ fontSize: "clamp(42px, 8vw, 72px)", lineHeight: 1 }}
+            className="mb-5 sm:mb-6 flex justify-center select-none"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.0 }}
           >
-            FLUGR
-          </motion.h1>
+            <BrandLogo variant="wordmark" height={72} className="h-14 sm:h-[72px] mx-auto object-center" />
+          </motion.div>
           {[
             { text: "The Bridge", className: "text-[#F4F4F0] font-medium" },
             { text: "Between", className: "text-[#F4F4F0] font-medium" },

@@ -42,7 +42,7 @@ class HomeShell extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const BrandLogo(variant: BrandLogoVariant.mark, height: 40),
+                    const BrandLogo(variant: BrandLogoVariant.wordmark, height: 40),
                     const SizedBox(height: 10),
                     Text(user?.displayName ?? '', style: Theme.of(context).textTheme.bodyMedium),
                     Text(user?.role.toUpperCase() ?? '', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Cr8Colors.accent)),

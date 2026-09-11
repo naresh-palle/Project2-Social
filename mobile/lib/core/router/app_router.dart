@@ -194,7 +194,7 @@ class _AuthSplashPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            BrandLogo(variant: BrandLogoVariant.mark, height: 72),
+            BrandLogo(variant: BrandLogoVariant.wordmark, height: 56),
             SizedBox(height: 28),
             SizedBox(
               width: 28,
@@ -246,7 +246,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.15, 0.55, curve: Curves.easeOutCubic),
                   child: Row(
                     children: [
-                      const BrandLogo(variant: BrandLogoVariant.mark, height: 32),
+                      const BrandLogo(variant: BrandLogoVariant.wordmark, height: 32),
                       const Spacer(),
                       Text(
                         'MOBILE',

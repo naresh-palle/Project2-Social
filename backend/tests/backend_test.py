@@ -6,11 +6,26 @@ deliverables, reviews, wallet/escrow, admin, AI (LLM), and RBAC negatives.
 import os
 import time
 import uuid
+from pathlib import Path
+
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL") or open("/app/frontend/.env").read().split("REACT_APP_BACKEND_URL=")[1].splitlines()[0].strip()
-BASE_URL = BASE_URL.rstrip("/")
+def _backend_url():
+    env = os.environ.get("REACT_APP_BACKEND_URL")
+    if env:
+        return env.strip().rstrip("/")
+    for path in (
+        Path("/app/frontend/.env"),
+        Path(__file__).resolve().parents[2] / "frontend" / ".env",
+    ):
+        if path.is_file():
+            for line in path.read_text().splitlines():
+                if line.startswith("REACT_APP_BACKEND_URL="):
+                    return line.split("=", 1)[1].strip().rstrip("/")
+    return "http://localhost:8000"
+
+BASE_URL = _backend_url()
 API = f"{BASE_URL}/api"
 
 OWNER_EMAIL = "studio@cr8.studio"
