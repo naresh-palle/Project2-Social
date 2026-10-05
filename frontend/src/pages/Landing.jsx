@@ -130,7 +130,7 @@ function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.0 }}
           >
-            <BrandLogo variant="hero" height={100} className="h-20 sm:h-[100px] mx-auto object-center" />
+            <BrandLogo variant="hero" height={86} className="mx-auto object-center" />
           </motion.div>
           {[
             { text: "The Bridge", className: "text-[#F7F5ED] font-medium" },

@@ -73,7 +73,7 @@ export function Nav({ variant = "dark" }) {
           data-testid="nav-logo"
           className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0 border-0 outline-none"
         >
-          <BrandLogo variant="wordmark" height={36} className="h-8 sm:h-9" />
+          <BrandLogo variant="wordmark" height={32} className="shrink-0" />
         </Link>
 
 

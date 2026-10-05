@@ -5,7 +5,7 @@
  * - hero: wordmark plus "Create • Collaborate • Grow"
  * - surface="paper": ink wordmark for light invoices
  */
-export const LOGO_CACHE = "v5";
+export const LOGO_CACHE = "v6";
 
 export function brandAsset(path) {
   const base = `${process.env.PUBLIC_URL || ""}/${String(path).replace(/^\//, "")}`;
@@ -38,8 +38,8 @@ export function BrandLogo({
         height,
         maxWidth:
           variant === "mark"
-            ? Math.round(height * 1.55)
-            : Math.round(height * 3.4),
+            ? Math.round(height * 1.2)
+            : Math.round(height * 4.2),
       }}
       draggable={false}
     />

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
+import { BrandLogo } from "@/components/BrandLogo";
 import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -465,11 +466,7 @@ export default function Register() {
 
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
-              <img
-                src={`${process.env.PUBLIC_URL}/brand/flugr-mark.png?v=v3`}
-                alt=""
-                className="h-7 w-auto object-contain shrink-0"
-              />
+              <BrandLogo variant="mark" height={28} alt="flugr" className="shrink-0" />
               <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF5C5C]/90 font-semibold truncate">
                 Apply for access
               </p>
