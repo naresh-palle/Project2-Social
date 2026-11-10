@@ -81,9 +81,9 @@ export default function ResetPassword() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent hairline-b py-3 pl-7 pr-10 focus:outline-none focus:border-[#FF2D55] mt-2"
+                    className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl py-3 pl-7 pr-10 focus:outline-none focus:border-[#FF2D55] mt-2 text-[#1E1B4B]"
                   />
-                  <button type="button" onClick={() => setShow(!show)} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#64748B]">
+                  <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#64748B]">
                     {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -95,7 +95,7 @@ export default function ResetPassword() {
                   required
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF2D55] mt-2"
+                  className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl py-3 px-3 focus:outline-none focus:border-[#FF2D55] mt-2 text-[#1E1B4B]"
                 />
               </div>
               <button

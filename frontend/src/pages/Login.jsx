@@ -260,8 +260,8 @@ export default function Login() {
                   autoComplete="username"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="mt-0.5 w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF2D55] font-sans text-sm"
-                  placeholder=""
+                  className="mt-0.5 w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#FF2D55] font-sans text-sm text-[#1E1B4B]"
+                  placeholder="you@brand.com"
                 />
               </div>
 
@@ -277,14 +277,14 @@ export default function Login() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-0.5 w-full bg-transparent hairline-b py-1.5 pr-10 focus:outline-none focus:border-[#FF2D55] font-sans text-sm"
-                    placeholder=""
+                    className="mt-0.5 w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl px-3 py-2.5 pr-10 focus:outline-none focus:border-[#FF2D55] font-sans text-sm text-[#1E1B4B]"
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-1.5 text-[#64748B] hover:text-[#1E1B4B]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#64748B] hover:text-[#1E1B4B]"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -367,8 +367,8 @@ export default function Login() {
                     disabled={otpSent}
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-transparent hairline-b py-1.5 focus:outline-none focus:border-[#FF2D55] font-sans text-sm"
-                    placeholder=""
+                    className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#FF2D55] font-sans text-sm text-[#1E1B4B]"
+                    placeholder="9876543210"
                   />
                 </div>
               </div>

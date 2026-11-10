@@ -14,8 +14,8 @@
         --violet: #7C3AED;
         --gold: #F59E0B;
         --muted-ink: #64748B;
-        --hairline: rgba(30, 27, 75, 0.10);
-        --hairline-dark: rgba(30, 27, 75, 0.10);
+        --hairline: rgba(30, 27, 75, 0.18);
+        --hairline-dark: rgba(30, 27, 75, 0.22);
 
         /* Surfaces: calm neutrals (accents only on CTAs / active states) */
         --surface-0: #F7F8FC;
@@ -25,8 +25,8 @@
         --fg: #1E1B4B;
         --fg-muted: #64748B;
         --fg-subtle: rgba(30, 27, 75, 0.52);
-        --border-soft: rgba(30, 27, 75, 0.10);
-        --border-strong: rgba(30, 27, 75, 0.18);
+        --border-soft: rgba(30, 27, 75, 0.14);
+        --border-strong: rgba(30, 27, 75, 0.22);
         --overlay-soft: rgba(124, 58, 237, 0.06);
         --overlay-mid: rgba(255, 45, 85, 0.08);
         --overlay-strong: rgba(20, 184, 166, 0.12);
@@ -746,6 +746,23 @@ html.theme-light textarea {
     color: var(--fg) !important;
     border-color: var(--border-soft);
     caret-color: var(--fg);
+}
+/* Transparent hairline fields need a visible underline on paper */
+html:not(.theme-dark) input.hairline-b,
+html:not(.theme-dark) textarea.hairline-b,
+html:not(.theme-dark) select.hairline-b,
+html:not(.theme-dark) .hairline-b:is(input, textarea, select),
+html:not(.theme-dark) div.hairline-b:has(input) {
+    border-bottom-color: rgba(30, 27, 75, 0.22) !important;
+}
+html:not(.theme-dark) input.bg-transparent.hairline-b,
+html:not(.theme-dark) textarea.bg-transparent.hairline-b {
+    background-color: #F7F8FC !important;
+    border: 1px solid rgba(30, 27, 75, 0.12) !important;
+    border-radius: 0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    min-height: 2.5rem;
 }
 html.theme-light .inp,
 html.theme-light .inp-field,

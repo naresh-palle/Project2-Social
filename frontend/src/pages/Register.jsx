@@ -776,7 +776,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
       <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
         {label} {props.required && <span className="text-[#FF2D55] ml-0.5">*</span>}
       </label>
-      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-[#1E1B4B]/08" : error ? "border-b border-[#FF2D55] text-[#FF2D55]" : "hairline-b focus-within:border-[#FF2D55]"}`}>
+      <div className={`mt-0.5 flex items-center w-full rounded-xl px-3 transition-colors ${disabled ? "opacity-50 pointer-events-none select-none bg-[#F1F5F9] border border-[#1E1B4B]/08" : error ? "bg-[#FFF1F2] border border-[#FF2D55] text-[#FF2D55]" : "bg-[#F7F8FC] border border-[#1E1B4B]/12 focus-within:border-[#FF2D55]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
