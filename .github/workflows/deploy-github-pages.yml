@@ -11,15 +11,14 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
+# One Pages publisher at a time — avoids "in progress deployment" races
 concurrency:
   group: github-pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,31 +44,19 @@ jobs:
           npx craco build
           printf 'flugr.in\n' > build/CNAME
 
-      # Keep gh-pages branch updated for legacy Pages source
+      # Repo Pages source is legacy branch `gh-pages` (not Actions artifact).
+      # Only publish that branch — do NOT also call actions/deploy-pages, or
+      # GitHub's pages-build-deployment races and fails with:
+      # "in progress deployment… cancel … first".
       - name: Publish gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: frontend/build
-          keep_files: true
+          # Replace prior SPA assets so stale hashed CSS/JS cannot linger
+          keep_files: false
+          force_orphan: false
           cname: flugr.in
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
           commit_message: "Deploy website (light theme)"
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/build
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        continue-on-error: true
