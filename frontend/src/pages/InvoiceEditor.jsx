@@ -190,9 +190,9 @@ export default function InvoiceEditor() {
     <div className="w-full pb-24" data-testid="invoice-editor">
       <div className="flex flex-wrap items-end justify-between gap-2 border-b border-white/10 pb-3 mb-4">
         <div>
-          <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-white/40">← Billing</Link>
+          <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">← Billing</Link>
           <h1 className="font-sans text-2xl font-bold">{locked ? "Invoice" : "Edit draft"} {inv.invoice_number || inv.draft_number}</h1>
-          <p className="text-xs text-white/45 capitalize">{inv.status?.replace("_", " ")} · {inv.invoice_kind === "non_gst" ? "Non-GST" : "GST tax invoice"}</p>
+          <p className="text-xs text-[#94A3B8] capitalize">{inv.status?.replace("_", " ")} · {inv.invoice_kind === "non_gst" ? "Non-GST" : "GST tax invoice"}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {!locked ? (
@@ -219,25 +219,25 @@ export default function InvoiceEditor() {
         </div>
       </div>
 
-      <p className="font-sans text-[11px] text-white/45 mb-3">
+      <p className="font-sans text-[11px] text-[#94A3B8] mb-3">
         GST, TDS, SAC/HSN, place-of-supply and other tax treatments depend on the specific transaction and applicable Indian law. Verify the applicable treatment with your tax professional before issuing a final tax invoice.
       </p>
 
       {!locked ? (
         <form onSubmit={runAiDraft} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3 mb-3">
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40 flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Generate with AI</label>
+          <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Generate with AI</label>
           <div className="flex gap-2 mt-1">
             <input value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder='Create an invoice for the smartphone campaign. Two reels and three stories. Total agreed fee ₹1 lakh.' className="flex-1 bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
             <button type="submit" className="btn-solid text-[10px] px-3" disabled={busy}>Draft</button>
           </div>
-          <p className="text-[10px] text-white/35 mt-1">AI will not invent GSTIN, PAN, tax rate, SAC/HSN, or bank details.</p>
+          <p className="text-[10px] text-[#94A3B8] mt-1">AI will not invent GSTIN, PAN, tax rate, SAC/HSN, or bank details.</p>
         </form>
       ) : null}
 
       {review ? (
         <div className="rounded-2xl border border-white/10 p-3 mb-3">
           <p className="font-sans text-sm font-semibold">Invoice health {review.health}/100</p>
-          <p className="text-xs text-white/60">{review.summary}</p>
+          <p className="text-xs text-[#64748B]">{review.summary}</p>
           {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#FF2D55] mt-1">{e}</p>)}
           {(review.warnings || []).map((e) => <p key={e} className="text-xs text-[#D97706] mt-1">{e}</p>)}
         </div>
@@ -247,13 +247,13 @@ export default function InvoiceEditor() {
         <div className="space-y-3 min-w-0">
           <section className="rounded-2xl border border-white/10 p-3 grid sm:grid-cols-2 gap-3">
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Supplier</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Supplier</p>
               {["legal_name", "address", "state", "state_code", "gstin", "pan"].map((k) => (
                 <input key={k} disabled={locked} value={inv.supplier?.[k] || ""} onChange={(e) => setField(`supplier.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs outline-none" />
               ))}
             </div>
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Recipient / Bill to</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Recipient / Bill to</p>
               {["legal_name", "address", "state", "state_code", "gstin", "pan", "email"].map((k) => (
                 <input key={k} disabled={locked} value={inv.recipient?.[k] || ""} onChange={(e) => setField(`recipient.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs outline-none" />
               ))}
@@ -261,7 +261,7 @@ export default function InvoiceEditor() {
           </section>
 
           <section className="rounded-2xl border border-white/10 p-3 grid sm:grid-cols-3 gap-2">
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Treatment
               <select disabled={locked} value={inv.gst_treatment || "taxable"} onChange={(e) => setField("gst_treatment", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs">
                 <option value="taxable">GST invoice — taxable</option>
@@ -271,23 +271,23 @@ export default function InvoiceEditor() {
                 <option value="non_gst">Non-GST invoice</option>
               </select>
             </label>
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               GST %
               <input disabled={locked} value={inv.gst_rate ?? ""} onChange={(e) => setField("gst_rate", e.target.value === "" ? null : Number(e.target.value))} placeholder="Do not guess" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
             </label>
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Place of supply code
               <input disabled={locked} value={inv.place_of_supply?.state_code || inv.place_of_supply_state_code || ""} onChange={(e) => setField("place_of_supply_state_code", e.target.value)} placeholder="e.g. 29" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
             </label>
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Invoice date
               <input disabled={locked} type="date" value={String(inv.invoice_date || "").slice(0, 10)} onChange={(e) => setField("invoice_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
             </label>
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Due date
               <input disabled={locked} type="date" value={String(inv.due_date || "").slice(0, 10)} onChange={(e) => setField("due_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
             </label>
-            <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+            <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Template
               <select disabled={locked} value={inv.template || "professional"} onChange={(e) => setField("template", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs">
                 <option value="professional">Professional</option>
@@ -299,14 +299,14 @@ export default function InvoiceEditor() {
 
           <section className="rounded-2xl border border-white/10 p-3">
             <div className="flex justify-between items-center mb-2">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Line items</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Line items</p>
               {!locked ? (
                 <button type="button" onClick={() => setField("line_items", [...(inv.line_items || []), emptyItem()])} className="text-[10px] inline-flex items-center gap-1"><AiIcon name="create" className="w-3 h-3" /> Add</button>
               ) : null}
             </div>
             <input value={codeQ} onChange={(e) => setCodeQ(e.target.value)} placeholder="Search SAC/HSN (admin-maintained suggestions)" className="w-full bg-transparent border-b border-white/15 py-1 mb-2 font-sans text-xs" />
             {codeQ && filteredCodes.map((c) => (
-              <button key={c.id || c.code} type="button" className="block text-left text-[10px] text-white/60 hover:text-white" onClick={() => {
+              <button key={c.id || c.code} type="button" className="block text-left text-[10px] text-[#64748B] hover:text-[#1E1B4B]" onClick={() => {
                 const items = [...(inv.line_items || [])];
                 if (items[0]) items[0] = { ...items[0], sac_hsn: c.code };
                 setInv({ ...inv, line_items: items });
@@ -342,10 +342,10 @@ export default function InvoiceEditor() {
               </div>
             ))}
             <div className="grid grid-cols-2 gap-2 mt-2">
-              <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Invoice discount ₹
+              <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Invoice discount ₹
                 <input disabled={locked} value={inv.discount_value ?? inv.invoice_discount ?? 0} onChange={(e) => setField("discount_value", Number(e.target.value))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-xs" />
               </label>
-              <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Payment terms
+              <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Payment terms
                 <input disabled={locked} value={inv.payment_terms || ""} onChange={(e) => setField("payment_terms", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-xs" />
               </label>
             </div>
@@ -367,7 +367,7 @@ export default function InvoiceEditor() {
 
           {!locked ? (
             <form onSubmit={assist} className="rounded-2xl border border-white/10 p-3">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Invoice assistant</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Invoice assistant</p>
               <input value={chat} onChange={(e) => setChat(e.target.value)} placeholder='Change the amount to 1.25 lakh' className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-sm outline-none" />
             </form>
           ) : null}

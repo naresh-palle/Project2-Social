@@ -138,15 +138,15 @@ export default function CreatorDetail() {
               <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">
                 {creator.creator_level || "Beginner"}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 inline-flex items-center gap-1">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] inline-flex items-center gap-1">
                 <MapPin className="w-3 h-3" /> {formatUserLocation(creator) || "Location not set"}
               </span>
             </div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight truncate">{displayName}</h1>
             {creator.name && creator.name !== displayName && (
-              <p className="font-sans text-sm text-white/50 mt-0.5">{creator.name}</p>
+              <p className="font-sans text-sm text-[#64748B] mt-0.5">{creator.name}</p>
             )}
-            <p className="font-mono text-[10px] uppercase tracking-widest text-white/40 mt-1.5 truncate">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] mt-1.5 truncate">
               {nichesLabel}
               {creator.languages?.length ? ` · ${creator.languages.slice(0, 3).join(", ")}` : ""}
             </p>
@@ -171,12 +171,12 @@ export default function CreatorDetail() {
               ["Engagement rate", social.engagementRate, false, true],
             ].map(([label, val, zeroMissing, isEr]) => (
               <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2" title={!isEr ? (formatExactNumber(val) || undefined) : undefined}>
-                <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+                <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
                 <p className="font-sans text-base font-bold tabular-nums mt-0.5">
                   {isEr ? formatEngagementRate(val) : displayMetric(val, { format: formatCompactNumber, allowZero: !zeroMissing })}
                 </p>
                 {isEr && engagementRateHint(social.engagementRateBasis) ? (
-                  <p className="font-mono text-[8px] text-white/35 mt-0.5">{engagementRateHint(social.engagementRateBasis)}</p>
+                  <p className="font-mono text-[8px] text-[#94A3B8] mt-0.5">{engagementRateHint(social.engagementRateBasis)}</p>
                 ) : null}
               </div>
             ))}
@@ -193,7 +193,7 @@ export default function CreatorDetail() {
             ["Avg ROAS", kpis.average_roas != null ? `${kpis.average_roas}x` : (kpis.avg_roas != null ? `${kpis.avg_roas}x` : "—")],
           ].map(([label, val]) => (
             <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
-              <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+              <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
               <p className="font-sans text-base font-bold tabular-nums mt-0.5">{val}</p>
             </div>
           ))}
@@ -219,7 +219,7 @@ export default function CreatorDetail() {
           <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mt-3">
             {["engagement_quality", "audience_quality", "content_quality", "growth", "authenticity", "brand_safety"].map((k) => (
               <div key={k} className="rounded-xl border border-white/10 bg-white/5 p-2">
-                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{k.replace(/_/g, " ")}</div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{k.replace(/_/g, " ")}</div>
                 <div className="font-sans text-lg font-bold">{intel.quality.breakdown?.[k] ?? "Data unavailable"}</div>
               </div>
             ))}
@@ -227,14 +227,14 @@ export default function CreatorDetail() {
         )}
         <div className="flex flex-wrap gap-2 mt-3 font-mono text-[9px] uppercase tracking-widest">
           {["overview", "campaigns", "analytics", "audience", "research"].map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF2D55] text-[#FF2D55]" : "border-transparent text-white/45"}`}>{t === "campaigns" ? "Past campaigns" : t}</button>
+            <button key={t} type="button" onClick={() => setTab(t)} className={`pb-1 border-b-2 ${tab === t ? "border-[#FF2D55] text-[#FF2D55]" : "border-transparent text-[#94A3B8]"}`}>{t === "campaigns" ? "Past campaigns" : t}</button>
           ))}
         </div>
       </div>
 
       {tab === "campaigns" ? (
         <div className="space-y-4 mb-6">
-          <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Campaign performance case studies</h2>
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8]">Campaign performance case studies</h2>
           {pastCampaigns.length === 0 ? (
             <p className="font-sans italic opacity-50">No past campaign performance on file yet.</p>
           ) : pastCampaigns.map((c) => (
@@ -242,7 +242,7 @@ export default function CreatorDetail() {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h3 className="font-sans text-lg font-semibold">{c.campaign_name || c.title}</h3>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-0.5">
                     {c.brand_name} · {c.campaign_category} · {c.campaign_objective} · {c.campaign_date}
                   </p>
                 </div>
@@ -266,33 +266,33 @@ export default function CreatorDetail() {
                   ["Leads", fmt(c.leads)],
                 ].map(([label, val]) => (
                   <div key={label} className="rounded-lg border border-white/10 px-2 py-1.5">
-                    <div className="font-mono text-[8px] uppercase text-white/40">{label}</div>
+                    <div className="font-mono text-[8px] uppercase text-[#94A3B8]">{label}</div>
                     <div className="font-sans text-sm font-bold tabular-nums">{val}</div>
                   </div>
                 ))}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
                 <div className="rounded-lg border border-white/10 px-2 py-1.5">
-                  <div className="font-mono text-[8px] uppercase text-white/40">Campaign cost</div>
+                  <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Campaign cost</div>
                   <div className="font-sans text-sm font-bold">{c.campaign_cost != null ? `₹${Number(c.campaign_cost).toLocaleString()}` : "—"}</div>
                 </div>
                 <div className="rounded-lg border border-white/10 px-2 py-1.5">
-                  <div className="font-mono text-[8px] uppercase text-white/40">Revenue</div>
+                  <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Revenue</div>
                   <div className="font-sans text-sm font-bold">{c.revenue_generated != null ? `₹${Number(c.revenue_generated).toLocaleString()}` : "—"}</div>
                 </div>
                 <div className="rounded-lg border border-white/10 px-2 py-1.5">
-                  <div className="font-mono text-[8px] uppercase text-white/40">ROI</div>
+                  <div className="font-mono text-[8px] uppercase text-[#94A3B8]">ROI</div>
                   <div className="font-sans text-sm font-bold">{c.roi ?? "—"}</div>
                 </div>
                 <div className="rounded-lg border border-white/10 px-2 py-1.5">
-                  <div className="font-mono text-[8px] uppercase text-white/40">Content</div>
+                  <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Content</div>
                   <div className="font-sans text-sm font-bold truncate">{c.content_produced || "—"}</div>
                 </div>
               </div>
               {(c.key_outcome || c.brand_impact) && (
-                <div className="mt-3 font-sans text-sm text-white/70 space-y-1">
-                  {c.key_outcome ? <p><span className="text-white/40">Outcome:</span> {c.key_outcome}</p> : null}
-                  {c.brand_impact ? <p><span className="text-white/40">Brand impact:</span> {c.brand_impact}</p> : null}
+                <div className="mt-3 font-sans text-sm text-[#64748B] space-y-1">
+                  {c.key_outcome ? <p><span className="text-[#94A3B8]">Outcome:</span> {c.key_outcome}</p> : null}
+                  {c.brand_impact ? <p><span className="text-[#94A3B8]">Brand impact:</span> {c.brand_impact}</p> : null}
                 </div>
               )}
             </article>
@@ -304,8 +304,8 @@ export default function CreatorDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-4 space-y-4">
           <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">About</h3>
-            <p className="font-sans text-sm leading-relaxed text-white/85 mb-3">
+            <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">About</h3>
+            <p className="font-sans text-sm leading-relaxed text-[#1E1B4B]/85 mb-3">
               {creator.bio || "No bio provided."}
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -325,13 +325,13 @@ export default function CreatorDetail() {
           {pastCampaigns.length > 0 && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45">Past campaigns</h3>
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8]">Past campaigns</h3>
                 <button type="button" onClick={() => setTab("campaigns")} className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">View all</button>
               </div>
               <div className="space-y-2">
                 {pastCampaigns.slice(0, 4).map((c) => (
                   <div key={c.id} className="py-1.5 border-b border-white/5 last:border-0">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                       {[c.brand_name, c.campaign_date].filter(Boolean).join(" · ")}
                     </div>
                     <div className="font-sans text-sm font-medium">{c.campaign_name}</div>
@@ -348,7 +348,7 @@ export default function CreatorDetail() {
 
         <div className="lg:col-span-8 space-y-4">
           <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Audience</h3>
+            <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Audience</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {SOCIAL_PLATFORMS.map((plat) => {
                 const pm = creator.platform_metrics?.[plat] || {};
@@ -363,7 +363,7 @@ export default function CreatorDetail() {
                         {Icon ? <Icon className="w-4 h-4 shrink-0 opacity-70" /> : null}
                         <div className="min-w-0">
                           <div className="font-mono text-[9px] tracking-widest uppercase opacity-50">{SOCIAL_PLATFORM_LABELS[plat] || plat}</div>
-                          <div className={`font-sans text-sm font-bold truncate ${connected ? "text-white" : "text-white/40"}`}>
+                          <div className={`font-sans text-sm font-bold truncate ${connected ? "text-[#1E1B4B]" : "text-[#94A3B8]"}`}>
                             {connected ? `@${String(pm.handle || "").replace(/^@/, "")}` : "Not connected"}
                           </div>
                         </div>
@@ -404,7 +404,7 @@ export default function CreatorDetail() {
           {tab === "analytics" && chartData.length > 0 && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 flex items-center gap-1">
+                <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] flex items-center gap-1">
                   <Activity className="w-3 h-3" /> Growth
                 </h3>
                 <div className="flex gap-1">
@@ -428,14 +428,14 @@ export default function CreatorDetail() {
 
           {tab === "research" && research && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Deep research</h3>
-              <pre className="whitespace-pre-wrap font-sans text-sm text-white/80">{typeof research === "string" ? research : JSON.stringify(research, null, 2)}</pre>
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Deep research</h3>
+              <pre className="whitespace-pre-wrap font-sans text-sm text-[#475569]">{typeof research === "string" ? research : JSON.stringify(research, null, 2)}</pre>
             </section>
           )}
 
           {(creator.portfolio || []).length > 0 && (
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Portfolio</h3>
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Portfolio</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {creator.portfolio.slice(0, 9).map((src, i) => (
                   isVideoUrl(src) ? (
@@ -454,7 +454,7 @@ export default function CreatorDetail() {
       {isBrand && similar.length > 0 && (
         <section className="mt-8 border-t border-white/10 pt-6">
           <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF2D55] mb-1">Creators similar to this profile</h2>
-          <p className="font-sans text-sm text-white/50 mb-4">Matched on niche, audience, location, followers, engagement, content type, and pricing.</p>
+          <p className="font-sans text-sm text-[#64748B] mb-4">Matched on niche, audience, location, followers, engagement, content type, and pricing.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {similar.map((c) => {
               const selected = comboSelected.find((x) => x.id === c.id);
@@ -464,7 +464,7 @@ export default function CreatorDetail() {
                     {c.avatar ? <img src={c.avatar} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-white/10" />}
                     <div className="min-w-0">
                       <div className="font-sans text-sm font-semibold truncate">{c.name}</div>
-                      <div className="font-mono text-[8px] uppercase tracking-widest text-white/40 truncate">
+                      <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8] truncate">
                         {fmt(c.followers)} · {c.engagement_rate != null ? `${c.engagement_rate}%` : "—"} · sim {c.similarity_score}
                       </div>
                     </div>

@@ -130,7 +130,7 @@ export function AdminProduction() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-sans text-xl font-bold">Hire / Production Team</h2>
-          <p className="font-sans text-sm text-white/50">
+          <p className="font-sans text-sm text-[#64748B]">
             Filter, create, and manage in-house and external production professionals.
           </p>
         </div>
@@ -190,7 +190,7 @@ export function AdminProduction() {
             className="ml-auto bg-black/40 border border-white/15 rounded-full px-3 py-1.5 text-sm min-w-[12rem]"
           />
         </div>
-        <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+        <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
           Showing {filteredMembers.length} of {members.length} members · {filteredRequests.length} hire requests
         </p>
       </div>
@@ -220,12 +220,12 @@ export function AdminProduction() {
         <div className="py-10 text-center opacity-50 font-mono text-xs uppercase tracking-widest">Loading…</div>
       ) : (
         <div className="space-y-3">
-          <h3 className="font-mono text-[10px] uppercase tracking-widest text-white/45">Members · {filteredMembers.length}</h3>
+          <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Members · {filteredMembers.length}</h3>
           {filteredMembers.map((m) => (
             <div key={m.id} className="rounded-2xl border border-white/10 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="font-sans font-semibold">{m.name}</div>
-                <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+                <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                   {m.production_category_label} · {m.production_role} · {m.city}
                   {m.in_house ? " · In-House" : " · External"}
                   {m.base_rate != null ? ` · ₹${Number(m.base_rate).toLocaleString()}` : ""}
@@ -263,12 +263,12 @@ export function AdminProduction() {
       )}
 
       <div className="space-y-3">
-        <h3 className="font-mono text-[10px] uppercase tracking-widest text-white/45">Incoming hire requests · {filteredRequests.length}</h3>
+        <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Incoming hire requests · {filteredRequests.length}</h3>
         {filteredRequests.slice(0, 30).map((r) => (
           <div key={r.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
             <span className="font-semibold">{r.requester_name}</span>
-            <span className="text-white/45"> → {r.production_name}</span>
-            <span className="font-mono text-[9px] uppercase tracking-widest text-white/40 ml-2">{r.status}</span>
+            <span className="text-[#94A3B8]"> → {r.production_name}</span>
+            <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] ml-2">{r.status}</span>
           </div>
         ))}
         {!filteredRequests.length && <p className="opacity-50 italic text-sm">No hire requests for this filter.</p>}

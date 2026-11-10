@@ -76,7 +76,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                 <img src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" />
               ) : (
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-sans font-bold text-xl text-white border-2 border-white shadow-md"
+                  className="w-12 h-12 rounded-full flex items-center justify-center font-sans font-bold text-xl text-[#1E1B4B] border-2 border-white shadow-md"
                   style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 65%, 42%)` }}
                 >
                   {(displayAccountName(user) || "C")[0]?.toUpperCase()}

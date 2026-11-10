@@ -82,11 +82,11 @@ export default function RegisterSplash() {
                     <span className="font-mono text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold">
                       DOOR {r.num}
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 text-white/70 rounded-xs">
+                    <span className="font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 text-[#64748B] rounded-xs">
                       {r.badge}
                     </span>
                   </div>
-                  <div className="font-editorial text-3xl md:text-4xl mt-2 font-bold group-hover:text-white transition-colors">
+                  <div className="font-editorial text-3xl md:text-4xl mt-2 font-bold group-hover:text-[#1E1B4B] transition-colors">
                     {r.label}
                   </div>
                   <div className="font-mono text-[11px] tracking-[0.1em] opacity-60 group-hover:opacity-90 mt-2">
@@ -100,7 +100,7 @@ export default function RegisterSplash() {
 
           <p className="mt-14 font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 text-center">
             Already inside the studio?{" "}
-            <Link to="/login" className="underline text-[#FF2D55] font-bold hover:text-white transition-colors">
+            <Link to="/login" className="underline text-[#FF2D55] font-bold hover:text-[#1E1B4B] transition-colors">
               Sign in ↗
             </Link>
           </p>

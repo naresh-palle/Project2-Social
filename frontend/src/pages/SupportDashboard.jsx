@@ -80,7 +80,7 @@ const STATUS_OPTS = [
 const FILTER_INPUT =
   "w-full bg-gradient-to-b from-white/[0.07] to-white/[0.02] text-[#1E1B4B] border border-white/15 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-white/35 focus:outline-none focus:border-[#FF2D55]/60";
 
-const iconSm = (Icon, cls = "text-white/60") => <Icon className={`w-3.5 h-3.5 ${cls}`} />;
+const iconSm = (Icon, cls = "text-[#64748B]") => <Icon className={`w-3.5 h-3.5 ${cls}`} />;
 
 const QUEUE_OPTIONS = [
   { value: "all", label: "All Tickets", description: "Full unified queue", icon: iconSm(Inbox) },
@@ -108,7 +108,7 @@ const STATUS_OPTIONS = STATUS_OPTS.map((s) => ({
 
 const PRIORITY_OPTIONS = [
   { value: "", label: "All priorities", icon: iconSm(Filter) },
-  { value: "Low", label: "Low", icon: iconSm(CircleDot, "text-white/40") },
+  { value: "Low", label: "Low", icon: iconSm(CircleDot, "text-[#94A3B8]") },
   { value: "Medium", label: "Medium", icon: iconSm(CircleDot, "text-[#14B8A6]") },
   { value: "High", label: "High", icon: iconSm(CircleDot, "text-[#D97706]") },
   { value: "Critical", label: "Critical", icon: iconSm(AlertTriangle, "text-[#FF2D55]") },
@@ -129,7 +129,7 @@ const CATEGORY_OPTIONS = [
 const AI_OPTIONS = AI_STATUS_OPTS.map((a) => ({
   value: a.id,
   label: a.label,
-  icon: iconSm(Bot, a.id ? "text-[#FF2D55]" : "text-white/50"),
+  icon: iconSm(Bot, a.id ? "text-[#FF2D55]" : "text-[#64748B]"),
 }));
 
 function statusClass(status) {
@@ -137,7 +137,7 @@ function statusClass(status) {
   if (["in_progress", "assigned", "investigating", "action_required", "pending_user", "pending_support", "ai_handling", "reopened"].includes(status)) {
     return "bg-[#D97706]/15 text-[#D97706] border-[#D97706]/30";
   }
-  return "bg-white/10 text-white/40 border-white/10";
+  return "bg-white/10 text-[#94A3B8] border-white/10";
 }
 
 function typeLabel(t) {
@@ -581,7 +581,7 @@ export default function SupportDashboard() {
               </div>
               <h1 className="font-editorial text-3xl md:text-4xl mt-2 tracking-tight">{pageTitle}</h1>
               {tab === "dashboard" && (
-                <p className="text-white/55 text-sm mt-2 max-w-xl">
+                <p className="text-[#64748B] text-sm mt-2 max-w-xl">
                   {greeting}, {displayAccountName(user) || "agent"}. Clear the queue, protect SLA, and close the loop.
                 </p>
               )}
@@ -589,7 +589,7 @@ export default function SupportDashboard() {
             {tab === "dashboard" && stats && (
               <div className="flex flex-wrap gap-2">
                 <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
-                  <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Open</div>
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Open</div>
                   <div className="text-xl font-bold tabular-nums">{stats.open ?? stats.unassigned ?? 0}</div>
                 </div>
                 <div className="rounded-2xl border border-[#FF2D55]/25 bg-[#FF2D55]/10 px-3 py-2 min-w-[5.5rem]">
@@ -597,7 +597,7 @@ export default function SupportDashboard() {
                   <div className="text-xl font-bold tabular-nums">{stats.unassigned ?? 0}</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
-                  <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Today</div>
+                  <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Today</div>
                   <div className="text-xl font-bold tabular-nums">{stats.finished_today_by_me ?? stats.resolved_today ?? 0}</div>
                 </div>
               </div>
@@ -611,7 +611,7 @@ export default function SupportDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {[
               { label: "Needs claim", value: stats.unassigned ?? 0, hint: "Unassigned in queue", queue: "unassigned", icon: Inbox, accent: "from-[#FF2D55]/25 to-transparent", iconCls: "text-[#FF2D55]" },
-              { label: "My open", value: stats.my_open ?? 0, hint: "On your desk", queue: "mine", icon: Users, accent: "from-white/10 to-transparent", iconCls: "text-white" },
+              { label: "My open", value: stats.my_open ?? 0, hint: "On your desk", queue: "mine", icon: Users, accent: "from-white/10 to-transparent", iconCls: "text-[#1E1B4B]" },
               { label: "SLA risk", value: stats.sla_breached ?? 0, hint: "Breached / overdue", queue: "all", icon: AlertTriangle, accent: "from-[#D97706]/25 to-transparent", iconCls: "text-[#D97706]" },
               { label: "Resolved today", value: stats.resolved_today ?? stats.finished_today_by_me ?? 0, hint: "Closed in last 24h", queue: "resolved", icon: CheckCircle2, accent: "from-[#14B8A6]/20 to-transparent", iconCls: "text-[#14B8A6]" },
             ].map((card, i) => (
@@ -626,11 +626,11 @@ export default function SupportDashboard() {
               >
                 <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${card.accent} opacity-80`} />
                 <div className="relative flex items-start justify-between gap-2">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">{card.label}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#64748B]">{card.label}</span>
                   <card.icon className={`w-4 h-4 ${card.iconCls} group-hover:scale-110 transition-transform`} />
                 </div>
                 <div className="relative font-sans text-3xl font-bold mt-3 tabular-nums tracking-tight">{card.value}</div>
-                <div className="relative text-xs text-white/40 mt-1">{card.hint}</div>
+                <div className="relative text-xs text-[#94A3B8] mt-1">{card.hint}</div>
               </motion.button>
             ))}
           </div>
@@ -640,7 +640,7 @@ export default function SupportDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-sans font-bold text-lg">Priority focus</h2>
-                  <p className="text-xs text-white/40 mt-0.5">Triage by severity and origin</p>
+                  <p className="text-xs text-[#94A3B8] mt-0.5">Triage by severity and origin</p>
                 </div>
                 <button type="button" onClick={() => setTab("tickets", "all")} className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] inline-flex items-center gap-1 hover:opacity-80">
                   Open queue <ArrowRight className="w-3 h-3" />
@@ -654,7 +654,7 @@ export default function SupportDashboard() {
                   ["Pending support", stats.pending_support ?? 0, "all", "border-white/10 bg-white/[0.03]"],
                 ].map(([label, val, qid, cls]) => (
                   <button key={label} type="button" onClick={() => setTab("tickets", qid)} className={`rounded-2xl border px-3 py-3.5 text-left hover:brightness-110 transition ${cls}`}>
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/45">{label}</div>
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
                     <div className="text-2xl font-bold mt-1.5 tabular-nums">{val}</div>
                   </button>
                 ))}
@@ -666,7 +666,7 @@ export default function SupportDashboard() {
                   ["Agent", stats.agent ?? 0, "agent", Handshake],
                 ].map(([label, val, qid, Icon]) => (
                   <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left hover:border-white/25">
-                    <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-white/45">
+                    <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                       <Icon className="w-3 h-3" /> {label}
                     </div>
                     <div className="text-xl font-bold mt-1.5 tabular-nums">{val}</div>
@@ -682,7 +682,7 @@ export default function SupportDashboard() {
                 </div>
                 <div>
                   <h2 className="font-sans font-bold text-lg leading-tight">Quick actions</h2>
-                  <p className="text-[11px] text-white/40">Jump into work</p>
+                  <p className="text-[11px] text-[#94A3B8]">Jump into work</p>
                 </div>
               </div>
               {[
@@ -699,7 +699,7 @@ export default function SupportDashboard() {
                 >
                   <AiIcon name={a.icon} className="w-4 h-4 opacity-80" />
                   <span className="text-sm flex-1 font-medium">{a.label}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                  <ArrowRight className="w-3.5 h-3.5 text-[#94A3B8]" />
                 </button>
               ))}
             </div>
@@ -709,11 +709,11 @@ export default function SupportDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-sans font-bold text-lg">Attention list</h2>
-                <p className="text-xs text-white/40 mt-0.5">Highest priority first</p>
+                <p className="text-xs text-[#94A3B8] mt-0.5">Highest priority first</p>
               </div>
             </div>
             {attentionTickets.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-white/40">
+              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-[#94A3B8]">
                 Queue is clear — nice work.
               </div>
             ) : (
@@ -730,7 +730,7 @@ export default function SupportDashboard() {
                   >
                     <div className={`w-1.5 self-stretch rounded-full shrink-0 ${t.priority === "Critical" ? "bg-[#FF2D55]" : t.priority === "High" ? "bg-[#D97706]" : "bg-white/20"}`} />
                     <div className="min-w-0 flex-1">
-                      <div className="font-mono text-[9px] text-white/40 tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
+                      <div className="font-mono text-[9px] text-[#94A3B8] tracking-widest">{t.number} · {typeLabel(t.user_type)} · {t.priority}</div>
                       <div className="text-sm font-medium truncate mt-0.5">{t.subject}</div>
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
@@ -748,7 +748,7 @@ export default function SupportDashboard() {
             <div className="rounded-3xl border border-white/10 bg-[#F3EEFF] p-3.5 space-y-3">
               <div className="flex items-center gap-2 px-0.5">
                 <Filter className="w-3.5 h-3.5 text-[#FF2D55]" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/50">Filters</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#64748B]">Filters</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <MenuSelect label="Queue" value={queue && QUEUE_PRESETS[queue] ? queue : "all"} onChange={(v) => applyQueueFilter(v)} options={QUEUE_OPTIONS} />
@@ -762,15 +762,15 @@ export default function SupportDashboard() {
                 ) : null}
               </div>
               <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tickets, users, numbers…" className={`${FILTER_INPUT} pl-9`} />
               </div>
             </div>
 
             {loading ? (
-              <div className="flex items-center gap-2 text-white/50 text-sm px-1"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+              <div className="flex items-center gap-2 text-[#64748B] text-sm px-1"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-8 text-center text-sm text-white/40">No tickets match filters.</div>
+              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-8 text-center text-sm text-[#94A3B8]">No tickets match filters.</div>
             ) : (
               tickets.map((t) => (
                 <button
@@ -783,14 +783,14 @@ export default function SupportDashboard() {
                       : "border-white/10 bg-[#F3EEFF] hover:border-white/25 hover:bg-white/[0.03]"
                   }`}
                 >
-                  <div className="font-mono text-[9px] tracking-widest text-white/40 mb-1.5 flex flex-wrap gap-x-2">
+                  <div className="font-mono text-[9px] tracking-widest text-[#94A3B8] mb-1.5 flex flex-wrap gap-x-2">
                     <span>{t.number}</span>
                     <span>{typeLabel(t.user_type || t.user_role)}</span>
                     <span className={t.priority === "Critical" ? "text-[#FF2D55]" : t.priority === "High" ? "text-[#D97706]" : ""}>{t.priority}</span>
                   </div>
                   <div className="font-sans font-semibold text-sm truncate">{t.subject}</div>
                   <div className="mt-2.5 flex justify-between items-center gap-2">
-                    <span className="text-[11px] text-white/45 truncate">{t.user_name}</span>
+                    <span className="text-[11px] text-[#94A3B8] truncate">{t.user_name}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase border shrink-0 ${statusClass(t.status)}`}>{(t.status || "").replace(/_/g, " ")}</span>
                   </div>
                 </button>
@@ -803,19 +803,19 @@ export default function SupportDashboard() {
               <div className="border border-white/10 bg-[#F3EEFF] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
-                    <div className="font-mono text-[10px] text-white/40 tracking-widest">{ticket.number} · {typeLabel(ticket.user_type)} · {ticket.priority}</div>
+                    <div className="font-mono text-[10px] text-[#94A3B8] tracking-widest">{ticket.number} · {typeLabel(ticket.user_type)} · {ticket.priority}</div>
                     <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
-                    <p className="text-xs text-white/50 mt-1">{ticket.user_name} · {ticket.category} · {(ticket.status || "").replace(/_/g, " ")}{ticket.assignee_name ? ` · ${ticket.assignee_name}` : " · Unassigned"}</p>
+                    <p className="text-xs text-[#64748B] mt-1">{ticket.user_name} · {ticket.category} · {(ticket.status || "").replace(/_/g, " ")}{ticket.assignee_name ? ` · ${ticket.assignee_name}` : " · Unassigned"}</p>
                     {ticket.sla_due_at && (
-                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF2D55]" : "text-white/40"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
+                      <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF2D55]" : "text-[#94A3B8]"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
                     )}
                   </div>
                   <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0"><X className="w-4 h-4" /></button>
                 </div>
 
                 {detail.user_context && (
-                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] text-xs text-white/70 space-y-1">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">User</div>
+                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] text-xs text-[#64748B] space-y-1">
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">User</div>
                     <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
                     {detail.user_context.handle && <div>@{String(detail.user_context.handle).replace(/^@/, "")}</div>}
                     {detail.user_context.company && <div>{detail.user_context.company}</div>}
@@ -859,24 +859,24 @@ export default function SupportDashboard() {
                       </button>
                       </div>
                     </div>
-                    <div className="text-white/80">
+                    <div className="text-[#475569]">
                       Score <span className="tabular-nums font-semibold">{ticket.social_audit.audit_score ?? "—"}</span>
                       {" · "}{ticket.social_audit.audit_status || "—"}
                       {" · "}{ticket.social_audit.platform || "—"}
                       {ticket.social_audit.account ? ` · @${String(ticket.social_audit.account).replace(/^@/, "")}` : ""}
                     </div>
-                    <p className="text-white/60">{ticket.social_audit.issue_description}</p>
+                    <p className="text-[#64748B]">{ticket.social_audit.issue_description}</p>
                     {ticket.social_audit.recommended_action && (
-                      <p className="text-white/45">Fix: {ticket.social_audit.recommended_action}</p>
+                      <p className="text-[#94A3B8]">Fix: {ticket.social_audit.recommended_action}</p>
                     )}
-                    <p className="font-mono text-[9px] text-white/35">
+                    <p className="font-mono text-[9px] text-[#94A3B8]">
                       Audit {ticket.social_audit.audit_id} · scraper {ticket.social_audit.scraper_status || "—"} · {fmtTs(ticket.social_audit.audit_timestamp)}
                     </p>
                     {auditHistory.length > 0 && (
                       <div className="pt-2 border-t border-white/10 space-y-1">
-                        <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">Audit history</div>
+                        <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Audit history</div>
                         {auditHistory.slice(0, 5).map((a) => (
-                          <div key={a.id} className="flex justify-between gap-2 text-[11px] text-white/55">
+                          <div key={a.id} className="flex justify-between gap-2 text-[11px] text-[#64748B]">
                             <span>{a.status} · score {a.score}</span>
                             <span className="font-mono text-[9px]">{fmtTs(a.created_at)}</span>
                           </div>
@@ -888,13 +888,13 @@ export default function SupportDashboard() {
 
                 {(ticket.history || []).length > 0 && (
                   <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] max-h-28 overflow-y-auto">
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1.5">Timeline</div>
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1.5">Timeline</div>
                     {(ticket.history || []).slice().reverse().map((h, i) => (
-                      <div key={i} className="text-[11px] text-white/55 py-0.5 border-b border-white/5 last:border-0">
-                        <span className="text-white/80">{h.actor_name}</span>
+                      <div key={i} className="text-[11px] text-[#64748B] py-0.5 border-b border-white/5 last:border-0">
+                        <span className="text-[#475569]">{h.actor_name}</span>
                         {" · "}{(h.action || "").replace(/_/g, " ")}
                         {h.previous_status || h.new_status ? ` · ${h.previous_status || "—"} → ${h.new_status || "—"}` : ""}
-                        <span className="font-mono text-[9px] text-white/35 ml-1">{fmtTs(h.timestamp)}</span>
+                        <span className="font-mono text-[9px] text-[#94A3B8] ml-1">{fmtTs(h.timestamp)}</span>
                       </div>
                     ))}
                   </div>
@@ -924,7 +924,7 @@ export default function SupportDashboard() {
 
                 {can("support.tickets.update") && (
                   <div className="flex gap-2 mb-3 items-center">
-                    <Tag className="w-3.5 h-3.5 text-white/40" />
+                    <Tag className="w-3.5 h-3.5 text-[#94A3B8]" />
                     <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-white/[0.04] text-[#1E1B4B] border border-white/15 px-2.5 py-1.5 text-xs rounded-xl" />
                     <button type="button" disabled={busy} onClick={saveTags} className="px-2.5 py-1.5 text-[10px] font-mono uppercase border border-white/15 rounded-xl hover:border-white/30">Save</button>
                   </div>
@@ -933,7 +933,7 @@ export default function SupportDashboard() {
                 <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 no-scrollbar min-h-[180px]">
                   {(detail.messages || []).map((m) => (
                     <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF2D55]/15 border border-[#FF2D55]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
-                      <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
+                      <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1 flex items-center gap-2">
                         <MessageSquare className="w-3 h-3" />
                         {m.author_name}{m.internal ? " · internal" : ""}{m.source === "ai" ? " · AI" : ""} · {fmtTs(m.created_at)}
                       </div>
@@ -963,7 +963,7 @@ export default function SupportDashboard() {
         <div className="space-y-6">
           <div className="overflow-x-auto border border-white/10 rounded-2xl">
             <table className="w-full text-left text-sm">
-              <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40 border-b border-white/10">
+              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
                 <tr>
                   <th className="p-3">Name</th>
                   <th className="p-3">Email</th>
@@ -980,13 +980,13 @@ export default function SupportDashboard() {
                 {staff.map((u) => (
                   <tr key={u.id} className="border-b border-white/5">
                     <td className="p-3">{u.name}</td>
-                    <td className="p-3 text-white/60">{u.email}</td>
+                    <td className="p-3 text-[#64748B]">{u.email}</td>
                     <td className="p-3 font-mono text-xs">{u.support_role || u.role}</td>
                     <td className="p-3">{u.status}</td>
                     <td className="p-3">{u.open_tickets}</td>
                     <td className="p-3">{u.resolved_tickets}</td>
                     <td className="p-3">{u.sla_performance ?? "—"}%</td>
-                    <td className="p-3 text-white/50 text-xs">{fmtTs(u.last_active)}</td>
+                    <td className="p-3 text-[#64748B] text-xs">{fmtTs(u.last_active)}</td>
                     {canManageUsers && (
                       <td className="p-3 space-x-2 whitespace-nowrap">
                         <MenuSelect
@@ -1044,13 +1044,13 @@ export default function SupportDashboard() {
             <div key={a.id} className="border border-white/10 rounded-2xl p-4">
               <div className="flex justify-between gap-3">
                 <h3 className="font-sans font-bold">{a.title}</h3>
-                <span className="font-mono text-[9px] uppercase text-white/40">{a.active ? "Active" : "Inactive"}</span>
+                <span className="font-mono text-[9px] uppercase text-[#94A3B8]">{a.active ? "Active" : "Inactive"}</span>
               </div>
-              <p className="text-sm text-white/70 mt-2 whitespace-pre-wrap">{a.body}</p>
+              <p className="text-sm text-[#64748B] mt-2 whitespace-pre-wrap">{a.body}</p>
               {(a.tags || []).length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {a.tags.map((t) => (
-                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 border border-white/15 rounded-full text-white/50">{t}</span>
+                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 border border-white/15 rounded-full text-[#64748B]">{t}</span>
                   ))}
                 </div>
               )}
@@ -1080,11 +1080,11 @@ export default function SupportDashboard() {
             Auto-escalate unresolved chats to Support queue
           </label>
           <div>
-            <div className="font-mono text-[9px] uppercase text-white/40 mb-1">Greeting</div>
+            <div className="font-mono text-[9px] uppercase text-[#94A3B8] mb-1">Greeting</div>
             <input value={aiConfig.greeting || ""} onChange={(e) => setAiConfig({ ...aiConfig, greeting: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
           </div>
           <div>
-            <div className="font-mono text-[9px] uppercase text-white/40 mb-1">Max history turns</div>
+            <div className="font-mono text-[9px] uppercase text-[#94A3B8] mb-1">Max history turns</div>
             <input type="number" min={2} max={40} value={aiConfig.max_history || 10} onChange={(e) => setAiConfig({ ...aiConfig, max_history: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
           </div>
           <button type="button" disabled={busy} onClick={saveAiConfig} className="bg-[#FF2D55] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">
@@ -1099,7 +1099,7 @@ export default function SupportDashboard() {
             {Object.entries(analytics.by_user_type || {}).map(([ut, row]) => (
               <div key={ut} className="border border-white/10 rounded-2xl p-4">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]">{typeLabel(ut)}</div>
-                <div className="mt-2 text-sm text-white/70 space-y-1">
+                <div className="mt-2 text-sm text-[#64748B] space-y-1">
                   <div>Open: {row.open}</div>
                   <div>Resolved: {row.resolved}</div>
                   <div>SLA breached: {row.sla_breached}</div>
@@ -1109,7 +1109,7 @@ export default function SupportDashboard() {
           </div>
           <div className="border border-white/10 rounded-2xl overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40 border-b border-white/10">
+              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
                 <tr>
                   <th className="p-3">Agent</th>
                   <th className="p-3">Role</th>
@@ -1137,7 +1137,7 @@ export default function SupportDashboard() {
       {tab === "audit" && canAudit && (
         <div className="border border-white/10 rounded-2xl overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40 border-b border-white/10">
+            <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
               <tr>
                 <th className="p-3">Time</th>
                 <th className="p-3">Actor</th>
@@ -1150,16 +1150,16 @@ export default function SupportDashboard() {
             <tbody>
               {audit.map((log, i) => (
                 <tr key={log.id || i} className="border-b border-white/5 align-top">
-                  <td className="p-3 text-xs text-white/50 whitespace-nowrap">{fmtTs(log.created_at || log.timestamp)}</td>
+                  <td className="p-3 text-xs text-[#64748B] whitespace-nowrap">{fmtTs(log.created_at || log.timestamp)}</td>
                   <td className="p-3">{log.user || log.username || log.user_id || "—"}</td>
                   <td className="p-3 font-mono text-xs">{log.meta?.actor_type || "—"}</td>
                   <td className="p-3 font-mono text-xs">{log.action}</td>
                   <td className="p-3 font-mono text-xs">{log.meta?.ticket_id || "—"}</td>
-                  <td className="p-3 text-xs text-white/60 max-w-xs truncate">{log.details || JSON.stringify(log.meta || {})}</td>
+                  <td className="p-3 text-xs text-[#64748B] max-w-xs truncate">{log.details || JSON.stringify(log.meta || {})}</td>
                 </tr>
               ))}
               {!audit.length && (
-                <tr><td className="p-4 text-white/40" colSpan={6}>No support audit entries yet.</td></tr>
+                <tr><td className="p-4 text-[#94A3B8]" colSpan={6}>No support audit entries yet.</td></tr>
               )}
             </tbody>
           </table>

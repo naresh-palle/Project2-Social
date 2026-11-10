@@ -12,7 +12,7 @@ const STATUS = ["draft", "sent", "viewed", "partially_paid", "paid", "overdue", 
 function statusCls(s) {
   if (s === "paid") return "text-[#14B8A6]";
   if (s === "overdue" || s === "cancelled") return "text-[#FF2D55]";
-  if (s === "draft") return "text-white/45";
+  if (s === "draft") return "text-[#94A3B8]";
   return "text-[#D97706]";
 }
 
@@ -92,7 +92,7 @@ export default function Billing() {
             <AiIcon name="billing" className="w-3.5 h-3.5" /> Billing
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Billing & Invoices</h1>
-          <p className="font-sans text-xs text-white/50 mt-1 max-w-xl">
+          <p className="font-sans text-xs text-[#64748B] mt-1 max-w-xl">
             GST, TDS, SAC/HSN, place-of-supply and other tax treatments depend on the specific transaction and applicable Indian law. Verify with your tax professional before issuing a final tax invoice.
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function Billing() {
             key={b}
             type="button"
             onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("box", b); return n; })}
-            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15 text-white/50"}`}
+            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15 text-[#64748B]"}`}
           >
             {b}
           </button>
@@ -132,9 +132,9 @@ export default function Billing() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
         {cardOrder.map(([label, v]) => (
           <div key={label} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3">
-            <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{label}</div>
+            <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
             <div className="font-sans text-lg font-bold tabular-nums mt-1">{inr(v?.amount)}</div>
-            <div className="font-mono text-[9px] text-white/35">{v?.count || 0}</div>
+            <div className="font-mono text-[9px] text-[#94A3B8]">{v?.count || 0}</div>
           </div>
         ))}
       </div>
@@ -144,12 +144,12 @@ export default function Billing() {
           <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="demo" className="w-3.5 h-3.5" /> DEMO DATA — not saved to production
           </p>
-          <p className="font-sans text-xs text-white/60 mt-1">{demoPack.note}</p>
+          <p className="font-sans text-xs text-[#64748B] mt-1">{demoPack.note}</p>
           <div className="grid md:grid-cols-2 gap-4 mt-3">
             <div className="text-xs">
-              <p><span className="text-white/40">Creator</span> {demoPack.creator?.trade_name} · {demoPack.creator?.gstin}</p>
-              <p><span className="text-white/40">Company</span> {demoPack.company?.legal_name} · {demoPack.company?.gstin}</p>
-              <p><span className="text-white/40">Campaign</span> {demoPack.campaign?.name} ({demoPack.campaign?.campaign_id})</p>
+              <p><span className="text-[#94A3B8]">Creator</span> {demoPack.creator?.trade_name} · {demoPack.creator?.gstin}</p>
+              <p><span className="text-[#94A3B8]">Company</span> {demoPack.company?.legal_name} · {demoPack.company?.gstin}</p>
+              <p><span className="text-[#94A3B8]">Campaign</span> {demoPack.campaign?.name} ({demoPack.campaign?.campaign_id})</p>
               <p className="mt-2">{demoPack.invoice?.invoice_number} · {inr(demoPack.invoice?.grand_total)} · GST {inr(demoPack.invoice?.total_gst)}</p>
               <p className="text-[#D97706] mt-1">Example GSTIN checksum: supplier {demoPack.gstin_valid_supplier ? "valid format" : "invalid (intentional demo)"} / recipient {demoPack.gstin_valid_recipient ? "valid format" : "invalid (intentional demo)"}</p>
             </div>
@@ -166,12 +166,12 @@ export default function Billing() {
           <option value="">All statuses</option>
           {STATUS.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
         </select>
-        <span className="sm:ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">{total} invoices</span>
+        <span className="sm:ml-auto font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">{total} invoices</span>
       </div>
 
       <div className="rounded-2xl border border-white/10 table-scroll">
         <table className="w-full min-w-[44rem] text-left text-xs">
-          <thead className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+          <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
             <tr>
               {["Invoice", "Client", "Campaign", "Date", "Due", "Amount", "GST", "Status", ""].map((h) => (
                 <th key={h || "actions"} className="p-3 font-medium">{h}</th>
@@ -180,12 +180,12 @@ export default function Billing() {
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <tr><td colSpan={9} className="p-8 text-center text-white/45">No invoices yet. Create one or generate from a completed campaign.</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-[#94A3B8]">No invoices yet. Create one or generate from a completed campaign.</td></tr>
             ) : rows.map((r) => (
               <tr key={r.id} className="border-t border-white/10">
                 <td className="p-3 font-mono text-[11px]">{r.invoice_number}</td>
                 <td className="p-3">{r.client}</td>
-                <td className="p-3 text-white/60">{r.campaign || "—"}</td>
+                <td className="p-3 text-[#64748B]">{r.campaign || "—"}</td>
                 <td className="p-3">{String(r.invoice_date || "").slice(0, 10)}</td>
                 <td className="p-3">{String(r.due_date || "").slice(0, 10)}</td>
                 <td className="p-3 tabular-nums">{inr(r.amount)}</td>

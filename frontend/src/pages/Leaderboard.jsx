@@ -91,8 +91,8 @@ export default function Leaderboard() {
                     onClick={() => setCategory(c.id)}
                     className={`px-3 py-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase transition-all flex items-center gap-1.5 border ${
                       active
-                        ? "bg-white/10 border-white/25 text-white"
-                        : "border-white/10 text-white/45 hover:text-white/80"
+                        ? "bg-white/10 border-white/25 text-[#1E1B4B]"
+                        : "border-white/10 text-[#94A3B8] hover:text-[#1E1B4B]"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -107,11 +107,11 @@ export default function Leaderboard() {
         {myRank?.rank && (
           <div className="mb-3 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <span className="font-mono text-[9px] tracking-widest uppercase text-white/45">Your rank</span>
-              <span className="font-sans text-lg font-bold text-white">#{myRank.rank}</span>
+              <span className="font-mono text-[9px] tracking-widest uppercase text-[#94A3B8]">Your rank</span>
+              <span className="font-sans text-lg font-bold text-[#1E1B4B]">#{myRank.rank}</span>
             </div>
             <div className="text-right">
-              <span className="font-mono text-[9px] tracking-widest uppercase text-white/45 mr-2">Score</span>
+              <span className="font-mono text-[9px] tracking-widest uppercase text-[#94A3B8] mr-2">Score</span>
               <span className="font-sans text-base font-bold text-[#FF2D55]">{myRank.score}</span>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function Leaderboard() {
           ) : entries.length > 0 ? (
             entries.map((entry, idx) => {
               let row = "bg-white/[0.03] border-white/8";
-              let rankStyle = "text-white/40 font-mono text-sm";
+              let rankStyle = "text-[#94A3B8] font-mono text-sm";
               if (entry.rank === 1) {
                 row = "bg-[#FFD700]/10 border-[#FFD700]/25";
                 rankStyle = "text-[#FFD700] font-sans font-bold text-sm";
@@ -154,7 +154,7 @@ export default function Leaderboard() {
                       <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
                     ) : (
                       <div
-                        className="w-full h-full flex items-center justify-center font-sans font-bold text-white text-xs"
+                        className="w-full h-full flex items-center justify-center font-sans font-bold text-[#1E1B4B] text-xs"
                         style={{ backgroundColor: `hsl(${((entry.name || "U").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
                       >
                         {(entry.name || "U")[0]?.toUpperCase()}
@@ -164,18 +164,18 @@ export default function Leaderboard() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <div className="font-sans font-bold text-base text-white truncate">{entry.name}</div>
+                      <div className="font-sans font-bold text-base text-[#1E1B4B] truncate">{entry.name}</div>
                       {entry.level && (
                         <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-[#FF2D55]/15 text-[#FF2D55] text-[8px] font-mono tracking-wider uppercase border border-[#FF2D55]/25">
                           L{entry.level}
                         </span>
                       )}
                     </div>
-                    <div className="font-sans font-medium text-xs text-white/70 truncate">@{entry.handle || "user"}</div>
+                    <div className="font-sans font-medium text-xs text-[#64748B] truncate">@{entry.handle || "user"}</div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <div className="font-sans text-sm font-bold text-white tabular-nums">
+                    <div className="font-sans text-sm font-bold text-[#1E1B4B] tabular-nums">
                       {category === "top_performer"
                         ? entry.score
                         : `₹${entry.score?.toLocaleString() || entry.stats?.toLocaleString() || 0}`}
@@ -185,7 +185,7 @@ export default function Leaderboard() {
               );
             })
           ) : (
-            <div className="text-center py-14 text-white/35 font-mono text-xs uppercase tracking-widest">
+            <div className="text-center py-14 text-[#94A3B8] font-mono text-xs uppercase tracking-widest">
               No data available for this period.
             </div>
           )}

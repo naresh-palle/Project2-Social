@@ -391,7 +391,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     )}
                     <span className="font-sans text-xs truncate">
                       {u.name || u.username}
-                      {u.username ? <span className="text-white/40"> · @{String(u.username).replace(/^@/, "")}</span> : null}
+                      {u.username ? <span className="text-[#94A3B8]"> · @{String(u.username).replace(/^@/, "")}</span> : null}
                     </span>
                   </button>
                 ))}
@@ -399,7 +399,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             )}
             {searchResults.length > 0 && (
               <div className="space-y-1">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-white/45">Messages</p>
+                <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Messages</p>
                 {searchResults.map((m) => (
                   <div key={m.id} className="font-sans text-xs opacity-80 truncate px-2">{m.content}</div>
                 ))}
@@ -554,7 +554,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                         <button type="button" onClick={() => setEditingMsg(null)} className="font-sans text-[10px] uppercase opacity-60 hover:opacity-100">
                                           Cancel
                                         </button>
-                                        <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase font-bold text-white">
+                                        <button type="button" onClick={() => saveEdit(m.id)} className="font-sans text-[10px] uppercase font-bold text-[#1E1B4B]">
                                           Save
                                         </button>
                                       </div>
@@ -566,7 +566,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                     </div>
                                   )}
                                   <div className={`mt-2 flex items-center gap-2 ${mine ? "justify-end" : "justify-start"}`}>
-                                    <span className={`font-sans text-[9px] tracking-widest uppercase ${mine ? "text-white/60" : "text-white/40"}`}>
+                                    <span className={`font-sans text-[9px] tracking-widest uppercase ${mine ? "text-[#64748B]" : "text-[#94A3B8]"}`}>
                                       {formatMsgTime(m.created_at)}
                                     </span>
                                     {mine && editingMsg !== m.id && (
@@ -577,11 +577,11 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                             setEditingMsg(m.id);
                                             setEditText(m.content || "");
                                           }}
-                                          className="text-white/50 hover:text-white"
+                                          className="text-[#64748B] hover:text-[#1E1B4B]"
                                         >
                                           <Edit3 className="w-3.5 h-3.5" />
                                         </button>
-                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-white/50 hover:text-[#FF2D55]">
+                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-[#64748B] hover:text-[#FF2D55]">
                                           <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                       </div>
@@ -596,7 +596,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     </div>
                   ))}
                   {typingUser && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-white/40 px-4">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-[#94A3B8] px-4">
                       <div className="flex gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }}></span>
                         <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }}></span>

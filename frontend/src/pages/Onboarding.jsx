@@ -131,7 +131,7 @@ export default function Onboarding() {
               <div className="bg-white/5 p-5 border border-white/10 rounded-3xl space-y-3 font-mono text-xs">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Agency / Company:</span>
-                  <span className="text-white font-bold">{user.company || "Agency"}</span>
+                  <span className="text-[#1E1B4B] font-bold">{user.company || "Agency"}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Agent Type:</span>
@@ -141,11 +141,11 @@ export default function Onboarding() {
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Industry Focus:</span>
-                  <span className="text-white">{user.industry || "General"}</span>
+                  <span className="text-[#1E1B4B]">{user.industry || "General"}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Location:</span>
-                  <span className="text-white">{user.city || "Global"}</span>
+                  <span className="text-[#1E1B4B]">{user.city || "Global"}</span>
                 </div>
                 {user.website && (
                   <div className="flex justify-between border-b border-white/5 pb-2">
@@ -158,7 +158,7 @@ export default function Onboarding() {
                 {user.bio && (
                   <div className="pt-1">
                     <span className="opacity-50 block mb-1">Representation Statement:</span>
-                    <span className="text-white/80 italic">{user.bio}</span>
+                    <span className="text-[#475569] italic">{user.bio}</span>
                   </div>
                 )}
               </div>
@@ -206,7 +206,7 @@ export default function Onboarding() {
               </div>
 
               <div>
-                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-white">
+                <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-[#1E1B4B]">
                   Application Revision Needed
                 </h1>
                 <div className="mt-4 p-4 bg-[#FF2D55]/10 border border-[#FF2D55]/30 rounded-3xl font-mono text-xs text-white">
@@ -270,10 +270,10 @@ export default function Onboarding() {
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "company_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-editorial text-lg text-white">🏢 Company Agent</div>
+                    <div className="font-editorial text-lg text-[#1E1B4B]">🏢 Company Agent</div>
                     <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
                       Represent brand clients, manage client roster, and post campaign briefs
                     </div>
@@ -285,10 +285,10 @@ export default function Onboarding() {
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "influencer_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-editorial text-lg text-white">⭐ Influencer Agent</div>
+                    <div className="font-editorial text-lg text-[#1E1B4B]">⭐ Influencer Agent</div>
                     <div className="font-mono text-[10px] uppercase opacity-70 mt-1">
                       Manage influencer roster, receive admin campaign briefs &amp; arrange talent
                     </div>
@@ -551,13 +551,13 @@ const toggleCategory = (c) => {
               >
                 <button
                   onClick={() => setManualAuthPlatform(null)}
-                  className="absolute top-4 right-4 text-white/50 hover:text-white"
+                  className="absolute top-4 right-4 text-[#64748B] hover:text-[#1E1B4B]"
                 >
                   <X className="w-5 h-5" />
                 </button>
 
                 <h3 className="font-editorial text-2xl mb-2 capitalize">Connect {manualAuthPlatform}</h3>
-                <p className="font-mono text-[10px] text-white/50 uppercase tracking-wider mb-6">
+                <p className="font-mono text-[10px] text-[#64748B] uppercase tracking-wider mb-6">
                   Please enter your exact handle or username.
                 </p>
 
@@ -567,7 +567,7 @@ const toggleCategory = (c) => {
                       {manualAuthPlatform} Handle / Username *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 font-mono">@</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748B] font-mono">@</span>
                       <input
                         type="text"
                         required
@@ -584,7 +584,7 @@ const toggleCategory = (c) => {
                     <button
                       type="button"
                       onClick={() => setManualAuthPlatform(null)}
-                      className="px-4 py-2 font-mono text-xs text-white/60 hover:text-white"
+                      className="px-4 py-2 font-mono text-xs text-[#64748B] hover:text-[#1E1B4B]"
                     >
                       Cancel
                     </button>

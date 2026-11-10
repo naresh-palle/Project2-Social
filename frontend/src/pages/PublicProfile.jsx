@@ -131,7 +131,7 @@ export default function PublicProfile() {
 
 
         <div className="pt-4 px-0 sm:px-2 max-w-4xl mx-auto flex flex-col items-start gap-8">
-          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm">
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#1E1B4B] transition-colors font-sans text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
           <div className="text-center font-sans text-2xl font-medium opacity-40 w-full">User not found</div>
@@ -161,7 +161,7 @@ export default function PublicProfile() {
 
       <div className="pt-2 flex-1">
         <div className="max-w-4xl mx-auto px-0 sm:px-2 mb-6 flex flex-col items-start gap-4">
-          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors font-sans text-sm shrink-0">
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#1E1B4B] transition-colors font-sans text-sm shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
@@ -209,16 +209,16 @@ export default function PublicProfile() {
             <div className="flex-1 pb-2">
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
               {(profile.role === "owner" || profile.role === "agent") && profile.company && (
-                <p className="font-sans text-sm text-white/70 mt-1">{profile.company}</p>
+                <p className="font-sans text-sm text-[#64748B] mt-1">{profile.company}</p>
               )}
             </div>
           </div>
 
-          {profile.bio && <p className="mt-6 font-mono text-sm leading-relaxed text-white/80">{profile.bio}</p>}
+          {profile.bio && <p className="mt-6 font-mono text-sm leading-relaxed text-[#475569]">{profile.bio}</p>}
 
           <div className="mt-4 flex gap-6 font-mono text-xs uppercase tracking-widest">
-            <span><strong className="text-white">{profile.followers_count ?? 0}</strong> Followers</span>
-            <span><strong className="text-white">{profile.following_count ?? 0}</strong> Following</span>
+            <span><strong className="text-[#1E1B4B]">{profile.followers_count ?? 0}</strong> Followers</span>
+            <span><strong className="text-[#1E1B4B]">{profile.following_count ?? 0}</strong> Following</span>
             {profile.is_private && <span className="text-orange-400">Private</span>}
           </div>
 
@@ -255,7 +255,7 @@ export default function PublicProfile() {
 
           {isMe && (
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <span className="font-mono text-[10px] tracking-widest uppercase text-white/40 px-3 py-2 border border-white/10 rounded-full">
+              <span className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] px-3 py-2 border border-white/10 rounded-full">
                 This is you
               </span>
               <Link to="/profile/edit" className="inline-block btn-action bg-[#FF2D55]">Edit Profile</Link>

@@ -83,7 +83,7 @@ export default function ResetPassword() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-transparent hairline-b py-3 pl-7 pr-10 focus:outline-none focus:border-[#FF2D55] mt-2"
                   />
-                  <button type="button" onClick={() => setShow(!show)} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-white/50">
+                  <button type="button" onClick={() => setShow(!show)} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#64748B]">
                     {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>

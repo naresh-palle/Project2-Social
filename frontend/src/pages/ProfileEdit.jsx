@@ -772,7 +772,7 @@ export default function ProfileEdit() {
               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
                   <div className="w-9 h-9 rounded-full border-2 border-[#FF2D55]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
                       <div className="absolute inset-0 bg-[#FF2D55] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
-                      <span className="font-sans text-[10px] font-bold z-10 text-white">{completion}%</span>
+                      <span className="font-sans text-[10px] font-bold z-10 text-[#1E1B4B]">{completion}%</span>
                   </div>
                   <div className="text-right">
                       <div className="font-sans text-[10px] tracking-widest uppercase opacity-70">Complete</div>
@@ -874,8 +874,8 @@ export default function ProfileEdit() {
                       <div className="min-w-0">
                         {isInfluencer && (
                           <p className="font-sans text-[10px] opacity-50 leading-snug">
-                            AI needs: <span className="text-white/80">1+ niche</span> selected above
-                            {f.city ? <> · location <span className="text-white/80">{f.city}{f.state ? `, ${f.state}` : ""}</span></> : " · city from signup (optional)"}
+                            AI needs: <span className="text-[#475569]">1+ niche</span> selected above
+                            {f.city ? <> · location <span className="text-[#475569]">{f.city}{f.state ? `, ${f.state}` : ""}</span></> : " · city from signup (optional)"}
                           </p>
                         )}
                       </div>
@@ -934,19 +934,19 @@ export default function ProfileEdit() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">Pincode</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center">
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center">
                       {f.pincode || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">City</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
                       {f.city || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">State</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
+                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
                       {f.state || "—"}
                     </div>
                   </div>
@@ -1100,7 +1100,7 @@ export default function ProfileEdit() {
                                   <button
                                     type="button"
                                     onClick={() => startEditPlatform(plat)}
-                                    className="inline-flex items-center gap-1 font-sans text-[9px] uppercase tracking-widest text-white/60 hover:text-white border border-white/15 hover:border-white/40 px-2 py-1"
+                                    className="inline-flex items-center gap-1 font-sans text-[9px] uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B] border border-white/15 hover:border-white/40 px-2 py-1"
                                     data-testid={`social-edit-${plat}`}
                                   >
                                     <Pencil className="w-3 h-3" />
@@ -1146,14 +1146,14 @@ export default function ProfileEdit() {
                                         type="button"
                                         disabled={isSaving}
                                         onClick={cancelEditPlatform}
-                                        className="edit-btn bg-white/10 text-white"
+                                        className="edit-btn bg-white/10 text-[#1E1B4B]"
                                       >
                                         <X className="w-3 h-3" />
                                       </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center break-all whitespace-normal">
+                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center break-all whitespace-normal">
                                     {socialOrNA(savedHandle)}
                                   </div>
                                 )}
@@ -1161,25 +1161,25 @@ export default function ProfileEdit() {
                             <div className="grid grid-cols-2 gap-2 mt-2 font-sans select-none">
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.followers ?? metrics.subscribers, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.engagement, (n) => n.toFixed(1)) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.views, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-white/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.posts, formatMetric) : "N/A"}
                                     </div>
                                 </div>
@@ -1262,7 +1262,7 @@ export default function ProfileEdit() {
                         <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
                       </button>
                       {f.avatar && (
-                        <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                        <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-[#1E1B4B]">
                           <Crop className="w-3 h-3" /> Crop
                         </button>
                       )}
@@ -1276,7 +1276,7 @@ export default function ProfileEdit() {
                         <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
                       </button>
                       {f.cover_photo && (
-                        <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-white">
+                        <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-[#1E1B4B]">
                           <Crop className="w-3 h-3" /> Crop
                         </button>
                       )}
@@ -1304,7 +1304,7 @@ export default function ProfileEdit() {
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
                             <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#F7F8FC]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                <X className="w-3 h-3 text-white" />
+                                <X className="w-3 h-3 text-[#1E1B4B]" />
                             </button>
                           </div>
                         ))}
@@ -1360,7 +1360,7 @@ export default function ProfileEdit() {
                                 ))}
 
                                 {f.past_campaigns.length < 5 ? (
-                                    <button type="button" onClick={addCampaign} className="edit-btn bg-white/5 hover:bg-white/10 text-white">
+                                    <button type="button" onClick={addCampaign} className="edit-btn bg-white/5 hover:bg-white/10 text-[#1E1B4B]">
                                       <Plus className="w-3 h-3" /> Add campaign ({f.past_campaigns.length}/5)
                                     </button>
                                 ) : (
@@ -1378,7 +1378,7 @@ export default function ProfileEdit() {
 
           <div className="pt-2 flex items-center justify-between">
             {step > 1 ? (
-              <button key="btn-back" type="button" onClick={prevStep} className="edit-btn bg-white/10 text-white hover:bg-white/20 px-5 py-2.5 text-[11px]">
+              <button key="btn-back" type="button" onClick={prevStep} className="edit-btn bg-white/10 text-[#1E1B4B] hover:bg-white/20 px-5 py-2.5 text-[11px]">
                 Back
               </button>
             ) : <div />}

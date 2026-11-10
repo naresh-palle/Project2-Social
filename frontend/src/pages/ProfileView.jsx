@@ -156,19 +156,19 @@ export default function ProfileView() {
               className="w-20 h-20 rounded-full border-2 border-white/10 flex items-center justify-center"
               style={{ backgroundColor: `hsl(${((displayName || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
             >
-              <span className="font-sans text-2xl font-bold text-white">{(displayName || "?")[0]?.toUpperCase()}</span>
+              <span className="font-sans text-2xl font-bold text-[#1E1B4B]">{(displayName || "?")[0]?.toUpperCase()}</span>
             </div>
           )}
           {profile.verified && (
             <div className="absolute bottom-0 right-0 bg-[#14B8A6] border-2 border-[#FFF7FB] p-0.5 rounded-full">
-              <ShieldCheck className="w-3.5 h-3.5 text-white" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#1E1B4B]" />
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0 w-full">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <h2 className="font-sans text-xl font-bold text-white tracking-tight truncate">{displayName}</h2>
+            <h2 className="font-sans text-xl font-bold text-[#1E1B4B] tracking-tight truncate">{displayName}</h2>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#14B8A6]/10 border border-[#14B8A6]/30 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]" />
               <span className="font-mono text-[8px] uppercase tracking-widest text-[#14B8A6] font-bold">Active</span>
@@ -190,7 +190,7 @@ export default function ProfileView() {
             )}
             {profile.website && (
               <div>
-                <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Website</p>
+                <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-0.5">Website</p>
                 <a href={profile.website} target="_blank" rel="noreferrer" className="font-sans text-sm text-[#FF2D55] hover:underline inline-flex items-center gap-1 truncate max-w-full">
                   Visit <ExternalLink className="w-3 h-3" />
                 </a>
@@ -203,7 +203,7 @@ export default function ProfileView() {
 
         <div className="w-full md:w-44 shrink-0 bg-black/25 border border-white/10 rounded-xl p-3">
           <div className="flex justify-between font-sans text-[10px] mb-1.5">
-            <span className="text-white/50 uppercase tracking-widest">Complete</span>
+            <span className="text-[#64748B] uppercase tracking-widest">Complete</span>
             <span className="text-[#FF2D55] font-bold">{completionScore}%</span>
           </div>
           <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden mb-2">
@@ -226,15 +226,15 @@ export default function ProfileView() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch min-w-0">
           <div className="lg:col-span-7 min-w-0 flex flex-col gap-4">
             <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
-              <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">About</h3>
-              <p className="font-sans text-sm leading-relaxed text-white/85 break-words">
+              <h3 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B] mb-2">About</h3>
+              <p className="font-sans text-sm leading-relaxed text-[#1E1B4B]/85 break-words">
                 {profile.bio || "No bio provided."}
               </p>
             </section>
 
             {isInfluencer && (
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden flex-1">
-                <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-3">Highlights</h3>
+                <h3 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B] mb-3">Highlights</h3>
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <StatTile
                     label="Followers"
@@ -261,16 +261,16 @@ export default function ProfileView() {
                   <StatTile label="Portfolio" value={String(portfolioItems.length)} />
                 </div>
 
-                <h4 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-2">Collaboration</h4>
+                <h4 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B] mb-2">Collaboration</h4>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
-                    <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Base rate</p>
+                    <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-0.5">Base rate</p>
                     <p className="font-sans text-lg font-bold text-[#FF2D55] tabular-nums">
                       {profile.base_rate ? `$${Number(profile.base_rate).toLocaleString()}` : "—"}
                     </p>
                   </div>
                   <div>
-                    <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Availability</p>
+                    <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-0.5">Availability</p>
                     <p className="font-sans text-lg font-semibold">{profile.availability || "—"}</p>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function ProfileView() {
             {isInfluencer && (
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Past campaigns</h3>
+                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B]">Past campaigns</h3>
                   <Link to="/profile/edit#sec-campaigns" className="font-sans text-[10px] text-[#FF2D55] hover:underline shrink-0">
                     {pastCampaigns.length ? "Edit" : "Add"}
                   </Link>
@@ -310,11 +310,11 @@ export default function ProfileView() {
                   <div className="space-y-1.5">
                     {pastCampaigns.map((c, i) => (
                       <div key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-white/5 last:border-0">
-                        <span className="font-sans text-sm text-white truncate">
+                        <span className="font-sans text-sm text-[#1E1B4B] truncate">
                           {typeof c === "string" ? c : (c?.title || c?.name || "Campaign")}
                         </span>
                         {(c?.brand || c?.year || c?.date || c?.result) && (
-                          <span className="font-sans text-[9px] uppercase tracking-widest text-white/40 shrink-0">
+                          <span className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] shrink-0">
                             {[c.brand, c.year || c.date, c.result].filter(Boolean).join(" · ")}
                           </span>
                         )}
@@ -323,7 +323,7 @@ export default function ProfileView() {
                   </div>
                 ) : (
                   <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-4">
-                    <p className="font-sans text-sm text-white/70">No brand work on file yet.</p>
+                    <p className="font-sans text-sm text-[#64748B]">No brand work on file yet.</p>
                     <Link to="/profile/edit#sec-campaigns" className="font-sans text-[11px] text-[#FF2D55] hover:underline mt-1 inline-block">
                       Add campaign history →
                     </Link>
@@ -337,7 +337,7 @@ export default function ProfileView() {
             {isInfluencer && (
               <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden h-full">
                 <div className="flex items-center justify-between mb-3 gap-2">
-                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50">Social metrics</h3>
+                  <h3 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B]">Social metrics</h3>
                   <span className="px-2 py-0.5 bg-[#FF2D55]/10 text-[#FF2D55] text-[9px] font-bold rounded-full shrink-0">
                     {displayMetric(socialOverview.followers, { format: formatCompactNumber })} followers
                   </span>
@@ -373,7 +373,7 @@ export default function ProfileView() {
                           </span>
                           <span
                             className={`font-sans text-sm sm:text-base font-bold truncate text-right ${
-                              connected ? "text-white" : "text-white/40"
+                              connected ? "text-[#1E1B4B]" : "text-[#94A3B8]"
                             }`}
                             title={connected ? String(data?.handle || "") : undefined}
                             data-testid={`social-handle-${key}`}
@@ -386,7 +386,7 @@ export default function ProfileView() {
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-sans text-sm">
                           <div className="min-w-0">
                             <p className="tabular-nums font-semibold truncate leading-tight text-base">{followersVal}</p>
-                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">
+                            <p className="text-[9px] uppercase tracking-wider text-[#94A3B8] mt-0.5">
                               {key === "youtube" ? "Subs" : "Followers"}
                             </p>
                           </div>
@@ -394,21 +394,21 @@ export default function ProfileView() {
                             <p className={`tabular-nums font-semibold truncate leading-tight text-base ${connected ? "text-[#14B8A6]" : ""}`}>
                               {erVal}
                             </p>
-                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">ER</p>
+                            <p className="text-[9px] uppercase tracking-wider text-[#94A3B8] mt-0.5">ER</p>
                           </div>
                           <div className="min-w-0 sm:text-center">
                             <p className={`font-semibold truncate leading-tight text-sm ${
-                              data.verified || data.is_verified ? "text-[#14B8A6]" : "text-white/70"
+                              data.verified || data.is_verified ? "text-[#14B8A6]" : "text-[#64748B]"
                             }`}>
                               {connected
                                 ? (data.verified || data.is_verified ? "Verified" : "Unverified")
                                 : "—"}
                             </p>
-                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">Status</p>
+                            <p className="text-[9px] uppercase tracking-wider text-[#94A3B8] mt-0.5">Status</p>
                           </div>
                           <div className="min-w-0 sm:text-right">
                             <p className="tabular-nums font-semibold truncate leading-tight text-base">{viewsVal}</p>
-                            <p className="text-[9px] uppercase tracking-wider text-white/40 mt-0.5">Views</p>
+                            <p className="text-[9px] uppercase tracking-wider text-[#94A3B8] mt-0.5">Views</p>
                           </div>
                         </div>
                       </div>
@@ -422,7 +422,7 @@ export default function ProfileView() {
 
         {isInfluencer && (portfolioImages.length > 0 || portfolioVideos.length > 0) && (
           <section className="bg-white/5 border border-white/10 rounded-2xl p-4 overflow-hidden w-full min-w-0">
-            <h3 className="font-sans text-[10px] tracking-widest uppercase text-white/50 mb-3">Portfolio</h3>
+            <h3 className="font-sans text-[10px] tracking-widest uppercase text-[#64748B] mb-3">Portfolio</h3>
             {portfolioImages.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 font-sans text-[9px] uppercase tracking-wider opacity-50 mb-2">
@@ -461,8 +461,8 @@ export default function ProfileView() {
 function Meta({ label, value }) {
   return (
     <div className="min-w-0">
-      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
-      <p className="font-sans text-sm text-white font-medium truncate" title={value}>{value}</p>
+      <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-0.5">{label}</p>
+      <p className="font-sans text-sm text-[#1E1B4B] font-medium truncate" title={value}>{value}</p>
     </div>
   );
 }
@@ -485,9 +485,9 @@ function uniqueLabels(val) {
 function StatTile({ label, value, accent = false, title, hint }) {
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5" title={title}>
-      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-0.5">{label}</p>
-      <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#14B8A6]" : "text-white"}`}>{value}</p>
-      {hint ? <p className="font-sans text-[9px] text-white/40 mt-0.5">{hint}</p> : null}
+      <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-0.5">{label}</p>
+      <p className={`font-sans text-lg font-bold tabular-nums ${accent ? "text-[#14B8A6]" : "text-[#1E1B4B]"}`}>{value}</p>
+      {hint ? <p className="font-sans text-[9px] text-[#94A3B8] mt-0.5">{hint}</p> : null}
     </div>
   );
 }
@@ -496,11 +496,11 @@ function ChipRow({ label, items, href, empty, tone = "default" }) {
   const toneClass = tone === "blue"
     ? "bg-[#0A84FF]/10 border-[#0A84FF]/20 text-[#0A84FF]"
     : tone === "muted"
-      ? "bg-white/5 border-white/10 text-white/60"
+      ? "bg-white/5 border-white/10 text-[#64748B]"
       : "bg-[#FF2D55]/10 border-[#FF2D55]/20 text-[#FF2D55]";
   return (
     <div className="mb-2 last:mb-0">
-      <p className="font-sans text-[9px] uppercase tracking-widest text-white/40 mb-1">{label}</p>
+      <p className="font-sans text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1">{label}</p>
       {items.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
           {items.map((item) => (
@@ -510,7 +510,7 @@ function ChipRow({ label, items, href, empty, tone = "default" }) {
           ))}
         </div>
       ) : (
-        <Link to={href} className="font-sans text-[11px] text-white/45 hover:text-[#FF2D55] transition-colors">
+        <Link to={href} className="font-sans text-[11px] text-[#94A3B8] hover:text-[#FF2D55] transition-colors">
           {empty} →
         </Link>
       )}

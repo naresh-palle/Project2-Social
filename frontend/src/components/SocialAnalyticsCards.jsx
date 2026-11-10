@@ -15,7 +15,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2 min-w-0">
           <h3 className="font-sans text-sm font-semibold tracking-tight">Social presence by platform</h3>
-          <p className="text-[10px] text-white/40 uppercase tracking-wider hidden sm:block">Strength per connected account</p>
+          <p className="text-[10px] text-[#94A3B8] uppercase tracking-wider hidden sm:block">Strength per connected account</p>
         </div>
         <button
           type="button"
@@ -31,7 +31,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {connections.map(c => {
           const Icon = SOCIAL_PLATFORM_ICONS[c.platform] || SOCIAL_PLATFORM_ICONS.instagram;
-          const colorClass = SOCIAL_PLATFORM_COLORS[c.platform] || "text-white";
+          const colorClass = SOCIAL_PLATFORM_COLORS[c.platform] || "text-[#1E1B4B]";
           const platformLabel = SOCIAL_PLATFORM_LABELS[c.platform] || c.platform;
           const analytics = c.analytics && typeof c.analytics === "object" ? c.analytics : {};
           const followers = c.followers ?? analytics.followers;
@@ -54,20 +54,20 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="font-sans text-base sm:text-lg font-bold tracking-tight truncate text-white">
+                    <div className="font-sans text-base sm:text-lg font-bold tracking-tight truncate text-[#1E1B4B]">
                       {c.handle || c.account_name ? (
                         <span className="text-[#FF2D55]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
                       ) : (
-                        <span className="text-white/50">Not connected</span>
+                        <span className="text-[#64748B]">Not connected</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-white/45 mt-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-[#94A3B8] mt-0.5">
                       <Icon className={`w-3 h-3 ${colorClass}`} /> {platformLabel}
                       <span
                         className={`ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider ${
                           c.verified || c.is_verified
                             ? "bg-[#14B8A6]/15 text-[#14B8A6] border border-[#14B8A6]/35"
-                            : "bg-white/5 text-white/50 border border-white/10"
+                            : "bg-white/5 text-[#64748B] border border-white/10"
                         }`}
                       >
                         {c.verified || c.is_verified ? "Verified" : "Unverified"}
@@ -76,7 +76,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   </div>
                 </div>
                 {c.last_sync_time && (
-                  <div className="text-[9px] uppercase text-white/35 text-right shrink-0 pl-2">
+                  <div className="text-[9px] uppercase text-[#94A3B8] text-right shrink-0 pl-2">
                     {formatDistanceToNow(new Date(c.last_sync_time))} ago
                   </div>
                 )}
@@ -84,25 +84,25 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
 
               <div className="metric-grid-5 pt-2 border-t border-white/5">
                 <div className="min-w-0" title={formatExactNumber(followers) || undefined}>
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Followers</div>
+                  <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">Followers</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(followers, { format: formatCompactNumber })}</div>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
+                  <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">ER</div>
                   <div className="text-sm font-semibold tabular-nums text-[#14B8A6] truncate">{formatEngagementRate(er)}</div>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Status</div>
-                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#14B8A6]" : "text-white/55"}`}>
+                  <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">Status</div>
+                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#14B8A6]" : "text-[#64748B]"}`}>
                     {c.verified || c.is_verified ? "Verified" : "Unverified"}
                   </div>
                 </div>
                 <div className="min-w-0" title={formatExactNumber(views) || undefined}>
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Views</div>
+                  <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">Views</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(views, { format: formatCompactNumber, allowZero: c.platform === "youtube" })}</div>
                 </div>
                 <div className="min-w-0" title={formatExactNumber(reach) || undefined}>
-                  <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Reach</div>
+                  <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">Reach</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(reach, { format: formatCompactNumber, allowZero: false })}</div>
                 </div>
               </div>

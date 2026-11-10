@@ -71,7 +71,7 @@ export default function BrandDetail() {
           <div className="flex-1 min-w-0">
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Brand profile</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight truncate">{name}</h1>
-            <p className="font-mono text-[9px] uppercase tracking-widest text-white/45 mt-1 flex flex-wrap gap-2">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-1 flex flex-wrap gap-2">
               <span>{brand.industry || brand.category || "General"}</span>
               {formatUserLocation(brand) ? (
                 <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{formatUserLocation(brand)}</span>
@@ -110,7 +110,7 @@ export default function BrandDetail() {
             ["Rating", brand.rating != null ? brand.rating : "—"],
           ].map(([label, val]) => (
             <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
-              <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+              <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
               <p className="font-sans text-lg font-bold tabular-nums mt-0.5">{val ?? "—"}</p>
             </div>
           ))}
@@ -118,19 +118,19 @@ export default function BrandDetail() {
       </div>
 
       <section className="mb-6">
-        <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Overview</h2>
-        <p className="font-sans text-sm text-white/80 leading-relaxed max-w-3xl">
+        <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Overview</h2>
+        <p className="font-sans text-sm text-[#475569] leading-relaxed max-w-3xl">
           {brand.overview || brand.bio || "No brand overview yet."}
         </p>
         {brand.objectives?.length ? (
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-3">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-3">
             Objectives · {brand.objectives.filter(Boolean).join(" · ")}
           </p>
         ) : null}
       </section>
 
       <section className="mb-6">
-        <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Active campaigns</h2>
+        <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Active campaigns</h2>
         <div className="space-y-2">
           {(brand.active_campaign_list || []).map((c) => (
             <Link
@@ -139,7 +139,7 @@ export default function BrandDetail() {
               className="block rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 hover:border-[#FF2D55]/40"
             >
               <div className="font-sans font-semibold">{c.title}</div>
-              <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
+              <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-0.5">
                 {(c.niches || []).slice(0, 3).join(" · ") || c.category || "Campaign"}
                 {c.budget != null ? ` · ₹${Number(c.budget).toLocaleString()}` : ""}
               </div>
@@ -152,7 +152,7 @@ export default function BrandDetail() {
       </section>
 
       <section className="mb-6">
-        <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Previous campaigns</h2>
+        <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Previous campaigns</h2>
         <div className="space-y-2">
           {(brand.previous_campaign_list || []).slice(0, 8).map((c) => (
             <Link
@@ -161,7 +161,7 @@ export default function BrandDetail() {
               className="block rounded-2xl border border-white/10 px-4 py-3 hover:border-white/25"
             >
               <div className="font-sans font-semibold">{c.title}</div>
-              <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{c.status || "closed"}</div>
+              <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{c.status || "closed"}</div>
             </Link>
           ))}
           {!brand.previous_campaign_list?.length && (
@@ -172,18 +172,18 @@ export default function BrandDetail() {
 
       {(brand.campaign_performance || []).length > 0 && (
         <section className="mb-6">
-          <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Campaign performance</h2>
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Campaign performance</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {brand.campaign_performance.slice(0, 6).map((p) => (
               <div key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="font-sans font-semibold">{p.campaign_name}</div>
-                <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-1">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-1">
                   {p.campaign_objective} · {p.campaign_date}
                 </p>
                 <div className="grid grid-cols-3 gap-2 mt-3 text-center">
-                  <div><div className="font-bold tabular-nums text-sm">{fmt(p.total_reach)}</div><div className="font-mono text-[8px] uppercase text-white/40">Reach</div></div>
-                  <div><div className="font-bold tabular-nums text-sm">{fmt(p.total_engagement)}</div><div className="font-mono text-[8px] uppercase text-white/40">Engagement</div></div>
-                  <div><div className="font-bold tabular-nums text-sm">{p.roas != null ? `${p.roas}x` : "—"}</div><div className="font-mono text-[8px] uppercase text-white/40">ROAS</div></div>
+                  <div><div className="font-bold tabular-nums text-sm">{fmt(p.total_reach)}</div><div className="font-mono text-[8px] uppercase text-[#94A3B8]">Reach</div></div>
+                  <div><div className="font-bold tabular-nums text-sm">{fmt(p.total_engagement)}</div><div className="font-mono text-[8px] uppercase text-[#94A3B8]">Engagement</div></div>
+                  <div><div className="font-bold tabular-nums text-sm">{p.roas != null ? `${p.roas}x` : "—"}</div><div className="font-mono text-[8px] uppercase text-[#94A3B8]">ROAS</div></div>
                 </div>
               </div>
             ))}
@@ -193,7 +193,7 @@ export default function BrandDetail() {
 
       {(brand.creators_hired_list || []).length > 0 && (
         <section>
-          <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-3">Creators previously hired</h2>
+          <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Creators previously hired</h2>
           <div className="flex flex-wrap gap-3">
             {brand.creators_hired_list.map((c) => (
               <Link

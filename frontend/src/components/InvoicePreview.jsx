@@ -75,7 +75,7 @@ export function InvoicePreview({ invoice, demo = false }) {
       <div className="table-scroll mt-5">
         <table className="w-full min-w-[28rem] text-left">
         <thead>
-          <tr className="bg-black text-white font-mono text-[8px] uppercase tracking-widest">
+          <tr className="bg-black text-[#1E1B4B] font-mono text-[8px] uppercase tracking-widest">
             <th className="p-1.5 font-medium">Description</th>
             <th className="p-1.5 font-medium">SAC/HSN</th>
             <th className="p-1.5 font-medium text-right">Qty</th>

@@ -223,7 +223,7 @@ export default function Login() {
               type="button"
               onClick={() => { setMode("password"); setErr(""); }}
               className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
-                mode === "password" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                mode === "password" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" /> Password
@@ -232,7 +232,7 @@ export default function Login() {
               type="button"
               onClick={() => { setMode("otp"); setErr(""); }}
               className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded-xs transition-all ${
-                mode === "otp" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                mode === "otp" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" /> Mobile OTP
@@ -284,7 +284,7 @@ export default function Login() {
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-1.5 text-white/50 hover:text-white"
+                    className="absolute right-0 top-[calc(50%+2px)] -translate-y-1/2 p-1.5 text-[#64748B] hover:text-[#1E1B4B]"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -359,7 +359,7 @@ export default function Login() {
                   Mobile Number (+91 India)
                 </label>
                 <div className="flex gap-2 mt-0.5">
-                  <span className="bg-white/5 border border-white/10 px-2.5 py-1.5 font-sans text-xs flex items-center text-white/60">+91</span>
+                  <span className="bg-white/5 border border-white/10 px-2.5 py-1.5 font-sans text-xs flex items-center text-[#64748B]">+91</span>
                   <input
                     type="tel"
                     required
@@ -402,7 +402,7 @@ export default function Login() {
                       disabled={resendTimer > 0}
                       onClick={handleResendOtp}
                       className={`uppercase tracking-wider font-bold transition-all ${
-                        resendTimer > 0 ? "text-white/40 cursor-not-allowed" : "text-[#7C3AED] hover:underline cursor-pointer"
+                        resendTimer > 0 ? "text-[#94A3B8] cursor-not-allowed" : "text-[#7C3AED] hover:underline cursor-pointer"
                       }`}
                     >
                       {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
@@ -410,7 +410,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => { setOtpSent(false); setOtp(""); }}
-                      className="uppercase tracking-wider text-white/50 hover:text-white"
+                      className="uppercase tracking-wider text-[#64748B] hover:text-[#1E1B4B]"
                     >
                       Change Number
                     </button>
@@ -445,7 +445,7 @@ export default function Login() {
           )}
 
           <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center font-sans text-[10px] opacity-60">
-            <Link to="/register" className="hover:text-white">Need an account? Register here →</Link>
+            <Link to="/register" className="hover:text-[#1E1B4B]">Need an account? Register here →</Link>
           </div>
         </motion.div>
       </div>

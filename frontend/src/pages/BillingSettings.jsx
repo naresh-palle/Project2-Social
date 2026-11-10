@@ -47,48 +47,48 @@ export default function BillingSettings() {
 
   return (
     <form onSubmit={save} className="w-full pb-24 max-w-3xl">
-      <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-white/40">← Billing</Link>
+      <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">← Billing</Link>
       <h1 className="font-sans text-2xl font-bold mt-1 flex items-center gap-2">
         <AiIcon name="settings" className="w-6 h-6" /> Billing Settings
       </h1>
-      <p className="text-xs text-white/45 mt-1">{s.disclaimer}</p>
-      <p className="text-xs text-white/50 mt-1">Next number: <span className="font-mono">{s.next_invoice_number}</span></p>
+      <p className="text-xs text-[#94A3B8] mt-1">{s.disclaimer}</p>
+      <p className="text-xs text-[#64748B] mt-1">Next number: <span className="font-mono">{s.next_invoice_number}</span></p>
 
       <section className="mt-6 rounded-2xl border border-white/10 p-4 space-y-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Business details</h2>
+        <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Business details</h2>
         {[["legal_name", "Legal name"], ["trade_name", "Trade name"], ["address", "Address"], ["city", "City"], ["state", "State"], ["state_code", "State code"], ["pincode", "PIN"], ["gstin", "GSTIN"], ["pan", "PAN"], ["email", "Email"], ["phone", "Phone"]].map(([k, lab]) => (
-          <label key={k} className="block font-mono text-[9px] uppercase tracking-widest text-white/40">
+          <label key={k} className="block font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
             {lab}
             <input value={s[k] || ""} onChange={(e) => setS({ ...s, [k]: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
           </label>
         ))}
-        {s.gstin ? <p className="text-[10px] text-white/40">GSTIN format: {s.gstin_format_ok ? "looks valid" : "appears invalid — verify before issuing"}</p> : null}
+        {s.gstin ? <p className="text-[10px] text-[#94A3B8]">GSTIN format: {s.gstin_format_ok ? "looks valid" : "appears invalid — verify before issuing"}</p> : null}
       </section>
 
       <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Invoice numbering</h2>
+        <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Invoice numbering</h2>
         <div className="grid grid-cols-2 gap-2">
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Prefix
+          <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Prefix
             <input value={s.prefix || ""} onChange={(e) => setS({ ...s, prefix: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
           </label>
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Financial year
+          <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Financial year
             <input value={s.financial_year || ""} onChange={(e) => setS({ ...s, financial_year: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
           </label>
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Starting number
+          <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Starting number
             <input value={s.starting_number || 1} onChange={(e) => setS({ ...s, starting_number: Number(e.target.value) })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
           </label>
-          <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Default terms
+          <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default terms
             <input value={s.default_payment_terms || ""} onChange={(e) => setS({ ...s, default_payment_terms: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
           </label>
         </div>
-        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Default template
+        <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default template
           <select value={s.default_template || "professional"} onChange={(e) => setS({ ...s, default_template: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-sm">
             <option value="professional">Professional</option>
             <option value="modern">Modern</option>
             <option value="minimal">Minimal</option>
           </select>
         </label>
-        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Rounding
+        <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Rounding
           <select value={s.rounding || "nearest_rupee"} onChange={(e) => setS({ ...s, rounding: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-sm">
             <option value="nearest_rupee">Nearest rupee</option>
             <option value="none">None (paise)</option>
@@ -97,8 +97,8 @@ export default function BillingSettings() {
       </section>
 
       <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Tax & TDS (configurable — not advice)</h2>
-        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Default GST %
+        <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Tax & TDS (configurable — not advice)</h2>
+        <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default GST %
           <input value={s.default_gst_rate ?? ""} onChange={(e) => setS({ ...s, default_gst_rate: e.target.value === "" ? null : Number(e.target.value) })} placeholder="Leave blank — do not guess" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
         </label>
         <label className="flex items-center gap-2 text-xs">
@@ -111,8 +111,8 @@ export default function BillingSettings() {
 
       <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
         <div className="flex justify-between">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Payment</h2>
-          <button type="button" className="text-[10px] font-mono uppercase tracking-widest text-white/40" onClick={() => load(!bankReveal)}>{bankReveal ? "Mask" : "Reveal"} account</button>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Payment</h2>
+          <button type="button" className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]" onClick={() => load(!bankReveal)}>{bankReveal ? "Mask" : "Reveal"} account</button>
         </div>
         {["bank_name", "account_holder", "account_number", "ifsc", "branch", "upi_id", "payment_instructions"].map((k) => (
           <input key={k} value={s.bank?.[k] || ""} onChange={(e) => setS({ ...s, bank: { ...(s.bank || {}), [k]: e.target.value } })} placeholder={k.replaceAll("_", " ")} className="w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
@@ -120,7 +120,7 @@ export default function BillingSettings() {
       </section>
 
       <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Branding</h2>
+        <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Branding</h2>
         <label className="text-xs block">Logo (PNG/JPG)
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => uploadAsset("logo_file_id", e.target.files?.[0])} className="mt-1 text-xs" />
         </label>
@@ -141,8 +141,8 @@ export default function BillingSettings() {
 
       {user?.role === "admin" ? (
         <section className="mt-4 rounded-2xl border border-white/10 p-4">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/40">Tax classifications (admin)</h2>
-          <p className="text-[10px] text-white/40 mb-2">Update SAC/HSN without changing application code. These are suggestions, not legal classifications.</p>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Tax classifications (admin)</h2>
+          <p className="text-[10px] text-[#94A3B8] mb-2">Update SAC/HSN without changing application code. These are suggestions, not legal classifications.</p>
           <div className="flex gap-2 mb-2">
             <input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value })} placeholder="Code" className="flex-1 bg-transparent border-b border-white/15 py-1 text-xs" />
             <input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Description" className="flex-[2] bg-transparent border-b border-white/15 py-1 text-xs" />

@@ -302,7 +302,7 @@ function OwnerPanel() {
               className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF2D55]/40 transition-colors"
             >
               <div className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF2D55] font-bold leading-tight">{t.k}</div>
-              <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1.5 text-white tracking-tight tabular-nums">{t.v}</div>
+              <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1.5 text-[#1E1B4B] tracking-tight tabular-nums">{t.v}</div>
               <div className="font-sans text-[9px] tracking-[0.16em] uppercase opacity-50 mt-1 leading-snug">{t.tail}</div>
             </motion.div>
           </Link>
@@ -328,7 +328,7 @@ function OwnerPanel() {
               ["ROAS", perf.roas],
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
-                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
                 <div className="font-sans text-lg font-bold mt-1 tabular-nums">{value}</div>
               </div>
             ))}
@@ -339,7 +339,7 @@ function OwnerPanel() {
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] font-bold mb-3">Payments</h2>
           <div className="space-y-3 flex-1">
             <div>
-              <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Pending</div>
+              <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Pending</div>
               <div className="font-sans text-2xl font-bold mt-0.5 tabular-nums">
                 {hasLiveStats ? fmtMoney(stats?.pending_payments ?? stats?.escrow_held ?? 0) : "₹1,25,000"}
               </div>
@@ -349,13 +349,13 @@ function OwnerPanel() {
             </div>
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
               <div>
-                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Paid</div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Paid</div>
                 <div className="font-sans text-sm font-bold mt-0.5 tabular-nums">
                   {hasLiveStats ? fmtMoney(stats?.paid_to_creators ?? 0) : "₹12,40,000"}
                 </div>
               </div>
               <div>
-                <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Escrow</div>
+                <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Escrow</div>
                 <div className="font-sans text-sm font-bold mt-0.5 tabular-nums">
                   {hasLiveStats ? fmtMoney(stats?.escrow_held ?? 0) : "₹4,85,000"}
                 </div>
@@ -371,7 +371,7 @@ function OwnerPanel() {
       {/* Active campaigns */}
       <section>
         <div className="flex items-center justify-between gap-2 mb-2">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Active Campaigns</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#64748B]">Active Campaigns</h2>
           <Link to="/marketplace?tab=campaigns" className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">View all →</Link>
         </div>
         {(activeCamps.length > 0 ? activeCamps : safeItems).length === 0 ? (
@@ -388,7 +388,7 @@ function OwnerPanel() {
       {/* Pending applications */}
       <section>
         <div className="flex items-center justify-between gap-2 mb-2">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-white/50">Pending Applications</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#64748B]">Pending Applications</h2>
           <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">Discover influencers →</Link>
         </div>
         {pendingApps.length === 0 ? (
@@ -405,7 +405,7 @@ function OwnerPanel() {
               >
                 <div className="min-w-0">
                   <div className="font-sans text-sm font-semibold truncate">{a.influencer_name || a.name || "Creator"}</div>
-                  <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 truncate">{a.campaign_title}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] truncate">{a.campaign_title}</div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {a.rate != null ? (
@@ -568,7 +568,7 @@ function InfluencerPanel() {
               <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
                 <div>
                   <span className="font-sans text-[8px] tracking-[0.18em] uppercase opacity-50 block">Budget</span>
-                  <span className="font-sans text-base text-white font-bold">
+                  <span className="font-sans text-base text-[#1E1B4B] font-bold">
                     ₹{typeof c.budget === "number" ? c.budget.toLocaleString() : (c.budget ?? "N/A")}
                   </span>
                 </div>
@@ -604,7 +604,7 @@ function InfluencerPanel() {
                     <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
                       a.status === "accepted" ? "bg-[#14B8A6]/10 border-[#14B8A6]/40 text-[#14B8A6]"
                         : a.status === "shortlisted" ? "bg-[#D97706]/10 border-[#D97706]/40 text-[#D97706]"
-                        : "bg-white/5 border-white/20 text-white/70"
+                        : "bg-white/5 border-white/20 text-[#64748B]"
                     }`}>
                       {a.status}
                     </span>
@@ -684,8 +684,8 @@ function AgentPanel() {
                 <div key={b.name} className="p-4 border border-white/15 rounded-3xl bg-white/[0.02]">
                   <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">{b.tier || "Client"}</div>
                   <h4 className="font-sans text-sm font-bold mt-1">{b.name}</h4>
-                  <p className="text-xs text-white/50 mt-1">{b.industry}</p>
-                  <div className="mt-3 flex justify-between text-[10px] font-mono uppercase tracking-wider text-white/60">
+                  <p className="text-xs text-[#64748B] mt-1">{b.industry}</p>
+                  <div className="mt-3 flex justify-between text-[10px] font-mono uppercase tracking-wider text-[#64748B]">
                     <span>{b.activeCampaigns || 0} campaigns</span>
                     <span>{b.budget}</span>
                   </div>
@@ -719,15 +719,15 @@ function ProductionPanel() {
       <div className="border-b border-white/10 pb-4 mb-5">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Hire / Production Team</p>
         <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Production desk</h1>
-        <p className="font-sans text-sm text-white/50 mt-1">Manage hire requests from brands and creators.</p>
+        <p className="font-sans text-sm text-[#64748B] mt-1">Manage hire requests from brands and creators.</p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Pending requests</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Pending requests</p>
           <p className="font-sans text-2xl font-bold mt-1">{pending}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Total requests</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Total requests</p>
           <p className="font-sans text-2xl font-bold mt-1">{requests.length}</p>
         </div>
       </div>
@@ -772,7 +772,7 @@ function CampaignRow({ c }) {
         <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
           Budget:
         </div>
-        <div className="font-sans text-sm text-white font-semibold">₹{c.budget}</div>
+        <div className="font-sans text-sm text-[#1E1B4B] font-semibold">₹{c.budget}</div>
       </div>
     </motion.div>
   );

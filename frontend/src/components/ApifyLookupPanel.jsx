@@ -29,7 +29,7 @@ export function ApifyLookupPanel({ compact = false }) {
   const status = health?.status;
   const connected = health?.success && status === "connected";
   const badge = !health
-    ? { label: "Checking Apify…", cls: "text-white/45" }
+    ? { label: "Checking Apify…", cls: "text-[#94A3B8]" }
     : connected
       ? { label: "Apify connected", cls: "text-[#14B8A6]" }
       : status === "not_configured"
@@ -64,16 +64,16 @@ export function ApifyLookupPanel({ compact = false }) {
     <section className={`rounded-2xl border border-white/10 bg-[#FFFFFF] ${compact ? "p-3" : "p-4"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div>
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40">Verify a social ID</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Verify a social ID</p>
           <h2 className="font-sans text-sm font-semibold">Live Apify lookup</h2>
         </div>
         <span className={`font-mono text-[9px] uppercase tracking-widest ${badge.cls}`}>{badge.label}</span>
       </div>
-      <p className="font-sans text-[11px] text-white/45 mb-3">
+      <p className="font-sans text-[11px] text-[#94A3B8] mb-3">
         Paste an Instagram, YouTube, or Facebook username or profile URL. This checks the scraper only — it does not add a creator to the catalog.
       </p>
       <form onSubmit={verify} className="flex flex-wrap gap-2 items-end">
-        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">
+        <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
           Platform
           <select
             value={platform}
@@ -85,7 +85,7 @@ export function ApifyLookupPanel({ compact = false }) {
             ))}
           </select>
         </label>
-        <label className="flex-1 min-w-0 w-full sm:min-w-[12rem] font-mono text-[9px] uppercase tracking-widest text-white/40">
+        <label className="flex-1 min-w-0 w-full sm:min-w-[12rem] font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
           User ID or URL
           <input
             value={handle}
@@ -100,7 +100,7 @@ export function ApifyLookupPanel({ compact = false }) {
         </button>
       </form>
       {busy ? (
-        <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-white/40">Apify can take 10–30 seconds…</p>
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Apify can take 10–30 seconds…</p>
       ) : null}
       {result ? (
         <div className="mt-3 rounded-xl border border-white/10 p-3">
@@ -116,14 +116,14 @@ export function ApifyLookupPanel({ compact = false }) {
                 ["Engagement", profile.engagement == null ? "Data unavailable" : `${Number(profile.engagement).toFixed(2)}%`],
               ].map(([k, v]) => (
                 <div key={k}>
-                  <dt className="font-mono text-[8px] uppercase tracking-widest text-white/40">{k}</dt>
+                  <dt className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{k}</dt>
                   <dd className="font-sans text-sm font-bold tabular-nums">{v}</dd>
                 </div>
               ))}
             </dl>
           ) : null}
           {result.handle ? (
-            <p className="mt-2 font-mono text-[9px] uppercase tracking-widest text-white/35">
+            <p className="mt-2 font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               {result.platform} · @{String(result.handle).replace(/^@/, "")}
             </p>
           ) : null}

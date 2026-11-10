@@ -67,9 +67,9 @@ export default function Referrals() {
   const summary = status?.summary || {};
 
   const stats = [
-    { label: "Referrals", value: summary.total || 0, icon: Users, accent: "text-white" },
+    { label: "Referrals", value: summary.total || 0, icon: Users, accent: "text-[#1E1B4B]" },
     { label: "Qualified", value: summary.qualified || 0, icon: BadgeCheck, accent: "text-[#14B8A6]" },
-    { label: "Pending", value: summary.pending || 0, icon: Clock, accent: "text-white/80" },
+    { label: "Pending", value: summary.pending || 0, icon: Clock, accent: "text-[#475569]" },
     { label: "Potential", value: `₹${Number(summary.potential_reward || 0).toLocaleString()}`, icon: Gift, accent: "text-[#FF2D55]" },
   ];
 
@@ -84,7 +84,7 @@ export default function Referrals() {
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">
               Refer & Earn
             </h1>
-            <p className="font-sans text-white/55 text-sm mt-2 max-w-md">
+            <p className="font-sans text-[#64748B] text-sm mt-2 max-w-md">
               Share your code. Earn when friends complete their first campaign.
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function Referrals() {
               className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
-                <div className="font-mono text-[9px] tracking-widest uppercase text-white/45 mb-1">{label}</div>
+                <div className="font-mono text-[9px] tracking-widest uppercase text-[#94A3B8] mb-1">{label}</div>
                 <div className={`font-sans text-xl font-bold truncate ${accent}`}>
                   {loading ? "—" : value}
                 </div>
@@ -116,12 +116,12 @@ export default function Referrals() {
             className="xl:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-40 h-40 bg-[#FF2D55]/15 blur-[80px] rounded-full pointer-events-none" />
-            <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3 relative">
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#64748B] mb-3 relative">
               Your referral code
             </h2>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-4 relative">
               <div className="bg-black/40 border border-white/15 px-4 py-3 rounded-xl flex-1 text-center sm:text-left">
-                <span className="font-mono text-xl md:text-2xl tracking-[0.18em] text-white font-semibold">
+                <span className="font-mono text-xl md:text-2xl tracking-[0.18em] text-[#1E1B4B] font-semibold">
                   {loading ? "…" : refData?.code || "FLUGR-CODE"}
                 </span>
               </div>
@@ -136,7 +136,7 @@ export default function Referrals() {
             </div>
 
             <textarea
-              className="w-full bg-black/30 border border-white/10 rounded-xl p-3 font-sans text-xs text-white/75 resize-none h-20 focus:outline-none focus:border-white/25 transition-colors mb-3 relative"
+              className="w-full bg-black/30 border border-white/10 rounded-xl p-3 font-sans text-xs text-[#475569] resize-none h-20 focus:outline-none focus:border-white/25 transition-colors mb-3 relative"
               readOnly
               value={refData?.share_text || "Join me on flugr using my code!"}
             />
@@ -171,7 +171,7 @@ export default function Referrals() {
             className="xl:col-span-2 space-y-3"
           >
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 h-full">
-              <h3 className="font-mono text-[10px] tracking-widest uppercase text-white/50 mb-3">How it works</h3>
+              <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#64748B] mb-3">How it works</h3>
               <ol className="space-y-3">
                 {[
                   { title: "Share your code", desc: "Send your link to friends joining flugr." },
@@ -183,8 +183,8 @@ export default function Referrals() {
                       {i + 1}
                     </span>
                     <div className="min-w-0 pt-0.5">
-                      <div className="font-sans text-sm font-semibold text-white leading-tight">{s.title}</div>
-                      <p className="font-sans text-xs text-white/50 mt-0.5 leading-snug">{s.desc}</p>
+                      <div className="font-sans text-sm font-semibold text-[#1E1B4B] leading-tight">{s.title}</div>
+                      <p className="font-sans text-xs text-[#64748B] mt-0.5 leading-snug">{s.desc}</p>
                     </div>
                   </li>
                 ))}
@@ -192,7 +192,7 @@ export default function Referrals() {
 
               {showApply && (
                 <div className="mt-4 pt-4 border-t border-white/10">
-                  <p className="font-sans text-xs text-white/60 mb-2">Have a friend’s code?</p>
+                  <p className="font-sans text-xs text-[#64748B] mb-2">Have a friend’s code?</p>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -220,14 +220,14 @@ export default function Referrals() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-sans text-lg font-bold tracking-tight">Referral history</h3>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">
               {status?.referrals?.length || 0} total
             </span>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
             <div className="table-scroll">
               <table className="w-full min-w-[36rem] text-left font-sans text-sm">
-                <thead className="bg-white/[0.04] font-mono text-[10px] tracking-widest uppercase text-white/45 border-b border-white/10">
+                <thead className="bg-white/[0.04] font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] border-b border-white/10">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Joined</th>
@@ -239,8 +239,8 @@ export default function Referrals() {
                   {status?.referrals?.length > 0 ? (
                     status.referrals.map((ref, idx) => (
                       <tr key={idx} className="hover:bg-white/[0.03] transition-colors">
-                        <td className="px-4 py-3 text-white font-medium">{ref.name || "Unknown"}</td>
-                        <td className="px-4 py-3 text-white/60">
+                        <td className="px-4 py-3 text-[#1E1B4B] font-medium">{ref.name || "Unknown"}</td>
+                        <td className="px-4 py-3 text-[#64748B]">
                           {new Date(ref.joined_at || Date.now()).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
@@ -250,20 +250,20 @@ export default function Referrals() {
                                 ? "bg-green-500/15 text-green-400 border border-green-500/25"
                                 : ref.status === "qualified"
                                   ? "bg-[#FF2D55]/15 text-[#FF2D55] border border-[#FF2D55]/25"
-                                  : "bg-white/8 text-white/65 border border-white/15"
+                                  : "bg-white/8 text-[#64748B] border border-white/15"
                             }`}
                           >
                             {ref.status || "pending"}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right text-white font-mono text-xs">
+                        <td className="px-4 py-3 text-right text-[#1E1B4B] font-mono text-xs">
                           {ref.reward ? `₹${ref.reward}` : "—"}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-4 py-10 text-center text-white/35 font-mono text-xs uppercase tracking-widest">
+                      <td colSpan="4" className="px-4 py-10 text-center text-[#94A3B8] font-mono text-xs uppercase tracking-widest">
                         Share your code to start earning
                       </td>
                     </tr>

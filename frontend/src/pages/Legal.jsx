@@ -194,7 +194,7 @@ export default function Legal() {
               {content.sections.map((s, i) => (
                 <section key={i}>
                   <h2 className="font-editorial text-2xl text-[#FF2D55] mb-2">{s.h}</h2>
-                  <p className="font-mono text-sm leading-relaxed text-white/80">{s.p}</p>
+                  <p className="font-mono text-sm leading-relaxed text-[#475569]">{s.p}</p>
                 </section>
               ))}
             </div>

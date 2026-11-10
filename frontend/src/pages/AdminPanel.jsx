@@ -248,7 +248,7 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
                 <div className="p-2 bg-white/5 rounded-3xl shrink-0">{icon}</div>
             </div>
-            <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-white truncate">{value}</div>
+            <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-[#1E1B4B] truncate">{value}</div>
             <div className="flex justify-between items-center mt-3 gap-2">
                 <div className="font-sans text-[10px] tracking-wider uppercase opacity-50 leading-snug min-w-0">{sub}</div>
                 <div className={`flex items-center gap-1 font-sans text-[10px] shrink-0 ${pos ? 'text-[#14B8A6]' : 'text-[#FF2D55]'}`}>
@@ -268,7 +268,7 @@ function DiscoveryOps() {
     api.get("/admin/discovery-jobs").then(({ data }) => setJobs(data.items || [])).catch(() => {});
   }, []);
   if (!stats) return <div className="font-mono text-xs tracking-widest uppercase opacity-50">Loading discovery ops…</div>;
-  if (stats.error) return <div className="text-sm text-white/50">Could not load discovery stats.</div>;
+  if (stats.error) return <div className="text-sm text-[#64748B]">Could not load discovery stats.</div>;
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -282,7 +282,7 @@ function DiscoveryOps() {
           ["Apify", stats.apify_configured ? "Configured" : "Data source not configured"],
         ].map(([k, v]) => (
           <div key={k} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-4">
-            <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">{k}</div>
+            <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{k}</div>
             <div className="font-sans text-xl font-bold mt-1">{v}</div>
           </div>
         ))}
@@ -290,7 +290,7 @@ function DiscoveryOps() {
       <ApifyLookupPanel />
       <div className="rounded-2xl border border-white/10 overflow-auto">
         <table className="w-full text-xs">
-          <thead className="font-mono uppercase tracking-widest text-white/40">
+          <thead className="font-mono uppercase tracking-widest text-[#94A3B8]">
             <tr><th className="p-3 text-left">Job</th><th className="p-3">Status</th><th className="p-3">Provider</th><th className="p-3">Error</th></tr>
           </thead>
           <tbody>
@@ -299,7 +299,7 @@ function DiscoveryOps() {
                 <td className="p-3">{j.kind}</td>
                 <td className="p-3">{j.status}</td>
                 <td className="p-3">{j.provider}</td>
-                <td className="p-3 text-white/50">{j.error_message || "—"}</td>
+                <td className="p-3 text-[#64748B]">{j.error_message || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -844,7 +844,7 @@ export function AdminPanel() {
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Admin
               </p>
               <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-2">Admin</h1>
-              <p className="font-sans text-xs text-white/45 mt-2">
+              <p className="font-sans text-xs text-[#94A3B8] mt-2">
                 Use the left panel to switch desks · Profile &amp; Settings stay in the sidebar
               </p>
             </div>
@@ -895,7 +895,7 @@ export function AdminPanel() {
                             className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                               alertFilter === f.id
                                 ? "bg-[#FF2D55] border-[#FF2D55] text-white"
-                                : "border-white/15 text-white/55 hover:border-white/35"
+                                : "border-white/15 text-[#64748B] hover:border-white/35"
                             }`}
                           >
                             {f.label}
@@ -989,9 +989,9 @@ export function AdminPanel() {
                             label="Status"
                           />
                         </div>
-                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
-                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
-                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-white w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
                     </div>
                 </div>
                 <div className="glass-panel overflow-x-auto">
@@ -1054,7 +1054,7 @@ export function AdminPanel() {
                                                     st === "Active" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
                                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                                                     st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
-                                                    "bg-white/5 text-white/60 border-white/15";
+                                                    "bg-white/5 text-[#64748B] border-white/15";
                                                   return (
                                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
                                                   );
@@ -1094,7 +1094,7 @@ export function AdminPanel() {
         {tab === "reports" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-4">
                 <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-white/10 bg-[#FFFFFF]">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 mr-1">Status</span>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mr-1">Status</span>
                   {[
                     { id: "all", label: "All" },
                     { id: "open", label: "Open" },
@@ -1108,7 +1108,7 @@ export function AdminPanel() {
                       className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                         reportStatusFilter === f.id
                           ? "bg-[#FF2D55] border-[#FF2D55] text-white"
-                          : "border-white/15 text-white/55 hover:border-white/35"
+                          : "border-white/15 text-[#64748B] hover:border-white/35"
                       }`}
                     >
                       {f.label}
@@ -1142,7 +1142,7 @@ export function AdminPanel() {
                                   <span className={`px-2 py-1 text-[9px] uppercase font-sans border rounded-xs ${
                                     r.status === "open" ? "bg-orange-400/10 text-orange-400 border-orange-400/20" :
                                     r.status === "resolved" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
-                                    "bg-white/5 text-white/50 border-white/15"
+                                    "bg-white/5 text-[#64748B] border-white/15"
                                   }`}>{r.status || "—"}</span>
                                 </td>
                                 <td className="p-4 text-right space-x-2">
@@ -1266,7 +1266,7 @@ export function AdminPanel() {
                                     st === "Active" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                                     st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
-                                    "bg-white/5 text-white/60 border-white/15";
+                                    "bg-white/5 text-[#64748B] border-white/15";
                                   return (
                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
                                   );
@@ -1274,7 +1274,7 @@ export function AdminPanel() {
                               </td>
                               <td className="p-4">
                                 {u.role !== "admin" && (
-                                  <button onClick={() => promoteToAdmin(u.id)} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors rounded-xs whitespace-nowrap">
+                                  <button onClick={() => promoteToAdmin(u.id)} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-white/5 border border-white/10 text-[#1E1B4B] hover:bg-white/10 transition-colors rounded-xs whitespace-nowrap">
                                     Promote Admin
                                   </button>
                                 )}
@@ -1296,13 +1296,13 @@ export function AdminPanel() {
             <div className="border-b border-white/10 pb-4">
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Engage · Match · Refer</p>
               <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Growth Hub</h2>
-              <p className="font-sans text-xs text-white/50 mt-2 max-w-2xl">
+              <p className="font-sans text-xs text-[#64748B] mt-2 max-w-2xl">
                 Broadcast announcements, tune creator–campaign matching, and manage referral rewards — one ops desk.
               </p>
             </div>
 
             <section className="space-y-3">
-              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">1 · Broadcast</h3>
+              <h3 className="font-sans text-xs uppercase tracking-widest text-[#64748B] font-bold">1 · Broadcast</h3>
               <div className="p-6 glass-panel max-w-xl space-y-4">
                 <h4 className="font-sans text-xs uppercase tracking-widest text-[#FF2D55]">Broadcast Notification</h4>
                 <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
@@ -1323,12 +1323,12 @@ export function AdminPanel() {
             </section>
 
             <section className="space-y-3">
-              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">2 · Match</h3>
+              <h3 className="font-sans text-xs uppercase tracking-widest text-[#64748B] font-bold">2 · Match</h3>
               <MatchAlgorithmConfig />
             </section>
 
             <section className="space-y-3">
-              <h3 className="font-sans text-xs uppercase tracking-widest text-white/70 font-bold">3 · Referrals</h3>
+              <h3 className="font-sans text-xs uppercase tracking-widest text-[#64748B] font-bold">3 · Referrals</h3>
               <ReferralConfig />
             </section>
           </motion.div>
@@ -1422,7 +1422,7 @@ export function AdminPanel() {
                                             <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border rounded-xs ${
                                                 a.status === "Completed" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/30" :
                                                 a.status === "Pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/30" :
-                                                "bg-white/5 text-white/50 border-white/10"
+                                                "bg-white/5 text-[#64748B] border-white/10"
                                             }`}>
                                                 {a.status}
                                             </span>
@@ -1452,13 +1452,13 @@ export function AdminPanel() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF2D55] font-bold">⚡ Data Export Engine</span>
-                <h3 className="font-sans text-2xl mt-1 text-white">Select Export Timeframe</h3>
+                <h3 className="font-sans text-2xl mt-1 text-[#1E1B4B]">Select Export Timeframe</h3>
               </div>
-              <button onClick={() => setExportModal(false)} className="text-white/60 hover:text-white text-xl">✕</button>
+              <button onClick={() => setExportModal(false)} className="text-[#64748B] hover:text-[#1E1B4B] text-xl">✕</button>
             </div>
 
             <div className="space-y-4">
-              <label className="font-sans text-xs text-white/70 block uppercase tracking-wider">New Format</label>
+              <label className="font-sans text-xs text-[#64748B] block uppercase tracking-wider">New Format</label>
               <div className="grid grid-cols-2 gap-2 font-sans text-xs">
                 {EXPORT_FORMATS.map((opt) => (
                   <button
@@ -1468,7 +1468,7 @@ export function AdminPanel() {
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportFormat === opt.id
                         ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                        : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
                     }`}
                   >
                     {opt.label}
@@ -1476,7 +1476,7 @@ export function AdminPanel() {
                 ))}
               </div>
 
-              <label className="font-sans text-xs text-white/70 block uppercase tracking-wider pt-2">Timeframe Preset</label>
+              <label className="font-sans text-xs text-[#64748B] block uppercase tracking-wider pt-2">Timeframe Preset</label>
               <div className="grid grid-cols-2 gap-2 font-sans text-xs">
                 {[
                   { id: "weekly", label: "Weekly (7 Days)" },
@@ -1491,7 +1491,7 @@ export function AdminPanel() {
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportRange === opt.id
                         ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                        : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
                     }`}
                   >
                     {opt.label}
@@ -1505,7 +1505,7 @@ export function AdminPanel() {
                 className={`w-full p-3 text-left border rounded-xs font-sans text-xs transition-all ${
                   exportRange === "custom"
                     ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                    : "bg-white/5 border-white/10 text-white/70 hover:border-white/30"
+                    : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
                 }`}
               >
                 Customized (No Limit - Custom Range)
@@ -1514,7 +1514,7 @@ export function AdminPanel() {
               {exportRange === "custom" && (
                 <div className="grid grid-cols-2 gap-3 pt-2 font-sans text-xs">
                   <div>
-                    <label className="text-white/50 block mb-1">Start Date (From)</label>
+                    <label className="text-[#64748B] block mb-1">Start Date (From)</label>
                     <input
                       type="date"
                       value={startDate}
@@ -1528,7 +1528,7 @@ export function AdminPanel() {
                     />
                   </div>
                   <div>
-                    <label className="text-white/50 block mb-1">End Date (To)</label>
+                    <label className="text-[#64748B] block mb-1">End Date (To)</label>
                     <input
                       type="date"
                       value={endDate}
@@ -1542,7 +1542,7 @@ export function AdminPanel() {
             </div>
 
             <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-sans text-xs">
-              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white/70">Cancel</button>
+              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-[#64748B]">Cancel</button>
               <button
                 type="button"
                 disabled={exportBusy}
@@ -1620,7 +1620,7 @@ export function AdminPanel() {
                           <h4 className="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-2">Logs</h4>
                           <div className="rounded-xl bg-black/50 border border-white/10 p-3 space-y-1 max-h-48 overflow-y-auto">
                             {selectedAlert.logs.map((line, i) => (
-                              <pre key={i} className="font-mono text-[11px] text-white/70 whitespace-pre-wrap break-words">{line}</pre>
+                              <pre key={i} className="font-mono text-[11px] text-[#64748B] whitespace-pre-wrap break-words">{line}</pre>
                             ))}
                           </div>
                         </section>
@@ -1646,7 +1646,7 @@ export function AdminPanel() {
                           Are you sure you want to permanently delete this user? This action cannot be undone and will erase all their campaigns, applications, and data.
                       </p>
                       <div className="flex justify-end gap-4">
-                          <button onClick={() => setUserToDelete(null)} className="px-4 py-2 font-mono text-xs text-white/60 hover:text-white transition-colors">
+                          <button onClick={() => setUserToDelete(null)} className="px-4 py-2 font-mono text-xs text-[#64748B] hover:text-[#1E1B4B] transition-colors">
                               Cancel
                           </button>
                           <button onClick={confirmDeleteUser} className="btn-solid py-2 px-6 bg-[#FF2D55] text-white hover:bg-[#E11D48]">
@@ -1836,7 +1836,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                 <div className="space-y-3">
                   {/* Thumbnail Avatar/Banner Box */}
                   <div className="relative w-full h-32 bg-gradient-to-br from-[#FF2D55]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
-                    <span className="font-sans text-4xl font-bold text-white/80">{companyInitial}</span>
+                    <span className="font-sans text-4xl font-bold text-[#475569]">{companyInitial}</span>
                     <span className={`absolute top-2 right-2 font-sans text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
                       isApproved ? "bg-[#14B8A6] text-black border-[#14B8A6]" :
                       isDeclined ? "bg-[#FF2D55] text-white border-[#FF2D55]" :
@@ -1850,15 +1850,15 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                     <span className="font-sans text-[9px] uppercase tracking-widest text-[#FF2D55] font-bold block">
                       {agentType}
                     </span>
-                    <h3 className="font-sans text-xl font-bold text-white mt-1 leading-snug line-clamp-1">{companyName}</h3>
-                    <p className="font-sans text-[10px] text-white/60 line-clamp-1">{ag.name || "Agency Lead"} · {ag.email || "agency@cr8.studio"}</p>
+                    <h3 className="font-sans text-xl font-bold text-[#1E1B4B] mt-1 leading-snug line-clamp-1">{companyName}</h3>
+                    <p className="font-sans text-[10px] text-[#64748B] line-clamp-1">{ag.name || "Agency Lead"} · {ag.email || "agency@cr8.studio"}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-white/5 space-y-1 font-sans text-[10px] text-white/70">
-                    <div><span className="text-white/40">Industry:</span> {ag.industry || "General"}</div>
-                    <div><span className="text-white/40">City:</span> {ag.city || "India"}</div>
+                  <div className="pt-2 border-t border-white/5 space-y-1 font-sans text-[10px] text-[#64748B]">
+                    <div><span className="text-[#94A3B8]">Industry:</span> {ag.industry || "General"}</div>
+                    <div><span className="text-[#94A3B8]">City:</span> {ag.city || "India"}</div>
                     {ag.website && (
-                      <div className="truncate"><span className="text-white/40">Site:</span> <a href={ag.website} target="_blank" rel="noreferrer" className="text-[#7C3AED] hover:underline">{ag.website}</a></div>
+                      <div className="truncate"><span className="text-[#94A3B8]">Site:</span> <a href={ag.website} target="_blank" rel="noreferrer" className="text-[#7C3AED] hover:underline">{ag.website}</a></div>
                     )}
                   </div>
                 </div>
@@ -1886,7 +1886,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       ) : (
         /* LIST VIEW */
         <div className="border border-white/15 bg-[#FFFFFF] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
-          <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-white/10 bg-white/[0.02] text-white/50 text-[10px] tracking-widest uppercase font-bold">
+          <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-white/10 bg-white/[0.02] text-[#64748B] text-[10px] tracking-widest uppercase font-bold">
             <div className="col-span-4">Agency / Company</div>
             <div className="col-span-3">Contact &amp; Location</div>
             <div className="col-span-2">Type / Industry</div>
@@ -1899,16 +1899,16 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             return (
               <div key={ag.id || i} className="flex flex-col gap-3 md:grid md:grid-cols-12 md:items-center px-4 md:px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
                 <div className="md:col-span-4 space-y-0.5 min-w-0">
-                  <div className="font-sans text-lg text-white font-bold break-words">{companyName}</div>
-                  <div className="text-[10px] text-white/50 line-clamp-2">{ag.bio || "Talent agency partner."}</div>
+                  <div className="font-sans text-lg text-[#1E1B4B] font-bold break-words">{companyName}</div>
+                  <div className="text-[10px] text-[#64748B] line-clamp-2">{ag.bio || "Talent agency partner."}</div>
                 </div>
-                <div className="md:col-span-3 space-y-0.5 text-white/70 text-[11px] min-w-0">
+                <div className="md:col-span-3 space-y-0.5 text-[#64748B] text-[11px] min-w-0">
                   <div className="break-words">{ag.name || "Agency Contact"} ({ag.email || "agency@cr8.studio"})</div>
-                  <div className="text-[10px] text-white/40">{ag.city || "India"}</div>
+                  <div className="text-[10px] text-[#94A3B8]">{ag.city || "India"}</div>
                 </div>
                 <div className="md:col-span-2 space-y-0.5">
                   <span className="text-[#FF2D55] font-bold text-[10px] uppercase block">{ag.agent_type || "Agency"}</span>
-                  <span className="text-white/60 text-[10px]">{ag.industry || "Media"}</span>
+                  <span className="text-[#64748B] text-[10px]">{ag.industry || "Media"}</span>
                 </div>
                 <div className="md:col-span-3 flex flex-wrap items-center md:justify-end gap-2">
                   {!isApproved ? (
@@ -1930,13 +1930,13 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
       {declineModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <form onSubmit={handleDeclineSubmit} className="bg-[#FFFFFF] border border-white/20 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
-            <h3 className="font-sans text-2xl text-white font-bold">Decline Agency Access</h3>
+            <h3 className="font-sans text-2xl text-[#1E1B4B] font-bold">Decline Agency Access</h3>
             <p className="font-sans text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
               placeholder=""
-              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-white rounded-xs h-24 focus:outline-none focus:border-[#FF2D55]"
+              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-[#1E1B4B] rounded-xs h-24 focus:outline-none focus:border-[#FF2D55]"
               required
             />
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 font-sans text-xs">
@@ -1985,13 +1985,13 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
-          <div className="font-sans text-3xl text-white font-bold mt-3 tracking-tight tabular-nums">₹{totalVolume.toLocaleString("en-IN")}</div>
+          <div className="font-sans text-3xl text-[#1E1B4B] font-bold mt-3 tracking-tight tabular-nums">₹{totalVolume.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#14B8A6] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Fees</div>
           <div className="font-sans text-3xl text-[#FF2D55] font-bold mt-3 tracking-tight tabular-nums">₹{totalFees.toLocaleString("en-IN")}</div>
-          <div className="font-sans text-[9px] text-white/50 uppercase tracking-wider mt-2">Platform fees</div>
+          <div className="font-sans text-[9px] text-[#64748B] uppercase tracking-wider mt-2">Platform fees</div>
         </div>
         <div className="p-5 glass-panel">
           <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
@@ -2024,9 +2024,9 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
           <tbody>
             {escrows.map((e) => (
               <tr key={e.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                <td className="p-4 font-bold text-white tabular-nums">{e.id}</td>
-                <td className="p-4"><div className="font-sans text-base text-white font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
-                <td className="p-4 text-white">{e.creator}</td>
+                <td className="p-4 font-bold text-[#1E1B4B] tabular-nums">{e.id}</td>
+                <td className="p-4"><div className="font-sans text-base text-[#1E1B4B] font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
+                <td className="p-4 text-[#1E1B4B]">{e.creator}</td>
                 <td className="p-4 text-[#14B8A6] font-bold tabular-nums">₹{Number(e.amount).toLocaleString("en-IN")}</td>
                 <td className="p-4 text-[#FF2D55] font-bold tabular-nums">₹{Number(e.fee).toLocaleString("en-IN")}</td>
                 <td className="p-4">
@@ -2102,7 +2102,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               <List className="w-3.5 h-3.5" /> Table
             </button>
           </div>
-          <span className="font-sans text-xs px-3 py-1 bg-white/5 text-white/70 border border-white/15 rounded-xs font-bold">
+          <span className="font-sans text-xs px-3 py-1 bg-white/5 text-[#64748B] border border-white/15 rounded-xs font-bold">
             AI Compliance Guard
           </span>
         </div>
@@ -2119,18 +2119,18 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                     {b.status}
                   </span>
                 </div>
-                <h3 className="font-sans text-xl font-bold mt-3 text-white leading-snug">{b.title}</h3>
-                <p className="font-sans text-xs text-white/60 mt-1">Budget: ₹{Number(b.budget).toLocaleString("en-IN")} · {b.category}</p>
+                <h3 className="font-sans text-xl font-bold mt-3 text-[#1E1B4B] leading-snug">{b.title}</h3>
+                <p className="font-sans text-xs text-[#64748B] mt-1">Budget: ₹{Number(b.budget).toLocaleString("en-IN")} · {b.category}</p>
                 <div className="mt-4 p-3 bg-white/[0.03] border border-white/10 rounded-xs space-y-1.5 font-sans text-[11px]">
                   <div className="flex justify-between text-[#14B8A6]">
                     <span>AI Content Audit</span>
                     <span className="font-bold">{b.aiSafety}</span>
                   </div>
-                  <div className="flex justify-between text-white/70">
+                  <div className="flex justify-between text-[#64748B]">
                     <span>Deliverables</span>
                     <span className="text-right max-w-[55%]">{b.deliverables}</span>
                   </div>
-                  <div className="flex justify-between text-white/70">
+                  <div className="flex justify-between text-[#64748B]">
                     <span>Timeline</span>
                     <span>{b.timeline}</span>
                   </div>
@@ -2168,13 +2168,13 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               {briefs.map((b) => (
                 <tr key={b.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   <td className="p-4">
-                    <div className="font-medium text-white">{b.title}</div>
+                    <div className="font-medium text-[#1E1B4B]">{b.title}</div>
                     <div className="text-[10px] opacity-45 mt-0.5 font-mono uppercase tracking-wider">{b.id} · {b.timeline}</div>
                   </td>
-                  <td className="p-4 text-white/85">{b.brand}</td>
-                  <td className="p-4 text-white/70 text-xs">{b.category}</td>
+                  <td className="p-4 text-[#1E1B4B]/85">{b.brand}</td>
+                  <td className="p-4 text-[#64748B] text-xs">{b.category}</td>
                   <td className="p-4 text-[#14B8A6] font-bold tabular-nums">₹{Number(b.budget).toLocaleString("en-IN")}</td>
-                  <td className="p-4 text-xs text-white/65 max-w-[180px]">{b.deliverables}</td>
+                  <td className="p-4 text-xs text-[#64748B] max-w-[180px]">{b.deliverables}</td>
                   <td className="p-4 text-xs text-[#14B8A6] font-medium">{b.aiSafety}</td>
                   <td className="p-4">
                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest border rounded-xs font-bold ${statusClass(b.status)}`}>
@@ -2216,7 +2216,7 @@ function MatchAlgorithmConfig() {
          {Object.entries(config).map(([key, val]) => (
            <div key={key} className="flex flex-col gap-1">
              <label className="font-sans text-[10px] uppercase opacity-70">{key.replace(/_/g, " ")}</label>
-             <input type="number" step="0.1" value={val} onChange={e => setConfig({...config, [key]: parseFloat(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+             <input type="number" step="0.1" value={val} onChange={e => setConfig({...config, [key]: parseFloat(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
            </div>
          ))}
        </div>
@@ -2240,11 +2240,11 @@ function ReferralConfig() {
        <div className="space-y-4">
          <div className="flex flex-col gap-1">
            <label className="font-sans text-[10px] uppercase opacity-70">Referrer Reward</label>
-           <input type="number" value={config.referrer_reward || 0} onChange={e => setConfig({...config, referrer_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+           <input type="number" value={config.referrer_reward || 0} onChange={e => setConfig({...config, referrer_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
          </div>
          <div className="flex flex-col gap-1">
            <label className="font-sans text-[10px] uppercase opacity-70">Referee Reward</label>
-           <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-white" />
+           <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
          </div>
        </div>
        <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF2D55] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#E11D48]">Save Configuration</button>

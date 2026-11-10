@@ -83,7 +83,7 @@ export default function Wishlist() {
           <Heart className="w-3.5 h-3.5" /> Saved for later
         </p>
         <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-1">Wishlist</h1>
-        <p className="font-sans text-sm text-white/50 mt-1">Influencers, brands, and production talent you saved.</p>
+        <p className="font-sans text-sm text-[#64748B] mt-1">Influencers, brands, and production talent you saved.</p>
         {usingMock ? (
           <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]/80 mt-2">Demo wishlist · save real profiles from Marketplace</p>
         ) : null}
@@ -134,7 +134,7 @@ export default function Wishlist() {
                   <Link to={profileHref(item)} className="font-sans font-semibold truncate block hover:italic">
                     {title}
                   </Link>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-0.5">
                     {item.target_type}
                     {p.production_category_label ? ` · ${p.production_category_label}` : ""}
                     {p.industry ? ` · ${p.industry}` : ""}

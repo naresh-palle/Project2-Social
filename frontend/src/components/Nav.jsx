@@ -121,7 +121,7 @@ export function Nav({ variant = "paper" }) {
                   <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-[#1E1B4B]/10" />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-white border border-[#1E1B4B]/10"
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-[#1E1B4B] border border-[#1E1B4B]/10"
                     style={{
                       backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 65%, 42%)`,
                     }}

@@ -207,11 +207,11 @@ export default function CampaignDetail() {
   if (c === false) {
     return (
       <div className="min-h-[40vh] bg-[#F7F8FC] text-[#1E1B4B] pt-6 px-4">
-        <Link to="/marketplace?tab=campaigns" className="font-mono text-[10px] uppercase tracking-widest text-white/45 hover:text-white">← Campaigns</Link>
+        <Link to="/marketplace?tab=campaigns" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] hover:text-[#1E1B4B]">← Campaigns</Link>
         <h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight mt-2">
           {accessNote || "Brief not on file."}
         </h1>
-        <p className="text-sm text-white/50 mt-2 max-w-lg">
+        <p className="text-sm text-[#64748B] mt-2 max-w-lg">
           This brand offer may have been removed, or you may not have access. Return to Campaigns to browse open briefs.
         </p>
       </div>
@@ -262,12 +262,12 @@ export default function CampaignDetail() {
     <div className="flex flex-col w-full max-w-[1600px] mx-auto pb-4">
       {/* Top Static Header */}
       <div className="shrink-0 mb-4 px-4 md:px-8">
-        <Link to={backTarget} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-white/50 hover:text-white mb-2">
+        <Link to={backTarget} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B] mb-2">
           <ChevronLeft className="w-3.5 h-3.5" /> {backLabel}
         </Link>
         <div className="hairline-b pb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/50 break-words">
+            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#64748B] break-words">
               Brief · {brief.id.slice(0, 8)} · {brief.status}
             </p>
             <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#FF2D55] mt-1 break-words">
@@ -557,13 +557,13 @@ export default function CampaignDetail() {
                       Application status: {statusLabel}
                     </div>
                     {myApplication?.created_at ? (
-                      <p className="text-xs text-white/50">Submitted {new Date(myApplication.created_at).toLocaleString()}</p>
+                      <p className="text-xs text-[#64748B]">Submitted {new Date(myApplication.created_at).toLocaleString()}</p>
                     ) : null}
                     {myApplication?.rate != null ? (
-                      <p className="text-sm text-white/70">Your rate: ₹{Number(myApplication.rate).toLocaleString("en-IN")}</p>
+                      <p className="text-sm text-[#64748B]">Your rate: ₹{Number(myApplication.rate).toLocaleString("en-IN")}</p>
                     ) : null}
                     {myApplication?.pitch ? (
-                      <p className="text-sm text-white/80 italic border-l-2 border-[#FF2D55]/50 pl-3">“{myApplication.pitch}”</p>
+                      <p className="text-sm text-[#475569] italic border-l-2 border-[#FF2D55]/50 pl-3">“{myApplication.pitch}”</p>
                     ) : (
                       <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-[#FF2D55]">✓ Pitch delivered.</p>
                     )}
@@ -574,7 +574,7 @@ export default function CampaignDetail() {
                 ) : (
                   <form onSubmit={apply} className="mt-5 space-y-5" data-testid="apply-form" noValidate>
                     <div className="space-y-2">
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#64748B]">
                         Your pitch <span className="text-[#FF2D55]">*</span>
                       </label>
                       <textarea
@@ -588,7 +588,7 @@ export default function CampaignDetail() {
                       {pitchErr ? <p className="text-[11px] text-[#FF2D55]">{pitchErr}</p> : null}
                     </div>
                     <div className="space-y-2">
-                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/60">
+                      <label className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#64748B]">
                         Your rate (INR ₹) <span className="text-[#FF2D55]">*</span>
                       </label>
                       <input
@@ -661,8 +661,8 @@ export default function CampaignDetail() {
 function Meta({ label, value, accent }) {
   return (
     <div className="flex flex-col">
-      <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 mb-2">{label}</div>
-      <div className={`font-sans uppercase tracking-[0.05em] leading-snug ${accent ? "text-xl font-bold text-[#FF2D55]" : "text-sm font-semibold text-white/90"}`}>
+      <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#94A3B8] mb-2">{label}</div>
+      <div className={`font-sans uppercase tracking-[0.05em] leading-snug ${accent ? "text-xl font-bold text-[#FF2D55]" : "text-sm font-semibold text-[#1E1B4B]/90"}`}>
         {value}
       </div>
     </div>
@@ -688,7 +688,7 @@ function ReviewBlock({ campaignId, targetId }) {
           <div className="flex gap-2">
             {[1,2,3,4,5].map(i => (
               <button key={i} onClick={() => setRating(i)} data-testid={`star-${i}`}>
-                <Star className={`w-8 h-8 ${i <= rating ? "fill-[#FF2D55] text-[#FF2D55]" : "text-white/30"}`} />
+                <Star className={`w-8 h-8 ${i <= rating ? "fill-[#FF2D55] text-[#FF2D55]" : "text-[#94A3B8]"}`} />
               </button>
             ))}
           </div>

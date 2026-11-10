@@ -56,10 +56,10 @@ export default function HireRequests() {
                   <h3 className="font-sans font-semibold">
                     {isProd ? r.requester_name : r.production_name}
                   </h3>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-0.5">
                     {r.service || "General"} · {r.status} · {r.created_at?.slice?.(0, 10)}
                   </p>
-                  {r.message ? <p className="font-sans text-sm text-white/70 mt-2">{r.message}</p> : null}
+                  {r.message ? <p className="font-sans text-sm text-[#64748B] mt-2">{r.message}</p> : null}
                   {r.budget != null ? (
                     <p className="font-mono text-[10px] text-[#14B8A6] mt-1">Budget ₹{Number(r.budget).toLocaleString()}</p>
                   ) : null}

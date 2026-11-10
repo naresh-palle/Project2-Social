@@ -88,7 +88,7 @@ export function MenuSelect({
   return (
     <div className={`relative min-w-0 ${className}`} ref={ref}>
       {label ? (
-        <div className="font-mono text-[8px] uppercase tracking-[0.22em] text-white/40 mb-1.5 px-0.5">
+        <div className="font-mono text-[8px] uppercase tracking-[0.22em] text-[#94A3B8] mb-1.5 px-0.5">
           {label}
         </div>
       ) : null}
@@ -106,13 +106,13 @@ export function MenuSelect({
         }`}
       >
         {selected?.icon ? (
-          <span className="text-white/70 shrink-0">{selected.icon}</span>
+          <span className="text-[#64748B] shrink-0">{selected.icon}</span>
         ) : null}
-        <span className={`flex-1 text-[12px] font-medium truncate ${selected ? "text-[#1E1B4B]" : "text-white/45"}`}>
+        <span className={`flex-1 text-[12px] font-medium truncate ${selected ? "text-[#1E1B4B]" : "text-[#94A3B8]"}`}>
           {display}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 shrink-0 text-white/55 transition-transform duration-200 ${open ? "rotate-180 text-[#FF2D55]" : ""}`}
+          className={`w-3.5 h-3.5 shrink-0 text-[#64748B] transition-transform duration-200 ${open ? "rotate-180 text-[#FF2D55]" : ""}`}
         />
       </button>
 
@@ -147,16 +147,16 @@ export function MenuSelect({
                       }`}
                     >
                       {opt.icon ? (
-                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF2D55]" : "text-white/55"}`}>
+                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF2D55]" : "text-[#64748B]"}`}>
                           {opt.icon}
                         </span>
                       ) : null}
                       <span className="min-w-0 flex-1">
-                        <span className={`block text-[12px] font-medium ${active ? "text-white" : "text-white/85"}`}>
+                        <span className={`block text-[12px] font-medium ${active ? "text-[#1E1B4B]" : "text-[#1E1B4B]/85"}`}>
                           {opt.label}
                         </span>
                         {opt.description ? (
-                          <span className="block text-[10px] text-white/40 mt-0.5 leading-snug">{opt.description}</span>
+                          <span className="block text-[10px] text-[#94A3B8] mt-0.5 leading-snug">{opt.description}</span>
                         ) : null}
                       </span>
                       {active ? <Check className="w-3.5 h-3.5 text-[#FF2D55] shrink-0 mt-0.5" /> : null}

@@ -503,7 +503,7 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setSecurityOpen(false)}
-                className="text-white/60 hover:text-white text-xl leading-none px-2"
+                className="text-[#64748B] hover:text-[#1E1B4B] text-xl leading-none px-2"
                 aria-label="Close"
               >
                 ✕
@@ -614,13 +614,13 @@ export default function Settings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#F3EEFF] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-6">
             <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF2D55] font-semibold mb-2">Confirm Deletion</h3>
-            <p className="font-sans text-xs text-white/80 mb-6">
+            <p className="font-sans text-xs text-[#475569] mb-6">
               Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
             </p>
             <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                 <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-white rounded-3xl transition-colors"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-[#1E1B4B] rounded-3xl transition-colors"
               >
                 Cancel
               </button>

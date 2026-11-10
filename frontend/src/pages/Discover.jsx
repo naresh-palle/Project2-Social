@@ -37,7 +37,7 @@ function riskTone(risk) {
   if (risk === "high") return "text-[#FF2D55]";
   if (risk === "medium") return "text-[#D97706]";
   if (risk === "low") return "text-[#14B8A6]";
-  return "text-white/45";
+  return "text-[#94A3B8]";
 }
 
 function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch }) {
@@ -73,25 +73,25 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
           <Link to={`/creators/${c.id}`} className="font-sans text-sm font-semibold truncate block hover:italic">
             {c.name || handle}
           </Link>
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 truncate">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] truncate">
             @{String(handle).replace(/^@/, "")} · {c.category || (c.niches || [])[0] || "Creator"} · {c.location || c.city || UNAVAILABLE}
           </p>
         </div>
         <div className="grid grid-cols-3 gap-1.5 text-center">
           <div>
             <div className="font-sans text-xs font-bold tabular-nums">{fmtNum(c.followers)}</div>
-            <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Followers</div>
+            <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Followers</div>
           </div>
           <div>
             <div className="font-sans text-xs font-bold tabular-nums">{fmtPct(c.engagement_rate)}</div>
-            <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Engagement</div>
+            <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Engagement</div>
           </div>
           <div>
             <div className="font-sans text-xs font-bold tabular-nums">{c.quality_score != null ? Math.round(c.quality_score) : UNAVAILABLE}</div>
-            <div className="font-mono text-[8px] uppercase tracking-widest text-white/40">Quality</div>
+            <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Quality</div>
           </div>
         </div>
-        <div className="flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-white/40">
+        <div className="flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">
           <span>Views {fmtNum(c.average_views)}</span>
           <span>Growth {fmtPct(c.growth_30d)}</span>
           <span className={riskTone(c.risk)}>Risk {c.risk || UNAVAILABLE}</span>
@@ -329,7 +329,7 @@ export default function Discover() {
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Brand desk
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Discover Influencers</h1>
-          <p className="font-sans text-sm text-white/50 mt-1">Search the flugr catalog. Missing metrics show as Data unavailable — never invented.</p>
+          <p className="font-sans text-sm text-[#64748B] mt-1">Search the flugr catalog. Missing metrics show as Data unavailable — never invented.</p>
         </div>
         <button type="button" onClick={() => setAssistantOpen((v) => !v)} className="btn-pill inline-flex items-center gap-2 text-[10px]">
           <MessageSquare className="w-3.5 h-3.5" /> Assistant
@@ -337,7 +337,7 @@ export default function Discover() {
       </div>
 
       <form onSubmit={runNl} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3 mb-3">
-        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">AI natural-language search</label>
+        <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">AI natural-language search</label>
         <div className="flex gap-2 mt-1">
           <div className="relative flex-1">
             <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF2D55]" />
@@ -393,10 +393,10 @@ export default function Discover() {
         <button type="button" onClick={() => search(1)} className="btn-solid text-[10px] px-3 py-1">
           Apply filters
         </button>
-        <button type="button" onClick={() => { setFilters(emptyFilters()); setNl(""); }} className="font-mono text-[10px] uppercase tracking-widest text-white/45">
+        <button type="button" onClick={() => { setFilters(emptyFilters()); setNl(""); }} className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">
           Clear all
         </button>
-        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-white/40">
+        <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">
           {loading && creators.length > 0 ? "Refreshing… · " : ""}{total} creators
         </span>
       </div>
@@ -407,43 +407,43 @@ export default function Discover() {
           <MultiSelectDropdown label="Category" options={PLATFORM_CATEGORIES} selected={filters.categories} onChange={(v) => setFilters((f) => ({ ...f, categories: v }))} />
           <MultiSelectDropdown label="Language" options={LANGS} selected={filters.languages} onChange={(v) => setFilters((f) => ({ ...f, languages: v }))} />
           <MultiSelectDropdown label="Tier" options={TIERS} selected={filters.tiers} onChange={(v) => setFilters((f) => ({ ...f, tiers: v }))} />
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             City
             <input value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             State
             <input value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Country
             <input value={filters.country} onChange={(e) => setFilters((f) => ({ ...f, country: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min followers
             <input value={filters.followers_min} onChange={(e) => setFilters((f) => ({ ...f, followers_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max followers
             <input value={filters.followers_max} onChange={(e) => setFilters((f) => ({ ...f, followers_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min ER %
             <input value={filters.engagement_rate_min} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max ER %
             <input value={filters.engagement_rate_max} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min price ₹
             <input value={filters.price_min} onChange={(e) => setFilters((f) => ({ ...f, price_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max price ₹
             <input value={filters.price_max} onChange={(e) => setFilters((f) => ({ ...f, price_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
           </label>
-          <label className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+          <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Verified
             <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs text-[var(--fg)]">
               <option value="">Any</option>
@@ -457,7 +457,7 @@ export default function Discover() {
       {loading && creators.length === 0 ? (
         <div className="py-16 text-center font-mono text-xs tracking-widest uppercase opacity-50">Loading catalog…</div>
       ) : creators.length === 0 ? (
-        <div className="py-16 text-center font-sans text-sm text-white/50">No creators match these filters in the flugr catalog.</div>
+        <div className="py-16 text-center font-sans text-sm text-[#64748B]">No creators match these filters in the flugr catalog.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {creators.map((c) => (
@@ -507,7 +507,7 @@ export default function Discover() {
             <div className="table-scroll">
             <table className="w-full min-w-[32rem] text-left text-xs">
               <thead>
-                <tr className="font-mono uppercase tracking-widest text-white/40">
+                <tr className="font-mono uppercase tracking-widest text-[#94A3B8]">
                   <th className="p-2">Metric</th>
                   {compareRows.creators.map((c) => (
                     <th key={c.id} className="p-2">{c.name}</th>
@@ -517,7 +517,7 @@ export default function Discover() {
               <tbody>
                 {["followers", "engagement_rate", "average_views", "growth_30d", "quality_score", "ai_match_score", "authenticity_score", "base_rate"].map((m) => (
                   <tr key={m} className="border-t border-white/10">
-                    <td className="p-2 capitalize text-white/50">{m.replace(/_/g, " ")}</td>
+                    <td className="p-2 capitalize text-[#64748B]">{m.replace(/_/g, " ")}</td>
                     {compareRows.creators.map((c) => {
                       const win = compareRows.winners?.[m] === c.id;
                       const val = m.includes("rate") && m !== "base_rate" && m !== "engagement_rate" ? c[m]
@@ -551,12 +551,12 @@ export default function Discover() {
             {research?.error ? <p className="text-[#FF2D55] text-sm">{research.error}</p> : null}
             {research?.overview && (
               <div className="space-y-4 font-sans text-sm">
-                <p className="text-white/70">{research.recommendation}</p>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{research.disclaimer}</p>
+                <p className="text-[#64748B]">{research.recommendation}</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">{research.disclaimer}</p>
                 {["overview", "performance", "audience", "content", "brand_fit", "risk"].map((sec) => (
                   <section key={sec} className="border border-white/10 rounded-2xl p-3">
-                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-white/45 mb-2">{sec.replace("_", " ")}</h3>
-                    <pre className="whitespace-pre-wrap text-xs text-white/80">{JSON.stringify(research[sec], null, 2)}</pre>
+                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] mb-2">{sec.replace("_", " ")}</h3>
+                    <pre className="whitespace-pre-wrap text-xs text-[#475569]">{JSON.stringify(research[sec], null, 2)}</pre>
                   </section>
                 ))}
               </div>
@@ -573,9 +573,9 @@ export default function Discover() {
           </div>
           <div className="flex-1 overflow-auto p-3 space-y-2 text-sm">
             {messages.length === 0 ? (
-              <p className="text-white/45">Ask for Telugu fashion creators, then “only show 100K+ followers”, “compare the top 5”, or “deep research creator number 2”.</p>
+              <p className="text-[#94A3B8]">Ask for Telugu fashion creators, then “only show 100K+ followers”, “compare the top 5”, or “deep research creator number 2”.</p>
             ) : messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "text-right text-[#FF2D55]" : "text-white/80"}>{m.text}</div>
+              <div key={i} className={m.role === "user" ? "text-right text-[#FF2D55]" : "text-[#475569]"}>{m.text}</div>
             ))}
           </div>
           <form onSubmit={sendAssistant} className="p-2 border-t border-white/10 flex gap-2">

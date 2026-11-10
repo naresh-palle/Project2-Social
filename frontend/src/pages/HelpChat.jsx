@@ -102,13 +102,13 @@ export default function HelpChat() {
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">flugr Assistant</h1>
           </div>
           <div className="flex items-center gap-3">
-            <p className="font-sans text-white/50 text-xs flex items-center gap-2">
+            <p className="font-sans text-[#64748B] text-xs flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse" />
               Online
             </p>
             <Link
               to="/support"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors font-mono text-[10px] tracking-widest uppercase text-white/80 hover:text-white"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 transition-colors font-mono text-[10px] tracking-widest uppercase text-[#475569] hover:text-[#1E1B4B]"
             >
               Create Support Ticket <ExternalLink className="w-3 h-3" />
             </Link>
@@ -140,7 +140,7 @@ export default function HelpChat() {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
                   msg.role === "user"
-                    ? "bg-white/10 text-white"
+                    ? "bg-white/10 text-[#1E1B4B]"
                     : "bg-[#FF2D55]/20 text-[#FF2D55] border border-[#FF2D55]/30"
                 }`}
               >
@@ -150,7 +150,7 @@ export default function HelpChat() {
                 className={`p-4 rounded-3xl ${
                   msg.role === "user"
                     ? "bg-[#FF2D55] text-white"
-                    : "bg-white/[0.04] border border-white/10 text-white/90"
+                    : "bg-white/[0.04] border border-white/10 text-[#1E1B4B]/90"
                 }`}
               >
                 <p className="font-sans text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
@@ -163,7 +163,7 @@ export default function HelpChat() {
               <div className="w-8 h-8 rounded-full bg-[#FF2D55]/20 text-[#FF2D55] border border-[#FF2D55]/30 flex items-center justify-center shrink-0 mt-1">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 text-white/90 flex flex-row items-center gap-1 w-16 justify-center">
+              <div className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 text-[#1E1B4B]/90 flex flex-row items-center gap-1 w-16 justify-center">
                 <motion.div className="w-1.5 h-1.5 bg-[#FF2D55] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} />
                 <motion.div className="w-1.5 h-1.5 bg-[#FF2D55] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} />
                 <motion.div className="w-1.5 h-1.5 bg-[#FF2D55] rounded-full" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} />
@@ -203,7 +203,7 @@ export default function HelpChat() {
         </form>
       </motion.div>
 
-      <p className="mt-3 text-center text-[11px] text-white/35">
+      <p className="mt-3 text-center text-[11px] text-[#94A3B8]">
         Still stuck?{" "}
         <Link to="/support" className="text-[#FF2D55] hover:underline">
           Open Support Center

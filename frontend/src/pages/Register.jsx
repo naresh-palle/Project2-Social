@@ -547,10 +547,10 @@ export default function Register() {
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-sans text-xs text-white">Company Agent</div>
+                    <div className="font-sans text-xs text-[#1E1B4B]">Company Agent</div>
                     <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
                       Brand clients &amp; campaign briefs
                     </div>
@@ -562,10 +562,10 @@ export default function Register() {
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-sans text-xs text-white">Influencer Agent</div>
+                    <div className="font-sans text-xs text-[#1E1B4B]">Influencer Agent</div>
                     <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
                       Influencer roster &amp; talent
                     </div>
@@ -576,7 +576,7 @@ export default function Register() {
             <div className="relative col-span-2 md:col-span-1">
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
               {usernameStatus === "checking" && (
-                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-white/50">Checking…</span>
+                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-[#64748B]">Checking…</span>
               )}
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
               {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF2D55]" />}
@@ -615,7 +615,7 @@ export default function Register() {
               <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 City
               </label>
-              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-city">{form.city || ""}</span>
               </div>
             </div>
@@ -624,7 +624,7 @@ export default function Register() {
               <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 State
               </label>
-              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-white/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-state">{form.state || ""}</span>
               </div>
             </div>
@@ -637,7 +637,7 @@ export default function Register() {
               <p className="text-[#FF2D55] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
                 <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
               </p>
-              <p className="text-white/80 leading-snug">
+              <p className="text-[#475569] leading-snug">
                 An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered. Choose how to sign in:
               </p>
               <div className="flex flex-wrap gap-2 pt-0.5">
@@ -677,7 +677,7 @@ export default function Register() {
               tabIndex={0}
               className="accent-[#FF2D55] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <label htmlFor="terms-check" className="font-sans text-[11px] text-white/90 cursor-pointer select-none leading-snug">
+            <label htmlFor="terms-check" className="font-sans text-[11px] text-[#1E1B4B]/90 cursor-pointer select-none leading-snug">
               I agree to <span className="text-[#FF2D55] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF2D55] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
@@ -783,7 +783,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
           disabled={disabled}
           autoFocus={autoFocus}
           {...props}
-          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
+          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-[#64748B]" : ""} ${props.className || ''}`}
         />
       </div>
       {error && <p className="text-[#FF2D55] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}

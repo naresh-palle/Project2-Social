@@ -55,21 +55,21 @@ export default function RecentActivity() {
   return (
     <div className="w-full pb-8" data-testid="recent-activity-page">
       <div className="border-b border-white/10 pb-3 mb-4">
-        <Link to="/dashboard" className="font-mono text-[10px] uppercase tracking-widest text-white/45 hover:text-white">
+        <Link to="/dashboard" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] hover:text-[#1E1B4B]">
           ← Dashboard
         </Link>
         <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Recent activity</h1>
-        <p className="text-xs text-white/50 mt-1">All updates from your studio account.</p>
+        <p className="text-xs text-[#64748B] mt-1">All updates from your studio account.</p>
       </div>
 
       {items === null ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#94A3B8]" />
         </div>
       ) : error && items.length === 0 ? (
-        <p className="text-sm text-white/55 py-10 text-center">{error}</p>
+        <p className="text-sm text-[#64748B] py-10 text-center">{error}</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-white/55 py-10 text-center">No recent activity yet.</p>
+        <p className="text-sm text-[#64748B] py-10 text-center">No recent activity yet.</p>
       ) : (
         <ul className="space-y-2.5 max-w-2xl">
           {items.map((item) => {
@@ -96,14 +96,14 @@ export default function RecentActivity() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <p className="text-[10px] uppercase tracking-wider text-white/40">{meta.label}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-[#94A3B8]">{meta.label}</p>
                       {item.created_at ? (
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-white/35 shrink-0">
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-[#94A3B8] shrink-0">
                           {new Date(item.created_at).toLocaleString()}
                         </span>
                       ) : null}
                     </div>
-                    <p className="font-sans text-sm leading-snug text-white/90 break-words mt-0.5">
+                    <p className="font-sans text-sm leading-snug text-[#1E1B4B]/90 break-words mt-0.5">
                       {item.text || item.title}
                     </p>
                   </div>

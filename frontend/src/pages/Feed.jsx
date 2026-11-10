@@ -351,7 +351,7 @@ export default function Feed() {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
+          <span className="font-sans text-[11px] text-[#94A3B8]">Defaults to your profile location</span>
         </div>
 
         <div className="grid grid-cols-1 gap-4 items-start">
@@ -365,7 +365,7 @@ export default function Feed() {
                     <CampaignCard key={c.id} campaign={c} index={idx} />
                   ))}
                   {campaignCards.length === 0 && (
-                    <div className="col-span-full py-12 text-center font-sans text-white/50">No campaigns for this location.</div>
+                    <div className="col-span-full py-12 text-center font-sans text-[#64748B]">No campaigns for this location.</div>
                   )}
                 </div>
               )
@@ -471,7 +471,7 @@ function CampaignCard({ campaign: c, index: idx }) {
         <div className="mt-auto pt-3 flex items-center justify-between gap-2">
           <div>
             <span className="font-sans text-[8px] tracking-[0.16em] uppercase opacity-45 block">Budget</span>
-            <span className="font-sans text-base text-white font-bold">₹{Number(c.budget).toLocaleString()}</span>
+            <span className="font-sans text-base text-[#1E1B4B] font-bold">₹{Number(c.budget).toLocaleString()}</span>
           </div>
           <Link
             to={`/campaigns/${c.id}`}
@@ -526,7 +526,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
           )}
           <div className="min-w-0">
             <div className="font-sans text-sm font-semibold truncate drop-shadow">{author.name || "Creator"}</div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-white/70 truncate">
+            <div className="font-mono text-[9px] uppercase tracking-wider text-[#64748B] truncate">
               {formatUsername(author.handle, author.username) || "user"}
               {post.pinned ? " · Pinned" : ""}
             </div>
@@ -579,17 +579,17 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
 
       <div className="absolute left-0 right-16 bottom-0 z-10 p-4 space-y-2">
         {post.title && <h3 className="font-sans text-base font-bold leading-snug drop-shadow line-clamp-2">{post.title}</h3>}
-        {post.text && <p className="font-sans text-sm text-white/90 leading-snug line-clamp-3 drop-shadow">{post.text}</p>}
+        {post.text && <p className="font-sans text-sm text-[#1E1B4B]/90 leading-snug line-clamp-3 drop-shadow">{post.text}</p>}
         {post.hashtags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {post.hashtags.slice(0, 6).map((t) => (
-              <span key={t} className="font-mono text-[10px] text-white/80">#{t}</span>
+              <span key={t} className="font-mono text-[10px] text-[#475569]">#{t}</span>
             ))}
           </div>
         )}
         <div className="flex items-center gap-3 pt-1">
-          <button type="button" onClick={onQuote} className="font-mono text-[9px] uppercase tracking-widest text-white/70 hover:text-white">Quote</button>
-          <button type="button" onClick={onBookmark} className={`font-mono text-[9px] uppercase tracking-widest ${post.bookmarked ? "text-yellow-300" : "text-white/70 hover:text-white"}`}>
+          <button type="button" onClick={onQuote} className="font-mono text-[9px] uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B]">Quote</button>
+          <button type="button" onClick={onBookmark} className={`font-mono text-[9px] uppercase tracking-widest ${post.bookmarked ? "text-yellow-300" : "text-[#64748B] hover:text-[#1E1B4B]"}`}>
             Bookmark
           </button>
           {post.link_url && (
@@ -631,7 +631,7 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
       </div>
 
       {post.title && <h3 className="font-editorial text-2xl font-bold">{post.title}</h3>}
-      {post.text && <p className="font-mono text-sm text-white/80 whitespace-pre-wrap">{post.text}</p>}
+      {post.text && <p className="font-mono text-sm text-[#475569] whitespace-pre-wrap">{post.text}</p>}
 
       {post.media?.length > 0 && (
         <div className={`grid gap-2 ${post.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
@@ -668,18 +668,18 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
         </div>
       )}
 
-      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 font-mono text-xs text-white/60">
+      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 font-mono text-xs text-[#64748B]">
         <button type="button" onClick={onLike} className={`flex items-center gap-1.5 hover:text-[#FF2D55] ${post.liked ? "text-[#FF2D55]" : ""}`}>
           <Heart className={`w-4 h-4 ${post.liked ? "fill-current" : ""}`} /> {post.likes_count || 0}
         </button>
-        <button type="button" onClick={onComment} className="flex items-center gap-1.5 hover:text-white">
+        <button type="button" onClick={onComment} className="flex items-center gap-1.5 hover:text-[#1E1B4B]">
           <MessageSquare className="w-4 h-4" /> {post.comments_count || 0}
         </button>
-        <button type="button" onClick={onShare} className="flex items-center gap-1.5 hover:text-white"><Share2 className="w-4 h-4" /></button>
+        <button type="button" onClick={onShare} className="flex items-center gap-1.5 hover:text-[#1E1B4B]"><Share2 className="w-4 h-4" /></button>
         <button type="button" onClick={onSave} className={`flex items-center gap-1.5 ${post.saved ? "text-[#14B8A6]" : ""}`}><Bookmark className="w-4 h-4" /></button>
         <button type="button" onClick={onBookmark} className={post.bookmarked ? "text-yellow-400" : ""}><Bookmark className="w-4 h-4" /></button>
-        <button type="button" onClick={onRepost} className="hover:text-white"><Repeat2 className="w-4 h-4" /></button>
-        <button type="button" onClick={onQuote} className="hover:text-white font-mono text-[10px] uppercase">Quote</button>
+        <button type="button" onClick={onRepost} className="hover:text-[#1E1B4B]"><Repeat2 className="w-4 h-4" /></button>
+        <button type="button" onClick={onQuote} className="hover:text-[#1E1B4B] font-mono text-[10px] uppercase">Quote</button>
       </div>
     </motion.article>
   );

@@ -39,7 +39,7 @@ function statusClass(status) {
   if (["in_progress", "waiting_user", "pending_user", "pending_support", "assigned", "investigating", "action_required"].includes(status)) {
     return "bg-[#D97706]/15 text-[#D97706] border border-[#D97706]/30";
   }
-  return "bg-white/10 text-white/40 border border-white/10";
+  return "bg-white/10 text-[#94A3B8] border border-white/10";
 }
 
 /** End-user Help & Support (Influencer / Company / Agent). Support staff → /support/ops. */
@@ -146,7 +146,7 @@ export default function SupportCenter() {
               <AiIcon name="support" className="w-3.5 h-3.5" /> Support Center
             </p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5 mb-2">Help & Support</h1>
-            <p className="font-sans text-white/60 max-w-2xl text-sm">
+            <p className="font-sans text-[#64748B] max-w-2xl text-sm">
               Find answers or reach flugr Support Operations. Prefer AI Help for quick questions.
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function SupportCenter() {
                     className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.04] gap-4"
                   >
                     <span className="font-sans text-sm font-semibold">{faq.question}</span>
-                    <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${activeFaq === idx ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 text-[#94A3B8] transition-transform ${activeFaq === idx ? "rotate-180" : ""}`} />
                   </button>
                   <AnimatePresence>
                     {activeFaq === idx && (
@@ -180,7 +180,7 @@ export default function SupportCenter() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="px-4 pb-4 text-white/60 text-sm leading-relaxed"
+                        className="px-4 pb-4 text-[#64748B] text-sm leading-relaxed"
                       >
                         {faq.answer}
                       </motion.div>
@@ -194,9 +194,9 @@ export default function SupportCenter() {
           <section>
             <h2 className="font-sans text-xl font-bold tracking-tight mb-4">My Tickets</h2>
             {loading ? (
-              <div className="flex items-center gap-2 text-white/50 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+              <div className="flex items-center gap-2 text-[#64748B] text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
-              <p className="text-white/40 text-sm">No tickets yet.</p>
+              <p className="text-[#94A3B8] text-sm">No tickets yet.</p>
             ) : (
               <div className="space-y-3">
                 {tickets.map((t) => (
@@ -209,7 +209,7 @@ export default function SupportCenter() {
                     }`}
                   >
                     <div className="min-w-0 flex-1 overflow-hidden pr-2">
-                      <div className="font-mono text-[10px] tracking-widest text-white/40 mb-1">
+                      <div className="font-mono text-[10px] tracking-widest text-[#94A3B8] mb-1">
                         {t.number} · {(t.created_at || "").slice(0, 10)}
                       </div>
                       <div className="font-sans font-medium text-base truncate">{t.subject}</div>
@@ -229,7 +229,7 @@ export default function SupportCenter() {
             <div className="border border-white/10 bg-[#FFFFFF] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
-                  <div className="font-mono text-[10px] text-white/40 tracking-widest">{ticket.number} · {ticket.category}</div>
+                  <div className="font-mono text-[10px] text-[#94A3B8] tracking-widest">{ticket.number} · {ticket.category}</div>
                   <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
                 </div>
                 <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full">
@@ -239,7 +239,7 @@ export default function SupportCenter() {
               <div className="flex-1 overflow-y-auto space-y-3 mb-4 min-h-[160px]">
                 {(detail.messages || []).map((m) => (
                   <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.author_id === user?.id ? "bg-[#FF2D55]/15 ml-6" : "bg-white/[0.04] mr-6 border border-white/10"}`}>
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1 flex items-center gap-2">
+                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1 flex items-center gap-2">
                       <MessageSquare className="w-3 h-3" /> {m.author_name}
                     </div>
                     <p className="whitespace-pre-wrap">{m.body}</p>

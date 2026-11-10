@@ -51,7 +51,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
     <div className="bg-white/5 border border-white/10 px-3.5 py-3 rounded-2xl" data-testid="connect-social">
       <div className="flex items-baseline justify-between gap-3 mb-2.5">
         <h2 className="font-sans text-sm font-semibold tracking-tight">Connect Social Accounts</h2>
-        <p className="text-[11px] text-white/45 hidden sm:block">Link profiles to sync analytics</p>
+        <p className="text-[11px] text-[#94A3B8] hidden sm:block">Link profiles to sync analytics</p>
       </div>
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
@@ -69,7 +69,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                      <Icon className="w-3.5 h-3.5 shrink-0" />
                      <span className="font-sans text-[10px] uppercase tracking-wider font-semibold truncate">{name}</span>
                    </div>
-                   <button type="button" onClick={() => setActivePrompt(null)} className="text-white/50 hover:text-white">
+                   <button type="button" onClick={() => setActivePrompt(null)} className="text-[#64748B] hover:text-[#1E1B4B]">
                      <X className="w-3.5 h-3.5" />
                    </button>
                  </div>
@@ -82,7 +82,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                    onKeyDown={(e) => {
                      if (e.key === 'Enter') connectAccount(p, handleInput);
                    }}
-                   className="w-full bg-black/40 border border-white/10 rounded-full px-2.5 py-1.5 font-sans text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-2"
+                   className="w-full bg-black/40 border border-white/10 rounded-full px-2.5 py-1.5 font-sans text-xs text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-white/30 mb-2"
                  />
                  <button
                    type="button"

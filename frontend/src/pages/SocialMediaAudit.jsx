@@ -26,7 +26,7 @@ const STATUS_COLOR = {
 };
 
 const SEV_COLOR = {
-  Low: "text-white/60",
+  Low: "text-[#64748B]",
   Medium: "text-[#D97706]",
   High: "text-[#FF2D55]",
   Critical: "text-[#FF2D55] font-bold",
@@ -140,7 +140,7 @@ export default function SocialMediaAudit() {
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Audit Report</p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Social Media Audit</h1>
-          <p className="text-[12px] text-white/45 mt-1">
+          <p className="text-[12px] text-[#94A3B8] mt-1">
             Available for all accounts — uses your connected platforms and Apify sync data.
           </p>
         </div>
@@ -204,9 +204,9 @@ export default function SocialMediaAudit() {
                     {Icon ? <Icon className="w-4 h-4 shrink-0" /> : null}
                     <span className="font-sans text-xs font-semibold">{SOCIAL_PLATFORM_LABELS[p.platform] || p.platform}</span>
                   </div>
-                  <span className="font-mono text-[9px] uppercase text-white/40">{p.api_status}</span>
+                  <span className="font-mono text-[9px] uppercase text-[#94A3B8]">{p.api_status}</span>
                 </div>
-                <p className="font-sans text-[11px] text-white/50 truncate mb-2">{p.handle || "Not connected"}</p>
+                <p className="font-sans text-[11px] text-[#64748B] truncate mb-2">{p.handle || "Not connected"}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center">
                   <MiniStat label="Followers" value={displayMetric(p.followers, { format: formatCompactNumber })} />
                   <MiniStat label="ER" value={formatEngagementRate(p.engagementRate)} />
@@ -224,10 +224,10 @@ export default function SocialMediaAudit() {
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle className="w-4 h-4 text-[#D97706]" />
           <h2 className="font-sans text-sm font-semibold">Detected issues</h2>
-          <span className="text-[11px] text-white/40">{(audit?.issues || []).length}</span>
+          <span className="text-[11px] text-[#94A3B8]">{(audit?.issues || []).length}</span>
         </div>
         {(audit?.issues || []).length === 0 ? (
-          <p className="text-sm text-white/50 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#14B8A6]" /> No issues detected on the last audit.</p>
+          <p className="text-sm text-[#64748B] flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#14B8A6]" /> No issues detected on the last audit.</p>
         ) : (
           <div className="space-y-2">
             {audit.issues.map((iss) => (
@@ -256,9 +256,9 @@ export default function SocialMediaAudit() {
                     </Link>
                   )}
                 </div>
-                <p className="text-[12px] text-white/65 mt-2">{iss.description}</p>
-                <p className="text-[11px] text-white/40 mt-1">Recommended: {iss.recommended_action}</p>
-                <p className="font-mono text-[9px] text-white/30 mt-1">{iss.detected_at}</p>
+                <p className="text-[12px] text-[#64748B] mt-2">{iss.description}</p>
+                <p className="text-[11px] text-[#94A3B8] mt-1">Recommended: {iss.recommended_action}</p>
+                <p className="font-mono text-[9px] text-[#94A3B8] mt-1">{iss.detected_at}</p>
               </div>
             ))}
           </div>
@@ -269,7 +269,7 @@ export default function SocialMediaAudit() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <h2 className="font-sans text-sm font-semibold mb-2">Recommendations</h2>
-          <ul className="space-y-1.5 text-[12px] text-white/65 list-disc pl-4">
+          <ul className="space-y-1.5 text-[12px] text-[#64748B] list-disc pl-4">
             {(audit?.recommendations || []).length
               ? audit.recommendations.map((r, i) => <li key={i}>{r}</li>)
               : <li>Keep syncing socials weekly for fresher audits.</li>}
@@ -277,7 +277,7 @@ export default function SocialMediaAudit() {
         </section>
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <h2 className="font-sans text-sm font-semibold mb-2">Warnings</h2>
-          <ul className="space-y-1.5 text-[12px] text-white/65 list-disc pl-4">
+          <ul className="space-y-1.5 text-[12px] text-[#64748B] list-disc pl-4">
             {(audit?.warnings || []).length
               ? audit.warnings.map((r, i) => <li key={i}>{r}</li>)
               : <li>No warnings.</li>}
@@ -299,12 +299,12 @@ export default function SocialMediaAudit() {
               >
                 <div className="flex justify-between gap-2 text-xs">
                   <span className={STATUS_COLOR[h.status]?.split(" ")[0] || ""}>{h.status}</span>
-                  <span className="tabular-nums text-white/45">Score {h.score}</span>
+                  <span className="tabular-nums text-[#94A3B8]">Score {h.score}</span>
                 </div>
-                <p className="font-mono text-[9px] text-white/35 mt-0.5">{h.created_at}</p>
+                <p className="font-mono text-[9px] text-[#94A3B8] mt-0.5">{h.created_at}</p>
               </button>
             ))}
-            {!history.length && <p className="text-sm text-white/40">No previous audits yet.</p>}
+            {!history.length && <p className="text-sm text-[#94A3B8]">No previous audits yet.</p>}
           </div>
         </section>
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
@@ -316,14 +316,14 @@ export default function SocialMediaAudit() {
             {tickets.map((t) => (
               <Link key={t.id} to="/support" className="block rounded-lg border border-white/10 px-3 py-2 hover:border-white/25">
                 <div className="flex justify-between gap-2 text-xs">
-                  <span className="font-mono text-white/50">{t.number}</span>
-                  <span className="uppercase tracking-wider text-white/45">{t.status}</span>
+                  <span className="font-mono text-[#64748B]">{t.number}</span>
+                  <span className="uppercase tracking-wider text-[#94A3B8]">{t.status}</span>
                 </div>
                 <p className="text-[12px] mt-0.5 truncate">{t.subject}</p>
-                <p className="font-mono text-[9px] text-white/35">{t.priority} · {t.updated_at || t.created_at}</p>
+                <p className="font-mono text-[9px] text-[#94A3B8]">{t.priority} · {t.updated_at || t.created_at}</p>
               </Link>
             ))}
-            {!tickets.length && <p className="text-sm text-white/40">No social-audit tickets yet. Raise one from an issue above.</p>}
+            {!tickets.length && <p className="text-sm text-[#94A3B8]">No social-audit tickets yet. Raise one from an issue above.</p>}
           </div>
         </section>
       </div>
@@ -334,9 +334,9 @@ export default function SocialMediaAudit() {
 function SummaryCard({ label, value, hint, className = "" }) {
   return (
     <div className={`rounded-2xl border border-white/10 bg-white/[0.03] p-3 min-w-0 ${className}`}>
-      <p className="text-[10px] uppercase tracking-wider text-white/45">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-[#94A3B8]">{label}</p>
       <p className="font-sans text-lg font-bold tabular-nums mt-1 truncate">{value}</p>
-      {hint ? <p className="text-[10px] text-white/40 mt-0.5">{hint}</p> : null}
+      {hint ? <p className="text-[10px] text-[#94A3B8] mt-0.5">{hint}</p> : null}
     </div>
   );
 }
@@ -345,7 +345,7 @@ function MiniStat({ label, value }) {
   return (
     <div>
       <p className="font-sans text-[11px] font-semibold tabular-nums truncate">{value}</p>
-      <p className="font-mono text-[8px] uppercase text-white/35">{label}</p>
+      <p className="font-mono text-[8px] uppercase text-[#94A3B8]">{label}</p>
     </div>
   );
 }

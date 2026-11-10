@@ -58,7 +58,7 @@ export function FloatingChatWidget() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-sans text-sm font-bold tracking-wide truncate">Messages</h3>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/50">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[#64748B]">
                     {chattingProfile ? "Chat with profile" : "Inbox"}
                   </p>
                 </div>

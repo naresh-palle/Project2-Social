@@ -49,7 +49,7 @@ export default function ForgotPassword() {
               <p className="font-mono text-sm text-[#14B8A6]">
                 Check your inbox for a password reset link. The link expires in 1 hour.
               </p>
-              <Link to="/login" className="inline-flex items-center gap-2 mt-4 font-mono text-xs uppercase tracking-widest text-white/70 hover:text-white">
+              <Link to="/login" className="inline-flex items-center gap-2 mt-4 font-mono text-xs uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B]">
                 ← Back to Sign In
               </Link>
             </div>
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
               >
                 {loading ? "Sending…" : "Send Reset Link"} <ArrowRight className="w-4 h-4" />
               </button>
-              <Link to="/login" className="block text-center font-mono text-xs opacity-60 hover:text-white">
+              <Link to="/login" className="block text-center font-mono text-xs opacity-60 hover:text-[#1E1B4B]">
                 ← Back to Sign In
               </Link>
             </form>

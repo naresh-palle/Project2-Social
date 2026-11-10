@@ -72,16 +72,16 @@ export function CreatorDashboard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-sans text-[11px] text-white/50 truncate">{greeting()}</p>
+          <p className="font-sans text-[11px] text-[#64748B] truncate">{greeting()}</p>
           <h1 className="font-sans text-xl sm:text-2xl font-bold tracking-tight truncate">{name}</h1>
-          <p className="font-sans text-[11px] text-white/45 truncate">
+          <p className="font-sans text-[11px] text-[#94A3B8] truncate">
             @{handle} · Creator studio
             {locationLabel ? ` · ${locationLabel}` : ""}
           </p>
         </div>
         <Link
           to="/profile"
-          className="shrink-0 hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-white/60 hover:text-white border border-white/15 rounded-full px-3 py-1.5"
+          className="shrink-0 hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-[#64748B] hover:text-[#1E1B4B] border border-white/15 rounded-full px-3 py-1.5"
         >
           Profile <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
@@ -91,24 +91,24 @@ export function CreatorDashboard({
 
       {/* 2) Earnings + Pitches / Campaigns in the banner */}
       <section className="theme-keep-dark relative overflow-hidden rounded-3xl p-5 sm:p-6 text-white bg-gradient-to-br from-[#7C3AED] via-[#5C6FE8] to-[#14213D] shadow-[0_18px_40px_-18px_rgba(92,111,232,0.48)]">
-        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/70">This month’s earnings</p>
+        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-[#64748B]">This month’s earnings</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight">{formatMoney(earned)}</p>
-            <p className="mt-1 text-[12px] text-white/70">
+            <p className="mt-1 text-[12px] text-[#64748B]">
               {pendingCollabs} collab{pendingCollabs === 1 ? "" : "s"} pending · {activeCampaigns} active
             </p>
           </div>
           <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
             <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
-              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Pitches</p>
+              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Pitches</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{pitches}</p>
-              <p className="text-[10px] text-white/55 mt-0.5">applications</p>
+              <p className="text-[10px] text-[#64748B] mt-0.5">applications</p>
             </div>
             <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
-              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-white/65">Campaigns</p>
+              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Campaigns</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{openBriefs || activeCampaigns}</p>
-              <p className="text-[10px] text-white/55 mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
+              <p className="text-[10px] text-[#64748B] mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
             </div>
             <Link
               to="/wallet"
@@ -124,7 +124,7 @@ export function CreatorDashboard({
       <section className="min-w-0" data-testid="overall-analytics">
         <div className="mb-2">
           <h2 className="font-sans text-sm font-semibold">Overall analytics</h2>
-          <p className="text-[11px] text-white/45">
+          <p className="text-[11px] text-[#94A3B8]">
             Followers, engagement, views &amp; reach from connected socials
           </p>
         </div>
@@ -179,11 +179,11 @@ function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-3.5 min-w-0" title={title}>
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[10px] uppercase tracking-wider text-white/45 truncate">{label}</span>
-        <Icon className="w-3.5 h-3.5 text-white/35 shrink-0" />
+        <span className="text-[10px] uppercase tracking-wider text-[#94A3B8] truncate">{label}</span>
+        <Icon className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
       </div>
       <p className="font-sans text-lg sm:text-xl font-bold tabular-nums tracking-tight truncate">{value}</p>
-      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#14B8A6]" : warn ? "text-[#D97706]" : "text-white/45"}`}>
+      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#14B8A6]" : warn ? "text-[#D97706]" : "text-[#94A3B8]"}`}>
         {hint}
       </p>
     </div>
@@ -197,11 +197,11 @@ function Action({ to, icon: Icon, label, hint }) {
       className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2.5 hover:border-white/25 transition-colors min-w-0"
     >
       <span className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-        <Icon className="w-4 h-4 text-white/70" />
+        <Icon className="w-4 h-4 text-[#64748B]" />
       </span>
       <span className="min-w-0">
         <span className="block font-sans text-sm font-semibold truncate">{label}</span>
-        <span className="block text-[10px] text-white/45 truncate">{hint}</span>
+        <span className="block text-[10px] text-[#94A3B8] truncate">{hint}</span>
       </span>
     </Link>
   );

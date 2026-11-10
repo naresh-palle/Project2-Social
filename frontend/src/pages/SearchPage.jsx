@@ -179,7 +179,7 @@ export default function SearchPage() {
                   <Clock className="w-3.5 h-3.5" /> Recent
                 </h3>
                 {recent.length > 0 && (
-                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-white uppercase transition-colors">
+                  <button type="button" onClick={clearRecent} className="font-mono text-[10px] opacity-50 hover:text-[#1E1B4B] uppercase transition-colors">
                     Clear
                   </button>
                 )}
@@ -197,7 +197,7 @@ export default function SearchPage() {
                     >
                       <span className="truncate pr-2">{r.query}</span>
                       {r.kind && (
-                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-white/60 rounded-3xl">
+                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-[#64748B] rounded-3xl">
                           {r.kind}
                         </span>
                       )}

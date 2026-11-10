@@ -55,7 +55,7 @@ export function AIAssistant() {
         <button
           key={i}
           onClick={() => setInput(prompt)}
-          className="font-sans text-[10px] bg-white/[0.05] border border-white/10 hover:bg-white/10 text-white/70 hover:text-white px-3 py-1.5 rounded-3xl transition-colors truncate max-w-[200px]"
+          className="font-sans text-[10px] bg-white/[0.05] border border-white/10 hover:bg-white/10 text-[#64748B] hover:text-[#1E1B4B] px-3 py-1.5 rounded-3xl transition-colors truncate max-w-[200px]"
         >
           {prompt}
         </button>
@@ -85,13 +85,13 @@ export function AIAssistant() {
                     AI Assistant
                     <span className="w-2 h-2 rounded-full bg-[#14B8A6] shadow-[0_0_8px_#14B8A6]"></span>
                   </h3>
-                  <p className="font-sans text-[10px] text-white/50">Online and ready to help</p>
+                  <p className="font-sans text-[10px] text-[#64748B]">Online and ready to help</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-[#64748B] hover:text-[#1E1B4B] transition-colors"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -106,7 +106,7 @@ export function AIAssistant() {
                     className={`max-w-[85%] rounded-2xl p-3 ${
                       m.role === "user"
                         ? "bg-[#FF2D55] text-white rounded-tr-sm"
-                        : "bg-white/[0.05] border border-white/10 text-white/90 rounded-tl-sm"
+                        : "bg-white/[0.05] border border-white/10 text-[#1E1B4B]/90 rounded-tl-sm"
                     }`}
                   >
                     <p className="font-sans text-xs leading-relaxed">{m.content}</p>

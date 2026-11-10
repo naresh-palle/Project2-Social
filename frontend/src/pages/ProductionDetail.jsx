@@ -92,7 +92,7 @@ export default function ProductionDetail() {
                   In-House Team
                 </span>
               ) : (
-                <span className="font-mono text-[9px] uppercase tracking-widest text-white/45 border border-white/15 px-2 py-0.5 rounded-full">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border border-white/15 px-2 py-0.5 rounded-full">
                   External
                 </span>
               )}
@@ -101,13 +101,13 @@ export default function ProductionDetail() {
               </span>
             </div>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">{member.name}</h1>
-            <p className="font-mono text-[9px] uppercase tracking-widest text-white/45 mt-1">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-1">
               {member.production_role}
               {formatUserLocation(member) ? (
                 <span className="inline-flex items-center gap-1 ml-2"><MapPin className="w-3 h-3" />{formatUserLocation(member)}</span>
               ) : null}
             </p>
-            <p className="font-sans text-sm text-white/70 mt-3 max-w-2xl">{member.description || member.bio}</p>
+            <p className="font-sans text-sm text-[#64748B] mt-3 max-w-2xl">{member.description || member.bio}</p>
           </div>
           <button
             type="button"
@@ -129,7 +129,7 @@ export default function ProductionDetail() {
             ["Availability", member.availability || "—"],
           ].map(([label, val]) => (
             <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
-              <p className="font-mono text-[8px] uppercase tracking-widest text-white/40">{label}</p>
+              <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
               <p className="font-sans text-base font-bold mt-0.5">{val}</p>
             </div>
           ))}
@@ -139,7 +139,7 @@ export default function ProductionDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-7 space-y-5">
           <section>
-            <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Services</h2>
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Services</h2>
             <div className="flex flex-wrap gap-2">
               {(member.services || []).map((s) => (
                 <span key={s} className="px-2.5 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">
@@ -149,11 +149,11 @@ export default function ProductionDetail() {
             </div>
           </section>
           <section>
-            <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Languages</h2>
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Languages</h2>
             <p className="font-sans text-sm">{(member.languages || []).join(", ") || "—"}</p>
           </section>
           <section>
-            <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Portfolio</h2>
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Portfolio</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {(member.portfolio || []).map((src, i) => (
                 <img key={i} src={src} alt="" className="aspect-video object-cover rounded-xl border border-white/10" />
@@ -163,12 +163,12 @@ export default function ProductionDetail() {
           </section>
           {(member.previous_work || []).length > 0 && (
             <section>
-              <h2 className="font-mono text-[10px] tracking-widest uppercase text-white/45 mb-2">Previous work</h2>
+              <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Previous work</h2>
               <ul className="space-y-2">
                 {member.previous_work.map((w, i) => (
                   <li key={i} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
                     <span className="font-semibold">{w.title}</span>
-                    <span className="text-white/45"> · {w.client} · {w.year}</span>
+                    <span className="text-[#94A3B8]"> · {w.client} · {w.year}</span>
                   </li>
                 ))}
               </ul>

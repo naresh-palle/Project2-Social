@@ -171,11 +171,11 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
             <span className="block truncate">{niches.join(" · ") || c.category || "Influencer"}</span>
             {city ? <span className="block truncate mt-0.5">{city}</span> : null}
           </div>
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[9px] uppercase tracking-widest text-white/45 pt-0.5">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] pt-0.5">
             {er != null && Number.isFinite(er) ? <span className="text-[#14B8A6]/90">{er.toFixed(1)}% ER</span> : null}
             {rate != null ? <span>From ₹{rate.toLocaleString()}</span> : null}
             {kpis.avg_reach != null ? <span>Reach {formatCompact(kpis.avg_reach)}</span> : null}
-            {kpis.avg_roas != null ? <span className="text-white/60">{kpis.avg_roas}x ROAS</span> : null}
+            {kpis.avg_roas != null ? <span className="text-[#64748B]">{kpis.avg_roas}x ROAS</span> : null}
           </div>
         </div>
       </Link>
@@ -231,11 +231,11 @@ function BrandDirectoryCard({ brand, onWishlist }) {
         )}
         <div className="min-w-0 flex-1">
           <h3 className="font-sans font-semibold leading-snug break-words hover:italic">{b.company || b.name}</h3>
-          <p className="font-mono text-[9px] uppercase tracking-widest text-white/45 mt-1 leading-relaxed break-words">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-1 leading-relaxed break-words">
             {industry}
           </p>
           {location ? (
-            <p className="font-mono text-[9px] uppercase tracking-widest text-white/35 mt-0.5 leading-relaxed break-words">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mt-0.5 leading-relaxed break-words">
               {location}
             </p>
           ) : null}
@@ -246,38 +246,38 @@ function BrandDirectoryCard({ brand, onWishlist }) {
         <span className={`font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-full border ${
           (b.active_campaigns || 0) > 0
             ? "border-[#14B8A6]/40 text-[#14B8A6]"
-            : "border-white/15 text-white/50"
+            : "border-white/15 text-[#64748B]"
         }`}>
           {status}
         </span>
         {b.rating != null ? (
-          <span className="font-mono text-[8px] uppercase tracking-widest text-white/45">★ {Number(b.rating).toFixed(1)}</span>
+          <span className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">★ {Number(b.rating).toFixed(1)}</span>
         ) : null}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 text-center">
         <div>
           <div className="font-bold text-sm tabular-nums">{b.active_campaigns || 0}</div>
-          <div className="font-mono text-[8px] uppercase text-white/40 leading-tight mt-0.5">Active</div>
+          <div className="font-mono text-[8px] uppercase text-[#94A3B8] leading-tight mt-0.5">Active</div>
         </div>
         <div>
           <div className="font-bold text-sm tabular-nums">{b.previous_campaigns || 0}</div>
-          <div className="font-mono text-[8px] uppercase text-white/40 leading-tight mt-0.5">Past</div>
+          <div className="font-mono text-[8px] uppercase text-[#94A3B8] leading-tight mt-0.5">Past</div>
         </div>
         <div>
           <div className="font-bold text-sm tabular-nums">{b.creators_hired || 0}</div>
-          <div className="font-mono text-[8px] uppercase text-white/40 leading-tight mt-0.5">Hired</div>
+          <div className="font-mono text-[8px] uppercase text-[#94A3B8] leading-tight mt-0.5">Hired</div>
         </div>
         <div>
           <div className="font-bold text-sm tabular-nums truncate px-0.5">
             {b.avg_budget != null ? `₹${formatCompact(b.avg_budget)}` : "—"}
           </div>
-          <div className="font-mono text-[8px] uppercase text-white/40 leading-tight mt-0.5">Avg budget</div>
+          <div className="font-mono text-[8px] uppercase text-[#94A3B8] leading-tight mt-0.5">Avg budget</div>
         </div>
       </div>
 
       {b.bio ? (
-        <p className="mt-3 font-sans text-xs text-white/55 leading-snug line-clamp-2">{b.bio}</p>
+        <p className="mt-3 font-sans text-xs text-[#64748B] leading-snug line-clamp-2">{b.bio}</p>
       ) : null}
 
       <div className="mt-auto pt-4 flex flex-wrap gap-2">
@@ -334,7 +334,7 @@ const emptyBrandFilters = () => ({
 function FilterField({ label, children }) {
   return (
     <div className="min-w-0">
-      <label className="font-mono text-[8px] uppercase tracking-widest text-white/45 block mb-1">{label}</label>
+      <label className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8] block mb-1">{label}</label>
       {children}
     </div>
   );
@@ -723,16 +723,16 @@ export default function Marketplace() {
         <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 flex flex-wrap gap-x-5 gap-y-2 items-center">
           <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55] font-bold">Creator payments</span>
           <span className="font-sans text-xs opacity-70">
-            Pending <strong className="text-white">₹{Number(paySummary.pending_payments ?? paySummary.escrow_held ?? 0).toLocaleString()}</strong>
+            Pending <strong className="text-[#1E1B4B]">₹{Number(paySummary.pending_payments ?? paySummary.escrow_held ?? 0).toLocaleString()}</strong>
             {paySummary.pending_payments_count != null ? (
               <span className="opacity-50"> · {paySummary.pending_payments_count} open</span>
             ) : null}
           </span>
           <span className="font-sans text-xs opacity-70">
-            Paid <strong className="text-white">₹{Number(paySummary.paid_to_creators ?? 0).toLocaleString()}</strong>
+            Paid <strong className="text-[#1E1B4B]">₹{Number(paySummary.paid_to_creators ?? 0).toLocaleString()}</strong>
           </span>
           <span className="font-sans text-xs opacity-70">
-            Total spend <strong className="text-white">₹{Number(paySummary.total_spend ?? paySummary.paid_to_creators ?? 0).toLocaleString()}</strong>
+            Total spend <strong className="text-[#1E1B4B]">₹{Number(paySummary.total_spend ?? paySummary.paid_to_creators ?? 0).toLocaleString()}</strong>
           </span>
           <Link to="/wallet" className="ml-auto font-mono text-[9px] uppercase tracking-widest text-[#FF2D55] hover:underline">
             Wallet →
@@ -806,7 +806,7 @@ export default function Marketplace() {
                   </div>
                   <div>
                     <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55] mb-2">Location</p>
-                    <p className="font-sans text-[10px] text-white/45 mb-2">
+                    <p className="font-sans text-[10px] text-[#94A3B8] mb-2">
                       Defaults to your city/state. Choose Any or another city/state to widen search.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -846,7 +846,7 @@ export default function Marketplace() {
             </Popover>
 
             <div className="flex items-center gap-1.5 shrink-0 min-w-0">
-              <span className="font-mono text-[8px] uppercase tracking-widest text-white/40 hidden sm:inline">Sort by</span>
+              <span className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8] hidden sm:inline">Sort by</span>
               <select
                 value={filters.sort}
                 onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
@@ -858,7 +858,7 @@ export default function Marketplace() {
                 ))}
               </select>
             </div>
-            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-widest text-white/35 truncate max-w-[12rem]">
+            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] truncate max-w-[12rem]">
               {sortLabel}
             </span>
           </>
@@ -912,7 +912,7 @@ export default function Marketplace() {
               </PopoverContent>
             </Popover>
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className="font-mono text-[8px] uppercase tracking-widest text-white/40 hidden sm:inline">Sort by</span>
+              <span className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8] hidden sm:inline">Sort by</span>
               <select
                 value={brandFilters.sort}
                 onChange={(e) => setBrandFilters((f) => ({ ...f, sort: e.target.value }))}
@@ -921,7 +921,7 @@ export default function Marketplace() {
                 {BRAND_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
-            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-widest text-white/35">{brandSortLabel}</span>
+            <span className="hidden md:inline font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{brandSortLabel}</span>
           </>
         ) : null}
 
@@ -1003,8 +1003,8 @@ export default function Marketplace() {
             </select>
             <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Apply</button>
           </div>
-          <p className="font-sans text-[11px] text-white/45">
-            Showing talent near <span className="text-white/80">{prodCity || "any city"}</span>
+          <p className="font-sans text-[11px] text-[#94A3B8]">
+            Showing talent near <span className="text-[#475569]">{prodCity || "any city"}</span>
             {user?.city ? " · defaults to your profile city" : ""}
           </p>
         </div>
@@ -1022,7 +1022,7 @@ export default function Marketplace() {
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <button type="button" onClick={loadCampaigns} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find campaigns</button>
-          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
+          <span className="font-sans text-[11px] text-[#94A3B8]">Defaults to your profile location</span>
         </div>
       ) : null}
 
@@ -1046,7 +1046,7 @@ export default function Marketplace() {
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <button type="button" onClick={loadBrands} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find brands</button>
-          <span className="font-sans text-[11px] text-white/45">Defaults to your profile location</span>
+          <span className="font-sans text-[11px] text-[#94A3B8]">Defaults to your profile location</span>
         </div>
       ) : null}
 
@@ -1119,12 +1119,12 @@ export default function Marketplace() {
                     <span className="font-sans text-xs font-semibold tracking-wide text-[#FF2D55]">{m.production_category_label}</span>
                   </div>
                   <h3 className="font-sans font-semibold truncate hover:italic">{m.name}</h3>
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-white/40 truncate">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] truncate">
                     {m.production_role}{formatUserLocation(m) ? ` · ${formatUserLocation(m)}` : ""}
                   </p>
                 </div>
               </Link>
-              <div className="flex items-center justify-between mt-3 font-mono text-[9px] uppercase tracking-widest text-white/45">
+              <div className="flex items-center justify-between mt-3 font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                 <span>{m.base_rate != null ? `₹${Number(m.base_rate).toLocaleString()}` : "Quote"}</span>
                 <span>{m.rating != null ? `★ ${m.rating}` : "—"}</span>
                 <span>{m.availability || "—"}</span>
