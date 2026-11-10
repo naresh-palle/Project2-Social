@@ -205,7 +205,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] bg-[#FFFFFF] border border-white/15 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-y-auto overflow-x-hidden my-2"
+          className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] bg-[#FFFFFF] border border-[#1E1B4B]/10 px-4 py-3 md:px-5 md:py-4 rounded-3xl shadow-2xl relative overflow-y-auto overflow-x-hidden my-2"
         >
           <div className="h-1 w-full bg-gradient-to-r from-[#FF2D55] via-purple-500 to-[#14B8A6] absolute top-0 left-0" />
 
@@ -218,7 +218,7 @@ export default function Login() {
           </h1>
 
           {/* LOGIN METHOD SWITCHER (Password vs Mobile OTP) */}
-          <div className="flex bg-white/5 border border-white/10 p-0.5 rounded-xs mt-3 font-sans text-[11px]">
+          <div className="flex bg-[#F7F8FC] border border-[#1E1B4B]/08 p-0.5 rounded-xs mt-3 font-sans text-[11px]">
             <button
               type="button"
               onClick={() => { setMode("password"); setErr(""); }}
@@ -316,7 +316,7 @@ export default function Login() {
                     maxLength={6}
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
-                    className="mt-1 w-full bg-black/80 border-2 border-[#14B8A6] p-3 font-sans text-center text-2xl tracking-[0.4em] text-[#14B8A6] focus:outline-none"
+                    className="mt-1 w-full bg-[#F0FDFA] border-2 border-[#14B8A6] p-3 font-sans text-center text-2xl tracking-[0.4em] text-[#0F766E] focus:outline-none rounded-xl"
                     placeholder="000000"
                   />
                 </div>
@@ -333,10 +333,10 @@ export default function Login() {
             </form>
 
               <div className={`mt-3 space-y-2 ${loading ? "pointer-events-none opacity-50" : ""}`}>
-                <div className="flex items-center gap-3 opacity-50">
-                  <div className="h-px bg-[#F7F8FC]/20 flex-1" />
-                  <span className="font-sans text-[10px] tracking-widest uppercase">Or continue with</span>
-                  <div className="h-px bg-[#F7F8FC]/20 flex-1" />
+                <div className="flex items-center gap-3">
+                  <div className="h-px bg-[#1E1B4B]/12 flex-1" />
+                  <span className="font-sans text-[10px] tracking-widest uppercase text-[#64748B]">Or continue with</span>
+                  <div className="h-px bg-[#1E1B4B]/12 flex-1" />
                 </div>
                 <SocialAuthButtons
                   mode="signin"
@@ -359,7 +359,7 @@ export default function Login() {
                   Mobile Number (+91 India)
                 </label>
                 <div className="flex gap-2 mt-0.5">
-                  <span className="bg-white/5 border border-white/10 px-2.5 py-1.5 font-sans text-xs flex items-center text-[#64748B]">+91</span>
+                  <span className="bg-[#F7F8FC] border border-[#1E1B4B]/10 px-2.5 py-1.5 font-sans text-xs flex items-center text-[#64748B] rounded-lg">+91</span>
                   <input
                     type="tel"
                     required
@@ -391,7 +391,7 @@ export default function Login() {
                       maxLength={6}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="w-full bg-black/80 border border-[#14B8A6] py-2 font-sans text-center text-xl tracking-[0.4em] text-[#14B8A6] focus:outline-none"
+                      className="w-full bg-[#F0FDFA] border border-[#14B8A6] py-2 font-sans text-center text-xl tracking-[0.4em] text-[#0F766E] focus:outline-none rounded-xl"
                       placeholder="123456"
                     />
                   </div>
@@ -444,7 +444,7 @@ export default function Login() {
             </form>
           )}
 
-          <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center font-sans text-[10px] opacity-60">
+          <div className="mt-2 pt-2 border-t border-[#1E1B4B]/08 flex justify-between items-center font-sans text-[10px] opacity-60">
             <Link to="/register" className="hover:text-[#1E1B4B]">Need an account? Register here →</Link>
           </div>
         </motion.div>

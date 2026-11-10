@@ -86,7 +86,7 @@ export default function Billing() {
 
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] pb-24" data-testid="billing-page">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#1E1B4B]/08 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="billing" className="w-3.5 h-3.5" /> Billing
@@ -122,7 +122,7 @@ export default function Billing() {
             key={b}
             type="button"
             onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("box", b); return n; })}
-            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15 text-[#64748B]"}`}
+            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10 text-[#64748B]"}`}
           >
             {b}
           </button>
@@ -131,7 +131,7 @@ export default function Billing() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
         {cardOrder.map(([label, v]) => (
-          <div key={label} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3">
+          <div key={label} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] p-3">
             <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
             <div className="font-sans text-lg font-bold tabular-nums mt-1">{inr(v?.amount)}</div>
             <div className="font-mono text-[9px] text-[#94A3B8]">{v?.count || 0}</div>
@@ -161,15 +161,15 @@ export default function Billing() {
       ) : null}
 
       <div className="flex flex-wrap gap-2 mb-3">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoice, client, campaign" className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-56 max-w-full min-w-0" />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#FFFFFF] border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoice, client, campaign" className="bg-transparent border border-[#1E1B4B]/10 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-56 max-w-full min-w-0" />
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-auto max-w-full">
           <option value="">All statuses</option>
           {STATUS.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
         </select>
         <span className="sm:ml-auto font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">{total} invoices</span>
       </div>
 
-      <div className="rounded-2xl border border-white/10 table-scroll">
+      <div className="rounded-2xl border border-[#1E1B4B]/08 table-scroll">
         <table className="w-full min-w-[44rem] text-left text-xs">
           <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
             <tr>
@@ -182,7 +182,7 @@ export default function Billing() {
             {rows.length === 0 ? (
               <tr><td colSpan={9} className="p-8 text-center text-[#94A3B8]">No invoices yet. Create one or generate from a completed campaign.</td></tr>
             ) : rows.map((r) => (
-              <tr key={r.id} className="border-t border-white/10">
+              <tr key={r.id} className="border-t border-[#1E1B4B]/08">
                 <td className="p-3 font-mono text-[11px]">{r.invoice_number}</td>
                 <td className="p-3">{r.client}</td>
                 <td className="p-3 text-[#64748B]">{r.campaign || "—"}</td>

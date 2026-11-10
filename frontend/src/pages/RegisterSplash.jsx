@@ -30,7 +30,7 @@ export default function RegisterSplash() {
           className="w-full max-w-2xl mx-auto"
         >
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-[#FF2D55] font-bold mb-3">
+            <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-1.5 rounded-full text-[#FF2D55] font-bold mb-3">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> flugr Entry Gate
             </div>
             <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15]">
@@ -72,7 +72,7 @@ export default function RegisterSplash() {
                 to={`/register/${r.k}`}
                 state={googleState || undefined}
                 data-testid={`splash-door-${r.k}`}
-                className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#FFFFFF]/90 backdrop-blur-xl border border-white/15 ${r.bgHover} transition-all duration-500 rounded-3xl shadow-xl`}
+                className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#FFFFFF]/90 backdrop-blur-xl border border-[#1E1B4B]/10 ${r.bgHover} transition-all duration-500 rounded-3xl shadow-xl`}
               >
                 {/* Accent glow line on hover */}
                 <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#FF2D55] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -82,7 +82,7 @@ export default function RegisterSplash() {
                     <span className="font-mono text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold">
                       DOOR {r.num}
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 text-[#64748B] rounded-xs">
+                    <span className="font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 bg-[#F7F8FC] border border-[#1E1B4B]/08 text-[#64748B] rounded-xs">
                       {r.badge}
                     </span>
                   </div>

@@ -112,9 +112,9 @@ export function ImageCropModal({
     "Apply crop";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-4">
-      <div className="w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto bg-[#FFFFFF] border border-white/20 shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-[#FFFFFF] z-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1E1B4B]/45 p-3 sm:p-4">
+      <div className="w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto bg-[#FFFFFF] border border-[#1E1B4B]/12 shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E1B4B]/08 sticky top-0 bg-[#FFFFFF] z-10">
           <h3 className="font-editorial text-xl truncate pr-2">{title}</h3>
           <button
             type="button"
@@ -158,7 +158,7 @@ export function ImageCropModal({
               type="button"
               onClick={onCancel}
               disabled={busy}
-              className="btn-solid flex-1 justify-center py-3 bg-white/10 text-white text-sm disabled:opacity-40"
+              className="flex-1 justify-center py-3 bg-[#F7F8FC] border border-[#1E1B4B]/12 text-[#1E1B4B] text-sm disabled:opacity-40 rounded-xl font-sans font-semibold inline-flex items-center gap-2"
             >
               Cancel
             </button>

@@ -367,7 +367,7 @@ export default function CampaignDetail() {
                       </button>
                     )}
                     {c.status === "completed" && (
-                      <button onClick={() => setShowRehire(true)} className="btn-solid bg-transparent border border-white/20 hover:border-white/50 text-white">
+                      <button onClick={() => setShowRehire(true)} className="btn-solid bg-transparent border border-[#1E1B4B]/12 hover:border-[#1E1B4B]/20 text-[#1E1B4B]">
                         <RotateCw className="w-4 h-4" /> Rehire {creatorName}
                       </button>
                     )}
@@ -413,7 +413,7 @@ export default function CampaignDetail() {
                           {m.avatar ? (
                             <img src={m.avatar} alt="" className="w-14 h-14 object-cover" />
                           ) : (
-                            <div className="w-14 h-14 bg-white/5 flex items-center justify-center font-editorial text-2xl italic">{m.name?.[0]}</div>
+                            <div className="w-14 h-14 bg-[#F7F8FC] flex items-center justify-center font-editorial text-2xl italic">{m.name?.[0]}</div>
                           )}
                         </div>
                         <div className="sm:col-span-2 md:col-span-4 min-w-0">
@@ -491,7 +491,7 @@ export default function CampaignDetail() {
                       data-testid="deliv-upload-doc"
                       disabled={delivUploading}
                       onClick={() => delivFileRef.current?.click()}
-                      className="btn-solid bg-white/5 border border-white/20 text-white hover:bg-white/10 !px-4 !py-2"
+                      className="bg-[#F7F8FC] border border-[#1E1B4B]/12 text-[#1E1B4B] hover:bg-[#EEF2FF] !px-4 !py-2 rounded-full font-sans font-bold text-xs uppercase tracking-wider"
                     >
                       {delivUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                       {delivUploading ? "Uploading…" : "Upload PDF / Word / Excel"}
@@ -543,7 +543,7 @@ export default function CampaignDetail() {
           <div className="col-span-12 md:col-span-5">
             {/* Application (creator) */}
             {!isOwner && (
-              <div className="mb-8 hairline-t hairline-b hairline-l hairline-r p-6 bg-white/[0.02] rounded-2xl">
+              <div className="mb-8 hairline-t hairline-b hairline-l hairline-r p-6 bg-[#F8FAFC] rounded-2xl">
                 <h3 className="font-editorial text-3xl italic">Pitch this brief.</h3>
                 {!user ? (
                   <p className="mt-4 font-mono text-[11px] tracking-[0.22em] uppercase opacity-70">
@@ -583,7 +583,7 @@ export default function CampaignDetail() {
                         onChange={(e) => { setPitch(e.target.value); if (pitchErr) setPitchErr(""); }}
                         rows={5}
                         aria-invalid={!!pitchErr}
-                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] resize-none rounded-xl ${pitchErr ? "border-[#FF2D55]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] resize-none rounded-xl ${pitchErr ? "border-[#FF2D55]" : "border-[#1E1B4B]/08"}`}
                       />
                       {pitchErr ? <p className="text-[11px] text-[#FF2D55]">{pitchErr}</p> : null}
                     </div>
@@ -599,7 +599,7 @@ export default function CampaignDetail() {
                         value={rate}
                         onChange={(e) => { setRate(e.target.value); if (rateErr) setRateErr(""); }}
                         aria-invalid={!!rateErr}
-                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] text-lg rounded-xl ${rateErr ? "border-[#FF2D55]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] text-lg rounded-xl ${rateErr ? "border-[#FF2D55]" : "border-[#1E1B4B]/08"}`}
                       />
                       {rateErr ? <p className="text-[11px] text-[#FF2D55]">{rateErr}</p> : null}
                     </div>
@@ -621,7 +621,7 @@ export default function CampaignDetail() {
             )}
 
             {c.cover && (
-              <div className="w-full rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] p-2 mt-8">
+              <div className="w-full rounded-2xl overflow-hidden border border-[#1E1B4B]/06 bg-[#F8FAFC] p-2 mt-8">
                 <div className="aspect-square overflow-hidden rounded-xl bg-[#F7F8FC]">
                   <img src={c.cover} alt={c.title} className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
@@ -633,12 +633,12 @@ export default function CampaignDetail() {
 
       <AnimatePresence>
         {showRehire && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1B4B]/45 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#F7F8FC] border border-white/10 p-6 max-w-md w-full relative"
+              className="bg-[#F7F8FC] border border-[#1E1B4B]/08 p-6 max-w-md w-full relative"
             >
               <h3 className="font-editorial text-2xl italic">Rehire {creatorName}</h3>
               <p className="mt-4 font-sans text-sm opacity-80">

@@ -76,7 +76,7 @@ export default function Referrals() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1E1B4B]/08 pb-4 mb-5">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Referrals
@@ -95,7 +95,7 @@ export default function Referrals() {
           {stats.map(({ label, value, icon: Icon, accent }) => (
             <div
               key={label}
-              className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3"
+              className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="font-mono text-[9px] tracking-widest uppercase text-[#94A3B8] mb-1">{label}</div>
@@ -113,14 +113,14 @@ export default function Referrals() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="xl:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden"
+            className="xl:col-span-3 bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-5 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-40 h-40 bg-[#FF2D55]/15 blur-[80px] rounded-full pointer-events-none" />
             <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#64748B] mb-3 relative">
               Your referral code
             </h2>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-4 relative">
-              <div className="bg-black/40 border border-white/15 px-4 py-3 rounded-xl flex-1 text-center sm:text-left">
+              <div className="bg-[#F7F8FC] border border-[#1E1B4B]/10 px-4 py-3 rounded-xl flex-1 text-center sm:text-left">
                 <span className="font-mono text-xl md:text-2xl tracking-[0.18em] text-[#1E1B4B] font-semibold">
                   {loading ? "…" : refData?.code || "FLUGR-CODE"}
                 </span>
@@ -136,7 +136,7 @@ export default function Referrals() {
             </div>
 
             <textarea
-              className="w-full bg-black/30 border border-white/10 rounded-xl p-3 font-sans text-xs text-[#475569] resize-none h-20 focus:outline-none focus:border-white/25 transition-colors mb-3 relative"
+              className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-xl p-3 font-sans text-xs text-[#475569] resize-none h-20 focus:outline-none focus:border-[#1E1B4B]/12 transition-colors mb-3 relative"
               readOnly
               value={refData?.share_text || "Join me on flugr using my code!"}
             />
@@ -148,7 +148,7 @@ export default function Referrals() {
                   navigator.clipboard.writeText(refData?.link || "");
                   toast.success("Link copied!");
                 }}
-                className="flex-1 py-2.5 border border-white/15 hover:bg-white/5 rounded-xl font-mono text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-2.5 border border-[#1E1B4B]/10 hover:bg-[#F7F8FC] rounded-xl font-mono text-[10px] tracking-widest uppercase flex items-center justify-center gap-2 transition-colors"
               >
                 <Share2 className="w-3.5 h-3.5" /> Copy link
               </button>
@@ -170,7 +170,7 @@ export default function Referrals() {
             transition={{ delay: 0.05 }}
             className="xl:col-span-2 space-y-3"
           >
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 h-full">
+            <div className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-5 h-full">
               <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#64748B] mb-3">How it works</h3>
               <ol className="space-y-3">
                 {[
@@ -191,7 +191,7 @@ export default function Referrals() {
               </ol>
 
               {showApply && (
-                <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-4 border-t border-[#1E1B4B]/08">
                   <p className="font-sans text-xs text-[#64748B] mb-2">Have a friend’s code?</p>
                   <div className="flex gap-2">
                     <input
@@ -199,7 +199,7 @@ export default function Referrals() {
                       placeholder="Enter code"
                       value={applyCode}
                       onChange={(e) => setApplyCode(e.target.value)}
-                      className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 font-mono text-xs uppercase flex-1 focus:outline-none focus:border-[#FF2D55]"
+                      className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 font-mono text-xs uppercase flex-1 focus:outline-none focus:border-[#FF2D55]"
                     />
                     <button
                       type="button"
@@ -224,10 +224,10 @@ export default function Referrals() {
               {status?.referrals?.length || 0} total
             </span>
           </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl overflow-hidden">
             <div className="table-scroll">
               <table className="w-full min-w-[36rem] text-left font-sans text-sm">
-                <thead className="bg-white/[0.04] font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] border-b border-white/10">
+                <thead className="bg-[#F1F5F9] font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] border-b border-[#1E1B4B]/08">
                   <tr>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Joined</th>
@@ -238,7 +238,7 @@ export default function Referrals() {
                 <tbody className="divide-y divide-white/8">
                   {status?.referrals?.length > 0 ? (
                     status.referrals.map((ref, idx) => (
-                      <tr key={idx} className="hover:bg-white/[0.03] transition-colors">
+                      <tr key={idx} className="hover:bg-[#F8FAFC] transition-colors">
                         <td className="px-4 py-3 text-[#1E1B4B] font-medium">{ref.name || "Unknown"}</td>
                         <td className="px-4 py-3 text-[#64748B]">
                           {new Date(ref.joined_at || Date.now()).toLocaleDateString()}
@@ -250,7 +250,7 @@ export default function Referrals() {
                                 ? "bg-green-500/15 text-green-400 border border-green-500/25"
                                 : ref.status === "qualified"
                                   ? "bg-[#FF2D55]/15 text-[#FF2D55] border border-[#FF2D55]/25"
-                                  : "bg-white/8 text-[#64748B] border border-white/15"
+                                  : "bg-white/8 text-[#64748B] border border-[#1E1B4B]/10"
                             }`}
                           >
                             {ref.status || "pending"}

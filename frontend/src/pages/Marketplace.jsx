@@ -90,7 +90,7 @@ function DirectoryMediaTile({ src, fallbackSrc = "", className = "", priority = 
     setFailed(true);
   };
 
-  if (!active || failed) return <div className={`bg-white/10 ${className}`} />;
+  if (!active || failed) return <div className={`bg-[#EEF2FF] ${className}`} />;
   if (video) {
     return (
       <div className={`relative overflow-hidden ${className}`}>
@@ -138,10 +138,10 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
       className="relative flex flex-col h-full"
     >
       <Link to={`/creators/${c.id}`} className="group block flex-1 min-w-0">
-        <div className={`aspect-[3/4] overflow-hidden relative bg-white/[0.03] rounded-2xl border ${selected ? "border-[#FF2D55]" : "border-white/10"}`}>
-          <div className="absolute inset-0 grid grid-rows-[1fr_0.42fr] gap-px bg-white/10">
+        <div className={`aspect-[3/4] overflow-hidden relative bg-[#F8FAFC] rounded-2xl border ${selected ? "border-[#FF2D55]" : "border-[#1E1B4B]/08"}`}>
+          <div className="absolute inset-0 grid grid-rows-[1fr_0.42fr] gap-px bg-[#EEF2FF]">
             <DirectoryMediaTile src={hero} fallbackSrc={c.avatar || c.cover_photo || thumbs[0]} priority={index < 6} className="min-h-0 h-full w-full transition-transform duration-700 group-hover:scale-[1.04]" />
-            <div className="grid grid-cols-3 gap-px bg-white/10 min-h-0">
+            <div className="grid grid-cols-3 gap-px bg-[#EEF2FF] min-h-0">
               {thumbs.slice(0, 3).map((src, i) => (
                 <DirectoryMediaTile key={`${c.id}-t-${i}`} src={src} fallbackSrc={c.avatar || hero} className="min-h-0 h-full w-full" />
               ))}
@@ -179,14 +179,14 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
           </div>
         </div>
       </Link>
-      <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-3 gap-1.5">
-        <Link to={`/creators/${c.id}`} className="text-center px-1.5 py-2 rounded-full border border-white/15 text-[8px] uppercase tracking-widest hover:border-white/30">
+      <div className="mt-4 pt-3 border-t border-[#1E1B4B]/08 grid grid-cols-3 gap-1.5">
+        <Link to={`/creators/${c.id}`} className="text-center px-1.5 py-2 rounded-full border border-[#1E1B4B]/10 text-[8px] uppercase tracking-widest hover:border-[#1E1B4B]/15">
           View
         </Link>
         <button
           type="button"
           onClick={() => onWishlist?.(c)}
-          className="text-center px-1.5 py-2 rounded-full border border-white/15 text-[8px] uppercase tracking-widest inline-flex items-center justify-center gap-0.5 hover:border-white/30"
+          className="text-center px-1.5 py-2 rounded-full border border-[#1E1B4B]/10 text-[8px] uppercase tracking-widest inline-flex items-center justify-center gap-0.5 hover:border-[#1E1B4B]/15"
         >
           <Heart className={`w-2.5 h-2.5 shrink-0 ${c.wishlisted ? "fill-[#FF2D55] text-[#FF2D55]" : ""}`} /> Wishlist
         </button>
@@ -194,7 +194,7 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
           <button
             type="button"
             onClick={() => onSelect(c)}
-            className={`text-center px-1.5 py-2 rounded-full border text-[8px] uppercase tracking-widest ${selected ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15 hover:border-white/30"}`}
+            className={`text-center px-1.5 py-2 rounded-full border text-[8px] uppercase tracking-widest ${selected ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10 hover:border-[#1E1B4B]/15"}`}
           >
             {selected ? "Selected" : "Select"}
           </button>
@@ -220,12 +220,12 @@ function BrandDirectoryCard({ brand, onWishlist }) {
   const status = (b.active_campaigns || 0) > 0 ? "Hiring" : (b.previous_campaigns || 0) > 0 ? "Past campaigns" : "Open to collab";
 
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col min-h-[17rem]" data-testid={`brand-${b.id}`}>
+    <article className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 flex flex-col min-h-[17rem]" data-testid={`brand-${b.id}`}>
       <Link to={`/brands/${b.id}`} className="flex gap-3 min-w-0">
         {b.avatar ? (
-          <img src={b.avatar} alt="" className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0" />
+          <img src={b.avatar} alt="" className="w-14 h-14 rounded-xl object-cover border border-[#1E1B4B]/08 shrink-0" />
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center font-bold shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-[#EEF2FF] flex items-center justify-center font-bold shrink-0">
             {(b.company || b.name || "?")[0]}
           </div>
         )}
@@ -246,7 +246,7 @@ function BrandDirectoryCard({ brand, onWishlist }) {
         <span className={`font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-full border ${
           (b.active_campaigns || 0) > 0
             ? "border-[#14B8A6]/40 text-[#14B8A6]"
-            : "border-white/15 text-[#64748B]"
+            : "border-[#1E1B4B]/10 text-[#64748B]"
         }`}>
           {status}
         </span>
@@ -281,13 +281,13 @@ function BrandDirectoryCard({ brand, onWishlist }) {
       ) : null}
 
       <div className="mt-auto pt-4 flex flex-wrap gap-2">
-        <Link to={`/brands/${b.id}`} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-white/30">
+        <Link to={`/brands/${b.id}`} className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest hover:border-[#1E1B4B]/15">
           View
         </Link>
         <button
           type="button"
           onClick={() => onWishlist?.(b)}
-          className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest inline-flex items-center gap-1 hover:border-white/30"
+          className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest inline-flex items-center gap-1 hover:border-[#1E1B4B]/15"
         >
           <Heart className={`w-3 h-3 ${b.wishlisted ? "fill-[#FF2D55] text-[#FF2D55]" : ""}`} /> Wishlist
         </button>
@@ -341,7 +341,7 @@ function FilterField({ label, children }) {
 }
 
 const filterInputClass =
-  "w-full bg-black/40 border border-white/15 rounded-xl px-2.5 py-1.5 text-sm text-[var(--fg)] focus:outline-none focus:border-[#FF2D55]/50";
+  "w-full bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2.5 py-1.5 text-sm text-[var(--fg)] focus:outline-none focus:border-[#FF2D55]/50";
 
 export default function Marketplace() {
   const { user } = useAuth();
@@ -664,7 +664,7 @@ export default function Marketplace() {
 
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2 pb-24 min-w-0 overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-3 mb-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-[#1E1B4B]/08 pb-3 mb-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Marketplace
@@ -675,14 +675,14 @@ export default function Marketplace() {
           </h1>
         </div>
         {tab === "campaigns" && (user?.role === "influencer" || user?.role === "admin") ? (
-          <div className="inline-flex rounded-full border border-white/20 overflow-hidden shrink-0" role="tablist" aria-label="Campaign view">
+          <div className="inline-flex rounded-full border border-[#1E1B4B]/12 overflow-hidden shrink-0" role="tablist" aria-label="Campaign view">
             <button
               type="button"
               role="tab"
               aria-selected={campaignView === "grid"}
               data-testid="campaigns-view-grid"
               className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold ${
-                campaignView === "grid" ? "bg-[#FF2D55] text-white" : "text-white/60 hover:text-white"
+                campaignView === "grid" ? "bg-[#FF2D55] text-white" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
               onClick={() => {
                 setParams((prev) => {
@@ -701,7 +701,7 @@ export default function Marketplace() {
               aria-selected={campaignView === "map"}
               data-testid="campaigns-view-map"
               className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold ${
-                campaignView === "map" ? "bg-[#FF2D55] text-white" : "text-white/60 hover:text-white"
+                campaignView === "map" ? "bg-[#FF2D55] text-white" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
               onClick={() => {
                 setParams((prev) => {
@@ -720,7 +720,7 @@ export default function Marketplace() {
 
       {/* Influencers: payment strip for brand accounts */}
       {tab === "creators" && isBrand && paySummary ? (
-        <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 flex flex-wrap gap-x-5 gap-y-2 items-center">
+        <div className="mb-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2.5 flex flex-wrap gap-x-5 gap-y-2 items-center">
           <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55] font-bold">Creator payments</span>
           <span className="font-sans text-xs opacity-70">
             Pending <strong className="text-[#1E1B4B]">₹{Number(paySummary.pending_payments ?? paySummary.escrow_held ?? 0).toLocaleString()}</strong>
@@ -742,7 +742,7 @@ export default function Marketplace() {
 
       {/* Toolbar — Filters | Sort | Search (no mixed category tabs) */}
       {!(tab === "campaigns" && campaignView === "map") ? (
-      <div className="mb-3 rounded-2xl border border-white/15 px-3 py-2.5 flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+      <div className="mb-3 rounded-2xl border border-[#1E1B4B]/10 px-3 py-2.5 flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
         {tab === "creators" ? (
           <>
             <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
@@ -750,7 +750,7 @@ export default function Marketplace() {
                 <button
                   type="button"
                   className={`inline-flex items-center gap-1.5 px-3 py-2 border rounded-full text-[9px] uppercase tracking-widest shrink-0 ${
-                    filtersOpen || activeCreatorChips.length ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/20"
+                    filtersOpen || activeCreatorChips.length ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/12"
                   }`}
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" /> Filters
@@ -760,7 +760,7 @@ export default function Marketplace() {
               <PopoverContent
                 align="start"
                 sideOffset={8}
-                className="w-[min(calc(100vw-1.5rem),22rem)] sm:w-[26rem] max-h-[min(70vh,32rem)] overflow-y-auto bg-[#FFFFFF] border-white/15 text-[#1E1B4B] p-4 z-[100]"
+                className="w-[min(calc(100vw-1.5rem),22rem)] sm:w-[26rem] max-h-[min(70vh,32rem)] overflow-y-auto bg-[#FFFFFF] border-[#1E1B4B]/10 text-[#1E1B4B] p-4 z-[100]"
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <div className="space-y-4">
@@ -837,7 +837,7 @@ export default function Marketplace() {
                     <button type="button" onClick={applyCreatorFilters} className="px-4 py-2 rounded-full bg-[#FF2D55] text-white font-mono text-[10px] uppercase tracking-widest font-bold">
                       Apply Filters
                     </button>
-                    <button type="button" onClick={resetCreatorFilters} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
+                    <button type="button" onClick={resetCreatorFilters} className="px-4 py-2 rounded-full border border-[#1E1B4B]/10 font-mono text-[10px] uppercase tracking-widest">
                       Reset
                     </button>
                   </div>
@@ -851,7 +851,7 @@ export default function Marketplace() {
                 value={filters.sort}
                 onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
                 aria-label="Sort by"
-                className="bg-white/5 border border-white/15 rounded-full px-3 py-2 text-[11px] text-[var(--fg)] max-w-[11rem] sm:max-w-[14rem] focus:outline-none"
+                className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full px-3 py-2 text-[11px] text-[var(--fg)] max-w-[11rem] sm:max-w-[14rem] focus:outline-none"
               >
                 {SORT_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -873,7 +873,7 @@ export default function Marketplace() {
                   className={`inline-flex items-center gap-1.5 px-3 py-2 border rounded-full text-[9px] uppercase tracking-widest shrink-0 ${
                     brandFiltersOpen || brandFilters.industry || brandFilters.city || brandFilters.state
                       ? "border-[#FF2D55] text-[#FF2D55]"
-                      : "border-white/20"
+                      : "border-[#1E1B4B]/12"
                   }`}
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" /> Filters
@@ -882,7 +882,7 @@ export default function Marketplace() {
               <PopoverContent
                 align="start"
                 sideOffset={8}
-                className="w-[min(calc(100vw-1.5rem),20rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#FFFFFF] border-white/15 text-[#1E1B4B] p-4 z-[100]"
+                className="w-[min(calc(100vw-1.5rem),20rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#FFFFFF] border-[#1E1B4B]/10 text-[#1E1B4B] p-4 z-[100]"
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <div className="space-y-3">
@@ -906,7 +906,7 @@ export default function Marketplace() {
                   </FilterField>
                   <div className="flex gap-2 pt-1">
                     <button type="button" onClick={applyBrandFilters} className="px-4 py-2 rounded-full bg-[#FF2D55] text-white font-mono text-[10px] uppercase tracking-widest font-bold">Apply Filters</button>
-                    <button type="button" onClick={resetBrandFilters} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">Reset</button>
+                    <button type="button" onClick={resetBrandFilters} className="px-4 py-2 rounded-full border border-[#1E1B4B]/10 font-mono text-[10px] uppercase tracking-widest">Reset</button>
                   </div>
                 </div>
               </PopoverContent>
@@ -916,7 +916,7 @@ export default function Marketplace() {
               <select
                 value={brandFilters.sort}
                 onChange={(e) => setBrandFilters((f) => ({ ...f, sort: e.target.value }))}
-                className="bg-white/5 border border-white/15 rounded-full px-3 py-2 text-[11px] text-[var(--fg)] max-w-[12rem] focus:outline-none"
+                className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full px-3 py-2 text-[11px] text-[var(--fg)] max-w-[12rem] focus:outline-none"
               >
                 {BRAND_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -926,7 +926,7 @@ export default function Marketplace() {
         ) : null}
 
         <form onSubmit={onSearch} className="flex items-center gap-2 flex-1 min-w-[10rem] sm:min-w-[14rem] sm:ml-auto">
-          <div className="flex items-center gap-2 border-b border-white/20 py-1.5 pl-1.5 pr-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2 border-b border-[#1E1B4B]/12 py-1.5 pl-1.5 pr-2 flex-1 min-w-0">
             <AiIcon name="search" className="w-4 h-4 opacity-70 shrink-0" />
             <input
               data-testid="search-input"
@@ -938,7 +938,7 @@ export default function Marketplace() {
             />
           </div>
           <IconTip label="Search">
-            <button type="submit" className="inline-flex items-center justify-center w-9 h-9 border border-white/20 bg-white/5 hover:bg-white/15 rounded-full shrink-0" data-testid="search-submit" title="Search" aria-label="Search">
+            <button type="submit" className="inline-flex items-center justify-center w-9 h-9 border border-[#1E1B4B]/12 bg-[#F7F8FC] hover:bg-white/15 rounded-full shrink-0" data-testid="search-submit" title="Search" aria-label="Search">
               <AiIcon name="search" className="w-4 h-4" />
             </button>
           </IconTip>
@@ -953,7 +953,7 @@ export default function Marketplace() {
               key={chip.key}
               type="button"
               onClick={chip.clear}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-white/15 bg-white/[0.04] text-[10px] font-sans hover:border-[#FF2D55]/50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#1E1B4B]/10 bg-[#F1F5F9] text-[10px] font-sans hover:border-[#FF2D55]/50"
             >
               {chip.label} <X className="w-3 h-3 opacity-50" />
             </button>
@@ -966,42 +966,42 @@ export default function Marketplace() {
           <span className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]">
             Campaign Creator Group · {selected.length} selected · est. ₹{estimatedCost.toLocaleString()}
           </span>
-          <select value={comboCampaign} onChange={(e) => setComboCampaign(e.target.value)} className="bg-black/40 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)] min-w-[10rem]">
+          <select value={comboCampaign} onChange={(e) => setComboCampaign(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)] min-w-[10rem]">
             <option value="">Select campaign</option>
             {myCampaigns.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
           </select>
-          <button type="button" onClick={() => setSelected((s) => s.slice(0, 5))} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Use 5</button>
-          <button type="button" onClick={() => setSelected((s) => s.slice(0, 10))} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Use 10</button>
+          <button type="button" onClick={() => setSelected((s) => s.slice(0, 5))} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Use 5</button>
+          <button type="button" onClick={() => setSelected((s) => s.slice(0, 10))} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Use 10</button>
           <button type="button" onClick={sendCombo} className="px-3 py-1.5 rounded-full bg-[#FF2D55] text-white font-mono text-[9px] uppercase tracking-widest font-bold">Invite group</button>
-          <button type="button" onClick={() => setSelected([])} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Clear</button>
+          <button type="button" onClick={() => setSelected([])} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Clear</button>
         </div>
       ) : null}
 
       {tab === "hire" ? (
         <div className="mb-4 space-y-3">
           <div className="flex flex-wrap gap-2 items-center">
-            <button type="button" onClick={() => setProdCategory("")} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${!prodCategory ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-white/15 text-white/80"}`}>All</button>
+            <button type="button" onClick={() => setProdCategory("")} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${!prodCategory ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-[#1E1B4B]/10 text-[#475569]"}`}>All</button>
             {prodCategories.map((c) => (
-              <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${prodCategory === c.id ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-white/15 text-white/85"}`}>
+              <button key={c.id} type="button" onClick={() => setProdCategory(c.id)} className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm font-sans font-semibold tracking-wide ${prodCategory === c.id ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-[#1E1B4B]/10 text-[#1E1B4B]/85"}`}>
                 {c.label}
               </button>
             ))}
           </div>
           <div className="flex flex-wrap gap-2 items-center">
-            <select value={prodCity} onChange={(e) => setProdCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+            <select value={prodCity} onChange={(e) => setProdCity(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">Any city</option>
               {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            <select value={prodInHouse} onChange={(e) => setProdInHouse(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+            <select value={prodInHouse} onChange={(e) => setProdInHouse(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               <option value="">In-house + External</option>
               <option value="yes">In-House only</option>
             </select>
-            <input type="number" value={prodPriceMin} onChange={(e) => setProdPriceMin(e.target.value)} placeholder="Min ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
-            <input type="number" value={prodPriceMax} onChange={(e) => setProdPriceMax(e.target.value)} placeholder="Max ₹" className="w-24 bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
-            <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+            <input type="number" value={prodPriceMin} onChange={(e) => setProdPriceMin(e.target.value)} placeholder="Min ₹" className="w-24 bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
+            <input type="number" value={prodPriceMax} onChange={(e) => setProdPriceMax(e.target.value)} placeholder="Max ₹" className="w-24 bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]" />
+            <select value={prodSort} onChange={(e) => setProdSort(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
               {PROD_SORT.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Apply</button>
+            <button type="button" onClick={loadProduction} className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Apply</button>
           </div>
           <p className="font-sans text-[11px] text-[#94A3B8]">
             Showing talent near <span className="text-[#475569]">{prodCity || "any city"}</span>
@@ -1013,15 +1013,15 @@ export default function Marketplace() {
       {tab === "campaigns" ? (
         <div className="mb-4 flex flex-wrap gap-2 items-center">
           <MapPin className="w-3.5 h-3.5 text-[#FF2D55]" />
-          <select value={campaignCity} onChange={(e) => setCampaignCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+          <select value={campaignCity} onChange={(e) => setCampaignCity(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
             <option value="">Any city</option>
             {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={campaignState} onChange={(e) => setCampaignState(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
+          <select value={campaignState} onChange={(e) => setCampaignState(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]">
             <option value="">Any state</option>
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button type="button" onClick={loadCampaigns} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find campaigns</button>
+          <button type="button" onClick={loadCampaigns} className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Find campaigns</button>
           <span className="font-sans text-[11px] text-[#94A3B8]">Defaults to your profile location</span>
         </div>
       ) : null}
@@ -1032,7 +1032,7 @@ export default function Marketplace() {
           <select
             value={brandFilters.city}
             onChange={(e) => setBrandFilters((f) => ({ ...f, city: e.target.value }))}
-            className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
+            className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
           >
             <option value="">Any city</option>
             {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -1040,12 +1040,12 @@ export default function Marketplace() {
           <select
             value={brandFilters.state}
             onChange={(e) => setBrandFilters((f) => ({ ...f, state: e.target.value }))}
-            className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
+            className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm text-[var(--fg)]"
           >
             <option value="">Any state</option>
             {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button type="button" onClick={loadBrands} className="px-3 py-1.5 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Find brands</button>
+          <button type="button" onClick={loadBrands} className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Find brands</button>
           <span className="font-sans text-[11px] text-[#94A3B8]">Defaults to your profile location</span>
         </div>
       ) : null}
@@ -1077,7 +1077,7 @@ export default function Marketplace() {
         <div className="space-y-2">
           {campaigns.map((c, i) => (
             <motion.div key={c.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: Math.min(i, 10) * 0.03 }} data-testid={`campaign-row-${c.id}`}>
-              <Link to={`/campaigns/${c.id}`} className="group block border border-white/10 hover:border-[#FF2D55]/40 rounded-2xl px-4 py-4 md:px-5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+              <Link to={`/campaigns/${c.id}`} className="group block border border-[#1E1B4B]/08 hover:border-[#FF2D55]/40 rounded-2xl px-4 py-4 md:px-5 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
                 <div className="grid grid-cols-12 gap-3 md:gap-4 items-center">
                   <div className="col-span-12 md:col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-50">{String(i + 1).padStart(2, "0")}</div>
                   <div className="col-span-12 md:col-span-5 min-w-0">
@@ -1108,10 +1108,10 @@ export default function Marketplace() {
       {tab === "hire" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {production.map((m) => (
-            <article key={m.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4" data-testid={`production-${m.id}`}>
+            <article key={m.id} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4" data-testid={`production-${m.id}`}>
               <Link to={`/production/${m.id}`} className="flex gap-3">
                 {m.avatar ? <img src={m.avatar} alt="" className="w-14 h-14 rounded-xl object-cover" /> : (
-                  <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center font-bold">{(m.name || "?")[0]}</div>
+                  <div className="w-14 h-14 rounded-xl bg-[#EEF2FF] flex items-center justify-center font-bold">{(m.name || "?")[0]}</div>
                 )}
                 <div className="min-w-0">
                   <div className="flex flex-wrap gap-1 mb-0.5">
@@ -1130,9 +1130,9 @@ export default function Marketplace() {
                 <span>{m.availability || "—"}</span>
               </div>
               <div className="mt-3 flex gap-2">
-                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">View</Link>
-                <button type="button" onClick={() => toggleWishlist(m, "production")} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Wishlist</button>
-                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Hire</Link>
+                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">View</Link>
+                <button type="button" onClick={() => toggleWishlist(m, "production")} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Wishlist</button>
+                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Hire</Link>
               </div>
             </article>
           ))}

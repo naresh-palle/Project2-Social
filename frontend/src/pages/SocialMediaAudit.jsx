@@ -149,7 +149,7 @@ export default function SocialMediaAudit() {
             type="button"
             onClick={exportPdf}
             disabled={!audit}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF2D55]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[#1E1B4B]/10 hover:border-[#FF2D55]/50 text-xs uppercase tracking-wider disabled:opacity-50"
             data-testid="social-audit-export-pdf"
           >
             <FileDown className="w-3.5 h-3.5" />
@@ -159,7 +159,7 @@ export default function SocialMediaAudit() {
             type="button"
             onClick={runAudit}
             disabled={running}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-[#FF2D55]/50 text-xs uppercase tracking-wider disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[#1E1B4B]/10 hover:border-[#FF2D55]/50 text-xs uppercase tracking-wider disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${running ? "animate-spin" : ""}`} />
             {running ? "Running…" : "Run audit"}
@@ -192,13 +192,13 @@ export default function SocialMediaAudit() {
       </div>
 
       {/* Platforms */}
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
         <h2 className="font-sans text-sm font-semibold mb-3">Connected platforms</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {(audit?.platforms || []).map((p) => {
             const Icon = SOCIAL_PLATFORM_ICONS[p.platform];
             return (
-              <div key={p.platform} className={`rounded-xl border px-3 py-2.5 ${p.connected ? "border-white/10 bg-black/20" : "border-white/5 opacity-55"}`}>
+              <div key={p.platform} className={`rounded-xl border px-3 py-2.5 ${p.connected ? "border-[#1E1B4B]/08 bg-[#EEF2FF]" : "border-[#1E1B4B]/06 opacity-55"}`}>
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     {Icon ? <Icon className="w-4 h-4 shrink-0" /> : null}
@@ -220,7 +220,7 @@ export default function SocialMediaAudit() {
       </section>
 
       {/* Issues */}
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle className="w-4 h-4 text-[#D97706]" />
           <h2 className="font-sans text-sm font-semibold">Detected issues</h2>
@@ -231,7 +231,7 @@ export default function SocialMediaAudit() {
         ) : (
           <div className="space-y-2">
             {audit.issues.map((iss) => (
-              <div key={iss.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
+              <div key={iss.id} className="rounded-xl border border-[#1E1B4B]/08 bg-[#F7F8FC] p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-sans text-sm font-semibold">{iss.title}</p>
@@ -267,7 +267,7 @@ export default function SocialMediaAudit() {
 
       {/* Recommendations / warnings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <h2 className="font-sans text-sm font-semibold mb-2">Recommendations</h2>
           <ul className="space-y-1.5 text-[12px] text-[#64748B] list-disc pl-4">
             {(audit?.recommendations || []).length
@@ -275,7 +275,7 @@ export default function SocialMediaAudit() {
               : <li>Keep syncing socials weekly for fresher audits.</li>}
           </ul>
         </section>
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <h2 className="font-sans text-sm font-semibold mb-2">Warnings</h2>
           <ul className="space-y-1.5 text-[12px] text-[#64748B] list-disc pl-4">
             {(audit?.warnings || []).length
@@ -287,7 +287,7 @@ export default function SocialMediaAudit() {
 
       {/* History + tickets */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <h2 className="font-sans text-sm font-semibold mb-3 flex items-center gap-2"><Clock className="w-4 h-4" /> Audit history</h2>
           <div className="space-y-1.5 max-h-56 overflow-y-auto">
             {history.map((h) => (
@@ -295,7 +295,7 @@ export default function SocialMediaAudit() {
                 key={h.id}
                 type="button"
                 onClick={() => setAudit(h)}
-                className="w-full text-left rounded-lg border border-white/10 px-3 py-2 hover:border-white/25"
+                className="w-full text-left rounded-lg border border-[#1E1B4B]/08 px-3 py-2 hover:border-[#1E1B4B]/12"
               >
                 <div className="flex justify-between gap-2 text-xs">
                   <span className={STATUS_COLOR[h.status]?.split(" ")[0] || ""}>{h.status}</span>
@@ -307,14 +307,14 @@ export default function SocialMediaAudit() {
             {!history.length && <p className="text-sm text-[#94A3B8]">No previous audits yet.</p>}
           </div>
         </section>
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <section className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-sans text-sm font-semibold">My support tickets</h2>
             <Link to="/support" className="text-[11px] text-[#FF2D55]">All tickets →</Link>
           </div>
           <div className="space-y-1.5 max-h-56 overflow-y-auto">
             {tickets.map((t) => (
-              <Link key={t.id} to="/support" className="block rounded-lg border border-white/10 px-3 py-2 hover:border-white/25">
+              <Link key={t.id} to="/support" className="block rounded-lg border border-[#1E1B4B]/08 px-3 py-2 hover:border-[#1E1B4B]/12">
                 <div className="flex justify-between gap-2 text-xs">
                   <span className="font-mono text-[#64748B]">{t.number}</span>
                   <span className="uppercase tracking-wider text-[#94A3B8]">{t.status}</span>
@@ -333,7 +333,7 @@ export default function SocialMediaAudit() {
 
 function SummaryCard({ label, value, hint, className = "" }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] p-3 min-w-0 ${className}`}>
+    <div className={`rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-3 min-w-0 ${className}`}>
       <p className="text-[10px] uppercase tracking-wider text-[#94A3B8]">{label}</p>
       <p className="font-sans text-lg font-bold tabular-nums mt-1 truncate">{value}</p>
       {hint ? <p className="text-[10px] text-[#94A3B8] mt-0.5">{hint}</p> : null}

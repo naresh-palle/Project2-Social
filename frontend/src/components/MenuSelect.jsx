@@ -102,7 +102,7 @@ export function MenuSelect({
         className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left transition-all disabled:opacity-50 ${
           open
             ? "border-[#FF2D55]/60 bg-[#1A1212] shadow-[0_0_0_1px_rgba(255,59,48,0.15)]"
-            : "border-white/15 bg-gradient-to-b from-white/[0.07] to-white/[0.02] hover:border-white/30 hover:from-white/[0.09]"
+            : "border-[#1E1B4B]/10 bg-gradient-to-b from-[#FFFFFF] to-[#F7F8FC] hover:border-[#1E1B4B]/15 hover:from-white/[0.09]"
         }`}
       >
         {selected?.icon ? (
@@ -128,7 +128,7 @@ export function MenuSelect({
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.16 }}
                 style={menuStyle}
-                className="overflow-y-auto rounded-2xl border border-white/15 bg-[#F3EEFF]/98 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.55)] py-1.5"
+                className="overflow-y-auto rounded-2xl border border-[#1E1B4B]/10 bg-[#F3EEFF]/98 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.55)] py-1.5"
               >
                 {options.map((opt) => {
                   const active = String(opt.value) === String(value);

@@ -243,10 +243,10 @@ const DEFAULT_BRIEFS = [
 
 function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
-        <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-white/10 bg-[#FFFFFF] shadow-none">
+        <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] shadow-none">
             <div className="flex justify-between items-start gap-2">
                 <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
-                <div className="p-2 bg-white/5 rounded-3xl shrink-0">{icon}</div>
+                <div className="p-2 bg-[#F7F8FC] rounded-3xl shrink-0">{icon}</div>
             </div>
             <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-[#1E1B4B] truncate">{value}</div>
             <div className="flex justify-between items-center mt-3 gap-2">
@@ -281,21 +281,21 @@ function DiscoveryOps() {
           ["Pending research", stats.pending_research_jobs],
           ["Apify", stats.apify_configured ? "Configured" : "Data source not configured"],
         ].map(([k, v]) => (
-          <div key={k} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-4">
+          <div key={k} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] p-4">
             <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{k}</div>
             <div className="font-sans text-xl font-bold mt-1">{v}</div>
           </div>
         ))}
       </div>
       <ApifyLookupPanel />
-      <div className="rounded-2xl border border-white/10 overflow-auto">
+      <div className="rounded-2xl border border-[#1E1B4B]/08 overflow-auto">
         <table className="w-full text-xs">
           <thead className="font-mono uppercase tracking-widest text-[#94A3B8]">
             <tr><th className="p-3 text-left">Job</th><th className="p-3">Status</th><th className="p-3">Provider</th><th className="p-3">Error</th></tr>
           </thead>
           <tbody>
             {jobs.slice(0, 20).map((j) => (
-              <tr key={j.id} className="border-t border-white/10">
+              <tr key={j.id} className="border-t border-[#1E1B4B]/08">
                 <td className="p-3">{j.kind}</td>
                 <td className="p-3">{j.status}</td>
                 <td className="p-3">{j.provider}</td>
@@ -816,7 +816,7 @@ export function AdminPanel() {
           <div className="flex flex-col items-center justify-center text-[#1E1B4B] py-20 text-center">
               <div className="font-sans text-3xl text-[#FF2D55] mb-2">Studio Offline</div>
               <div className="font-sans text-xs opacity-60 max-w-md">The admin console could not retrieve secure data from the server. Please ensure the backend is running.</div>
-              <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 border border-white/20 text-xs font-sans uppercase tracking-widest hover:bg-white/5 transition">Hard Refresh</button>
+              <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 border border-[#1E1B4B]/12 text-xs font-sans uppercase tracking-widest hover:bg-[#F7F8FC] transition">Hard Refresh</button>
           </div>
       );
   }
@@ -838,7 +838,7 @@ export function AdminPanel() {
 
   return (
     <div className="w-full flex flex-col">
-        <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6">
+        <div className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-[#1E1B4B]/08 pb-6">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Admin
@@ -851,7 +851,7 @@ export function AdminPanel() {
 
             <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
                 {EXPORTABLE_TABS.has(tab) && (
-                <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF2D55] text-[#FF2D55] hover:bg-[#E11D48] hover:text-white px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
+                <button onClick={() => setExportModal(true)} className="btn-outline border-[#FF2D55] text-[#FF2D55] hover:bg-[#E11D48] hover:text-[#1E1B4B] px-4 py-2 flex items-center gap-2 font-bold shadow-lg transition-all">
                     <Download className="w-4 h-4" /> Export {tab === "users" ? (
                         [
                             categoryFilter.length > 0 ? categoryFilter[0] : "",
@@ -881,7 +881,7 @@ export function AdminPanel() {
                     <StatCard title="Pending Verifications" value={(stats?.requests?.verification_requests || 0) + (stats?.requests?.creator_requests || 0) + (stats?.requests?.hire_requests_pending || 0)} sub={`${stats?.requests?.verification_requests || 0} agencies · ${stats?.requests?.hire_requests_pending || 0} hire reqs`} icon={<Bell className="w-5 h-5 text-orange-400" />} trend={stats?.approvals?.pending != null ? `${stats.approvals.pending} approvals` : "—"} pos={false} />
                 </div>
 
-                <section className="p-6 rounded-3xl border border-white/10 bg-[#FFFFFF]">
+                <section className="p-6 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF]">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                       <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium flex items-center gap-2 mb-0">
                         <Bell className="w-3 h-3 text-[#FF2D55]" /> System Alerts
@@ -895,7 +895,7 @@ export function AdminPanel() {
                             className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                               alertFilter === f.id
                                 ? "bg-[#FF2D55] border-[#FF2D55] text-white"
-                                : "border-white/15 text-[#64748B] hover:border-white/35"
+                                : "border-[#1E1B4B]/10 text-[#64748B] hover:border-white/35"
                             }`}
                           >
                             {f.label}
@@ -912,7 +912,7 @@ export function AdminPanel() {
                               key={n.id}
                               type="button"
                               onClick={() => setSelectedAlert(n)}
-                              className="w-full text-left flex items-start gap-3 p-3 rounded-2xl border border-transparent hover:border-white/10 hover:bg-white/[0.03] transition-colors"
+                              className="w-full text-left flex items-start gap-3 p-3 rounded-2xl border border-transparent hover:border-[#1E1B4B]/08 hover:bg-[#F8FAFC] transition-colors"
                             >
                                 {n.type === "success" && <CheckCircle2 className="w-4 h-4 text-[#14B8A6] shrink-0 mt-0.5" />}
                                 {n.type === "error" && <XCircle className="w-4 h-4 text-[#FF2D55] shrink-0 mt-0.5" />}
@@ -947,8 +947,8 @@ export function AdminPanel() {
         {/* TAB 5: USER MANAGEMENT */}
         {tab === "users" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
-                <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-white/10 bg-[#FFFFFF] overflow-visible">
-                    <div className="flex items-center gap-2 w-full max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
+                <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] overflow-visible">
+                    <div className="flex items-center gap-2 w-full max-w-md border border-[#1E1B4B]/08 rounded-full px-3 py-2 bg-[#F8FAFC]">
                         <Search className="w-4 h-4 opacity-50 shrink-0" />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
                     </div>
@@ -989,9 +989,9 @@ export function AdminPanel() {
                             label="Status"
                           />
                         </div>
-                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
-                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
-                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="State" value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="City" value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
+                        <input type="text" placeholder="Language" value={languageFilter} onChange={e => setLanguageFilter(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-full px-3 py-2 text-xs text-[#1E1B4B] w-full sm:w-[110px] min-w-0" />
                     </div>
                 </div>
                 <div className="glass-panel overflow-x-auto">
@@ -1000,7 +1000,7 @@ export function AdminPanel() {
                     ) : (
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
+                                <tr className="border-b border-[#1E1B4B]/08 font-sans text-[9px] tracking-widest uppercase opacity-50">
                                     <th className="p-4 font-normal">Username</th>
                                     <th className="p-4 font-normal">Email</th>
                                     <th className="p-4 font-normal">Mobile</th>
@@ -1015,7 +1015,7 @@ export function AdminPanel() {
                                     <tr><td colSpan={7} className="p-12 text-center font-sans italic text-2xl opacity-40">No users found</td></tr>
                                 ) : (
                                     usersList.map((u) => (
-                                        <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                        <tr key={u.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                                             <td className="p-4">
                                               <div className="font-sans text-xl">
                                                 {formatUsername(u.username, u.handle) || "—"}
@@ -1036,7 +1036,7 @@ export function AdminPanel() {
                                               <div className="text-xs opacity-60 mt-1">{userCategoryText(u) || "—"}</div>
                                               {u.role === 'influencer' && (
                                                 <select
-                                                  className="mt-2 bg-white/5 border border-white/10 text-xs px-2 py-1 rounded outline-none text-[var(--fg)]"
+                                                  className="mt-2 bg-[#F7F8FC] border border-[#1E1B4B]/08 text-xs px-2 py-1 rounded outline-none text-[var(--fg)]"
                                                   value={u.creator_level || "Beginner"}
                                                   onChange={(e) => assignCreatorLevel(u.id, e.target.value)}
                                                 >
@@ -1054,7 +1054,7 @@ export function AdminPanel() {
                                                     st === "Active" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
                                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                                                     st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
-                                                    "bg-white/5 text-[#64748B] border-white/15";
+                                                    "bg-[#F7F8FC] text-[#64748B] border-[#1E1B4B]/10";
                                                   return (
                                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
                                                   );
@@ -1093,7 +1093,7 @@ export function AdminPanel() {
         {/* TAB: REPORTS */}
         {tab === "reports" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-4">
-                <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-white/10 bg-[#FFFFFF]">
+                <div className="flex flex-wrap items-center gap-2 p-4 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF]">
                   <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mr-1">Status</span>
                   {[
                     { id: "all", label: "All" },
@@ -1108,7 +1108,7 @@ export function AdminPanel() {
                       className={`px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest border rounded-full transition-colors ${
                         reportStatusFilter === f.id
                           ? "bg-[#FF2D55] border-[#FF2D55] text-white"
-                          : "border-white/15 text-[#64748B] hover:border-white/35"
+                          : "border-[#1E1B4B]/10 text-[#64748B] hover:border-white/35"
                       }`}
                     >
                       {f.label}
@@ -1124,7 +1124,7 @@ export function AdminPanel() {
                 ) : (
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="border-b border-white/10 font-sans text-[9px] tracking-[0.16em] uppercase opacity-50">
+                        <tr className="border-b border-[#1E1B4B]/08 font-sans text-[9px] tracking-[0.16em] uppercase opacity-50">
                             <th className="p-4">Type</th><th className="p-4">Target</th><th className="p-4">Reason</th><th className="p-4">Status</th><th className="p-4 text-right">Action</th>
                         </tr>
                     </thead>
@@ -1132,7 +1132,7 @@ export function AdminPanel() {
                         {reports.length === 0 ? (
                             <tr><td colSpan={5} className="p-12 text-center font-sans italic text-2xl opacity-40">No {reportStatusFilter === "all" ? "" : `${reportStatusFilter} `}reports</td></tr>
                         ) : reports.map((r) => (
-                            <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                            <tr key={r.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC]">
                                 <td className="p-4 font-sans text-xs uppercase">{r.target_type || "—"}</td>
                                 <td className="p-4 font-sans text-xs">
                                   {r.target_label || r.target_username || r.target_id || "—"}
@@ -1142,7 +1142,7 @@ export function AdminPanel() {
                                   <span className={`px-2 py-1 text-[9px] uppercase font-sans border rounded-xs ${
                                     r.status === "open" ? "bg-orange-400/10 text-orange-400 border-orange-400/20" :
                                     r.status === "resolved" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
-                                    "bg-white/5 text-[#64748B] border-white/15"
+                                    "bg-[#F7F8FC] text-[#64748B] border-[#1E1B4B]/10"
                                   }`}>{r.status || "—"}</span>
                                 </td>
                                 <td className="p-4 text-right space-x-2">
@@ -1218,7 +1218,7 @@ export function AdminPanel() {
                       className={`p-3 border text-left transition-colors ${
                         platformCategoryFilter.length === 0 || platformCategoryFilter.includes(name)
                           ? "border-[#FF2D55]/40 bg-[#FF2D55]/5"
-                          : "border-white/10 bg-white/[0.02] opacity-60 hover:opacity-100"
+                          : "border-[#1E1B4B]/08 bg-[#F8FAFC] opacity-60 hover:opacity-100"
                       }`}
                     >
                       <div className="font-sans text-[10px] uppercase tracking-wider opacity-60 leading-snug">{name}</div>
@@ -1234,7 +1234,7 @@ export function AdminPanel() {
                   ) : (
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
+                        <tr className="border-b border-[#1E1B4B]/08 font-sans text-[9px] tracking-widest uppercase opacity-50">
                           <th className="p-4 font-normal">Username</th>
                           <th className="p-4 font-normal">Role</th>
                           <th className="p-4 font-normal">Categories</th>
@@ -1252,7 +1252,7 @@ export function AdminPanel() {
                           </tr>
                         ) : (
                           filteredUsers.map((u) => (
-                            <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <tr key={u.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                               <td className="p-4 font-sans text-sm font-medium">
                                 {formatUsername(u.username, u.handle) || "—"}
                               </td>
@@ -1266,7 +1266,7 @@ export function AdminPanel() {
                                     st === "Active" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
                                     st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
                                     st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
-                                    "bg-white/5 text-[#64748B] border-white/15";
+                                    "bg-[#F7F8FC] text-[#64748B] border-[#1E1B4B]/10";
                                   return (
                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>
                                   );
@@ -1274,7 +1274,7 @@ export function AdminPanel() {
                               </td>
                               <td className="p-4">
                                 {u.role !== "admin" && (
-                                  <button onClick={() => promoteToAdmin(u.id)} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-white/5 border border-white/10 text-[#1E1B4B] hover:bg-white/10 transition-colors rounded-xs whitespace-nowrap">
+                                  <button onClick={() => promoteToAdmin(u.id)} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-[#F7F8FC] border border-[#1E1B4B]/08 text-[#1E1B4B] hover:bg-[#EEF2FF] transition-colors rounded-xs whitespace-nowrap">
                                     Promote Admin
                                   </button>
                                 )}
@@ -1293,7 +1293,7 @@ export function AdminPanel() {
         {/* TAB: GROWTH HUB — Broadcast · Match · Referrals */}
         {tab === "growth" && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-10">
-            <div className="border-b border-white/10 pb-4">
+            <div className="border-b border-[#1E1B4B]/08 pb-4">
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Engage · Match · Refer</p>
               <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1">Growth Hub</h2>
               <p className="font-sans text-xs text-[#64748B] mt-2 max-w-2xl">
@@ -1305,8 +1305,8 @@ export function AdminPanel() {
               <h3 className="font-sans text-xs uppercase tracking-widest text-[#64748B] font-bold">1 · Broadcast</h3>
               <div className="p-6 glass-panel max-w-xl space-y-4">
                 <h4 className="font-sans text-xs uppercase tracking-widest text-[#FF2D55]">Broadcast Notification</h4>
-                <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-black/60 border border-white/20 p-3 font-sans text-sm h-28 rounded-xs" />
-                <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs text-[var(--fg)]">
+                <textarea value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} placeholder="Announcement message…" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-3 font-sans text-sm h-28 rounded-xs" />
+                <select value={broadcastRole} onChange={(e) => setBroadcastRole(e.target.value)} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-xs rounded-xs text-[var(--fg)]">
                     <option value="">All Users</option>
                     <option value="influencer">Influencers Only</option>
                     <option value="owner">Brands Only</option>
@@ -1314,9 +1314,9 @@ export function AdminPanel() {
                     <option value="production">Hire / Production Only</option>
                 </select>
                 <div className="flex gap-2">
-                    <input type="text" placeholder="State (optional)" value={broadcastState} onChange={e => setBroadcastState(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
-                    <input type="text" placeholder="City (optional)" value={broadcastCity} onChange={e => setBroadcastCity(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
-                    <input type="text" placeholder="Language (optional)" value={broadcastLanguage} onChange={e => setBroadcastLanguage(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-sans text-xs rounded-xs" />
+                    <input type="text" placeholder="State (optional)" value={broadcastState} onChange={e => setBroadcastState(e.target.value)} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-xs rounded-xs" />
+                    <input type="text" placeholder="City (optional)" value={broadcastCity} onChange={e => setBroadcastCity(e.target.value)} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-xs rounded-xs" />
+                    <input type="text" placeholder="Language (optional)" value={broadcastLanguage} onChange={e => setBroadcastLanguage(e.target.value)} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-xs rounded-xs" />
                 </div>
                 <button onClick={sendBroadcast} className="btn-solid bg-[#FF2D55] text-white px-6 py-2 font-sans text-xs uppercase">Send Broadcast</button>
               </div>
@@ -1337,8 +1337,8 @@ export function AdminPanel() {
         {/* TAB 6: AUDIT LOGS */}
         {tab === "audit" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-4">
-                <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-white/10 bg-[#FFFFFF] overflow-visible">
-                    <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-md border border-white/10 rounded-full px-3 py-2 bg-white/[0.03]">
+                <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] overflow-visible">
+                    <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-md border border-[#1E1B4B]/08 rounded-full px-3 py-2 bg-[#F8FAFC]">
                         <Search className="w-4 h-4 opacity-50 shrink-0" />
                         <input
                           type="text"
@@ -1377,7 +1377,7 @@ export function AdminPanel() {
                 <div className="glass-panel overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-white/10 font-sans text-[9px] tracking-widest uppercase opacity-50">
+                            <tr className="border-b border-[#1E1B4B]/08 font-sans text-[9px] tracking-widest uppercase opacity-50">
                                 <th className="p-4 font-normal">Timestamp</th>
                                 <th className="p-4 font-normal">User</th>
                                 <th className="p-4 font-normal">Action Type</th>
@@ -1409,7 +1409,7 @@ export function AdminPanel() {
                                 );
                               }
                               return filtered.map((a, i) => (
-                                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                    <tr key={i} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                                         <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">
                                             {new Date(a.time).toLocaleString()}
                                         </td>
@@ -1422,7 +1422,7 @@ export function AdminPanel() {
                                             <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-bold border rounded-xs ${
                                                 a.status === "Completed" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/30" :
                                                 a.status === "Pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/30" :
-                                                "bg-white/5 text-[#64748B] border-white/10"
+                                                "bg-[#F7F8FC] text-[#64748B] border-[#1E1B4B]/08"
                                             }`}>
                                                 {a.status}
                                             </span>
@@ -1447,9 +1447,9 @@ export function AdminPanel() {
 
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (
-        <div className="fixed inset-0 z-50 bg-[#F7F8FC]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#FFFFFF] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="fixed inset-0 z-50 bg-[#1E1B4B]/40 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#FFFFFF] border border-[#1E1B4B]/12 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-4">
               <div>
                 <span className="font-sans text-[10px] tracking-[0.25em] uppercase text-[#FF2D55] font-bold">⚡ Data Export Engine</span>
                 <h3 className="font-sans text-2xl mt-1 text-[#1E1B4B]">Select Export Timeframe</h3>
@@ -1468,7 +1468,7 @@ export function AdminPanel() {
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportFormat === opt.id
                         ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                        : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
+                        : "bg-[#F7F8FC] border-[#1E1B4B]/08 text-[#64748B] hover:border-[#1E1B4B]/15"
                     }`}
                   >
                     {opt.label}
@@ -1491,7 +1491,7 @@ export function AdminPanel() {
                     className={`p-3 text-left border rounded-xs transition-all ${
                       exportRange === opt.id
                         ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                        : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
+                        : "bg-[#F7F8FC] border-[#1E1B4B]/08 text-[#64748B] hover:border-[#1E1B4B]/15"
                     }`}
                   >
                     {opt.label}
@@ -1505,7 +1505,7 @@ export function AdminPanel() {
                 className={`w-full p-3 text-left border rounded-xs font-sans text-xs transition-all ${
                   exportRange === "custom"
                     ? "bg-[#FF2D55] border-[#FF2D55] text-white font-bold shadow-md"
-                    : "bg-white/5 border-white/10 text-[#64748B] hover:border-white/30"
+                    : "bg-[#F7F8FC] border-[#1E1B4B]/08 text-[#64748B] hover:border-[#1E1B4B]/15"
                 }`}
               >
                 Customized (No Limit - Custom Range)
@@ -1524,7 +1524,7 @@ export function AdminPanel() {
                           setEndDate(e.target.value);
                         }
                       }}
-                      className="w-full bg-[#F7F8FC]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
+                      className="w-full bg-[#F7F8FC]/60 border border-[#1E1B4B]/12 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
                     />
                   </div>
                   <div>
@@ -1534,15 +1534,15 @@ export function AdminPanel() {
                       value={endDate}
                       min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-[#F7F8FC]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
+                      className="w-full bg-[#F7F8FC]/60 border border-[#1E1B4B]/12 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex justify-end gap-3 font-sans text-xs">
-              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-white/20 hover:bg-white/5 text-[#64748B]">Cancel</button>
+            <div className="pt-4 border-t border-[#1E1B4B]/08 flex justify-end gap-3 font-sans text-xs">
+              <button type="button" onClick={() => setExportModal(false)} className="px-4 py-2 border border-[#1E1B4B]/12 hover:bg-[#F7F8FC] text-[#64748B]">Cancel</button>
               <button
                 type="button"
                 disabled={exportBusy}
@@ -1559,13 +1559,13 @@ export function AdminPanel() {
       {/* Alert detail modal */}
       <AnimatePresence>
           {selectedAlert && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedAlert(null)}>
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1B4B]/45 backdrop-blur-sm" onClick={() => setSelectedAlert(null)}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-[#FFFFFF] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto"
+                    className="bg-[#FFFFFF] border border-[#1E1B4B]/08 p-6 md:p-8 rounded-3xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto"
                   >
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div>
@@ -1580,7 +1580,7 @@ export function AdminPanel() {
                             <p className="font-mono text-[10px] uppercase tracking-widest opacity-50 mt-2">{selectedAlert.source}</p>
                           )}
                         </div>
-                        <button type="button" onClick={() => setSelectedAlert(null)} className="p-2 rounded-full hover:bg-white/5 opacity-60 hover:opacity-100">
+                        <button type="button" onClick={() => setSelectedAlert(null)} className="p-2 rounded-full hover:bg-[#F7F8FC] opacity-60 hover:opacity-100">
                           <XCircle className="w-5 h-5" />
                         </button>
                       </div>
@@ -1618,7 +1618,7 @@ export function AdminPanel() {
                       {(selectedAlert.logs?.length > 0) && (
                         <section className="mb-2">
                           <h4 className="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-2">Logs</h4>
-                          <div className="rounded-xl bg-black/50 border border-white/10 p-3 space-y-1 max-h-48 overflow-y-auto">
+                          <div className="rounded-xl bg-[#EEF2FF] border border-[#1E1B4B]/08 p-3 space-y-1 max-h-48 overflow-y-auto">
                             {selectedAlert.logs.map((line, i) => (
                               <pre key={i} className="font-mono text-[11px] text-[#64748B] whitespace-pre-wrap break-words">{line}</pre>
                             ))}
@@ -1626,8 +1626,8 @@ export function AdminPanel() {
                         </section>
                       )}
 
-                      <div className="flex justify-end mt-6 pt-4 border-t border-white/10">
-                          <button type="button" onClick={() => setSelectedAlert(null)} className="px-5 py-2 font-mono text-xs uppercase tracking-widest border border-white/15 hover:bg-white/5 rounded-full">
+                      <div className="flex justify-end mt-6 pt-4 border-t border-[#1E1B4B]/08">
+                          <button type="button" onClick={() => setSelectedAlert(null)} className="px-5 py-2 font-mono text-xs uppercase tracking-widest border border-[#1E1B4B]/10 hover:bg-[#F7F8FC] rounded-full">
                               Close
                           </button>
                       </div>
@@ -1639,8 +1639,8 @@ export function AdminPanel() {
       {/* User Delete Confirmation Modal */}
       <AnimatePresence>
           {userToDelete && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#FFFFFF] border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative">
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1B4B]/45 backdrop-blur-sm">
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[#FFFFFF] border border-[#1E1B4B]/08 p-6 md:p-8 rounded-3xl w-full max-w-md shadow-2xl relative">
                       <h3 className="font-editorial text-3xl mb-2 text-[#FF2D55]">Delete User?</h3>
                       <p className="font-mono text-xs opacity-60 mb-8">
                           Are you sure you want to permanently delete this user? This action cannot be undone and will erase all their campaigns, applications, and data.
@@ -1784,7 +1784,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 
   return (
     <div className="mt-8 space-y-8">
-      <div className="border-b border-white/10 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="font-sans text-3xl font-bold tracking-tight">Agent Verification &amp; Approval Desk</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-widest">
@@ -1794,12 +1794,12 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 
         <div className="flex items-center gap-3">
           {/* VIEW MODE TOGGLE SWITCHER (Thumbnail View 4 in a row vs List View) */}
-          <div className="flex bg-white/5 border border-white/10 p-1 rounded-xs font-sans text-xs">
+          <div className="flex bg-[#F7F8FC] border border-[#1E1B4B]/08 p-1 rounded-xs font-sans text-xs">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
-                viewMode === "grid" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                viewMode === "grid" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
             >
               ▦ Thumbnail View (4 in Row)
@@ -1808,14 +1808,14 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
               type="button"
               onClick={() => setViewMode("list")}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xs transition-all ${
-                viewMode === "list" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-white/60 hover:text-white"
+                viewMode === "list" ? "bg-[#FF2D55] text-white font-bold shadow-md" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
             >
               ☰ List View
             </button>
           </div>
 
-          <button type="button" onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-white/20 hover:border-white">
+          <button type="button" onClick={loadAgents} className="btn-outline text-xs py-1.5 px-3 border-[#1E1B4B]/12 hover:border-white">
             Refresh Applications 🔄
           </button>
         </div>
@@ -1832,10 +1832,10 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             const agentType = ag.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent";
 
             return (
-              <div key={ag.id || i} className="p-4 border border-white/15 bg-[#FFFFFF] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF2D55]/50 transition-all">
+              <div key={ag.id || i} className="p-4 border border-[#1E1B4B]/10 bg-[#FFFFFF] flex flex-col justify-between rounded-xs space-y-3 shadow-xl hover:border-[#FF2D55]/50 transition-all">
                 <div className="space-y-3">
                   {/* Thumbnail Avatar/Banner Box */}
-                  <div className="relative w-full h-32 bg-gradient-to-br from-[#FF2D55]/20 via-purple-900/20 to-blue-900/20 border border-white/10 rounded-xs flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-32 bg-gradient-to-br from-[#FF2D55]/20 via-purple-900/20 to-blue-900/20 border border-[#1E1B4B]/08 rounded-xs flex items-center justify-center overflow-hidden">
                     <span className="font-sans text-4xl font-bold text-[#475569]">{companyInitial}</span>
                     <span className={`absolute top-2 right-2 font-sans text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-xs border font-bold ${
                       isApproved ? "bg-[#14B8A6] text-black border-[#14B8A6]" :
@@ -1854,7 +1854,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                     <p className="font-sans text-[10px] text-[#64748B] line-clamp-1">{ag.name || "Agency Lead"} · {ag.email || "agency@cr8.studio"}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-white/5 space-y-1 font-sans text-[10px] text-[#64748B]">
+                  <div className="pt-2 border-t border-[#1E1B4B]/06 space-y-1 font-sans text-[10px] text-[#64748B]">
                     <div><span className="text-[#94A3B8]">Industry:</span> {ag.industry || "General"}</div>
                     <div><span className="text-[#94A3B8]">City:</span> {ag.city || "India"}</div>
                     {ag.website && (
@@ -1863,7 +1863,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/10 flex items-center gap-2 font-sans text-[10px]">
+                <div className="pt-3 border-t border-[#1E1B4B]/08 flex items-center gap-2 font-sans text-[10px]">
                   {!isApproved ? (
                     <>
                       <button type="button" onClick={() => handleApprove(ag)} className="flex-1 py-1.5 bg-[#14B8A6] hover:bg-[#2fb24f] text-black font-bold rounded-xs text-center transition-all">
@@ -1885,8 +1885,8 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
         </div>
       ) : (
         /* LIST VIEW */
-        <div className="border border-white/15 bg-[#FFFFFF] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
-          <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-white/10 bg-white/[0.02] text-[#64748B] text-[10px] tracking-widest uppercase font-bold">
+        <div className="border border-[#1E1B4B]/10 bg-[#FFFFFF] rounded-xs overflow-hidden shadow-2xl font-sans text-xs">
+          <div className="hidden md:grid grid-cols-12 px-4 md:px-6 py-3 border-b border-[#1E1B4B]/08 bg-[#F8FAFC] text-[#64748B] text-[10px] tracking-widest uppercase font-bold">
             <div className="col-span-4">Agency / Company</div>
             <div className="col-span-3">Contact &amp; Location</div>
             <div className="col-span-2">Type / Industry</div>
@@ -1897,7 +1897,7 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
             const isApproved = Boolean(ag.agent_approved);
 
             return (
-              <div key={ag.id || i} className="flex flex-col gap-3 md:grid md:grid-cols-12 md:items-center px-4 md:px-6 py-4 border-b border-white/5 hover:bg-white/[0.02]">
+              <div key={ag.id || i} className="flex flex-col gap-3 md:grid md:grid-cols-12 md:items-center px-4 md:px-6 py-4 border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC]">
                 <div className="md:col-span-4 space-y-0.5 min-w-0">
                   <div className="font-sans text-lg text-[#1E1B4B] font-bold break-words">{companyName}</div>
                   <div className="text-[10px] text-[#64748B] line-clamp-2">{ag.bio || "Talent agency partner."}</div>
@@ -1928,19 +1928,19 @@ function AgentApprovalDesk({ fetchUsers, setStats }) {
 
       {/* DECLINE MODAL */}
       {declineModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <form onSubmit={handleDeclineSubmit} className="bg-[#FFFFFF] border border-white/20 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-[#1E1B4B]/45 backdrop-blur-md flex items-center justify-center p-4">
+          <form onSubmit={handleDeclineSubmit} className="bg-[#FFFFFF] border border-[#1E1B4B]/12 p-5 sm:p-6 max-w-md w-full max-h-[min(90dvh,36rem)] overflow-y-auto rounded-3xl space-y-4 shadow-2xl">
             <h3 className="font-sans text-2xl text-[#1E1B4B] font-bold">Decline Agency Access</h3>
             <p className="font-sans text-xs opacity-60">Decline application for {declineModal.company || declineModal.name || "Agency"}:</p>
             <textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
               placeholder=""
-              className="w-full bg-black/60 border border-white/20 p-3 text-xs font-sans text-[#1E1B4B] rounded-xs h-24 focus:outline-none focus:border-[#FF2D55]"
+              className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-3 text-xs font-sans text-[#1E1B4B] rounded-xs h-24 focus:outline-none focus:border-[#FF2D55]"
               required
             />
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 font-sans text-xs">
-              <button type="button" onClick={() => setDeclineModal(null)} className="px-4 py-2 border border-white/20 hover:bg-white/5">Cancel</button>
+              <button type="button" onClick={() => setDeclineModal(null)} className="px-4 py-2 border border-[#1E1B4B]/12 hover:bg-[#F7F8FC]">Cancel</button>
               <button type="submit" className="px-4 py-2 bg-[#FF2D55] text-white font-bold hover:bg-[#E11D48]">Confirm Decline</button>
             </div>
           </form>
@@ -1970,7 +1970,7 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-8">
-      <div className="border-b border-white/10 pb-4 flex items-center justify-between gap-4 flex-wrap">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Treasury</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-[0.16em]">
@@ -2006,12 +2006,12 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
       </div>
 
       <div className="glass-panel overflow-x-auto">
-        <div className="p-4 border-b border-white/10 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF2D55] font-bold">
+        <div className="p-4 border-b border-[#1E1B4B]/08 font-sans text-[10px] uppercase tracking-[0.16em] text-[#FF2D55] font-bold">
           Live Escrow Ledger &amp; Manual Override Control
         </div>
         <table className="w-full text-left border-collapse font-sans text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-[9px] tracking-widest uppercase opacity-50">
+            <tr className="border-b border-[#1E1B4B]/08 text-[9px] tracking-widest uppercase opacity-50">
               <th className="p-4 font-normal">Escrow ID</th>
               <th className="p-4 font-normal">Campaign &amp; Brand</th>
               <th className="p-4 font-normal">Influencer</th>
@@ -2023,7 +2023,7 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
           </thead>
           <tbody>
             {escrows.map((e) => (
-              <tr key={e.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+              <tr key={e.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                 <td className="p-4 font-bold text-[#1E1B4B] tabular-nums">{e.id}</td>
                 <td className="p-4"><div className="font-sans text-base text-[#1E1B4B] font-medium">{e.campaign}</div><div className="opacity-50 text-xs mt-0.5">{e.brand}</div></td>
                 <td className="p-4 text-[#1E1B4B]">{e.creator}</td>
@@ -2072,7 +2072,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-6">
-      <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Campaign Brief Moderation</h2>
           <p className="font-sans text-xs opacity-60 mt-1 uppercase tracking-widest">
@@ -2080,12 +2080,12 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex rounded-full border border-white/15 p-0.5 bg-white/[0.03]">
+          <div className="inline-flex rounded-full border border-[#1E1B4B]/10 p-0.5 bg-[#F8FAFC]">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
-                viewMode === "grid" ? "bg-[#FF2D55] text-white" : "text-white/55 hover:text-white"
+                viewMode === "grid" ? "bg-[#FF2D55] text-white" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
               aria-pressed={viewMode === "grid"}
             >
@@ -2095,14 +2095,14 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
               type="button"
               onClick={() => setViewMode("table")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-[9px] uppercase tracking-widest transition-colors ${
-                viewMode === "table" ? "bg-[#FF2D55] text-white" : "text-white/55 hover:text-white"
+                viewMode === "table" ? "bg-[#FF2D55] text-white" : "text-[#64748B] hover:text-[#1E1B4B]"
               }`}
               aria-pressed={viewMode === "table"}
             >
               <List className="w-3.5 h-3.5" /> Table
             </button>
           </div>
-          <span className="font-sans text-xs px-3 py-1 bg-white/5 text-[#64748B] border border-white/15 rounded-xs font-bold">
+          <span className="font-sans text-xs px-3 py-1 bg-[#F7F8FC] text-[#64748B] border border-[#1E1B4B]/10 rounded-xs font-bold">
             AI Compliance Guard
           </span>
         </div>
@@ -2111,9 +2111,9 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {briefs.map((b) => (
-            <div key={b.id} className="p-5 bg-[#FFFFFF] border border-white/15 rounded-2xl space-y-4 flex flex-col justify-between">
+            <div key={b.id} className="p-5 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-2xl space-y-4 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
+                <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-3 gap-2">
                   <span className="font-sans text-[10px] text-[#FF2D55] uppercase font-bold truncate">{b.brand}</span>
                   <span className={`shrink-0 font-sans text-[9px] px-2 py-0.5 border rounded-xs font-bold ${statusClass(b.status)}`}>
                     {b.status}
@@ -2121,7 +2121,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                 </div>
                 <h3 className="font-sans text-xl font-bold mt-3 text-[#1E1B4B] leading-snug">{b.title}</h3>
                 <p className="font-sans text-xs text-[#64748B] mt-1">Budget: ₹{Number(b.budget).toLocaleString("en-IN")} · {b.category}</p>
-                <div className="mt-4 p-3 bg-white/[0.03] border border-white/10 rounded-xs space-y-1.5 font-sans text-[11px]">
+                <div className="mt-4 p-3 bg-[#F8FAFC] border border-[#1E1B4B]/08 rounded-xs space-y-1.5 font-sans text-[11px]">
                   <div className="flex justify-between text-[#14B8A6]">
                     <span>AI Content Audit</span>
                     <span className="font-bold">{b.aiSafety}</span>
@@ -2136,7 +2136,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
                   </div>
                 </div>
               </div>
-              <div className="pt-3 border-t border-white/10 flex items-center justify-between font-sans text-xs">
+              <div className="pt-3 border-t border-[#1E1B4B]/08 flex items-center justify-between font-sans text-xs">
                 <span className="opacity-50">Brief #{b.id}</span>
                 {b.status === "Pending Review" ? (
                   <button type="button" onClick={() => handleApproveBrief(b.id)} className="btn-solid py-1.5 px-4 text-xs bg-[#FF2D55] text-white">
@@ -2153,7 +2153,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
         <div className="glass-panel overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-[9px] tracking-widest uppercase opacity-50">
+              <tr className="border-b border-[#1E1B4B]/08 text-[9px] tracking-widest uppercase opacity-50">
                 <th className="p-4 font-normal">Brief</th>
                 <th className="p-4 font-normal">Brand</th>
                 <th className="p-4 font-normal">Category</th>
@@ -2166,7 +2166,7 @@ function BriefModerationDesk({ briefs = DEFAULT_BRIEFS, setBriefs }) {
             </thead>
             <tbody>
               {briefs.map((b) => (
-                <tr key={b.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                <tr key={b.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                   <td className="p-4">
                     <div className="font-medium text-[#1E1B4B]">{b.title}</div>
                     <div className="text-[10px] opacity-45 mt-0.5 font-mono uppercase tracking-wider">{b.id} · {b.timeline}</div>
@@ -2216,7 +2216,7 @@ function MatchAlgorithmConfig() {
          {Object.entries(config).map(([key, val]) => (
            <div key={key} className="flex flex-col gap-1">
              <label className="font-sans text-[10px] uppercase opacity-70">{key.replace(/_/g, " ")}</label>
-             <input type="number" step="0.1" value={val} onChange={e => setConfig({...config, [key]: parseFloat(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
+             <input type="number" step="0.1" value={val} onChange={e => setConfig({...config, [key]: parseFloat(e.target.value) || 0})} className="bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
            </div>
          ))}
        </div>
@@ -2240,11 +2240,11 @@ function ReferralConfig() {
        <div className="space-y-4">
          <div className="flex flex-col gap-1">
            <label className="font-sans text-[10px] uppercase opacity-70">Referrer Reward</label>
-           <input type="number" value={config.referrer_reward || 0} onChange={e => setConfig({...config, referrer_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
+           <input type="number" value={config.referrer_reward || 0} onChange={e => setConfig({...config, referrer_reward: parseInt(e.target.value) || 0})} className="bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
          </div>
          <div className="flex flex-col gap-1">
            <label className="font-sans text-[10px] uppercase opacity-70">Referee Reward</label>
-           <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-black/60 border border-white/20 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
+           <input type="number" value={config.referee_reward || 0} onChange={e => setConfig({...config, referee_reward: parseInt(e.target.value) || 0})} className="bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-sans text-sm rounded-xs w-full text-[#1E1B4B]" />
          </div>
        </div>
        <button onClick={handleSave} className="mt-6 btn-solid bg-[#FF2D55] text-white px-6 py-2 font-sans text-xs uppercase hover:bg-[#E11D48]">Save Configuration</button>

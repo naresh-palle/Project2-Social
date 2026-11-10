@@ -474,7 +474,7 @@ export default function Register() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FFFFFF]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FFFFFF]/95 backdrop-blur-2xl border border-[#1E1B4B]/10 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
         >
           {/* Same top gradient bar as Sign In */}
           <div className="h-1 w-full bg-gradient-to-r from-[#FF2D55] via-purple-500 to-[#14B8A6] absolute top-0 left-0" />
@@ -506,9 +506,9 @@ export default function Register() {
           </div>
 
           <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#F7F8FC]/20 flex-1"></div>
+            <div className="h-px bg-[#1E1B4B]/12 flex-1"></div>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#F7F8FC]/20 flex-1"></div>
+            <div className="h-px bg-[#1E1B4B]/12 flex-1"></div>
           </div>
 
           <form
@@ -547,7 +547,7 @@ export default function Register() {
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
+                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
                     }`}
                   >
                     <div className="font-sans text-xs text-[#1E1B4B]">Company Agent</div>
@@ -562,7 +562,7 @@ export default function Register() {
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
                         ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
+                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
                     }`}
                   >
                     <div className="font-sans text-xs text-[#1E1B4B]">Influencer Agent</div>
@@ -587,7 +587,7 @@ export default function Register() {
                       key={s}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, username: s }))}
-                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#FF2D55] hover:text-[#FF2D55] transition-colors"
+                      className="font-sans text-[10px] px-2 py-0.5 border border-[#1E1B4B]/10 bg-[#F7F8FC] hover:border-[#FF2D55] hover:text-[#FF2D55] transition-colors"
                     >
                       {s}
                     </button>
@@ -615,7 +615,7 @@ export default function Register() {
               <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 City
               </label>
-              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-city">{form.city || ""}</span>
               </div>
             </div>
@@ -624,7 +624,7 @@ export default function Register() {
               <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
                 State
               </label>
-              <div className="mt-0.5 py-1 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-state">{form.state || ""}</span>
               </div>
             </div>
@@ -644,7 +644,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { identifier: form.email || form.mobile, mode: "password" } })}
-                  className="btn-solid text-[10px] py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white"
+                  className="text-[10px] py-1.5 px-3 rounded-full bg-[#EEF2FF] border border-[#1E1B4B]/10 text-[#1E1B4B] hover:bg-[#E11D48] hover:text-white font-sans font-bold uppercase tracking-wider"
                 >
                   Sign In with Password
                 </button>
@@ -666,7 +666,7 @@ export default function Register() {
           )}
 
           {/* Prominent Terms & Conditions Checkbox Container */}
-          <div className="mt-1.5 p-1.5 bg-white/[0.03] border border-white/15 flex items-center gap-2 shrink-0">
+          <div className="mt-1.5 p-1.5 bg-[#F8FAFC] border border-[#1E1B4B]/10 flex items-center gap-2 shrink-0">
             <input
               type="checkbox"
               id="terms-check"
@@ -708,13 +708,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#F7F8FC]/90 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B4B]/40 backdrop-blur-sm p-3 sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#F7F8FC] border border-[#1E1B4B]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
+              className="bg-[#FFFFFF] border border-[#1E1B4B]/12 shadow-2xl p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative rounded-3xl text-[#1E1B4B]"
             >
               <button
                 type="button"
@@ -776,7 +776,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
       <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
         {label} {props.required && <span className="text-[#FF2D55] ml-0.5">*</span>}
       </label>
-      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF2D55] text-[#FF2D55]" : "hairline-b focus-within:border-[#FF2D55]"}`}>
+      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-[#1E1B4B]/08" : error ? "border-b border-[#FF2D55] text-[#FF2D55]" : "hairline-b focus-within:border-[#FF2D55]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}

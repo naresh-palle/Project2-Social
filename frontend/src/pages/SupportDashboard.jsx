@@ -78,7 +78,7 @@ const STATUS_OPTS = [
 ];
 
 const FILTER_INPUT =
-  "w-full bg-gradient-to-b from-white/[0.07] to-white/[0.02] text-[#1E1B4B] border border-white/15 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-white/35 focus:outline-none focus:border-[#FF2D55]/60";
+  "w-full bg-gradient-to-b from-[#FFFFFF] to-[#F7F8FC] text-[#1E1B4B] border border-[#1E1B4B]/10 rounded-xl px-3 py-2.5 text-[12px] font-medium placeholder:text-[#94A3B8] focus:outline-none focus:border-[#FF2D55]/60";
 
 const iconSm = (Icon, cls = "text-[#64748B]") => <Icon className={`w-3.5 h-3.5 ${cls}`} />;
 
@@ -137,7 +137,7 @@ function statusClass(status) {
   if (["in_progress", "assigned", "investigating", "action_required", "pending_user", "pending_support", "ai_handling", "reopened"].includes(status)) {
     return "bg-[#D97706]/15 text-[#D97706] border-[#D97706]/30";
   }
-  return "bg-white/10 text-[#94A3B8] border-white/10";
+  return "bg-[#EEF2FF] text-[#94A3B8] border-[#1E1B4B]/08";
 }
 
 function typeLabel(t) {
@@ -571,7 +571,7 @@ export default function SupportDashboard() {
         transition={{ duration: 0.35 }}
         className="mb-6"
       >
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1A1214] via-[#F3EEFF] to-[#FFF7FB] px-5 py-5 md:px-7 md:py-6">
+        <div className="relative overflow-hidden rounded-3xl border border-[#1E1B4B]/08 bg-gradient-to-br from-[#1A1214] via-[#F3EEFF] to-[#FFF7FB] px-5 py-5 md:px-7 md:py-6">
           <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-[#FF2D55]/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 left-10 w-48 h-48 rounded-full bg-[#14B8A6]/08 blur-3xl" />
           <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -588,7 +588,7 @@ export default function SupportDashboard() {
             </div>
             {tab === "dashboard" && stats && (
               <div className="flex flex-wrap gap-2">
-                <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
+                <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F7F8FC] px-3 py-2 min-w-[5.5rem]">
                   <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Open</div>
                   <div className="text-xl font-bold tabular-nums">{stats.open ?? stats.unassigned ?? 0}</div>
                 </div>
@@ -596,7 +596,7 @@ export default function SupportDashboard() {
                   <div className="font-mono text-[8px] uppercase tracking-widest text-[#FF2D55]/80">Unassigned</div>
                   <div className="text-xl font-bold tabular-nums">{stats.unassigned ?? 0}</div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 min-w-[5.5rem]">
+                <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F7F8FC] px-3 py-2 min-w-[5.5rem]">
                   <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Today</div>
                   <div className="text-xl font-bold tabular-nums">{stats.finished_today_by_me ?? stats.resolved_today ?? 0}</div>
                 </div>
@@ -622,7 +622,7 @@ export default function SupportDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * i, duration: 0.3 }}
                 onClick={() => setTab("tickets", card.queue)}
-                className={`relative overflow-hidden text-left rounded-2xl border border-white/10 bg-[#F3EEFF] p-4 hover:border-white/25 transition-colors group`}
+                className={`relative overflow-hidden text-left rounded-2xl border border-[#1E1B4B]/08 bg-[#F3EEFF] p-4 hover:border-[#1E1B4B]/12 transition-colors group`}
               >
                 <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${card.accent} opacity-80`} />
                 <div className="relative flex items-start justify-between gap-2">
@@ -636,7 +636,7 @@ export default function SupportDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-[#F3EEFF] p-5">
+            <div className="lg:col-span-2 rounded-3xl border border-[#1E1B4B]/08 bg-[#F3EEFF] p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-sans font-bold text-lg">Priority focus</h2>
@@ -649,9 +649,9 @@ export default function SupportDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
                   ["Critical", stats.critical ?? 0, "all", "border-[#FF2D55]/30 bg-[#FF2D55]/10"],
-                  ["AI escalated", stats.ai_escalated ?? 0, "escalated", "border-white/10 bg-white/[0.03]"],
-                  ["Pending user", stats.pending_user ?? 0, "all", "border-white/10 bg-white/[0.03]"],
-                  ["Pending support", stats.pending_support ?? 0, "all", "border-white/10 bg-white/[0.03]"],
+                  ["AI escalated", stats.ai_escalated ?? 0, "escalated", "border-[#1E1B4B]/08 bg-[#F8FAFC]"],
+                  ["Pending user", stats.pending_user ?? 0, "all", "border-[#1E1B4B]/08 bg-[#F8FAFC]"],
+                  ["Pending support", stats.pending_support ?? 0, "all", "border-[#1E1B4B]/08 bg-[#F8FAFC]"],
                 ].map(([label, val, qid, cls]) => (
                   <button key={label} type="button" onClick={() => setTab("tickets", qid)} className={`rounded-2xl border px-3 py-3.5 text-left hover:brightness-110 transition ${cls}`}>
                     <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
@@ -665,7 +665,7 @@ export default function SupportDashboard() {
                   ["Company", stats.company ?? 0, "company", Building2],
                   ["Agent", stats.agent ?? 0, "agent", Handshake],
                 ].map(([label, val, qid, Icon]) => (
-                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left hover:border-white/25">
+                  <button key={label} type="button" onClick={() => setTab("tickets", qid)} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-3 text-left hover:border-[#1E1B4B]/12">
                     <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                       <Icon className="w-3 h-3" /> {label}
                     </div>
@@ -675,7 +675,7 @@ export default function SupportDashboard() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#F3EEFF] p-5 space-y-2.5">
+            <div className="rounded-3xl border border-[#1E1B4B]/08 bg-[#F3EEFF] p-5 space-y-2.5">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-8 h-8 rounded-xl bg-[#FF2D55]/15 border border-[#FF2D55]/25 flex items-center justify-center">
                   <Zap className="w-4 h-4 text-[#FF2D55]" />
@@ -695,7 +695,7 @@ export default function SupportDashboard() {
                   key={a.label}
                   type="button"
                   onClick={() => setTab("tickets", a.queue)}
-                  className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left hover:border-[#FF2D55]/40 hover:bg-[#E11D48]/05 transition-colors"
+                  className="w-full flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-3 text-left hover:border-[#FF2D55]/40 hover:bg-[#E11D48]/05 transition-colors"
                 >
                   <AiIcon name={a.icon} className="w-4 h-4 opacity-80" />
                   <span className="text-sm flex-1 font-medium">{a.label}</span>
@@ -705,7 +705,7 @@ export default function SupportDashboard() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-[#F3EEFF] p-5">
+          <div className="rounded-3xl border border-[#1E1B4B]/08 bg-[#F3EEFF] p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-sans font-bold text-lg">Attention list</h2>
@@ -713,7 +713,7 @@ export default function SupportDashboard() {
               </div>
             </div>
             {attentionTickets.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-[#94A3B8]">
+              <div className="rounded-2xl border border-dashed border-[#1E1B4B]/10 px-4 py-10 text-center text-sm text-[#94A3B8]">
                 Queue is clear — nice work.
               </div>
             ) : (
@@ -726,7 +726,7 @@ export default function SupportDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
                     onClick={() => { setTab("tickets", "all"); openTicket(t.id); }}
-                    className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3.5 py-3 text-left hover:bg-white/[0.05] hover:border-white/20 transition-colors"
+                    className="w-full flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3.5 py-3 text-left hover:bg-[#F7F8FC] hover:border-[#1E1B4B]/12 transition-colors"
                   >
                     <div className={`w-1.5 self-stretch rounded-full shrink-0 ${t.priority === "Critical" ? "bg-[#FF2D55]" : t.priority === "High" ? "bg-[#D97706]" : "bg-white/20"}`} />
                     <div className="min-w-0 flex-1">
@@ -745,7 +745,7 @@ export default function SupportDashboard() {
       {tab === "tickets" && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 space-y-3">
-            <div className="rounded-3xl border border-white/10 bg-[#F3EEFF] p-3.5 space-y-3">
+            <div className="rounded-3xl border border-[#1E1B4B]/08 bg-[#F3EEFF] p-3.5 space-y-3">
               <div className="flex items-center gap-2 px-0.5">
                 <Filter className="w-3.5 h-3.5 text-[#FF2D55]" />
                 <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#64748B]">Filters</span>
@@ -770,7 +770,7 @@ export default function SupportDashboard() {
             {loading ? (
               <div className="flex items-center gap-2 text-[#64748B] text-sm px-1"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
             ) : tickets.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/15 px-4 py-8 text-center text-sm text-[#94A3B8]">No tickets match filters.</div>
+              <div className="rounded-2xl border border-dashed border-[#1E1B4B]/10 px-4 py-8 text-center text-sm text-[#94A3B8]">No tickets match filters.</div>
             ) : (
               tickets.map((t) => (
                 <button
@@ -780,7 +780,7 @@ export default function SupportDashboard() {
                   className={`w-full text-left p-3.5 rounded-2xl border transition-all ${
                     selectedId === t.id
                       ? "border-[#FF2D55]/50 bg-[#FF2D55]/10 shadow-[0_0_0_1px_rgba(255,59,48,0.12)]"
-                      : "border-white/10 bg-[#F3EEFF] hover:border-white/25 hover:bg-white/[0.03]"
+                      : "border-[#1E1B4B]/08 bg-[#F3EEFF] hover:border-[#1E1B4B]/12 hover:bg-[#F8FAFC]"
                   }`}
                 >
                   <div className="font-mono text-[9px] tracking-widest text-[#94A3B8] mb-1.5 flex flex-wrap gap-x-2">
@@ -800,7 +800,7 @@ export default function SupportDashboard() {
 
           <div className="lg:col-span-3">
             {selectedId && ticket ? (
-              <div className="border border-white/10 bg-[#F3EEFF] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+              <div className="border border-[#1E1B4B]/08 bg-[#F3EEFF] rounded-3xl p-5 sticky top-4 max-h-[82vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
                     <div className="font-mono text-[10px] text-[#94A3B8] tracking-widest">{ticket.number} · {typeLabel(ticket.user_type)} · {ticket.priority}</div>
@@ -810,11 +810,11 @@ export default function SupportDashboard() {
                       <p className={`text-[10px] mt-1 font-mono ${ticket.sla_breached ? "text-[#FF2D55]" : "text-[#94A3B8]"}`}>SLA {fmtTs(ticket.sla_due_at)}{ticket.sla_breached ? " · BREACHED" : ""}</p>
                     )}
                   </div>
-                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full shrink-0"><X className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-[#EEF2FF] rounded-full shrink-0"><X className="w-4 h-4" /></button>
                 </div>
 
                 {detail.user_context && (
-                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] text-xs text-[#64748B] space-y-1">
+                  <div className="mb-3 p-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] text-xs text-[#64748B] space-y-1">
                     <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">User</div>
                     <div>{detail.user_context.name} · {typeLabel(detail.user_context.user_type)}</div>
                     {detail.user_context.handle && <div>@{String(detail.user_context.handle).replace(/^@/, "")}</div>}
@@ -828,7 +828,7 @@ export default function SupportDashboard() {
                       <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">Social Media Audit</div>
                       <div className="flex flex-wrap gap-1.5 justify-end">
                       {can("support.tickets.update") && (
-                        <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF2D55]/50">
+                        <button type="button" disabled={busy} onClick={retryAudit} className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-[#1E1B4B]/12 hover:border-[#FF2D55]/50">
                           Retry audit
                         </button>
                       )}
@@ -853,7 +853,7 @@ export default function SupportDashboard() {
                             toast.error(e.response?.data?.detail || e.message || "PDF export failed");
                           }
                         }}
-                        className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-white/20 hover:border-[#FF2D55]/50"
+                        className="px-2 py-1 rounded-full text-[9px] font-mono uppercase border border-[#1E1B4B]/12 hover:border-[#FF2D55]/50"
                       >
                         Export PDF
                       </button>
@@ -873,7 +873,7 @@ export default function SupportDashboard() {
                       Audit {ticket.social_audit.audit_id} · scraper {ticket.social_audit.scraper_status || "—"} · {fmtTs(ticket.social_audit.audit_timestamp)}
                     </p>
                     {auditHistory.length > 0 && (
-                      <div className="pt-2 border-t border-white/10 space-y-1">
+                      <div className="pt-2 border-t border-[#1E1B4B]/08 space-y-1">
                         <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Audit history</div>
                         {auditHistory.slice(0, 5).map((a) => (
                           <div key={a.id} className="flex justify-between gap-2 text-[11px] text-[#64748B]">
@@ -887,10 +887,10 @@ export default function SupportDashboard() {
                 )}
 
                 {(ticket.history || []).length > 0 && (
-                  <div className="mb-3 p-3 rounded-2xl border border-white/10 bg-white/[0.02] max-h-28 overflow-y-auto">
+                  <div className="mb-3 p-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] max-h-28 overflow-y-auto">
                     <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1.5">Timeline</div>
                     {(ticket.history || []).slice().reverse().map((h, i) => (
-                      <div key={i} className="text-[11px] text-[#64748B] py-0.5 border-b border-white/5 last:border-0">
+                      <div key={i} className="text-[11px] text-[#64748B] py-0.5 border-b border-[#1E1B4B]/06 last:border-0">
                         <span className="text-[#475569]">{h.actor_name}</span>
                         {" · "}{(h.action || "").replace(/_/g, " ")}
                         {h.previous_status || h.new_status ? ` · ${h.previous_status || "—"} → ${h.new_status || "—"}` : ""}
@@ -905,10 +905,10 @@ export default function SupportDashboard() {
                     <button type="button" disabled={busy} onClick={claim} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#FF2D55]/40 text-[#FF2D55] bg-[#FF2D55]/10"><UserPlus className="w-3 h-3 inline mr-1" /> Claim</button>
                   )}
                   {statusButtons.map((s) => (
-                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-white/15 text-white/50 hover:border-white/30"}`}>{s.replace(/_/g, " ")}</button>
+                    <button key={s} type="button" disabled={busy} onClick={() => patch({ status: s })} className={`px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border ${ticket.status === s ? "border-[#FF2D55] text-[#FF2D55] bg-[#FF2D55]/10" : "border-[#1E1B4B]/10 text-[#94A3B8] hover:border-[#1E1B4B]/15"}`}>{s.replace(/_/g, " ")}</button>
                   ))}
                   {canEscalate && (<button type="button" disabled={busy} onClick={() => patch({ escalate: true })} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#D97706]/30 text-[#D97706]">Escalate</button>)}
-                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-white/15 text-[#FF2D55]">AI draft</button>)}
+                  {canReply && (<button type="button" disabled={busy} onClick={draftAi} className="px-2.5 py-1.5 rounded-full text-[10px] font-mono uppercase border border-[#1E1B4B]/10 text-[#FF2D55]">AI draft</button>)}
                   {can("support.tickets.update") && (
                     <MenuSelect className="w-full sm:w-[8.5rem]" value={ticket.priority || "Medium"} onChange={(v) => patch({ priority: v })} options={PRIORITY_OPTIONS.filter((o) => o.value)} />
                   )}
@@ -925,14 +925,14 @@ export default function SupportDashboard() {
                 {can("support.tickets.update") && (
                   <div className="flex gap-2 mb-3 items-center">
                     <Tag className="w-3.5 h-3.5 text-[#94A3B8]" />
-                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-white/[0.04] text-[#1E1B4B] border border-white/15 px-2.5 py-1.5 text-xs rounded-xl" />
-                    <button type="button" disabled={busy} onClick={saveTags} className="px-2.5 py-1.5 text-[10px] font-mono uppercase border border-white/15 rounded-xl hover:border-white/30">Save</button>
+                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Tags" className="flex-1 bg-[#F1F5F9] text-[#1E1B4B] border border-[#1E1B4B]/10 px-2.5 py-1.5 text-xs rounded-xl" />
+                    <button type="button" disabled={busy} onClick={saveTags} className="px-2.5 py-1.5 text-[10px] font-mono uppercase border border-[#1E1B4B]/10 rounded-xl hover:border-[#1E1B4B]/15">Save</button>
                   </div>
                 )}
 
                 <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1 no-scrollbar min-h-[180px]">
                   {(detail.messages || []).map((m) => (
-                    <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-white/[0.03] border border-white/10 border-dashed" : m.author_id === user?.id ? "bg-[#FF2D55]/15 border border-[#FF2D55]/25 ml-4" : "bg-white/[0.04] border border-white/10 mr-4"}`}>
+                    <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.internal ? "bg-amber-500/10 border border-amber-500/20" : m.source === "ai" || m.author_role === "ai" ? "bg-[#F8FAFC] border border-[#1E1B4B]/08 border-dashed" : m.author_id === user?.id ? "bg-[#FF2D55]/15 border border-[#FF2D55]/25 ml-4" : "bg-[#F1F5F9] border border-[#1E1B4B]/08 mr-4"}`}>
                       <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1 flex items-center gap-2">
                         <MessageSquare className="w-3 h-3" />
                         {m.author_name}{m.internal ? " · internal" : ""}{m.source === "ai" ? " · AI" : ""} · {fmtTs(m.created_at)}
@@ -943,13 +943,13 @@ export default function SupportDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-white/[0.04] text-[#1E1B4B] border border-white/15 px-3 py-2.5 text-sm outline-none focus:border-[#FF2D55]/60 resize-none rounded-2xl" />
+                  <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Reply or internal note…" className="w-full bg-[#F1F5F9] text-[#1E1B4B] border border-[#1E1B4B]/10 px-3 py-2.5 text-sm outline-none focus:border-[#FF2D55]/60 resize-none rounded-2xl" />
                   <div className="flex gap-2">
                     {canReply && (
                       <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: false })} className="flex-1 bg-[#FF2D55] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"><Send className="w-3.5 h-3.5" /> Reply</button>
                     )}
                     {canInternal && (
-                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-4 border border-white/20 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50 rounded-xl">Internal</button>
+                      <button type="button" disabled={busy || !reply.trim()} onClick={() => sendReply({ internal: true })} className="px-4 border border-[#1E1B4B]/12 font-mono text-[10px] tracking-widest uppercase disabled:opacity-50 rounded-xl">Internal</button>
                     )}
                   </div>
                 </div>
@@ -961,9 +961,9 @@ export default function SupportDashboard() {
 
       {tab === "staff" && canViewStaff && (
         <div className="space-y-6">
-          <div className="overflow-x-auto border border-white/10 rounded-2xl">
+          <div className="overflow-x-auto border border-[#1E1B4B]/08 rounded-2xl">
             <table className="w-full text-left text-sm">
-              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
+              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-[#1E1B4B]/08">
                 <tr>
                   <th className="p-3">Name</th>
                   <th className="p-3">Email</th>
@@ -978,7 +978,7 @@ export default function SupportDashboard() {
               </thead>
               <tbody>
                 {staff.map((u) => (
-                  <tr key={u.id} className="border-b border-white/5">
+                  <tr key={u.id} className="border-b border-[#1E1B4B]/06">
                     <td className="p-3">{u.name}</td>
                     <td className="p-3 text-[#64748B]">{u.email}</td>
                     <td className="p-3 font-mono text-xs">{u.support_role || u.role}</td>
@@ -1001,7 +1001,7 @@ export default function SupportDashboard() {
                         />
                         <button
                           type="button"
-                          className="text-[10px] font-mono uppercase border border-white/15 px-2 py-1 rounded-lg"
+                          className="text-[10px] font-mono uppercase border border-[#1E1B4B]/10 px-2 py-1 rounded-lg"
                           onClick={() => patchStaff(u.id, { active: u.status !== "active" })}
                         >
                           {u.status === "active" ? "Deactivate" : "Activate"}
@@ -1015,11 +1015,11 @@ export default function SupportDashboard() {
           </div>
 
           {canManageUsers && (
-            <form onSubmit={createStaff} className="border border-white/10 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl">
+            <form onSubmit={createStaff} className="border border-[#1E1B4B]/08 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl">
               <h3 className="md:col-span-2 font-sans font-bold">Create Support User</h3>
-              <input required placeholder="Name" value={newStaff.name} onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <input required type="email" placeholder="Email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <input required placeholder="Username" value={newStaff.username} onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <input required placeholder="Name" value={newStaff.name} onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
+              <input required type="email" placeholder="Email" value={newStaff.email} onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
+              <input required placeholder="Username" value={newStaff.username} onChange={(e) => setNewStaff({ ...newStaff, username: e.target.value })} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
               <MenuSelect
                 value={newStaff.support_role}
                 onChange={(v) => setNewStaff({ ...newStaff, support_role: v })}
@@ -1029,7 +1029,7 @@ export default function SupportDashboard() {
                   { value: "support_admin", label: "Support Admin" },
                 ]}
               />
-              <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <input required type="password" placeholder="Password" value={newStaff.password} onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })} className="bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
               <button type="submit" disabled={busy} className="bg-[#FF2D55] text-white font-mono text-xs uppercase tracking-widest py-2 rounded-xl disabled:opacity-50">
                 Create
               </button>
@@ -1041,7 +1041,7 @@ export default function SupportDashboard() {
       {tab === "knowledge" && canViewKb && (
         <div className="space-y-4 max-w-4xl">
           {kb.map((a) => (
-            <div key={a.id} className="border border-white/10 rounded-2xl p-4">
+            <div key={a.id} className="border border-[#1E1B4B]/08 rounded-2xl p-4">
               <div className="flex justify-between gap-3">
                 <h3 className="font-sans font-bold">{a.title}</h3>
                 <span className="font-mono text-[9px] uppercase text-[#94A3B8]">{a.active ? "Active" : "Inactive"}</span>
@@ -1050,18 +1050,18 @@ export default function SupportDashboard() {
               {(a.tags || []).length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {a.tags.map((t) => (
-                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 border border-white/15 rounded-full text-[#64748B]">{t}</span>
+                    <span key={t} className="text-[9px] font-mono px-2 py-0.5 border border-[#1E1B4B]/10 rounded-full text-[#64748B]">{t}</span>
                   ))}
                 </div>
               )}
             </div>
           ))}
           {canManageKb && (
-            <form onSubmit={createKb} className="border border-white/10 rounded-2xl p-4 space-y-3">
+            <form onSubmit={createKb} className="border border-[#1E1B4B]/08 rounded-2xl p-4 space-y-3">
               <h3 className="font-sans font-bold flex items-center gap-2"><Plus className="w-4 h-4" /> New article</h3>
-              <input required value={newKb.title} onChange={(e) => setNewKb({ ...newKb, title: e.target.value })} placeholder="Title" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <textarea required value={newKb.body} onChange={(e) => setNewKb({ ...newKb, body: e.target.value })} rows={4} placeholder="Body" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
-              <input value={newKb.tags} onChange={(e) => setNewKb({ ...newKb, tags: e.target.value })} placeholder="Tags (comma-separated)" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+              <input required value={newKb.title} onChange={(e) => setNewKb({ ...newKb, title: e.target.value })} placeholder="Title" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
+              <textarea required value={newKb.body} onChange={(e) => setNewKb({ ...newKb, body: e.target.value })} rows={4} placeholder="Body" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
+              <input value={newKb.tags} onChange={(e) => setNewKb({ ...newKb, tags: e.target.value })} placeholder="Tags (comma-separated)" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
               <button type="submit" disabled={busy} className="bg-[#FF2D55] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">Create</button>
             </form>
           )}
@@ -1069,7 +1069,7 @@ export default function SupportDashboard() {
       )}
 
       {tab === "ai" && canAiConfig && aiConfig && (
-        <div className="max-w-xl border border-white/10 rounded-2xl p-5 space-y-4">
+        <div className="max-w-xl border border-[#1E1B4B]/08 rounded-2xl p-5 space-y-4">
           <h3 className="font-sans font-bold">AI Support configuration</h3>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={!!aiConfig.enabled} onChange={(e) => setAiConfig({ ...aiConfig, enabled: e.target.checked })} />
@@ -1081,11 +1081,11 @@ export default function SupportDashboard() {
           </label>
           <div>
             <div className="font-mono text-[9px] uppercase text-[#94A3B8] mb-1">Greeting</div>
-            <input value={aiConfig.greeting || ""} onChange={(e) => setAiConfig({ ...aiConfig, greeting: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+            <input value={aiConfig.greeting || ""} onChange={(e) => setAiConfig({ ...aiConfig, greeting: e.target.value })} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
           </div>
           <div>
             <div className="font-mono text-[9px] uppercase text-[#94A3B8] mb-1">Max history turns</div>
-            <input type="number" min={2} max={40} value={aiConfig.max_history || 10} onChange={(e) => setAiConfig({ ...aiConfig, max_history: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl" />
+            <input type="number" min={2} max={40} value={aiConfig.max_history || 10} onChange={(e) => setAiConfig({ ...aiConfig, max_history: e.target.value })} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl" />
           </div>
           <button type="button" disabled={busy} onClick={saveAiConfig} className="bg-[#FF2D55] text-white font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-xl disabled:opacity-50">
             Save
@@ -1097,7 +1097,7 @@ export default function SupportDashboard() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {Object.entries(analytics.by_user_type || {}).map(([ut, row]) => (
-              <div key={ut} className="border border-white/10 rounded-2xl p-4">
+              <div key={ut} className="border border-[#1E1B4B]/08 rounded-2xl p-4">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]">{typeLabel(ut)}</div>
                 <div className="mt-2 text-sm text-[#64748B] space-y-1">
                   <div>Open: {row.open}</div>
@@ -1107,9 +1107,9 @@ export default function SupportDashboard() {
               </div>
             ))}
           </div>
-          <div className="border border-white/10 rounded-2xl overflow-x-auto">
+          <div className="border border-[#1E1B4B]/08 rounded-2xl overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
+              <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-[#1E1B4B]/08">
                 <tr>
                   <th className="p-3">Agent</th>
                   <th className="p-3">Role</th>
@@ -1120,7 +1120,7 @@ export default function SupportDashboard() {
               </thead>
               <tbody>
                 {(analytics.agents || []).map((a) => (
-                  <tr key={a.id} className="border-b border-white/5">
+                  <tr key={a.id} className="border-b border-[#1E1B4B]/06">
                     <td className="p-3">{a.name}</td>
                     <td className="p-3 font-mono text-xs">{a.role}</td>
                     <td className="p-3">{a.open}</td>
@@ -1135,9 +1135,9 @@ export default function SupportDashboard() {
       )}
 
       {tab === "audit" && canAudit && (
-        <div className="border border-white/10 rounded-2xl overflow-x-auto">
+        <div className="border border-[#1E1B4B]/08 rounded-2xl overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-white/10">
+            <thead className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border-b border-[#1E1B4B]/08">
               <tr>
                 <th className="p-3">Time</th>
                 <th className="p-3">Actor</th>
@@ -1149,7 +1149,7 @@ export default function SupportDashboard() {
             </thead>
             <tbody>
               {audit.map((log, i) => (
-                <tr key={log.id || i} className="border-b border-white/5 align-top">
+                <tr key={log.id || i} className="border-b border-[#1E1B4B]/06 align-top">
                   <td className="p-3 text-xs text-[#64748B] whitespace-nowrap">{fmtTs(log.created_at || log.timestamp)}</td>
                   <td className="p-3">{log.user || log.username || log.user_id || "—"}</td>
                   <td className="p-3 font-mono text-xs">{log.meta?.actor_type || "—"}</td>

@@ -21,7 +21,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           type="button"
           onClick={onSync}
           disabled={isSyncing}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/10 hover:border-white/30 hover:bg-white/5 transition-colors text-[10px] font-sans uppercase tracking-wider disabled:opacity-50 rounded-full"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#1E1B4B]/08 hover:border-[#1E1B4B]/15 hover:bg-[#F7F8FC] transition-colors text-[10px] font-sans uppercase tracking-wider disabled:opacity-50 rounded-full"
         >
           <RefreshCw className={`w-3 h-3 ${isSyncing ? "animate-spin" : ""}`} />
           {isSyncing ? "Syncing…" : "Sync"}
@@ -43,10 +43,10 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
           const reach = c.reach ?? analytics.reach ?? null;
 
           return (
-            <div key={c.platform} className="bg-white/[0.02] border border-white/10 px-3 py-2.5 rounded-2xl hover:border-white/20 hover:bg-white/[0.04] transition-all">
+            <div key={c.platform} className="bg-[#F8FAFC] border border-[#1E1B4B]/08 px-3 py-2.5 rounded-2xl hover:border-[#1E1B4B]/12 hover:bg-[#F1F5F9] transition-all">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center overflow-hidden border border-white/10 shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-[#F7F8FC] flex items-center justify-center overflow-hidden border border-[#1E1B4B]/08 shrink-0">
                     {c.profile_picture ? (
                       <img src={c.profile_picture} alt={c.account_name} className="w-full h-full object-cover" />
                     ) : (
@@ -67,7 +67,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                         className={`ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider ${
                           c.verified || c.is_verified
                             ? "bg-[#14B8A6]/15 text-[#14B8A6] border border-[#14B8A6]/35"
-                            : "bg-white/5 text-[#64748B] border border-white/10"
+                            : "bg-[#F7F8FC] text-[#64748B] border border-[#1E1B4B]/08"
                         }`}
                       >
                         {c.verified || c.is_verified ? "Verified" : "Unverified"}
@@ -82,7 +82,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 )}
               </div>
 
-              <div className="metric-grid-5 pt-2 border-t border-white/5">
+              <div className="metric-grid-5 pt-2 border-t border-[#1E1B4B]/06">
                 <div className="min-w-0" title={formatExactNumber(followers) || undefined}>
                   <div className="text-[9px] uppercase tracking-wider text-[#94A3B8] mb-0.5">Followers</div>
                   <div className="text-sm font-semibold tabular-nums truncate">{displayMetric(followers, { format: formatCompactNumber })}</div>

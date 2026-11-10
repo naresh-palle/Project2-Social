@@ -76,12 +76,12 @@ export default function ProductionDetail() {
 
   return (
     <div className="w-full pb-10 text-[#1E1B4B]">
-      <div className="border-b border-white/10 pb-4 mb-5">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 mb-5">
         <div className="flex flex-col md:flex-row gap-4 md:items-start">
           {member.avatar ? (
-            <img src={member.avatar} alt="" className="w-24 h-24 rounded-2xl object-cover border border-white/15" />
+            <img src={member.avatar} alt="" className="w-24 h-24 rounded-2xl object-cover border border-[#1E1B4B]/10" />
           ) : (
-            <div className="w-24 h-24 rounded-2xl bg-white/10 flex items-center justify-center text-3xl font-bold">
+            <div className="w-24 h-24 rounded-2xl bg-[#EEF2FF] flex items-center justify-center text-3xl font-bold">
               {(member.name || "?")[0]}
             </div>
           )}
@@ -92,7 +92,7 @@ export default function ProductionDetail() {
                   In-House Team
                 </span>
               ) : (
-                <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border border-white/15 px-2 py-0.5 rounded-full">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] border border-[#1E1B4B]/10 px-2 py-0.5 rounded-full">
                   External
                 </span>
               )}
@@ -113,7 +113,7 @@ export default function ProductionDetail() {
             type="button"
             onClick={toggleWishlist}
             className={`self-start px-3 py-1.5 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${
-              wishlisted ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"
+              wishlisted ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"
             }`}
           >
             <Heart className={`w-3.5 h-3.5 ${wishlisted ? "fill-current" : ""}`} />
@@ -128,7 +128,7 @@ export default function ProductionDetail() {
             ["Rating", member.rating != null ? `${member.rating} (${member.reviews_count || 0})` : "—"],
             ["Availability", member.availability || "—"],
           ].map(([label, val]) => (
-            <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div key={label} className="rounded-xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2">
               <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
               <p className="font-sans text-base font-bold mt-0.5">{val}</p>
             </div>
@@ -142,7 +142,7 @@ export default function ProductionDetail() {
             <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Services</h2>
             <div className="flex flex-wrap gap-2">
               {(member.services || []).map((s) => (
-                <span key={s} className="px-2.5 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">
+                <span key={s} className="px-2.5 py-1 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest">
                   {s}
                 </span>
               ))}
@@ -156,7 +156,7 @@ export default function ProductionDetail() {
             <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Portfolio</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {(member.portfolio || []).map((src, i) => (
-                <img key={i} src={src} alt="" className="aspect-video object-cover rounded-xl border border-white/10" />
+                <img key={i} src={src} alt="" className="aspect-video object-cover rounded-xl border border-[#1E1B4B]/08" />
               ))}
               {!member.portfolio?.length && <p className="opacity-50 italic text-sm">No portfolio items yet.</p>}
             </div>
@@ -166,7 +166,7 @@ export default function ProductionDetail() {
               <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Previous work</h2>
               <ul className="space-y-2">
                 {member.previous_work.map((w, i) => (
-                  <li key={i} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                  <li key={i} className="rounded-xl border border-[#1E1B4B]/08 px-3 py-2 text-sm">
                     <span className="font-semibold">{w.title}</span>
                     <span className="text-[#94A3B8]"> · {w.client} · {w.year}</span>
                   </li>
@@ -177,21 +177,21 @@ export default function ProductionDetail() {
         </div>
 
         <div className="lg:col-span-5">
-          <form onSubmit={requestHire} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sticky top-4">
+          <form onSubmit={requestHire} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 sticky top-4">
             <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF2D55] mb-3">Request quote / Hire</h2>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               placeholder="Describe the shoot, edit, VO, or script brief…"
-              className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF2D55]/50"
+              className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF2D55]/50"
             />
             <input
               type="number"
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               placeholder="Budget (₹)"
-              className="mt-2 w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none"
+              className="mt-2 w-full bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm focus:outline-none"
             />
             <button
               type="submit"

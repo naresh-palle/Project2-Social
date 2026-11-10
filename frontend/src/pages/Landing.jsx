@@ -261,8 +261,8 @@ function QuickValue() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* FOR INFLUENCERS */}
-          <div className="bg-[#FFFFFF]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+          <div className="bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1E1B4B]/08">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#7C3AED] font-bold flex items-center gap-2">
                 <UserCheck className="w-4 h-4" /> FOR INFLUENCERS:
               </span>
@@ -272,7 +272,7 @@ function QuickValue() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold mb-1">
                   💰 Higher Payouts
                 </div>
@@ -280,7 +280,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">Direct brand relationships with zero agency cuts. Influencers earn ₹87K/month average.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold mb-1">
                   🔒 Secure &amp; Safe
                 </div>
@@ -288,7 +288,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">Campaign budget is locked before you post. Payout releases immediately upon milestone approval.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
                   ⚡ Fast &amp; Easy
                 </div>
@@ -296,7 +296,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">Receive direct campaign invites and pitch active briefs matched specifically to your niche within 2 hours.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#AF52DE] font-bold mb-1">
                   🌟 Grow Your Brand
                 </div>
@@ -307,8 +307,8 @@ function QuickValue() {
           </div>
 
           {/* FOR BRANDS */}
-          <div className="bg-[#FFFFFF]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+          <div className="bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1E1B4B]/08">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> FOR BRANDS:
               </span>
@@ -318,7 +318,7 @@ function QuickValue() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7C3AED] font-bold mb-1">
                   ✓ Verified Influencers
                 </div>
@@ -326,7 +326,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">Strict credential checks, bot detection, and verified follower authenticity before any influencer joins your brief.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold mb-1">
                   🎯 Perfect Matches
                 </div>
@@ -334,7 +334,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">AI analyzes audience alignment, aesthetic style, and niche intent — not just vanity follower numbers.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold mb-1">
                   📊 Results-Driven
                 </div>
@@ -342,7 +342,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#64748B] mt-1">Real-time conversion tracking, click-through metrics, reach audits, and detailed sales performance reports.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F8FAFC] border border-[#1E1B4B]/08 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
                   💼 Support &amp; Setup
                 </div>
@@ -392,7 +392,7 @@ function Manifesto() {
     <section id="manifesto" className="relative text-[#1E1B4B] py-12 md:py-16 overflow-hidden bg-[#FFFFFF]" data-testid="slide-manifesto">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="pb-6 mb-10 border-b border-white/10">
+          <div className="pb-6 mb-10 border-b border-[#1E1B4B]/08">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 03 · flugr Manifesto
             </span>
@@ -404,7 +404,7 @@ function Manifesto() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {CHAPTERS_WITH_MEANS.map((c) => (
-            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-white/[0.04] border border-white/10 backdrop-blur-md rounded-xs hover:border-[#FF2D55]/40 transition-all">
+            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-[#F1F5F9] border border-[#1E1B4B]/08 backdrop-blur-md rounded-xs hover:border-[#FF2D55]/40 transition-all">
               <div>
                 <div className="text-4xl md:text-5xl font-editorial leading-none mb-3">
                   {c.n[0]}<span className="tick text-[#FF2D55]">{c.n[1]}</span>
@@ -417,7 +417,7 @@ function Manifesto() {
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-white/10 font-mono text-xs text-[#FF2D55] font-bold flex items-start gap-2 bg-[#FF2D55]/5 p-3 rounded-xs">
+              <div className="mt-5 pt-3 border-t border-[#1E1B4B]/08 font-mono text-xs text-[#FF2D55] font-bold flex items-start gap-2 bg-[#FF2D55]/5 p-3 rounded-xs">
                 <span>→ Means:</span>
                 <span className="text-[#1E1B4B]/90 font-normal">{c.means}</span>
               </div>
@@ -476,7 +476,7 @@ function HowItWorks() {
     <section id="how-it-works" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-how-it-works">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="pb-6 mb-10 border-b border-white/10 flex items-end justify-between">
+          <div className="pb-6 mb-10 border-b border-[#1E1B4B]/08 flex items-end justify-between">
             <div>
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 04 · Journey
@@ -494,14 +494,14 @@ function HowItWorks() {
 
         <div className="space-y-4">
           {steps.map((st) => (
-            <div key={st.num} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFFFFF] border border-white/15 p-6 rounded-xs">
+            <div key={st.num} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 p-6 rounded-xs">
               {/* Brand Side */}
               <div className="border-l-2 border-[#FF2D55] pl-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold">
                     BRAND STEP {st.num}
                   </span>
-                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#FF2D55]/10 text-white rounded-xs border border-[#FF2D55]/30 font-bold">
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#FF2D55]/10 text-[#FF2D55] rounded-xs border border-[#FF2D55]/30 font-bold">
                     ⏱️ {st.brandTime}
                   </span>
                 </div>
@@ -515,7 +515,7 @@ function HowItWorks() {
                   <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7C3AED] font-bold">
                     INFLUENCER STEP {st.num}
                   </span>
-                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#7C3AED]/10 text-white rounded-xs border border-[#7C3AED]/30 font-bold">
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#7C3AED]/10 text-[#7C3AED] rounded-xs border border-[#7C3AED]/30 font-bold">
                     ⏱️ {st.creatorTime}
                   </span>
                 </div>
@@ -527,7 +527,7 @@ function HowItWorks() {
         </div>
 
         {/* CTAs at bottom */}
-        <div className="mt-8 p-6 bg-[#FFFFFF] border border-white/15 rounded-xs flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-8 p-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="font-mono text-xs text-[#64748B] space-y-1">
             <div className="flex items-center gap-2 text-[#1E1B4B] font-bold">
               <CheckCircle2 className="w-4 h-4 text-[#14B8A6]" /> Contracts &amp; Deliverables Handled Inside flugr
@@ -593,7 +593,7 @@ function SocialProof() {
     <section id="social-proof" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-social-proof">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="pb-6 mb-10 border-b border-white/10">
+          <div className="pb-6 mb-10 border-b border-[#1E1B4B]/08">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 05 · Credibility &amp; Proof
             </span>
@@ -604,18 +604,18 @@ function SocialProof() {
         </FadeUp>
 
         {/* Metrics Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white/[0.02] border border-white/10 p-6 rounded-xs text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-[#F8FAFC] border border-[#1E1B4B]/08 p-6 rounded-xs text-center">
           <div>
             <div className="font-editorial text-4xl text-[#1E1B4B] font-bold">50,000+</div>
             <div className="font-mono text-xs text-[#FF2D55] uppercase tracking-widest font-bold mt-1">INFLUENCERS</div>
             <div className="font-mono text-[10px] text-[#64748B] uppercase mt-0.5">Verified ✓</div>
           </div>
-          <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
+          <div className="border-t md:border-t-0 md:border-l border-[#1E1B4B]/08 pt-4 md:pt-0">
             <div className="font-editorial text-4xl text-[#1E1B4B] font-bold">500+</div>
             <div className="font-mono text-xs text-[#7C3AED] uppercase tracking-widest font-bold mt-1">BRANDS</div>
             <div className="font-mono text-[10px] text-[#64748B] uppercase mt-0.5">Vetting ✓</div>
           </div>
-          <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
+          <div className="border-t md:border-t-0 md:border-l border-[#1E1B4B]/08 pt-4 md:pt-0">
             <div className="font-editorial text-4xl text-[#1E1B4B] font-bold">₹2 Crore+</div>
             <div className="font-mono text-xs text-[#14B8A6] uppercase tracking-widest font-bold mt-1">VALUE DELIVERED</div>
             <div className="font-mono text-[10px] text-[#64748B] uppercase mt-0.5">Escrow Released ✓</div>
@@ -625,10 +625,10 @@ function SocialProof() {
         {/* Testimonials Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs flex flex-col justify-between hover:border-[#FF2D55]/40 transition-all">
+            <div key={i} className="p-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs flex flex-col justify-between hover:border-[#FF2D55]/40 transition-all">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-white/20" />
+                  <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-[#1E1B4B]/12" />
                   <div>
                     <h4 className="font-editorial text-lg text-[#1E1B4B] font-bold">{t.name}</h4>
                     <p className="font-mono text-[10px] text-[#64748B] uppercase tracking-wider">{t.handle} · {t.niche}</p>
@@ -640,7 +640,7 @@ function SocialProof() {
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-[#1E1B4B]/08 flex items-center justify-between">
                 <span className="font-mono text-[10px] text-[#D97706] font-bold">{t.rating}</span>
                 <span className="font-mono text-[10px] text-[#14B8A6] bg-[#14B8A6]/10 px-2 py-0.5 border border-[#14B8A6]/30 rounded-xs font-bold">{t.highlight}</span>
               </div>
@@ -761,7 +761,7 @@ function FeaturedGrid() {
         {/* 5-In-A-Row Auto-Expanding Vibrant Color Campaign Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#FF2D55]/60 transition-all bg-[#FFFFFF] p-3 rounded-xs flex flex-col justify-between">
+            <div key={i} className="group cursor-pointer border border-[#1E1B4B]/08 hover:border-[#FF2D55]/60 transition-all bg-[#FFFFFF] p-3 rounded-xs flex flex-col justify-between">
               <div>
                 <div className="relative overflow-hidden rounded-xs" style={{ aspectRatio: '16/10' }}>
                   <img
@@ -769,7 +769,7 @@ function FeaturedGrid() {
                     alt={f.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
                   />
-                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F7F8FC]/90 px-2 py-0.5 text-[#1E1B4B] border border-white/10 font-bold">
+                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F7F8FC]/90 px-2 py-0.5 text-[#1E1B4B] border border-[#1E1B4B]/08 font-bold">
                     {f.label}
                   </div>
                 </div>
@@ -778,7 +778,7 @@ function FeaturedGrid() {
                   <p className="font-mono text-[9px] text-[#FF2D55] uppercase tracking-wider font-bold">{f.meta}</p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/5 font-mono text-[9px] text-[#64748B] uppercase tracking-wider">
+              <div className="mt-3 pt-2 border-t border-[#1E1B4B]/06 font-mono text-[9px] text-[#64748B] uppercase tracking-wider">
                 {f.creator}
               </div>
             </div>
@@ -786,13 +786,13 @@ function FeaturedGrid() {
         </div>
 
         {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
-        <div className="bg-[#FFFFFF] text-[#1E1B4B] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
-          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div className="bg-[#FFFFFF] text-[#1E1B4B] border border-[#1E1B4B]/10 rounded-xs overflow-hidden shadow-2xl">
+          <div className="px-6 py-4 border-b border-[#1E1B4B]/08 flex items-center justify-between bg-[#F8FAFC]">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">§ FLUGR SIGNAL (Metrics)</span>
             <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
-            <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-white/10' : ''}`}>
+            <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-[#1E1B4B]/08' : ''}`}>
               <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold">0{i + 1}</div>
               <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold text-[#1E1B4B]">{r.k}</div>
               <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold text-[#14B8A6]">{r.v}</div>
@@ -813,7 +813,7 @@ function PricingSection() {
     <section id="pricing" className="relative text-[#1E1B4B] py-6 md:py-8 bg-[#F7F8FC]" data-testid="slide-pricing">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 space-y-6">
         <FadeUp>
-          <div className="pb-4 mb-4 border-b border-white/10">
+          <div className="pb-4 mb-4 border-b border-[#1E1B4B]/08">
             <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 07 · Transparent Pricing
             </span>
@@ -825,18 +825,18 @@ function PricingSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* FOR INFLUENCERS */}
-          <div className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="p-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-3">
               <h3 className="font-editorial text-xl text-[#1E1B4B] font-bold">FOR INFLUENCERS</h3>
               <span className="font-mono text-[9px] text-[#7C3AED] bg-[#7C3AED]/10 px-2.5 py-0.5 border border-[#7C3AED]/30 rounded-xs uppercase font-bold">Influencer Tier</span>
             </div>
 
             <div className="space-y-1.5 font-mono text-xs">
-              <div className="flex justify-between py-0.5 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-[#1E1B4B]/06">
                 <span className="text-[#64748B]">🎉 SIGNUP:</span>
                 <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-0.5 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-[#1E1B4B]/06">
                 <span className="text-[#64748B]">🎯 PLATFORM ACCESS:</span>
                 <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
@@ -846,11 +846,11 @@ function PricingSection() {
               </div>
             </div>
 
-            <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
+            <div className="p-3 bg-[#F8FAFC] border border-[#1E1B4B]/08 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#FF2D55] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-[#1E1B4B] font-bold">₹1,00,000</span> from a campaign</div>
               <div>Platform Fee: <span className="text-[#14B8A6]">₹0 (100% Free)</span></div>
-              <div className="text-[#14B8A6] font-bold text-xs pt-1 border-t border-white/10">
+              <div className="text-[#14B8A6] font-bold text-xs pt-1 border-t border-[#1E1B4B]/08">
                 You get 100% Full Payout: ₹1,00,000 ✓
               </div>
             </div>
@@ -863,18 +863,18 @@ function PricingSection() {
           </div>
 
           {/* FOR BRANDS */}
-          <div className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="p-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-3">
               <h3 className="font-editorial text-xl text-[#1E1B4B] font-bold">FOR BRANDS</h3>
               <span className="font-mono text-[9px] text-[#FF2D55] bg-[#FF2D55]/10 px-2.5 py-0.5 border border-[#FF2D55]/30 rounded-xs uppercase font-bold">Brand Tier</span>
             </div>
 
             <div className="space-y-1.5 font-mono text-xs">
-              <div className="flex justify-between py-0.5 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-[#1E1B4B]/06">
                 <span className="text-[#64748B]">🎉 SIGNUP:</span>
                 <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
-              <div className="flex justify-between py-0.5 border-b border-white/5">
+              <div className="flex justify-between py-0.5 border-b border-[#1E1B4B]/06">
                 <span className="text-[#64748B]">🎯 PLATFORM ACCESS:</span>
                 <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
@@ -884,11 +884,11 @@ function PricingSection() {
               </div>
             </div>
 
-            <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
+            <div className="p-3 bg-[#F8FAFC] border border-[#1E1B4B]/08 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#7C3AED] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-[#1E1B4B] font-bold">₹1,00,000</span> for 5 influencers</div>
               <div>Platform Fee: <span className="text-[#14B8A6]">₹0 (100% Free)</span></div>
-              <div className="text-[#7C3AED] font-bold text-xs pt-1 border-t border-white/10">
+              <div className="text-[#7C3AED] font-bold text-xs pt-1 border-t border-[#1E1B4B]/08">
                 Influencers get 100% Budget: ₹1,00,000 ÷ 5 = ₹20,000 each ✓
               </div>
             </div>
@@ -902,8 +902,8 @@ function PricingSection() {
         </div>
 
         {/* WHAT'S INCLUDED (Both Sides) — Clean grid with zero text overlap */}
-        <div className="p-5 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-3">
-          <h4 className="font-editorial text-lg text-[#1E1B4B] font-bold border-b border-white/10 pb-2">WHAT&apos;S INCLUDED (Both Sides):</h4>
+        <div className="p-5 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs space-y-3">
+          <h4 className="font-editorial text-lg text-[#1E1B4B] font-bold border-b border-[#1E1B4B]/08 pb-2">WHAT&apos;S INCLUDED (Both Sides):</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 font-mono text-xs text-[#1E1B4B]/90 leading-normal">
             <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Platform access (unlimited briefs)</div>
             <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Escrow payment protection</div>
@@ -915,7 +915,7 @@ function PricingSection() {
             <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Performance &amp; ROI tracking</div>
             <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Verified ratings &amp; reviews</div>
           </div>
-          <div className="pt-2 border-t border-white/10 text-center font-mono text-[10px] text-[#FF2D55] font-bold tracking-[0.25em] uppercase">
+          <div className="pt-2 border-t border-[#1E1B4B]/08 text-center font-mono text-[10px] text-[#FF2D55] font-bold tracking-[0.25em] uppercase">
             NO HIDDEN FEES, EVER.
           </div>
         </div>
@@ -941,7 +941,7 @@ function FAQ() {
     <section id="faq" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-faq">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
-          <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-white/10">
+          <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-[#1E1B4B]/08">
             <div>
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 08 · FAQ
@@ -959,7 +959,7 @@ function FAQ() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {EXPANDED_FAQS.map((faq, i) => (
             <FadeUp key={faq.q} delay={i * 0.05}>
-              <div className="space-y-3 p-6 bg-[#FFFFFF] border border-white/15 rounded-xs hover:border-[#FF2D55]/40 transition-all">
+              <div className="space-y-3 p-6 bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-xs hover:border-[#FF2D55]/40 transition-all">
                 <div className="text-[#FF2D55] font-mono text-[10px] tracking-[0.3em] uppercase font-bold">Q0{i+1}</div>
                 <h4 className="font-editorial text-xl leading-tight text-[#1E1B4B] font-bold">{faq.q}</h4>
                 <p className="font-mono text-xs text-[#1E1B4B]/60 leading-relaxed">
@@ -1141,7 +1141,7 @@ export default function Landing() {
         }}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:-translate-x-0.5 transition-transform" />
       </button>
@@ -1155,7 +1155,7 @@ export default function Landing() {
         }}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform" />
       </button>

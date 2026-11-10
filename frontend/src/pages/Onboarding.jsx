@@ -109,8 +109,8 @@ export default function Onboarding() {
         <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
-            <div className="max-w-xl w-full bg-[#FFFFFF] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="max-w-xl w-full bg-[#FFFFFF] border border-[#1E1B4B]/10 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
+              <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-4">
                 <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                   § Application Under Review
                 </span>
@@ -128,27 +128,27 @@ export default function Onboarding() {
                 </p>
               </div>
 
-              <div className="bg-white/5 p-5 border border-white/10 rounded-3xl space-y-3 font-mono text-xs">
-                <div className="flex justify-between border-b border-white/5 pb-2">
+              <div className="bg-[#F7F8FC] p-5 border border-[#1E1B4B]/08 rounded-3xl space-y-3 font-mono text-xs">
+                <div className="flex justify-between border-b border-[#1E1B4B]/06 pb-2">
                   <span className="opacity-50">Agency / Company:</span>
                   <span className="text-[#1E1B4B] font-bold">{user.company || "Agency"}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
+                <div className="flex justify-between border-b border-[#1E1B4B]/06 pb-2">
                   <span className="opacity-50">Agent Type:</span>
                   <span className="text-[#FF2D55] font-bold">
                     {user.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
+                <div className="flex justify-between border-b border-[#1E1B4B]/06 pb-2">
                   <span className="opacity-50">Industry Focus:</span>
                   <span className="text-[#1E1B4B]">{user.industry || "General"}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
+                <div className="flex justify-between border-b border-[#1E1B4B]/06 pb-2">
                   <span className="opacity-50">Location:</span>
                   <span className="text-[#1E1B4B]">{user.city || "Global"}</span>
                 </div>
                 {user.website && (
-                  <div className="flex justify-between border-b border-white/5 pb-2">
+                  <div className="flex justify-between border-b border-[#1E1B4B]/06 pb-2">
                     <span className="opacity-50">Official Website:</span>
                     <a href={user.website} target="_blank" rel="noreferrer" className="text-[#FF2D55] hover:underline">
                       {user.website} ↗
@@ -163,7 +163,7 @@ export default function Onboarding() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between pt-4 border-t border-[#1E1B4B]/08">
                 <button
                   type="button"
                   onClick={() => setIsEditingAgent(true)}
@@ -196,7 +196,7 @@ export default function Onboarding() {
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#FFFFFF] border border-[#FF2D55]/40 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-4">
                 <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                   § Application Status Update
                 </span>
@@ -209,13 +209,13 @@ export default function Onboarding() {
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-[#1E1B4B]">
                   Application Revision Needed
                 </h1>
-                <div className="mt-4 p-4 bg-[#FF2D55]/10 border border-[#FF2D55]/30 rounded-3xl font-mono text-xs text-white">
+                <div className="mt-4 p-4 bg-[#FF2D55]/10 border border-[#FF2D55]/30 rounded-3xl font-mono text-xs text-[#1E1B4B]">
                   <span className="text-[#FF2D55] font-bold uppercase block mb-1">Admin Feedback:</span>
                   {user.decline_reason || "Agency credentials require further verification before granting full access."}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-[#1E1B4B]/08 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setIsEditingAgent(true)}
@@ -237,9 +237,9 @@ export default function Onboarding() {
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
             onSubmit={submitAgentApplication}
-            className="max-w-2xl w-full bg-[#FFFFFF] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-8"
+            className="max-w-2xl w-full bg-[#FFFFFF] border border-[#1E1B4B]/10 p-8 md:p-12 rounded-3xl shadow-2xl space-y-8"
           >
-            <div className="border-b border-white/10 pb-4">
+            <div className="border-b border-[#1E1B4B]/08 pb-4">
               <span className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">
                 § Talent Agent Application
               </span>
@@ -269,8 +269,8 @@ export default function Onboarding() {
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "company_agent" })}
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "company_agent"
-                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
+                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-[#FF2D55] font-bold"
+                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
                     }`}
                   >
                     <div className="font-editorial text-lg text-[#1E1B4B]">🏢 Company Agent</div>
@@ -284,8 +284,8 @@ export default function Onboarding() {
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "influencer_agent" })}
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "influencer_agent"
-                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-white/10 bg-white/5 text-[#64748B] hover:bg-white/10"
+                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-[#FF2D55] font-bold"
+                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
                     }`}
                   >
                     <div className="font-editorial text-lg text-[#1E1B4B]">⭐ Influencer Agent</div>
@@ -373,7 +373,7 @@ export default function Onboarding() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex justify-end">
+            <div className="pt-4 border-t border-[#1E1B4B]/08 flex justify-end">
               <button
                 type="submit"
                 disabled={submitting}
@@ -519,7 +519,7 @@ const toggleCategory = (c) => {
                {PLATFORMS.map(plat => {
                    const isConnected = user?.oauth_connections?.some(c => c.platform === plat);
                    return (
-                      <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#14B8A6] text-[#14B8A6] bg-[#14B8A6]/10" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                      <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#14B8A6] text-[#14B8A6] bg-[#14B8A6]/10" : "border-[#1E1B4B]/08 hover:border-[#1E1B4B]/15 text-[#64748B]"}`}>
                           {plat === "instagram" && <Instagram className="w-8 h-8" />}
                           {plat === "facebook" && <Facebook className="w-8 h-8" />}
                           {plat === "twitter" && <XLogo className="w-8 h-8" />}
@@ -542,12 +542,12 @@ const toggleCategory = (c) => {
 
         <AnimatePresence>
           {manualAuthPlatform && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1B4B]/45 backdrop-blur-sm">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#FFFFFF] border border-white/10 p-5 sm:p-6 md:p-8 rounded-3xl w-full max-w-md max-h-[min(90dvh,36rem)] overflow-y-auto shadow-2xl relative"
+                className="bg-[#FFFFFF] border border-[#1E1B4B]/08 p-5 sm:p-6 md:p-8 rounded-3xl w-full max-w-md max-h-[min(90dvh,36rem)] overflow-y-auto shadow-2xl relative"
               >
                 <button
                   onClick={() => setManualAuthPlatform(null)}
@@ -580,7 +580,7 @@ const toggleCategory = (c) => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-[#1E1B4B]/08">
                     <button
                       type="button"
                       onClick={() => setManualAuthPlatform(null)}
@@ -636,7 +636,7 @@ const toggleCategory = (c) => {
   return (
     <Layout step={4} title="Review your profile." subtitle="Final Step / Confirmation">
       <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 border border-[#1E1B4B]/10 bg-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 border border-[#1E1B4B]/10 bg-[#F7F8FC]">
           <div className="min-w-0">
             <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Name</div>
             <div className="font-editorial text-xl sm:text-2xl break-words">{user.name}</div>

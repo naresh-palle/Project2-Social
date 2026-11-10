@@ -314,7 +314,7 @@ export default function Settings() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2">
       <div className="flex flex-col w-full pb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-3 mb-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-[#1E1B4B]/08 pb-3 mb-4">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Account Settings
@@ -329,7 +329,7 @@ export default function Settings() {
               {user?.role === "influencer" ? (
                 <Link
                   to="/referrals"
-                  className="flex items-center justify-between py-3 border-b border-white/10 hover:text-[#FF2D55] transition-colors"
+                  className="flex items-center justify-between py-3 border-b border-[#1E1B4B]/08 hover:text-[#FF2D55] transition-colors"
                   data-testid="settings-referrals"
                 >
                   <span className="font-sans text-sm">Referrals</span>
@@ -486,16 +486,16 @@ export default function Settings() {
 
       {securityOpen && (
         <div
-          className="fixed inset-0 z-50 bg-[#F7F8FC]/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#1E1B4B]/40 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setSecurityOpen(false)}
           data-testid="security-modal-backdrop"
         >
           <div
-            className="bg-[#FFFFFF] border border-white/20 p-5 md:p-6 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="bg-[#FFFFFF] border border-[#1E1B4B]/12 p-5 md:p-6 max-w-lg w-full rounded-3xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             data-testid="security-modal"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-3">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#FF2D55] font-bold">Security</p>
                 <h3 className="font-sans text-xl font-bold mt-0.5">Reset password &amp; account security</h3>
@@ -541,7 +541,7 @@ export default function Settings() {
               </button>
             </div>
 
-            <div className="border-t border-white/10 pt-4 space-y-2">
+            <div className="border-t border-[#1E1B4B]/08 pt-4 space-y-2">
               <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Two-factor authentication</h4>
               {settings.two_fa_enabled ? (
                 <div className="p-3 border border-[#14B8A6]/30 bg-[#14B8A6]/5 rounded-xs space-y-2">
@@ -563,7 +563,7 @@ export default function Settings() {
                   <button type="button" onClick={handleDisable2fa} className="btn-sm-outline">Disable 2FA</button>
                 </div>
               ) : twoFa.setup ? (
-                <div className="p-3 border border-white/10 rounded-xs space-y-2">
+                <div className="p-3 border border-[#1E1B4B]/08 rounded-xs space-y-2">
                   <p className="font-mono text-xs break-all">Secret: {twoFa.setup.secret}</p>
                   <input
                     type="text"
@@ -579,13 +579,13 @@ export default function Settings() {
               )}
             </div>
 
-            <details className="border-t border-white/10 pt-4 group">
+            <details className="border-t border-[#1E1B4B]/08 pt-4 group">
               <summary className="font-mono text-[10px] uppercase tracking-widest opacity-60 cursor-pointer hover:opacity-100">
                 Sessions &amp; login history
               </summary>
               <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
                 {sessions.slice(0, 5).map((s) => (
-                  <div key={s.id} className="flex items-center justify-between py-1 border-b border-white/5">
+                  <div key={s.id} className="flex items-center justify-between py-1 border-b border-[#1E1B4B]/06">
                     <div className="min-w-0">
                       <div className="font-mono text-xs truncate">{s.device_name || "Device"}</div>
                       <div className="font-mono text-[10px] opacity-50">{s.ip}</div>
@@ -596,7 +596,7 @@ export default function Settings() {
                   </div>
                 ))}
                 {loginHistory.slice(0, 5).map((h) => (
-                  <div key={h.id} className="py-1 border-b border-white/5 font-mono text-[10px]">
+                  <div key={h.id} className="py-1 border-b border-[#1E1B4B]/06 font-mono text-[10px]">
                     <span className={h.success ? "text-[#14B8A6]" : "text-[#FF2D55]"}>{h.success ? "✓" : "✗"}</span>
                     {" "}{h.ip} · {h.created_at?.slice(0, 16)}
                   </div>
@@ -611,8 +611,8 @@ export default function Settings() {
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#F3EEFF] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E1B4B]/45 backdrop-blur-sm">
+          <div className="bg-[#F3EEFF] border border-[#1E1B4B]/08 w-full max-w-sm rounded-3xl shadow-2xl p-6">
             <h3 className="font-sans text-sm tracking-widest uppercase text-[#FF2D55] font-semibold mb-2">Confirm Deletion</h3>
             <p className="font-sans text-xs text-[#475569] mb-6">
               Are you absolutely sure you want to permanently delete your account? This action cannot be undone and all your data will be erased immediately.
@@ -620,7 +620,7 @@ export default function Settings() {
             <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                 <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-white/10 hover:bg-white/20 text-[#1E1B4B] rounded-3xl transition-colors"
+                className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest bg-[#EEF2FF] hover:bg-[#E2E8F0] text-[#1E1B4B] rounded-3xl transition-colors"
               >
                 Cancel
               </button>
@@ -642,7 +642,7 @@ export default function Settings() {
 
 function Section({ title, icon: Icon, children, dense = false }) {
   return (
-    <section className={`border border-white/10 bg-[#FFFFFF] rounded-xs ${dense ? "p-4" : "p-6"}`}>
+    <section className={`border border-[#1E1B4B]/08 bg-[#FFFFFF] rounded-xs ${dense ? "p-4" : "p-6"}`}>
       <h2 className={`font-mono text-xs uppercase tracking-widest text-[#FF2D55] flex items-center gap-2 ${dense ? "mb-2" : "mb-4"}`}>
         <Icon className="w-4 h-4" /> {title}
       </h2>
@@ -734,7 +734,7 @@ function DraftsAndAnalytics() {
             <>
               <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60">Drafts</h4>
               {drafts.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                <div key={p.id} className="flex items-center justify-between py-1 border-b border-[#1E1B4B]/06 gap-2">
                   <span className="font-editorial text-sm truncate">{p.title || p.text || "Untitled"}</span>
                   <div className="flex gap-2 shrink-0">
                     <button type="button" onClick={() => publishDraft(p.id)} className="font-mono text-[10px] text-[#14B8A6] uppercase">Publish</button>
@@ -748,7 +748,7 @@ function DraftsAndAnalytics() {
             <>
               <h4 className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-4">Scheduled</h4>
               {scheduled.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-1 border-b border-white/5 gap-2">
+                <div key={p.id} className="flex items-center justify-between py-1 border-b border-[#1E1B4B]/06 gap-2">
                   <div>
                     <span className="font-editorial text-sm block truncate">{p.title || p.text || "Untitled"}</span>
                     <span className="font-mono text-[9px] opacity-60 text-indigo-300 block">{new Date(p.scheduled_for).toLocaleString()}</span>
@@ -774,7 +774,7 @@ function DraftsAndAnalytics() {
               ["Engagement %", analytics.engagement_rate],
               ["Posts", analytics.posts_count],
             ].map(([label, val]) => (
-              <div key={label} className="p-2 border border-white/10 bg-black/30">
+              <div key={label} className="p-2 border border-[#1E1B4B]/08 bg-[#F7F8FC]">
                 <div className="font-mono text-[9px] uppercase tracking-widest opacity-50">{label}</div>
                 <div className="font-editorial text-xl mt-0.5">
                   {val == null || val === "" ? "N/A" : val}

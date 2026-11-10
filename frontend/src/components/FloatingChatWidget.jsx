@@ -51,7 +51,7 @@ export function FloatingChatWidget() {
             }}
             data-testid="messages-popup"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-[#7C3AED]/20 via-[#14B8A6]/10 to-transparent shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E1B4B]/08 bg-gradient-to-r from-[#7C3AED]/20 via-[#14B8A6]/10 to-transparent shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-full bg-[#7C3AED] flex items-center justify-center text-white shadow-lg shadow-[#7C3AED]/35">
                   <MessageSquare className="w-4 h-4" />
@@ -66,7 +66,7 @@ export function FloatingChatWidget() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-[#E11D48] hover:border-[#FF2D55] text-white/70 hover:text-white transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/08 hover:bg-[#E11D48] hover:border-[#FF2D55] text-[#64748B] hover:text-[#1E1B4B] transition-colors"
                 aria-label="Close messages"
                 data-testid="messages-popup-close"
               >

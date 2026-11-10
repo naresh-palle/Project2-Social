@@ -88,7 +88,7 @@ export default function SearchPage() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1E1B4B]/08 pb-4 mb-5 w-full">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Search
@@ -99,7 +99,7 @@ export default function SearchPage() {
 
         <form
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}
-          className="mt-8 flex gap-2 border border-white/15 bg-[#FFFFFF] p-2 rounded-xs"
+          className="mt-8 flex gap-2 border border-[#1E1B4B]/10 bg-[#FFFFFF] p-2 rounded-xs"
         >
           <Search className="w-5 h-5 opacity-50 ml-2 shrink-0 self-center" />
           <input
@@ -125,7 +125,7 @@ export default function SearchPage() {
               type="button"
               onClick={() => { setTab(t.id); if (q.trim()) runSearch(q, t.id); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border rounded-xs transition-all ${
-                tab === t.id ? "bg-[#FF2D55] border-[#FF2D55] text-white" : "border-white/20 text-white/60 hover:border-white/40"
+                tab === t.id ? "bg-[#FF2D55] border-[#FF2D55] text-white" : "border-[#1E1B4B]/12 text-[#64748B] hover:border-[#1E1B4B]/18"
               }`}
             >
               <t.icon className="w-3 h-3" /> {t.label}
@@ -149,7 +149,7 @@ export default function SearchPage() {
                       key={h.tag}
                       type="button"
                       onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
-                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 rounded-xs transition-colors flex justify-between items-center"
+                      className="w-full text-left px-3 py-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] hover:border-[#FF2D55]/40 rounded-xs transition-colors flex justify-between items-center"
                     >
                       <span className="font-editorial text-base">#{h.tag}</span>
                       <span className="font-mono text-[9px] opacity-50">{h.count} posts</span>
@@ -163,7 +163,7 @@ export default function SearchPage() {
                       key={s.query}
                       type="button"
                       onClick={() => { setQ(s.query); runSearch(s.query); }}
-                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
+                      className="w-full text-left px-3 py-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
                     >
                       {s.query}
                     </button>
@@ -193,11 +193,11 @@ export default function SearchPage() {
                       key={r.id}
                       type="button"
                       onClick={() => { setQ(r.query); runSearch(r.query, r.kind || tab); }}
-                      className="w-full flex items-center justify-between px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
+                      className="w-full flex items-center justify-between px-3 py-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
                     >
                       <span className="truncate pr-2">{r.query}</span>
                       {r.kind && (
-                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-white/10 text-[#64748B] rounded-3xl">
+                        <span className="shrink-0 text-[9px] px-1.5 py-0.5 uppercase tracking-widest bg-[#EEF2FF] text-[#64748B] rounded-3xl">
                           {r.kind}
                         </span>
                       )}
@@ -282,9 +282,9 @@ function SearchResult({ tab, item }) {
     return (
       <Link
         to={`/u/${item.id}`}
-        className="flex items-center gap-4 p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs"
+        className="flex items-center gap-4 p-4 border border-[#1E1B4B]/08 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs"
       >
-        {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/20" />}
+        {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-[#1E1B4B]/12" />}
         <div>
           <div className="font-sans text-base md:text-lg font-semibold">{primary}</div>
           {subtitle ? (
@@ -298,7 +298,7 @@ function SearchResult({ tab, item }) {
   }
   if (tab === "posts") {
     return (
-      <div className="p-4 border border-white/10 bg-[#FFFFFF] rounded-xs">
+      <div className="p-4 border border-[#1E1B4B]/08 bg-[#FFFFFF] rounded-xs">
         <div className="font-mono text-[10px] opacity-60">
           {formatUsername(item.author?.handle, item.author?.username) || item.author?.name || "user"}
         </div>
@@ -308,7 +308,7 @@ function SearchResult({ tab, item }) {
   }
   if (tab === "hashtags") {
     return (
-      <div className="p-4 border border-white/10 bg-[#FFFFFF] rounded-xs">
+      <div className="p-4 border border-[#1E1B4B]/08 bg-[#FFFFFF] rounded-xs">
         <span className="font-editorial text-2xl text-[#FF2D55]">#{item.tag}</span>
         <span className="font-mono text-xs opacity-50 ml-3">{item.count} posts</span>
       </div>
@@ -316,7 +316,7 @@ function SearchResult({ tab, item }) {
   }
   if (tab === "campaigns") {
     return (
-      <Link to={`/campaigns/${item.id}`} className="block p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs">
+      <Link to={`/campaigns/${item.id}`} className="block p-4 border border-[#1E1B4B]/08 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs">
         <div className="font-editorial text-xl">{item.title}</div>
         <div className="font-mono text-[10px] opacity-60 mt-1">{item.brand}</div>
       </Link>

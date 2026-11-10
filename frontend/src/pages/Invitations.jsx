@@ -68,7 +68,7 @@ export default function Invitations() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B]">
       <div className="flex flex-col w-full pb-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1E1B4B]/08 pb-4 mb-5 w-full">
             <div>
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Invitations
@@ -80,7 +80,7 @@ export default function Invitations() {
         {loading ? (
           <div className="space-y-3 mt-5 animate-pulse">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="border border-white/10 p-4 h-24 bg-white/[0.02] rounded-3xl" />
+              <div key={n} className="border border-[#1E1B4B]/08 p-4 h-24 bg-[#F8FAFC] rounded-3xl" />
             ))}
           </div>
         ) : invs.length === 0 ? (
@@ -98,7 +98,7 @@ export default function Invitations() {
               <div
                 key={i.id}
                 data-testid={`inv-${i.id}`}
-                className="border border-white/10 bg-white/[0.02] rounded-3xl p-4 grid grid-cols-12 gap-3"
+                className="border border-[#1E1B4B]/08 bg-[#F8FAFC] rounded-3xl p-4 grid grid-cols-12 gap-3"
               >
                 <div className="col-span-12 md:col-span-7 min-w-0">
                   <div className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-wider opacity-50">
@@ -151,13 +151,13 @@ export default function Invitations() {
                 {isInfluencer && i.status === "pending" && (
                   <div className="col-span-12">
                     {counterId === i.id ? (
-                      <div className="border-t border-white/10 pt-3 grid grid-cols-12 gap-2 items-end">
+                      <div className="border-t border-[#1E1B4B]/08 pt-3 grid grid-cols-12 gap-2 items-end">
                         <div className="col-span-12 sm:col-span-3">
                           <label className="font-sans text-[10px] uppercase tracking-wider opacity-50">Counter offer</label>
                           <input
                             type="number"
                             data-testid={`inv-counter-input-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF2D55] outline-none py-1.5 font-sans text-sm"
+                            className="w-full bg-transparent border-b border-[#1E1B4B]/12 focus:border-[#FF2D55] outline-none py-1.5 font-sans text-sm"
                             value={counter}
                             onChange={(e) => setCounter(e.target.value)}
                           />
@@ -166,7 +166,7 @@ export default function Invitations() {
                           <label className="font-sans text-[10px] uppercase tracking-wider opacity-50">Note</label>
                           <input
                             data-testid={`inv-note-${i.id}`}
-                            className="w-full bg-transparent border-b border-white/20 focus:border-[#FF2D55] outline-none py-1.5 font-sans text-sm"
+                            className="w-full bg-transparent border-b border-[#1E1B4B]/12 focus:border-[#FF2D55] outline-none py-1.5 font-sans text-sm"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                           />

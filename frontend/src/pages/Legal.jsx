@@ -198,7 +198,7 @@ export default function Legal() {
                 </section>
               ))}
             </div>
-            <div className="mt-16 pt-8 border-t border-white/10 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
+            <div className="mt-16 pt-8 border-t border-[#1E1B4B]/08 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
               {Object.keys(DOCS).filter((k) => k !== doc).map((k) => (
                 <Link key={k} to={`/legal/${k}`} className="opacity-60 hover:text-[#FF2D55]">{DOCS[k].title}</Link>
               ))}

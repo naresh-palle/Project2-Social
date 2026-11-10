@@ -54,72 +54,72 @@ export default function BillingSettings() {
       <p className="text-xs text-[#94A3B8] mt-1">{s.disclaimer}</p>
       <p className="text-xs text-[#64748B] mt-1">Next number: <span className="font-mono">{s.next_invoice_number}</span></p>
 
-      <section className="mt-6 rounded-2xl border border-white/10 p-4 space-y-2">
+      <section className="mt-6 rounded-2xl border border-[#1E1B4B]/08 p-4 space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Business details</h2>
         {[["legal_name", "Legal name"], ["trade_name", "Trade name"], ["address", "Address"], ["city", "City"], ["state", "State"], ["state_code", "State code"], ["pincode", "PIN"], ["gstin", "GSTIN"], ["pan", "PAN"], ["email", "Email"], ["phone", "Phone"]].map(([k, lab]) => (
           <label key={k} className="block font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
             {lab}
-            <input value={s[k] || ""} onChange={(e) => setS({ ...s, [k]: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
+            <input value={s[k] || ""} onChange={(e) => setS({ ...s, [k]: e.target.value })} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm outline-none" />
           </label>
         ))}
         {s.gstin ? <p className="text-[10px] text-[#94A3B8]">GSTIN format: {s.gstin_format_ok ? "looks valid" : "appears invalid — verify before issuing"}</p> : null}
       </section>
 
-      <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
+      <section className="mt-4 rounded-2xl border border-[#1E1B4B]/08 p-4 space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Invoice numbering</h2>
         <div className="grid grid-cols-2 gap-2">
           <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Prefix
-            <input value={s.prefix || ""} onChange={(e) => setS({ ...s, prefix: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+            <input value={s.prefix || ""} onChange={(e) => setS({ ...s, prefix: e.target.value })} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
           </label>
           <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Financial year
-            <input value={s.financial_year || ""} onChange={(e) => setS({ ...s, financial_year: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+            <input value={s.financial_year || ""} onChange={(e) => setS({ ...s, financial_year: e.target.value })} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
           </label>
           <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Starting number
-            <input value={s.starting_number || 1} onChange={(e) => setS({ ...s, starting_number: Number(e.target.value) })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+            <input value={s.starting_number || 1} onChange={(e) => setS({ ...s, starting_number: Number(e.target.value) })} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
           </label>
           <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default terms
-            <input value={s.default_payment_terms || ""} onChange={(e) => setS({ ...s, default_payment_terms: e.target.value })} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+            <input value={s.default_payment_terms || ""} onChange={(e) => setS({ ...s, default_payment_terms: e.target.value })} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
           </label>
         </div>
         <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default template
-          <select value={s.default_template || "professional"} onChange={(e) => setS({ ...s, default_template: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-sm">
+          <select value={s.default_template || "professional"} onChange={(e) => setS({ ...s, default_template: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 font-sans text-sm">
             <option value="professional">Professional</option>
             <option value="modern">Modern</option>
             <option value="minimal">Minimal</option>
           </select>
         </label>
         <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Rounding
-          <select value={s.rounding || "nearest_rupee"} onChange={(e) => setS({ ...s, rounding: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-sm">
+          <select value={s.rounding || "nearest_rupee"} onChange={(e) => setS({ ...s, rounding: e.target.value })} className="mt-1 w-full bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 font-sans text-sm">
             <option value="nearest_rupee">Nearest rupee</option>
             <option value="none">None (paise)</option>
           </select>
         </label>
       </section>
 
-      <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
+      <section className="mt-4 rounded-2xl border border-[#1E1B4B]/08 p-4 space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Tax & TDS (configurable — not advice)</h2>
         <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Default GST %
-          <input value={s.default_gst_rate ?? ""} onChange={(e) => setS({ ...s, default_gst_rate: e.target.value === "" ? null : Number(e.target.value) })} placeholder="Leave blank — do not guess" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+          <input value={s.default_gst_rate ?? ""} onChange={(e) => setS({ ...s, default_gst_rate: e.target.value === "" ? null : Number(e.target.value) })} placeholder="Leave blank — do not guess" className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
         </label>
         <label className="flex items-center gap-2 text-xs">
           <input type="checkbox" checked={!!s.default_tds_applicable} onChange={(e) => setS({ ...s, default_tds_applicable: e.target.checked })} />
           TDS applicable by default
         </label>
-        <input value={s.default_tds_section || ""} onChange={(e) => setS({ ...s, default_tds_section: e.target.value })} placeholder="TDS section" className="w-full bg-transparent border-b border-white/15 py-1 text-sm" />
-        <input value={s.default_tds_rate ?? ""} onChange={(e) => setS({ ...s, default_tds_rate: e.target.value === "" ? null : Number(e.target.value) })} placeholder="TDS %" className="w-full bg-transparent border-b border-white/15 py-1 text-sm" />
+        <input value={s.default_tds_section || ""} onChange={(e) => setS({ ...s, default_tds_section: e.target.value })} placeholder="TDS section" className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm" />
+        <input value={s.default_tds_rate ?? ""} onChange={(e) => setS({ ...s, default_tds_rate: e.target.value === "" ? null : Number(e.target.value) })} placeholder="TDS %" className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm" />
       </section>
 
-      <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-2">
+      <section className="mt-4 rounded-2xl border border-[#1E1B4B]/08 p-4 space-y-2">
         <div className="flex justify-between">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Payment</h2>
           <button type="button" className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]" onClick={() => load(!bankReveal)}>{bankReveal ? "Mask" : "Reveal"} account</button>
         </div>
         {["bank_name", "account_holder", "account_number", "ifsc", "branch", "upi_id", "payment_instructions"].map((k) => (
-          <input key={k} value={s.bank?.[k] || ""} onChange={(e) => setS({ ...s, bank: { ...(s.bank || {}), [k]: e.target.value } })} placeholder={k.replaceAll("_", " ")} className="w-full bg-transparent border-b border-white/15 py-1 font-sans text-sm" />
+          <input key={k} value={s.bank?.[k] || ""} onChange={(e) => setS({ ...s, bank: { ...(s.bank || {}), [k]: e.target.value } })} placeholder={k.replaceAll("_", " ")} className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm" />
         ))}
       </section>
 
-      <section className="mt-4 rounded-2xl border border-white/10 p-4 space-y-3">
+      <section className="mt-4 rounded-2xl border border-[#1E1B4B]/08 p-4 space-y-3">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Branding</h2>
         <label className="text-xs block">Logo (PNG/JPG)
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => uploadAsset("logo_file_id", e.target.files?.[0])} className="mt-1 text-xs" />
@@ -127,8 +127,8 @@ export default function BillingSettings() {
         <label className="text-xs block">Signature image
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => uploadAsset("signature_file_id", e.target.files?.[0])} className="mt-1 text-xs" />
         </label>
-        <input value={s.signatory_name || ""} onChange={(e) => setS({ ...s, signatory_name: e.target.value })} placeholder="Signatory name" className="w-full bg-transparent border-b border-white/15 py-1 text-sm" />
-        <input value={s.signatory_designation || ""} onChange={(e) => setS({ ...s, signatory_designation: e.target.value })} placeholder="Designation" className="w-full bg-transparent border-b border-white/15 py-1 text-sm" />
+        <input value={s.signatory_name || ""} onChange={(e) => setS({ ...s, signatory_name: e.target.value })} placeholder="Signatory name" className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm" />
+        <input value={s.signatory_designation || ""} onChange={(e) => setS({ ...s, signatory_designation: e.target.value })} placeholder="Designation" className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm" />
         <label className="flex items-center gap-2 text-xs">
           <input type="checkbox" checked={s.stamp_enabled !== false} onChange={(e) => setS({ ...s, stamp_enabled: e.target.checked })} />
           Enable stamp
@@ -136,16 +136,16 @@ export default function BillingSettings() {
         <label className="text-xs block">Stamp image (your own — not a government seal)
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => uploadAsset("stamp_file_id", e.target.files?.[0])} className="mt-1 text-xs" />
         </label>
-        <textarea value={s.terms || ""} onChange={(e) => setS({ ...s, terms: e.target.value })} placeholder="Terms" className="w-full bg-transparent border border-white/15 rounded-xl p-2 text-sm min-h-[80px]" />
+        <textarea value={s.terms || ""} onChange={(e) => setS({ ...s, terms: e.target.value })} placeholder="Terms" className="w-full bg-transparent border border-[#1E1B4B]/10 rounded-xl p-2 text-sm min-h-[80px]" />
       </section>
 
       {user?.role === "admin" ? (
-        <section className="mt-4 rounded-2xl border border-white/10 p-4">
+        <section className="mt-4 rounded-2xl border border-[#1E1B4B]/08 p-4">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Tax classifications (admin)</h2>
           <p className="text-[10px] text-[#94A3B8] mb-2">Update SAC/HSN without changing application code. These are suggestions, not legal classifications.</p>
           <div className="flex gap-2 mb-2">
-            <input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value })} placeholder="Code" className="flex-1 bg-transparent border-b border-white/15 py-1 text-xs" />
-            <input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Description" className="flex-[2] bg-transparent border-b border-white/15 py-1 text-xs" />
+            <input value={newCode.code} onChange={(e) => setNewCode({ ...newCode, code: e.target.value })} placeholder="Code" className="flex-1 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
+            <input value={newCode.description} onChange={(e) => setNewCode({ ...newCode, description: e.target.value })} placeholder="Description" className="flex-[2] bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
             <button type="button" className="btn-pill text-[10px] !py-2 !px-3" onClick={async () => {
               try {
                 await api.post("/invoices/tax-codes", newCode);

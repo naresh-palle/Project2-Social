@@ -54,7 +54,7 @@ export default function RecentActivity() {
 
   return (
     <div className="w-full pb-8" data-testid="recent-activity-page">
-      <div className="border-b border-white/10 pb-3 mb-4">
+      <div className="border-b border-[#1E1B4B]/08 pb-3 mb-4">
         <Link to="/dashboard" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] hover:text-[#1E1B4B]">
           ← Dashboard
         </Link>
@@ -89,7 +89,7 @@ export default function RecentActivity() {
                       );
                     }
                   }}
-                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#FF2D55]/35 transition-colors"
+                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-3.5 hover:border-[#FF2D55]/35 transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>
                     <Icon className="w-4 h-4" />

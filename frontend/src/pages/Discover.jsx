@@ -43,8 +43,8 @@ function riskTone(risk) {
 function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch }) {
   const handle = formatUsername(c.handle, c.username, c.name) || "creator";
   return (
-    <article className="rounded-2xl border border-white/10 bg-[#FFFFFF] overflow-hidden flex flex-col h-full">
-      <Link to={`/creators/${c.id}`} className="relative block aspect-[4/3] bg-white/5">
+    <article className="rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] overflow-hidden flex flex-col h-full">
+      <Link to={`/creators/${c.id}`} className="relative block aspect-[4/3] bg-[#F7F8FC]">
         {c.avatar ? (
           <img src={c.avatar} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -54,7 +54,7 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
         )}
         <div className="absolute top-2 left-2 flex gap-1">
           {(c.platforms || []).slice(0, 2).map((p) => (
-            <span key={p} className="theme-keep-dark bg-black/55 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white/90 rounded-full">
+            <span key={p} className="theme-keep-dark bg-[#1E1B4B]/55 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white/90 rounded-full">
               {p}
             </span>
           ))}
@@ -97,16 +97,16 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
           <span className={riskTone(c.risk)}>Risk {c.risk || UNAVAILABLE}</span>
         </div>
         <div className="mt-auto flex flex-wrap gap-1">
-          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-[#FF2D55]">
+          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest hover:border-[#FF2D55]">
             Profile
           </Link>
-          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}>
+          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"}`}>
             Compare
           </button>
-          <button type="button" onClick={() => onShortlist(c)} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">
+          <button type="button" onClick={() => onShortlist(c)} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">
             Shortlist
           </button>
-          <button type="button" onClick={() => onResearch(c)} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest inline-flex items-center gap-1">
+          <button type="button" onClick={() => onResearch(c)} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest inline-flex items-center gap-1">
             <FileSearch className="w-3 h-3" /> Research
           </button>
         </div>
@@ -323,7 +323,7 @@ export default function Discover() {
 
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] pb-28">
-      <div className="flex items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
+      <div className="flex items-end justify-between gap-3 border-b border-[#1E1B4B]/08 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Brand desk
@@ -336,7 +336,7 @@ export default function Discover() {
         </button>
       </div>
 
-      <form onSubmit={runNl} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3 mb-3">
+      <form onSubmit={runNl} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] p-3 mb-3">
         <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">AI natural-language search</label>
         <div className="flex gap-2 mt-1">
           <div className="relative flex-1">
@@ -345,7 +345,7 @@ export default function Discover() {
               value={nl}
               onChange={(e) => setNl(e.target.value)}
               placeholder='Find Telugu technology creators in Hyderabad with 20K–500K followers and engagement above 4%.'
-              className="w-full bg-transparent border-b border-white/15 pl-9 pr-3 py-2 font-sans text-sm outline-none"
+              className="w-full bg-transparent border-b border-[#1E1B4B]/10 pl-9 pr-3 py-2 font-sans text-sm outline-none"
             />
           </div>
           <button type="submit" className="btn-solid text-[10px] px-4">Search</button>
@@ -358,19 +358,19 @@ export default function Discover() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <button type="button" onClick={() => setShowFilters((v) => !v)} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest border border-white/15 rounded-full px-3 py-1">
+        <button type="button" onClick={() => setShowFilters((v) => !v)} className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest border border-[#1E1B4B]/10 rounded-full px-3 py-1">
           <SlidersHorizontal className="w-3 h-3" /> Filters
         </button>
         <input
           value={filters.q}
           onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
           placeholder="Name or username"
-          className="bg-transparent border border-white/15 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-40 max-w-full min-w-0"
+          className="bg-transparent border border-[#1E1B4B]/10 rounded-full px-3 py-1 font-sans text-xs w-full sm:w-40 max-w-full min-w-0"
         />
         <select
           value={campaignId}
           onChange={(e) => setCampaignId(e.target.value)}
-          className="bg-[#FFFFFF] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)] w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
+          className="bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)] w-full sm:w-auto max-w-full sm:max-w-[14rem] min-w-0"
         >
           <option value="">No campaign brief</option>
           {campaigns.map((c) => (
@@ -380,7 +380,7 @@ export default function Discover() {
         <select
           value={sortBy}
           onChange={(e) => { setSortBy(e.target.value); }}
-          className="bg-[#FFFFFF] border border-white/15 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)]"
+          className="bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-full px-3 py-1 font-sans text-xs text-[var(--fg)]"
           aria-label="Sort by"
         >
           <option value="highest_engagement">Highest Engagement</option>
@@ -402,50 +402,50 @@ export default function Discover() {
       </div>
 
       {showFilters && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-4 rounded-2xl border border-white/10 p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-4 rounded-2xl border border-[#1E1B4B]/08 p-3">
           <MultiSelectDropdown label="Platform" options={PLATFORMS} selected={filters.platforms} onChange={(v) => setFilters((f) => ({ ...f, platforms: v }))} />
           <MultiSelectDropdown label="Category" options={PLATFORM_CATEGORIES} selected={filters.categories} onChange={(v) => setFilters((f) => ({ ...f, categories: v }))} />
           <MultiSelectDropdown label="Language" options={LANGS} selected={filters.languages} onChange={(v) => setFilters((f) => ({ ...f, languages: v }))} />
           <MultiSelectDropdown label="Tier" options={TIERS} selected={filters.tiers} onChange={(v) => setFilters((f) => ({ ...f, tiers: v }))} />
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             City
-            <input value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             State
-            <input value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.state} onChange={(e) => setFilters((f) => ({ ...f, state: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Country
-            <input value={filters.country} onChange={(e) => setFilters((f) => ({ ...f, country: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.country} onChange={(e) => setFilters((f) => ({ ...f, country: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min followers
-            <input value={filters.followers_min} onChange={(e) => setFilters((f) => ({ ...f, followers_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.followers_min} onChange={(e) => setFilters((f) => ({ ...f, followers_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max followers
-            <input value={filters.followers_max} onChange={(e) => setFilters((f) => ({ ...f, followers_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.followers_max} onChange={(e) => setFilters((f) => ({ ...f, followers_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min ER %
-            <input value={filters.engagement_rate_min} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.engagement_rate_min} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max ER %
-            <input value={filters.engagement_rate_max} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.engagement_rate_max} onChange={(e) => setFilters((f) => ({ ...f, engagement_rate_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Min price ₹
-            <input value={filters.price_min} onChange={(e) => setFilters((f) => ({ ...f, price_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.price_min} onChange={(e) => setFilters((f) => ({ ...f, price_min: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Max price ₹
-            <input value={filters.price_max} onChange={(e) => setFilters((f) => ({ ...f, price_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+            <input value={filters.price_max} onChange={(e) => setFilters((f) => ({ ...f, price_max: e.target.value }))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
           </label>
           <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8]">
             Verified
-            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs text-[var(--fg)]">
+            <select value={filters.verified} onChange={(e) => setFilters((f) => ({ ...f, verified: e.target.value }))} className="mt-1 w-full bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 font-sans text-xs text-[var(--fg)]">
               <option value="">Any</option>
               <option value="yes">Verified</option>
               <option value="no">Unverified</option>
@@ -475,21 +475,21 @@ export default function Discover() {
 
       {pages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
-          <button type="button" disabled={page <= 1} onClick={() => search(page - 1)} className="p-2 border border-white/15 rounded-full disabled:opacity-30">
+          <button type="button" disabled={page <= 1} onClick={() => search(page - 1)} className="p-2 border border-[#1E1B4B]/10 rounded-full disabled:opacity-30">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="font-mono text-[10px] uppercase tracking-widest">{page} / {pages}</span>
-          <button type="button" disabled={page >= pages} onClick={() => search(page + 1)} className="p-2 border border-white/15 rounded-full disabled:opacity-30">
+          <button type="button" disabled={page >= pages} onClick={() => search(page + 1)} className="p-2 border border-[#1E1B4B]/10 rounded-full disabled:opacity-30">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {compare.length > 0 && (
-        <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#FFFFFF]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
+        <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-[#1E1B4B]/10 bg-[#FFFFFF]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
           <GitCompare className="w-4 h-4 text-[#FF2D55]" />
           {compare.map((c) => (
-            <button key={c.id} type="button" onClick={() => toggleCompare(c)} className="font-sans text-xs border border-white/15 rounded-full px-2 py-0.5">
+            <button key={c.id} type="button" onClick={() => toggleCompare(c)} className="font-sans text-xs border border-[#1E1B4B]/10 rounded-full px-2 py-0.5">
               {c.name} <X className="inline w-3 h-3" />
             </button>
           ))}
@@ -498,8 +498,8 @@ export default function Discover() {
       )}
 
       {compareRows && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setCompareRows(null)}>
-          <div className="bg-[#FFFFFF] border border-white/15 rounded-3xl max-w-5xl w-full max-h-[min(85vh,90dvh)] overflow-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-[#1E1B4B]/40 flex items-center justify-center p-4" onClick={() => setCompareRows(null)}>
+          <div className="bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-3xl max-w-5xl w-full max-h-[min(85vh,90dvh)] overflow-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-3 gap-2">
               <h2 className="font-sans text-xl font-bold">Compare</h2>
               <button type="button" onClick={() => setCompareRows(null)}><X className="w-5 h-5" /></button>
@@ -516,7 +516,7 @@ export default function Discover() {
               </thead>
               <tbody>
                 {["followers", "engagement_rate", "average_views", "growth_30d", "quality_score", "ai_match_score", "authenticity_score", "base_rate"].map((m) => (
-                  <tr key={m} className="border-t border-white/10">
+                  <tr key={m} className="border-t border-[#1E1B4B]/08">
                     <td className="p-2 capitalize text-[#64748B]">{m.replace(/_/g, " ")}</td>
                     {compareRows.creators.map((c) => {
                       const win = compareRows.winners?.[m] === c.id;
@@ -541,8 +541,8 @@ export default function Discover() {
       )}
 
       {researchOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setResearchOpen(false)}>
-          <div className="bg-[#FFFFFF] border border-white/15 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-[#1E1B4B]/40 flex items-center justify-center p-4" onClick={() => setResearchOpen(false)}>
+          <div className="bg-[#FFFFFF] border border-[#1E1B4B]/10 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-3">
               <h2 className="font-sans text-xl font-bold inline-flex items-center gap-2"><FileSearch className="w-5 h-5 text-[#FF2D55]" /> Deep Research</h2>
               <button type="button" onClick={() => setResearchOpen(false)}><X className="w-5 h-5" /></button>
@@ -554,7 +554,7 @@ export default function Discover() {
                 <p className="text-[#64748B]">{research.recommendation}</p>
                 <p className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">{research.disclaimer}</p>
                 {["overview", "performance", "audience", "content", "brand_fit", "risk"].map((sec) => (
-                  <section key={sec} className="border border-white/10 rounded-2xl p-3">
+                  <section key={sec} className="border border-[#1E1B4B]/08 rounded-2xl p-3">
                     <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8] mb-2">{sec.replace("_", " ")}</h3>
                     <pre className="whitespace-pre-wrap text-xs text-[#475569]">{JSON.stringify(research[sec], null, 2)}</pre>
                   </section>
@@ -566,8 +566,8 @@ export default function Discover() {
       )}
 
       {assistantOpen && (
-        <aside className="fixed right-3 top-24 bottom-24 z-30 w-[min(360px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#FFFFFF] flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-white/10 flex justify-between">
+        <aside className="fixed right-3 top-24 bottom-24 z-30 w-[min(360px,calc(100%-1.5rem))] rounded-2xl border border-[#1E1B4B]/10 bg-[#FFFFFF] flex flex-col overflow-hidden">
+          <div className="p-3 border-b border-[#1E1B4B]/08 flex justify-between">
             <span className="font-mono text-[10px] uppercase tracking-widest">Discover assistant</span>
             <button type="button" onClick={() => setAssistantOpen(false)}><X className="w-4 h-4" /></button>
           </div>
@@ -578,8 +578,8 @@ export default function Discover() {
               <div key={i} className={m.role === "user" ? "text-right text-[#FF2D55]" : "text-[#475569]"}>{m.text}</div>
             ))}
           </div>
-          <form onSubmit={sendAssistant} className="p-2 border-t border-white/10 flex gap-2">
-            <input value={chat} onChange={(e) => setChat(e.target.value)} className="flex-1 bg-transparent border-b border-white/15 py-1 text-sm outline-none" placeholder="Ask flugr…" />
+          <form onSubmit={sendAssistant} className="p-2 border-t border-[#1E1B4B]/08 flex gap-2">
+            <input value={chat} onChange={(e) => setChat(e.target.value)} className="flex-1 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm outline-none" placeholder="Ask flugr…" />
             <button type="submit" className="btn-solid text-[10px] px-2">Send</button>
           </form>
         </aside>

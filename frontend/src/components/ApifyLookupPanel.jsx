@@ -61,7 +61,7 @@ export function ApifyLookupPanel({ compact = false }) {
   const profile = result?.profile;
 
   return (
-    <section className={`rounded-2xl border border-white/10 bg-[#FFFFFF] ${compact ? "p-3" : "p-4"}`}>
+    <section className={`rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] ${compact ? "p-3" : "p-4"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div>
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Verify a social ID</p>
@@ -78,7 +78,7 @@ export function ApifyLookupPanel({ compact = false }) {
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="mt-1 block bg-[#F7F8FC] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
+            className="mt-1 block bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full px-3 py-1.5 font-sans text-xs"
           >
             {LOOKUP_PLATFORMS.map((p) => (
               <option key={p} value={p}>{p}</option>
@@ -91,7 +91,7 @@ export function ApifyLookupPanel({ compact = false }) {
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
             placeholder="@handle or https://instagram.com/…"
-            className="mt-1 w-full bg-transparent border-b border-white/15 py-1.5 font-sans text-xs outline-none"
+            className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1.5 font-sans text-xs outline-none"
           />
         </label>
         <button type="submit" disabled={busy || !handle.trim()} className="btn-solid text-[10px] px-4 py-2 inline-flex items-center gap-1 disabled:opacity-40">
@@ -103,7 +103,7 @@ export function ApifyLookupPanel({ compact = false }) {
         <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Apify can take 10–30 seconds…</p>
       ) : null}
       {result ? (
-        <div className="mt-3 rounded-xl border border-white/10 p-3">
+        <div className="mt-3 rounded-xl border border-[#1E1B4B]/08 p-3">
           <p className={`font-sans text-xs ${result.ok ? "text-[#14B8A6]" : "text-[#D97706]"}`}>
             {result.message || (result.ok ? "Live Apify result" : "No result")}
           </p>

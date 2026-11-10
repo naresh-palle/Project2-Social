@@ -34,7 +34,7 @@ export function SocialAuthButtons({
               "Google sign-in failed. This domain may not be authorized for the Google client ID (origin_mismatch)."
             )
           }
-          theme="filled_black"
+          theme="outline"
           shape="pill"
           size="large"
           text={mode === "signup" ? "continue_with" : "signin_with"}

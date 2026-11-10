@@ -38,7 +38,7 @@ export default function HireRequests() {
 
   return (
     <div className="w-full pb-10 text-[#1E1B4B]">
-      <div className="border-b border-white/10 pb-3 mb-5">
+      <div className="border-b border-[#1E1B4B]/08 pb-3 mb-5">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Production desk</p>
         <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Hire Requests</h1>
       </div>
@@ -50,7 +50,7 @@ export default function HireRequests() {
       ) : (
         <div className="space-y-3">
           {requests.map((r) => (
-            <article key={r.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <article key={r.id} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="font-sans font-semibold">
@@ -79,7 +79,7 @@ export default function HireRequests() {
                     <button
                       type="button"
                       onClick={() => act(r.id, "rejected")}
-                      className="px-3 py-1.5 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest"
+                      className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest"
                     >
                       Reject
                     </button>

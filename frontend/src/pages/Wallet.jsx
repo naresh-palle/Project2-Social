@@ -98,7 +98,7 @@ export default function Wallet() {
   return (
     <div className="flex flex-col w-full pb-8" data-testid="wallet-page">
       <div className="shrink-0 space-y-4 mb-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-[#1E1B4B]/08 pb-4 mb-4">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Escrow Wallet
@@ -109,7 +109,7 @@ export default function Wallet() {
             </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+          <div className="border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Balance</span>
               <WalletIcon className="w-4 h-4 text-[#FF2D55]" />
@@ -117,7 +117,7 @@ export default function Wallet() {
             <div className="font-sans text-2xl font-bold mt-2 tabular-nums">₹{Number(w.balance || 0).toLocaleString()}</div>
           </div>
           {isBrandWallet ? (
-            <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+            <div className="border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Total Spend</span>
                 <TrendingDown className="w-4 h-4 text-[#FF2D55]" />
@@ -125,7 +125,7 @@ export default function Wallet() {
               <div className="font-sans text-2xl font-bold mt-2 text-[#FF2D55] tabular-nums">₹{totalSpend.toLocaleString()}</div>
             </div>
           ) : (
-            <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+            <div className="border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Income</span>
                 <TrendingUp className="w-4 h-4 text-[#14B8A6]" />
@@ -133,7 +133,7 @@ export default function Wallet() {
               <div className="font-sans text-2xl font-bold mt-2 text-[#14B8A6] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
             </div>
           )}
-          <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+          <div className="border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Withdrawn</span>
               <TrendingDown className="w-4 h-4 text-[#D97706]" />
@@ -143,11 +143,11 @@ export default function Wallet() {
         </div>
 
         {bonus && (
-          <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
+          <div className="mt-5 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55 text-[#FF2D55] font-bold">Bonus Progress</span>
             </div>
-            <div className="mt-3 bg-white/5 h-2 rounded-full overflow-hidden">
+            <div className="mt-3 bg-[#F7F8FC] h-2 rounded-full overflow-hidden">
               <div className="bg-[#14B8A6] h-full transition-all" style={{ width: `${Math.min(100, (bonus.completed / (bonus.required || 1)) * 100)}%` }}></div>
             </div>
             <p className="font-sans text-sm mt-3 opacity-80">
@@ -156,7 +156,7 @@ export default function Wallet() {
           </div>
         )}
 
-        <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div className="mt-5 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-7">
             <div className="font-sans text-[11px] uppercase tracking-wider text-[#FF2D55]">
               {isOwner ? "Deposit" : "Withdraw"}
@@ -174,7 +174,7 @@ export default function Wallet() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount"
-                className="w-full bg-transparent border border-white/15 focus:border-[#FF2D55] outline-none rounded-3xl pl-7 pr-3 py-2 font-sans text-sm"
+                className="w-full bg-transparent border border-[#1E1B4B]/10 focus:border-[#FF2D55] outline-none rounded-3xl pl-7 pr-3 py-2 font-sans text-sm"
               />
             </div>
             <button
@@ -208,10 +208,10 @@ export default function Wallet() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF2D55] rounded-3xl w-full sm:w-40 max-w-full min-w-0"
+                className="bg-transparent border border-[#1E1B4B]/10 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF2D55] rounded-3xl w-full sm:w-40 max-w-full min-w-0"
               />
             </div>
-            <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
+            <div className="flex items-center gap-1 border border-[#1E1B4B]/10 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
               {filterOptions.map(([id, label]) => (
                 <button
                   key={id}
@@ -228,10 +228,10 @@ export default function Wallet() {
           </div>
         </div>
 
-        <div className="mt-3 border border-white/10 rounded-3xl table-scroll">
+        <div className="mt-3 border border-[#1E1B4B]/08 rounded-3xl table-scroll">
           <table className="w-full min-w-[36rem] text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 font-sans text-[10px] uppercase tracking-wider opacity-50 bg-white/[0.02]">
+              <tr className="border-b border-[#1E1B4B]/08 font-sans text-[10px] uppercase tracking-wider opacity-50 bg-[#F8FAFC]">
                 <th className="px-3 py-2.5 font-medium">Date</th>
                 <th className="px-3 py-2.5 font-medium">Type</th>
                 <th className="px-3 py-2.5 font-medium">Note</th>
@@ -248,7 +248,7 @@ export default function Wallet() {
                 </tr>
               ) : (
                 filteredTx.map((t) => (
-                  <tr key={t.id} className="border-b border-white/5 hover:bg-white/[0.02]" data-testid={`tx-${t.id}`}>
+                  <tr key={t.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC]" data-testid={`tx-${t.id}`}>
                     <td className="px-3 py-2.5 font-sans text-xs opacity-60 whitespace-nowrap">
                       {new Date(t.created_at || Date.now()).toLocaleString([], {
                         month: "short",

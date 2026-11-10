@@ -62,10 +62,10 @@ export function CreatorDashboard({
     <div className="w-full min-w-0 pb-4 space-y-4" data-testid="creator-dashboard">
       <header className="flex items-center gap-3 min-w-0">
         {user?.avatar ? (
-          <img src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/15 shrink-0" />
+          <img src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-[#1E1B4B]/10 shrink-0" />
         ) : (
           <div
-            className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center font-sans font-bold text-lg border border-white/15"
+            className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center font-sans font-bold text-lg border border-[#1E1B4B]/10"
             style={{ backgroundColor: `hsl(${(name.charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
           >
             {name[0]?.toUpperCase()}
@@ -81,7 +81,7 @@ export function CreatorDashboard({
         </div>
         <Link
           to="/profile"
-          className="shrink-0 hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-[#64748B] hover:text-[#1E1B4B] border border-white/15 rounded-full px-3 py-1.5"
+          className="shrink-0 hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-[#64748B] hover:text-[#1E1B4B] border border-[#1E1B4B]/10 rounded-full px-3 py-1.5"
         >
           Profile <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
@@ -100,12 +100,12 @@ export function CreatorDashboard({
             </p>
           </div>
           <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
-            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
+            <div className="rounded-2xl bg-[#F7F8FC] border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Pitches</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{pitches}</p>
               <p className="text-[10px] text-[#64748B] mt-0.5">applications</p>
             </div>
-            <div className="rounded-2xl bg-black/25 border border-white/15 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
+            <div className="rounded-2xl bg-[#F7F8FC] border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
               <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Campaigns</p>
               <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{openBriefs || activeCampaigns}</p>
               <p className="text-[10px] text-[#64748B] mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
@@ -164,7 +164,7 @@ export function CreatorDashboard({
       </section>
 
       {/* Shortcuts that are NOT already sidebar destinations (Feed / Wallet) */}
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 min-w-0">
+      <section className="rounded-3xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 min-w-0">
         <h2 className="font-sans text-sm font-semibold mb-3">Shortcuts</h2>
         <div className="grid grid-cols-2 gap-2">
           <Action to="/marketplace?tab=campaigns" icon={Briefcase} label="View campaigns" hint="Marketplace" />
@@ -177,7 +177,7 @@ export function CreatorDashboard({
 
 function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-3.5 min-w-0" title={title}>
+    <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-3 sm:p-3.5 min-w-0" title={title}>
       <div className="flex items-center justify-between gap-2 mb-2">
         <span className="text-[10px] uppercase tracking-wider text-[#94A3B8] truncate">{label}</span>
         <Icon className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
@@ -194,9 +194,9 @@ function Action({ to, icon: Icon, label, hint }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2.5 hover:border-white/25 transition-colors min-w-0"
+      className="flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2.5 hover:border-[#1E1B4B]/12 transition-colors min-w-0"
     >
-      <span className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+      <span className="w-8 h-8 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/08 flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4 text-[#64748B]" />
       </span>
       <span className="min-w-0">

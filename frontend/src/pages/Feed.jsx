@@ -306,7 +306,7 @@ export default function Feed() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2">
       <div className="flex flex-col w-full">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-[#1E1B4B]/08 pb-3 mb-3">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Community
@@ -314,7 +314,7 @@ export default function Feed() {
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Feed</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF2D55] rounded-full">
+            <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-[#1E1B4B]/12 hover:border-[#FF2D55] rounded-full">
               <AiIcon name="refresh" className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
             <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF2D55] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
@@ -330,7 +330,7 @@ export default function Feed() {
               type="button"
               onClick={() => setMode(m.id)}
               className={`px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border rounded-full ${
-                mode === m.id ? "bg-[#FF2D55] border-[#FF2D55]" : "border-white/20 text-white/60"
+                mode === m.id ? "bg-[#FF2D55] border-[#FF2D55]" : "border-[#1E1B4B]/12 text-[#64748B]"
               }`}
             >
               {m.label}
@@ -339,13 +339,13 @@ export default function Feed() {
         </div>
 
         <div className="flex flex-wrap gap-2 items-center mb-4">
-          <select value={feedCity} onChange={(e) => setFeedCity(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+          <select value={feedCity} onChange={(e) => setFeedCity(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm">
             <option value="">Any city</option>
             {["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Kochi"].map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <select value={feedState} onChange={(e) => setFeedState(e.target.value)} className="bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-sm">
+          <select value={feedState} onChange={(e) => setFeedState(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-2 py-1.5 text-sm">
             <option value="">Any state</option>
             {["Maharashtra", "Delhi", "Karnataka", "Telangana", "Tamil Nadu", "West Bengal", "Rajasthan", "Kerala"].map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -444,17 +444,17 @@ function CampaignCard({ campaign: c, index: idx }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
-      className="border border-white/15 bg-[#FFFFFF] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF2D55]/40 transition-colors"
+      className="border border-[#1E1B4B]/10 bg-[#FFFFFF] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF2D55]/40 transition-colors"
     >
       <div className="theme-keep-dark relative h-36 overflow-hidden">
         <img src={c.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#FFFFFF] via-transparent to-transparent" />
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-black/55 border border-[#FF2D55]/40 text-[#FF2D55] font-bold rounded-xs flex items-center gap-1">
+          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-[#1E1B4B]/55 border border-[#FF2D55]/40 text-[#FF2D55] font-bold rounded-xs flex items-center gap-1">
             <Zap className="w-3 h-3" /> {c.aiMatch || "Match"}
           </span>
           {c.escrowLocked && (
-            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#14B8A6] bg-black/55 px-2 py-0.5 border border-[#14B8A6]/35 rounded-xs flex items-center gap-1 font-bold">
+            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#14B8A6] bg-[#1E1B4B]/55 px-2 py-0.5 border border-[#14B8A6]/35 rounded-xs flex items-center gap-1 font-bold">
               <Lock className="w-3 h-3" /> Escrow
             </span>
           )}
@@ -464,7 +464,7 @@ function CampaignCard({ campaign: c, index: idx }) {
         <p className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-55 mb-0.5">{c.brand}</p>
         <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF2D55] transition-colors line-clamp-2">{c.title}</h3>
         <p className="font-sans text-xs opacity-65 mt-1.5 leading-relaxed line-clamp-2">{c.description}</p>
-        <div className="mt-2 pt-2 border-t border-white/10 font-sans text-[10px] opacity-75 flex items-center gap-1.5">
+        <div className="mt-2 pt-2 border-t border-[#1E1B4B]/08 font-sans text-[10px] opacity-75 flex items-center gap-1.5">
           <CheckCircle2 className="w-3 h-3 text-[#FF2D55] shrink-0" />
           <span className="truncate">{c.deliverables}</span>
         </div>
@@ -498,7 +498,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
     <motion.article
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="theme-keep-dark relative w-full aspect-[9/16] max-h-[min(52vh,420px)] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-xl shadow-black/30"
+      className="theme-keep-dark relative w-full aspect-[9/16] max-h-[min(52vh,420px)] rounded-2xl overflow-hidden border border-[#1E1B4B]/10 bg-black shadow-xl shadow-black/30"
     >
       {isVideo ? (
         <video
@@ -518,9 +518,9 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
       <div className="absolute top-3 left-3 right-14 flex items-center gap-2 z-10">
         <Link to={`/u/${author.id}`} className="flex items-center gap-2 min-w-0">
           {author.avatar ? (
-            <img src={author.avatar} alt="" className="w-9 h-9 rounded-full object-cover border border-white/30" />
+            <img src={author.avatar} alt="" className="w-9 h-9 rounded-full object-cover border border-[#1E1B4B]/15" />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-full bg-[#EEF2FF] border border-[#1E1B4B]/12 flex items-center justify-center font-bold text-xs">
               {(author.name || "U")[0]}
             </div>
           )}
@@ -536,18 +536,18 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
 
       <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
         {isVideo && (
-          <button type="button" onClick={() => setMuted((m) => !m)} className="p-2 rounded-full bg-black/45 border border-white/20">
+          <button type="button" onClick={() => setMuted((m) => !m)} className="p-2 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/12">
             {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
         )}
         <div className="relative">
-          <button type="button" onClick={() => setMenu(!menu)} className="p-2 rounded-full bg-black/45 border border-white/20">
+          <button type="button" onClick={() => setMenu(!menu)} className="p-2 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/12">
             <MoreHorizontal className="w-4 h-4" />
           </button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-11 bg-[#F7F8FC] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
-              <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
-              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
+            <div className="absolute right-0 top-11 bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl z-20 min-w-[130px] overflow-hidden">
+              <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-[#EEF2FF]">Pin</button>
+              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-[#EEF2FF]">Delete</button>
             </div>
           )}
         </div>
@@ -555,24 +555,24 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
 
       <div className="absolute right-3 bottom-24 z-10 flex flex-col items-center gap-4">
         <button type="button" onClick={onLike} className="flex flex-col items-center gap-1">
-          <span className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.liked ? "text-[#FF2D55]" : ""}`}>
+          <span className={`p-2.5 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/10 ${post.liked ? "text-[#FF2D55]" : ""}`}>
             <Heart className={`w-5 h-5 ${post.liked ? "fill-current" : ""}`} />
           </span>
           <span className="font-mono text-[10px] drop-shadow">{post.likes_count || 0}</span>
         </button>
         <button type="button" onClick={onComment} className="flex flex-col items-center gap-1">
-          <span className="p-2.5 rounded-full bg-black/40 border border-white/15">
+          <span className="p-2.5 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/10">
             <MessageSquare className="w-5 h-5" />
           </span>
           <span className="font-mono text-[10px] drop-shadow">{post.comments_count || 0}</span>
         </button>
-        <button type="button" onClick={onShare} className="p-2.5 rounded-full bg-black/40 border border-white/15">
+        <button type="button" onClick={onShare} className="p-2.5 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/10">
           <Share2 className="w-5 h-5" />
         </button>
-        <button type="button" onClick={onSave} className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.saved ? "text-[#14B8A6]" : ""}`}>
+        <button type="button" onClick={onSave} className={`p-2.5 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/10 ${post.saved ? "text-[#14B8A6]" : ""}`}>
           <Bookmark className={`w-5 h-5 ${post.saved ? "fill-current" : ""}`} />
         </button>
-        <button type="button" onClick={onRepost} className="p-2.5 rounded-full bg-black/40 border border-white/15">
+        <button type="button" onClick={onRepost} className="p-2.5 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/10">
           <Repeat2 className="w-5 h-5" />
         </button>
       </div>
@@ -609,10 +609,10 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
   const author = post.author || {};
 
   return (
-    <motion.article initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 border border-white/15 bg-[#FFFFFF] rounded-xs space-y-4">
+    <motion.article initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 border border-[#1E1B4B]/10 bg-[#FFFFFF] rounded-xs space-y-4">
       <div className="flex items-start justify-between">
         <Link to={`/u/${author.id}`} className="flex items-center gap-3">
-          {author.avatar && <img src={author.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20" />}
+          {author.avatar && <img src={author.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-[#1E1B4B]/12" />}
           <div>
             <div className="font-editorial text-lg font-bold">{author.name}</div>
             <div className="font-mono text-[10px] text-[#FF2D55] uppercase">{formatUsername(author.handle, author.username) || "user"} · {post.created_at?.slice(0, 10)}</div>
@@ -622,9 +622,9 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
           {post.pinned && <Pin className="w-4 h-4 text-[#FF2D55] inline mr-2" />}
           <button type="button" onClick={() => setMenu(!menu)} className="p-1 opacity-60 hover:opacity-100"><MoreHorizontal className="w-4 h-4" /></button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-6 bg-[#F7F8FC] border border-white/20 rounded-xs z-10 min-w-[140px]">
-              <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
-              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
+            <div className="absolute right-0 top-6 bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xs z-10 min-w-[140px]">
+              <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-[#EEF2FF]">Pin</button>
+              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-[#EEF2FF]">Delete</button>
             </div>
           )}
         </div>
@@ -637,9 +637,9 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
         <div className={`grid gap-2 ${post.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
           {post.media.map((m, i) =>
             m.type === "video" || m.media_type === "video" ? (
-              <video key={i} src={m.url} controls className="w-full rounded-xs border border-white/10" />
+              <video key={i} src={m.url} controls className="w-full rounded-xs border border-[#1E1B4B]/08" />
             ) : (
-              <img key={i} src={m.url} alt="" className="w-full rounded-xs border border-white/10 object-cover" />
+              <img key={i} src={m.url} alt="" className="w-full rounded-xs border border-[#1E1B4B]/08 object-cover" />
             )
           )}
         </div>
@@ -651,9 +651,9 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
         </a>
       )}
       {post.poll && (
-        <div className="p-4 border border-white/10 rounded-xs space-y-2">
+        <div className="p-4 border border-[#1E1B4B]/08 rounded-xs space-y-2">
           {(post.poll.options || []).map((opt, i) => (
-            <div key={i} className="flex justify-between font-mono text-xs p-2 bg-white/5 rounded-xs">
+            <div key={i} className="flex justify-between font-mono text-xs p-2 bg-[#F7F8FC] rounded-xs">
               <span>{opt.text}</span>
               <span className="opacity-50">{opt.votes || 0} votes</span>
             </div>
@@ -668,7 +668,7 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
         </div>
       )}
 
-      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 font-mono text-xs text-[#64748B]">
+      <div className="pt-4 border-t border-[#1E1B4B]/08 flex flex-wrap items-center gap-4 font-mono text-xs text-[#64748B]">
         <button type="button" onClick={onLike} className={`flex items-center gap-1.5 hover:text-[#FF2D55] ${post.liked ? "text-[#FF2D55]" : ""}`}>
           <Heart className={`w-4 h-4 ${post.liked ? "fill-current" : ""}`} /> {post.likes_count || 0}
         </button>
@@ -765,15 +765,15 @@ function CreatePostModal({ onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#FFFFFF] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-4 my-4 sm:my-8">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+    <div className="fixed inset-0 z-50 bg-[#1E1B4B]/45 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.form initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onSubmit={submit} className="bg-[#FFFFFF] border border-[#1E1B4B]/12 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-4 my-4 sm:my-8">
+        <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-4">
           <h3 className="font-editorial text-2xl font-bold">Create Post</h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5 opacity-60" /></button>
         </div>
 
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)" className="w-full bg-black/60 border border-white/20 p-3 font-mono text-sm rounded-xs" />
-        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What's on your mind? Use @mentions and #hashtags" rows={4} className="w-full bg-black/60 border border-white/20 p-3 font-mono text-sm rounded-xs resize-none" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-3 font-mono text-sm rounded-xs" />
+        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What's on your mind? Use @mentions and #hashtags" rows={4} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-3 font-mono text-sm rounded-xs resize-none" />
 
         {media.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -788,22 +788,22 @@ function CreatePostModal({ onClose, onCreated }) {
 
         <div className="flex flex-wrap gap-2">
           <input ref={fileRef} type="file" accept="image/*,video/*,audio/*" multiple hidden onChange={onFiles} />
-          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex items-center gap-1 px-3 py-1.5 border border-white/20 font-mono text-[10px] uppercase">
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex items-center gap-1 px-3 py-1.5 border border-[#1E1B4B]/12 font-mono text-[10px] uppercase">
             <Image className="w-3.5 h-3.5" /> {uploading ? "Uploading…" : "Media"}
           </button>
-          <button type="button" onClick={aiCaption} className="flex items-center gap-1 px-3 py-1.5 border border-white/20 font-mono text-[10px] uppercase"><Sparkle className="w-3.5 h-3.5" /> AI Caption</button>
-          <button type="button" onClick={aiHashtags} className="flex items-center gap-1 px-3 py-1.5 border border-white/20 font-mono text-[10px] uppercase"><BarChart2 className="w-3.5 h-3.5" /> AI Tags</button>
-          <button type="button" onClick={() => setHasPoll(!hasPoll)} className="px-3 py-1.5 border border-white/20 font-mono text-[10px] uppercase">Poll</button>
+          <button type="button" onClick={aiCaption} className="flex items-center gap-1 px-3 py-1.5 border border-[#1E1B4B]/12 font-mono text-[10px] uppercase"><Sparkle className="w-3.5 h-3.5" /> AI Caption</button>
+          <button type="button" onClick={aiHashtags} className="flex items-center gap-1 px-3 py-1.5 border border-[#1E1B4B]/12 font-mono text-[10px] uppercase"><BarChart2 className="w-3.5 h-3.5" /> AI Tags</button>
+          <button type="button" onClick={() => setHasPoll(!hasPoll)} className="px-3 py-1.5 border border-[#1E1B4B]/12 font-mono text-[10px] uppercase">Poll</button>
         </div>
 
-        <input value={gifUrl} onChange={(e) => setGifUrl(e.target.value)} placeholder="GIF URL (optional)" className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
-        <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="Link URL (optional)" className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
-        <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category (optional)" className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
+        <input value={gifUrl} onChange={(e) => setGifUrl(e.target.value)} placeholder="GIF URL (optional)" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-mono text-xs rounded-xs" />
+        <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="Link URL (optional)" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-mono text-xs rounded-xs" />
+        <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category (optional)" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-mono text-xs rounded-xs" />
 
         {hasPoll && (
           <div className="space-y-2">
             {pollOptions.map((opt, i) => (
-              <input key={i} value={opt} onChange={(e) => setPollOptions((prev) => prev.map((o, j) => (j === i ? e.target.value : o)))} placeholder={`Option ${i + 1}`} className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
+              <input key={i} value={opt} onChange={(e) => setPollOptions((prev) => prev.map((o, j) => (j === i ? e.target.value : o)))} placeholder={`Option ${i + 1}`} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-mono text-xs rounded-xs" />
             ))}
             {pollOptions.length < 4 && (
               <button type="button" onClick={() => setPollOptions((prev) => [...prev, ""])} className="font-mono text-[10px] text-[#FF2D55]">+ Add option</button>
@@ -812,18 +812,18 @@ function CreatePostModal({ onClose, onCreated }) {
         )}
 
         <div className="flex gap-3 font-mono text-xs">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-black/60 border border-white/20 p-2 rounded-xs flex-1">
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 rounded-xs flex-1">
             <option value="published">Publish Now</option>
             <option value="draft">Save Draft</option>
             <option value="scheduled">Schedule</option>
           </select>
           {status === "scheduled" && (
-            <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="bg-black/60 border border-white/20 p-2 rounded-xs flex-1" />
+            <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 rounded-xs flex-1" />
           )}
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 border border-white/20 font-mono text-xs uppercase">Cancel</button>
+          <button type="button" onClick={onClose} className="px-4 py-2 border border-[#1E1B4B]/12 font-mono text-xs uppercase">Cancel</button>
           <button type="submit" disabled={busy} className="px-6 py-2 bg-[#FF2D55] font-mono text-xs uppercase font-bold">
             {busy ? "Posting…" : status === "draft" ? "Save Draft" : "Post"}
           </button>
@@ -836,15 +836,15 @@ function CreatePostModal({ onClose, onCreated }) {
 function CommentDrawer({ post, comments, text, setText, onSubmit, onClose, userId, editingComment, setEditingComment, onSaveEdit, onDeleteComment }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="relative w-full max-w-md bg-[#FFFFFF] border-l border-white/20 h-full flex flex-col">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+      <div className="absolute inset-0 bg-[#1E1B4B]/40 backdrop-blur-[2px]" onClick={onClose} />
+      <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="relative w-full max-w-md bg-[#FFFFFF] border-l border-[#1E1B4B]/12 h-full flex flex-col">
+        <div className="p-4 border-b border-[#1E1B4B]/08 flex items-center justify-between">
           <h3 className="font-editorial text-xl">Comments</h3>
           <button type="button" onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {comments.map((c) => (
-            <div key={c.id} className="p-3 bg-white/5 rounded-xs">
+            <div key={c.id} className="p-3 bg-[#F7F8FC] rounded-xs">
               <div className="font-mono text-[10px] opacity-60">{c.author?.name || "User"}</div>
               {editingComment === c.id ? (
                 <EditCommentForm
@@ -864,8 +864,8 @@ function CommentDrawer({ post, comments, text, setText, onSubmit, onClose, userI
             </div>
           ))}
         </div>
-        <form onSubmit={onSubmit} className="p-4 border-t border-white/10 flex gap-2">
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a comment…" className="flex-1 bg-transparent border-b border-white/20 py-2 outline-none font-mono text-sm" />
+        <form onSubmit={onSubmit} className="p-4 border-t border-[#1E1B4B]/08 flex gap-2">
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a comment…" className="flex-1 bg-transparent border-b border-[#1E1B4B]/12 py-2 outline-none font-mono text-sm" />
           <button type="submit" className="p-2 bg-[#FF2D55]"><Send className="w-4 h-4" /></button>
         </form>
       </motion.div>
@@ -877,7 +877,7 @@ function EditCommentForm({ initial, onSave, onCancel }) {
   const [val, setVal] = useState(initial);
   return (
     <div className="mt-1 space-y-2">
-      <input value={val} onChange={(e) => setVal(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
+      <input value={val} onChange={(e) => setVal(e.target.value)} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-2 font-mono text-xs rounded-xs" />
       <div className="flex gap-2">
         <button type="button" onClick={() => onSave(val)} className="font-mono text-[9px] uppercase text-[#14B8A6]">Save</button>
         <button type="button" onClick={onCancel} className="font-mono text-[9px] uppercase opacity-50">Cancel</button>

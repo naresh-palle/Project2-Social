@@ -48,7 +48,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
   if (missing.length === 0) return null;
 
   return (
-    <div className="bg-white/5 border border-white/10 px-3.5 py-3 rounded-2xl" data-testid="connect-social">
+    <div className="bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3.5 py-3 rounded-2xl" data-testid="connect-social">
       <div className="flex items-baseline justify-between gap-3 mb-2.5">
         <h2 className="font-sans text-sm font-semibold tracking-tight">Connect Social Accounts</h2>
         <p className="text-[11px] text-[#94A3B8] hidden sm:block">Link profiles to sync analytics</p>
@@ -63,7 +63,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
 
           if (isPrompting) {
             return (
-              <div key={p} className={`flex flex-col p-2.5 border border-white/20 bg-white/5 rounded-xl transition-all ${color}`}>
+              <div key={p} className={`flex flex-col p-2.5 border border-[#1E1B4B]/12 bg-[#F7F8FC] rounded-xl transition-all ${color}`}>
                  <div className="flex justify-between items-center mb-2">
                    <div className="flex items-center gap-1.5 min-w-0">
                      <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -82,7 +82,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                    onKeyDown={(e) => {
                      if (e.key === 'Enter') connectAccount(p, handleInput);
                    }}
-                   className="w-full bg-black/40 border border-white/10 rounded-full px-2.5 py-1.5 font-sans text-xs text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-white/30 mb-2"
+                   className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-full px-2.5 py-1.5 font-sans text-xs text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#1E1B4B]/15 mb-2"
                  />
                  <button
                    type="button"
@@ -101,9 +101,9 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
               key={p}
               type="button"
               onClick={() => setActivePrompt(p)}
-              className={`flex items-center gap-2 px-2.5 py-2 border rounded-xl transition-all text-left group border-white/10 bg-white/[0.02] cursor-pointer ${color}`}
+              className={`flex items-center gap-2 px-2.5 py-2 border rounded-xl transition-all text-left group border-[#1E1B4B]/08 bg-[#F8FAFC] cursor-pointer ${color}`}
             >
-              <div className="p-1.5 rounded-full bg-white/5 group-hover:text-current">
+              <div className="p-1.5 rounded-full bg-[#F7F8FC] group-hover:text-current">
                 <Icon className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">

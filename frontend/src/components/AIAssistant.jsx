@@ -55,7 +55,7 @@ export function AIAssistant() {
         <button
           key={i}
           onClick={() => setInput(prompt)}
-          className="font-sans text-[10px] bg-white/[0.05] border border-white/10 hover:bg-white/10 text-[#64748B] hover:text-[#1E1B4B] px-3 py-1.5 rounded-3xl transition-colors truncate max-w-[200px]"
+          className="font-sans text-[10px] bg-[#F7F8FC] border border-[#1E1B4B]/08 hover:bg-[#EEF2FF] text-[#64748B] hover:text-[#1E1B4B] px-3 py-1.5 rounded-3xl transition-colors truncate max-w-[200px]"
         >
           {prompt}
         </button>
@@ -72,10 +72,10 @@ export function AIAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
-            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#F7F8FC] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/[0.02]">
+            <div className="flex items-center justify-between p-4 border-b border-[#1E1B4B]/08 bg-[#F8FAFC]">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#FF2D55]/20 flex items-center justify-center border border-[#FF2D55]/30 text-[#FF2D55]">
                   <Sparkles className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function AIAssistant() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-[#64748B] hover:text-[#1E1B4B] transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#EEF2FF] text-[#64748B] hover:text-[#1E1B4B] transition-colors"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -106,7 +106,7 @@ export function AIAssistant() {
                     className={`max-w-[85%] rounded-2xl p-3 ${
                       m.role === "user"
                         ? "bg-[#FF2D55] text-white rounded-tr-sm"
-                        : "bg-white/[0.05] border border-white/10 text-[#1E1B4B]/90 rounded-tl-sm"
+                        : "bg-[#F7F8FC] border border-[#1E1B4B]/08 text-[#1E1B4B]/90 rounded-tl-sm"
                     }`}
                   >
                     <p className="font-sans text-xs leading-relaxed">{m.content}</p>
@@ -116,7 +116,7 @@ export function AIAssistant() {
 
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-white/[0.05] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+                  <div className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "0ms" }}></div>
                     <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "150ms" }}></div>
                     <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "300ms" }}></div>
@@ -130,7 +130,7 @@ export function AIAssistant() {
             {!isTyping && renderSuggestedPrompts()}
 
             {/* Input Area */}
-            <div className="p-4 bg-white/[0.02] border-t border-white/10 mt-2">
+            <div className="p-4 bg-[#F8FAFC] border-t border-[#1E1B4B]/08 mt-2">
               <div className="relative flex items-center">
                 <input
                   type="text"
@@ -138,7 +138,7 @@ export function AIAssistant() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask AI anything..."
-                  className="w-full bg-[#FFFFFF] border border-white/10 focus:border-[#FF2D55] focus:ring-1 focus:ring-[#FF2D55] rounded-3xl pl-4 pr-12 py-3 font-sans text-xs outline-none transition-all"
+                  className="w-full bg-[#FFFFFF] border border-[#1E1B4B]/08 focus:border-[#FF2D55] focus:ring-1 focus:ring-[#FF2D55] rounded-3xl pl-4 pr-12 py-3 font-sans text-xs outline-none transition-all"
                 />
                 <button
                   onClick={handleSend}

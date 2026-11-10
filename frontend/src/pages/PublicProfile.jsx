@@ -164,7 +164,7 @@ export default function PublicProfile() {
           <button onClick={() => nav(-1)} className="inline-flex items-center gap-2 text-[#64748B] hover:text-[#1E1B4B] transition-colors font-sans text-sm shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg> Back
           </button>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1E1B4B]/08 pb-6 mb-8 w-full">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Public Profile
@@ -225,12 +225,12 @@ export default function PublicProfile() {
           {!isMe && (
             <div className="mt-8 flex flex-wrap gap-3">
               {profile.is_following ? (
-                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
+                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-[#EEF2FF] disabled:opacity-50">
                   {actionBusy === "unfollow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
                   Unfollow
                 </button>
               ) : profile.follow_pending ? (
-                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50" title="Cancel follow request">
+                <button type="button" onClick={unfollow} disabled={busy} className="btn-action bg-[#EEF2FF] disabled:opacity-50" title="Cancel follow request">
                   {actionBusy === "unfollow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
                   Cancel request
                 </button>
@@ -240,11 +240,11 @@ export default function PublicProfile() {
                   Follow
                 </button>
               )}
-              <button type="button" onClick={dm} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
+              <button type="button" onClick={dm} disabled={busy} className="btn-action bg-[#EEF2FF] disabled:opacity-50">
                 {actionBusy === "dm" ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
                 Message
               </button>
-              <button type="button" onClick={() => setShowReport(true)} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
+              <button type="button" onClick={() => setShowReport(true)} disabled={busy} className="btn-action bg-[#EEF2FF] disabled:opacity-50">
                 <Flag className="w-4 h-4" /> Report
               </button>
               <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#FF2D55]/40 text-[#FF2D55] disabled:opacity-50">
@@ -255,28 +255,28 @@ export default function PublicProfile() {
 
           {isMe && (
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <span className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] px-3 py-2 border border-white/10 rounded-full">
+              <span className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] px-3 py-2 border border-[#1E1B4B]/08 rounded-full">
                 This is you
               </span>
               <Link to="/profile/edit" className="inline-block btn-action bg-[#FF2D55]">Edit Profile</Link>
-              <Link to="/profile" className="inline-block btn-action bg-white/10">Back to Profile</Link>
+              <Link to="/profile" className="inline-block btn-action bg-[#EEF2FF]">Back to Profile</Link>
             </div>
           )}
         </div>
       </div>
 
       {showReport && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] border border-white/20 p-6 max-w-md w-full rounded-3xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-[#1E1B4B]/45 flex items-center justify-center p-4">
+          <div className="bg-[#FFFFFF] border border-[#1E1B4B]/12 p-6 max-w-md w-full rounded-3xl space-y-4">
             <h3 className="font-editorial text-2xl">Report User</h3>
             <textarea
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               placeholder="Reason for report…"
-              className="w-full bg-black/60 border border-white/20 p-3 font-mono text-sm h-24 rounded-xs"
+              className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 p-3 font-mono text-sm h-24 rounded-xs"
             />
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setShowReport(false)} className="font-mono text-xs uppercase px-4 py-2 border border-white/20">Cancel</button>
+              <button type="button" onClick={() => setShowReport(false)} className="font-mono text-xs uppercase px-4 py-2 border border-[#1E1B4B]/12">Cancel</button>
               <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF2D55] font-bold disabled:opacity-50">Submit</button>
             </div>
           </div>

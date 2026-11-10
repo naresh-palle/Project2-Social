@@ -137,23 +137,23 @@ export function AdminProduction() {
         <div className="flex flex-wrap gap-2">
           <Link
             to="/marketplace?tab=hire"
-            className="px-3 py-1.5 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest"
+            className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest"
           >
             Open marketplace
           </Link>
-          <button type="button" onClick={seed} className="px-3 py-1.5 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">
+          <button type="button" onClick={seed} className="px-3 py-1.5 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest">
             Seed demo data
           </button>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+      <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 space-y-3">
         <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]">Filters</h3>
         <div className="flex flex-wrap gap-2 items-center">
           <button
             type="button"
             onClick={() => setCategoryFilter("")}
-            className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!categoryFilter ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}
+            className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${!categoryFilter ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"}`}
           >
             All categories
           </button>
@@ -162,7 +162,7 @@ export function AdminProduction() {
               key={c.id}
               type="button"
               onClick={() => setCategoryFilter(c.id)}
-              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${categoryFilter === c.id ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}
+              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${categoryFilter === c.id ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"}`}
             >
               {c.label}
             </button>
@@ -178,7 +178,7 @@ export function AdminProduction() {
               key={id}
               type="button"
               onClick={() => setTeamFilter(id)}
-              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${teamFilter === id ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}
+              className={`px-2.5 py-1 rounded-full border text-[9px] uppercase tracking-widest ${teamFilter === id ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"}`}
             >
               {label}
             </button>
@@ -187,7 +187,7 @@ export function AdminProduction() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, role, city…"
-            className="ml-auto bg-black/40 border border-white/15 rounded-full px-3 py-1.5 text-sm min-w-[12rem]"
+            className="ml-auto bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full px-3 py-1.5 text-sm min-w-[12rem]"
           />
         </div>
         <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
@@ -195,22 +195,22 @@ export function AdminProduction() {
         </p>
       </div>
 
-      <form onSubmit={create} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <form onSubmit={create} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <h3 className="sm:col-span-2 lg:col-span-3 font-mono text-[10px] uppercase tracking-widest text-[#FF2D55]">Create profile</h3>
-        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email (optional)" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <select value={form.production_category} onChange={(e) => setForm({ ...form, production_category: e.target.value })} className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-[var(--fg)]">
+        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
+        <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email (optional)" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
+        <select value={form.production_category} onChange={(e) => setForm({ ...form, production_category: e.target.value })} className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm text-[var(--fg)]">
           {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
         </select>
-        <input value={form.production_role} onChange={(e) => setForm({ ...form, production_role: e.target.value })} placeholder="Role (e.g. Cameraman)" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="State" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
-        <input type="number" value={form.base_rate} onChange={(e) => setForm({ ...form, base_rate: e.target.value })} placeholder="Base rate ₹" className="bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" />
+        <input value={form.production_role} onChange={(e) => setForm({ ...form, production_role: e.target.value })} placeholder="Role (e.g. Cameraman)" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
+        <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="City" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
+        <input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="State" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
+        <input type="number" value={form.base_rate} onChange={(e) => setForm({ ...form, base_rate: e.target.value })} placeholder="Base rate ₹" className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" />
         <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
           <input type="checkbox" checked={form.in_house} onChange={(e) => setForm({ ...form, in_house: e.target.checked })} />
           In-House Team
         </label>
-        <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Bio / services" className="sm:col-span-2 lg:col-span-3 bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm" rows={2} />
+        <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Bio / services" className="sm:col-span-2 lg:col-span-3 bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-xl px-3 py-2 text-sm" rows={2} />
         <button type="submit" className="sm:col-span-2 lg:col-span-3 px-4 py-2 rounded-full bg-[#FF2D55] text-white font-mono text-[10px] uppercase tracking-widest font-bold w-fit">
           Create member
         </button>
@@ -222,7 +222,7 @@ export function AdminProduction() {
         <div className="space-y-3">
           <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Members · {filteredMembers.length}</h3>
           {filteredMembers.map((m) => (
-            <div key={m.id} className="rounded-2xl border border-white/10 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div key={m.id} className="rounded-2xl border border-[#1E1B4B]/08 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="font-sans font-semibold">{m.name}</div>
                 <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
@@ -232,10 +232,10 @@ export function AdminProduction() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">
+                <Link to={`/production/${m.id}`} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">
                   View
                 </Link>
-                <button type="button" onClick={() => toggleInHouse(m)} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">
+                <button type="button" onClick={() => toggleInHouse(m)} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">
                   Mark {m.in_house ? "External" : "In-House"}
                 </button>
                 <button
@@ -265,7 +265,7 @@ export function AdminProduction() {
       <div className="space-y-3">
         <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">Incoming hire requests · {filteredRequests.length}</h3>
         {filteredRequests.slice(0, 30).map((r) => (
-          <div key={r.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+          <div key={r.id} className="rounded-xl border border-[#1E1B4B]/08 px-3 py-2 text-sm">
             <span className="font-semibold">{r.requester_name}</span>
             <span className="text-[#94A3B8]"> → {r.production_name}</span>
             <span className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] ml-2">{r.status}</span>

@@ -267,7 +267,7 @@ function OwnerPanel() {
   return (
     <div className="flex flex-col w-full space-y-4 min-w-0 overflow-x-hidden">
       {/* Header + primary actions */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#1E1B4B]/08 pb-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold">Brand Desk</p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1 truncate">
@@ -278,7 +278,7 @@ function OwnerPanel() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             to="/marketplace?tab=campaigns"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/20 text-[10px] uppercase tracking-widest font-mono hover:border-white/40"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-[#1E1B4B]/12 text-[10px] uppercase tracking-widest font-mono hover:border-[#1E1B4B]/18"
           >
             <Briefcase className="w-3.5 h-3.5" /> My Campaigns
           </Link>
@@ -299,7 +299,7 @@ function OwnerPanel() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: i * 0.04 }}
-              className="p-4 rounded-2xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF2D55]/40 transition-colors"
+              className="p-4 rounded-2xl border border-[#1E1B4B]/08 bg-[#F7F8FC] shadow-2xl backdrop-blur-md flex flex-col justify-center h-full hover:border-[#FF2D55]/40 transition-colors"
             >
               <div className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF2D55] font-bold leading-tight">{t.k}</div>
               <div className="font-sans font-bold text-lg md:text-xl leading-tight mt-1.5 text-[#1E1B4B] tracking-tight tabular-nums">{t.v}</div>
@@ -311,7 +311,7 @@ function OwnerPanel() {
 
       {/* Campaign performance + payment spotlight */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="lg:col-span-2 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <div className="flex items-center justify-between gap-2 mb-3">
             <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] font-bold flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5" /> Campaign Performance
@@ -327,7 +327,7 @@ function OwnerPanel() {
               ["Revenue Generated", perf.revenue],
               ["ROAS", perf.roas],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+              <div key={label} className="rounded-xl border border-[#1E1B4B]/08 bg-[#EEF2FF] px-3 py-2.5">
                 <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</div>
                 <div className="font-sans text-lg font-bold mt-1 tabular-nums">{value}</div>
               </div>
@@ -335,7 +335,7 @@ function OwnerPanel() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col">
+        <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4 flex flex-col">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] font-bold mb-3">Payments</h2>
           <div className="space-y-3 flex-1">
             <div>
@@ -347,7 +347,7 @@ function OwnerPanel() {
                 {hasLiveStats ? `${stats?.pending_payments_count ?? 0} payments pending` : "4 payments pending"}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#1E1B4B]/08">
               <div>
                 <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">Paid</div>
                 <div className="font-sans text-sm font-bold mt-0.5 tabular-nums">
@@ -362,7 +362,7 @@ function OwnerPanel() {
               </div>
             </div>
           </div>
-          <Link to="/wallet" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-white/20 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF2D55]/50">
+          <Link to="/wallet" className="mt-4 inline-flex justify-center px-3 py-2 rounded-full border border-[#1E1B4B]/12 text-[9px] uppercase tracking-widest font-mono hover:border-[#FF2D55]/50">
             Open Wallet →
           </Link>
         </div>
@@ -392,7 +392,7 @@ function OwnerPanel() {
           <Link to="/influencers" className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">Discover influencers →</Link>
         </div>
         {pendingApps.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-6 text-center font-sans text-sm opacity-50">
+          <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-4 py-6 text-center font-sans text-sm opacity-50">
             No applications waiting right now.
           </div>
         ) : (
@@ -401,7 +401,7 @@ function OwnerPanel() {
               <Link
                 key={a.id || `${a.campaign_id}-${a.influencer_id}`}
                 to={`/campaigns/${a.campaign_id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:border-[#FF2D55]/40 transition-colors"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2.5 hover:border-[#FF2D55]/40 transition-colors"
               >
                 <div className="min-w-0">
                   <div className="font-sans text-sm font-semibold truncate">{a.influencer_name || a.name || "Creator"}</div>
@@ -485,7 +485,7 @@ function InfluencerPanel() {
         isSyncing={syncing}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E1B4B]/08 pb-2">
         <div className="flex gap-4 font-sans text-[11px] tracking-[0.22em] uppercase flex-wrap">
           <button
             onClick={() => setActiveTab("campaigns-feed")}
@@ -558,14 +558,14 @@ function InfluencerPanel() {
                 <p className="font-sans text-xs opacity-70 mt-2 leading-relaxed line-clamp-2">
                   {c.description}
                 </p>
-                <div className="mt-2 pt-2 border-t border-white/10 space-y-1 font-sans text-[10px] opacity-75">
+                <div className="mt-2 pt-2 border-t border-[#1E1B4B]/08 space-y-1 font-sans text-[10px] opacity-75">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3 h-3 text-[#FF2D55] shrink-0" />
                     <span className="truncate">{c.deliverables || "2x Reels + 4x Stories"}</span>
                   </div>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
+              <div className="mt-3 pt-2 border-t border-[#1E1B4B]/08 flex items-center justify-between">
                 <div>
                   <span className="font-sans text-[8px] tracking-[0.18em] uppercase opacity-50 block">Budget</span>
                   <span className="font-sans text-base text-[#1E1B4B] font-bold">
@@ -592,7 +592,7 @@ function InfluencerPanel() {
           ) : (
             <div className="space-y-3">
               {pitchList.map((a) => (
-                <div key={a.id} className="p-3 bg-[#FFFFFF]/90 border border-white/15 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div key={a.id} className="p-3 bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                   <div>
                     <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#FF2D55] font-bold">{a.campaign_brand || a.brand}</p>
                     <h4 className="font-sans text-sm font-bold mt-0.5">{a.campaign_title || "Campaign Brief"}</h4>
@@ -604,11 +604,11 @@ function InfluencerPanel() {
                     <span className={`font-sans text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 border rounded-xs font-bold ${
                       a.status === "accepted" ? "bg-[#14B8A6]/10 border-[#14B8A6]/40 text-[#14B8A6]"
                         : a.status === "shortlisted" ? "bg-[#D97706]/10 border-[#D97706]/40 text-[#D97706]"
-                        : "bg-white/5 border-white/20 text-[#64748B]"
+                        : "bg-[#F7F8FC] border-[#1E1B4B]/12 text-[#64748B]"
                     }`}>
                       {a.status}
                     </span>
-                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-white/10 hover:bg-[#E11D48] text-white">
+                    <Link to={`/campaigns/${a.campaign_id}`} className="btn-solid py-1.5 px-3 text-[10px] bg-[#EEF2FF] hover:bg-[#E11D48] text-[#1E1B4B]">
                       View ↗
                     </Link>
                   </div>
@@ -649,7 +649,7 @@ function AgentPanel() {
 
   return (
     <div className="w-full space-y-3 pb-8">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#F7F8FC]/95 backdrop-blur-sm z-10 pt-1">
+      <div className="flex items-center justify-between border-b border-[#1E1B4B]/08 pb-2 flex-wrap gap-2 sticky top-0 bg-[#F7F8FC]/95 backdrop-blur-sm z-10 pt-1">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
             § Talent Representative Console
@@ -665,8 +665,8 @@ function AgentPanel() {
           <h3 className="font-sans text-sm font-semibold opacity-70">Scouted Influencer Roster ({creatorList.length})</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {creatorList.map((c) => (
-              <Link key={c.id} to={String(c.id).startsWith("demo-") ? "/marketplace" : `/creators/${c.id}`} className="flex flex-col hover:bg-white/5 transition p-2 border border-white/15 rounded-3xl">
-                <div className="h-24 w-full border-b border-[#1E1B4B]/10 overflow-hidden mb-2 rounded-xs bg-white/5">
+              <Link key={c.id} to={String(c.id).startsWith("demo-") ? "/marketplace" : `/creators/${c.id}`} className="flex flex-col hover:bg-[#F7F8FC] transition p-2 border border-[#1E1B4B]/10 rounded-3xl">
+                <div className="h-24 w-full border-b border-[#1E1B4B]/10 overflow-hidden mb-2 rounded-xs bg-[#F7F8FC]">
                   <img src={c.avatar} alt={c.name} className="w-full h-full object-cover transition duration-500" />
                 </div>
                 <h4 className="font-sans text-xs font-semibold truncate">{c.name}</h4>
@@ -681,7 +681,7 @@ function AgentPanel() {
             <h3 className="font-sans text-sm font-semibold opacity-70">Associated Brands ({associatedBrands.length})</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {associatedBrands.map((b) => (
-                <div key={b.name} className="p-4 border border-white/15 rounded-3xl bg-white/[0.02]">
+                <div key={b.name} className="p-4 border border-[#1E1B4B]/10 rounded-3xl bg-[#F8FAFC]">
                   <div className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">{b.tier || "Client"}</div>
                   <h4 className="font-sans text-sm font-bold mt-1">{b.name}</h4>
                   <p className="text-xs text-[#64748B] mt-1">{b.industry}</p>
@@ -716,17 +716,17 @@ function ProductionPanel() {
   const pending = requests.filter((r) => r.status === "pending").length;
   return (
     <div className="w-full pb-8">
-      <div className="border-b border-white/10 pb-4 mb-5">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 mb-5">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Hire / Production Team</p>
         <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Production desk</h1>
         <p className="font-sans text-sm text-[#64748B] mt-1">Manage hire requests from brands and creators.</p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Pending requests</p>
           <p className="font-sans text-2xl font-bold mt-1">{pending}</p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Total requests</p>
           <p className="font-sans text-2xl font-bold mt-1">{requests.length}</p>
         </div>
@@ -735,10 +735,10 @@ function ProductionPanel() {
         <button type="button" onClick={() => nav("/hire-requests")} className="px-4 py-2 rounded-full bg-[#FF2D55] text-white font-mono text-[10px] uppercase tracking-widest font-bold">
           Open hire requests
         </button>
-        <button type="button" onClick={() => nav("/profile")} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
+        <button type="button" onClick={() => nav("/profile")} className="px-4 py-2 rounded-full border border-[#1E1B4B]/10 font-mono text-[10px] uppercase tracking-widest">
           Edit profile
         </button>
-        <button type="button" onClick={() => nav("/wishlist")} className="px-4 py-2 rounded-full border border-white/15 font-mono text-[10px] uppercase tracking-widest">
+        <button type="button" onClick={() => nav("/wishlist")} className="px-4 py-2 rounded-full border border-[#1E1B4B]/10 font-mono text-[10px] uppercase tracking-widest">
           Wishlist
         </button>
       </div>
@@ -761,14 +761,14 @@ function CampaignRow({ c }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="p-3 bg-[#FFFFFF]/90 border border-white/15 rounded-3xl flex flex-col justify-between min-h-0 hover:border-[#FF2D55]/50 transition-all"
+      className="p-3 bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 rounded-3xl flex flex-col justify-between min-h-0 hover:border-[#FF2D55]/50 transition-all"
     >
       <div>
         <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-[#FF2D55] font-bold">{c.brand}</div>
         <h3 className="font-sans text-sm leading-snug font-semibold mt-1">{c.title}</h3>
         <p className="text-xs font-sans opacity-70 mt-1.5 line-clamp-2 leading-relaxed">{c.description}</p>
       </div>
-      <div className="mt-3 flex items-baseline justify-between border-t border-white/10 pt-2">
+      <div className="mt-3 flex items-baseline justify-between border-t border-[#1E1B4B]/08 pt-2">
         <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
           Budget:
         </div>
@@ -780,7 +780,7 @@ function CampaignRow({ c }) {
 
 function Empty({ label }) {
   return (
-    <div className="border border-white/10 py-10 text-center rounded-3xl bg-white/[0.01]">
+    <div className="border border-[#1E1B4B]/08 py-10 text-center rounded-3xl bg-white/[0.01]">
       <div className="font-sans italic text-lg opacity-60">{label}</div>
     </div>
   );

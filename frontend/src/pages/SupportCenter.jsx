@@ -39,7 +39,7 @@ function statusClass(status) {
   if (["in_progress", "waiting_user", "pending_user", "pending_support", "assigned", "investigating", "action_required"].includes(status)) {
     return "bg-[#D97706]/15 text-[#D97706] border border-[#D97706]/30";
   }
-  return "bg-white/10 text-[#94A3B8] border border-white/10";
+  return "bg-[#EEF2FF] text-[#94A3B8] border border-[#1E1B4B]/08";
 }
 
 /** End-user Help & Support (Influencer / Company / Agent). Support staff → /support/ops. */
@@ -139,7 +139,7 @@ export default function SupportCenter() {
 
   return (
     <div className="flex flex-col w-full pb-8">
-      <div className="mb-6 border-b border-white/10 pb-4">
+      <div className="mb-6 border-b border-[#1E1B4B]/08 pb-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function SupportCenter() {
           </div>
           <Link
             to="/help"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:bg-white/10 font-mono text-[10px] tracking-widest uppercase"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[#1E1B4B]/12 rounded-full hover:bg-[#EEF2FF] font-mono text-[10px] tracking-widest uppercase"
           >
             <AiIcon name="ai" className="w-3.5 h-3.5" /> AI Help
           </Link>
@@ -165,11 +165,11 @@ export default function SupportCenter() {
             <h2 className="font-sans text-xl font-bold tracking-tight mb-4">Frequently Asked Questions</h2>
             <div className="space-y-3">
               {faqs.map((faq, idx) => (
-                <div key={idx} className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02]">
+                <div key={idx} className="border border-[#1E1B4B]/08 rounded-2xl overflow-hidden bg-[#F8FAFC]">
                   <button
                     type="button"
                     onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                    className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.04] gap-4"
+                    className="w-full flex items-center justify-between p-4 text-left hover:bg-[#F1F5F9] gap-4"
                   >
                     <span className="font-sans text-sm font-semibold">{faq.question}</span>
                     <ChevronDown className={`w-4 h-4 text-[#94A3B8] transition-transform ${activeFaq === idx ? "rotate-180" : ""}`} />
@@ -205,7 +205,7 @@ export default function SupportCenter() {
                     type="button"
                     onClick={() => openTicket(t.id)}
                     className={`w-full text-left p-4 border rounded-2xl flex items-center justify-between ${
-                      selectedId === t.id ? "border-[#FF2D55]/50 bg-[#FF2D55]/10" : "border-white/10 bg-white/[0.02]"
+                      selectedId === t.id ? "border-[#FF2D55]/50 bg-[#FF2D55]/10" : "border-[#1E1B4B]/08 bg-[#F8FAFC]"
                     }`}
                   >
                     <div className="min-w-0 flex-1 overflow-hidden pr-2">
@@ -226,19 +226,19 @@ export default function SupportCenter() {
 
         <div>
           {selectedId && ticket ? (
-            <div className="border border-white/10 bg-[#FFFFFF] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
+            <div className="border border-[#1E1B4B]/08 bg-[#FFFFFF] rounded-3xl p-5 sticky top-4 max-h-[80vh] flex flex-col">
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <div className="font-mono text-[10px] text-[#94A3B8] tracking-widest">{ticket.number} · {ticket.category}</div>
                   <h2 className="font-sans text-xl font-bold mt-1">{ticket.subject}</h2>
                 </div>
-                <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-white/10 rounded-full">
+                <button type="button" onClick={() => { setSelectedId(null); setDetail(null); }} className="p-2 hover:bg-[#EEF2FF] rounded-full">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto space-y-3 mb-4 min-h-[160px]">
                 {(detail.messages || []).map((m) => (
-                  <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.author_id === user?.id ? "bg-[#FF2D55]/15 ml-6" : "bg-white/[0.04] mr-6 border border-white/10"}`}>
+                  <div key={m.id} className={`p-3 rounded-2xl text-sm ${m.author_id === user?.id ? "bg-[#FF2D55]/15 ml-6" : "bg-[#F1F5F9] mr-6 border border-[#1E1B4B]/08"}`}>
                     <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] mb-1 flex items-center gap-2">
                       <MessageSquare className="w-3 h-3" /> {m.author_name}
                     </div>
@@ -246,13 +246,13 @@ export default function SupportCenter() {
                   </div>
                 ))}
               </div>
-              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Add more details…" className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm rounded-xl mb-2" />
+              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Add more details…" className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm rounded-xl mb-2" />
               <button type="button" disabled={busyDetail || !reply.trim()} onClick={sendReply} className="w-full bg-[#FF2D55] text-white font-mono text-[10px] tracking-widest uppercase py-2.5 font-bold disabled:opacity-50 flex items-center justify-center gap-2">
                 <Send className="w-3.5 h-3.5" /> Send
               </button>
             </div>
           ) : (
-            <div className="border border-white/10 bg-[#FFFFFF] rounded-3xl p-6 sticky top-4">
+            <div className="border border-[#1E1B4B]/08 bg-[#FFFFFF] rounded-3xl p-6 sticky top-4">
               <h2 className="font-sans text-2xl font-bold mb-6">Raise a Ticket</h2>
               {success ? (
                 <div className="bg-[#14B8A6]/10 border border-[#14B8A6]/30 text-[#14B8A6] p-6 rounded-3xl text-center space-y-3">
@@ -263,12 +263,12 @@ export default function SupportCenter() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Subject</label>
-                    <input type="text" required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm" />
+                    <input type="text" required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Category</label>
-                      <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm text-[var(--fg)]">
+                      <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm text-[var(--fg)]">
                         {["Payment", "Account", "Technical Bug", "Dispute", "Campaign", "Profile", "Social Media Audit", "Other"].map((c) => (
                           <option key={c} value={c}>{c}</option>
                         ))}
@@ -276,7 +276,7 @@ export default function SupportCenter() {
                     </div>
                     <div>
                       <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Priority</label>
-                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm text-[var(--fg)]">
+                      <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm text-[var(--fg)]">
                         {["Low", "Medium", "High", "Critical"].map((p) => (
                           <option key={p} value={p}>{p}</option>
                         ))}
@@ -285,7 +285,7 @@ export default function SupportCenter() {
                   </div>
                   <div>
                     <label className="block font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1.5">Description</label>
-                    <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-sm resize-none" />
+                    <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/08 px-3 py-2 text-sm resize-none" />
                   </div>
                   <button type="submit" disabled={isSubmitting} className="w-full bg-[#FF2D55] text-white font-mono text-xs tracking-widest uppercase py-3 font-bold disabled:opacity-50">
                     {isSubmitting ? "Submitting..." : "Submit Ticket"}

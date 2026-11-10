@@ -191,7 +191,7 @@ export default function NewCampaign({ isEdit }) {
         <button
           type="button"
           onClick={() => nav("/dashboard")}
-          className="absolute top-0 right-0 p-2 bg-[#F3EEFF] border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-xl transition-all duration-300 z-20"
+          className="absolute top-0 right-0 p-2 bg-[#F3EEFF] border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-xl transition-all duration-300 z-20"
           title="Cancel / Close (Esc)"
           data-testid="new-campaign-cancel-btn"
         >
@@ -211,7 +211,7 @@ export default function NewCampaign({ isEdit }) {
         </div>
 
         {aiOpen && (
-          <div className="mt-4 border border-white/10 p-4 rounded-3xl" data-testid="ai-panel">
+          <div className="mt-4 border border-[#1E1B4B]/08 p-4 rounded-3xl" data-testid="ai-panel">
             <div className="flex items-baseline gap-2">
               <Sparkles className="w-3.5 h-3.5 text-[#FF2D55]" />
               <span className="font-sans text-[10px] tracking-[0.22em] uppercase opacity-70">AI Brand Copilot</span>
@@ -222,7 +222,7 @@ export default function NewCampaign({ isEdit }) {
               data-testid="ai-goal"
               value={aiGoal}
               onChange={(e) => setAiGoal(e.target.value)}
-              className="mt-2 w-full bg-transparent border-b border-white/15 py-2 focus:outline-none focus:border-[#FF2D55] resize-none text-sm"
+              className="mt-2 w-full bg-transparent border-b border-[#1E1B4B]/10 py-2 focus:outline-none focus:border-[#FF2D55] resize-none text-sm"
             />
             <div className="mt-3 flex justify-end">
               <button onClick={runAI} disabled={aiBusy} data-testid="ai-generate" className="btn-solid text-xs">
@@ -331,12 +331,12 @@ export default function NewCampaign({ isEdit }) {
           </div>
           <Row label="Cover Image *">
             <div className="flex items-center gap-3 mt-2">
-              {f.cover && <img src={f.cover} alt="Cover Preview" className="w-16 h-20 object-cover border border-white/20 p-0.5 rounded-3xl" />}
+              {f.cover && <img src={f.cover} alt="Cover Preview" className="w-16 h-20 object-cover border border-[#1E1B4B]/12 p-0.5 rounded-3xl" />}
               <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} data-testid="cf-cover-file" />
               <button
                 type="button"
                 onClick={() => coverRef.current?.click()}
-                className="btn-solid bg-white/10 hover:bg-[#E11D48] text-white px-3 py-2 text-xs flex items-center gap-2"
+                className="btn-solid bg-[#EEF2FF] hover:bg-[#E11D48] text-[#1E1B4B] px-3 py-2 text-xs flex items-center gap-2"
                 data-testid="cf-cover-upload"
               >
                 <Upload className="w-3.5 h-3.5" /> Upload Cover Image
@@ -352,7 +352,7 @@ export default function NewCampaign({ isEdit }) {
                   data-testid={`niche-toggle-${n}`}
                   onClick={() => toggle(niches, setNiches, n)}
                   className={`px-3 py-1 rounded-full font-sans text-[10px] tracking-[0.16em] uppercase ${
-                    niches.includes(n) ? "bg-[#FF2D55] text-white" : "border border-white/15"
+                    niches.includes(n) ? "bg-[#FF2D55] text-white" : "border border-[#1E1B4B]/10"
                   }`}
                 >
                   {n}
@@ -369,7 +369,7 @@ export default function NewCampaign({ isEdit }) {
                   data-testid={`platform-toggle-${n}`}
                   onClick={() => toggle(platforms, setPlatforms, n)}
                   className={`px-3 py-1 rounded-full font-sans text-[10px] tracking-[0.16em] uppercase ${
-                    platforms.includes(n) ? "bg-[#FF2D55] text-white" : "border border-white/15"
+                    platforms.includes(n) ? "bg-[#FF2D55] text-white" : "border border-[#1E1B4B]/10"
                   }`}
                 >
                   {n}

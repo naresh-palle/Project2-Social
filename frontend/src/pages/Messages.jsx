@@ -335,7 +335,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
 
         <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col w-full"}>
         {!miniWidget && (
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1E1B4B]/08 pb-4 mb-5">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Inbox
@@ -346,7 +346,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
         )}
 
         {miniWidget && (
-          <div className="flex items-center justify-end px-3 py-2 border-b border-white/5 shrink-0">
+          <div className="flex items-center justify-end px-3 py-2 border-b border-[#1E1B4B]/06 shrink-0">
             <Link
               to={active ? `/messages?id=${active.id}` : "/messages"}
               onClick={() => onClose?.()}
@@ -363,14 +363,14 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             onChange={(e) => setSearchQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && searchMessages()}
             placeholder="Search people or messages…"
-            className="flex-1 bg-transparent border border-white/20 px-3 py-1.5 font-sans text-sm rounded-3xl"
+            className="flex-1 bg-transparent border border-[#1E1B4B]/12 px-3 py-1.5 font-sans text-sm rounded-3xl"
           />
-          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-white/20 rounded-3xl">
+          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-[#1E1B4B]/12 rounded-3xl">
             <Search className="w-4 h-4" />
           </button>
         </div>
         {(userHits.length > 0 || searchResults.length > 0) && (
-          <div className="mb-3 p-2.5 border border-white/10 bg-white/[0.02] rounded-3xl space-y-2 shrink-0 max-h-48 overflow-y-auto">
+          <div className="mb-3 p-2.5 border border-[#1E1B4B]/08 bg-[#F8FAFC] rounded-3xl space-y-2 shrink-0 max-h-48 overflow-y-auto">
             {searchingUsers ? <p className="font-sans text-xs opacity-50">Searching…</p> : null}
             {userHits.length > 0 && (
               <div className="space-y-1">
@@ -380,12 +380,12 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     key={u.id}
                     type="button"
                     onClick={() => startChatWith(u)}
-                    className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/5"
+                    className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[#F7F8FC]"
                   >
                     {u.avatar ? (
                       <img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      <div className="w-7 h-7 rounded-full bg-[#EEF2FF] flex items-center justify-center text-[10px] font-bold">
                         {(u.name || u.username || "?")[0]?.toUpperCase()}
                       </div>
                     )}
@@ -411,12 +411,12 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           </div>
         )}
 
-        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 min-w-0 bg-transparent" : "flex-1 flex flex-col md:flex-row min-h-0 min-w-0 border border-white/10 rounded-3xl overflow-hidden h-[min(70vh,640px)] md:h-[min(75vh,720px)] bg-white/[0.01]"}>
-          <aside className={`${active ? "hidden md:flex" : "flex"} flex-col flex-1 md:flex-none md:w-[min(100%,280px)] md:border-r md:border-white/10 overflow-y-auto min-w-0`}>
+        <div className={miniWidget ? "flex-1 flex flex-col min-h-0 min-w-0 bg-transparent" : "flex-1 flex flex-col md:flex-row min-h-0 min-w-0 border border-[#1E1B4B]/08 rounded-3xl overflow-hidden h-[min(70vh,640px)] md:h-[min(75vh,720px)] bg-white/[0.01]"}>
+          <aside className={`${active ? "hidden md:flex" : "flex"} flex-col flex-1 md:flex-none md:w-[min(100%,280px)] md:border-r md:border-[#1E1B4B]/08 overflow-y-auto min-w-0`}>
             {loadingConvos ? (
               <div className="p-3 space-y-2 animate-pulse">
                 {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-14 bg-white/[0.03] rounded-3xl" />
+                  <div key={n} className="h-14 bg-[#F8FAFC] rounded-3xl" />
                 ))}
               </div>
             ) : convos.length === 0 ? (
@@ -433,7 +433,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   className={`w-full text-left p-3 mb-2 border rounded-3xl transition-all ${
                     active?.id === c.id
                       ? "border-[#FF2D55]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,92,92,0.1)]"
-                      : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
+                      : "border-[#1E1B4B]/08 bg-[#F8FAFC] hover:border-[#1E1B4B]/15 hover:bg-[#F1F5F9]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -460,7 +460,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           >
             {active ? (
               <div className="flex flex-col h-full relative min-w-0">
-                <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#F3EEFF] shrink-0">
+                <header className="p-4 border-b border-[#1E1B4B]/06 flex items-center justify-between bg-[#F3EEFF] shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
                     <button type="button" onClick={() => setActive(null)} className="md:hidden p-2 -ml-2 opacity-60 hover:opacity-100" aria-label="Back to conversations">
                       <ChevronLeft className="w-5 h-5" />
@@ -525,7 +525,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                   className={`max-w-[85%] md:max-w-[70%] px-4 py-3 group relative shadow-2xl ${
                                     mine
                                       ? "bg-gradient-to-br from-[#FF2D55] to-[#E52D27] text-white rounded-2xl rounded-tr-sm"
-                                      : "bg-white/[0.04] border border-white/5 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#1E1B4B]"
+                                      : "bg-[#F1F5F9] border border-[#1E1B4B]/06 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#1E1B4B]"
                                   }`}
                                 >
                                   {!mine && !isConsecutive && (
@@ -547,7 +547,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                       <input
                                         value={editText}
                                         onChange={(e) => setEditText(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/20 px-3 py-2 font-sans text-sm rounded-3xl outline-none focus:border-white/50 transition-colors"
+                                        className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 px-3 py-2 font-sans text-sm rounded-3xl outline-none focus:border-[#1E1B4B]/060 transition-colors"
                                         autoFocus
                                       />
                                       <div className="flex gap-3 justify-end">
@@ -570,7 +570,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                       {formatMsgTime(m.created_at)}
                                     </span>
                                     {mine && editingMsg !== m.id && (
-                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#F3EEFF] p-1.5 rounded-full border border-white/10 shadow-xl">
+                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#F3EEFF] p-1.5 rounded-full border border-[#1E1B4B]/08 shadow-xl">
                                         <button
                                           type="button"
                                           onClick={() => {
@@ -607,7 +607,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   )}
                 </div>
 
-                <form onSubmit={send} className="bg-[#F3EEFF] border-t border-white/5 p-4 flex gap-3 items-center shrink-0">
+                <form onSubmit={send} className="bg-[#F3EEFF] border-t border-[#1E1B4B]/06 p-4 flex gap-3 items-center shrink-0">
                   <input ref={fileRef} type="file" accept="image/*,video/*,audio/*" hidden onChange={onAttach} />
                   <button type="button" onClick={() => fileRef.current?.click()} className="p-2 opacity-60 hover:opacity-100">
                     <Paperclip className="w-4 h-4" />
@@ -620,7 +620,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     }}
                     data-testid="msg-input"
                     disabled={sending}
-                    className="flex-1 bg-white/5 border border-white/10 focus:border-[#FF2D55] outline-none rounded-full px-3 py-2 font-sans text-sm"
+                    className="flex-1 bg-[#F7F8FC] border border-[#1E1B4B]/08 focus:border-[#FF2D55] outline-none rounded-full px-3 py-2 font-sans text-sm"
                     placeholder="Message…"
                   />
                   <button

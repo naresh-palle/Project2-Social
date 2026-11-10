@@ -769,8 +769,8 @@ export default function ProfileEdit() {
         <div className="flex items-center justify-between gap-3">
             <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#FF2D55] font-semibold">Edit profile</p>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 border border-white/10">
-                  <div className="w-9 h-9 rounded-full border-2 border-[#FF2D55]/30 flex items-center justify-center relative overflow-hidden bg-white/5">
+              <div className="flex items-center gap-2 bg-[#F7F8FC] px-3 py-1.5 border border-[#1E1B4B]/08">
+                  <div className="w-9 h-9 rounded-full border-2 border-[#FF2D55]/30 flex items-center justify-center relative overflow-hidden bg-[#F7F8FC]">
                       <div className="absolute inset-0 bg-[#FF2D55] opacity-30 transition-all duration-500" style={{ height: `${completion}%`, top: 'auto', bottom: 0 }} />
                       <span className="font-sans text-[10px] font-bold z-10 text-[#1E1B4B]">{completion}%</span>
                   </div>
@@ -786,7 +786,7 @@ export default function ProfileEdit() {
               <button
                 type="button"
                 onClick={() => nav("/profile")}
-                className="p-2.5 bg-[#F3EEFF] border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 shrink-0"
+                className="p-2.5 bg-[#F3EEFF] border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-lg transition-all duration-300 shrink-0"
                 title="Close (Esc)"
                 data-testid="profile-edit-close-btn"
               >
@@ -795,10 +795,10 @@ export default function ProfileEdit() {
             </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-white/10 bg-white/[0.02] rounded-3xl">
+        <div className="flex items-center justify-between mb-4 mt-2 px-4 py-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] rounded-3xl">
           <div className="flex items-center gap-2">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF2D55] text-white" : "bg-white/10 text-white/50"}`}>
+              <div key={s} className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${step === s ? "bg-[#FF2D55] text-white" : "bg-[#EEF2FF] text-[#64748B]"}`}>
                 {s}
               </div>
             ))}
@@ -829,8 +829,8 @@ export default function ProfileEdit() {
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
 
-              <section id="sec-basic" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+              <section id="sec-basic" className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                     <span className="mr-2">01</span>
                     Basic Info
                   </h2>
@@ -881,7 +881,7 @@ export default function ProfileEdit() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {isInfluencer && (
-                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#1E1B4B] text-white hover:bg-[#E11D48] hover:text-white">
+                            <button type="button" onClick={runAiCuration} disabled={aiBusy} className="edit-btn bg-[#1E1B4B] text-white hover:bg-[#E11D48] hover:text-[#1E1B4B]">
                                 {aiBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="sparkles" className="w-3 h-3" />}
                                 {aiBusy ? "Curating…" : "AI from niches + location"}
                             </button>
@@ -909,7 +909,7 @@ export default function ProfileEdit() {
                     <option value="other" className="bg-[#F7F8FC]">Others</option>
                   </select>
                 </F>
-                <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer min-h-[48px]">
+                <label className="flex items-center justify-between py-2 border border-[#1E1B4B]/08 px-3 rounded-xs cursor-pointer min-h-[48px]">
                   <div>
                     <span className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 block">Private account</span>
                     <span className="font-sans text-[10px] opacity-40">Approved followers only</span>
@@ -925,8 +925,8 @@ export default function ProfileEdit() {
           </section>
 
           {/* SECTION 2: LOCATION */}
-          <section id="sec-location" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
-              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+          <section id="sec-location" className="space-y-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+              <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                 <span className="mr-2">02</span>
                 Location
               </h2>
@@ -934,19 +934,19 @@ export default function ProfileEdit() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">Pincode</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center">
+                    <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center">
                       {f.pincode || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">City</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
+                    <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
                       {f.city || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
                     <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">State</label>
-                    <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
+                    <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
                       {f.state || "—"}
                     </div>
                   </div>
@@ -958,8 +958,8 @@ export default function ProfileEdit() {
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               {!isInfluencer && (
-                <section id="sec-company" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section id="sec-company" className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                     Company Details
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -986,8 +986,8 @@ export default function ProfileEdit() {
               )}
 
               {isInfluencer && (
-                <section id="sec-niche" className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section id="sec-niche" className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                  <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                     Niches & Languages
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1011,7 +1011,7 @@ export default function ProfileEdit() {
                 </section>
               )}
 
-          <section id="sec-social" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
+          <section id="sec-social" className="space-y-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
               {isInfluencer && (
                 <div className="border border-[#FF2D55]/30 bg-[#FF2D55]/5 p-3 rounded-2xl mb-3">
                   <div className="flex items-center justify-between gap-3">
@@ -1061,7 +1061,7 @@ export default function ProfileEdit() {
                   )}
                 </div>
               )}
-              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-2">
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#1E1B4B]/08 pb-2">
                 <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold">
                   <span className="mr-2">03</span>
                   Social accounts
@@ -1071,7 +1071,7 @@ export default function ProfileEdit() {
                     type="button"
                     onClick={() => refreshAnalytics(false)}
                     disabled={syncBusy || !!savingPlat}
-                    className="edit-btn bg-white/10 hover:bg-[#E11D48] text-white"
+                    className="edit-btn bg-[#EEF2FF] hover:bg-[#E11D48] text-[#1E1B4B]"
                   >
                     {syncBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {syncBusy ? "Fetching…" : "Refresh all metrics"}
@@ -1090,7 +1090,7 @@ export default function ProfileEdit() {
                         const isEditing = editingPlat === plat;
                         const isSaving = savingPlat === plat;
                         return (
-                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-3xl ${isConnected ? "border-[#14B8A6] bg-[#14B8A6]/5" : "border-white/10 bg-white/[0.02]"}`}>
+                        <div key={plat} className={`p-2.5 border transition-colors flex flex-col justify-between rounded-3xl ${isConnected ? "border-[#14B8A6] bg-[#14B8A6]/5" : "border-[#1E1B4B]/08 bg-[#F8FAFC]"}`}>
                             <div className="flex justify-between items-center mb-2 gap-2">
                                 <div className="flex items-center gap-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-[#FF2D55] font-semibold">
                                     {SOCIAL_PLATFORM_LABELS[plat] || plat} {plat === "instagram" && isInfluencer && "*"}
@@ -1100,7 +1100,7 @@ export default function ProfileEdit() {
                                   <button
                                     type="button"
                                     onClick={() => startEditPlatform(plat)}
-                                    className="inline-flex items-center gap-1 font-sans text-[9px] uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B] border border-white/15 hover:border-white/40 px-2 py-1"
+                                    className="inline-flex items-center gap-1 font-sans text-[9px] uppercase tracking-widest text-[#64748B] hover:text-[#1E1B4B] border border-[#1E1B4B]/10 hover:border-[#1E1B4B]/18 px-2 py-1"
                                     data-testid={`social-edit-${plat}`}
                                   >
                                     <Pencil className="w-3 h-3" />
@@ -1146,14 +1146,14 @@ export default function ProfileEdit() {
                                         type="button"
                                         disabled={isSaving}
                                         onClick={cancelEditPlatform}
-                                        className="edit-btn bg-white/10 text-[#1E1B4B]"
+                                        className="edit-btn bg-[#EEF2FF] text-[#1E1B4B]"
                                       >
                                         <X className="w-3 h-3" />
                                       </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="mt-0.5 py-2 border-b border-white/10 font-sans text-sm text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[36px] flex items-center break-all whitespace-normal">
+                                  <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center break-all whitespace-normal">
                                     {socialOrNA(savedHandle)}
                                   </div>
                                 )}
@@ -1161,25 +1161,25 @@ export default function ProfileEdit() {
                             <div className="grid grid-cols-2 gap-2 mt-2 font-sans select-none">
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">{plat==="youtube" ? "Subs" : "Followers"}</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-[#1E1B4B]/08 text-sm tabular-nums text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.followers ?? metrics.subscribers, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">ER (%)</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-[#1E1B4B]/08 text-sm tabular-nums text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.engagement, (n) => n.toFixed(1)) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Views</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-[#1E1B4B]/08 text-sm tabular-nums text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.views, formatMetric) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="opacity-80">
                                     <div className="text-[9px] opacity-50 uppercase tracking-widest">Posts</div>
-                                    <div className="mt-0.5 py-1.5 border-b border-white/10 text-sm tabular-nums text-[#1E1B4B]/90 bg-white/[0.02] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
+                                    <div className="mt-0.5 py-1.5 border-b border-[#1E1B4B]/08 text-sm tabular-nums text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[32px] flex items-center" title="Auto-fetched on Save">
                                       {isConnected ? socialMetricOrNA(metrics.posts, formatMetric) : "N/A"}
                                     </div>
                                 </div>
@@ -1192,8 +1192,8 @@ export default function ProfileEdit() {
               {isInfluencer && (
                 <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <section id="sec-rate" className="space-y-2 border border-white/10 bg-white/[0.02] p-4">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section id="sec-rate" className="space-y-2 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                       <span className="mr-2">05</span>
                       Pricing &amp; rates
                     </h2>
@@ -1202,8 +1202,8 @@ export default function ProfileEdit() {
                     </F>
                 </section>
 
-                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-content-types">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4" id="sec-content-types">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                       <span className="mr-2">07</span>
                       Additional
                     </h2>
@@ -1249,20 +1249,20 @@ export default function ProfileEdit() {
 
           {step === 3 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-              <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+              <section className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                   Media & Assets
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <F label="Profile Picture *">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-white/20 rounded-3xl" />}
+                      {f.avatar && <img src={f.avatar} alt="" className="w-12 h-12 object-cover border border-[#1E1B4B]/12 rounded-3xl" />}
                       <input ref={avatarRef} type="file" accept="image/*" hidden onChange={onAvatarPick} />
-                      <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#E11D48] text-white">
+                      <button type="button" onClick={()=>avatarRef.current?.click()} className="edit-btn bg-[#EEF2FF] hover:bg-[#E11D48] text-[#1E1B4B]">
                         <Upload className="w-3 h-3" /> {f.avatar ? "Replace" : "Upload"}
                       </button>
                       {f.avatar && (
-                        <button type="button" onClick={recropAvatar} className="edit-btn bg-white/5 hover:bg-white/15 text-[#1E1B4B]">
+                        <button type="button" onClick={recropAvatar} className="edit-btn bg-[#F7F8FC] hover:bg-white/15 text-[#1E1B4B]">
                           <Crop className="w-3 h-3" /> Crop
                         </button>
                       )}
@@ -1270,13 +1270,13 @@ export default function ProfileEdit() {
                   </F>
                   <F label="Cover Photo">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-white/20 rounded-3xl" />}
+                      {f.cover_photo && <img src={f.cover_photo} alt="" className="w-16 h-10 object-cover border border-[#1E1B4B]/12 rounded-3xl" />}
                       <input ref={coverRef} type="file" accept="image/*" hidden onChange={onCoverPick} />
-                      <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-white/10 hover:bg-[#E11D48] text-white">
+                      <button type="button" onClick={() => coverRef.current?.click()} className="edit-btn bg-[#EEF2FF] hover:bg-[#E11D48] text-[#1E1B4B]">
                         <Upload className="w-3 h-3" /> {f.cover_photo ? "Replace" : "Upload"}
                       </button>
                       {f.cover_photo && (
-                        <button type="button" onClick={recropCover} className="edit-btn bg-white/5 hover:bg-white/15 text-[#1E1B4B]">
+                        <button type="button" onClick={recropCover} className="edit-btn bg-[#F7F8FC] hover:bg-white/15 text-[#1E1B4B]">
                           <Crop className="w-3 h-3" /> Crop
                         </button>
                       )}
@@ -1288,8 +1288,8 @@ export default function ProfileEdit() {
               {isInfluencer && (
                 <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4">
-                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4">
+                    <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                       <span className="mr-2">06</span>
                       Portfolio
                     </h2>
@@ -1297,7 +1297,7 @@ export default function ProfileEdit() {
                     <F label="Images and Videos">
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#F7F8FC] border border-white/10 rounded-3xl overflow-hidden">
+                          <div key={i} className="relative group aspect-square bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-3xl overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
                                 <video src={p} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                             ) : (
@@ -1319,8 +1319,8 @@ export default function ProfileEdit() {
                 </section>
                 </div>
 
-                <section className="space-y-3 border border-white/10 bg-white/[0.02] p-4" id="sec-campaigns">
-                        <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-white/10 pb-2">
+                <section className="space-y-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4" id="sec-campaigns">
+                        <h2 className="font-sans text-[11px] tracking-[0.16em] uppercase text-[#FF2D55] font-semibold border-b border-[#1E1B4B]/08 pb-2">
                           Past campaigns
                         </h2>
                         <F label="Optional · max 5">
@@ -1335,7 +1335,7 @@ export default function ProfileEdit() {
                                 </div>
 
                                 {f.past_campaigns.map((c, i) => (
-                                    <div key={i} className="p-3 border border-white/10 bg-white/[0.02] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-3xl">
+                                    <div key={i} className="p-3 border border-[#1E1B4B]/08 bg-[#F8FAFC] grid grid-cols-1 md:grid-cols-12 gap-2 items-center rounded-3xl">
                                         <div className="md:col-span-2">
                                             <input className="inp text-xs py-1.5" placeholder="" value={c.brand || ""} onChange={e=>setCampaign(i, 'brand', e.target.value)} />
                                         </div>
@@ -1360,7 +1360,7 @@ export default function ProfileEdit() {
                                 ))}
 
                                 {f.past_campaigns.length < 5 ? (
-                                    <button type="button" onClick={addCampaign} className="edit-btn bg-white/5 hover:bg-white/10 text-[#1E1B4B]">
+                                    <button type="button" onClick={addCampaign} className="edit-btn bg-[#F7F8FC] hover:bg-[#EEF2FF] text-[#1E1B4B]">
                                       <Plus className="w-3 h-3" /> Add campaign ({f.past_campaigns.length}/5)
                                     </button>
                                 ) : (
@@ -1378,7 +1378,7 @@ export default function ProfileEdit() {
 
           <div className="pt-2 flex items-center justify-between">
             {step > 1 ? (
-              <button key="btn-back" type="button" onClick={prevStep} className="edit-btn bg-white/10 text-[#1E1B4B] hover:bg-white/20 px-5 py-2.5 text-[11px]">
+              <button key="btn-back" type="button" onClick={prevStep} className="edit-btn bg-[#EEF2FF] text-[#1E1B4B] hover:bg-[#E2E8F0] px-5 py-2.5 text-[11px]">
                 Back
               </button>
             ) : <div />}

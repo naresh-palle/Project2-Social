@@ -58,7 +58,7 @@ export default function Leaderboard() {
   return (
     <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4 mb-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-[#1E1B4B]/08 pb-4 mb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Rankings
@@ -66,14 +66,14 @@ export default function Leaderboard() {
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Leaderboard</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="bg-white/5 p-0.5 rounded-full flex border border-white/10">
+            <div className="bg-[#F7F8FC] p-0.5 rounded-full flex border border-[#1E1B4B]/08">
               {["weekly", "monthly"].map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setPeriod(p)}
                   className={`px-3.5 py-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase transition-all ${
-                    period === p ? "bg-[#FF2D55] text-white" : "text-white/55 hover:text-white"
+                    period === p ? "bg-[#FF2D55] text-white" : "text-[#64748B] hover:text-[#1E1B4B]"
                   }`}
                 >
                   {p}
@@ -91,8 +91,8 @@ export default function Leaderboard() {
                     onClick={() => setCategory(c.id)}
                     className={`px-3 py-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase transition-all flex items-center gap-1.5 border ${
                       active
-                        ? "bg-white/10 border-white/25 text-[#1E1B4B]"
-                        : "border-white/10 text-[#94A3B8] hover:text-[#1E1B4B]"
+                        ? "bg-[#EEF2FF] border-[#1E1B4B]/12 text-[#1E1B4B]"
+                        : "border-[#1E1B4B]/08 text-[#94A3B8] hover:text-[#1E1B4B]"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -105,7 +105,7 @@ export default function Leaderboard() {
         </div>
 
         {myRank?.rank && (
-          <div className="mb-3 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+          <div className="mb-3 px-3.5 py-2.5 rounded-xl bg-[#F7F8FC] border border-[#1E1B4B]/08 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <span className="font-mono text-[9px] tracking-widest uppercase text-[#94A3B8]">Your rank</span>
               <span className="font-sans text-lg font-bold text-[#1E1B4B]">#{myRank.rank}</span>
@@ -120,11 +120,11 @@ export default function Leaderboard() {
         <div className="space-y-1.5">
           {loading ? (
             [...Array(6)].map((_, i) => (
-              <div key={i} className="h-12 bg-white/5 animate-pulse rounded-lg" />
+              <div key={i} className="h-12 bg-[#F7F8FC] animate-pulse rounded-lg" />
             ))
           ) : entries.length > 0 ? (
             entries.map((entry, idx) => {
-              let row = "bg-white/[0.03] border-white/8";
+              let row = "bg-[#F8FAFC] border-white/8";
               let rankStyle = "text-[#94A3B8] font-mono text-sm";
               if (entry.rank === 1) {
                 row = "bg-[#FFD700]/10 border-[#FFD700]/25";
@@ -149,7 +149,7 @@ export default function Leaderboard() {
                     {entry.rank <= 3 ? `#${entry.rank}` : entry.rank}
                   </div>
 
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-white/15 shrink-0">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-[#1E1B4B]/10 shrink-0">
                     {entry.avatar ? (
                       <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
                     ) : (

@@ -128,7 +128,7 @@ export function NotificationBell() {
                     to={linkFor(n)}
                     onClick={() => { markOne(n); }}
                     data-testid={`notif-${n.id}`}
-                    className="block p-4 hairline-b hover:bg-white/5 transition-colors"
+                    className="block p-4 hairline-b hover:bg-[#F7F8FC] transition-colors"
                   >
                     <div className="flex items-baseline justify-between mb-1">
                       <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-[#FF2D55]">{String(n.kind || "update").replace(/_/g, " ")}</span>

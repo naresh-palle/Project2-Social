@@ -188,7 +188,7 @@ export default function InvoiceEditor() {
 
   return (
     <div className="w-full pb-24" data-testid="invoice-editor">
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-white/10 pb-3 mb-4">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[#1E1B4B]/08 pb-3 mb-4">
         <div>
           <Link to="/billing" className="font-mono text-[10px] uppercase tracking-widest text-[#94A3B8]">← Billing</Link>
           <h1 className="font-sans text-2xl font-bold">{locked ? "Invoice" : "Edit draft"} {inv.invoice_number || inv.draft_number}</h1>
@@ -224,10 +224,10 @@ export default function InvoiceEditor() {
       </p>
 
       {!locked ? (
-        <form onSubmit={runAiDraft} className="rounded-2xl border border-white/10 bg-[#FFFFFF] p-3 mb-3">
+        <form onSubmit={runAiDraft} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#FFFFFF] p-3 mb-3">
           <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Generate with AI</label>
           <div className="flex gap-2 mt-1">
-            <input value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder='Create an invoice for the smartphone campaign. Two reels and three stories. Total agreed fee ₹1 lakh.' className="flex-1 bg-transparent border-b border-white/15 py-1 font-sans text-sm outline-none" />
+            <input value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder='Create an invoice for the smartphone campaign. Two reels and three stories. Total agreed fee ₹1 lakh.' className="flex-1 bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-sm outline-none" />
             <button type="submit" className="btn-solid text-[10px] px-3" disabled={busy}>Draft</button>
           </div>
           <p className="text-[10px] text-[#94A3B8] mt-1">AI will not invent GSTIN, PAN, tax rate, SAC/HSN, or bank details.</p>
@@ -235,7 +235,7 @@ export default function InvoiceEditor() {
       ) : null}
 
       {review ? (
-        <div className="rounded-2xl border border-white/10 p-3 mb-3">
+        <div className="rounded-2xl border border-[#1E1B4B]/08 p-3 mb-3">
           <p className="font-sans text-sm font-semibold">Invoice health {review.health}/100</p>
           <p className="text-xs text-[#64748B]">{review.summary}</p>
           {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#FF2D55] mt-1">{e}</p>)}
@@ -245,25 +245,25 @@ export default function InvoiceEditor() {
 
       <div className="grid lg:grid-cols-2 gap-4 items-start">
         <div className="space-y-3 min-w-0">
-          <section className="rounded-2xl border border-white/10 p-3 grid sm:grid-cols-2 gap-3">
+          <section className="rounded-2xl border border-[#1E1B4B]/08 p-3 grid sm:grid-cols-2 gap-3">
             <div>
               <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Supplier</p>
               {["legal_name", "address", "state", "state_code", "gstin", "pan"].map((k) => (
-                <input key={k} disabled={locked} value={inv.supplier?.[k] || ""} onChange={(e) => setField(`supplier.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs outline-none" />
+                <input key={k} disabled={locked} value={inv.supplier?.[k] || ""} onChange={(e) => setField(`supplier.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs outline-none" />
               ))}
             </div>
             <div>
               <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Recipient / Bill to</p>
               {["legal_name", "address", "state", "state_code", "gstin", "pan", "email"].map((k) => (
-                <input key={k} disabled={locked} value={inv.recipient?.[k] || ""} onChange={(e) => setField(`recipient.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs outline-none" />
+                <input key={k} disabled={locked} value={inv.recipient?.[k] || ""} onChange={(e) => setField(`recipient.${k}`, e.target.value)} placeholder={k.replace("_", " ")} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs outline-none" />
               ))}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-white/10 p-3 grid sm:grid-cols-3 gap-2">
+          <section className="rounded-2xl border border-[#1E1B4B]/08 p-3 grid sm:grid-cols-3 gap-2">
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Treatment
-              <select disabled={locked} value={inv.gst_treatment || "taxable"} onChange={(e) => setField("gst_treatment", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs">
+              <select disabled={locked} value={inv.gst_treatment || "taxable"} onChange={(e) => setField("gst_treatment", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 font-sans text-xs">
                 <option value="taxable">GST invoice — taxable</option>
                 <option value="zero_rated">GST — zero-rated</option>
                 <option value="exempt">GST — exempt</option>
@@ -273,23 +273,23 @@ export default function InvoiceEditor() {
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               GST %
-              <input disabled={locked} value={inv.gst_rate ?? ""} onChange={(e) => setField("gst_rate", e.target.value === "" ? null : Number(e.target.value))} placeholder="Do not guess" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+              <input disabled={locked} value={inv.gst_rate ?? ""} onChange={(e) => setField("gst_rate", e.target.value === "" ? null : Number(e.target.value))} placeholder="Do not guess" className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Place of supply code
-              <input disabled={locked} value={inv.place_of_supply?.state_code || inv.place_of_supply_state_code || ""} onChange={(e) => setField("place_of_supply_state_code", e.target.value)} placeholder="e.g. 29" className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+              <input disabled={locked} value={inv.place_of_supply?.state_code || inv.place_of_supply_state_code || ""} onChange={(e) => setField("place_of_supply_state_code", e.target.value)} placeholder="e.g. 29" className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Invoice date
-              <input disabled={locked} type="date" value={String(inv.invoice_date || "").slice(0, 10)} onChange={(e) => setField("invoice_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+              <input disabled={locked} type="date" value={String(inv.invoice_date || "").slice(0, 10)} onChange={(e) => setField("invoice_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Due date
-              <input disabled={locked} type="date" value={String(inv.due_date || "").slice(0, 10)} onChange={(e) => setField("due_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 font-sans text-xs" />
+              <input disabled={locked} type="date" value={String(inv.due_date || "").slice(0, 10)} onChange={(e) => setField("due_date", e.target.value)} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 font-sans text-xs" />
             </label>
             <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
               Template
-              <select disabled={locked} value={inv.template || "professional"} onChange={(e) => setField("template", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-white/15 py-1 font-sans text-xs">
+              <select disabled={locked} value={inv.template || "professional"} onChange={(e) => setField("template", e.target.value)} className="mt-1 w-full bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 font-sans text-xs">
                 <option value="professional">Professional</option>
                 <option value="modern">Modern</option>
                 <option value="minimal">Minimal</option>
@@ -297,14 +297,14 @@ export default function InvoiceEditor() {
             </label>
           </section>
 
-          <section className="rounded-2xl border border-white/10 p-3">
+          <section className="rounded-2xl border border-[#1E1B4B]/08 p-3">
             <div className="flex justify-between items-center mb-2">
               <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Line items</p>
               {!locked ? (
                 <button type="button" onClick={() => setField("line_items", [...(inv.line_items || []), emptyItem()])} className="text-[10px] inline-flex items-center gap-1"><AiIcon name="create" className="w-3 h-3" /> Add</button>
               ) : null}
             </div>
-            <input value={codeQ} onChange={(e) => setCodeQ(e.target.value)} placeholder="Search SAC/HSN (admin-maintained suggestions)" className="w-full bg-transparent border-b border-white/15 py-1 mb-2 font-sans text-xs" />
+            <input value={codeQ} onChange={(e) => setCodeQ(e.target.value)} placeholder="Search SAC/HSN (admin-maintained suggestions)" className="w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 mb-2 font-sans text-xs" />
             {codeQ && filteredCodes.map((c) => (
               <button key={c.id || c.code} type="button" className="block text-left text-[10px] text-[#64748B] hover:text-[#1E1B4B]" onClick={() => {
                 const items = [...(inv.line_items || [])];
@@ -315,19 +315,19 @@ export default function InvoiceEditor() {
             ))}
             {(inv.line_items || []).map((it, idx) => (
               <div key={idx} className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-2 sm:gap-1 mb-3 sm:mb-2">
-                <input disabled={locked} className="col-span-1 sm:col-span-6 lg:col-span-4 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Description" value={it.description || ""} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-6 lg:col-span-4 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs min-w-0" placeholder="Description" value={it.description || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, description: e.target.value }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="SAC/HSN" value={it.sac_hsn || ""} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs min-w-0" placeholder="SAC/HSN" value={it.sac_hsn || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, sac_hsn: e.target.value }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-1 sm:col-span-1 lg:col-span-1 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Qty" value={it.qty} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-1 lg:col-span-1 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs min-w-0" placeholder="Qty" value={it.qty} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, qty: Number(e.target.value) }; setInv({ ...inv, line_items: items });
                 }} />
-                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-white/15 py-1 text-xs min-w-0" placeholder="Rate" value={it.rate} onChange={(e) => {
+                <input disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs min-w-0" placeholder="Rate" value={it.rate} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, rate: Number(e.target.value) }; setInv({ ...inv, line_items: items });
                 }} />
-                <select disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-[#FFFFFF] border-b border-white/15 py-1 text-xs min-w-0" value={it.discount_kind || ""} onChange={(e) => {
+                <select disabled={locked} className="col-span-1 sm:col-span-2 lg:col-span-2 bg-[#FFFFFF] border-b border-[#1E1B4B]/10 py-1 text-xs min-w-0" value={it.discount_kind || ""} onChange={(e) => {
                   const items = [...inv.line_items]; items[idx] = { ...it, discount_kind: e.target.value }; setInv({ ...inv, line_items: items });
                 }}>
                   <option value="">No disc.</option>
@@ -343,10 +343,10 @@ export default function InvoiceEditor() {
             ))}
             <div className="grid grid-cols-2 gap-2 mt-2">
               <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Invoice discount ₹
-                <input disabled={locked} value={inv.discount_value ?? inv.invoice_discount ?? 0} onChange={(e) => setField("discount_value", Number(e.target.value))} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-xs" />
+                <input disabled={locked} value={inv.discount_value ?? inv.invoice_discount ?? 0} onChange={(e) => setField("discount_value", Number(e.target.value))} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
               </label>
               <label className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">Payment terms
-                <input disabled={locked} value={inv.payment_terms || ""} onChange={(e) => setField("payment_terms", e.target.value)} className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-xs" />
+                <input disabled={locked} value={inv.payment_terms || ""} onChange={(e) => setField("payment_terms", e.target.value)} className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
               </label>
             </div>
             <label className="flex items-center gap-2 mt-2 text-xs">
@@ -355,8 +355,8 @@ export default function InvoiceEditor() {
             </label>
             {inv.tds_applicable ? (
               <div className="grid grid-cols-2 gap-2 mt-1">
-                <input disabled={locked} placeholder="Section e.g. 194J" value={inv.tds_section || ""} onChange={(e) => setField("tds_section", e.target.value)} className="bg-transparent border-b border-white/15 py-1 text-xs" />
-                <input disabled={locked} placeholder="TDS %" value={inv.tds_rate ?? ""} onChange={(e) => setField("tds_rate", Number(e.target.value))} className="bg-transparent border-b border-white/15 py-1 text-xs" />
+                <input disabled={locked} placeholder="Section e.g. 194J" value={inv.tds_section || ""} onChange={(e) => setField("tds_section", e.target.value)} className="bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
+                <input disabled={locked} placeholder="TDS %" value={inv.tds_rate ?? ""} onChange={(e) => setField("tds_rate", Number(e.target.value))} className="bg-transparent border-b border-[#1E1B4B]/10 py-1 text-xs" />
               </div>
             ) : null}
             <p className="text-[10px] text-[#D97706] mt-2">Verify applicable TDS section/rate before finalizing.</p>
@@ -366,14 +366,14 @@ export default function InvoiceEditor() {
           </section>
 
           {!locked ? (
-            <form onSubmit={assist} className="rounded-2xl border border-white/10 p-3">
+            <form onSubmit={assist} className="rounded-2xl border border-[#1E1B4B]/08 p-3">
               <p className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-1"><AiIcon name="sparkles" className="w-3 h-3" /> Invoice assistant</p>
-              <input value={chat} onChange={(e) => setChat(e.target.value)} placeholder='Change the amount to 1.25 lakh' className="mt-1 w-full bg-transparent border-b border-white/15 py-1 text-sm outline-none" />
+              <input value={chat} onChange={(e) => setChat(e.target.value)} placeholder='Change the amount to 1.25 lakh' className="mt-1 w-full bg-transparent border-b border-[#1E1B4B]/10 py-1 text-sm outline-none" />
             </form>
           ) : null}
         </div>
 
-        <div className="lg:sticky lg:top-2 rounded-2xl overflow-auto max-h-[80vh] border border-white/10">
+        <div className="lg:sticky lg:top-2 rounded-2xl overflow-auto max-h-[80vh] border border-[#1E1B4B]/08">
           <InvoicePreview invoice={inv} />
         </div>
       </div>

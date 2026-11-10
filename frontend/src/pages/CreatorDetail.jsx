@@ -116,16 +116,16 @@ export default function CreatorDetail() {
 
   return (
     <div className="flex flex-col w-full pb-8">
-      <div className="border-b border-white/10 pb-4 mb-4">
+      <div className="border-b border-[#1E1B4B]/08 pb-4 mb-4">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2 mb-3">
           <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Directory profile
         </p>
 
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
           {creator.avatar ? (
-            <img src={creator.avatar} alt={displayName} className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-2xl border border-white/15 shrink-0" />
+            <img src={creator.avatar} alt={displayName} className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-2xl border border-[#1E1B4B]/10 shrink-0" />
           ) : (
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl border border-white/15 flex items-center justify-center bg-white/5 shrink-0">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl border border-[#1E1B4B]/10 flex items-center justify-center bg-[#F7F8FC] shrink-0">
               <span className="font-sans text-2xl font-bold opacity-60">{displayName[0]}</span>
             </div>
           )}
@@ -170,7 +170,7 @@ export default function CreatorDetail() {
               ["Total reach", social.reach, true],
               ["Engagement rate", social.engagementRate, false, true],
             ].map(([label, val, zeroMissing, isEr]) => (
-              <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2" title={!isEr ? (formatExactNumber(val) || undefined) : undefined}>
+              <div key={label} className="rounded-xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2" title={!isEr ? (formatExactNumber(val) || undefined) : undefined}>
                 <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
                 <p className="font-sans text-base font-bold tabular-nums mt-0.5">
                   {isEr ? formatEngagementRate(val) : displayMetric(val, { format: formatCompactNumber, allowZero: !zeroMissing })}
@@ -192,7 +192,7 @@ export default function CreatorDetail() {
             ["Avg ROI", kpis.average_roi != null ? kpis.average_roi : (kpis.avg_roi ?? "—")],
             ["Avg ROAS", kpis.average_roas != null ? `${kpis.average_roas}x` : (kpis.avg_roas != null ? `${kpis.avg_roas}x` : "—")],
           ].map(([label, val]) => (
-            <div key={label} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div key={label} className="rounded-xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2">
               <p className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{label}</p>
               <p className="font-sans text-base font-bold tabular-nums mt-0.5">{val}</p>
             </div>
@@ -200,25 +200,25 @@ export default function CreatorDetail() {
         </div>
 
         <div className="flex flex-wrap gap-2 mt-3">
-          <button type="button" onClick={toggleWishlist} className={`px-3 py-1 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${wishlisted ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}>
+          <button type="button" onClick={toggleWishlist} className={`px-3 py-1 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${wishlisted ? "border-[#FF2D55] text-[#FF2D55]" : "border-[#1E1B4B]/10"}`}>
             <Heart className={`w-3 h-3 ${wishlisted ? "fill-current" : ""}`} /> Wishlist
           </button>
-          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
+          <button type="button" className="px-3 py-1 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
             try { await api.post("/discover/shortlist", { creator_id: creator.id, action: "add" }); toast.success("Shortlisted"); }
             catch { toast.error("Shortlist requires a brand login"); }
           }}>Shortlist</button>
-          <button type="button" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
+          <button type="button" className="px-3 py-1 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest" onClick={async () => {
             try {
               const { data } = await api.post(`/creators/${creator.id}/deep-research`, {});
               setResearch(data.report); setTab("research");
             } catch { toast.error("Deep Research failed"); }
           }}>Deep Research</button>
-          <Link to="/discover" className="px-3 py-1 rounded-full border border-white/15 font-mono text-[9px] uppercase tracking-widest">Discover</Link>
+          <Link to="/discover" className="px-3 py-1 rounded-full border border-[#1E1B4B]/10 font-mono text-[9px] uppercase tracking-widest">Discover</Link>
         </div>
         {intel?.quality && (
           <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mt-3">
             {["engagement_quality", "audience_quality", "content_quality", "growth", "authenticity", "brand_safety"].map((k) => (
-              <div key={k} className="rounded-xl border border-white/10 bg-white/5 p-2">
+              <div key={k} className="rounded-xl border border-[#1E1B4B]/08 bg-[#F7F8FC] p-2">
                 <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8]">{k.replace(/_/g, " ")}</div>
                 <div className="font-sans text-lg font-bold">{intel.quality.breakdown?.[k] ?? "Data unavailable"}</div>
               </div>
@@ -238,7 +238,7 @@ export default function CreatorDetail() {
           {pastCampaigns.length === 0 ? (
             <p className="font-sans italic opacity-50">No past campaign performance on file yet.</p>
           ) : pastCampaigns.map((c) => (
-            <article key={c.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4" data-testid={`past-campaign-${c.id}`}>
+            <article key={c.id} className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-4" data-testid={`past-campaign-${c.id}`}>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h3 className="font-sans text-lg font-semibold">{c.campaign_name || c.title}</h3>
@@ -265,26 +265,26 @@ export default function CreatorDetail() {
                   ["Clicks", fmt(c.clicks)],
                   ["Leads", fmt(c.leads)],
                 ].map(([label, val]) => (
-                  <div key={label} className="rounded-lg border border-white/10 px-2 py-1.5">
+                  <div key={label} className="rounded-lg border border-[#1E1B4B]/08 px-2 py-1.5">
                     <div className="font-mono text-[8px] uppercase text-[#94A3B8]">{label}</div>
                     <div className="font-sans text-sm font-bold tabular-nums">{val}</div>
                   </div>
                 ))}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                <div className="rounded-lg border border-[#1E1B4B]/08 px-2 py-1.5">
                   <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Campaign cost</div>
                   <div className="font-sans text-sm font-bold">{c.campaign_cost != null ? `₹${Number(c.campaign_cost).toLocaleString()}` : "—"}</div>
                 </div>
-                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                <div className="rounded-lg border border-[#1E1B4B]/08 px-2 py-1.5">
                   <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Revenue</div>
                   <div className="font-sans text-sm font-bold">{c.revenue_generated != null ? `₹${Number(c.revenue_generated).toLocaleString()}` : "—"}</div>
                 </div>
-                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                <div className="rounded-lg border border-[#1E1B4B]/08 px-2 py-1.5">
                   <div className="font-mono text-[8px] uppercase text-[#94A3B8]">ROI</div>
                   <div className="font-sans text-sm font-bold">{c.roi ?? "—"}</div>
                 </div>
-                <div className="rounded-lg border border-white/10 px-2 py-1.5">
+                <div className="rounded-lg border border-[#1E1B4B]/08 px-2 py-1.5">
                   <div className="font-mono text-[8px] uppercase text-[#94A3B8]">Content</div>
                   <div className="font-sans text-sm font-bold truncate">{c.content_produced || "—"}</div>
                 </div>
@@ -303,7 +303,7 @@ export default function CreatorDetail() {
       {tab !== "campaigns" ? (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-4 space-y-4">
-          <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
             <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">About</h3>
             <p className="font-sans text-sm leading-relaxed text-[#1E1B4B]/85 mb-3">
               {creator.bio || "No bio provided."}
@@ -323,14 +323,14 @@ export default function CreatorDetail() {
           </section>
 
           {pastCampaigns.length > 0 && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8]">Past campaigns</h3>
                 <button type="button" onClick={() => setTab("campaigns")} className="font-mono text-[9px] uppercase tracking-widest text-[#FF2D55]">View all</button>
               </div>
               <div className="space-y-2">
                 {pastCampaigns.slice(0, 4).map((c) => (
-                  <div key={c.id} className="py-1.5 border-b border-white/5 last:border-0">
+                  <div key={c.id} className="py-1.5 border-b border-[#1E1B4B]/06 last:border-0">
                     <div className="font-mono text-[9px] uppercase tracking-widest text-[#94A3B8]">
                       {[c.brand_name, c.campaign_date].filter(Boolean).join(" · ")}
                     </div>
@@ -347,7 +347,7 @@ export default function CreatorDetail() {
         </div>
 
         <div className="lg:col-span-8 space-y-4">
-          <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
             <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Audience</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {SOCIAL_PLATFORMS.map((plat) => {
@@ -357,7 +357,7 @@ export default function CreatorDetail() {
                 const growth = Number(pm.growth) || 0;
                 const isGrowthPos = growth >= 0;
                 return (
-                  <div key={plat} className={`p-3 rounded-xl border ${connected ? "border-white/10 bg-black/20" : "border-white/5 bg-black/10 opacity-60"}`}>
+                  <div key={plat} className={`p-3 rounded-xl border ${connected ? "border-[#1E1B4B]/08 bg-[#EEF2FF]" : "border-[#1E1B4B]/06 bg-[#F1F5F9] opacity-60"}`}>
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         {Icon ? <Icon className="w-4 h-4 shrink-0 opacity-70" /> : null}
@@ -402,14 +402,14 @@ export default function CreatorDetail() {
           </section>
 
           {tab === "analytics" && chartData.length > 0 && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] flex items-center gap-1">
                   <Activity className="w-3 h-3" /> Growth
                 </h3>
                 <div className="flex gap-1">
                   {[3, 6, 12].map((n) => (
-                    <button key={n} type="button" onClick={() => setChartRange(n)} className={`px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest ${chartRange === n ? "bg-[#FF2D55] text-white" : "border border-white/15"}`}>{n}m</button>
+                    <button key={n} type="button" onClick={() => setChartRange(n)} className={`px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest ${chartRange === n ? "bg-[#FF2D55] text-white" : "border border-[#1E1B4B]/10"}`}>{n}m</button>
                   ))}
                 </div>
               </div>
@@ -427,14 +427,14 @@ export default function CreatorDetail() {
           )}
 
           {tab === "research" && research && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
               <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-2">Deep research</h3>
               <pre className="whitespace-pre-wrap font-sans text-sm text-[#475569]">{typeof research === "string" ? research : JSON.stringify(research, null, 2)}</pre>
             </section>
           )}
 
           {(creator.portfolio || []).length > 0 && (
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <section className="bg-[#F7F8FC] border border-[#1E1B4B]/08 rounded-2xl p-4">
               <h3 className="font-mono text-[10px] tracking-widest uppercase text-[#94A3B8] mb-3">Portfolio</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {creator.portfolio.slice(0, 9).map((src, i) => (
@@ -452,16 +452,16 @@ export default function CreatorDetail() {
       ) : null}
 
       {isBrand && similar.length > 0 && (
-        <section className="mt-8 border-t border-white/10 pt-6">
+        <section className="mt-8 border-t border-[#1E1B4B]/08 pt-6">
           <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF2D55] mb-1">Creators similar to this profile</h2>
           <p className="font-sans text-sm text-[#64748B] mb-4">Matched on niche, audience, location, followers, engagement, content type, and pricing.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {similar.map((c) => {
               const selected = comboSelected.find((x) => x.id === c.id);
               return (
-                <div key={c.id} className={`rounded-2xl border p-3 ${selected ? "border-[#FF2D55]" : "border-white/10"}`}>
+                <div key={c.id} className={`rounded-2xl border p-3 ${selected ? "border-[#FF2D55]" : "border-[#1E1B4B]/08"}`}>
                   <Link to={`/creators/${c.id}`} className="flex gap-2">
-                    {c.avatar ? <img src={c.avatar} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-white/10" />}
+                    {c.avatar ? <img src={c.avatar} alt="" className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-[#EEF2FF]" />}
                     <div className="min-w-0">
                       <div className="font-sans text-sm font-semibold truncate">{c.name}</div>
                       <div className="font-mono text-[8px] uppercase tracking-widest text-[#94A3B8] truncate">
@@ -476,7 +476,7 @@ export default function CreatorDetail() {
                       if (prev.length >= 10) { toast.error("Max 10"); return prev; }
                       return [...prev, c];
                     })}
-                    className="mt-2 w-full px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest"
+                    className="mt-2 w-full px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest"
                   >
                     {selected ? "Selected" : "Select for combo"}
                   </button>
@@ -492,7 +492,7 @@ export default function CreatorDetail() {
               <Link to="/marketplace?tab=creators" className="px-3 py-1 rounded-full bg-[#FF2D55] text-white font-mono text-[9px] uppercase tracking-widest">
                 Continue in marketplace
               </Link>
-              <button type="button" onClick={() => setComboSelected([])} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">Clear</button>
+              <button type="button" onClick={() => setComboSelected([])} className="px-2 py-1 rounded-full border border-[#1E1B4B]/10 text-[9px] uppercase tracking-widest">Clear</button>
             </div>
           )}
         </section>
