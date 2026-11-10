@@ -70,9 +70,9 @@ export function AppLayout() {
                 }}
                 aria-label="Sign out"
                 data-testid="logout-button"
-                className="w-9 h-9 rounded-full border border-[#1E1B4B]/12 bg-[#F7F8FC] hover:border-[#FF2D55]/40 hover:bg-[#FFF1F3] flex items-center justify-center transition-colors shrink-0"
+                className="w-9 h-9 rounded-full border border-[#1E1B4B]/15 bg-white hover:border-[#FF2D55]/50 hover:bg-[#FFF1F3] flex items-center justify-center transition-colors shrink-0 text-[#1E1B4B]"
               >
-                <AiIcon name="logout" className="w-5 h-5" tone="ink" />
+                <AiIcon name="logout" className="w-5 h-5" tone="ink" aria-hidden="true" />
               </button>
             </IconTip>
           </div>

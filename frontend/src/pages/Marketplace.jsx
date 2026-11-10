@@ -927,7 +927,7 @@ export default function Marketplace() {
 
         <form onSubmit={onSearch} className="flex items-center gap-2 flex-1 min-w-[10rem] sm:min-w-[14rem] sm:ml-auto">
           <div className="flex items-center gap-2 border-b border-[#1E1B4B]/12 py-1.5 pl-1.5 pr-2 flex-1 min-w-0">
-            <AiIcon name="search" className="w-4 h-4 opacity-70 shrink-0" />
+            <AiIcon name="search" className="w-4 h-4 shrink-0" />
             <input
               data-testid="search-input"
               value={q}

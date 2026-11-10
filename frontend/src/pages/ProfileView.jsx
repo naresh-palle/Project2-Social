@@ -293,7 +293,7 @@ export default function ProfileView() {
                   items={languagesList}
                   href="/profile/edit#sec-niche"
                   empty="Add languages"
-                  tone="muted"
+                  tone="ink"
                 />
               </section>
             )}

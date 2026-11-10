@@ -449,7 +449,7 @@ html.theme-dark .icon-action:hover {
     transform: none;
 }
 html.theme-light .btn-pill:hover img.ai-icon {
-    filter: invert(1);
+    filter: none !important; /* brand fill hover — keep white glyph */
 }
 
 .btn-solid {
@@ -644,12 +644,35 @@ html:not(.theme-dark) textarea::placeholder {
     opacity: 1 !important;
 }
 
-/* White AI glyphs → ink on light; stay white on brand fills */
+/*
+ * AI glyphs are white PNGs with soft alpha. On light paper they must render
+ * as solid dark ink (#1E1B4B). brightness(0) kills wash-out better than invert.
+ */
 html.theme-light img.ai-icon,
 html.theme-light img[src*="/icons/"],
-html:not(.theme-dark) img.ai-icon--ink {
-    filter: invert(1);
+html:not(.theme-dark) img.ai-icon,
+html:not(.theme-dark) img[src*="/icons/"] {
+    filter: brightness(0) saturate(100%) !important;
+    opacity: 1 !important;
 }
+/* Studio ink tint ≈ #1E1B4B */
+html.theme-light img.ai-icon.ai-icon--ink,
+html:not(.theme-dark) img.ai-icon.ai-icon--ink {
+    filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(2200%) hue-rotate(222deg) brightness(0.92) contrast(1.15) !important;
+    opacity: 1 !important;
+}
+html.theme-light img.ai-icon.ai-icon--muted,
+html:not(.theme-dark) img.ai-icon.ai-icon--muted {
+    filter: brightness(0) saturate(100%) invert(28%) sepia(12%) saturate(700%) hue-rotate(182deg) brightness(0.95) contrast(0.95) !important;
+    opacity: 1 !important;
+}
+/* Coral brand accent for sparkles / highlights on paper */
+html.theme-light img.ai-icon.ai-icon--brand,
+html:not(.theme-dark) img.ai-icon.ai-icon--brand {
+    filter: brightness(0) saturate(100%) invert(28%) sepia(98%) saturate(4000%) hue-rotate(330deg) brightness(1.05) contrast(1.05) !important;
+    opacity: 1 !important;
+}
+/* Keep pure white glyphs on coral / violet / teal fills */
 html.theme-light .bg-\[\#E11D48\] img.ai-icon,
 html.theme-light .bg-\[\#FF2D55\] img.ai-icon,
 html.theme-light .bg-\[\#FF5C5C\] img.ai-icon,
@@ -658,8 +681,13 @@ html.theme-light .bg-\[\#14B8A6\] img.ai-icon,
 html.theme-light .btn-solid img.ai-icon,
 html.theme-light .btn-sm-solid img.ai-icon,
 html.theme-light .theme-keep-dark img.ai-icon,
-html.theme-light .theme-keep-dark img[src*="/icons/"] {
+html.theme-light .theme-keep-dark img[src*="/icons/"],
+html.theme-light img.ai-icon.ai-icon--on-brand,
+html.theme-light .bg-\[\#FF2D55\] img[src*="/icons/"],
+html.theme-light .bg-\[\#7C3AED\] img[src*="/icons/"],
+html.theme-light aside nav a.bg-\[\#FF2D55\] img.ai-icon {
     filter: none !important;
+    opacity: 1 !important;
 }
 
 /* Do NOT blanket-force header/link colors — that crushed CTA + logo contrast.
@@ -1211,7 +1239,8 @@ html.theme-light .bg-\[\#FF2D55\] img.ai-icon,
 html.theme-light .bg-\[\#FF2D55\] img[src*="/icons/"],
 html.theme-light .bg-\[\#7C3AED\] img.ai-icon,
 html.theme-light .bg-\[\#14B8A6\] img.ai-icon {
-    filter: none;
+    filter: none !important;
+    opacity: 1 !important;
 }
 
 /* Dark theme support for new light hexes */

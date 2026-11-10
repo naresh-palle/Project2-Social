@@ -43,17 +43,19 @@ const ICON_FILES = {
 };
 
 const TONES = {
-  white: "",
+  // White glyphs on coral/violet/teal fills only
+  white: "ai-icon--on-brand",
+  // Default: solid dark ink on light paper
   ink: "ai-icon--ink",
-  muted: "ai-icon--ink opacity-70",
-  brand: "opacity-100",
-  soft: "opacity-90",
+  muted: "ai-icon--ink ai-icon--muted",
+  brand: "ai-icon--brand",
+  soft: "ai-icon--ink",
 };
 
 export function aiIconSrc(name) {
   const file = ICON_FILES[name] || ICON_FILES.sparkles;
   const base = process.env.PUBLIC_URL || "";
-  return `${base}/icons/${file}?v=4`;
+  return `${base}/icons/${file}?v=5`;
 }
 
 export function AiIcon({
@@ -64,7 +66,7 @@ export function AiIcon({
   title,
   ...rest
 }) {
-  const toneClass = TONES[tone] || "";
+  const toneClass = TONES[tone] || TONES.ink;
   return (
     <img
       src={aiIconSrc(name)}

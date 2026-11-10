@@ -697,7 +697,7 @@ export default function SupportDashboard() {
                   onClick={() => setTab("tickets", a.queue)}
                   className="w-full flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-3 text-left hover:border-[#FF2D55]/40 hover:bg-[#E11D48]/05 transition-colors"
                 >
-                  <AiIcon name={a.icon} className="w-4 h-4 opacity-80" />
+                  <AiIcon name={a.icon} className="w-4 h-4" />
                   <span className="text-sm flex-1 font-medium">{a.label}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#94A3B8]" />
                 </button>

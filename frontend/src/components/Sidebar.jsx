@@ -136,7 +136,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
           </div>
 
           <form onSubmit={handleSearch} className="relative mb-4">
-            <AiIcon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" tone="muted" />
+            <AiIcon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" tone="ink" />
             <input
               name="search"
               type="text"
