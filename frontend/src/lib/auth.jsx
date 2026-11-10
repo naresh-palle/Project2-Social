@@ -12,7 +12,7 @@ function readAppearance(source = {}) {
     source?.theme ??
     nested?.theme ??
     localStorage.getItem("cr8_theme") ??
-    "dark";
+    "light";
   const highRaw = source?.high_contrast ?? nested?.high_contrast;
   const highContrast =
     highRaw === undefined || highRaw === null
@@ -28,7 +28,7 @@ function readAppearance(source = {}) {
       ? localStorage.getItem("cr8_reduced_motion") === "true"
       : Boolean(reducedRaw);
   return {
-    theme: String(theme || "dark"),
+    theme: String(theme || "light"),
     high_contrast: highContrast,
     font_scale: Number.isFinite(fontScale) ? fontScale : 1,
     reduced_motion: reducedMotion,
@@ -44,10 +44,10 @@ export function applyUserSettings(prefsOrUser) {
   const reducedMotion = s.reduced_motion;
 
   root.classList.remove("theme-light", "theme-dark", "high-contrast", "reduced-motion");
-  let resolved = "dark";
-  if (theme === "light") resolved = "light";
-  else if (theme === "dark") resolved = "dark";
-  else if (window.matchMedia("(prefers-color-scheme: light)").matches) resolved = "light";
+  let resolved = "light";
+  if (theme === "dark") resolved = "dark";
+  else if (theme === "light") resolved = "light";
+  else if (window.matchMedia("(prefers-color-scheme: dark)").matches) resolved = "dark";
 
   if (resolved === "light") root.classList.add("theme-light");
   else root.classList.add("theme-dark");

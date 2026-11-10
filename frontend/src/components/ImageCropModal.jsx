@@ -113,8 +113,8 @@ export function ImageCropModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-4">
-      <div className="w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto bg-[#12182A] border border-white/20 shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-[#12182A] z-10">
+      <div className="w-full max-w-lg max-h-[min(92dvh,40rem)] overflow-y-auto bg-[#FFFFFF] border border-white/20 shadow-2xl">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-[#FFFFFF] z-10">
           <h3 className="font-editorial text-xl truncate pr-2">{title}</h3>
           <button
             type="button"
@@ -150,7 +150,7 @@ export function ImageCropModal({
               value={zoom}
               disabled={busy}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="flex-1 accent-[#FF5C5C]"
+              className="flex-1 accent-[#E11D48]"
             />
           </label>
           <div className="flex gap-3">
@@ -166,7 +166,7 @@ export function ImageCropModal({
               type="button"
               onClick={apply}
               disabled={busy || !croppedAreaPixels}
-              className="btn-solid flex-1 justify-center py-3 bg-[#FF5C5C] text-white text-sm disabled:opacity-60"
+              className="btn-solid flex-1 justify-center py-3 bg-[#E11D48] text-white text-sm disabled:opacity-60"
             >
               <Check className="w-4 h-4" /> {statusLabel}
             </button>

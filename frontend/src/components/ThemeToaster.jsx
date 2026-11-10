@@ -13,6 +13,6 @@ function getToastTheme() {
 
 /** Sonner toaster that follows the app light/dark theme. */
 export function ThemeToaster({ position = "top-center", ...props }) {
-  const theme = useSyncExternalStore(subscribe, getToastTheme, () => "dark");
+  const theme = useSyncExternalStore(subscribe, getToastTheme, () => "light");
   return <Toaster theme={theme} position={position} {...props} />;
 }

@@ -88,7 +88,7 @@ export function SocialConnect({ connectedPlatforms = [], onConnect }) {
                    type="button"
                    onClick={() => connectAccount(p, handleInput)}
                    disabled={loading === p || !handleInput}
-                   className="w-full bg-[#FF5C5C] text-white hover:bg-[#E5484D] font-sans text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-full disabled:opacity-50"
+                   className="w-full bg-[#E11D48] text-white hover:bg-[#BE123C] font-sans text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-full disabled:opacity-50"
                  >
                    {loading === p ? "Connecting..." : "Confirm"}
                  </button>

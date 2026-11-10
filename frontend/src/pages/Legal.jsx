@@ -173,7 +173,7 @@ export default function Legal() {
   const content = DOCS[doc] || null;
 
   return (
-    <div className="min-h-screen bg-[#0B1020] text-[#F7F5ED] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
       <Nav />
       <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24 flex-1">
         {!content ? (
@@ -181,7 +181,7 @@ export default function Legal() {
             <h1 className="font-editorial text-4xl">Document not found</h1>
             <div className="mt-6 flex flex-wrap justify-center gap-4 font-mono text-xs uppercase tracking-widest">
               {Object.keys(DOCS).map((k) => (
-                <Link key={k} to={`/legal/${k}`} className="text-[#FF5C5C] hover:underline">{k}</Link>
+                <Link key={k} to={`/legal/${k}`} className="text-[#E11D48] hover:underline">{k}</Link>
               ))}
             </div>
           </div>
@@ -193,14 +193,14 @@ export default function Legal() {
             <div className="mt-12 space-y-8">
               {content.sections.map((s, i) => (
                 <section key={i}>
-                  <h2 className="font-editorial text-2xl text-[#FF5C5C] mb-2">{s.h}</h2>
+                  <h2 className="font-editorial text-2xl text-[#E11D48] mb-2">{s.h}</h2>
                   <p className="font-mono text-sm leading-relaxed text-white/80">{s.p}</p>
                 </section>
               ))}
             </div>
             <div className="mt-16 pt-8 border-t border-white/10 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
               {Object.keys(DOCS).filter((k) => k !== doc).map((k) => (
-                <Link key={k} to={`/legal/${k}`} className="opacity-60 hover:text-[#FF5C5C]">{DOCS[k].title}</Link>
+                <Link key={k} to={`/legal/${k}`} className="opacity-60 hover:text-[#E11D48]">{DOCS[k].title}</Link>
               ))}
             </div>
           </>

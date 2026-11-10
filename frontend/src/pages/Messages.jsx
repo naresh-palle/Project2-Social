@@ -331,13 +331,13 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-    <div className={miniWidget ? "h-full flex flex-col bg-[#0B1020] text-[#F7F5ED] overflow-hidden" : "w-full bg-[#0B1020] text-[#F7F5ED] flex flex-col font-sans"}>
+    <div className={miniWidget ? "h-full flex flex-col bg-[#F7F8FB] text-[#0F172A] overflow-hidden" : "w-full bg-[#F7F8FB] text-[#0F172A] flex flex-col font-sans"}>
 
         <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col w-full"}>
         {!miniWidget && (
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF5C5C] font-bold flex items-center gap-2">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Inbox
                 </p>
                 <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">Messages</h1>
@@ -350,7 +350,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             <Link
               to={active ? `/messages?id=${active.id}` : "/messages"}
               onClick={() => onClose?.()}
-              className="text-[10px] uppercase text-[#FF5C5C] hover:underline font-mono"
+              className="text-[10px] uppercase text-[#E11D48] hover:underline font-mono"
             >
               Open Full Chat
             </Link>
@@ -374,7 +374,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             {searchingUsers ? <p className="font-sans text-xs opacity-50">Searching…</p> : null}
             {userHits.length > 0 && (
               <div className="space-y-1">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">People</p>
+                <p className="font-mono text-[9px] uppercase tracking-widest text-[#E11D48]">People</p>
                 {userHits.map((u) => (
                   <button
                     key={u.id}
@@ -405,7 +405,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                 ))}
               </div>
             )}
-            <button type="button" onClick={() => { setSearchResults([]); setUserHits([]); }} className="font-sans text-[10px] text-[#FF5C5C] uppercase">
+            <button type="button" onClick={() => { setSearchResults([]); setUserHits([]); }} className="font-sans text-[10px] text-[#E11D48] uppercase">
               Clear
             </button>
           </div>
@@ -432,15 +432,15 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   data-testid={`convo-${c.id}`}
                   className={`w-full text-left p-3 mb-2 border rounded-3xl transition-all ${
                     active?.id === c.id
-                      ? "border-[#FF5C5C]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,92,92,0.1)]"
+                      ? "border-[#E11D48]/50 bg-white/[0.06] shadow-[0_0_15px_rgba(255,92,92,0.1)]"
                       : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-sans text-sm font-bold truncate text-[#F7F5ED]">{displayPartnerName(c)}</div>
-                    {c.mock ? <span className="font-sans text-[9px] text-[#FF5C5C] uppercase shrink-0">Demo</span> : null}
+                    <div className="font-sans text-sm font-bold truncate text-[#0F172A]">{displayPartnerName(c)}</div>
+                    {c.mock ? <span className="font-sans text-[9px] text-[#E11D48] uppercase shrink-0">Demo</span> : null}
                   </div>
-                  <div className="font-mono text-[9px] tracking-widest uppercase text-[#FF5C5C] truncate mt-1">
+                  <div className="font-mono text-[9px] tracking-widest uppercase text-[#E11D48] truncate mt-1">
                     {c.campaign_brand || c.campaign_title || "Direct"}
                   </div>
                   {c.last_message && <div className="font-sans text-xs opacity-60 mt-1.5 truncate leading-relaxed">{c.last_message}</div>}
@@ -452,7 +452,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           <section
             className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 relative overflow-hidden`}
             style={{
-              backgroundColor: "#0B1020",
+              backgroundColor: "#F7F8FB",
               backgroundImage: `linear-gradient(180deg, rgba(11,16,32,0.55) 0%, rgba(11,16,32,0.82) 45%, rgba(11,16,32,0.92) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -460,7 +460,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           >
             {active ? (
               <div className="flex flex-col h-full relative min-w-0">
-                <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#111116] shrink-0">
+                <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#EEF2F7] shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
                     <button type="button" onClick={() => setActive(null)} className="md:hidden p-2 -ml-2 opacity-60 hover:opacity-100" aria-label="Back to conversations">
                       <ChevronLeft className="w-5 h-5" />
@@ -468,7 +468,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   <div className="min-w-0">
                     <div className="font-sans text-sm font-semibold truncate flex items-center gap-2">
                       {displayPartnerName(active)}
-                      {otherOnline && <span className="font-sans text-[9px] text-[#52D4B5] uppercase">Online</span>}
+                      {otherOnline && <span className="font-sans text-[9px] text-[#0D9488] uppercase">Online</span>}
                     </div>
                     <div className="font-sans text-[10px] opacity-50 truncate">
                       {active.campaign_brand}
@@ -486,7 +486,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     {active.campaign_id && (
                       <Link
                         to={`/campaigns/${active.campaign_id}?from=messages&convoId=${active.id}`}
-                        className="font-sans text-[10px] uppercase tracking-wider text-[#FF5C5C] px-1"
+                        className="font-sans text-[10px] uppercase tracking-wider text-[#E11D48] px-1"
                       >
                         Brief
                       </Link>
@@ -503,7 +503,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   {groupMessages(visible).map((group, gIdx) => (
                     <div key={`group-${gIdx}`} className="space-y-4">
                       <div className="flex justify-center sticky top-0 z-10">
-                        <span className="bg-[#1A1A24]/80 backdrop-blur-md border border-white/5 text-[10px] uppercase tracking-widest font-mono px-4 py-1.5 rounded-full text-white/50 shadow-xl flex items-center gap-2">
+                        <span className="bg-[#EEF2F7]/80 backdrop-blur-md border border-black/10 text-[10px] uppercase tracking-widest font-mono px-4 py-1.5 rounded-full text-[#475569] shadow-sm flex items-center gap-2">
                           <Calendar className="w-3 h-3" />
                           {group.date}
                         </span>
@@ -524,12 +524,12 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                 <div
                                   className={`max-w-[85%] md:max-w-[70%] px-4 py-3 group relative shadow-2xl ${
                                     mine
-                                      ? "bg-gradient-to-br from-[#FF5C5C] to-[#E52D27] text-white rounded-2xl rounded-tr-sm"
-                                      : "bg-white/[0.04] border border-white/5 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#F7F5ED]"
+                                      ? "bg-gradient-to-br from-[#E11D48] to-[#E52D27] text-white rounded-2xl rounded-tr-sm"
+                                      : "bg-white/[0.04] border border-white/5 backdrop-blur-md rounded-2xl rounded-tl-sm text-[#0F172A]"
                                   }`}
                                 >
                                   {!mine && !isConsecutive && (
-                                    <div className="font-sans text-[10px] text-[#FF5C5C] font-semibold tracking-wider uppercase mb-1">
+                                    <div className="font-sans text-[10px] text-[#E11D48] font-semibold tracking-wider uppercase mb-1">
                                       {m.sender_name}
                                     </div>
                                   )}
@@ -570,7 +570,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                       {formatMsgTime(m.created_at)}
                                     </span>
                                     {mine && editingMsg !== m.id && (
-                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#1A1A24] p-1.5 rounded-full border border-white/10 shadow-xl">
+                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 absolute -left-16 bottom-2 bg-[#EEF2F7] p-1.5 rounded-full border border-white/10 shadow-xl">
                                         <button
                                           type="button"
                                           onClick={() => {
@@ -581,7 +581,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                                         >
                                           <Edit3 className="w-3.5 h-3.5" />
                                         </button>
-                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-white/50 hover:text-[#FF5C5C]">
+                                        <button type="button" onClick={() => deleteMsg(m.id)} className="text-white/50 hover:text-[#E11D48]">
                                           <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                       </div>
@@ -607,7 +607,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                   )}
                 </div>
 
-                <form onSubmit={send} className="bg-[#111116] border-t border-white/5 p-4 flex gap-3 items-center shrink-0">
+                <form onSubmit={send} className="bg-[#EEF2F7] border-t border-white/5 p-4 flex gap-3 items-center shrink-0">
                   <input ref={fileRef} type="file" accept="image/*,video/*,audio/*" hidden onChange={onAttach} />
                   <button type="button" onClick={() => fileRef.current?.click()} className="p-2 opacity-60 hover:opacity-100">
                     <Paperclip className="w-4 h-4" />
@@ -620,14 +620,14 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
                     }}
                     data-testid="msg-input"
                     disabled={sending}
-                    className="flex-1 bg-white/5 border border-white/10 focus:border-[#FF5C5C] outline-none rounded-full px-3 py-2 font-sans text-sm"
+                    className="flex-1 bg-white/5 border border-white/10 focus:border-[#E11D48] outline-none rounded-full px-3 py-2 font-sans text-sm"
                     placeholder="Message…"
                   />
                   <button
                     data-testid="msg-send"
                     type="submit"
                     disabled={sending || !text.trim()}
-                    className="inline-flex items-center justify-center gap-1.5 bg-[#FF5C5C] text-white rounded-full px-3.5 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
+                    className="inline-flex items-center justify-center gap-1.5 bg-[#E11D48] text-white rounded-full px-3.5 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
                   >
                     <Send className="w-3.5 h-3.5" />
                     Send

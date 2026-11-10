@@ -75,7 +75,7 @@ export default function ProductionDetail() {
   if (!member) return null;
 
   return (
-    <div className="w-full pb-10 text-[#F7F5ED]">
+    <div className="w-full pb-10 text-[#0F172A]">
       <div className="border-b border-white/10 pb-4 mb-5">
         <div className="flex flex-col md:flex-row gap-4 md:items-start">
           {member.avatar ? (
@@ -88,7 +88,7 @@ export default function ProductionDetail() {
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap gap-2 mb-1">
               {member.in_house ? (
-                <span className="font-mono text-[9px] uppercase tracking-widest text-[#52D4B5] border border-[#52D4B5]/40 px-2 py-0.5 rounded-full">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#0D9488] border border-[#0D9488]/40 px-2 py-0.5 rounded-full">
                   In-House Team
                 </span>
               ) : (
@@ -96,7 +96,7 @@ export default function ProductionDetail() {
                   External
                 </span>
               )}
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#FF5C5C]">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#E11D48]">
                 {member.production_category_label || member.production_category}
               </span>
             </div>
@@ -113,7 +113,7 @@ export default function ProductionDetail() {
             type="button"
             onClick={toggleWishlist}
             className={`self-start px-3 py-1.5 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${
-              wishlisted ? "border-[#FF5C5C] text-[#FF5C5C]" : "border-white/15"
+              wishlisted ? "border-[#E11D48] text-[#E11D48]" : "border-white/15"
             }`}
           >
             <Heart className={`w-3.5 h-3.5 ${wishlisted ? "fill-current" : ""}`} />
@@ -178,13 +178,13 @@ export default function ProductionDetail() {
 
         <div className="lg:col-span-5">
           <form onSubmit={requestHire} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sticky top-4">
-            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#FF5C5C] mb-3">Request quote / Hire</h2>
+            <h2 className="font-mono text-[10px] tracking-widest uppercase text-[#E11D48] mb-3">Request quote / Hire</h2>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               placeholder="Describe the shoot, edit, VO, or script brief…"
-              className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF5C5C]/50"
+              className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#E11D48]/50"
             />
             <input
               type="number"
@@ -196,7 +196,7 @@ export default function ProductionDetail() {
             <button
               type="submit"
               disabled={busy}
-              className="mt-3 w-full py-2.5 rounded-full bg-[#FF5C5C] text-white font-mono text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+              className="mt-3 w-full py-2.5 rounded-full bg-[#E11D48] text-white font-mono text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
             >
               {busy ? "Sending…" : "Send hire request"}
             </button>

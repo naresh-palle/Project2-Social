@@ -31,10 +31,10 @@
         <script>
           (function () {
             try {
-              var theme = localStorage.getItem("cr8_theme") || "dark";
+              var theme = localStorage.getItem("cr8_theme") || "light";
               var resolved = theme;
               if (theme === "system") {
-                resolved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+                resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
               }
               var root = document.documentElement;
               root.classList.add(resolved === "light" ? "theme-light" : "theme-dark");

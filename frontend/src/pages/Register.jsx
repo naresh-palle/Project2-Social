@@ -450,7 +450,7 @@ export default function Register() {
     form.password.trim() !== "";
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#0B1020] text-[#F7F5ED] relative">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#F7F8FB] text-[#0F172A] relative">
       <Nav />
       <ThemeToaster />
 
@@ -459,25 +459,25 @@ export default function Register() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#12182A]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FFFFFF]/95 backdrop-blur-2xl border border-white/15 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
         >
           {/* Same top gradient bar as Sign In */}
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF5C5C] via-purple-500 to-[#52D4B5] absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#E11D48] via-purple-500 to-[#0D9488] absolute top-0 left-0" />
 
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <BrandLogo variant="mark" height={28} alt="flugr" className="shrink-0" />
-              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF5C5C]/90 font-semibold truncate">
+              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#E11D48]/90 font-semibold truncate">
                 Apply for access
               </p>
             </div>
-            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF5C5C] transition-colors font-semibold shrink-0">
+            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#E11D48] transition-colors font-semibold shrink-0">
               ← Change Door
             </Link>
           </div>
 
           <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0">
-            Register as <span className="italic text-[#FF5C5C]">{roleLabel}</span>
+            Register as <span className="italic text-[#E11D48]">{roleLabel}</span>
           </h1>
 
           <div className="mt-1.5 w-full shrink-0">
@@ -491,9 +491,9 @@ export default function Register() {
           </div>
 
           <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#F7F5ED]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F8FB]/20 flex-1"></div>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#F7F5ED]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F8FB]/20 flex-1"></div>
           </div>
 
           <form
@@ -531,7 +531,7 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
-                        ? "border-[#FF5C5C] bg-[#FF5C5C]/10 text-white font-bold"
+                        ? "border-[#E11D48] bg-[#E11D48]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -546,7 +546,7 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
-                        ? "border-[#FF5C5C] bg-[#FF5C5C]/10 text-white font-bold"
+                        ? "border-[#E11D48] bg-[#E11D48]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -564,7 +564,7 @@ export default function Register() {
                 <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-white/50">Checking…</span>
               )}
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
+              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#E11D48]" />}
               {usernameStatus === "taken" && usernameSuggestions.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {usernameSuggestions.map((s) => (
@@ -572,7 +572,7 @@ export default function Register() {
                       key={s}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, username: s }))}
-                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#FF5C5C] hover:text-[#FF5C5C] transition-colors"
+                      className="font-sans text-[10px] px-2 py-0.5 border border-white/15 bg-white/5 hover:border-[#E11D48] hover:text-[#E11D48] transition-colors"
                     >
                       {s}
                     </button>
@@ -584,13 +584,13 @@ export default function Register() {
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
               {emailStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
+              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#E11D48]" />}
             </div>
 
             <div className="relative">
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
               {mobileStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF5C5C]" />}
+              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#E11D48]" />}
             </div>
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
@@ -618,8 +618,8 @@ export default function Register() {
           </div>
 
           {(emailStatus === "taken" || mobileStatus === "taken") && (
-            <div className="mt-1.5 p-1.5 bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 font-sans text-[10px] space-y-1 shrink-0">
-              <p className="text-[#FF5C5C] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+            <div className="mt-1.5 p-1.5 bg-[#E11D48]/10 border border-[#E11D48]/30 font-sans text-[10px] space-y-1 shrink-0">
+              <p className="text-[#E11D48] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
                 <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
               </p>
               <p className="text-white/80 leading-snug">
@@ -636,7 +636,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
-                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#FF5C5C] text-white"
+                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#E11D48] text-white"
                 >
                   Sign In via Mobile OTP
                 </button>
@@ -645,7 +645,7 @@ export default function Register() {
           )}
 
           {err && (
-            <p data-testid="register-error" className="mt-1 text-[#FF5C5C] font-sans text-[10px] tracking-wider uppercase shrink-0">
+            <p data-testid="register-error" className="mt-1 text-[#E11D48] font-sans text-[10px] tracking-wider uppercase shrink-0">
               {err}
             </p>
           )}
@@ -660,10 +660,10 @@ export default function Register() {
               disabled={!allFieldsFilled}
               onChange={(e) => setTermsAgreed(e.target.checked)}
               tabIndex={0}
-              className="accent-[#FF5C5C] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="accent-[#E11D48] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label htmlFor="terms-check" className="font-sans text-[11px] text-white/90 cursor-pointer select-none leading-snug">
-              I agree to <span className="text-[#FF5C5C] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF5C5C] font-bold underline hover:opacity-80">Privacy Policy</span>.
+              I agree to <span className="text-[#E11D48] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#E11D48] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
 
@@ -671,14 +671,14 @@ export default function Register() {
             type="submit"
             data-testid="register-submit"
             disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed || !allFieldsFilled}
-            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF5C5C] text-white font-bold text-sm hover:bg-[#E5484D] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
+            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#E11D48] text-white font-bold text-sm hover:bg-[#BE123C] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
           >
             {loading ? "Sending Code…" : "Signup"}
           </button>
 
           <p className="mt-1.5 font-sans text-[10px] tracking-wider opacity-70 text-center shrink-0">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#FF5C5C] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
+            <Link to="/login" className="text-[#E11D48] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
               Login
             </Link>
           </p>
@@ -693,13 +693,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1020]/90 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#F7F8FB]/90 backdrop-blur-sm p-3 sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0B1020] border border-[#F7F5ED]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
+              className="bg-[#F7F8FB] border border-[#0F172A]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
             >
               <button
                 type="button"
@@ -741,7 +741,7 @@ export default function Register() {
                     type="button"
                     disabled={resendCooldown > 0}
                     onClick={handleResendOtp}
-                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#FF5C5C] disabled:opacity-30 disabled:hover:text-current transition-colors"
+                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#E11D48] disabled:opacity-30 disabled:hover:text-current transition-colors"
                   >
                     {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
                   </button>
@@ -759,9 +759,9 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
   return (
     <div className="space-y-0">
       <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
-        {label} {props.required && <span className="text-[#FF5C5C] ml-0.5">*</span>}
+        {label} {props.required && <span className="text-[#E11D48] ml-0.5">*</span>}
       </label>
-      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#FF5C5C] text-[#FF5C5C]" : "hairline-b focus-within:border-[#FF5C5C]"}`}>
+      <div className={`mt-0.5 flex items-center w-full bg-transparent transition-colors ${disabled ? "opacity-50 pointer-events-none select-none border-b border-white/10" : error ? "border-b border-[#E11D48] text-[#E11D48]" : "hairline-b focus-within:border-[#E11D48]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
@@ -771,7 +771,7 @@ function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) 
           className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-white/50" : ""} ${props.className || ''}`}
         />
       </div>
-      {error && <p className="text-[#FF5C5C] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
+      {error && <p className="text-[#E11D48] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }

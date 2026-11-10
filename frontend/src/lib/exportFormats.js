@@ -1249,7 +1249,7 @@ export async function exportSocialAuditPdf({ audit = {}, filename, exportedAt = 
 /** Word-compatible HTML document (.doc). */
 export function exportDoc({ rows, filename, title = "flugr Export", meta = "" }) {
   const { headers, rows: body } = normalizeRows(rows);
-  const thead = headers.map((h) => `<th style="border:1px solid #ccc;padding:6px;text-align:left;background:#f4f4f0">${escapeHtml(h)}</th>`).join("");
+  const thead = headers.map((h) => `<th style="border:1px solid #ccc;padding:6px;text-align:left;background:#F7F8FB">${escapeHtml(h)}</th>`).join("");
   const tbody = body
     .map(
       (cols) =>
