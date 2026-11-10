@@ -56,7 +56,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   <div className="min-w-0">
                     <div className="font-sans text-base sm:text-lg font-bold tracking-tight truncate text-white">
                       {c.handle || c.account_name ? (
-                        <span className="text-[#E11D48]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
+                        <span className="text-[#FF2D55]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
                       ) : (
                         <span className="text-white/50">Not connected</span>
                       )}
@@ -66,7 +66,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                       <span
                         className={`ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wider ${
                           c.verified || c.is_verified
-                            ? "bg-[#0D9488]/15 text-[#0D9488] border border-[#0D9488]/35"
+                            ? "bg-[#14B8A6]/15 text-[#14B8A6] border border-[#14B8A6]/35"
                             : "bg-white/5 text-white/50 border border-white/10"
                         }`}
                       >
@@ -89,11 +89,11 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">ER</div>
-                  <div className="text-sm font-semibold tabular-nums text-[#0D9488] truncate">{formatEngagementRate(er)}</div>
+                  <div className="text-sm font-semibold tabular-nums text-[#14B8A6] truncate">{formatEngagementRate(er)}</div>
                 </div>
                 <div className="min-w-0">
                   <div className="text-[9px] uppercase tracking-wider text-white/40 mb-0.5">Status</div>
-                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#0D9488]" : "text-white/55"}`}>
+                  <div className={`text-sm font-semibold truncate ${c.verified || c.is_verified ? "text-[#14B8A6]" : "text-white/55"}`}>
                     {c.verified || c.is_verified ? "Verified" : "Unverified"}
                   </div>
                 </div>

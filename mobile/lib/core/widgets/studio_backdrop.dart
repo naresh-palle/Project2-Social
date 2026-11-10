@@ -226,7 +226,7 @@ class _GrainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rnd = math.Random(seed);
-    final paint = Paint()..color = const Color(0xFF0F172A);
+    final paint = Paint()..color = const Color(0xFF1E1B4B);
     final count = (size.width * size.height / 9000).clamp(120, 400).toInt();
     for (var i = 0; i < count; i++) {
       final x = rnd.nextDouble() * size.width;

@@ -46,7 +46,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
       <ThemeToaster />
       <Nav />
       <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-6">
@@ -57,18 +57,18 @@ export default function ResetPassword() {
         >
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase opacity-60">§ Set New Password</p>
           <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight mt-2 leading-[1.15]">
-            Reset <span className="italic text-[#E11D48]">password</span>
+            Reset <span className="italic text-[#FF2D55]">password</span>
           </h1>
 
           {!token ? (
-            <div className="mt-8 p-4 bg-[#E11D48]/10 border border-[#E11D48]/30 rounded-xs font-mono text-sm">
+            <div className="mt-8 p-4 bg-[#FF2D55]/10 border border-[#FF2D55]/30 rounded-xs font-mono text-sm">
               This reset link is invalid or expired.{" "}
-              <Link to="/forgot-password" className="text-[#E11D48] underline">Request a new one</Link>.
+              <Link to="/forgot-password" className="text-[#FF2D55] underline">Request a new one</Link>.
             </div>
           ) : (
             <form onSubmit={submit} className="mt-8 space-y-6">
               {err && (
-                <div className="p-3 bg-[#E11D48]/10 border border-[#E11D48]/30 text-[#E11D48] font-mono text-xs rounded-xs flex items-center gap-2">
+                <div className="p-3 bg-[#FF2D55]/10 border border-[#FF2D55]/30 text-[#FF2D55] font-mono text-xs rounded-xs flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 shrink-0" /> {err}
                 </div>
               )}
@@ -81,7 +81,7 @@ export default function ResetPassword() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent hairline-b py-3 pl-7 pr-10 focus:outline-none focus:border-[#E11D48] mt-2"
+                    className="w-full bg-transparent hairline-b py-3 pl-7 pr-10 focus:outline-none focus:border-[#FF2D55] mt-2"
                   />
                   <button type="button" onClick={() => setShow(!show)} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-white/50">
                     {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -95,13 +95,13 @@ export default function ResetPassword() {
                   required
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#E11D48] mt-2"
+                  className="w-full bg-transparent hairline-b py-3 focus:outline-none focus:border-[#FF2D55] mt-2"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#E11D48] hover:bg-[#BE123C] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2"
+                className="w-full bg-[#FF2D55] hover:bg-[#E11D48] text-white py-4 font-mono text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2"
               >
                 {loading ? "Updating…" : "Update Password"} <ArrowRight className="w-4 h-4" />
               </button>

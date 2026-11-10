@@ -238,7 +238,7 @@ export default function InvoiceEditor() {
         <div className="rounded-2xl border border-white/10 p-3 mb-3">
           <p className="font-sans text-sm font-semibold">Invoice health {review.health}/100</p>
           <p className="text-xs text-white/60">{review.summary}</p>
-          {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#E11D48] mt-1">{e}</p>)}
+          {(review.errors || []).map((e) => <p key={e} className="text-xs text-[#FF2D55] mt-1">{e}</p>)}
           {(review.warnings || []).map((e) => <p key={e} className="text-xs text-[#D97706] mt-1">{e}</p>)}
         </div>
       ) : null}

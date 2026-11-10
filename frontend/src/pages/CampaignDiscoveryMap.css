@@ -1,10 +1,10 @@
 /* Creator Campaign Discovery Map — flugr styling */
 
 .cdm-root {
-  --cdm-bg: #F7F8FB;
-  --cdm-ink: #0F172A;
-  --cdm-accent: #E11D48;
-  --cdm-ok: #0D9488;
+  --cdm-bg: #FFF7FB;
+  --cdm-ink: #1E1B4B;
+  --cdm-accent: #FF2D55;
+  --cdm-ok: #14B8A6;
   --cdm-panel: #FFFFFF;
   --cdm-border: rgba(255, 255, 255, 0.12);
   position: relative;
@@ -198,7 +198,7 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
-  background: #EEF2F7;
+  background: #F3EEFF;
 }
 
 .cdm-map .leaflet-control-zoom {
@@ -303,7 +303,7 @@
 }
 
 .cdm-bubble--cluster {
-  background: #EEF2F7;
+  background: #F3EEFF;
   color: #fff;
   border-color: rgba(255, 255, 255, 0.25);
   font-size: 0.72rem;
@@ -351,7 +351,7 @@
 .cdm-card__media {
   position: relative;
   height: 6.5rem;
-  background: #EEF2F7;
+  background: #F3EEFF;
 }
 
 .cdm-card__media img:not(.cdm-card__logo) {
@@ -716,5 +716,5 @@
 /* Hide default leaflet marker image artifacts */
 .leaflet-container {
   font: inherit;
-  background: #EEF2F7;
+  background: #F3EEFF;
 }

@@ -58,7 +58,7 @@ export function Nav({ variant = "dark" }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-0 shadow-none ${
-        isPaper ? "bg-[#F7F8FB]/70 text-[#0F172A]" : "app-nav-surface app-nav-surface--borderless"
+        isPaper ? "bg-[#FFF7FB]/70 text-[#1E1B4B]" : "app-nav-surface app-nav-surface--borderless"
       }`}
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-4 min-w-0 border-0">
@@ -151,7 +151,7 @@ export function Nav({ variant = "dark" }) {
                   <button
                     onClick={() => { logout(); nav("/"); }}
                     data-testid="nav-logout"
-                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#E11D48] hover:text-[#ff6b63] transition-colors"
+                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] hover:text-[#ff6b63] transition-colors"
                   >
                     Sign Out
                   </button>
@@ -162,7 +162,7 @@ export function Nav({ variant = "dark" }) {
               <Link
                 to="/login"
                 data-testid="nav-login"
-                className="hidden sm:inline-flex items-center font-sans text-base sm:text-[17px] font-semibold tracking-[0.04em] text-white hover:text-[#E11D48] transition-colors px-3 py-2 border-0"
+                className="hidden sm:inline-flex items-center font-sans text-base sm:text-[17px] font-semibold tracking-[0.04em] text-white hover:text-[#FF2D55] transition-colors px-3 py-2 border-0"
               >
                 Sign In
               </Link>

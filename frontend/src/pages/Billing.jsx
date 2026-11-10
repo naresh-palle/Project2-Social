@@ -10,8 +10,8 @@ import { useAuth } from "@/lib/auth";
 const STATUS = ["draft", "sent", "viewed", "partially_paid", "paid", "overdue", "cancelled"];
 
 function statusCls(s) {
-  if (s === "paid") return "text-[#0D9488]";
-  if (s === "overdue" || s === "cancelled") return "text-[#E11D48]";
+  if (s === "paid") return "text-[#14B8A6]";
+  if (s === "overdue" || s === "cancelled") return "text-[#FF2D55]";
   if (s === "draft") return "text-white/45";
   return "text-[#D97706]";
 }
@@ -85,10 +85,10 @@ export default function Billing() {
   ];
 
   return (
-    <div className="w-full bg-[#F7F8FB] text-[#0F172A] pb-24" data-testid="billing-page">
+    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] pb-24" data-testid="billing-page">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="billing" className="w-3.5 h-3.5" /> Billing
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Billing & Invoices</h1>
@@ -104,7 +104,7 @@ export default function Billing() {
           <button
             type="button"
             onClick={() => { setDemo((v) => !v); setParams((p) => { const n = new URLSearchParams(p); if (!demo) n.set("demo", "1"); else n.delete("demo"); return n; }); }}
-            className={`btn-pill text-[10px] !py-2 !px-3 ${demo ? "border-[#E11D48] text-[#E11D48]" : ""}`}
+            className={`btn-pill text-[10px] !py-2 !px-3 ${demo ? "border-[#FF2D55] text-[#FF2D55]" : ""}`}
           >
             <AiIcon name="demo" className="w-3.5 h-3.5" />
             Demo data
@@ -122,7 +122,7 @@ export default function Billing() {
             key={b}
             type="button"
             onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set("box", b); return n; })}
-            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#E11D48] text-[#E11D48]" : "border-white/15 text-white/50"}`}
+            className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border ${box === b ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15 text-white/50"}`}
           >
             {b}
           </button>
@@ -140,8 +140,8 @@ export default function Billing() {
       </div>
 
       {demo && demoPack ? (
-        <div className="rounded-2xl border border-[#E11D48]/40 bg-[#E11D48]/5 p-4 mb-5">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-[#E11D48] font-bold flex items-center gap-2">
+        <div className="rounded-2xl border border-[#FF2D55]/40 bg-[#FF2D55]/5 p-4 mb-5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="demo" className="w-3.5 h-3.5" /> DEMO DATA — not saved to production
           </p>
           <p className="font-sans text-xs text-white/60 mt-1">{demoPack.note}</p>

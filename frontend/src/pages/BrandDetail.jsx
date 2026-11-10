@@ -58,7 +58,7 @@ export default function BrandDetail() {
   const name = brand.company || brand.name || "Brand";
 
   return (
-    <div className="w-full pb-10 text-[#0F172A]">
+    <div className="w-full pb-10 text-[#1E1B4B]">
       <div className="border-b border-white/10 pb-4 mb-5">
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
           {brand.avatar ? (
@@ -69,7 +69,7 @@ export default function BrandDetail() {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">Brand profile</p>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Brand profile</p>
             <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight truncate">{name}</h1>
             <p className="font-mono text-[9px] uppercase tracking-widest text-white/45 mt-1 flex flex-wrap gap-2">
               <span>{brand.industry || brand.category || "General"}</span>
@@ -83,7 +83,7 @@ export default function BrandDetail() {
               type="button"
               onClick={toggleWishlist}
               className={`px-3 py-1.5 rounded-full border font-mono text-[9px] uppercase tracking-widest inline-flex items-center gap-1 ${
-                wishlisted ? "border-[#E11D48] text-[#E11D48]" : "border-white/15"
+                wishlisted ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"
               }`}
             >
               <Heart className={`w-3.5 h-3.5 ${wishlisted ? "fill-current" : ""}`} />
@@ -136,7 +136,7 @@ export default function BrandDetail() {
             <Link
               key={c.id}
               to={`/campaigns/${c.id}`}
-              className="block rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 hover:border-[#E11D48]/40"
+              className="block rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 hover:border-[#FF2D55]/40"
             >
               <div className="font-sans font-semibold">{c.title}</div>
               <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mt-0.5">
@@ -199,7 +199,7 @@ export default function BrandDetail() {
               <Link
                 key={c.id}
                 to={`/creators/${c.id}`}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 hover:border-[#E11D48]/40"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 hover:border-[#FF2D55]/40"
               >
                 {c.avatar ? <img src={c.avatar} alt="" className="w-6 h-6 rounded-full object-cover" /> : null}
                 <span className="font-sans text-sm">{c.name || c.handle}</span>

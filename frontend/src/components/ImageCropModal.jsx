@@ -150,7 +150,7 @@ export function ImageCropModal({
               value={zoom}
               disabled={busy}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="flex-1 accent-[#E11D48]"
+              className="flex-1 accent-[#FF2D55]"
             />
           </label>
           <div className="flex gap-3">
@@ -166,7 +166,7 @@ export function ImageCropModal({
               type="button"
               onClick={apply}
               disabled={busy || !croppedAreaPixels}
-              className="btn-solid flex-1 justify-center py-3 bg-[#E11D48] text-white text-sm disabled:opacity-60"
+              className="btn-solid flex-1 justify-center py-3 bg-[#FF2D55] text-white text-sm disabled:opacity-60"
             >
               <Check className="w-4 h-4" /> {statusLabel}
             </button>

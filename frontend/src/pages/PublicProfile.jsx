@@ -119,7 +119,7 @@ export default function PublicProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
@@ -127,7 +127,7 @@ export default function PublicProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A]">
+      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B]">
 
 
         <div className="pt-4 px-0 sm:px-2 max-w-4xl mx-auto flex flex-col items-start gap-8">
@@ -156,7 +156,7 @@ export default function PublicProfile() {
   const busy = !!actionBusy;
 
   return (
-    <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
 
 
       <div className="pt-2 flex-1">
@@ -166,7 +166,7 @@ export default function PublicProfile() {
           </button>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6 mb-8 w-full">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Public Profile
                 </p>
                 <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-2">Profile</h1>
@@ -180,7 +180,7 @@ export default function PublicProfile() {
               <div
                 className="w-full h-full"
                 style={{
-                  background: "linear-gradient(135deg, #F7F8FB 0%, #182142 30%, #E2E8F0 55%, #182842 75%, #F7F8FB 100%)",
+                  background: "linear-gradient(135deg, #FFF7FB 0%, #182142 30%, #FFE4EC 55%, #182842 75%, #FFF7FB 100%)",
                 }}
               >
                 <div className="w-full h-full flex items-center justify-center opacity-20">
@@ -197,10 +197,10 @@ export default function PublicProfile() {
           <div className="flex items-end gap-6">
             <div className="relative w-28 h-28 shrink-0">
               {profile.avatar && (
-                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#F7F8FB] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+                <img src={profile.avatar} alt="" className="w-full h-full rounded-full object-cover border-4 border-[#FFF7FB] relative z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
               )}
               <div
-                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#F7F8FB] flex items-center justify-center font-sans text-4xl font-bold"
+                className="w-full h-full absolute inset-0 z-0 rounded-full border-4 border-[#FFF7FB] flex items-center justify-center font-sans text-4xl font-bold"
                 style={{ backgroundColor: `hsl(${((displayName || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
               >
                 {(displayName || "?")[0]?.toUpperCase()}
@@ -235,7 +235,7 @@ export default function PublicProfile() {
                   Cancel request
                 </button>
               ) : (
-                <button type="button" onClick={follow} disabled={busy} className="btn-action bg-[#E11D48] disabled:opacity-50">
+                <button type="button" onClick={follow} disabled={busy} className="btn-action bg-[#FF2D55] disabled:opacity-50">
                   {actionBusy === "follow" ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                   Follow
                 </button>
@@ -247,7 +247,7 @@ export default function PublicProfile() {
               <button type="button" onClick={() => setShowReport(true)} disabled={busy} className="btn-action bg-white/10 disabled:opacity-50">
                 <Flag className="w-4 h-4" /> Report
               </button>
-              <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#E11D48]/40 text-[#E11D48] disabled:opacity-50">
+              <button type="button" onClick={block} disabled={busy} className="btn-action border border-[#FF2D55]/40 text-[#FF2D55] disabled:opacity-50">
                 <Ban className="w-4 h-4" /> Block
               </button>
             </div>
@@ -258,7 +258,7 @@ export default function PublicProfile() {
               <span className="font-mono text-[10px] tracking-widest uppercase text-white/40 px-3 py-2 border border-white/10 rounded-full">
                 This is you
               </span>
-              <Link to="/profile/edit" className="inline-block btn-action bg-[#E11D48]">Edit Profile</Link>
+              <Link to="/profile/edit" className="inline-block btn-action bg-[#FF2D55]">Edit Profile</Link>
               <Link to="/profile" className="inline-block btn-action bg-white/10">Back to Profile</Link>
             </div>
           )}
@@ -277,7 +277,7 @@ export default function PublicProfile() {
             />
             <div className="flex justify-end gap-3">
               <button type="button" onClick={() => setShowReport(false)} className="font-mono text-xs uppercase px-4 py-2 border border-white/20">Cancel</button>
-              <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#E11D48] font-bold disabled:opacity-50">Submit</button>
+              <button type="button" onClick={report} disabled={busy} className="font-mono text-xs uppercase px-4 py-2 bg-[#FF2D55] font-bold disabled:opacity-50">Submit</button>
             </div>
           </div>
         </div>

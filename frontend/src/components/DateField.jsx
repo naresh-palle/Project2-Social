@@ -96,7 +96,7 @@ export function DateField({
       <div className={`relative ${className}`} data-testid="dob-field">
         <div className="grid grid-cols-3 gap-2">
           <select
-            className="inp bg-[#F7F8FB] cursor-pointer text-sm"
+            className="inp bg-[#FFF7FB] cursor-pointer text-sm"
             value={day}
             aria-label="Day"
             data-testid="dob-day"
@@ -105,13 +105,13 @@ export function DateField({
           >
             <option value="">Day</option>
             {Array.from({ length: maxDay }, (_, i) => i + 1).map((d) => (
-              <option key={d} value={d} className="bg-[#F7F8FB]">
+              <option key={d} value={d} className="bg-[#FFF7FB]">
                 {d}
               </option>
             ))}
           </select>
           <select
-            className="inp bg-[#F7F8FB] cursor-pointer text-sm"
+            className="inp bg-[#FFF7FB] cursor-pointer text-sm"
             value={month}
             aria-label="Month"
             data-testid="dob-month"
@@ -120,13 +120,13 @@ export function DateField({
           >
             <option value="">Month</option>
             {MONTHS.map((label, idx) => (
-              <option key={label} value={idx} className="bg-[#F7F8FB]">
+              <option key={label} value={idx} className="bg-[#FFF7FB]">
                 {label}
               </option>
             ))}
           </select>
           <select
-            className="inp bg-[#F7F8FB] cursor-pointer text-sm"
+            className="inp bg-[#FFF7FB] cursor-pointer text-sm"
             value={year}
             aria-label="Year"
             data-testid="dob-year"
@@ -135,7 +135,7 @@ export function DateField({
           >
             <option value="">Year</option>
             {years.map((y) => (
-              <option key={y} value={y} className="bg-[#F7F8FB]">
+              <option key={y} value={y} className="bg-[#FFF7FB]">
                 {y}
               </option>
             ))}
@@ -166,7 +166,7 @@ export function DateField({
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0 bg-[#FFFFFF] border border-white/20 text-[#0F172A] z-[80]"
+          className="w-auto p-0 bg-[#FFFFFF] border border-white/20 text-[#1E1B4B] z-[80]"
           align="start"
           sideOffset={6}
         >

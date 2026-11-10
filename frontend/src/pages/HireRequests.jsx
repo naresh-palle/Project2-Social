@@ -37,9 +37,9 @@ export default function HireRequests() {
   const isProd = user?.role === "production" || user?.role === "admin";
 
   return (
-    <div className="w-full pb-10 text-[#0F172A]">
+    <div className="w-full pb-10 text-[#1E1B4B]">
       <div className="border-b border-white/10 pb-3 mb-5">
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">Production desk</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">Production desk</p>
         <h1 className="font-sans text-3xl font-bold tracking-tight mt-1">Hire Requests</h1>
       </div>
 
@@ -61,10 +61,10 @@ export default function HireRequests() {
                   </p>
                   {r.message ? <p className="font-sans text-sm text-white/70 mt-2">{r.message}</p> : null}
                   {r.budget != null ? (
-                    <p className="font-mono text-[10px] text-[#0D9488] mt-1">Budget ₹{Number(r.budget).toLocaleString()}</p>
+                    <p className="font-mono text-[10px] text-[#14B8A6] mt-1">Budget ₹{Number(r.budget).toLocaleString()}</p>
                   ) : null}
                   {r.quote != null ? (
-                    <p className="font-mono text-[10px] text-[#E11D48] mt-1">Quote ₹{Number(r.quote).toLocaleString()}</p>
+                    <p className="font-mono text-[10px] text-[#FF2D55] mt-1">Quote ₹{Number(r.quote).toLocaleString()}</p>
                   ) : null}
                 </div>
                 {isProd && r.status === "pending" ? (
@@ -72,7 +72,7 @@ export default function HireRequests() {
                     <button
                       type="button"
                       onClick={() => act(r.id, "accepted")}
-                      className="px-3 py-1.5 rounded-full bg-[#0D9488]/20 border border-[#0D9488]/40 text-[#0D9488] font-mono text-[9px] uppercase tracking-widest"
+                      className="px-3 py-1.5 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 text-[#14B8A6] font-mono text-[9px] uppercase tracking-widest"
                     >
                       Accept
                     </button>

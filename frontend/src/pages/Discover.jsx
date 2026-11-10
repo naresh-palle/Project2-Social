@@ -34,9 +34,9 @@ function fmtPct(n) {
 }
 
 function riskTone(risk) {
-  if (risk === "high") return "text-[#E11D48]";
+  if (risk === "high") return "text-[#FF2D55]";
   if (risk === "medium") return "text-[#D97706]";
-  if (risk === "low") return "text-[#0D9488]";
+  if (risk === "low") return "text-[#14B8A6]";
   return "text-white/45";
 }
 
@@ -59,11 +59,11 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
             </span>
           ))}
           {c.verified ? (
-            <span className="theme-keep-dark bg-[#0D9488]/30 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white rounded-full">Verified</span>
+            <span className="theme-keep-dark bg-[#14B8A6]/30 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-white rounded-full">Verified</span>
           ) : null}
         </div>
         {c.ai_match_score != null ? (
-          <span className="absolute top-2 right-2 bg-[#0D9488]/20 text-[#0D9488] border border-[#0D9488]/30 px-2 py-0.5 font-sans text-[10px] uppercase rounded-full">
+          <span className="absolute top-2 right-2 bg-[#14B8A6]/20 text-[#14B8A6] border border-[#14B8A6]/30 px-2 py-0.5 font-sans text-[10px] uppercase rounded-full">
             {Math.round(c.ai_match_score)} match
           </span>
         ) : null}
@@ -97,10 +97,10 @@ function DiscoverCard({ c, selected, onToggleCompare, onShortlist, onResearch })
           <span className={riskTone(c.risk)}>Risk {c.risk || UNAVAILABLE}</span>
         </div>
         <div className="mt-auto flex flex-wrap gap-1">
-          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-[#E11D48]">
+          <Link to={`/creators/${c.id}`} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest hover:border-[#FF2D55]">
             Profile
           </Link>
-          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#E11D48] text-[#E11D48]" : "border-white/15"}`}>
+          <button type="button" onClick={() => onToggleCompare(c)} className={`px-2 py-1 rounded-full border text-[9px] uppercase tracking-widest ${selected ? "border-[#FF2D55] text-[#FF2D55]" : "border-white/15"}`}>
             Compare
           </button>
           <button type="button" onClick={() => onShortlist(c)} className="px-2 py-1 rounded-full border border-white/15 text-[9px] uppercase tracking-widest">
@@ -322,10 +322,10 @@ export default function Discover() {
   const pages = Math.max(1, Math.ceil(total / 24));
 
   return (
-    <div className="w-full bg-[#F7F8FB] text-[#0F172A] pb-28">
+    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] pb-28">
       <div className="flex items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
             <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Brand desk
           </p>
           <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight">Discover Influencers</h1>
@@ -340,7 +340,7 @@ export default function Discover() {
         <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">AI natural-language search</label>
         <div className="flex gap-2 mt-1">
           <div className="relative flex-1">
-            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#E11D48]" />
+            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF2D55]" />
             <input
               value={nl}
               onChange={(e) => setNl(e.target.value)}
@@ -487,7 +487,7 @@ export default function Discover() {
 
       {compare.length > 0 && (
         <div className="fixed bottom-[4.75rem] lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(960px,calc(100%-1.5rem))] rounded-2xl border border-white/15 bg-[#FFFFFF]/95 backdrop-blur-md p-3 flex flex-wrap items-center gap-2">
-          <GitCompare className="w-4 h-4 text-[#E11D48]" />
+          <GitCompare className="w-4 h-4 text-[#FF2D55]" />
           {compare.map((c) => (
             <button key={c.id} type="button" onClick={() => toggleCompare(c)} className="font-sans text-xs border border-white/15 rounded-full px-2 py-0.5">
               {c.name} <X className="inline w-3 h-3" />
@@ -525,7 +525,7 @@ export default function Discover() {
                         : m === "base_rate" || m === "followers" || m === "average_views" ? fmtNum(c[m])
                         : c[m] == null ? UNAVAILABLE : c[m];
                       return (
-                        <td key={c.id} className={`p-2 ${win ? "text-[#0D9488] font-bold" : ""}`}>
+                        <td key={c.id} className={`p-2 ${win ? "text-[#14B8A6] font-bold" : ""}`}>
                           {win ? <Check className="inline w-3 h-3 mr-1" /> : null}
                           {val}
                         </td>
@@ -544,11 +544,11 @@ export default function Discover() {
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setResearchOpen(false)}>
           <div className="bg-[#FFFFFF] border border-white/15 rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-3">
-              <h2 className="font-sans text-xl font-bold inline-flex items-center gap-2"><FileSearch className="w-5 h-5 text-[#E11D48]" /> Deep Research</h2>
+              <h2 className="font-sans text-xl font-bold inline-flex items-center gap-2"><FileSearch className="w-5 h-5 text-[#FF2D55]" /> Deep Research</h2>
               <button type="button" onClick={() => setResearchOpen(false)}><X className="w-5 h-5" /></button>
             </div>
             {research?.loading ? <p className="font-mono text-xs tracking-widest uppercase opacity-50">Generating from stored facts…</p> : null}
-            {research?.error ? <p className="text-[#E11D48] text-sm">{research.error}</p> : null}
+            {research?.error ? <p className="text-[#FF2D55] text-sm">{research.error}</p> : null}
             {research?.overview && (
               <div className="space-y-4 font-sans text-sm">
                 <p className="text-white/70">{research.recommendation}</p>
@@ -575,7 +575,7 @@ export default function Discover() {
             {messages.length === 0 ? (
               <p className="text-white/45">Ask for Telugu fashion creators, then “only show 100K+ followers”, “compare the top 5”, or “deep research creator number 2”.</p>
             ) : messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "text-right text-[#E11D48]" : "text-white/80"}>{m.text}</div>
+              <div key={i} className={m.role === "user" ? "text-right text-[#FF2D55]" : "text-white/80"}>{m.text}</div>
             ))}
           </div>
           <form onSubmit={sendAssistant} className="p-2 border-t border-white/10 flex gap-2">

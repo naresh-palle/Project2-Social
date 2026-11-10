@@ -100,7 +100,7 @@ export default function Wallet() {
       <div className="shrink-0 space-y-4 mb-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4 mb-4">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                   <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Escrow Wallet
                 </p>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Wallet</h1>
@@ -112,7 +112,7 @@ export default function Wallet() {
           <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
               <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Balance</span>
-              <WalletIcon className="w-4 h-4 text-[#E11D48]" />
+              <WalletIcon className="w-4 h-4 text-[#FF2D55]" />
             </div>
             <div className="font-sans text-2xl font-bold mt-2 tabular-nums">₹{Number(w.balance || 0).toLocaleString()}</div>
           </div>
@@ -120,17 +120,17 @@ export default function Wallet() {
             <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Total Spend</span>
-                <TrendingDown className="w-4 h-4 text-[#E11D48]" />
+                <TrendingDown className="w-4 h-4 text-[#FF2D55]" />
               </div>
-              <div className="font-sans text-2xl font-bold mt-2 text-[#E11D48] tabular-nums">₹{totalSpend.toLocaleString()}</div>
+              <div className="font-sans text-2xl font-bold mt-2 text-[#FF2D55] tabular-nums">₹{totalSpend.toLocaleString()}</div>
             </div>
           ) : (
             <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[11px] uppercase tracking-wider opacity-55">Income</span>
-                <TrendingUp className="w-4 h-4 text-[#0D9488]" />
+                <TrendingUp className="w-4 h-4 text-[#14B8A6]" />
               </div>
-              <div className="font-sans text-2xl font-bold mt-2 text-[#0D9488] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
+              <div className="font-sans text-2xl font-bold mt-2 text-[#14B8A6] tabular-nums">+₹{totalIncome.toLocaleString()}</div>
             </div>
           )}
           <div className="border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
@@ -145,10 +145,10 @@ export default function Wallet() {
         {bonus && (
           <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl">
             <div className="flex items-center justify-between">
-              <span className="font-sans text-[11px] uppercase tracking-wider opacity-55 text-[#E11D48] font-bold">Bonus Progress</span>
+              <span className="font-sans text-[11px] uppercase tracking-wider opacity-55 text-[#FF2D55] font-bold">Bonus Progress</span>
             </div>
             <div className="mt-3 bg-white/5 h-2 rounded-full overflow-hidden">
-              <div className="bg-[#0D9488] h-full transition-all" style={{ width: `${Math.min(100, (bonus.completed / (bonus.required || 1)) * 100)}%` }}></div>
+              <div className="bg-[#14B8A6] h-full transition-all" style={{ width: `${Math.min(100, (bonus.completed / (bonus.required || 1)) * 100)}%` }}></div>
             </div>
             <p className="font-sans text-sm mt-3 opacity-80">
               {bonus.completed} / {bonus.required} eligible campaigns. Complete {bonus.remaining} more to unlock ₹{bonus.potential_bonus}.
@@ -158,7 +158,7 @@ export default function Wallet() {
 
         <div className="mt-5 border border-white/10 bg-white/[0.02] p-4 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-7">
-            <div className="font-sans text-[11px] uppercase tracking-wider text-[#E11D48]">
+            <div className="font-sans text-[11px] uppercase tracking-wider text-[#FF2D55]">
               {isOwner ? "Deposit" : "Withdraw"}
             </div>
             <p className="font-sans text-sm opacity-70 mt-1">
@@ -174,14 +174,14 @@ export default function Wallet() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount"
-                className="w-full bg-transparent border border-white/15 focus:border-[#E11D48] outline-none rounded-3xl pl-7 pr-3 py-2 font-sans text-sm"
+                className="w-full bg-transparent border border-white/15 focus:border-[#FF2D55] outline-none rounded-3xl pl-7 pr-3 py-2 font-sans text-sm"
               />
             </div>
             <button
               data-testid="wallet-submit"
               disabled={busy || !amount || Number(amount) <= 0}
               onClick={() => doTx(isOwner ? "deposit" : "withdraw")}
-              className="inline-flex items-center justify-center gap-1.5 bg-[#E11D48] text-white rounded-3xl px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-1.5 bg-[#FF2D55] text-white rounded-3xl px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wider disabled:opacity-40"
             >
               {isOwner ? (
                 <>
@@ -208,7 +208,7 @@ export default function Wallet() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#E11D48] rounded-3xl w-full sm:w-40 max-w-full min-w-0"
+                className="bg-transparent border border-white/15 text-xs font-sans pl-8 pr-3 py-1.5 focus:outline-none focus:border-[#FF2D55] rounded-3xl w-full sm:w-40 max-w-full min-w-0"
               />
             </div>
             <div className="flex items-center gap-1 border border-white/15 p-0.5 rounded-3xl font-sans text-[10px] uppercase tracking-wider">
@@ -218,7 +218,7 @@ export default function Wallet() {
                   type="button"
                   onClick={() => setFilterType(id)}
                   className={`px-2.5 py-1 rounded-xs transition-colors ${
-                    filterType === id ? "bg-[#E11D48] text-white" : "opacity-60 hover:opacity-100"
+                    filterType === id ? "bg-[#FF2D55] text-white" : "opacity-60 hover:opacity-100"
                   }`}
                 >
                   {label}
@@ -257,7 +257,7 @@ export default function Wallet() {
                         minute: "2-digit",
                       })}
                     </td>
-                    <td className="px-3 py-2.5 font-sans text-xs text-[#E11D48]">{t.kind || "Transaction"}</td>
+                    <td className="px-3 py-2.5 font-sans text-xs text-[#FF2D55]">{t.kind || "Transaction"}</td>
                     <td className="px-3 py-2.5 font-sans text-sm opacity-80 max-w-[220px] truncate">
                       <div>{t.note || "—"}</div>
                       {t.platform_fee ? (
@@ -267,13 +267,13 @@ export default function Wallet() {
                       ) : null}
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className="px-1.5 py-0.5 text-[10px] uppercase font-sans rounded-3xl border bg-[#0D9488]/10 text-[#0D9488] border-[#0D9488]/20">
+                      <span className="px-1.5 py-0.5 text-[10px] uppercase font-sans rounded-3xl border bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20">
                         Done
                       </span>
                     </td>
                     <td
                       className={`px-3 py-2.5 text-right font-sans text-sm font-semibold tabular-nums ${
-                        t.amount >= 0 ? "text-[#0D9488]" : "opacity-80"
+                        t.amount >= 0 ? "text-[#14B8A6]" : "opacity-80"
                       }`}
                     >
                       {t.amount >= 0 ? "+" : "-"}₹{Math.abs(t.amount).toLocaleString()}

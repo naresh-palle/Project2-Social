@@ -5,7 +5,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 export function Footer() {
   return (
     <footer
-      className="bg-[#F7F8FB] text-[#0F172A] pt-16 pb-16 border-t border-white/10 font-mono relative z-10"
+      className="bg-[#FFF7FB] text-[#1E1B4B] pt-16 pb-16 border-t border-white/10 font-mono relative z-10"
       data-testid="site-footer"
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
@@ -17,7 +17,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs tracking-[0.25em] uppercase text-[#E11D48] font-bold mb-4">GET STARTED</h4>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">GET STARTED</h4>
           <ul className="space-y-2 text-xs text-white/70">
             <li><Link to="/register/owner" className="hover:text-white">For Brands</Link></li>
             <li><Link to="/register/influencer" className="hover:text-white">For Influencers</Link></li>
@@ -27,7 +27,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs tracking-[0.25em] uppercase text-[#E11D48] font-bold mb-4">COMPANY</h4>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">COMPANY</h4>
           <ul className="space-y-2 text-xs text-white/70">
             <li><Link to="/" className="hover:text-white">flugr Manifesto</Link></li>
             <li><Link to="/" className="hover:text-white">Transparent Pricing</Link></li>
@@ -37,16 +37,16 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs tracking-[0.25em] uppercase text-[#E11D48] font-bold mb-4">NEWSLETTER</h4>
+          <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">NEWSLETTER</h4>
           <p className="text-xs text-white/60 mb-3">Get weekly influencer insights &amp; brand strategy.</p>
           <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
             <input
               type="email"
               placeholder="you@brand.com"
               aria-label="Email for newsletter"
-              className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#E11D48] flex-1 min-w-0"
+              className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#FF2D55] flex-1 min-w-0"
             />
-            <button type="submit" className="px-3 py-2 bg-[#E11D48] text-white text-xs uppercase font-bold rounded-xs shrink-0">
+            <button type="submit" className="px-3 py-2 bg-[#FF2D55] text-white text-xs uppercase font-bold rounded-xs shrink-0">
               Join
             </button>
           </form>
@@ -71,16 +71,16 @@ export function Footer() {
           style={{ textDecoration: "none" }}
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E11D48] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E11D48]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2D55] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF2D55]" />
           </span>
-          <span className="font-mono text-[11px] tracking-[0.35em] uppercase text-[#0F172A]/40 group-hover:text-[#0F172A]/70 transition-colors duration-500">
+          <span className="font-mono text-[11px] tracking-[0.35em] uppercase text-[#1E1B4B]/40 group-hover:text-[#1E1B4B]/70 transition-colors duration-500">
             Crafted with precision by
           </span>
           <span
             className="font-editorial italic text-xl md:text-2xl tracking-tight transition-all duration-500 group-hover:scale-105"
             style={{
-              background: "linear-gradient(90deg, #E11D48, #D97706, #E11D48, #7C5CFC, #E11D48)",
+              background: "linear-gradient(90deg, #FF2D55, #D97706, #FF2D55, #7C5CFC, #FF2D55)",
               backgroundSize: "300% 100%",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
@@ -90,7 +90,7 @@ export function Footer() {
           >
             palramai.in
           </span>
-          <span className="text-[#E11D48]/60 group-hover:text-[#E11D48] group-hover:translate-x-1 transition-all duration-300 font-mono text-xs">
+          <span className="text-[#FF2D55]/60 group-hover:text-[#FF2D55] group-hover:translate-x-1 transition-all duration-300 font-mono text-xs">
             ↗
           </span>
         </a>

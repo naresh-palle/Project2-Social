@@ -4,7 +4,7 @@
   "description": "Connect brands with creators. Collaborate, negotiate, and grow on flugr.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B1020",
+  "background_color": "#FFF7FB",
   "theme_color": "#FF5C5C",
   "orientation": "portrait-primary",
   "icons": [

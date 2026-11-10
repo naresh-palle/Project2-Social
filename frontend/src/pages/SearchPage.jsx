@@ -86,11 +86,11 @@ export default function SearchPage() {
     : [];
 
   return (
-    <div className="w-full bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5 w-full">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <AiIcon name="sparkles" className="w-3.5 h-3.5" /> ⚡ Search
               </p>
               <h1 className="font-sans text-2xl md:text-3xl font-bold tracking-tight mt-1.5">Search</h1>
@@ -113,7 +113,7 @@ export default function SearchPage() {
               <X className="w-4 h-4" />
             </button>
           )}
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-[#E11D48] font-mono text-xs uppercase tracking-widest font-bold">
+          <button type="submit" disabled={loading} className="px-4 py-2 bg-[#FF2D55] font-mono text-xs uppercase tracking-widest font-bold">
             {loading ? "…" : "Go"}
           </button>
         </form>
@@ -125,7 +125,7 @@ export default function SearchPage() {
               type="button"
               onClick={() => { setTab(t.id); if (q.trim()) runSearch(q, t.id); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border rounded-xs transition-all ${
-                tab === t.id ? "bg-[#E11D48] border-[#E11D48] text-white" : "border-white/20 text-white/60 hover:border-white/40"
+                tab === t.id ? "bg-[#FF2D55] border-[#FF2D55] text-white" : "border-white/20 text-white/60 hover:border-white/40"
               }`}
             >
               <t.icon className="w-3 h-3" /> {t.label}
@@ -138,7 +138,7 @@ export default function SearchPage() {
 
             {/* Trending Section */}
             <div>
-              <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#E11D48] flex items-center gap-2 mb-3">
+              <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] flex items-center gap-2 mb-3">
                 <TrendingUp className="w-3.5 h-3.5" /> Trending
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-8">
@@ -149,7 +149,7 @@ export default function SearchPage() {
                       key={h.tag}
                       type="button"
                       onClick={() => { setQ(`#${h.tag}`); setTab("hashtags"); runSearch(`#${h.tag}`, "hashtags"); }}
-                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#E11D48]/40 rounded-xs transition-colors flex justify-between items-center"
+                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 rounded-xs transition-colors flex justify-between items-center"
                     >
                       <span className="font-editorial text-base">#{h.tag}</span>
                       <span className="font-mono text-[9px] opacity-50">{h.count} posts</span>
@@ -163,7 +163,7 @@ export default function SearchPage() {
                       key={s.query}
                       type="button"
                       onClick={() => { setQ(s.query); runSearch(s.query); }}
-                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#E11D48]/40 font-mono text-xs rounded-xs transition-colors"
+                      className="w-full text-left px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
                     >
                       {s.query}
                     </button>
@@ -175,7 +175,7 @@ export default function SearchPage() {
             {/* Recent Section */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#E11D48] flex items-center gap-2">
+                <h3 className="font-mono text-[10px] uppercase tracking-widest text-[#FF2D55] flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5" /> Recent
                 </h3>
                 {recent.length > 0 && (
@@ -193,7 +193,7 @@ export default function SearchPage() {
                       key={r.id}
                       type="button"
                       onClick={() => { setQ(r.query); runSearch(r.query, r.kind || tab); }}
-                      className="w-full flex items-center justify-between px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#E11D48]/40 font-mono text-xs rounded-xs transition-colors"
+                      className="w-full flex items-center justify-between px-3 py-2 border border-white/10 bg-white/[0.02] hover:border-[#FF2D55]/40 font-mono text-xs rounded-xs transition-colors"
                     >
                       <span className="truncate pr-2">{r.query}</span>
                       {r.kind && (
@@ -219,7 +219,7 @@ export default function SearchPage() {
                 <div className="space-y-8">
                   {results.users?.length > 0 && (
                     <div>
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#E11D48] mb-3">Users</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF2D55] mb-3">Users</h3>
                       <div className="space-y-3">
                         {results.users.map((item, i) => <SearchResult key={`user-${item.id || i}`} tab="users" item={item} />)}
                       </div>
@@ -227,7 +227,7 @@ export default function SearchPage() {
                   )}
                   {results.posts?.length > 0 && (
                     <div>
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#E11D48] mb-3">Posts</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF2D55] mb-3">Posts</h3>
                       <div className="space-y-3">
                         {results.posts.map((item, i) => <SearchResult key={`post-${item.id || i}`} tab="posts" item={item} />)}
                       </div>
@@ -235,7 +235,7 @@ export default function SearchPage() {
                   )}
                   {results.hashtags?.length > 0 && (
                     <div>
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#E11D48] mb-3">Hashtags</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF2D55] mb-3">Hashtags</h3>
                       <div className="space-y-3">
                         {results.hashtags.map((item, i) => <SearchResult key={`hash-${item.tag || i}`} tab="hashtags" item={item} />)}
                       </div>
@@ -243,7 +243,7 @@ export default function SearchPage() {
                   )}
                   {results.campaigns?.length > 0 && (
                     <div>
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#E11D48] mb-3">Campaigns</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF2D55] mb-3">Campaigns</h3>
                       <div className="space-y-3">
                         {results.campaigns.map((item, i) => <SearchResult key={`camp-${item.id || i}`} tab="campaigns" item={item} />)}
                       </div>
@@ -251,7 +251,7 @@ export default function SearchPage() {
                   )}
                   {results.locations?.length > 0 && (
                     <div>
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#E11D48] mb-3">Locations</h3>
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-[#FF2D55] mb-3">Locations</h3>
                       <div className="space-y-3">
                         {results.locations.map((item, i) => <SearchResult key={`loc-${item.id || i}`} tab="location" item={item} />)}
                       </div>
@@ -282,13 +282,13 @@ function SearchResult({ tab, item }) {
     return (
       <Link
         to={`/u/${item.id}`}
-        className="flex items-center gap-4 p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#E11D48]/40 rounded-xs"
+        className="flex items-center gap-4 p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs"
       >
         {item.avatar && <img src={item.avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-white/20" />}
         <div>
           <div className="font-sans text-base md:text-lg font-semibold">{primary}</div>
           {subtitle ? (
-            <div className="font-sans text-[10px] text-[#E11D48] uppercase mt-0.5">{subtitle}</div>
+            <div className="font-sans text-[10px] text-[#FF2D55] uppercase mt-0.5">{subtitle}</div>
           ) : (
             <div className="font-sans text-[10px] opacity-50 uppercase mt-0.5">{item.role || "member"}</div>
           )}
@@ -309,14 +309,14 @@ function SearchResult({ tab, item }) {
   if (tab === "hashtags") {
     return (
       <div className="p-4 border border-white/10 bg-[#FFFFFF] rounded-xs">
-        <span className="font-editorial text-2xl text-[#E11D48]">#{item.tag}</span>
+        <span className="font-editorial text-2xl text-[#FF2D55]">#{item.tag}</span>
         <span className="font-mono text-xs opacity-50 ml-3">{item.count} posts</span>
       </div>
     );
   }
   if (tab === "campaigns") {
     return (
-      <Link to={`/campaigns/${item.id}`} className="block p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#E11D48]/40 rounded-xs">
+      <Link to={`/campaigns/${item.id}`} className="block p-4 border border-white/10 bg-[#FFFFFF] hover:border-[#FF2D55]/40 rounded-xs">
         <div className="font-editorial text-xl">{item.title}</div>
         <div className="font-mono text-[10px] opacity-60 mt-1">{item.brand}</div>
       </Link>

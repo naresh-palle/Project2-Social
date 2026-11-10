@@ -304,20 +304,20 @@ export default function Feed() {
   };
 
   return (
-    <div className="w-full bg-[#F7F8FB] text-[#0F172A] flex flex-col pt-2">
+    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col pt-2">
       <div className="flex flex-col w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Community
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1">Feed</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#E11D48] rounded-full">
+            <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-white/20 hover:border-[#FF2D55] rounded-full">
               <AiIcon name="refresh" className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
-            <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#E11D48] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
+            <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF2D55] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
               <AiIcon name="create" className="w-4 h-4" /> Create
             </button>
           </div>
@@ -330,7 +330,7 @@ export default function Feed() {
               type="button"
               onClick={() => setMode(m.id)}
               className={`px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest border rounded-full ${
-                mode === m.id ? "bg-[#E11D48] border-[#E11D48]" : "border-white/20 text-white/60"
+                mode === m.id ? "bg-[#FF2D55] border-[#FF2D55]" : "border-white/20 text-white/60"
               }`}
             >
               {m.label}
@@ -444,17 +444,17 @@ function CampaignCard({ campaign: c, index: idx }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
-      className="border border-white/15 bg-[#FFFFFF] rounded-2xl overflow-hidden flex flex-col group hover:border-[#E11D48]/40 transition-colors"
+      className="border border-white/15 bg-[#FFFFFF] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF2D55]/40 transition-colors"
     >
       <div className="theme-keep-dark relative h-36 overflow-hidden">
         <img src={c.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#FFFFFF] via-transparent to-transparent" />
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-black/55 border border-[#E11D48]/40 text-[#E11D48] font-bold rounded-xs flex items-center gap-1">
+          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-black/55 border border-[#FF2D55]/40 text-[#FF2D55] font-bold rounded-xs flex items-center gap-1">
             <Zap className="w-3 h-3" /> {c.aiMatch || "Match"}
           </span>
           {c.escrowLocked && (
-            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#0D9488] bg-black/55 px-2 py-0.5 border border-[#0D9488]/35 rounded-xs flex items-center gap-1 font-bold">
+            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#14B8A6] bg-black/55 px-2 py-0.5 border border-[#14B8A6]/35 rounded-xs flex items-center gap-1 font-bold">
               <Lock className="w-3 h-3" /> Escrow
             </span>
           )}
@@ -462,10 +462,10 @@ function CampaignCard({ campaign: c, index: idx }) {
       </div>
       <div className="p-3.5 flex flex-col flex-1">
         <p className="font-sans text-[9px] tracking-[0.2em] uppercase opacity-55 mb-0.5">{c.brand}</p>
-        <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#E11D48] transition-colors line-clamp-2">{c.title}</h3>
+        <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF2D55] transition-colors line-clamp-2">{c.title}</h3>
         <p className="font-sans text-xs opacity-65 mt-1.5 leading-relaxed line-clamp-2">{c.description}</p>
         <div className="mt-2 pt-2 border-t border-white/10 font-sans text-[10px] opacity-75 flex items-center gap-1.5">
-          <CheckCircle2 className="w-3 h-3 text-[#E11D48] shrink-0" />
+          <CheckCircle2 className="w-3 h-3 text-[#FF2D55] shrink-0" />
           <span className="truncate">{c.deliverables}</span>
         </div>
         <div className="mt-auto pt-3 flex items-center justify-between gap-2">
@@ -475,7 +475,7 @@ function CampaignCard({ campaign: c, index: idx }) {
           </div>
           <Link
             to={`/campaigns/${c.id}`}
-            className="py-1.5 px-3 text-[10px] uppercase tracking-wider font-bold bg-[#E11D48] text-white hover:bg-[#BE123C] flex items-center gap-1 rounded-full"
+            className="py-1.5 px-3 text-[10px] uppercase tracking-wider font-bold bg-[#FF2D55] text-white hover:bg-[#E11D48] flex items-center gap-1 rounded-full"
           >
             Pitch <ArrowRight className="w-3 h-3" />
           </Link>
@@ -545,9 +545,9 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
             <MoreHorizontal className="w-4 h-4" />
           </button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-11 bg-[#F7F8FB] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
+            <div className="absolute right-0 top-11 bg-[#FFF7FB] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
               <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
-              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#E11D48] hover:bg-white/10">Delete</button>
+              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
             </div>
           )}
         </div>
@@ -555,7 +555,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
 
       <div className="absolute right-3 bottom-24 z-10 flex flex-col items-center gap-4">
         <button type="button" onClick={onLike} className="flex flex-col items-center gap-1">
-          <span className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.liked ? "text-[#E11D48]" : ""}`}>
+          <span className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.liked ? "text-[#FF2D55]" : ""}`}>
             <Heart className={`w-5 h-5 ${post.liked ? "fill-current" : ""}`} />
           </span>
           <span className="font-mono text-[10px] drop-shadow">{post.likes_count || 0}</span>
@@ -569,7 +569,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
         <button type="button" onClick={onShare} className="p-2.5 rounded-full bg-black/40 border border-white/15">
           <Share2 className="w-5 h-5" />
         </button>
-        <button type="button" onClick={onSave} className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.saved ? "text-[#0D9488]" : ""}`}>
+        <button type="button" onClick={onSave} className={`p-2.5 rounded-full bg-black/40 border border-white/15 ${post.saved ? "text-[#14B8A6]" : ""}`}>
           <Bookmark className={`w-5 h-5 ${post.saved ? "fill-current" : ""}`} />
         </button>
         <button type="button" onClick={onRepost} className="p-2.5 rounded-full bg-black/40 border border-white/15">
@@ -615,16 +615,16 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
           {author.avatar && <img src={author.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/20" />}
           <div>
             <div className="font-editorial text-lg font-bold">{author.name}</div>
-            <div className="font-mono text-[10px] text-[#E11D48] uppercase">{formatUsername(author.handle, author.username) || "user"} · {post.created_at?.slice(0, 10)}</div>
+            <div className="font-mono text-[10px] text-[#FF2D55] uppercase">{formatUsername(author.handle, author.username) || "user"} · {post.created_at?.slice(0, 10)}</div>
           </div>
         </Link>
         <div className="relative">
-          {post.pinned && <Pin className="w-4 h-4 text-[#E11D48] inline mr-2" />}
+          {post.pinned && <Pin className="w-4 h-4 text-[#FF2D55] inline mr-2" />}
           <button type="button" onClick={() => setMenu(!menu)} className="p-1 opacity-60 hover:opacity-100"><MoreHorizontal className="w-4 h-4" /></button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-6 bg-[#F7F8FB] border border-white/20 rounded-xs z-10 min-w-[140px]">
+            <div className="absolute right-0 top-6 bg-[#FFF7FB] border border-white/20 rounded-xs z-10 min-w-[140px]">
               <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
-              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#E11D48] hover:bg-white/10">Delete</button>
+              <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
             </div>
           )}
         </div>
@@ -646,7 +646,7 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
       )}
       {post.gif_url && <img src={post.gif_url} alt="" className="max-h-80 rounded-xs" />}
       {post.link_url && (
-        <a href={post.link_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 font-mono text-xs text-[#007AFF]">
+        <a href={post.link_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 font-mono text-xs text-[#7C3AED]">
           <Link2 className="w-3.5 h-3.5" /> {post.link_url}
         </a>
       )}
@@ -663,20 +663,20 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
       {post.hashtags?.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {post.hashtags.map((t) => (
-            <span key={t} className="font-mono text-[10px] text-[#E11D48]">#{t}</span>
+            <span key={t} className="font-mono text-[10px] text-[#FF2D55]">#{t}</span>
           ))}
         </div>
       )}
 
       <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 font-mono text-xs text-white/60">
-        <button type="button" onClick={onLike} className={`flex items-center gap-1.5 hover:text-[#E11D48] ${post.liked ? "text-[#E11D48]" : ""}`}>
+        <button type="button" onClick={onLike} className={`flex items-center gap-1.5 hover:text-[#FF2D55] ${post.liked ? "text-[#FF2D55]" : ""}`}>
           <Heart className={`w-4 h-4 ${post.liked ? "fill-current" : ""}`} /> {post.likes_count || 0}
         </button>
         <button type="button" onClick={onComment} className="flex items-center gap-1.5 hover:text-white">
           <MessageSquare className="w-4 h-4" /> {post.comments_count || 0}
         </button>
         <button type="button" onClick={onShare} className="flex items-center gap-1.5 hover:text-white"><Share2 className="w-4 h-4" /></button>
-        <button type="button" onClick={onSave} className={`flex items-center gap-1.5 ${post.saved ? "text-[#0D9488]" : ""}`}><Bookmark className="w-4 h-4" /></button>
+        <button type="button" onClick={onSave} className={`flex items-center gap-1.5 ${post.saved ? "text-[#14B8A6]" : ""}`}><Bookmark className="w-4 h-4" /></button>
         <button type="button" onClick={onBookmark} className={post.bookmarked ? "text-yellow-400" : ""}><Bookmark className="w-4 h-4" /></button>
         <button type="button" onClick={onRepost} className="hover:text-white"><Repeat2 className="w-4 h-4" /></button>
         <button type="button" onClick={onQuote} className="hover:text-white font-mono text-[10px] uppercase">Quote</button>
@@ -780,7 +780,7 @@ function CreatePostModal({ onClose, onCreated }) {
             {media.map((m, i) => (
               <div key={i} className="relative">
                 {m.type === "video" ? <video src={m.url} className="h-20 rounded-xs" /> : <img src={m.url} alt="" className="h-20 rounded-xs object-cover" />}
-                <button type="button" onClick={() => setMedia((prev) => prev.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 bg-[#E11D48] rounded-full p-0.5"><X className="w-3 h-3" /></button>
+                <button type="button" onClick={() => setMedia((prev) => prev.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 bg-[#FF2D55] rounded-full p-0.5"><X className="w-3 h-3" /></button>
               </div>
             ))}
           </div>
@@ -806,7 +806,7 @@ function CreatePostModal({ onClose, onCreated }) {
               <input key={i} value={opt} onChange={(e) => setPollOptions((prev) => prev.map((o, j) => (j === i ? e.target.value : o)))} placeholder={`Option ${i + 1}`} className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
             ))}
             {pollOptions.length < 4 && (
-              <button type="button" onClick={() => setPollOptions((prev) => [...prev, ""])} className="font-mono text-[10px] text-[#E11D48]">+ Add option</button>
+              <button type="button" onClick={() => setPollOptions((prev) => [...prev, ""])} className="font-mono text-[10px] text-[#FF2D55]">+ Add option</button>
             )}
           </div>
         )}
@@ -824,7 +824,7 @@ function CreatePostModal({ onClose, onCreated }) {
 
         <div className="flex justify-end gap-3 pt-2">
           <button type="button" onClick={onClose} className="px-4 py-2 border border-white/20 font-mono text-xs uppercase">Cancel</button>
-          <button type="submit" disabled={busy} className="px-6 py-2 bg-[#E11D48] font-mono text-xs uppercase font-bold">
+          <button type="submit" disabled={busy} className="px-6 py-2 bg-[#FF2D55] font-mono text-xs uppercase font-bold">
             {busy ? "Posting…" : status === "draft" ? "Save Draft" : "Post"}
           </button>
         </div>
@@ -857,7 +857,7 @@ function CommentDrawer({ post, comments, text, setText, onSubmit, onClose, userI
               )}
               {c.author_id === userId && editingComment !== c.id && (
                 <div className="flex gap-2 mt-2">
-                  <button type="button" onClick={() => setEditingComment(c.id)} className="font-mono text-[9px] uppercase text-[#E11D48]"><Edit3 className="w-3 h-3 inline" /> Edit</button>
+                  <button type="button" onClick={() => setEditingComment(c.id)} className="font-mono text-[9px] uppercase text-[#FF2D55]"><Edit3 className="w-3 h-3 inline" /> Edit</button>
                   <button type="button" onClick={() => onDeleteComment(c.id)} className="font-mono text-[9px] uppercase opacity-50"><Trash2 className="w-3 h-3 inline" /> Delete</button>
                 </div>
               )}
@@ -866,7 +866,7 @@ function CommentDrawer({ post, comments, text, setText, onSubmit, onClose, userI
         </div>
         <form onSubmit={onSubmit} className="p-4 border-t border-white/10 flex gap-2">
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a comment…" className="flex-1 bg-transparent border-b border-white/20 py-2 outline-none font-mono text-sm" />
-          <button type="submit" className="p-2 bg-[#E11D48]"><Send className="w-4 h-4" /></button>
+          <button type="submit" className="p-2 bg-[#FF2D55]"><Send className="w-4 h-4" /></button>
         </form>
       </motion.div>
     </div>
@@ -879,7 +879,7 @@ function EditCommentForm({ initial, onSave, onCancel }) {
     <div className="mt-1 space-y-2">
       <input value={val} onChange={(e) => setVal(e.target.value)} className="w-full bg-black/60 border border-white/20 p-2 font-mono text-xs rounded-xs" />
       <div className="flex gap-2">
-        <button type="button" onClick={() => onSave(val)} className="font-mono text-[9px] uppercase text-[#0D9488]">Save</button>
+        <button type="button" onClick={() => onSave(val)} className="font-mono text-[9px] uppercase text-[#14B8A6]">Save</button>
         <button type="button" onClick={onCancel} className="font-mono text-[9px] uppercase opacity-50">Cancel</button>
       </div>
     </div>

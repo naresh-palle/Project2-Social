@@ -12,15 +12,15 @@ function activityMeta(item) {
     return { icon: Megaphone, tone: "text-[#D97706] bg-[#D97706]/10", label: "Brand invite" };
   }
   if (kind.includes("pay") || kind.includes("wallet") || kind.includes("payout")) {
-    return { icon: Banknote, tone: "text-[#0D9488] bg-[#0D9488]/10", label: "Payment" };
+    return { icon: Banknote, tone: "text-[#14B8A6] bg-[#14B8A6]/10", label: "Payment" };
   }
   if (kind.includes("approv") || kind.includes("accept") || kind.includes("campaign") || kind.includes("application")) {
-    return { icon: CheckCircle2, tone: "text-[#0D9488] bg-[#0D9488]/10", label: "Campaign" };
+    return { icon: CheckCircle2, tone: "text-[#14B8A6] bg-[#14B8A6]/10", label: "Campaign" };
   }
   if (kind.includes("message") || kind.includes("dm") || kind.includes("chat")) {
     return { icon: MessageSquare, tone: "text-[#0A84FF] bg-[#0A84FF]/10", label: "Message" };
   }
-  return { icon: Zap, tone: "text-[#E11D48] bg-[#E11D48]/10", label: "Update" };
+  return { icon: Zap, tone: "text-[#FF2D55] bg-[#FF2D55]/10", label: "Update" };
 }
 
 function linkFor(n) {
@@ -89,7 +89,7 @@ export default function RecentActivity() {
                       );
                     }
                   }}
-                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#E11D48]/35 transition-colors"
+                  className="flex items-start gap-3 min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-[#FF2D55]/35 transition-colors"
                 >
                   <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.tone}`}>
                     <Icon className="w-4 h-4" />

@@ -106,12 +106,12 @@ export default function Onboarding() {
     // 1. Pending Approval Review Screen (Shown after Agent submits details)
     if (isPending && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+        <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#FFFFFF] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+                <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                   § Application Under Review
                 </span>
                 <span className="font-mono text-xs uppercase text-orange-400 bg-orange-400/10 px-3 py-1 border border-orange-400/30 rounded-xs font-semibold">
@@ -135,7 +135,7 @@ export default function Onboarding() {
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="opacity-50">Agent Type:</span>
-                  <span className="text-[#E11D48] font-bold">
+                  <span className="text-[#FF2D55] font-bold">
                     {user.agent_type === "influencer_agent" ? "⭐ Influencer Agent" : "🏢 Company Agent"}
                   </span>
                 </div>
@@ -150,7 +150,7 @@ export default function Onboarding() {
                 {user.website && (
                   <div className="flex justify-between border-b border-white/5 pb-2">
                     <span className="opacity-50">Official Website:</span>
-                    <a href={user.website} target="_blank" rel="noreferrer" className="text-[#E11D48] hover:underline">
+                    <a href={user.website} target="_blank" rel="noreferrer" className="text-[#FF2D55] hover:underline">
                       {user.website} ↗
                     </a>
                   </div>
@@ -177,7 +177,7 @@ export default function Onboarding() {
                     await refresh();
                     if (user.agent_approved) nav("/dashboard");
                   }}
-                  className="btn-solid py-2 px-5 text-xs bg-[#E11D48] text-white"
+                  className="btn-solid py-2 px-5 text-xs bg-[#FF2D55] text-white"
                 >
                   <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5 hidden" />
                   Check Status 🔄
@@ -192,15 +192,15 @@ export default function Onboarding() {
     // 2. Application Declined Screen
     if (isDeclined && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+        <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
-            <div className="max-w-xl w-full bg-[#FFFFFF] border border-[#E11D48]/40 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
+            <div className="max-w-xl w-full bg-[#FFFFFF] border border-[#FF2D55]/40 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+                <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                   § Application Status Update
                 </span>
-                <span className="font-mono text-xs uppercase text-[#E11D48] bg-[#E11D48]/10 px-3 py-1 border border-[#E11D48]/30 rounded-xs font-semibold">
+                <span className="font-mono text-xs uppercase text-[#FF2D55] bg-[#FF2D55]/10 px-3 py-1 border border-[#FF2D55]/30 rounded-xs font-semibold">
                   Revision Required
                 </span>
               </div>
@@ -209,8 +209,8 @@ export default function Onboarding() {
                 <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight font-bold text-white">
                   Application Revision Needed
                 </h1>
-                <div className="mt-4 p-4 bg-[#E11D48]/10 border border-[#E11D48]/30 rounded-3xl font-mono text-xs text-white">
-                  <span className="text-[#E11D48] font-bold uppercase block mb-1">Admin Feedback:</span>
+                <div className="mt-4 p-4 bg-[#FF2D55]/10 border border-[#FF2D55]/30 rounded-3xl font-mono text-xs text-white">
+                  <span className="text-[#FF2D55] font-bold uppercase block mb-1">Admin Feedback:</span>
                   {user.decline_reason || "Agency credentials require further verification before granting full access."}
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function Onboarding() {
                 <button
                   type="button"
                   onClick={() => setIsEditingAgent(true)}
-                  className="btn-solid py-3 px-6 text-sm bg-[#E11D48] text-white hover:bg-[#BE123C]"
+                  className="btn-solid py-3 px-6 text-sm bg-[#FF2D55] text-white hover:bg-[#E11D48]"
                 >
                   ✏️ Update &amp; Resubmit Details →
                 </button>
@@ -232,7 +232,7 @@ export default function Onboarding() {
 
     // 3. Agent Onboarding Details Entry Form
     return (
-      <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
 
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
@@ -244,7 +244,7 @@ export default function Onboarding() {
                 § Talent Agent Application
               </span>
               <h1 className="font-sans text-3xl md:text-5xl font-bold tracking-tight mt-1">
-                Agency <span className="italic text-[#E11D48]">Credentials</span>
+                Agency <span className="italic text-[#FF2D55]">Credentials</span>
               </h1>
               <p className="font-mono text-xs opacity-70 mt-2">
                 Enter your complete agency details below. Your file will be submitted to Super Admin for verification.
@@ -252,7 +252,7 @@ export default function Onboarding() {
             </div>
 
             {error && (
-              <div className="p-3 bg-[#E11D48]/10 border border-[#E11D48]/30 font-mono text-xs text-[#E11D48]">
+              <div className="p-3 bg-[#FF2D55]/10 border border-[#FF2D55]/30 font-mono text-xs text-[#FF2D55]">
                 {error}
               </div>
             )}
@@ -269,7 +269,7 @@ export default function Onboarding() {
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "company_agent" })}
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "company_agent"
-                        ? "border-[#E11D48] bg-[#E11D48]/10 text-white font-bold"
+                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -284,7 +284,7 @@ export default function Onboarding() {
                     onClick={() => setAgentForm({ ...agentForm, agent_type: "influencer_agent" })}
                     className={`p-4 border text-left rounded-3xl transition-all cursor-pointer ${
                       agentForm.agent_type === "influencer_agent"
-                        ? "border-[#E11D48] bg-[#E11D48]/10 text-white font-bold"
+                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
                         : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
@@ -377,7 +377,7 @@ export default function Onboarding() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="btn-solid py-4 px-8 text-base bg-[#E11D48] text-white hover:bg-[#BE123C] flex items-center gap-2"
+                className="btn-solid py-4 px-8 text-base bg-[#FF2D55] text-white hover:bg-[#E11D48] flex items-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -519,7 +519,7 @@ const toggleCategory = (c) => {
                {PLATFORMS.map(plat => {
                    const isConnected = user?.oauth_connections?.some(c => c.platform === plat);
                    return (
-                      <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#0D9488] text-[#0D9488] bg-[#0D9488]/10" : "border-white/10 hover:border-white/30 text-white/70"}`}>
+                      <button key={plat} onClick={() => !isConnected && connectAccount(plat)} type="button" className={`p-4 border rounded-full transition-colors flex items-center justify-center ${isConnected ? "border-[#14B8A6] text-[#14B8A6] bg-[#14B8A6]/10" : "border-white/10 hover:border-white/30 text-white/70"}`}>
                           {plat === "instagram" && <Instagram className="w-8 h-8" />}
                           {plat === "facebook" && <Facebook className="w-8 h-8" />}
                           {plat === "twitter" && <XLogo className="w-8 h-8" />}
@@ -591,7 +591,7 @@ const toggleCategory = (c) => {
                     <button
                       type="submit"
                       disabled={!manualAuthHandle}
-                      className="btn-solid py-2 px-6 bg-[#E11D48] text-white disabled:opacity-50"
+                      className="btn-solid py-2 px-6 bg-[#FF2D55] text-white disabled:opacity-50"
                     >
                       Save & Connect
                     </button>
@@ -613,10 +613,10 @@ const toggleCategory = (c) => {
            <select
               value={industry}
               onChange={e => setIndustry(e.target.value)}
-              className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#E11D48] text-xl font-editorial"
+              className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF2D55] text-xl font-editorial"
             >
-              <option value="" className="bg-[#F7F8FB]" disabled>Select your primary industry</option>
-              {categoriesList.map(c => typeof c === 'string' ? c : c.name).map(p => <option key={p} className="bg-[#F7F8FB]" value={p}>{p}</option>)}
+              <option value="" className="bg-[#FFF7FB]" disabled>Select your primary industry</option>
+              {categoriesList.map(c => typeof c === 'string' ? c : c.name).map(p => <option key={p} className="bg-[#FFF7FB]" value={p}>{p}</option>)}
             </select>
           <div className="pt-8 flex justify-end">
             <button
@@ -636,7 +636,7 @@ const toggleCategory = (c) => {
   return (
     <Layout step={4} title="Review your profile." subtitle="Final Step / Confirmation">
       <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 border border-[#0F172A]/10 bg-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 border border-[#1E1B4B]/10 bg-white/5">
           <div className="min-w-0">
             <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Name</div>
             <div className="font-editorial text-xl sm:text-2xl break-words">{user.name}</div>
@@ -648,26 +648,26 @@ const toggleCategory = (c) => {
           {user.role === "owner" && (
             <div className="col-span-2">
               <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Industry</div>
-              <div className="font-editorial text-2xl text-[#E11D48]">{industry}</div>
+              <div className="font-editorial text-2xl text-[#FF2D55]">{industry}</div>
             </div>
           )}
           {isInfluencer && (
             <>
                 <div className="col-span-2">
                 <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Category</div>
-                <div className="font-mono text-xs uppercase leading-relaxed text-[#E11D48]">
+                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF2D55]">
                   {Array.isArray(f.category) ? f.category.join(", ") : f.category}
                 </div>
                 </div>
                 <div className="col-span-2">
                 <div className="font-mono text-[10px] tracking-widest uppercase opacity-50 mb-1">Languages</div>
-                <div className="font-mono text-xs uppercase leading-relaxed text-[#E11D48]">{f.languages.join(", ")}</div>
+                <div className="font-mono text-xs uppercase leading-relaxed text-[#FF2D55]">{f.languages.join(", ")}</div>
                 </div>
             </>
           )}
         </div>
 
-        {error && <div className="text-[#E11D48] font-mono text-xs">{error}</div>}
+        {error && <div className="text-[#FF2D55] font-mono text-xs">{error}</div>}
 
         <div className="flex justify-between items-center">
           <button onClick={() => setStep(1)} className="font-mono text-xs tracking-widest uppercase opacity-60 hover:opacity-100">
@@ -684,7 +684,7 @@ const toggleCategory = (c) => {
 
 function Layout({ step, title, subtitle, children }) {
   return (
-    <div className="min-h-screen bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
 
 
       <div className="flex-1 flex items-center justify-center p-6 mt-16">
@@ -694,7 +694,7 @@ function Layout({ step, title, subtitle, children }) {
           key={step}
           className="w-full max-w-3xl"
         >
-          <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#E11D48]">
+          <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#FF2D55]">
             {subtitle}
           </div>
           <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mb-12 leading-[1.15] italic">

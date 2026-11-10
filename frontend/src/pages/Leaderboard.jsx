@@ -56,11 +56,11 @@ export default function Leaderboard() {
   ];
 
   return (
-    <div className="w-full bg-[#F7F8FB] text-[#0F172A] flex flex-col">
+    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4 mb-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> Rankings
             </p>
             <h1 className="font-sans text-3xl md:text-4xl font-bold tracking-tight leading-none mt-1.5">Leaderboard</h1>
@@ -73,7 +73,7 @@ export default function Leaderboard() {
                   type="button"
                   onClick={() => setPeriod(p)}
                   className={`px-3.5 py-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase transition-all ${
-                    period === p ? "bg-[#E11D48] text-white" : "text-white/55 hover:text-white"
+                    period === p ? "bg-[#FF2D55] text-white" : "text-white/55 hover:text-white"
                   }`}
                 >
                   {p}
@@ -112,7 +112,7 @@ export default function Leaderboard() {
             </div>
             <div className="text-right">
               <span className="font-mono text-[9px] tracking-widest uppercase text-white/45 mr-2">Score</span>
-              <span className="font-sans text-base font-bold text-[#E11D48]">{myRank.score}</span>
+              <span className="font-sans text-base font-bold text-[#FF2D55]">{myRank.score}</span>
             </div>
           </div>
         )}
@@ -166,7 +166,7 @@ export default function Leaderboard() {
                     <div className="flex items-center gap-1.5 min-w-0">
                       <div className="font-sans font-bold text-base text-white truncate">{entry.name}</div>
                       {entry.level && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-[#E11D48]/15 text-[#E11D48] text-[8px] font-mono tracking-wider uppercase border border-[#E11D48]/25">
+                        <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-[#FF2D55]/15 text-[#FF2D55] text-[8px] font-mono tracking-wider uppercase border border-[#FF2D55]/25">
                           L{entry.level}
                         </span>
                       )}

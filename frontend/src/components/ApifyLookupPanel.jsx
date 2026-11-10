@@ -31,10 +31,10 @@ export function ApifyLookupPanel({ compact = false }) {
   const badge = !health
     ? { label: "Checking Apify…", cls: "text-white/45" }
     : connected
-      ? { label: "Apify connected", cls: "text-[#0D9488]" }
+      ? { label: "Apify connected", cls: "text-[#14B8A6]" }
       : status === "not_configured"
         ? { label: "Data source not configured", cls: "text-[#D97706]" }
-        : { label: "Apify error", cls: "text-[#E11D48]" };
+        : { label: "Apify error", cls: "text-[#FF2D55]" };
 
   const verify = async (e) => {
     e?.preventDefault();
@@ -78,7 +78,7 @@ export function ApifyLookupPanel({ compact = false }) {
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="mt-1 block bg-[#F7F8FB] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
+            className="mt-1 block bg-[#FFF7FB] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
           >
             {LOOKUP_PLATFORMS.map((p) => (
               <option key={p} value={p}>{p}</option>
@@ -104,7 +104,7 @@ export function ApifyLookupPanel({ compact = false }) {
       ) : null}
       {result ? (
         <div className="mt-3 rounded-xl border border-white/10 p-3">
-          <p className={`font-sans text-xs ${result.ok ? "text-[#0D9488]" : "text-[#D97706]"}`}>
+          <p className={`font-sans text-xs ${result.ok ? "text-[#14B8A6]" : "text-[#D97706]"}`}>
             {result.message || (result.ok ? "Live Apify result" : "No result")}
           </p>
           {profile ? (

@@ -175,7 +175,7 @@ function Hero() {
             <Link
               to="/register/owner"
               data-testid="hero-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#FF2D55] transition-all duration-300 shadow-[0_14px_32px_rgba(255,45,85,0.35)] rounded-xs font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#E11D48] transition-all duration-300 shadow-[0_14px_32px_rgba(255,45,85,0.35)] rounded-xs font-bold"
             >
               I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -213,7 +213,7 @@ function EditorialMarquee() {
     <div
       className="theme-keep-dark w-full overflow-hidden border-t border-b"
       style={{
-        background: "#0B1020",
+        background: "#FFF7FB",
         borderColor: "rgba(225,29,72,0.28)",
         padding: "14px 0",
       }}
@@ -266,7 +266,7 @@ function QuickValue() {
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#7C3AED] font-bold flex items-center gap-2">
                 <UserCheck className="w-4 h-4" /> FOR INFLUENCERS:
               </span>
-              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-1 border border-[#0D9488]/30 rounded-xs font-bold">
+              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#14B8A6] bg-[#14B8A6]/10 px-2.5 py-1 border border-[#14B8A6]/30 rounded-xs font-bold">
                 100% Free Signup
               </span>
             </div>
@@ -281,7 +281,7 @@ function QuickValue() {
               </div>
 
               <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold mb-1">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold mb-1">
                   🔒 Secure &amp; Safe
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-white">Escrow protection gets you paid fairly</h4>
@@ -335,7 +335,7 @@ function QuickValue() {
               </div>
 
               <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold mb-1">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold mb-1">
                   📊 Results-Driven
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-white">Proven ROI on every campaign</h4>
@@ -530,13 +530,13 @@ function HowItWorks() {
         <div className="mt-8 p-6 bg-[#FFFFFF] border border-white/15 rounded-xs flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="font-mono text-xs text-white/70 space-y-1">
             <div className="flex items-center gap-2 text-white font-bold">
-              <CheckCircle2 className="w-4 h-4 text-[#0D9488]" /> Contracts &amp; Deliverables Handled Inside flugr
+              <CheckCircle2 className="w-4 h-4 text-[#14B8A6]" /> Contracts &amp; Deliverables Handled Inside flugr
             </div>
             <p className="text-[11px] opacity-60">Escrow-protected for both sides · Timeline from brief start to payment: 2–3 weeks</p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link to="/register/owner" className="btn-solid py-2.5 px-5 text-xs bg-[#FF2D55] text-white hover:bg-[#FF2D55]">
+            <Link to="/register/owner" className="btn-solid py-2.5 px-5 text-xs bg-[#FF2D55] text-white hover:bg-[#E11D48]">
               I&apos;m a Brand →
             </Link>
             <Link to="/register/influencer" className="btn-solid py-2.5 px-5 text-xs bg-[#7C3AED] hover:bg-[#6D28D9] text-white">
@@ -617,7 +617,7 @@ function SocialProof() {
           </div>
           <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
             <div className="font-editorial text-4xl text-white font-bold">₹2 Crore+</div>
-            <div className="font-mono text-xs text-[#0D9488] uppercase tracking-widest font-bold mt-1">VALUE DELIVERED</div>
+            <div className="font-mono text-xs text-[#14B8A6] uppercase tracking-widest font-bold mt-1">VALUE DELIVERED</div>
             <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Escrow Released ✓</div>
           </div>
         </div>
@@ -642,7 +642,7 @@ function SocialProof() {
 
               <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
                 <span className="font-mono text-[10px] text-[#D97706] font-bold">{t.rating}</span>
-                <span className="font-mono text-[10px] text-[#0D9488] bg-[#0D9488]/10 px-2 py-0.5 border border-[#0D9488]/30 rounded-xs font-bold">{t.highlight}</span>
+                <span className="font-mono text-[10px] text-[#14B8A6] bg-[#14B8A6]/10 px-2 py-0.5 border border-[#14B8A6]/30 rounded-xs font-bold">{t.highlight}</span>
               </div>
             </div>
           ))}
@@ -789,13 +789,13 @@ function FeaturedGrid() {
         <div className="bg-[#FFFFFF] text-[#1E1B4B] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
           <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">§ FLUGR SIGNAL (Metrics)</span>
-            <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold hover:underline">Browse all completed campaigns →</Link>
+            <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#14B8A6] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
             <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-white/10' : ''}`}>
               <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold">0{i + 1}</div>
               <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold text-white">{r.k}</div>
-              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold text-[#0D9488]">{r.v}</div>
+              <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold text-[#14B8A6]">{r.v}</div>
               <div className="hidden md:block col-span-2 text-right font-mono text-[9px] tracking-[0.2em] uppercase text-white/50">{r.tail}</div>
             </div>
           ))}
@@ -818,7 +818,7 @@ function PricingSection() {
               § Slide 07 · Transparent Pricing
             </span>
             <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-              PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#0D9488]">ACTUALLY PAY</span>
+              PRICING &amp; WHAT YOU&apos;LL <span className="italic text-[#14B8A6]">ACTUALLY PAY</span>
             </h2>
           </div>
         </FadeUp>
@@ -834,31 +834,31 @@ function PricingSection() {
             <div className="space-y-1.5 font-mono text-xs">
               <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎉 SIGNUP:</span>
-                <span className="text-[#0D9488] font-bold">FREE</span>
+                <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎯 PLATFORM ACCESS:</span>
-                <span className="text-[#0D9488] font-bold">FREE</span>
+                <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">🔒 ESCROW SECURITY:</span>
-                <span className="text-[#0D9488] font-bold">100% Guaranteed</span>
+                <span className="text-[#14B8A6] font-bold">100% Guaranteed</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#FF2D55] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
-              <div>Platform Fee: <span className="text-[#0D9488]">₹0 (100% Free)</span></div>
-              <div className="text-[#0D9488] font-bold text-xs pt-1 border-t border-white/10">
+              <div>Platform Fee: <span className="text-[#14B8A6]">₹0 (100% Free)</span></div>
+              <div className="text-[#14B8A6] font-bold text-xs pt-1 border-t border-white/10">
                 You get 100% Full Payout: ₹1,00,000 ✓
               </div>
             </div>
 
             <ul className="space-y-1 font-mono text-xs text-white/70">
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> Zero platform cuts or hidden deductions</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> Keep 100% of your earned campaign payouts</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> We handle contracts, disputes, &amp; escrow collections</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> Zero platform cuts or hidden deductions</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> Keep 100% of your earned campaign payouts</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> We handle contracts, disputes, &amp; escrow collections</li>
             </ul>
           </div>
 
@@ -872,31 +872,31 @@ function PricingSection() {
             <div className="space-y-1.5 font-mono text-xs">
               <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎉 SIGNUP:</span>
-                <span className="text-[#0D9488] font-bold">FREE</span>
+                <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5 border-b border-white/5">
                 <span className="text-white/60">🎯 PLATFORM ACCESS:</span>
-                <span className="text-[#0D9488] font-bold">FREE</span>
+                <span className="text-[#14B8A6] font-bold">FREE</span>
               </div>
               <div className="flex justify-between py-0.5">
                 <span className="text-white/60">🔒 ESCROW SECURITY:</span>
-                <span className="text-[#0D9488] font-bold">100% Guaranteed</span>
+                <span className="text-[#14B8A6] font-bold">100% Guaranteed</span>
               </div>
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#7C3AED] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 influencers</div>
-              <div>Platform Fee: <span className="text-[#0D9488]">₹0 (100% Free)</span></div>
+              <div>Platform Fee: <span className="text-[#14B8A6]">₹0 (100% Free)</span></div>
               <div className="text-[#7C3AED] font-bold text-xs pt-1 border-t border-white/10">
                 Influencers get 100% Budget: ₹1,00,000 ÷ 5 = ₹20,000 each ✓
               </div>
             </div>
 
             <ul className="space-y-1 font-mono text-xs text-white/70">
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> All-inclusive (no hidden platform fees)</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> Contracts, AI matching, &amp; dispute support included</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" /> Faster than agencies (2–3 weeks vs 6–8 weeks)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> All-inclusive (no hidden platform fees)</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> Contracts, AI matching, &amp; dispute support included</li>
+              <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#14B8A6] shrink-0" /> Faster than agencies (2–3 weeks vs 6–8 weeks)</li>
             </ul>
           </div>
         </div>
@@ -905,15 +905,15 @@ function PricingSection() {
         <div className="p-5 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-3">
           <h4 className="font-editorial text-lg text-white font-bold border-b border-white/10 pb-2">WHAT&apos;S INCLUDED (Both Sides):</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 font-mono text-xs text-white/90 leading-normal">
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Platform access (unlimited briefs)</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Escrow payment protection</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Influencer &amp; brand verification</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> AI content compliance audit</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Automated contract templating</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Dispute resolution (&lt;2hr support)</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Direct studio messaging</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Performance &amp; ROI tracking</div>
-            <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Verified ratings &amp; reviews</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Platform access (unlimited briefs)</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Escrow payment protection</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Influencer &amp; brand verification</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> AI content compliance audit</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Automated contract templating</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Dispute resolution (&lt;2hr support)</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Direct studio messaging</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Performance &amp; ROI tracking</div>
+            <div className="flex items-center gap-1.5"><span className="text-[#14B8A6] font-bold">✓</span> Verified ratings &amp; reviews</div>
           </div>
           <div className="pt-2 border-t border-white/10 text-center font-mono text-[10px] text-[#FF2D55] font-bold tracking-[0.25em] uppercase">
             NO HIDDEN FEES, EVER.
@@ -995,7 +995,7 @@ function FinalCTA() {
             <Link
               to="/register/owner"
               data-testid="final-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#FF2D55] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(255,45,85,0.45)]"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#E11D48] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(255,45,85,0.45)]"
             >
               I&apos;m a Brand — Post brief now (3 min setup) <ArrowRight className="w-4 h-4" />
             </Link>
@@ -1141,7 +1141,7 @@ export default function Landing() {
         }}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:-translate-x-0.5 transition-transform" />
       </button>
@@ -1155,7 +1155,7 @@ export default function Landing() {
         }}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform" />
       </button>

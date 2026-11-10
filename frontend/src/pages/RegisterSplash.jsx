@@ -9,7 +9,7 @@ export default function RegisterSplash() {
   const googleState = location.state?.fromGoogleLogin ? location.state : null;
 
   return (
-    <div className="relative min-h-screen bg-[#F7F8FB] text-[#0F172A] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
+    <div className="relative min-h-screen bg-[#FFF7FB] text-[#1E1B4B] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
       {/* Sleek Radial Ambient Aura Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
 
@@ -30,11 +30,11 @@ export default function RegisterSplash() {
           className="w-full max-w-2xl mx-auto"
         >
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-[#E11D48] font-bold mb-3">
+            <div className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-[#FF2D55] font-bold mb-3">
               <AiIcon name="sparkles" className="w-3.5 h-3.5" /> flugr Entry Gate
             </div>
             <h1 className="font-editorial text-5xl md:text-7xl leading-[1.15]">
-              Choose your <span className="italic text-[#E11D48]">door</span>
+              Choose your <span className="italic text-[#FF2D55]">door</span>
             </h1>
             <p className="font-mono text-xs opacity-60 uppercase tracking-widest mt-3 max-w-md mx-auto">
               {googleState
@@ -42,7 +42,7 @@ export default function RegisterSplash() {
                 : "Select your role to open the dedicated studio workspace"}
             </p>
             {googleState?.email && (
-              <p className="mt-4 font-mono text-[11px] text-[#E11D48]/90 tracking-wide">
+              <p className="mt-4 font-mono text-[11px] text-[#FF2D55]/90 tracking-wide">
                 Continuing as {googleState.email}
               </p>
             )}
@@ -56,7 +56,7 @@ export default function RegisterSplash() {
                 label: "I'm an Influencer",
                 sub: "Build your body of work • Pitch on your terms • Get paid",
                 badge: "Influencer",
-                bgHover: "hover:border-[#E11D48] hover:bg-[#E11D48]/10"
+                bgHover: "hover:border-[#FF2D55] hover:bg-[#E11D48]/10"
               },
               {
                 k: "owner",
@@ -64,7 +64,7 @@ export default function RegisterSplash() {
                 label: "I'm a Brand Owner",
                 sub: "Post briefs in 3 mins • Access credentialed talent • Escrow security",
                 badge: "Brand Desk",
-                bgHover: "hover:border-[#E11D48] hover:bg-[#E11D48]/10"
+                bgHover: "hover:border-[#FF2D55] hover:bg-[#E11D48]/10"
               },
             ].map((r) => (
               <Link
@@ -75,11 +75,11 @@ export default function RegisterSplash() {
                 className={`group relative overflow-hidden flex items-center justify-between p-8 bg-[#FFFFFF]/90 backdrop-blur-xl border border-white/15 ${r.bgHover} transition-all duration-500 rounded-3xl shadow-xl`}
               >
                 {/* Accent glow line on hover */}
-                <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#E11D48] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#FF2D55] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 <div className="pr-4">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs tracking-[0.25em] uppercase text-[#E11D48] font-bold">
+                    <span className="font-mono text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold">
                       DOOR {r.num}
                     </span>
                     <span className="font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 text-white/70 rounded-xs">
@@ -93,14 +93,14 @@ export default function RegisterSplash() {
                     {r.sub}
                   </div>
                 </div>
-                <ArrowRight className="w-6 h-6 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 text-[#E11D48]" />
+                <ArrowRight className="w-6 h-6 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 text-[#FF2D55]" />
               </Link>
             ))}
           </div>
 
           <p className="mt-14 font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 text-center">
             Already inside the studio?{" "}
-            <Link to="/login" className="underline text-[#E11D48] font-bold hover:text-white transition-colors">
+            <Link to="/login" className="underline text-[#FF2D55] font-bold hover:text-white transition-colors">
               Sign in ↗
             </Link>
           </p>
