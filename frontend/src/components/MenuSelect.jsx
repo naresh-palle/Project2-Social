@@ -101,14 +101,14 @@ export function MenuSelect({
         onClick={() => !disabled && setOpen((v) => !v)}
         className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left transition-all disabled:opacity-50 ${
           open
-            ? "border-[#FF2D55]/60 bg-[#1A1212] shadow-[0_0_0_1px_rgba(255,59,48,0.15)]"
-            : "border-[#1E1B4B]/10 bg-gradient-to-b from-[#FFFFFF] to-[#F7F8FC] hover:border-[#1E1B4B]/15 hover:from-white/[0.09]"
+            ? "border-[#FF2D55] bg-white shadow-[0_0_0_3px_rgba(255,45,85,0.12)]"
+            : "border-[#1E1B4B]/12 bg-white hover:border-[#1E1B4B]/20 hover:bg-[#F7F8FC]"
         }`}
       >
         {selected?.icon ? (
-          <span className="text-[#64748B] shrink-0">{selected.icon}</span>
+          <span className="text-[#475569] shrink-0">{selected.icon}</span>
         ) : null}
-        <span className={`flex-1 text-[12px] font-medium truncate ${selected ? "text-[#1E1B4B]" : "text-[#94A3B8]"}`}>
+        <span className={`flex-1 text-[12px] font-semibold truncate ${selected ? "text-[#1E1B4B]" : "text-[#64748B]"}`}>
           {display}
         </span>
         <ChevronDown
@@ -128,7 +128,7 @@ export function MenuSelect({
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.16 }}
                 style={menuStyle}
-                className="overflow-y-auto rounded-2xl border border-[#1E1B4B]/10 bg-[#F3EEFF]/98 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.55)] py-1.5"
+                className="overflow-y-auto rounded-2xl border border-[#1E1B4B]/12 bg-white shadow-[0_16px_40px_rgba(30,27,75,0.16)] py-1.5"
               >
                 {options.map((opt) => {
                   const active = String(opt.value) === String(value);
@@ -143,20 +143,20 @@ export function MenuSelect({
                         setOpen(false);
                       }}
                       className={`w-full flex items-start gap-2.5 px-3 py-2.5 text-left transition-colors ${
-                        active ? "bg-[#FF2D55]/15" : "hover:bg-white/[0.06]"
+                        active ? "bg-[#FFF1F3]" : "hover:bg-[#F7F8FC]"
                       }`}
                     >
                       {opt.icon ? (
-                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF2D55]" : "text-[#64748B]"}`}>
+                        <span className={`mt-0.5 shrink-0 ${active ? "text-[#FF2D55]" : "text-[#475569]"}`}>
                           {opt.icon}
                         </span>
                       ) : null}
                       <span className="min-w-0 flex-1">
-                        <span className={`block text-[12px] font-medium ${active ? "text-[#1E1B4B]" : "text-[#1E1B4B]/85"}`}>
+                        <span className={`block text-[12px] font-semibold ${active ? "text-[#FF2D55]" : "text-[#1E1B4B]"}`}>
                           {opt.label}
                         </span>
                         {opt.description ? (
-                          <span className="block text-[10px] text-[#94A3B8] mt-0.5 leading-snug">{opt.description}</span>
+                          <span className="block text-[10px] text-[#475569] mt-0.5 leading-snug">{opt.description}</span>
                         ) : null}
                       </span>
                       {active ? <Check className="w-3.5 h-3.5 text-[#FF2D55] shrink-0 mt-0.5" /> : null}

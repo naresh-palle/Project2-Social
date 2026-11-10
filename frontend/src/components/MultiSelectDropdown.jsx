@@ -156,10 +156,10 @@ export function MultiSelectDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={`msd-trigger w-full bg-transparent outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left ${
+        className={`msd-trigger w-full bg-white outline-none cursor-pointer flex justify-between items-center gap-3 transition-colors text-left text-[#1E1B4B] ${
           noUnderline
-            ? "border border-[#1E1B4B]/10 hover:border-[#1E1B4B]/15 focus:border-[#FF2D55] px-3 rounded-3xl"
-            : "border-b border-[#1E1B4B]/10 hover:border-[#1E1B4B]/15 focus:border-[#FF2D55]"
+            ? "border border-[#1E1B4B]/12 hover:border-[#1E1B4B]/20 focus:border-[#FF2D55] px-3 rounded-xl"
+            : "border border-[#1E1B4B]/12 rounded-xl px-3 hover:border-[#1E1B4B]/20 focus:border-[#FF2D55]"
         } ${compact ? "py-2 min-h-[36px]" : "py-3 min-h-[48px]"}`}
       >
         <div className="flex flex-wrap gap-1.5 items-center flex-1 min-w-0">

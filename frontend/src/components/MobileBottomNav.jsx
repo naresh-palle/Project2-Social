@@ -18,7 +18,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="lg:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-[#1E1B4B]/08 bg-white/95 backdrop-blur-xl"
+      className="lg:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-[#1E1B4B]/10 bg-white shadow-[0_-4px_20px_rgba(30,27,75,0.06)]"
       style={{ paddingBottom: "max(0.4rem, env(safe-area-inset-bottom))" }}
       aria-label="Primary"
     >

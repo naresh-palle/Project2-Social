@@ -86,7 +86,7 @@ function Hero() {
         <img
           src={`${process.env.PUBLIC_URL}/flugr-home-light-aurora-hero.jpg`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.88]"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
         />
       </motion.div>
 
@@ -254,7 +254,7 @@ function QuickValue() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* FOR INFLUENCERS */}
-          <div className="bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+          <div className="bg-white border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1E1B4B]/08">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#7C3AED] font-bold flex items-center gap-2">
                 <UserCheck className="w-4 h-4" /> FOR INFLUENCERS:
@@ -300,7 +300,7 @@ function QuickValue() {
           </div>
 
           {/* FOR BRANDS */}
-          <div className="bg-[#FFFFFF]/90 border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
+          <div className="bg-white border border-[#1E1B4B]/10 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1E1B4B]/08">
               <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> FOR BRANDS:
@@ -397,7 +397,7 @@ function Manifesto() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {CHAPTERS_WITH_MEANS.map((c) => (
-            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-[#F1F5F9] border border-[#1E1B4B]/08 backdrop-blur-md rounded-xs hover:border-[#FF2D55]/40 transition-all">
+            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-white border border-[#1E1B4B]/10 rounded-xs hover:border-[#FF2D55]/40 transition-all shadow-sm">
               <div>
                 <div className="text-4xl md:text-5xl font-editorial leading-none mb-3">
                   {c.n[0]}<span className="tick text-[#FF2D55]">{c.n[1]}</span>

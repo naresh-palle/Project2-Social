@@ -31,7 +31,7 @@ export function Nav({ variant = "paper" }) {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 border-b border-[#1E1B4B]/08 bg-white/85 text-[#1E1B4B] backdrop-blur-xl"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-[#1E1B4B]/10 bg-white text-[#1E1B4B] shadow-sm"
     >
       <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-3.5 min-w-0">
         <Link

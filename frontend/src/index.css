@@ -158,25 +158,31 @@ button, input, select, textarea {
 select {
     color: var(--fg);
     caret-color: var(--fg);
+    background-color: #FFFFFF !important;
 }
 option,
 optgroup {
-    background-color: var(--surface-1) !important;
-    color: var(--fg) !important;
+    background-color: #FFFFFF !important;
+    color: #1E1B4B !important;
+}
+option:checked,
+option:hover {
+    background-color: #EEF2FF !important;
+    color: #1E1B4B !important;
 }
 option:disabled,
 optgroup:disabled {
-    color: var(--fg-muted) !important;
+    color: #64748B !important;
 }
 
-/* Custom multi-select menu (portaled) — theme-token surfaces */
+/* Custom multi-select menu (portaled) — opaque paper */
 .msd-menu {
-    background: var(--surface-1) !important;
-    border: 1px solid var(--border-strong) !important;
-    color: var(--fg) !important;
-    box-shadow: 0 16px 48px var(--scrim);
+    background: #FFFFFF !important;
+    border: 1px solid rgba(30, 27, 75, 0.14) !important;
+    color: #1E1B4B !important;
+    box-shadow: 0 16px 40px rgba(30, 27, 75, 0.16);
     scrollbar-width: thin;
-    scrollbar-color: var(--border-strong) transparent;
+    scrollbar-color: var(--border-strong) #F7F8FC;
 }
 .msd-menu .msd-item {
     color: var(--fg);
@@ -804,15 +810,33 @@ html.theme-light .inp {
     border-bottom-color: var(--border-soft) !important;
 }
 html.theme-light option,
-html.theme-light optgroup {
-    background: var(--surface-1) !important;
-    color: var(--fg) !important;
+html.theme-light optgroup,
+html:not(.theme-dark) option,
+html:not(.theme-dark) optgroup {
+    background: #FFFFFF !important;
+    color: #1E1B4B !important;
 }
-/* Portaled menus sit on body — keep token surfaces (avoid hard-coded dark remaps fighting) */
-html.theme-light .msd-menu {
-    background: var(--surface-1) !important;
-    border-color: var(--border-strong) !important;
-    color: var(--fg) !important;
+html.theme-light select,
+html:not(.theme-dark) select {
+    background-color: #FFFFFF !important;
+    color: #1E1B4B !important;
+}
+/* Portaled menus — fully opaque */
+html.theme-light .msd-menu,
+html:not(.theme-dark) .msd-menu {
+    background: #FFFFFF !important;
+    border-color: rgba(30, 27, 75, 0.14) !important;
+    color: #1E1B4B !important;
+}
+/* Kill translucent chrome leftovers on light studio */
+html.theme-light .bg-white\/85,
+html.theme-light .bg-white\/90,
+html.theme-light .bg-white\/95,
+html:not(.theme-dark) .bg-white\/85,
+html:not(.theme-dark) .bg-white\/90,
+html:not(.theme-dark) .bg-white\/95,
+html:not(.theme-dark) .bg-\[\#FFFFFF\]\/90 {
+    background-color: #FFFFFF !important;
 }
 
 /* Nav / sticky bars — always light paper + ink (never dark strips) */

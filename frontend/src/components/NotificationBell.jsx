@@ -90,7 +90,7 @@ export function NotificationBell() {
           data-testid="notif-bell"
           title="Notifications"
           aria-label="Notifications"
-          className="relative w-9 h-9 rounded-full border border-[#1E1B4B]/12 bg-[#F7F8FC] hover:bg-[#FFF1F3] hover:border-[#FF2D55]/40 flex items-center justify-center transition-colors"
+          className="relative w-9 h-9 rounded-full border border-[#1E1B4B]/15 bg-white hover:bg-[#FFF1F3] hover:border-[#FF2D55]/40 flex items-center justify-center transition-colors"
         >
           <AiIcon name="bell" className="w-5 h-5" tone="ink" />
           {data.unread > 0 && (
@@ -105,12 +105,12 @@ export function NotificationBell() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-white border border-[#1E1B4B]/10 rounded-2xl shadow-2xl shadow-slate-900/10 z-[90] left-auto text-[#1E1B4B]"
+            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-white border border-[#1E1B4B]/12 rounded-2xl shadow-[0_20px_50px_rgba(30,27,75,0.18)] z-[90] left-auto text-[#1E1B4B]"
             style={{ maxWidth: "min(360px, calc(100vw - 1rem))" }}
             data-testid="notif-panel"
           >
-            <div className="p-4 hairline-b flex items-center justify-between">
-              <span className="font-mono text-[10px] tracking-[0.28em] uppercase opacity-60">§ Correspondence</span>
+            <div className="p-4 border-b border-[#1E1B4B]/10 bg-white flex items-center justify-between sticky top-0">
+              <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#475569] font-semibold">§ Correspondence</span>
               {data.unread > 0 && (
                 <button onClick={markAll} data-testid="notif-mark-all"
                   className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF2D55] kinetic-underline">

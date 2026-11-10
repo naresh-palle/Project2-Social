@@ -7,10 +7,9 @@ import { useAuth } from "@/lib/auth";
 import { isSupportOpsRole } from "@/lib/supportOps";
 import { NotificationBell } from "./NotificationBell";
 import { IconTip } from "@/components/IconTip";
-import { AiIcon } from "@/components/AiIcon";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 
 export function AppLayout() {
@@ -44,7 +43,7 @@ export function AppLayout() {
       <ThemeToaster />
 
       <main className="flex-1 ml-0 lg:ml-[16.5rem] relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
-        <header className="shrink-0 h-14 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-white/90 backdrop-blur-md border-b border-[#1E1B4B]/08 overflow-visible safe-px">
+        <header className="shrink-0 h-14 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-white border-b border-[#1E1B4B]/10 shadow-sm overflow-visible safe-px">
           <Link to="/dashboard" className="lg:hidden shrink-0 max-w-[52vw] outline-none" aria-label="flugr home">
             <BrandLogo variant="wordmark" height={30} />
           </Link>
@@ -70,9 +69,9 @@ export function AppLayout() {
                 }}
                 aria-label="Sign out"
                 data-testid="logout-button"
-                className="w-9 h-9 rounded-full border border-[#1E1B4B]/15 bg-white hover:border-[#FF2D55]/50 hover:bg-[#FFF1F3] flex items-center justify-center transition-colors shrink-0 text-[#1E1B4B]"
+                className="w-9 h-9 rounded-full border border-[#1E1B4B]/20 bg-white hover:border-[#FF2D55]/50 hover:bg-[#FFF1F3] flex items-center justify-center transition-colors shrink-0 text-[#1E1B4B]"
               >
-                <AiIcon name="logout" className="w-5 h-5" tone="ink" aria-hidden="true" />
+                <LogOut className="w-5 h-5 text-[#1E1B4B]" strokeWidth={2.4} aria-hidden="true" />
               </button>
             </IconTip>
           </div>
