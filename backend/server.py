@@ -23,6 +23,7 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
 
 from otp_utils import parse_otp_datetime, otp_expired
+from pincode_lookup import fetch_pincode_details
 
 import bcrypt
 import jwt
@@ -2028,19 +2029,9 @@ async def change_password(inp: ChangePasswordInput, current: dict = Depends(get_
 
 
 
-async def fetch_pincode_details(pincode: str):
-    async with httpx.AsyncClient(timeout=10) as client:
-        try:
-            r = await client.get(f"https://api.postalpincode.in/pincode/{pincode}")
-            data = r.json()
-            if data and data[0]["Status"] == "Success":
-                return {"city": data[0]["PostOffice"][0]["District"], "state": data[0]["PostOffice"][0]["State"]}
-        except Exception:
-            pass
-    return {"city": "Unknown", "state": "Unknown"}
-
 @api_router.get("/location/pincode/{pincode}")
 async def get_location(pincode: str):
+    """Resolve Indian pincode to city/state (prefers town/block over legacy district)."""
     return await fetch_pincode_details(pincode)
 
 

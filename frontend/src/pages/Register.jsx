@@ -248,7 +248,7 @@ export default function Register() {
     return () => clearTimeout(t);
   }, [form.username]);
 
-  // Real-time Pincode Validation & Dual API Lookup
+  // Real-time pincode lookup — prefer town/block (Siddipet) over legacy district (Medak)
   useEffect(() => {
     if (!form.pincode) {
       setFieldErrors(e => ({ ...e, pincode: "" }));
@@ -260,43 +260,58 @@ export default function Register() {
       return;
     }
 
+    let cancelled = false;
     setFieldErrors(e => ({ ...e, pincode: "" }));
 
-    fetch(`https://api.postalpincode.in/pincode/${form.pincode}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0 && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
-          const po = data[0].PostOffice[0];
-          setForm(f => ({ ...f, city: po.District || po.Block || po.Name || po.Region, state: po.State }));
-          setFieldErrors(e => ({ ...e, pincode: "" }));
-        } else {
-          return fetch(`https://api.zippopotam.us/in/${form.pincode}`)
-            .then(r => {
-              if (!r.ok) throw new Error("Fallback failed");
-              return r.json();
-            })
-            .then(zData => {
-              if (zData && zData.places && zData.places.length > 0) {
-                const po = zData.places[0];
-                setForm(f => ({ ...f, city: po["place name"], state: po["state"] }));
-                setFieldErrors(e => ({ ...e, pincode: "" }));
-              } else {
-                setForm(f => ({ ...f, city: "", state: "" }));
-                setFieldErrors(e => ({ ...e, pincode: "Enter correct pincode" }));
-              }
-            });
+    const applyResolved = (resolved) => {
+      if (cancelled || !resolved?.city) return false;
+      setForm(f => ({ ...f, city: resolved.city, state: resolved.state || f.state }));
+      setFieldErrors(e => ({ ...e, pincode: "" }));
+      return true;
+    };
+
+    const fail = () => {
+      if (cancelled) return;
+      setForm(f => ({ ...f, city: "", state: "" }));
+      setFieldErrors(e => ({ ...e, pincode: "Enter correct pincode" }));
+    };
+
+    (async () => {
+      try {
+        // Backend has shared overrides + Block/HPO preference
+        const { data } = await api.get(`/location/pincode/${form.pincode}`);
+        if (cancelled) return;
+        if (data?.city && data.city !== "Unknown") {
+          applyResolved(data);
+          return;
         }
-      }).catch(() => {
-        // Fallback for demo valid Indian pincodes (e.g. 500001, 500081, 400001, 110001, 560001, etc)
-        const VALID_DEMO_PINCODES = ["500001", "500081", "500032", "400001", "400050", "110001", "560001", "600001", "700001"];
-        if (VALID_DEMO_PINCODES.includes(form.pincode)) {
-          setForm(f => ({ ...f, city: "Hyderabad / Metro City", state: "Telangana / Metro State" }));
-          setFieldErrors(e => ({ ...e, pincode: "" }));
-        } else {
-          setForm(f => ({ ...f, city: "", state: "" }));
-          setFieldErrors(e => ({ ...e, pincode: "Enter correct pincode" }));
+      } catch {
+        /* fall through to public postal APIs */
+      }
+
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${form.pincode}`);
+        const payload = await res.json();
+        if (cancelled) return;
+        if (payload?.[0]?.Status === "Success" && payload[0].PostOffice?.length) {
+          const { resolveFromPostOffices } = await import("@/lib/pincode");
+          if (applyResolved(resolveFromPostOffices(payload[0].PostOffice, form.pincode))) return;
         }
-      });
+
+        const zRes = await fetch(`https://api.zippopotam.us/in/${form.pincode}`);
+        if (!zRes.ok) throw new Error("fallback failed");
+        const zData = await zRes.json();
+        if (cancelled) return;
+        const { resolveFromZippopotam } = await import("@/lib/pincode");
+        if (!applyResolved(resolveFromZippopotam(zData, form.pincode))) fail();
+      } catch {
+        fail();
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [form.pincode]);
 
   const change = (k) => (e) => {
