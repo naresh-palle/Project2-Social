@@ -36,7 +36,7 @@ class _Cr8AppState extends ConsumerState<Cr8App> with WidgetsBindingObserver {
     final fs = await storage.fontScale();
     if (!mounted) return;
     ref.read(appearancePrefsProvider.notifier).state = AppearancePrefs(
-      theme: t.isEmpty ? 'dark' : t,
+      theme: t.isEmpty ? 'light' : t,
       highContrast: hc,
       fontScale: fs,
     );

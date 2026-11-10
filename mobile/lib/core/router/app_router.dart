@@ -189,7 +189,7 @@ class _AuthSplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Color(0xFF0A0A0A),
+      backgroundColor: Cr8Colors.bg,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -251,7 +251,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                       Text(
                         'MOBILE',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.white38,
+                              color: Cr8Colors.muted,
                               letterSpacing: 2.2,
                             ),
                       ),
@@ -278,7 +278,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.32, 0.8, curve: Curves.easeOutCubic),
                   child: Text(
                     'Creator marketplace',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 4, color: Colors.white70),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 4, color: Cr8Colors.muted),
                   ),
                 ),
                 const Spacer(),
@@ -300,7 +300,7 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.48, 1, curve: Curves.easeOutCubic),
                   child: const Text(
                     'Marketplace, campaigns, and collaboration — one studio.',
-                    style: TextStyle(color: Colors.white70, height: 1.4),
+                    style: TextStyle(color: Cr8Colors.muted, height: 1.4),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -317,11 +317,11 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                         children: [
                           TextButton(
                             onPressed: () => context.push('/legal/terms'),
-                            child: const Text('Terms', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            child: const Text('Terms', style: TextStyle(fontSize: 12, color: Cr8Colors.muted)),
                           ),
                           TextButton(
                             onPressed: () => context.push('/legal/privacy'),
-                            child: const Text('Privacy', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            child: const Text('Privacy', style: TextStyle(fontSize: 12, color: Cr8Colors.muted)),
                           ),
                         ],
                       ),

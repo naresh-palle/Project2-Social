@@ -56,19 +56,19 @@ function Hero() {
   return (
     <section
       ref={ref}
-      className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#F7F8FB] flex flex-col"
+      className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#FFF7FB] flex flex-col"
       data-testid="slide-hero"
     >
       {/* Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
-        style={{ background: "#F7F8FB" }}
+        style={{ background: "#FFF7FB" }}
         initial={{ scaleY: 1 }}
         animate={{ scaleY: 0 }}
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* Soft light atmosphere — aurora wash + restrained brand orbs */}
+      {/* Vibrant light atmosphere — coral / violet / teal social wash */}
       <motion.div
         style={{ y: yImg }}
         className="absolute inset-0 z-0"
@@ -80,41 +80,54 @@ function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 58%), radial-gradient(ellipse 55% 45% at 85% 70%, rgba(13,148,136,0.10) 0%, transparent 55%), radial-gradient(ellipse 45% 40% at 10% 75%, rgba(225,29,72,0.08) 0%, transparent 50%), linear-gradient(180deg, #FFFFFF 0%, #F7F8FB 48%, #EEF2F7 100%)",
+              "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 58%), radial-gradient(ellipse 55% 45% at 88% 72%, rgba(20,184,166,0.16) 0%, transparent 55%), radial-gradient(ellipse 48% 42% at 8% 78%, rgba(255,45,85,0.16) 0%, transparent 50%), linear-gradient(180deg, #FFFFFF 0%, #FFF7FB 42%, #F3EEFF 100%)",
           }}
         />
         <img
-          src={`${process.env.PUBLIC_URL}/flugr-home-midnight-aurora-hero.png`}
+          src={`${process.env.PUBLIC_URL}/flugr-home-light-aurora-hero.jpg`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.18] mix-blend-multiply"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.88]"
         />
       </motion.div>
 
       <motion.div
         className="absolute pointer-events-none rounded-full z-[1]"
         style={{
-          left: "8%",
-          top: "20%",
-          width: 220,
-          height: 220,
-          background: "#E11D48",
+          left: "6%",
+          top: "18%",
+          width: 260,
+          height: 260,
+          background: "#FF2D55",
           filter: "blur(100px)",
         }}
-        animate={{ opacity: [0.05, 0.12, 0.06] }}
+        animate={{ opacity: [0.12, 0.22, 0.14] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.0 }}
       />
       <motion.div
         className="absolute pointer-events-none rounded-full z-[1]"
         style={{
-          right: "10%",
-          top: "28%",
-          width: 260,
-          height: 260,
-          background: "#6366F1",
+          right: "8%",
+          top: "22%",
+          width: 300,
+          height: 300,
+          background: "#7C3AED",
           filter: "blur(110px)",
         }}
-        animate={{ opacity: [0.04, 0.10, 0.05] }}
+        animate={{ opacity: [0.10, 0.20, 0.12] }}
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.3 }}
+      />
+      <motion.div
+        className="absolute pointer-events-none rounded-full z-[1]"
+        style={{
+          right: "18%",
+          bottom: "8%",
+          width: 240,
+          height: 240,
+          background: "#14B8A6",
+          filter: "blur(100px)",
+        }}
+        animate={{ opacity: [0.08, 0.18, 0.10] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       />
 
       <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
@@ -129,9 +142,9 @@ function Hero() {
             <BrandLogo variant="wordmark" surface="paper" height={72} className="mx-auto object-center" />
           </motion.div>
           {[
-            { text: "The Bridge", className: "text-[#0F172A] font-medium" },
-            { text: "Between", className: "text-[#0F172A] font-medium" },
-            { text: "Brands & Influence.", className: "italic text-[#E11D48] font-normal" },
+            { text: "The Bridge", className: "text-[#1E1B4B] font-medium" },
+            { text: "Between", className: "text-[#1E1B4B] font-medium" },
+            { text: "Brands & Influence.", className: "italic text-[#FF2D55] font-normal" },
           ].map((line, i) => (
             <MaskLine key={line.text} delay={1.05 + i * 0.12}>
               <span
@@ -144,13 +157,13 @@ function Hero() {
           ))}
 
           <motion.p
-            className="mt-5 text-[#475569] text-[14px] sm:text-[15px] leading-[1.7] max-w-[520px]"
+            className="mt-5 text-[#5B5678] text-[14px] sm:text-[15px] leading-[1.7] max-w-[520px]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.45 }}
           >
             Connect with influencers who move audiences.{" "}
-            <span className="text-[#0F172A] font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
+            <span className="text-[#1E1B4B] font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
           </motion.p>
 
           <motion.div
@@ -162,26 +175,26 @@ function Hero() {
             <Link
               to="/register/owner"
               data-testid="hero-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#E11D48] hover:bg-[#BE123C] transition-all duration-300 shadow-[0_12px_28px_rgba(225,29,72,0.28)] rounded-xs font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#FF2D55] transition-all duration-300 shadow-[0_14px_32px_rgba(255,45,85,0.35)] rounded-xs font-bold"
             >
               I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
               to="/register/influencer"
               data-testid="hero-cta-creator"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#6366F1] hover:bg-[#4F46E5] transition-all duration-300 shadow-[0_12px_28px_rgba(99,102,241,0.28)] rounded-xs font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#7C3AED] hover:bg-[#6D28D9] transition-all duration-300 shadow-[0_14px_32px_rgba(124,58,237,0.35)] rounded-xs font-bold"
             >
               I&apos;m an Influencer <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
 
           <motion.p
-            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#475569] mt-4 flex items-center justify-center gap-1.5"
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#5B5678] mt-4 flex items-center justify-center gap-1.5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.85 }}
           >
-            <Clock className="w-3 h-3 text-[#E11D48]" /> Takes 2 minutes. No credit card required.
+            <Clock className="w-3 h-3 text-[#FF2D55]" /> Takes 2 minutes. No credit card required.
           </motion.p>
         </div>
       </div>
@@ -211,7 +224,7 @@ function EditorialMarquee() {
             key={i}
             className={`font-mono tracking-[0.28em] uppercase px-6 ${
               item === "✦"
-                ? "text-[#E11D48] text-xs"
+                ? "text-[#FF2D55] text-xs"
                 : "text-white/85 text-[11px] font-bold"
             }`}
           >
@@ -228,16 +241,16 @@ function EditorialMarquee() {
    ========================================================================= */
 function QuickValue() {
   return (
-    <section id="quick-value" className="relative text-[#0F172A] py-14 md:py-16 overflow-hidden bg-[#F7F8FB]" data-testid="slide-quick-value">
+    <section id="quick-value" className="relative text-[#1E1B4B] py-14 md:py-16 overflow-hidden bg-[#FFF7FB]" data-testid="slide-quick-value">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="hairline-b pb-5 mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 02 · Quick Value
               </span>
-              <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0F172A]">
-                WHY INFLUENCERS &amp; BRANDS <span className="italic text-[#E11D48]">CHOOSE FLUGR</span>
+              <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#1E1B4B]">
+                WHY INFLUENCERS &amp; BRANDS <span className="italic text-[#FF2D55]">CHOOSE FLUGR</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
@@ -250,7 +263,7 @@ function QuickValue() {
           {/* FOR INFLUENCERS */}
           <div className="bg-[#FFFFFF]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#007AFF] font-bold flex items-center gap-2">
+              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#7C3AED] font-bold flex items-center gap-2">
                 <UserCheck className="w-4 h-4" /> FOR INFLUENCERS:
               </span>
               <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-1 border border-[#0D9488]/30 rounded-xs font-bold">
@@ -259,15 +272,15 @@ function QuickValue() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#E11D48] font-bold mb-1">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold mb-1">
                   💰 Higher Payouts
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-white">No middleman = more money in your pocket</h4>
                 <p className="font-mono text-xs text-white/60 mt-1">Direct brand relationships with zero agency cuts. Influencers earn ₹87K/month average.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold mb-1">
                   🔒 Secure &amp; Safe
                 </div>
@@ -275,7 +288,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-white/60 mt-1">Campaign budget is locked before you post. Payout releases immediately upon milestone approval.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
                   ⚡ Fast &amp; Easy
                 </div>
@@ -283,7 +296,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-white/60 mt-1">Receive direct campaign invites and pitch active briefs matched specifically to your niche within 2 hours.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#007AFF]/50 transition-all rounded-xs">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#7C3AED]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#AF52DE] font-bold mb-1">
                   🌟 Grow Your Brand
                 </div>
@@ -296,32 +309,32 @@ function QuickValue() {
           {/* FOR BRANDS */}
           <div className="bg-[#FFFFFF]/90 border border-white/15 p-6 md:p-8 rounded-3xl shadow-2xl relative">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#E11D48] font-bold flex items-center gap-2">
+              <span className="font-mono text-[11px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> FOR BRANDS:
               </span>
-              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#E11D48] bg-[#E11D48]/10 px-2.5 py-1 border border-[#E11D48]/30 rounded-xs font-bold">
+              <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#FF2D55] bg-[#FF2D55]/10 px-2.5 py-1 border border-[#FF2D55]/30 rounded-xs font-bold">
                 Post Brief in 3 Mins
               </span>
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#E11D48]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold mb-1">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7C3AED] font-bold mb-1">
                   ✓ Verified Influencers
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-white">Real followers, real engagement</h4>
                 <p className="font-mono text-xs text-white/60 mt-1">Strict credential checks, bot detection, and verified follower authenticity before any influencer joins your brief.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#E11D48]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#E11D48] font-bold mb-1">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold mb-1">
                   🎯 Perfect Matches
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-white">AI finds influencers that actually fit</h4>
                 <p className="font-mono text-xs text-white/60 mt-1">AI analyzes audience alignment, aesthetic style, and niche intent — not just vanity follower numbers.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#E11D48]/50 transition-all rounded-xs">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold mb-1">
                   📊 Results-Driven
                 </div>
@@ -329,7 +342,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-white/60 mt-1">Real-time conversion tracking, click-through metrics, reach audits, and detailed sales performance reports.</p>
               </div>
 
-              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#E11D48]/50 transition-all rounded-xs">
+              <div className="p-4 bg-white/[0.03] border border-white/10 hover:border-[#FF2D55]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
                   💼 Support &amp; Setup
                 </div>
@@ -376,35 +389,35 @@ const CHAPTERS_WITH_MEANS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative text-[#0F172A] py-12 md:py-16 overflow-hidden bg-[#FFFFFF]" data-testid="slide-manifesto">
+    <section id="manifesto" className="relative text-[#1E1B4B] py-12 md:py-16 overflow-hidden bg-[#FFFFFF]" data-testid="slide-manifesto">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 03 · flugr Manifesto
             </span>
-            <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#0F172A]">
-              Four Principles <span className="italic text-[#E11D48]">of Intent</span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1 text-[#1E1B4B]">
+              Four Principles <span className="italic text-[#FF2D55]">of Intent</span>
             </h2>
           </div>
         </FadeUp>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {CHAPTERS_WITH_MEANS.map((c) => (
-            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-white/[0.04] border border-white/10 backdrop-blur-md rounded-xs hover:border-[#E11D48]/40 transition-all">
+            <div key={c.n} className="p-6 md:p-8 flex flex-col justify-between bg-white/[0.04] border border-white/10 backdrop-blur-md rounded-xs hover:border-[#FF2D55]/40 transition-all">
               <div>
                 <div className="text-4xl md:text-5xl font-editorial leading-none mb-3">
-                  {c.n[0]}<span className="tick text-[#E11D48]">{c.n[1]}</span>
+                  {c.n[0]}<span className="tick text-[#FF2D55]">{c.n[1]}</span>
                 </div>
-                <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#0F172A] font-bold">
+                <h3 className="font-editorial text-xl md:text-2xl leading-[1.2] text-[#1E1B4B] font-bold">
                   {c.title}
                 </h3>
-                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#0F172A]/70">
+                <p className="mt-2.5 font-mono text-xs leading-relaxed text-[#1E1B4B]/70">
                   {c.body}
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-white/10 font-mono text-xs text-[#E11D48] font-bold flex items-start gap-2 bg-[#E11D48]/5 p-3 rounded-xs">
+              <div className="mt-5 pt-3 border-t border-white/10 font-mono text-xs text-[#FF2D55] font-bold flex items-start gap-2 bg-[#FF2D55]/5 p-3 rounded-xs">
                 <span>→ Means:</span>
                 <span className="text-white/90 font-normal">{c.means}</span>
               </div>
@@ -460,12 +473,12 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="relative text-[#0F172A] py-14 md:py-16 bg-[#F7F8FB]" data-testid="slide-how-it-works">
+    <section id="how-it-works" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-how-it-works">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10 flex items-end justify-between">
             <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 04 · Journey
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1">
@@ -473,8 +486,8 @@ function HowItWorks() {
               </h2>
             </div>
             <div className="hidden md:flex gap-4 font-mono text-[11px] tracking-[0.2em] uppercase font-bold">
-              <span className="text-[#E11D48]">● For Brand Owners</span>
-              <span className="text-[#007AFF]">● For Influencers</span>
+              <span className="text-[#FF2D55]">● For Brand Owners</span>
+              <span className="text-[#7C3AED]">● For Influencers</span>
             </div>
           </div>
         </FadeUp>
@@ -483,12 +496,12 @@ function HowItWorks() {
           {steps.map((st) => (
             <div key={st.num} className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-[#FFFFFF] border border-white/15 p-6 rounded-xs">
               {/* Brand Side */}
-              <div className="border-l-2 border-[#E11D48] pl-4">
+              <div className="border-l-2 border-[#FF2D55] pl-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#E11D48] font-bold">
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] font-bold">
                     BRAND STEP {st.num}
                   </span>
-                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#E11D48]/10 text-white rounded-xs border border-[#E11D48]/30 font-bold">
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#FF2D55]/10 text-white rounded-xs border border-[#FF2D55]/30 font-bold">
                     ⏱️ {st.brandTime}
                   </span>
                 </div>
@@ -497,12 +510,12 @@ function HowItWorks() {
               </div>
 
               {/* Influencer Side */}
-              <div className="border-l-2 border-[#007AFF] pl-4">
+              <div className="border-l-2 border-[#7C3AED] pl-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#007AFF] font-bold">
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7C3AED] font-bold">
                     INFLUENCER STEP {st.num}
                   </span>
-                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#007AFF]/10 text-white rounded-xs border border-[#007AFF]/30 font-bold">
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#7C3AED]/10 text-white rounded-xs border border-[#7C3AED]/30 font-bold">
                     ⏱️ {st.creatorTime}
                   </span>
                 </div>
@@ -523,10 +536,10 @@ function HowItWorks() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link to="/register/owner" className="btn-solid py-2.5 px-5 text-xs bg-[#E11D48] text-white hover:bg-[#BE123C]">
+            <Link to="/register/owner" className="btn-solid py-2.5 px-5 text-xs bg-[#FF2D55] text-white hover:bg-[#FF2D55]">
               I&apos;m a Brand →
             </Link>
-            <Link to="/register/influencer" className="btn-solid py-2.5 px-5 text-xs bg-[#007AFF] hover:bg-[#0062cc] text-white">
+            <Link to="/register/influencer" className="btn-solid py-2.5 px-5 text-xs bg-[#7C3AED] hover:bg-[#6D28D9] text-white">
               I&apos;m an Influencer →
             </Link>
           </div>
@@ -577,15 +590,15 @@ function SocialProof() {
   ];
 
   return (
-    <section id="social-proof" className="relative text-[#0F172A] py-14 md:py-16 bg-[#F7F8FB]" data-testid="slide-social-proof">
+    <section id="social-proof" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-social-proof">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 05 · Credibility &amp; Proof
             </span>
             <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-              “Trusted by influencers &amp; brands who <span className="italic text-[#E11D48]">actually move metrics</span>”
+              “Trusted by influencers &amp; brands who <span className="italic text-[#FF2D55]">actually move metrics</span>”
             </h2>
           </div>
         </FadeUp>
@@ -594,12 +607,12 @@ function SocialProof() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white/[0.02] border border-white/10 p-6 rounded-xs text-center">
           <div>
             <div className="font-editorial text-4xl text-white font-bold">50,000+</div>
-            <div className="font-mono text-xs text-[#E11D48] uppercase tracking-widest font-bold mt-1">INFLUENCERS</div>
+            <div className="font-mono text-xs text-[#FF2D55] uppercase tracking-widest font-bold mt-1">INFLUENCERS</div>
             <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Verified ✓</div>
           </div>
           <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
             <div className="font-editorial text-4xl text-white font-bold">500+</div>
-            <div className="font-mono text-xs text-[#007AFF] uppercase tracking-widest font-bold mt-1">BRANDS</div>
+            <div className="font-mono text-xs text-[#7C3AED] uppercase tracking-widest font-bold mt-1">BRANDS</div>
             <div className="font-mono text-[10px] text-white/50 uppercase mt-0.5">Vetting ✓</div>
           </div>
           <div className="border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0">
@@ -612,7 +625,7 @@ function SocialProof() {
         {/* Testimonials Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs flex flex-col justify-between hover:border-[#E11D48]/40 transition-all">
+            <div key={i} className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs flex flex-col justify-between hover:border-[#FF2D55]/40 transition-all">
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-white/20" />
@@ -622,7 +635,7 @@ function SocialProof() {
                   </div>
                 </div>
 
-                <p className="font-mono text-xs text-white/80 leading-relaxed italic border-l-2 border-[#E11D48] pl-3 py-1">
+                <p className="font-mono text-xs text-white/80 leading-relaxed italic border-l-2 border-[#FF2D55] pl-3 py-1">
                   &ldquo;{t.quote}&rdquo;
                 </p>
               </div>
@@ -729,16 +742,16 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section id="portfolio" className="relative text-[#0F172A] py-8 md:py-10 pb-6 bg-[#F7F8FB]" data-testid="slide-portfolio">
+    <section id="portfolio" className="relative text-[#1E1B4B] py-8 md:py-10 pb-6 bg-[#FFF7FB]" data-testid="slide-portfolio">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
             <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 06 · Portfolio &amp; Signal
               </span>
               <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-                SELECTED WORK <span className="italic text-[#E11D48]">SHOWCASE</span>
+                SELECTED WORK <span className="italic text-[#FF2D55]">SHOWCASE</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from flugr Influencers (Auto-Expanding Grid)</span>
@@ -748,7 +761,7 @@ function FeaturedGrid() {
         {/* 5-In-A-Row Auto-Expanding Vibrant Color Campaign Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#E11D48]/60 transition-all bg-[#FFFFFF] p-3 rounded-xs flex flex-col justify-between">
+            <div key={i} className="group cursor-pointer border border-white/10 hover:border-[#FF2D55]/60 transition-all bg-[#FFFFFF] p-3 rounded-xs flex flex-col justify-between">
               <div>
                 <div className="relative overflow-hidden rounded-xs" style={{ aspectRatio: '16/10' }}>
                   <img
@@ -756,13 +769,13 @@ function FeaturedGrid() {
                     alt={f.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
                   />
-                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F7F8FB]/90 px-2 py-0.5 text-[#0F172A] border border-white/10 font-bold">
+                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#FFF7FB]/90 px-2 py-0.5 text-[#1E1B4B] border border-white/10 font-bold">
                     {f.label}
                   </div>
                 </div>
                 <div className="mt-3 space-y-1">
-                  <h3 className="font-editorial text-base group-hover:text-[#E11D48] transition-colors leading-snug font-bold text-white">{f.title}</h3>
-                  <p className="font-mono text-[9px] text-[#E11D48] uppercase tracking-wider font-bold">{f.meta}</p>
+                  <h3 className="font-editorial text-base group-hover:text-[#FF2D55] transition-colors leading-snug font-bold text-white">{f.title}</h3>
+                  <p className="font-mono text-[9px] text-[#FF2D55] uppercase tracking-wider font-bold">{f.meta}</p>
                 </div>
               </div>
               <div className="mt-3 pt-2 border-t border-white/5 font-mono text-[9px] text-white/60 uppercase tracking-wider">
@@ -773,14 +786,14 @@ function FeaturedGrid() {
         </div>
 
         {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
-        <div className="bg-[#FFFFFF] text-[#0F172A] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
+        <div className="bg-[#FFFFFF] text-[#1E1B4B] border border-white/15 rounded-xs overflow-hidden shadow-2xl">
           <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">§ FLUGR SIGNAL (Metrics)</span>
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">§ FLUGR SIGNAL (Metrics)</span>
             <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#0D9488] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
           {rows.map((r, i) => (
             <div key={i} className={`grid grid-cols-12 items-baseline px-6 py-3.5 ${i < rows.length - 1 ? 'border-b border-white/10' : ''}`}>
-              <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase text-[#E11D48] font-bold">0{i + 1}</div>
+              <div className="col-span-1 font-mono text-[10px] tracking-[0.28em] uppercase text-[#FF2D55] font-bold">0{i + 1}</div>
               <div className="col-span-6 md:col-span-7 font-editorial text-lg md:text-xl font-bold text-white">{r.k}</div>
               <div className="col-span-3 md:col-span-2 font-editorial text-xl md:text-2xl italic font-bold text-[#0D9488]">{r.v}</div>
               <div className="hidden md:block col-span-2 text-right font-mono text-[9px] tracking-[0.2em] uppercase text-white/50">{r.tail}</div>
@@ -797,11 +810,11 @@ function FeaturedGrid() {
    ========================================================================= */
 function PricingSection() {
   return (
-    <section id="pricing" className="relative text-[#0F172A] py-6 md:py-8 bg-[#F7F8FB]" data-testid="slide-pricing">
+    <section id="pricing" className="relative text-[#1E1B4B] py-6 md:py-8 bg-[#FFF7FB]" data-testid="slide-pricing">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 space-y-6">
         <FadeUp>
           <div className="pb-4 mb-4 border-b border-white/10">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
               § Slide 07 · Transparent Pricing
             </span>
             <h2 className="font-editorial text-2xl md:text-4xl mt-1">
@@ -815,7 +828,7 @@ function PricingSection() {
           <div className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-editorial text-xl text-white font-bold">FOR INFLUENCERS</h3>
-              <span className="font-mono text-[9px] text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-0.5 border border-[#007AFF]/30 rounded-xs uppercase font-bold">Influencer Tier</span>
+              <span className="font-mono text-[9px] text-[#7C3AED] bg-[#7C3AED]/10 px-2.5 py-0.5 border border-[#7C3AED]/30 rounded-xs uppercase font-bold">Influencer Tier</span>
             </div>
 
             <div className="space-y-1.5 font-mono text-xs">
@@ -834,7 +847,7 @@ function PricingSection() {
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
-              <div className="text-[#E11D48] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
+              <div className="text-[#FF2D55] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-white font-bold">₹1,00,000</span> from a campaign</div>
               <div>Platform Fee: <span className="text-[#0D9488]">₹0 (100% Free)</span></div>
               <div className="text-[#0D9488] font-bold text-xs pt-1 border-t border-white/10">
@@ -853,7 +866,7 @@ function PricingSection() {
           <div className="p-6 bg-[#FFFFFF] border border-white/15 rounded-xs space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-editorial text-xl text-white font-bold">FOR BRANDS</h3>
-              <span className="font-mono text-[9px] text-[#E11D48] bg-[#E11D48]/10 px-2.5 py-0.5 border border-[#E11D48]/30 rounded-xs uppercase font-bold">Brand Tier</span>
+              <span className="font-mono text-[9px] text-[#FF2D55] bg-[#FF2D55]/10 px-2.5 py-0.5 border border-[#FF2D55]/30 rounded-xs uppercase font-bold">Brand Tier</span>
             </div>
 
             <div className="space-y-1.5 font-mono text-xs">
@@ -872,10 +885,10 @@ function PricingSection() {
             </div>
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xs font-mono text-xs space-y-1">
-              <div className="text-[#007AFF] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
+              <div className="text-[#7C3AED] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-white font-bold">₹1,00,000</span> for 5 influencers</div>
               <div>Platform Fee: <span className="text-[#0D9488]">₹0 (100% Free)</span></div>
-              <div className="text-[#007AFF] font-bold text-xs pt-1 border-t border-white/10">
+              <div className="text-[#7C3AED] font-bold text-xs pt-1 border-t border-white/10">
                 Influencers get 100% Budget: ₹1,00,000 ÷ 5 = ₹20,000 each ✓
               </div>
             </div>
@@ -902,7 +915,7 @@ function PricingSection() {
             <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Performance &amp; ROI tracking</div>
             <div className="flex items-center gap-1.5"><span className="text-[#0D9488] font-bold">✓</span> Verified ratings &amp; reviews</div>
           </div>
-          <div className="pt-2 border-t border-white/10 text-center font-mono text-[10px] text-[#E11D48] font-bold tracking-[0.25em] uppercase">
+          <div className="pt-2 border-t border-white/10 text-center font-mono text-[10px] text-[#FF2D55] font-bold tracking-[0.25em] uppercase">
             NO HIDDEN FEES, EVER.
           </div>
         </div>
@@ -925,19 +938,19 @@ const EXPANDED_FAQS = [
 
 function FAQ() {
   return (
-    <section id="faq" className="relative text-[#0F172A] py-14 md:py-16 bg-[#F7F8FB]" data-testid="slide-faq">
+    <section id="faq" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-faq">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-white/10">
             <div>
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
                 § Slide 08 · FAQ
               </span>
               <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-                Questions? We have <span className="italic text-[#E11D48]">straightforward answers</span>
+                Questions? We have <span className="italic text-[#FF2D55]">straightforward answers</span>
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#E11D48]/70 font-bold hidden md:block">
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55]/70 font-bold hidden md:block">
               Support Response: &lt; 2 hours
             </span>
           </div>
@@ -946,10 +959,10 @@ function FAQ() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {EXPANDED_FAQS.map((faq, i) => (
             <FadeUp key={faq.q} delay={i * 0.05}>
-              <div className="space-y-3 p-6 bg-[#FFFFFF] border border-white/15 rounded-xs hover:border-[#E11D48]/40 transition-all">
-                <div className="text-[#E11D48] font-mono text-[10px] tracking-[0.3em] uppercase font-bold">Q0{i+1}</div>
-                <h4 className="font-editorial text-xl leading-tight text-[#0F172A] font-bold">{faq.q}</h4>
-                <p className="font-mono text-xs text-[#0F172A]/60 leading-relaxed">
+              <div className="space-y-3 p-6 bg-[#FFFFFF] border border-white/15 rounded-xs hover:border-[#FF2D55]/40 transition-all">
+                <div className="text-[#FF2D55] font-mono text-[10px] tracking-[0.3em] uppercase font-bold">Q0{i+1}</div>
+                <h4 className="font-editorial text-xl leading-tight text-[#1E1B4B] font-bold">{faq.q}</h4>
+                <p className="font-mono text-xs text-[#1E1B4B]/60 leading-relaxed">
                   {faq.a}
                 </p>
               </div>
@@ -966,14 +979,14 @@ function FAQ() {
    ========================================================================= */
 function FinalCTA() {
   return (
-    <section id="final-cta" className="bg-[#F7F8FB] text-[#0F172A] py-20 md:py-28" data-testid="slide-final-cta">
+    <section id="final-cta" className="bg-[#FFF7FB] text-[#1E1B4B] py-20 md:py-28" data-testid="slide-final-cta">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 text-center space-y-6">
         <FadeUp>
-          <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#E11D48] font-bold">
+          <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
             § Slide 09 · Final Conversion
           </span>
           <h2 className="font-editorial text-5xl md:text-7xl font-bold mt-2">
-            Ready to Bridge <span className="italic text-[#E11D48]">the Gap?</span>
+            Ready to Bridge <span className="italic text-[#FF2D55]">the Gap?</span>
           </h2>
         </FadeUp>
 
@@ -982,14 +995,14 @@ function FinalCTA() {
             <Link
               to="/register/owner"
               data-testid="final-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#E11D48] hover:bg-[#BE123C] transition-all rounded-xs font-bold shadow-[0_0_24px_rgba(255,59,48,0.4)]"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#FF2D55] hover:bg-[#FF2D55] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(255,45,85,0.45)]"
             >
               I&apos;m a Brand — Post brief now (3 min setup) <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/register/influencer"
               data-testid="final-cta-creator"
-              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#007AFF] hover:bg-[#0062cc] transition-all rounded-xs font-bold shadow-[0_0_24px_rgba(0,122,255,0.4)]"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#7C3AED] hover:bg-[#6D28D9] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(124,58,237,0.45)]"
             >
               I&apos;m an Influencer — Build profile now (2 min setup) <ArrowRight className="w-4 h-4" />
             </Link>
@@ -1001,7 +1014,7 @@ function FinalCTA() {
             ⏱️ Takes 2 minutes. No credit card. No commitment. Start working within 24 hours.
           </p>
           <div className="pt-2 font-mono text-xs">
-            Already have an account? <Link to="/login" className="text-[#E11D48] hover:underline font-bold">Sign In →</Link>
+            Already have an account? <Link to="/login" className="text-[#FF2D55] hover:underline font-bold">Sign In →</Link>
           </div>
         </FadeUp>
       </div>
@@ -1075,7 +1088,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (user) return undefined;
-    document.body.style.background = "#F7F8FB";
+    document.body.style.background = "#FFF7FB";
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
         pauseAutoThenResume();
@@ -1111,9 +1124,9 @@ export default function Landing() {
   if (user) return null;
 
   return (
-    <div className="App bg-[#F7F8FB] text-[#0F172A] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
+    <div className="App bg-[#FFF7FB] text-[#1E1B4B] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
       {/* Simple Solid Obsidian Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[#F7F8FB]" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[#FFF7FB]" />
 
       <div className="relative z-50">
         <Nav />
@@ -1128,7 +1141,7 @@ export default function Landing() {
         }}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#E11D48] hover:bg-[#E11D48] text-[#0F172A] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:-translate-x-0.5 transition-transform" />
       </button>
@@ -1142,7 +1155,7 @@ export default function Landing() {
         }}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#E11D48] hover:bg-[#E11D48] text-[#0F172A] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform" />
       </button>

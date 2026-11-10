@@ -48,7 +48,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
           if (!didPop) cr8Back(context, fallback: '/login');
         },
         child: StudioBackdrop(
-          dim: 0.4,
+          dim: 0.16,
           child: SafeArea(
             child: ListView(
               padding: const EdgeInsets.all(24),

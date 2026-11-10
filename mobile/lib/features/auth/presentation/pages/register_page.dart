@@ -24,7 +24,7 @@ class RegisterSplashPage extends StatelessWidget {
           if (!didPop) cr8Back(context, fallback: '/');
         },
         child: StudioBackdrop(
-          dim: 0.32,
+          dim: 0.16,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -41,7 +41,7 @@ class RegisterSplashPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Pick a role to start onboarding.',
-                    style: GoogleFonts.manrope(color: Colors.white70, fontSize: 14),
+                    style: GoogleFonts.manrope(color: Cr8Colors.muted, fontSize: 14),
                   ),
                   const Spacer(),
                   ElevatedButton(onPressed: () => context.push('/register/influencer'), child: const Text('CREATOR')),
@@ -169,7 +169,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           if (!didPop) cr8Back(context, fallback: '/register');
         },
         child: StudioBackdrop(
-          dim: 0.28,
+          dim: 0.14,
           child: SafeArea(
             child: Form(
               key: _form,

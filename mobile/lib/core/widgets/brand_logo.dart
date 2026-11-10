@@ -24,7 +24,7 @@ class BrandLogo extends StatelessWidget {
       errorBuilder: (_, __, ___) => Text(
         'flugr',
         style: TextStyle(
-          color: const Color(0xFFFF3B30),
+          color: const Color(0xFFFF2D55),
           fontSize: height * 0.7,
           fontStyle: FontStyle.italic,
           fontWeight: FontWeight.w700,

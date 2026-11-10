@@ -15,15 +15,14 @@ void cr8Back(BuildContext context, {String fallback = '/'}) {
   }
 }
 
-/// Full-bleed studio atmosphere (web hero parity), tuned for **mobile portrait**
-/// so the photo stays visible (previous veil was nearly solid black on phones).
+/// Full-bleed studio atmosphere (web hero parity) — light SaaS aurora.
 class StudioBackdrop extends StatefulWidget {
   const StudioBackdrop({
     super.key,
     this.child,
     this.showHeroImage = true,
-    /// 0 = bright photo, 1 = heavy dim. Mobile default keeps the image readable.
-    this.dim = 0.35,
+    /// 0 = bright photo, 1 = heavier soft veil. Light default keeps art readable.
+    this.dim = 0.18,
   });
 
   final Widget? child;
@@ -55,10 +54,11 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     final dim = widget.dim.clamp(0.0, 0.85);
+    const base = Cr8Colors.bg;
     return Stack(
       fit: StackFit.expand,
       children: [
-        const ColoredBox(color: Color(0xFF0A0A0A)),
+        const ColoredBox(color: base),
         if (widget.showHeroImage)
           Positioned.fill(
             child: FadeTransition(
@@ -71,16 +71,21 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
                   CurvedAnimation(parent: _veil, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
                 ),
                 child: Image.asset(
-                  'assets/images/hero_models_bg.jpg',
+                  'assets/images/flugr-home-light-aurora-mobile.jpg',
                   fit: BoxFit.cover,
-                  alignment: const Alignment(0.15, -0.4),
+                  alignment: const Alignment(0, -0.15),
                   filterQuality: FilterQuality.medium,
-                  errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF1A1214)),
+                  errorBuilder: (_, __, ___) => Image.asset(
+                    'assets/images/hero_models_bg.jpg',
+                    fit: BoxFit.cover,
+                    alignment: const Alignment(0, -0.15),
+                    errorBuilder: (_, __, ___) => const ColoredBox(color: Cr8Colors.bg),
+                  ),
                 ),
               ),
             ),
           ),
-        // Mobile-friendly veil: keep photo visible, darken mainly at bottom for text/CTAs
+        // Soft light veil — keep aurora visible, gently lift bottom for CTAs
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -88,12 +93,12 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.25 + dim * 0.25),
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.15 + dim * 0.2),
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.55 + dim * 0.25),
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.92),
+                  Colors.white.withValues(alpha: 0.18 + dim * 0.15),
+                  Colors.white.withValues(alpha: 0.08 + dim * 0.1),
+                  const Color(0xFFFFF7FB).withValues(alpha: 0.30 + dim * 0.2),
+                  const Color(0xFFF3EEFF).withValues(alpha: 0.72 + dim * 0.12),
                 ],
-                stops: const [0.0, 0.35, 0.65, 1.0],
+                stops: const [0.0, 0.35, 0.68, 1.0],
               ),
             ),
           ),
@@ -105,11 +110,11 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.55),
-                  const Color(0xFF0A0A0A).withValues(alpha: 0.2),
+                  Colors.white.withValues(alpha: 0.35),
+                  Colors.white.withValues(alpha: 0.08),
                   Colors.transparent,
                 ],
-                stops: const [0.0, 0.45, 1.0],
+                stops: const [0.0, 0.4, 1.0],
               ),
             ),
           ),
@@ -126,18 +131,18 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
                   size: 200,
                   left: -30,
                   top: h * 0.18,
-                  opacity: 0.08 + 0.06 * t,
+                  opacity: 0.07 + 0.05 * t,
                 ),
                 _GlowOrb(
-                  color: const Color(0xFF007AFF),
-                  size: 160,
+                  color: Cr8Colors.violet,
+                  size: 180,
                   right: -24,
-                  top: h * 0.55,
+                  top: h * 0.12,
                   opacity: 0.06 + 0.05 * (1 - t),
                 ),
                 _GlowOrb(
                   color: Cr8Colors.success,
-                  size: 120,
+                  size: 140,
                   left: 40,
                   top: h * 0.72,
                   opacity: 0.05 + 0.04 * math.sin(t * math.pi),
@@ -148,11 +153,11 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
         ),
         IgnorePointer(
           child: Opacity(
-            opacity: 0.045,
+            opacity: 0.03,
             child: CustomPaint(painter: _GrainPainter(seed: 7), size: Size.infinite),
           ),
         ),
-        // Curtain wipe (short)
+        // Curtain wipe (short) — light paper
         IgnorePointer(
           child: AnimatedBuilder(
             animation: _veil,
@@ -164,7 +169,7 @@ class _StudioBackdropState extends State<StudioBackdrop> with TickerProviderStat
                 child: FractionallySizedBox(
                   heightFactor: (1 - p).clamp(0.0, 1.0),
                   widthFactor: 1,
-                  child: const ColoredBox(color: Color(0xFF0A0A0A)),
+                  child: const ColoredBox(color: Cr8Colors.bg),
                 ),
               );
             },
@@ -221,7 +226,7 @@ class _GrainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rnd = math.Random(seed);
-    final paint = Paint()..color = Colors.white;
+    final paint = Paint()..color = const Color(0xFF0F172A);
     final count = (size.width * size.height / 9000).clamp(120, 400).toInt();
     for (var i = 0; i < count; i++) {
       final x = rnd.nextDouble() * size.width;
@@ -271,7 +276,7 @@ class StudioAccentBar extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Cr8Colors.accent, Color(0xFF7C3AED), Cr8Colors.success],
+          colors: [Cr8Colors.accent, Cr8Colors.violet, Cr8Colors.success],
         ),
       ),
     );
@@ -280,7 +285,7 @@ class StudioAccentBar extends StatelessWidget {
 
 /// AppBar-style back that always returns somewhere sensible.
 class Cr8BackButton extends StatelessWidget {
-  const Cr8BackButton({super.key, this.fallback = '/', this.color = Colors.white70});
+  const Cr8BackButton({super.key, this.fallback = '/', this.color = Cr8Colors.text});
   final String fallback;
   final Color color;
 
@@ -289,7 +294,7 @@ class Cr8BackButton extends StatelessWidget {
     return IconButton(
       tooltip: 'Back',
       onPressed: () => cr8Back(context, fallback: fallback),
-      icon: Icon(Icons.arrow_back, color: color),
+      icon: Icon(Icons.arrow_back, color: color.withValues(alpha: 0.72)),
     );
   }
 }

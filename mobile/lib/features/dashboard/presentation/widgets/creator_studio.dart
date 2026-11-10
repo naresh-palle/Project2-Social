@@ -256,7 +256,7 @@ class _EarningsHero extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFF3B30), Color(0xFFE6352B), Color(0xFF1A0A0A)],
+          colors: [Color(0xFFFF2D55), Color(0xFFE11D48), Color(0xFF4C1D95)],
         ),
         boxShadow: [
           BoxShadow(

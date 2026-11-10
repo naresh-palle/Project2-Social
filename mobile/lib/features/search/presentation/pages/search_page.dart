@@ -244,7 +244,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       return [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text('No results', style: TextStyle(color: Colors.white54)),
+          child: Text('No results', style: TextStyle(color: Cr8Colors.muted)),
         ),
       ];
     }

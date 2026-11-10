@@ -215,7 +215,7 @@ class _MarketplacePageState extends ConsumerState<MarketplacePage> with SingleTi
                   Text('${it['title'] ?? 'Campaign'}', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800)),
                   const Spacer(),
                   Text('₹${it['budget'] ?? '—'}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                  Text('${(it['niches'] as List? ?? []).take(2).join(' · ')}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+                  Text('${(it['niches'] as List? ?? []).take(2).join(' · ')}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Cr8Colors.muted)),
                 ],
               ),
             ),

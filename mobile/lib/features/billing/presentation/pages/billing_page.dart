@@ -60,7 +60,7 @@ class _BillingPageState extends ConsumerState<BillingPage> {
           if (!didPop) cr8Back(context, fallback: '/dashboard');
         },
         child: StudioBackdrop(
-          dim: 0.45,
+          dim: 0.18,
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

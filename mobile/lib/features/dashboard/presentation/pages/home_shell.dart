@@ -94,7 +94,7 @@ class HomeShell extends ConsumerWidget {
 
   static Widget _item(BuildContext context, IconData icon, String title, String path) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white70),
+      leading: Icon(icon, color: Cr8Colors.muted),
       title: Text(title),
       onTap: () {
         Navigator.pop(context);

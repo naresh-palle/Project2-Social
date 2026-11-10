@@ -95,7 +95,7 @@ class SessionStorage {
 
   Future<String> theme() async {
     final p = await _p;
-    return p.getString(AppConstants.themeKey) ?? 'dark';
+    return p.getString(AppConstants.themeKey) ?? 'light';
   }
 
   Future<void> saveHighContrast(bool v) async {

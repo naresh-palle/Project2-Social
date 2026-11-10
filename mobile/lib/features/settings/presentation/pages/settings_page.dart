@@ -89,7 +89,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   void _syncAppearance(Map<String, dynamic>? s) {
     if (s == null) return;
     ref.read(appearancePrefsProvider.notifier).state = AppearancePrefs(
-      theme: '${s['theme'] ?? 'dark'}',
+      theme: '${s['theme'] ?? 'light'}',
       highContrast: s['high_contrast'] == true,
       fontScale: (s['font_scale'] as num?)?.toDouble() ?? 1,
     );
@@ -256,10 +256,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ListTile(
             title: const Text('Theme'),
             trailing: DropdownButton<String>(
-              value: '${settings?['theme'] ?? 'dark'}',
+              value: '${settings?['theme'] ?? 'light'}',
               items: const [
-                DropdownMenuItem(value: 'dark', child: Text('Dark')),
                 DropdownMenuItem(value: 'light', child: Text('Light')),
+                DropdownMenuItem(value: 'dark', child: Text('Dark')),
                 DropdownMenuItem(value: 'system', child: Text('System')),
               ],
               onChanged: (v) => _patch({'theme': v}),

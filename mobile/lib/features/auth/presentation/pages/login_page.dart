@@ -199,7 +199,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
           cr8Back(context, fallback: '/');
         },
         child: StudioBackdrop(
-          dim: 0.32,
+          dim: 0.16,
           child: SafeArea(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),

@@ -6,51 +6,51 @@
 
 @layer base {
     :root {
-        /* flugr light SaaS — soft paper, slate ink, restrained accents */
-        --ink: #0F172A;
-        --paper: #F7F8FB;
-        --vermilion: #E11D48;
-        --aurora: #0D9488;
-        --violet: #6366F1;
-        --gold: #D97706;
-        --muted-ink: #475569;
-        --hairline: rgba(15, 23, 42, 0.10);
-        --hairline-dark: rgba(15, 23, 42, 0.10);
+        /* flugr light social — warm paper + vivid coral / violet / teal */
+        --ink: #1E1B4B;
+        --paper: #FFF7FB;
+        --vermilion: #FF2D55;
+        --aurora: #14B8A6;
+        --violet: #7C3AED;
+        --gold: #F59E0B;
+        --muted-ink: #5B5678;
+        --hairline: rgba(30, 27, 75, 0.10);
+        --hairline-dark: rgba(30, 27, 75, 0.10);
 
-        /* App surfaces (light default) */
-        --surface-0: #F7F8FB;
+        /* App surfaces (light, tinted — not flat gray) */
+        --surface-0: #FFF7FB;
         --surface-1: #FFFFFF;
-        --surface-2: #EEF2F7;
-        --surface-3: #E2E8F0;
-        --fg: #0F172A;
-        --fg-muted: #475569;
-        --fg-subtle: rgba(15, 23, 42, 0.55);
-        --border-soft: rgba(15, 23, 42, 0.10);
-        --border-strong: rgba(15, 23, 42, 0.18);
-        --overlay-soft: rgba(99, 102, 241, 0.06);
-        --overlay-mid: rgba(99, 102, 241, 0.10);
-        --overlay-strong: rgba(99, 102, 241, 0.15);
-        --scrim: rgba(15, 23, 42, 0.35);
+        --surface-2: #F3EEFF;
+        --surface-3: #FFE4EC;
+        --fg: #1E1B4B;
+        --fg-muted: #5B5678;
+        --fg-subtle: rgba(30, 27, 75, 0.55);
+        --border-soft: rgba(124, 58, 237, 0.12);
+        --border-strong: rgba(255, 45, 85, 0.22);
+        --overlay-soft: rgba(124, 58, 237, 0.08);
+        --overlay-mid: rgba(255, 45, 85, 0.10);
+        --overlay-strong: rgba(20, 184, 166, 0.14);
+        --scrim: rgba(30, 27, 75, 0.32);
 
-        --background: 220 27% 97%;
-        --foreground: 222 47% 11%;
+        --background: 330 100% 98%;
+        --foreground: 244 47% 20%;
         --card: 0 0% 100%;
-        --card-foreground: 222 47% 11%;
+        --card-foreground: 244 47% 20%;
         --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
-        --primary: 222 47% 11%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 214 32% 91%;
-        --secondary-foreground: 222 47% 11%;
-        --muted: 214 32% 91%;
-        --muted-foreground: 215 16% 37%;
-        --accent: 347 77% 50%;
+        --popover-foreground: 244 47% 20%;
+        --primary: 347 100% 59%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 262 83% 96%;
+        --secondary-foreground: 262 83% 36%;
+        --muted: 262 40% 95%;
+        --muted-foreground: 250 18% 40%;
+        --accent: 347 100% 59%;
         --accent-foreground: 0 0% 100%;
-        --destructive: 347 77% 50%;
+        --destructive: 347 100% 59%;
         --destructive-foreground: 0 0% 100%;
-        --border: 222 47% 11% / 0.10;
-        --input: 222 47% 11% / 0.10;
-        --ring: 347 77% 50%;
+        --border: 262 40% 40% / 0.12;
+        --input: 262 40% 40% / 0.12;
+        --ring: 347 100% 59%;
         --radius: 0px;
         color-scheme: light;
     }
@@ -210,7 +210,7 @@ optgroup:disabled {
 
 /* Selection */
 ::selection {
-    background: #E11D48;
+    background: #FF2D55;
     color: #FFFFFF;
 }
 
@@ -491,6 +491,55 @@ html.theme-light #root {
     color: var(--fg) !important;
 }
 
+/* Vibrant light remaps — legacy slate/black hardcodes → social palette */
+html:not(.theme-dark) .bg-\[\#F7F8FB\],
+html:not(.theme-dark) .bg-\[\#F7F8FB\]\/40,
+html:not(.theme-dark) .bg-\[\#F7F8FB\]\/60,
+html:not(.theme-dark) .bg-\[\#F7F8FB\]\/70,
+html:not(.theme-dark) .bg-\[\#F7F8FB\]\/80,
+html:not(.theme-dark) .bg-\[\#F7F8FB\]\/90 {
+    background-color: var(--surface-0) !important;
+}
+html:not(.theme-dark) .text-\[\#0F172A\],
+html:not(.theme-dark) .text-\[\#0F172A\]\/90,
+html:not(.theme-dark) .text-\[\#0F172A\]\/85,
+html:not(.theme-dark) .text-\[\#0F172A\]\/80,
+html:not(.theme-dark) .text-\[\#0F172A\]\/75,
+html:not(.theme-dark) .text-\[\#0F172A\]\/70,
+html:not(.theme-dark) .text-\[\#0F172A\]\/60,
+html:not(.theme-dark) .text-\[\#0F172A\]\/50 {
+    color: var(--fg) !important;
+}
+html:not(.theme-dark) .text-\[\#475569\] { color: var(--fg-muted) !important; }
+html:not(.theme-dark) .bg-\[\#E11D48\] { background-color: var(--vermilion) !important; }
+html:not(.theme-dark) .text-\[\#E11D48\] { color: var(--vermilion) !important; }
+html:not(.theme-dark) .border-\[\#E11D48\],
+html:not(.theme-dark) .border-\[\#E11D48\]\/30,
+html:not(.theme-dark) .border-\[\#E11D48\]\/25 {
+    border-color: color-mix(in srgb, var(--vermilion) 55%, transparent) !important;
+}
+html:not(.theme-dark) .hover\:bg-\[\#E11D48\]:hover,
+html:not(.theme-dark) .hover\:bg-\[\#BE123C\]:hover {
+    background-color: #E11D48 !important;
+}
+html:not(.theme-dark) .bg-\[\#007AFF\],
+html:not(.theme-dark) .bg-\[\#6366F1\] {
+    background-color: var(--violet) !important;
+}
+html:not(.theme-dark) .text-\[\#007AFF\],
+html:not(.theme-dark) .text-\[\#6366F1\] {
+    color: var(--violet) !important;
+}
+html:not(.theme-dark) .hover\:bg-\[\#007AFF\]:hover,
+html:not(.theme-dark) .hover\:bg-\[\#0062cc\]:hover,
+html:not(.theme-dark) .hover\:bg-\[\#4F46E5\]:hover {
+    background-color: #6D28D9 !important;
+}
+html:not(.theme-dark) .bg-\[\#0D9488\] { background-color: var(--aurora) !important; }
+html:not(.theme-dark) .text-\[\#0D9488\] { color: var(--aurora) !important; }
+html:not(.theme-dark) .bg-\[\#EEF2F7\] { background-color: var(--surface-2) !important; }
+html:not(.theme-dark) .bg-\[\#E2E8F0\] { background-color: var(--surface-3) !important; }
+
 /* Hardcoded dark page / panel backgrounds → light surfaces */
 html.theme-light .bg-\[\#0B1020\],
 html.theme-light .bg-\[\#070B16\],
@@ -551,8 +600,8 @@ html.theme-light .text-white {
 }
 html.theme-light .text-white\/90,
 html.theme-light .text-\[\#F7F5ED\]\/90,
-html.theme-light .text-\[\#F7F5ED\]\/85 { color: #0F172A !important; }
-html.theme-light .text-white\/85 { color: #0F172A !important; }
+html.theme-light .text-\[\#F7F5ED\]\/85 { color: var(--fg) !important; }
+html.theme-light .text-white\/85 { color: var(--fg) !important; }
 html.theme-light .text-white\/80,
 html.theme-light .text-\[\#F7F5ED\]\/80,
 html.theme-light .text-\[\#F7F5ED\]\/75 { color: #475569 !important; }
@@ -579,7 +628,7 @@ html.theme-light .text-white\/20,
 html.theme-light .text-white\/15,
 html.theme-light .text-\[\#F7F5ED\]\/15 { color: rgba(71, 85, 105, 0.60) !important; }
 html.theme-light .hover\:text-white:hover { color: var(--fg) !important; }
-html.theme-light .hover\:text-white\/90:hover { color: #0F172A !important; }
+html.theme-light .hover\:text-white\/90:hover { color: var(--fg) !important; }
 html.theme-light .hover\:text-white\/80:hover { color: #475569 !important; }
 html.theme-light .group:hover .group-hover\:text-\[\#F7F5ED\]\/70 {
     color: #475569 !important;

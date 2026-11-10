@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppearancePrefs {
   const AppearancePrefs({
-    this.theme = 'dark',
+    this.theme = 'light',
     this.highContrast = false,
     this.fontScale = 1,
   });
