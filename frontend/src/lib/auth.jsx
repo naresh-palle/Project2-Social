@@ -44,13 +44,12 @@ export function applyUserSettings(prefsOrUser) {
   const reducedMotion = s.reduced_motion;
 
   root.classList.remove("theme-light", "theme-dark", "high-contrast", "reduced-motion");
-  let resolved = "light";
-  if (theme === "dark") resolved = "dark";
-  else if (theme === "light") resolved = "light";
-  else if (window.matchMedia("(prefers-color-scheme: dark)").matches) resolved = "dark";
+  // Light studio is the product identity. Dark remaps turn ink (#1E1B4B) into
+  // cream while paper surfaces stay light — sidebar/dashboard text vanishes.
+  // Keep appearance preference stored, but always render the light theme.
+  const resolved = "light";
 
-  if (resolved === "light") root.classList.add("theme-light");
-  else root.classList.add("theme-dark");
+  root.classList.add("theme-light");
   root.style.colorScheme = resolved;
 
   if (highContrast) root.classList.add("high-contrast");

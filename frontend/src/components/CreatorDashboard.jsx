@@ -72,9 +72,9 @@ export function CreatorDashboard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-sans text-[11px] text-[#64748B] truncate">{greeting()}</p>
+          <p className="font-sans text-[11px] text-[#475569] font-medium truncate">{greeting()}</p>
           <h1 className="font-sans text-xl sm:text-2xl font-bold tracking-tight truncate">{name}</h1>
-          <p className="font-sans text-[11px] text-[#94A3B8] truncate">
+          <p className="font-sans text-[11px] text-[#475569] truncate">
             @{handle} · Creator studio
             {locationLabel ? ` · ${locationLabel}` : ""}
           </p>
@@ -91,7 +91,7 @@ export function CreatorDashboard({
 
       {/* 2) Earnings + Pitches / Campaigns in the banner */}
       <section className="relative overflow-hidden rounded-3xl p-5 sm:p-6 text-[#1E1B4B] bg-gradient-to-br from-[#F3EEFF] via-[#EEF2FF] to-[#ECFDF8] border border-[#7C3AED]/20 shadow-[0_18px_40px_-18px_rgba(124,58,237,0.28)]">
-        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-[#475569] font-semibold">This month’s earnings</p>
+        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-[#334155] font-bold">This month’s earnings</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-[#1E1B4B]">{formatMoney(earned)}</p>
@@ -179,11 +179,11 @@ function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
   return (
     <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-3 sm:p-3.5 min-w-0" title={title}>
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[10px] uppercase tracking-wider text-[#94A3B8] truncate">{label}</span>
-        <Icon className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+        <span className="text-[10px] uppercase tracking-wider text-[#475569] font-semibold truncate">{label}</span>
+        <Icon className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
       </div>
-      <p className="font-sans text-lg sm:text-xl font-bold tabular-nums tracking-tight truncate">{value}</p>
-      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#14B8A6]" : warn ? "text-[#D97706]" : "text-[#94A3B8]"}`}>
+      <p className="font-sans text-lg sm:text-xl font-bold tabular-nums tracking-tight truncate text-[#1E1B4B]">{value}</p>
+      <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#0F766E]" : warn ? "text-[#B45309]" : "text-[#475569]"}`}>
         {hint}
       </p>
     </div>
@@ -197,11 +197,11 @@ function Action({ to, icon: Icon, label, hint }) {
       className="flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2.5 hover:border-[#1E1B4B]/12 transition-colors min-w-0"
     >
       <span className="w-8 h-8 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/08 flex items-center justify-center shrink-0">
-        <Icon className="w-4 h-4 text-[#64748B]" />
+        <Icon className="w-4 h-4 text-[#475569]" />
       </span>
       <span className="min-w-0">
-        <span className="block font-sans text-sm font-semibold truncate">{label}</span>
-        <span className="block text-[10px] text-[#94A3B8] truncate">{hint}</span>
+        <span className="block font-sans text-sm font-semibold truncate text-[#1E1B4B]">{label}</span>
+        <span className="block text-[10px] text-[#475569] truncate">{hint}</span>
       </span>
     </Link>
   );

@@ -117,7 +117,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               const city = formatUserLocation(user) || null;
               if (!category && !city) return null;
               return (
-                <p className="font-sans text-[11px] text-[#64748B] mt-0.5 truncate max-w-[180px]" title={[category, city].filter(Boolean).join(" · ")}>
+                <p className="font-sans text-[11px] text-[#475569] mt-0.5 truncate max-w-[180px]" title={[category, city].filter(Boolean).join(" · ")}>
                   {[category, city].filter(Boolean).join(" · ")}
                 </p>
               );
@@ -127,7 +127,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               return (
                 <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border border-[#1E1B4B]/08 mt-2 max-w-[200px]">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] shrink-0" />
-                  <span className="font-sans text-[10px] font-medium text-[#64748B] truncate" title={loc || "Online"}>
+                  <span className="font-sans text-[10px] font-semibold text-[#475569] truncate" title={loc || "Online"}>
                     {loc ? `Online · ${loc}` : "Online"}
                   </span>
                 </div>
@@ -156,7 +156,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                   className={`font-sans text-[13px] tracking-tight px-3.5 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
                     isActive
                       ? "bg-[#FF2D55] text-white shadow-lg shadow-[#FF2D55]/20 font-semibold"
-                      : "text-[#475569] hover:text-[#1E1B4B] hover:bg-[#EEF2FF] font-medium"
+                      : "text-[#1E1B4B] hover:bg-[#EEF2FF] font-semibold"
                   }`}
                 >
                   <AiIcon name={it.icon} className="w-[18px] h-[18px] shrink-0" tone={isActive ? "white" : "ink"} />

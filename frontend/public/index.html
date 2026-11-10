@@ -31,14 +31,12 @@
         <script>
           (function () {
             try {
-              var theme = localStorage.getItem("cr8_theme") || "light";
-              var resolved = theme;
-              if (theme === "system") {
-                resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-              }
+              // Always boot light studio — dark remaps make ink text invisible on paper.
               var root = document.documentElement;
-              root.classList.add(resolved === "light" ? "theme-light" : "theme-dark");
-              root.style.colorScheme = resolved;
+              root.classList.remove("theme-dark");
+              root.classList.add("theme-light");
+              root.style.colorScheme = "light";
+              try { localStorage.setItem("cr8_theme", "light"); } catch (e) {}
               if (localStorage.getItem("cr8_high_contrast") === "true") root.classList.add("high-contrast");
               if (localStorage.getItem("cr8_reduced_motion") === "true") root.classList.add("reduced-motion");
               var scale = parseFloat(localStorage.getItem("cr8_font_scale") || "1");

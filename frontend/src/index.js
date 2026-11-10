@@ -8,15 +8,10 @@ import "@/index.css";
 (function ensureTheme() {
   try {
     const root = document.documentElement;
-    if (!root.classList.contains("theme-light") && !root.classList.contains("theme-dark")) {
-      const theme = localStorage.getItem("cr8_theme") || "light";
-      let resolved = theme;
-      if (theme === "system") {
-        resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      }
-      root.classList.add(resolved === "dark" ? "theme-dark" : "theme-light");
-      root.style.colorScheme = resolved === "dark" ? "dark" : "light";
-    }
+    root.classList.remove("theme-dark");
+    root.classList.add("theme-light");
+    root.style.colorScheme = "light";
+    try { localStorage.setItem("cr8_theme", "light"); } catch (_) {}
   } catch (_) {}
 })();
 

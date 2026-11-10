@@ -1225,6 +1225,8 @@ html.theme-dark .bg-\[\#FFF7FB\]\/60 {
 html.theme-dark .bg-\[\#FFFFFF\] { background-color: #12182A !important; }
 html.theme-dark .bg-\[\#F3EEFF\] { background-color: #1B2540 !important; }
 html.theme-dark .bg-\[\#FFE4EC\] { background-color: #273454 !important; }
+/* Do NOT remap studio ink → cream. That made dashboard/sidebar text vanish
+   on light paper surfaces that stay light under theme-dark. */
 html.theme-dark .text-\[\#1E1B4B\],
 html.theme-dark .text-\[\#1E1B4B\]\/90,
 html.theme-dark .text-\[\#1E1B4B\]\/85,
@@ -1233,9 +1235,14 @@ html.theme-dark .text-\[\#1E1B4B\]\/75,
 html.theme-dark .text-\[\#1E1B4B\]\/70,
 html.theme-dark .text-\[\#1E1B4B\]\/60,
 html.theme-dark .text-\[\#1E1B4B\]\/50 {
-    color: #F7F5ED !important;
+    color: #1E1B4B !important;
 }
-html.theme-dark .text-\[\#5B5678\] { color: rgba(247,245,237,0.66) !important; }
+html.theme-dark .text-\[\#5B5678\],
+html.theme-dark .text-\[\#475569\],
+html.theme-dark .text-\[\#64748B\] {
+    color: #475569 !important;
+}
+html.theme-dark .text-\[\#94A3B8\] { color: #64748B !important; }
 html.theme-dark .bg-\[\#FF2D55\] { background-color: #FF5C5C !important; }
 html.theme-dark .text-\[\#FF2D55\] { color: #FF5C5C !important; }
 html.theme-dark .hover\:bg-\[\#E11D48\]:hover { background-color: #E5484D !important; }
@@ -1245,10 +1252,29 @@ html.theme-dark .bg-\[\#14B8A6\] { background-color: #52D4B5 !important; }
 html.theme-dark .text-\[\#14B8A6\] { color: #52D4B5 !important; }
 
 
-/* ==== FONT READABILITY LOCK (light mode) ==== */
+/* ==== FONT READABILITY LOCK (always — light studio) ==== */
+html.theme-light body,
+html.theme-light #root,
 html:not(.theme-dark) body,
 html:not(.theme-dark) #root {
     color: var(--fg) !important;
+}
+/* App shell + dashboard: metrics inherit ink, never wash out */
+html.theme-light aside,
+html.theme-light aside a,
+html.theme-light main,
+html.theme-light .tabular-nums {
+    color: inherit;
+}
+html.theme-light aside nav a:not(.bg-\[\#FF2D55\]) {
+    color: #1E1B4B !important;
+}
+html.theme-light aside nav a:not(.bg-\[\#FF2D55\]):hover {
+    color: #1E1B4B !important;
+}
+html.theme-light aside nav a.bg-\[\#FF2D55\],
+html.theme-light aside nav a.bg-\[\#FF2D55\] * {
+    color: #FFFFFF !important;
 }
 html:not(.theme-dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 html:not(.theme-dark) textarea,
