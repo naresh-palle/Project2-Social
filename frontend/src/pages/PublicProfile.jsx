@@ -119,7 +119,7 @@ export default function PublicProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
@@ -127,7 +127,7 @@ export default function PublicProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B]">
+      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B]">
 
 
         <div className="pt-4 px-0 sm:px-2 max-w-4xl mx-auto flex flex-col items-start gap-8">
@@ -156,7 +156,7 @@ export default function PublicProfile() {
   const busy = !!actionBusy;
 
   return (
-    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
 
       <div className="pt-2 flex-1">

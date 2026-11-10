@@ -173,7 +173,7 @@ export default function Legal() {
   const content = DOCS[doc] || null;
 
   return (
-    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <Nav />
       <div className="pt-28 max-w-3xl mx-auto px-6 md:px-10 pb-24 flex-1">
         {!content ? (

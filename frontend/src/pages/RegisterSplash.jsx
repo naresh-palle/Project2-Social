@@ -9,7 +9,7 @@ export default function RegisterSplash() {
   const googleState = location.state?.fromGoogleLogin ? location.state : null;
 
   return (
-    <div className="relative min-h-screen bg-[#FFF7FB] text-[#1E1B4B] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
+    <div className="relative min-h-screen bg-[#F7F8FC] text-[#1E1B4B] overflow-hidden flex flex-col justify-between" data-testid="register-splash">
       {/* Sleek Radial Ambient Aura Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
 

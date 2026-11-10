@@ -78,7 +78,7 @@ export function ApifyLookupPanel({ compact = false }) {
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="mt-1 block bg-[#FFF7FB] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
+            className="mt-1 block bg-[#F7F8FC] border border-white/15 rounded-full px-3 py-1.5 font-sans text-xs"
           >
             {LOOKUP_PLATFORMS.map((p) => (
               <option key={p} value={p}>{p}</option>

@@ -90,9 +90,9 @@ export function NotificationBell() {
           data-testid="notif-bell"
           title="Notifications"
           aria-label="Notifications"
-          className="relative w-9 h-9 rounded-full border border-white/25 bg-white/10 hover:bg-[#E11D48]/15 hover:border-[#FF2D55] flex items-center justify-center transition-colors"
+          className="relative w-9 h-9 rounded-full border border-[#1E1B4B]/12 bg-[#F7F8FC] hover:bg-[#FFF1F3] hover:border-[#FF2D55]/40 flex items-center justify-center transition-colors"
         >
-          <AiIcon name="bell" className="w-5 h-5" />
+          <AiIcon name="bell" className="w-5 h-5" tone="ink" />
           {data.unread > 0 && (
             <span data-testid="notif-badge" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF2D55] text-white text-[10px] font-mono flex items-center justify-center">
               {data.unread > 9 ? "9+" : data.unread}
@@ -105,7 +105,7 @@ export function NotificationBell() {
           <motion.div
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-[#FFFFFF] border border-white/15 rounded-2xl shadow-2xl shadow-black/50 z-[90] left-auto"
+            className="absolute right-0 mt-3 w-[min(360px,calc(100vw-1.5rem))] max-w-[calc(100vw-1rem)] max-h-[min(70vh,28rem)] overflow-y-auto bg-white border border-[#1E1B4B]/10 rounded-2xl shadow-2xl shadow-slate-900/10 z-[90] left-auto text-[#1E1B4B]"
             style={{ maxWidth: "min(360px, calc(100vw - 1rem))" }}
             data-testid="notif-panel"
           >

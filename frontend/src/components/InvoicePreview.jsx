@@ -2,7 +2,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 
 const TEMPLATES = {
   professional: { bar: "bg-[#FF2D55]", panel: "bg-white text-[#111]", muted: "text-black/45" },
-  modern: { bar: "bg-[#FF2D55]", panel: "bg-[#FFF7FB] text-[#FFF7FB]", muted: "text-black/40" },
+  modern: { bar: "bg-[#FF2D55]", panel: "bg-[#F7F8FC] text-[#FFF7FB]", muted: "text-black/40" },
   minimal: { bar: "bg-black", panel: "bg-white text-black", muted: "text-black/40" },
 };
 

@@ -85,7 +85,7 @@ export default function Billing() {
   ];
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] pb-24" data-testid="billing-page">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] pb-24" data-testid="billing-page">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">

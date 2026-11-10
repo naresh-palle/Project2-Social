@@ -1447,7 +1447,7 @@ export function AdminPanel() {
 
       {/* EXPORT TIMEFRAME MODAL (Weekly, Monthly, 6 Months, 1 Year, Custom No Limit) */}
       {exportModal && (
-        <div className="fixed inset-0 z-50 bg-[#FFF7FB]/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#F7F8FC]/80 backdrop-blur-md flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#FFFFFF] border border-white/20 p-5 sm:p-6 md:p-8 max-w-lg w-full max-h-[min(90dvh,40rem)] overflow-y-auto rounded-3xl shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -1524,7 +1524,7 @@ export function AdminPanel() {
                           setEndDate(e.target.value);
                         }
                       }}
-                      className="w-full bg-[#FFF7FB]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
+                      className="w-full bg-[#F7F8FC]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
                     />
                   </div>
                   <div>
@@ -1534,7 +1534,7 @@ export function AdminPanel() {
                       value={endDate}
                       min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full bg-[#FFF7FB]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
+                      className="w-full bg-[#F7F8FC]/60 border border-white/20 p-2 text-[#1E1B4B] rounded-xs focus:border-[#FF2D55] outline-none"
                     />
                   </div>
                 </div>

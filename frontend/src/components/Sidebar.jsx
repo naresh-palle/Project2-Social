@@ -52,12 +52,12 @@ export function Sidebar({ mobileOpen = false, onClose }) {
         type="button"
         aria-label="Close menu"
         onClick={onClose}
-        className={`lg:hidden fixed inset-0 z-[80] bg-black/55 backdrop-blur-[2px] transition-opacity ${
+        className={`lg:hidden fixed inset-0 z-[80] bg-slate-900/40 backdrop-blur-[2px] transition-opacity ${
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       />
       <aside
-        className={`fixed top-0 left-0 h-[100dvh] w-[min(16.5rem,86vw)] bg-[#FFF7FB] border-r border-white/10 flex flex-col z-[90] overflow-y-auto no-scrollbar font-sans transition-transform duration-300 ease-out
+        className={`fixed top-0 left-0 h-[100dvh] w-[min(16.5rem,86vw)] bg-white border-r border-[#1E1B4B]/08 flex flex-col z-[90] overflow-y-auto no-scrollbar font-sans transition-transform duration-300 ease-out
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0`}
       >
@@ -65,27 +65,27 @@ export function Sidebar({ mobileOpen = false, onClose }) {
           <Link
             to={isSupportOps ? supportHomePath() : "/dashboard"}
             onClick={onClose}
-            className="flex items-center gap-2 cursor-pointer mb-5 border-0 outline-none"
+            className="flex items-center gap-2 cursor-pointer mb-5 outline-none"
           >
-            <BrandLogo variant="wordmark" height={32} />
+            <BrandLogo variant="wordmark" height={34} />
           </Link>
 
-          <div className="bg-white/5 rounded-2xl p-3 mb-5 border border-white/10 flex flex-col items-center text-center">
+          <div className="bg-[#F7F8FC] rounded-2xl p-3 mb-5 border border-[#1E1B4B]/08 flex flex-col items-center text-center">
             <div className="relative mb-2">
               {user?.avatar ? (
-                <img src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shadow-xl" />
+                <img src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" />
               ) : (
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-sans font-bold text-xl text-white border-2 border-white/20 shadow-xl"
-                  style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center font-sans font-bold text-xl text-white border-2 border-white shadow-md"
+                  style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 65%, 42%)` }}
                 >
                   {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                 </div>
               )}
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#14B8A6] border-2 border-[#FFF7FB] rounded-full" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#14B8A6] border-2 border-white rounded-full" />
             </div>
 
-            <h3 className="font-sans font-bold text-[15px] tracking-tight text-white flex items-center gap-1 justify-center leading-tight max-w-full px-1">
+            <h3 className="font-sans font-bold text-[15px] tracking-tight text-[#1E1B4B] flex items-center gap-1 justify-center leading-tight max-w-full px-1">
               <span className="truncate">{displayAccountName(user)}</span>
               {user?.verified && <AiIcon name="sparkles" className="w-3.5 h-3.5 shrink-0" tone="brand" />}
             </h3>
@@ -104,32 +104,20 @@ export function Sidebar({ mobileOpen = false, onClose }) {
             </p>
             {(() => {
               if (user?.role === "admin") {
-                return (
-                  <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
-                    Ops Desk
-                  </p>
-                );
+                return <p className="font-sans text-[11px] text-[#64748B] mt-0.5">Ops Desk</p>;
               }
               if (isSupportOps) {
-                return (
-                  <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate">
-                    Support Operations
-                  </p>
-                );
+                return <p className="font-sans text-[11px] text-[#64748B] mt-0.5">Support Operations</p>;
               }
               const niches = user?.niches || user?.category;
               let category = null;
-              if (Array.isArray(niches) && niches.length) {
-                category = niches.filter(Boolean)[0] || null;
-              } else if (typeof niches === "string" && niches.trim()) {
-                category = niches.split(/[·,|]/)[0].trim();
-              } else if (user?.industry?.trim()) {
-                category = user.industry.trim();
-              }
+              if (Array.isArray(niches) && niches.length) category = niches.filter(Boolean)[0] || null;
+              else if (typeof niches === "string" && niches.trim()) category = niches.split(/[·,|]/)[0].trim();
+              else if (user?.industry?.trim()) category = user.industry.trim();
               const city = formatUserLocation(user) || null;
               if (!category && !city) return null;
               return (
-                <p className="font-sans text-[11px] text-white/55 mt-0.5 text-center leading-tight max-w-[180px] truncate" title={[category, city].filter(Boolean).join(" · ")}>
+                <p className="font-sans text-[11px] text-[#64748B] mt-0.5 truncate max-w-[180px]" title={[category, city].filter(Boolean).join(" · ")}>
                   {[category, city].filter(Boolean).join(" · ")}
                 </p>
               );
@@ -137,9 +125,9 @@ export function Sidebar({ mobileOpen = false, onClose }) {
             {(() => {
               const loc = formatUserLocation(user);
               return (
-                <div className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 mt-2 max-w-[200px]">
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border border-[#1E1B4B]/08 mt-2 max-w-[200px]">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] shrink-0" />
-                  <span className="font-sans text-[10px] font-medium text-white/70 truncate" title={loc || "Online"}>
+                  <span className="font-sans text-[10px] font-medium text-[#64748B] truncate" title={loc || "Online"}>
                     {loc ? `Online · ${loc}` : "Online"}
                   </span>
                 </div>
@@ -153,7 +141,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
               name="search"
               type="text"
               placeholder="Search…"
-              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-[13px] font-sans font-medium text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+              className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full pl-10 pr-4 py-2 text-[13px] font-sans font-medium text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#7C3AED]/35 focus:bg-white transition-all"
             />
           </form>
 
@@ -168,10 +156,10 @@ export function Sidebar({ mobileOpen = false, onClose }) {
                   className={`font-sans text-[13px] tracking-tight px-3.5 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
                     isActive
                       ? "bg-[#FF2D55] text-white shadow-lg shadow-[#FF2D55]/20 font-semibold"
-                      : "text-white/65 hover:text-white hover:bg-white/10 font-medium"
+                      : "text-[#475569] hover:text-[#1E1B4B] hover:bg-[#EEF2FF] font-medium"
                   }`}
                 >
-                  <AiIcon name={it.icon} className="w-[18px] h-[18px] shrink-0" tone="white" />
+                  <AiIcon name={it.icon} className="w-[18px] h-[18px] shrink-0" tone={isActive ? "white" : "ink"} />
                   {it.label}
                 </Link>
               );
@@ -179,25 +167,25 @@ export function Sidebar({ mobileOpen = false, onClose }) {
           </nav>
         </div>
 
-        <div className="mt-auto p-4 border-t border-white/10">
+        <div className="mt-auto p-4 border-t border-[#1E1B4B]/08">
           {!isSupportOps && (
             <div className="flex flex-col gap-1.5">
               <Link
                 to="/support"
                 onClick={onClose}
-                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF2D55] hover:bg-[#E11D48]/15 text-white transition-colors"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-[#1E1B4B]/10 bg-[#F7F8FC] hover:border-[#FF2D55]/40 hover:bg-[#FFF1F3] text-[#1E1B4B] transition-colors"
                 aria-label="Support"
               >
-                <AiIcon name="support" className="w-5 h-5" tone="white" />
+                <AiIcon name="support" className="w-5 h-5" tone="ink" />
                 <span className="font-sans text-[13px] font-medium tracking-tight">Support</span>
               </Link>
               <Link
                 to="/help"
                 onClick={onClose}
-                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:border-[#FF2D55] hover:bg-[#E11D48]/15 text-white transition-colors"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-[#1E1B4B]/10 bg-[#F7F8FC] hover:border-[#7C3AED]/35 hover:bg-[#EEF2FF] text-[#1E1B4B] transition-colors"
                 aria-label="AI Help"
               >
-                <AiIcon name="ai" className="w-5 h-5" tone="white" />
+                <AiIcon name="ai" className="w-5 h-5" tone="ink" />
                 <span className="font-sans text-[13px] font-medium tracking-tight">AI Help</span>
               </Link>
             </div>

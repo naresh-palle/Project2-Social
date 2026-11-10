@@ -74,7 +74,7 @@ export default function Referrals() {
   ];
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <div className="flex flex-col w-full pb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4 mb-5">
           <div>

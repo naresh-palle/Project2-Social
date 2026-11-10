@@ -176,7 +176,7 @@ export default function NewCampaign({ isEdit }) {
 
   if (!user || !["owner", "agent", "admin"].includes(user.role)) {
     return (
-      <div className="min-h-[50vh] bg-[#FFF7FB] text-[#1E1B4B] pt-6 px-4">
+      <div className="min-h-[50vh] bg-[#F7F8FC] text-[#1E1B4B] pt-6 px-4">
 
         <h1 className="font-sans text-2xl font-bold tracking-tight">Brand Owners, Agents &amp; Admins only, please</h1>
       </div>
@@ -184,7 +184,7 @@ export default function NewCampaign({ isEdit }) {
   }
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B]">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B]">
 
 
       <div className="pt-1 max-w-3xl mx-auto px-1 sm:px-4 md:px-6 pb-16 relative">
@@ -273,18 +273,18 @@ export default function NewCampaign({ isEdit }) {
               <input data-testid="cf-inf-location" value={f.influencer_location} onChange={change("influencer_location")} placeholder="e.g. Mumbai, Delhi NCR" className="inp" />
             </Row>
             <Row label="Type of influencers">
-              <select data-testid="cf-inf-type" value={f.influencer_type} onChange={change("influencer_type")} className="inp bg-[#FFF7FB]">
+              <select data-testid="cf-inf-type" value={f.influencer_type} onChange={change("influencer_type")} className="inp bg-[#F7F8FC]">
                 {INFLUENCER_TYPES.map((t) => (
-                  <option key={t} value={t} className="bg-[#FFF7FB]">
+                  <option key={t} value={t} className="bg-[#F7F8FC]">
                     {t}
                   </option>
                 ))}
               </select>
             </Row>
             <Row label="Past experience of influencers">
-              <select data-testid="cf-inf-exp" value={f.influencer_experience} onChange={change("influencer_experience")} className="inp bg-[#FFF7FB]">
+              <select data-testid="cf-inf-exp" value={f.influencer_experience} onChange={change("influencer_experience")} className="inp bg-[#F7F8FC]">
                 {EXPERIENCE_OPTS.map((t) => (
-                  <option key={t} value={t} className="bg-[#FFF7FB]">
+                  <option key={t} value={t} className="bg-[#F7F8FC]">
                     {t}
                   </option>
                 ))}
@@ -311,9 +311,9 @@ export default function NewCampaign({ isEdit }) {
               <input type="number" data-testid="cf-required-creators" value={f.required_creators} onChange={change("required_creators")} placeholder="e.g. 10" className="inp" />
             </Row>
             <Row label="Payment type">
-              <select data-testid="cf-payment-type" value={f.payment_type} onChange={change("payment_type")} className="inp bg-[#FFF7FB]">
+              <select data-testid="cf-payment-type" value={f.payment_type} onChange={change("payment_type")} className="inp bg-[#F7F8FC]">
                 {["Paid", "Product Exchange", "Affiliate", "Hybrid", "Negotiable"].map((t) => (
-                  <option key={t} value={t} className="bg-[#FFF7FB]">{t}</option>
+                  <option key={t} value={t} className="bg-[#F7F8FC]">{t}</option>
                 ))}
               </select>
             </Row>

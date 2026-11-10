@@ -304,7 +304,7 @@ export default function Feed() {
   };
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col pt-2">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2">
       <div className="flex flex-col w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 border-b border-white/10 pb-3 mb-3">
           <div>
@@ -545,7 +545,7 @@ function ReelCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
             <MoreHorizontal className="w-4 h-4" />
           </button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-11 bg-[#FFF7FB] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
+            <div className="absolute right-0 top-11 bg-[#F7F8FC] border border-white/20 rounded-xl z-20 min-w-[130px] overflow-hidden">
               <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
               <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
             </div>
@@ -622,7 +622,7 @@ function PostCard({ post, userId, onLike, onComment, onShare, onSave, onBookmark
           {post.pinned && <Pin className="w-4 h-4 text-[#FF2D55] inline mr-2" />}
           <button type="button" onClick={() => setMenu(!menu)} className="p-1 opacity-60 hover:opacity-100"><MoreHorizontal className="w-4 h-4" /></button>
           {menu && isOwn && (
-            <div className="absolute right-0 top-6 bg-[#FFF7FB] border border-white/20 rounded-xs z-10 min-w-[140px]">
+            <div className="absolute right-0 top-6 bg-[#F7F8FC] border border-white/20 rounded-xs z-10 min-w-[140px]">
               <button type="button" onClick={() => { onPin(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase hover:bg-white/10">Pin</button>
               <button type="button" onClick={() => { onDelete(); setMenu(false); }} className="block w-full text-left px-3 py-2 font-mono text-[10px] uppercase text-[#FF2D55] hover:bg-white/10">Delete</button>
             </div>

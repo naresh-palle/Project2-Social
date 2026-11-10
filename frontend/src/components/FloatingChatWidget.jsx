@@ -44,7 +44,7 @@ export function FloatingChatWidget() {
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
             className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[60] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] min-w-0 h-[min(560px,calc(100dvh-11rem))] max-h-[calc(100dvh-7.5rem)] landscape:h-[min(420px,calc(100dvh-6.5rem))] landscape:max-h-[calc(100dvh-5.5rem)] border border-[#7C3AED]/35 rounded-3xl shadow-[0_20px_60px_rgba(6,9,20,0.58)] overflow-hidden flex flex-col"
             style={{
-              backgroundColor: "#FFF7FB",
+              backgroundColor: "#F7F8FC",
               backgroundImage: `linear-gradient(180deg, rgba(11,16,32,0.72) 0%, rgba(11,16,32,0.90) 55%, rgba(11,16,32,0.96) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",

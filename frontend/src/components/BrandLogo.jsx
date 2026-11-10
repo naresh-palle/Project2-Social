@@ -28,10 +28,10 @@ export function BrandLogo({
         : brandAsset("brand/flugr-logo-paper.png");
 
   const maxW = variant === "mark"
-    ? Math.round(height * 1.15)
+    ? Math.round(height * 1.2)
     : stacked
-      ? Math.round(height * 0.72)
-      : Math.round(height * 3.6);
+      ? Math.round(height * 0.85)
+      : Math.round(height * 4.8);
 
   return (
     <img

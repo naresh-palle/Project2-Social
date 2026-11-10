@@ -206,7 +206,7 @@ export default function CampaignDetail() {
 
   if (c === false) {
     return (
-      <div className="min-h-[40vh] bg-[#FFF7FB] text-[#1E1B4B] pt-6 px-4">
+      <div className="min-h-[40vh] bg-[#F7F8FC] text-[#1E1B4B] pt-6 px-4">
         <Link to="/marketplace?tab=campaigns" className="font-mono text-[10px] uppercase tracking-widest text-white/45 hover:text-white">← Campaigns</Link>
         <h1 className="font-sans text-2xl sm:text-4xl font-bold tracking-tight mt-2">
           {accessNote || "Brief not on file."}
@@ -217,7 +217,7 @@ export default function CampaignDetail() {
       </div>
     );
   }
-  if (!c) return <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
+  if (!c) return <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex items-center justify-center"><span className="font-mono text-xs tracking-widest opacity-60">Loading…</span></div>;
 
   const isOwner = (user?.role === "owner" || user?.role === "agent" || user?.role === "admin") && c.owner_id === user?.id;
   const isAcceptedInfluencer = user?.role === "influencer" && c.accepted_creator_id === user?.id;
@@ -472,7 +472,7 @@ export default function CampaignDetail() {
                 <h3 className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 hairline-b pb-3">§ Submit deliverable</h3>
                 <form onSubmit={submitDeliv} className="mt-4 space-y-4" data-testid="deliv-form">
                   <select data-testid="deliv-kind" value={delivForm.kind} onChange={e=>setDelivForm({...delivForm,kind:e.target.value})}
-                    className="w-full bg-[#FFF7FB] hairline-b py-3 focus:outline-none">
+                    className="w-full bg-[#F7F8FC] hairline-b py-3 focus:outline-none">
                     {["reel","story","post","video","document","other"].map(k => <option key={k} value={k}>{k}</option>)}
                   </select>
                   <input data-testid="deliv-url" value={delivForm.url} onChange={e=>setDelivForm({...delivForm,url:e.target.value})}
@@ -583,7 +583,7 @@ export default function CampaignDetail() {
                         onChange={(e) => { setPitch(e.target.value); if (pitchErr) setPitchErr(""); }}
                         rows={5}
                         aria-invalid={!!pitchErr}
-                        className={`mt-1 w-full bg-[#FFF7FB] border p-3 focus:outline-none focus:border-[#FF2D55] resize-none rounded-xl ${pitchErr ? "border-[#FF2D55]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] resize-none rounded-xl ${pitchErr ? "border-[#FF2D55]" : "border-white/10"}`}
                       />
                       {pitchErr ? <p className="text-[11px] text-[#FF2D55]">{pitchErr}</p> : null}
                     </div>
@@ -599,7 +599,7 @@ export default function CampaignDetail() {
                         value={rate}
                         onChange={(e) => { setRate(e.target.value); if (rateErr) setRateErr(""); }}
                         aria-invalid={!!rateErr}
-                        className={`mt-1 w-full bg-[#FFF7FB] border p-3 focus:outline-none focus:border-[#FF2D55] text-lg rounded-xl ${rateErr ? "border-[#FF2D55]" : "border-white/10"}`}
+                        className={`mt-1 w-full bg-[#F7F8FC] border p-3 focus:outline-none focus:border-[#FF2D55] text-lg rounded-xl ${rateErr ? "border-[#FF2D55]" : "border-white/10"}`}
                       />
                       {rateErr ? <p className="text-[11px] text-[#FF2D55]">{rateErr}</p> : null}
                     </div>
@@ -622,7 +622,7 @@ export default function CampaignDetail() {
 
             {c.cover && (
               <div className="w-full rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] p-2 mt-8">
-                <div className="aspect-square overflow-hidden rounded-xl bg-[#FFF7FB]">
+                <div className="aspect-square overflow-hidden rounded-xl bg-[#F7F8FC]">
                   <img src={c.cover} alt={c.title} className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               </div>
@@ -638,7 +638,7 @@ export default function CampaignDetail() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#FFF7FB] border border-white/10 p-6 max-w-md w-full relative"
+              className="bg-[#F7F8FC] border border-white/10 p-6 max-w-md w-full relative"
             >
               <h3 className="font-editorial text-2xl italic">Rehire {creatorName}</h3>
               <p className="mt-4 font-sans text-sm opacity-80">

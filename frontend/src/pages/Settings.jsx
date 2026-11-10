@@ -304,7 +304,7 @@ export default function Settings() {
 
   if (!user || !settings) {
     return (
-      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex items-center justify-center">
 
         <Loader2 className="w-6 h-6 animate-spin opacity-50" />
       </div>
@@ -312,7 +312,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col pt-2">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2">
       <div className="flex flex-col w-full pb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-3 mb-4">
             <div>
@@ -486,7 +486,7 @@ export default function Settings() {
 
       {securityOpen && (
         <div
-          className="fixed inset-0 z-50 bg-[#FFF7FB]/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#F7F8FC]/80 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setSecurityOpen(false)}
           data-testid="security-modal-backdrop"
         >

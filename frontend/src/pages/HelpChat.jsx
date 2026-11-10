@@ -92,7 +92,7 @@ export default function HelpChat() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-1.5rem)] bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="w-full min-h-[calc(100vh-1.5rem)] bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <div className="mb-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4">
           <div>

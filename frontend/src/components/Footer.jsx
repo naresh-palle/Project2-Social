@@ -1,50 +1,50 @@
 import { Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 
-/** Shared site footer — matches the Homepage ExpandedFooter. */
+/** Shared site footer — light studio chrome. */
 export function Footer() {
   return (
     <footer
-      className="bg-[#FFF7FB] text-[#1E1B4B] pt-16 pb-16 border-t border-white/10 font-mono relative z-10"
+      className="bg-white text-[#1E1B4B] pt-16 pb-16 border-t border-[#1E1B4B]/08 font-sans relative z-10"
       data-testid="site-footer"
     >
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-[#1E1B4B]/08">
         <div>
           <BrandLogo variant="wordmark" height={36} className="mb-3" />
-          <p className="text-xs text-white/60 leading-relaxed max-w-xs">
+          <p className="text-xs text-[#64748B] leading-relaxed max-w-xs">
             “The studio for influencers who move markets.” Connecting elite brands with verified influencers through AI matching and escrow protection.
           </p>
         </div>
 
         <div>
           <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">GET STARTED</h4>
-          <ul className="space-y-2 text-xs text-white/70">
-            <li><Link to="/register/owner" className="hover:text-white">For Brands</Link></li>
-            <li><Link to="/register/influencer" className="hover:text-white">For Influencers</Link></li>
-            <li><Link to="/marketplace" className="hover:text-white">Marketplace Briefs</Link></li>
-            <li><Link to="/register/agent" className="hover:text-white">Talent Agencies</Link></li>
+          <ul className="space-y-2 text-xs text-[#475569]">
+            <li><Link to="/register/owner" className="hover:text-[#FF2D55]">For Brands</Link></li>
+            <li><Link to="/register/influencer" className="hover:text-[#FF2D55]">For Influencers</Link></li>
+            <li><Link to="/marketplace" className="hover:text-[#FF2D55]">Marketplace Briefs</Link></li>
+            <li><Link to="/register/agent" className="hover:text-[#FF2D55]">Talent Agencies</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">COMPANY</h4>
-          <ul className="space-y-2 text-xs text-white/70">
-            <li><Link to="/" className="hover:text-white">flugr Manifesto</Link></li>
-            <li><Link to="/" className="hover:text-white">Transparent Pricing</Link></li>
-            <li><Link to="/" className="hover:text-white">Case Studies</Link></li>
-            <li><Link to="/" className="hover:text-white">FAQ &amp; Support</Link></li>
+          <ul className="space-y-2 text-xs text-[#475569]">
+            <li><Link to="/" className="hover:text-[#FF2D55]">flugr Manifesto</Link></li>
+            <li><Link to="/" className="hover:text-[#FF2D55]">Transparent Pricing</Link></li>
+            <li><Link to="/" className="hover:text-[#FF2D55]">Case Studies</Link></li>
+            <li><Link to="/" className="hover:text-[#FF2D55]">FAQ &amp; Support</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-xs tracking-[0.25em] uppercase text-[#FF2D55] font-bold mb-4">NEWSLETTER</h4>
-          <p className="text-xs text-white/60 mb-3">Get weekly influencer insights &amp; brand strategy.</p>
+          <p className="text-xs text-[#64748B] mb-3">Get weekly influencer insights &amp; brand strategy.</p>
           <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
             <input
               type="email"
               placeholder="you@brand.com"
               aria-label="Email for newsletter"
-              className="px-3 py-2 bg-white/5 border border-white/20 text-xs text-white rounded-xs focus:outline-none focus:border-[#FF2D55] flex-1 min-w-0"
+              className="px-3 py-2 bg-[#F7F8FC] border border-[#1E1B4B]/12 text-xs text-[#1E1B4B] rounded-xs focus:outline-none focus:border-[#FF2D55] flex-1 min-w-0 placeholder:text-[#94A3B8]"
             />
             <button type="submit" className="px-3 py-2 bg-[#FF2D55] text-white text-xs uppercase font-bold rounded-xs shrink-0">
               Join
@@ -53,55 +53,26 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-6 flex flex-wrap items-center justify-between text-xs text-white/40 gap-4">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-6 flex flex-wrap items-center justify-between text-xs text-[#94A3B8] gap-4">
         <div>© {new Date().getFullYear()} flugr. All rights reserved.</div>
         <div className="flex gap-6">
-          <Link to="/legal/privacy" className="hover:text-white">Privacy Policy</Link>
-          <Link to="/legal/terms" className="hover:text-white">Terms of Service</Link>
-          <Link to="/legal/cookies" className="hover:text-white">Cookies</Link>
+          <Link to="/legal/privacy" className="hover:text-[#1E1B4B]">Privacy Policy</Link>
+          <Link to="/legal/terms" className="hover:text-[#1E1B4B]">Terms of Service</Link>
+          <Link to="/legal/cookies" className="hover:text-[#1E1B4B]">Cookies</Link>
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto mt-6 pt-6 border-t border-white/5 flex items-center justify-center px-6">
+      <div className="max-w-[1600px] mx-auto mt-6 pt-6 border-t border-[#1E1B4B]/06 flex items-center justify-center px-6">
         <a
           href="https://palramai.in"
           target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center gap-3 select-none"
-          style={{ textDecoration: "none" }}
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2D55] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF2D55]" />
-          </span>
-          <span className="font-mono text-[11px] tracking-[0.35em] uppercase text-[#1E1B4B]/40 group-hover:text-[#1E1B4B]/70 transition-colors duration-500">
-            Crafted with precision by
-          </span>
-          <span
-            className="font-editorial italic text-xl md:text-2xl tracking-tight transition-all duration-500 group-hover:scale-105"
-            style={{
-              background: "linear-gradient(90deg, #FF2D55, #D97706, #FF2D55, #7C5CFC, #FF2D55)",
-              backgroundSize: "300% 100%",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "cr8-footer-shimmer 4s linear infinite",
-            }}
-          >
-            palramai.in
-          </span>
-          <span className="text-[#FF2D55]/60 group-hover:text-[#FF2D55] group-hover:translate-x-1 transition-all duration-300 font-mono text-xs">
-            ↗
-          </span>
+          <span className="text-[10px] tracking-[0.2em] uppercase text-[#94A3B8] group-hover:text-[#64748B]">Built with</span>
+          <span className="font-editorial italic text-sm text-[#1E1B4B] group-hover:text-[#FF2D55] transition-colors">PalraMai</span>
         </a>
       </div>
-
-      <style>{`
-        @keyframes cr8-footer-shimmer {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 300% 50%; }
-        }
-      `}</style>
     </footer>
   );
 }

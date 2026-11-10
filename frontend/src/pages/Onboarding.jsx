@@ -106,7 +106,7 @@ export default function Onboarding() {
     // 1. Pending Approval Review Screen (Shown after Agent submits details)
     if (isPending && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+        <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#FFFFFF] border border-white/15 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
@@ -192,7 +192,7 @@ export default function Onboarding() {
     // 2. Application Declined Screen
     if (isDeclined && !isEditingAgent) {
       return (
-        <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+        <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
           <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
             <div className="max-w-xl w-full bg-[#FFFFFF] border border-[#FF2D55]/40 p-8 md:p-12 rounded-3xl shadow-2xl space-y-6">
@@ -232,7 +232,7 @@ export default function Onboarding() {
 
     // 3. Agent Onboarding Details Entry Form
     return (
-      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
         <div className="flex-1 flex items-center justify-center p-6 pt-24 pb-12">
           <form
@@ -615,8 +615,8 @@ const toggleCategory = (c) => {
               onChange={e => setIndustry(e.target.value)}
               className="w-full bg-transparent hairline-b py-4 focus:outline-none focus:border-[#FF2D55] text-xl font-editorial"
             >
-              <option value="" className="bg-[#FFF7FB]" disabled>Select your primary industry</option>
-              {categoriesList.map(c => typeof c === 'string' ? c : c.name).map(p => <option key={p} className="bg-[#FFF7FB]" value={p}>{p}</option>)}
+              <option value="" className="bg-[#F7F8FC]" disabled>Select your primary industry</option>
+              {categoriesList.map(c => typeof c === 'string' ? c : c.name).map(p => <option key={p} className="bg-[#F7F8FC]" value={p}>{p}</option>)}
             </select>
           <div className="pt-8 flex justify-end">
             <button
@@ -684,7 +684,7 @@ const toggleCategory = (c) => {
 
 function Layout({ step, title, subtitle, children }) {
   return (
-    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
 
 
       <div className="flex-1 flex items-center justify-center p-6 mt-16">

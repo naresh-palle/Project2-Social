@@ -6,31 +6,31 @@
 
 @layer base {
     :root {
-        /* flugr light social — warm paper + vivid coral / violet / teal */
+        /* flugr light — clean studio paper + coral / violet / teal accents */
         --ink: #1E1B4B;
-        --paper: #FFF7FB;
+        --paper: #F7F8FC;
         --vermilion: #FF2D55;
         --aurora: #14B8A6;
         --violet: #7C3AED;
         --gold: #F59E0B;
-        --muted-ink: #5B5678;
+        --muted-ink: #64748B;
         --hairline: rgba(30, 27, 75, 0.10);
         --hairline-dark: rgba(30, 27, 75, 0.10);
 
-        /* App surfaces (light, tinted — not flat gray) */
-        --surface-0: #FFF7FB;
+        /* Surfaces: calm neutrals (accents only on CTAs / active states) */
+        --surface-0: #F7F8FC;
         --surface-1: #FFFFFF;
-        --surface-2: #F3EEFF;
-        --surface-3: #FFE4EC;
+        --surface-2: #EEF2FF;
+        --surface-3: #F1F5F9;
         --fg: #1E1B4B;
-        --fg-muted: #5B5678;
-        --fg-subtle: rgba(30, 27, 75, 0.55);
-        --border-soft: rgba(124, 58, 237, 0.12);
-        --border-strong: rgba(255, 45, 85, 0.22);
-        --overlay-soft: rgba(124, 58, 237, 0.08);
-        --overlay-mid: rgba(255, 45, 85, 0.10);
-        --overlay-strong: rgba(20, 184, 166, 0.14);
-        --scrim: rgba(30, 27, 75, 0.32);
+        --fg-muted: #64748B;
+        --fg-subtle: rgba(30, 27, 75, 0.52);
+        --border-soft: rgba(30, 27, 75, 0.10);
+        --border-strong: rgba(30, 27, 75, 0.18);
+        --overlay-soft: rgba(124, 58, 237, 0.06);
+        --overlay-mid: rgba(255, 45, 85, 0.08);
+        --overlay-strong: rgba(20, 184, 166, 0.12);
+        --scrim: rgba(15, 23, 42, 0.40);
 
         --background: 330 100% 98%;
         --foreground: 244 47% 20%;
@@ -644,59 +644,26 @@ html.theme-light textarea::placeholder {
     opacity: 1 !important;
 }
 
-/* White AI glyphs (transparent PNGs) → ink on light; stay white on brand fills */
+/* White AI glyphs → ink on light; stay white on brand fills */
 html.theme-light img.ai-icon,
-html.theme-light img[src*="/icons/"] {
+html.theme-light img[src*="/icons/"],
+html:not(.theme-dark) img.ai-icon--ink {
     filter: invert(1);
 }
 html.theme-light .bg-\[\#E11D48\] img.ai-icon,
-html.theme-light .bg-\[\#E11D48\] img[src*="/icons/"],
+html.theme-light .bg-\[\#FF2D55\] img.ai-icon,
 html.theme-light .bg-\[\#FF5C5C\] img.ai-icon,
-html.theme-light .bg-\[\#FF5C5C\] img[src*="/icons/"],
-html.theme-light .bg-\[\#E11D48\] img.ai-icon,
-html.theme-light .bg-\[\#E5484D\] img.ai-icon,
-html.theme-light .bg-\[\#007AFF\] img.ai-icon,
-html.theme-light .bg-\[\#0D9488\] img.ai-icon,
+html.theme-light .bg-\[\#7C3AED\] img.ai-icon,
+html.theme-light .bg-\[\#14B8A6\] img.ai-icon,
 html.theme-light .btn-solid img.ai-icon,
 html.theme-light .btn-sm-solid img.ai-icon,
 html.theme-light .theme-keep-dark img.ai-icon,
 html.theme-light .theme-keep-dark img[src*="/icons/"] {
-    filter: none;
+    filter: none !important;
 }
 
-/* Muted labels: opacity utilities alone wash out on light paper — boost readability */
-html.theme-light .opacity-30 { opacity: 0.62 !important; }
-html.theme-light .opacity-40 { opacity: 0.68 !important; }
-html.theme-light .opacity-45 { opacity: 0.72 !important; }
-html.theme-light .opacity-50 { opacity: 0.76 !important; }
-html.theme-light .opacity-55 { opacity: 0.8 !important; }
-html.theme-light .opacity-60 { opacity: 0.84 !important; }
-html.theme-light .opacity-65 { opacity: 0.88 !important; }
-html.theme-light .opacity-70 { opacity: 0.9 !important; }
-
-/* Header / footer icon controls stay visible on cream */
-html.theme-light header button,
-html.theme-light header a,
-html.theme-light nav[aria-label="Primary"] a {
-    color: var(--fg) !important;
-}
-html.theme-light header .border-white\/25,
-html.theme-light header .border-white\/20 {
-    border-color: rgba(10, 10, 10, 0.22) !important;
-}
-html.theme-light header .bg-white\/10 {
-    background-color: rgba(10, 10, 10, 0.06) !important;
-}
-html.theme-light .text-white\/35,
-html.theme-light .text-white\/40,
-html.theme-light .text-white\/45,
-html.theme-light .text-white\/50 {
-    color: var(--fg-muted) !important;
-}
-html.theme-light .placeholder\:text-white\/40::placeholder,
-html.theme-light .placeholder\:text-white\/35::placeholder {
-    color: var(--fg-muted) !important;
-}
+/* Do NOT blanket-force header/link colors — that crushed CTA + logo contrast.
+   Chrome components (Nav/Sidebar) now use native light ink classes. */
 
 /* Keep white text on solid brand fills */
 html.theme-light .bg-\[\#E11D48\],
@@ -711,6 +678,8 @@ html.theme-light .bg-\[\#007AFF\],
 html.theme-light .bg-\[\#007AFF\].text-white,
 html.theme-light .bg-\[\#0D9488\],
 html.theme-light .btn-solid,
+html.theme-light a.btn-solid,
+html.theme-light button.btn-solid,
 html.theme-light .btn-sm-solid,
 html.theme-light .hover\:bg-\[\#E11D48\]:hover,
 html.theme-light .hover\:bg-\[\#E11D48\]:hover.text-white,
@@ -1042,8 +1011,9 @@ html.reduced-motion *::after {
 
 /* Shared form control helpers (theme-aware) */
 .app-nav-surface {
-    background: linear-gradient(100deg, color-mix(in srgb, var(--surface-0) 94%, #6366F1 6%), color-mix(in srgb, var(--surface-0) 96%, #0D9488 4%));
+    background: color-mix(in srgb, var(--surface-1) 88%, transparent);
     color: var(--fg);
+    border-bottom: 1px solid var(--border-soft);
 }
 .app-nav-surface--borderless,
 .app-nav-surface--borderless::before,

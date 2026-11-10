@@ -197,7 +197,7 @@ export default function Login() {
   };
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FFF7FB] text-[#1E1B4B] relative" data-testid="login-page">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#F7F8FC] text-[#1E1B4B] relative" data-testid="login-page">
       <Nav />
 
       <div className="h-full overflow-y-auto overflow-x-hidden flex items-start sm:items-center justify-center pt-14 pb-4 px-3 relative z-10">
@@ -334,9 +334,9 @@ export default function Login() {
 
               <div className={`mt-3 space-y-2 ${loading ? "pointer-events-none opacity-50" : ""}`}>
                 <div className="flex items-center gap-3 opacity-50">
-                  <div className="h-px bg-[#FFF7FB]/20 flex-1" />
+                  <div className="h-px bg-[#F7F8FC]/20 flex-1" />
                   <span className="font-sans text-[10px] tracking-widest uppercase">Or continue with</span>
-                  <div className="h-px bg-[#FFF7FB]/20 flex-1" />
+                  <div className="h-px bg-[#F7F8FC]/20 flex-1" />
                 </div>
                 <SocialAuthButtons
                   mode="signin"

@@ -18,7 +18,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="lg:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-white/10 bg-[#FFF7FB]/95 backdrop-blur-xl"
+      className="lg:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-[#1E1B4B]/08 bg-white/95 backdrop-blur-xl"
       style={{ paddingBottom: "max(0.4rem, env(safe-area-inset-bottom))" }}
       aria-label="Primary"
     >
@@ -37,13 +37,13 @@ export function MobileBottomNav() {
                 goHome(nav);
               }}
               className={`flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-w-0 ${
-                active ? "text-white" : "text-white/50"
+                active ? "text-[#FF2D55]" : "text-[#64748B]"
               }`}
             >
-              <span className={`flex items-center justify-center w-8 h-8 rounded-full ${active ? "bg-[#FF2D55]" : ""}`}>
-                <AiIcon name={it.icon} className="w-4 h-4" />
+              <span className={`flex items-center justify-center w-8 h-8 rounded-full ${active ? "bg-[#FF2D55] text-white" : ""}`}>
+                <AiIcon name={it.icon} className="w-4 h-4" tone={active ? "white" : "ink"} />
               </span>
-              <span className="font-sans text-[9px] font-medium tracking-tight truncate max-w-full">{it.label}</span>
+              <span className="font-sans text-[9px] font-semibold tracking-tight truncate max-w-full">{it.label}</span>
             </Link>
           );
         })}

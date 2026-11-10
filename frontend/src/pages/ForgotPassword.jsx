@@ -29,7 +29,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex flex-col">
       <ThemeToaster />
       <Nav />
       <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-6">

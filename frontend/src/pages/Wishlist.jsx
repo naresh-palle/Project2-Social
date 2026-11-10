@@ -77,7 +77,7 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] pb-10">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] pb-10">
       <div className="border-b border-white/10 pb-3 mb-4">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">
           <Heart className="w-3.5 h-3.5" /> Saved for later

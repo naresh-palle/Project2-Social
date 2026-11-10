@@ -465,7 +465,7 @@ export default function Register() {
     form.password.trim() !== "";
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FFF7FB] text-[#1E1B4B] relative">
+    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#F7F8FC] text-[#1E1B4B] relative">
       <Nav />
       <ThemeToaster />
 
@@ -506,9 +506,9 @@ export default function Register() {
           </div>
 
           <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#FFF7FB]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F8FC]/20 flex-1"></div>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#FFF7FB]/20 flex-1"></div>
+            <div className="h-px bg-[#F7F8FC]/20 flex-1"></div>
           </div>
 
           <form
@@ -708,13 +708,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFF7FB]/90 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#F7F8FC]/90 backdrop-blur-sm p-3 sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#FFF7FB] border border-[#1E1B4B]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
+              className="bg-[#F7F8FC] border border-[#1E1B4B]/20 p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative"
             >
               <button
                 type="button"

@@ -322,7 +322,7 @@ export default function Discover() {
   const pages = Math.max(1, Math.ceil(total / 24));
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] pb-28">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] pb-28">
       <div className="flex items-end justify-between gap-3 border-b border-white/10 pb-3 mb-4">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">

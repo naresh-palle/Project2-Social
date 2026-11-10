@@ -663,7 +663,7 @@ export default function Marketplace() {
   const brandSortLabel = BRAND_SORT.find((o) => o.value === brandFilters.sort)?.label || "Newest";
 
   return (
-    <div className="w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col pt-2 pb-24 min-w-0 overflow-x-hidden">
+    <div className="w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col pt-2 pb-24 min-w-0 overflow-x-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-white/10 pb-3 mb-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold flex items-center gap-2">

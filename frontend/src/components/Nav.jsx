@@ -1,50 +1,25 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown, LifeBuoy, Bot, MessageSquare, Search } from "lucide-react";
+import { motion } from "framer-motion";
+import { LifeBuoy, MessageSquare, Search } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { displayAccountName } from "@/lib/username";
 import { BrandLogo } from "@/components/BrandLogo";
 
-export function Nav({ variant = "dark" }) {
+export function Nav({ variant = "paper" }) {
   const { user, logout } = useAuth();
   const nav = useNavigate();
-  const location = useLocation();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
-  const isPaper = variant === "paper";
-
-  const timeoutRef = useRef(null);
-
-  useEffect(() => {
-    const onClick = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown", onClick);
-    return () => {
-      document.removeEventListener("mousedown", onClick);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setOpen(false);
-    }, 250);
-  };
-
+  useLocation();
   const items = user
     ? [
         { to: "/dashboard", label: "Dashboard" },
         { to: "/leaderboard", label: "Leaderboard" },
-        ...(user?.role !== "admin" ? [
-          { to: "/referrals", label: "Referrals" },
-          { to: "/invitations", label: "Invitations" },
-        ] : []),
+        ...(user?.role !== "admin"
+          ? [
+              { to: "/referrals", label: "Referrals" },
+              { to: "/invitations", label: "Invitations" },
+            ]
+          : []),
         { to: "/wallet", label: "Wallet" },
         { to: "/profile", label: "Profile" },
         { to: "/settings", label: "Settings" },
@@ -52,39 +27,35 @@ export function Nav({ variant = "dark" }) {
     : [];
 
   return (
-    <>
     <motion.header
-      initial={{ y: -30, opacity: 0 }}
+      initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-0 shadow-none ${
-        isPaper ? "bg-[#FFF7FB]/70 text-[#1E1B4B]" : "app-nav-surface app-nav-surface--borderless"
-      }`}
+      transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+      className="fixed top-0 left-0 right-0 z-50 border-b border-[#1E1B4B]/08 bg-white/85 text-[#1E1B4B] backdrop-blur-xl"
     >
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-4 min-w-0 border-0">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 px-3 sm:px-6 md:px-10 py-3 sm:py-3.5 min-w-0">
         <Link
           to={user ? "/dashboard" : "/"}
           onClick={() => {
             if (!user) {
               window.dispatchEvent(new Event("resetHomeDeck"));
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }
           }}
           data-testid="nav-logo"
-          className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0 border-0 outline-none"
+          className="flex items-center gap-2 cursor-pointer shrink-0 min-w-0 outline-none"
         >
-          <BrandLogo variant="wordmark" height={32} className="shrink-0" />
+          <BrandLogo variant="wordmark" height={34} className="shrink-0" />
         </Link>
 
-
         {user && (
-          <div className="hidden lg:flex items-center justify-center flex-1 mx-8 gap-4 overflow-x-auto no-scrollbar">
-            {items.map(it => (
+          <div className="hidden lg:flex items-center justify-center flex-1 mx-8 gap-1 overflow-x-auto no-scrollbar">
+            {items.map((it) => (
               <Link
                 key={it.to}
                 to={it.to}
                 data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-3xl transition-colors whitespace-nowrap"
+                className="font-sans text-[12px] font-semibold tracking-wide text-[#64748B] hover:text-[#1E1B4B] hover:bg-[#EEF2FF] px-3 py-2 rounded-full transition-colors whitespace-nowrap"
               >
                 {it.label}
               </Link>
@@ -92,7 +63,7 @@ export function Nav({ variant = "dark" }) {
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
           {user && (
             <form
               onSubmit={(e) => {
@@ -110,51 +81,64 @@ export function Nav({ variant = "dark" }) {
                 else nav("/search?q=" + encodeURIComponent(q));
                 e.target.search.value = "";
               }}
-              className="relative hidden md:flex items-center mr-2"
+              className="relative hidden md:flex items-center mr-1"
             >
-              <Search className="w-3.5 h-3.5 absolute left-3 opacity-50 text-white" />
+              <Search className="w-3.5 h-3.5 absolute left-3 text-[#94A3B8]" />
               <input
                 name="search"
                 type="text"
-                placeholder="⌘ Search / Jump..."
-                className="bg-white/5 border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-[10px] uppercase tracking-widest font-mono text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all w-48 focus:w-64"
+                placeholder="Search / Jump…"
+                className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full pl-9 pr-4 py-1.5 text-[11px] font-sans text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#7C3AED]/40 focus:bg-white transition-all w-44 focus:w-60"
               />
             </form>
           )}
+
           {user ? (
             <>
               {user?.role !== "admin" && (
                 <>
-                    <Link to="/support" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2" title="Support">
-                      <LifeBuoy className="w-4 h-4" />
-                      <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">Support</span>
-                    </Link>
-                    <Link to="/messages" className="text-white/60 hover:text-white transition-colors flex items-center gap-1.5 px-2 border-r border-white/20 pr-4 mr-1" title="Messages">
-                      <MessageSquare className="w-4 h-4" />
-                      <span className="font-mono text-[9px] tracking-widest uppercase hidden md:inline">Messages</span>
-                    </Link>
-                  </>
+                  <Link
+                    to="/support"
+                    className="text-[#64748B] hover:text-[#1E1B4B] transition-colors flex items-center gap-1.5 px-2"
+                    title="Support"
+                  >
+                    <LifeBuoy className="w-4 h-4" />
+                    <span className="font-sans text-[11px] font-semibold hidden md:inline">Support</span>
+                  </Link>
+                  <Link
+                    to="/messages"
+                    className="text-[#64748B] hover:text-[#1E1B4B] transition-colors flex items-center gap-1.5 px-2 border-r border-[#1E1B4B]/10 pr-3 mr-1"
+                    title="Messages"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="font-sans text-[11px] font-semibold hidden md:inline">Messages</span>
+                  </Link>
+                </>
               )}
               <NotificationBell />
-
-              <div className="flex items-center gap-3 pl-2 border-l border-white/20">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20" />
-                  ) : (
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-white border border-white/20"
-                      style={{ backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 60%, 32%)` }}
-                    >
-                      {(displayAccountName(user) || "C")[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <button
-                    onClick={() => { logout(); nav("/"); }}
-                    data-testid="nav-logout"
-                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF2D55] hover:text-[#ff6b63] transition-colors"
+              <div className="flex items-center gap-2.5 pl-2 border-l border-[#1E1B4B]/10">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-[#1E1B4B]/10" />
+                ) : (
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-white border border-[#1E1B4B]/10"
+                    style={{
+                      backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 65%, 42%)`,
+                    }}
                   >
-                    Sign Out
-                  </button>
+                    {(displayAccountName(user) || "C")[0]?.toUpperCase()}
+                  </div>
+                )}
+                <button
+                  onClick={() => {
+                    logout();
+                    nav("/");
+                  }}
+                  data-testid="nav-logout"
+                  className="font-sans text-[11px] font-bold tracking-wide uppercase text-[#FF2D55] hover:text-[#E11D48] transition-colors"
+                >
+                  Sign Out
+                </button>
               </div>
             </>
           ) : (
@@ -162,15 +146,11 @@ export function Nav({ variant = "dark" }) {
               <Link
                 to="/login"
                 data-testid="nav-login"
-                className="hidden sm:inline-flex items-center font-sans text-base sm:text-[17px] font-semibold tracking-[0.04em] text-white hover:text-[#FF2D55] transition-colors px-3 py-2 border-0"
+                className="hidden sm:inline-flex items-center font-sans text-[14px] font-semibold text-[#1E1B4B] hover:text-[#FF2D55] transition-colors px-3 py-2"
               >
                 Sign In
               </Link>
-              <Link
-                to="/register"
-                data-testid="nav-register"
-                className="btn-solid !border-0 !shadow-none ring-0 outline-none"
-              >
+              <Link to="/register" data-testid="nav-register" className="btn-solid !py-2.5 !px-4 !text-[11px]">
                 Enter flugr →
               </Link>
             </>
@@ -178,7 +158,5 @@ export function Nav({ variant = "dark" }) {
         </div>
       </div>
     </motion.header>
-
-    </>
   );
 }

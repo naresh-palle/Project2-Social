@@ -44,7 +44,8 @@ const ICON_FILES = {
 
 const TONES = {
   white: "",
-  muted: "opacity-70",
+  ink: "ai-icon--ink",
+  muted: "ai-icon--ink opacity-70",
   brand: "opacity-100",
   soft: "opacity-90",
 };

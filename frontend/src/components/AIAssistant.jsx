@@ -72,7 +72,7 @@ export function AIAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 25 }}
-            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#FFF7FB] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+            className="fixed bottom-[6.75rem] lg:bottom-[5.5rem] right-3 left-3 sm:left-auto sm:right-6 z-[70] w-auto sm:w-[380px] max-w-[calc(100vw-1.5rem)] h-[min(560px,calc(100dvh-11rem))] bg-[#F7F8FC] border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/[0.02]">

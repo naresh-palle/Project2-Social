@@ -331,7 +331,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
   const visible = msgs.filter((m) => !m.deleted);
 
   return (
-    <div className={miniWidget ? "h-full flex flex-col bg-[#FFF7FB] text-[#1E1B4B] overflow-hidden" : "w-full bg-[#FFF7FB] text-[#1E1B4B] flex flex-col font-sans"}>
+    <div className={miniWidget ? "h-full flex flex-col bg-[#F7F8FC] text-[#1E1B4B] overflow-hidden" : "w-full bg-[#F7F8FC] text-[#1E1B4B] flex flex-col font-sans"}>
 
         <div className={miniWidget ? "flex-1 flex flex-col h-full min-h-0" : "flex flex-col w-full"}>
         {!miniWidget && (
@@ -452,7 +452,7 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
           <section
             className={`${!active ? "hidden md:flex" : "flex"} flex-1 flex-col min-h-0 min-w-0 relative overflow-hidden`}
             style={{
-              backgroundColor: "#FFF7FB",
+              backgroundColor: "#F7F8FC",
               backgroundImage: `linear-gradient(180deg, rgba(11,16,32,0.55) 0%, rgba(11,16,32,0.82) 45%, rgba(11,16,32,0.92) 100%), url(${process.env.PUBLIC_URL}/chat-panel-bg.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",

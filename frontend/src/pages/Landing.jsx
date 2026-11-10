@@ -56,13 +56,13 @@ function Hero() {
   return (
     <section
       ref={ref}
-      className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#FFF7FB] flex flex-col"
+      className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#F7F8FC] flex flex-col"
       data-testid="slide-hero"
     >
       {/* Curtain reveal */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
-        style={{ background: "#FFF7FB" }}
+        style={{ background: "#F7F8FC" }}
         initial={{ scaleY: 1 }}
         animate={{ scaleY: 0 }}
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
@@ -213,7 +213,7 @@ function EditorialMarquee() {
     <div
       className="theme-keep-dark w-full overflow-hidden border-t border-b"
       style={{
-        background: "#FFF7FB",
+        background: "#F7F8FC",
         borderColor: "rgba(225,29,72,0.28)",
         padding: "14px 0",
       }}
@@ -241,7 +241,7 @@ function EditorialMarquee() {
    ========================================================================= */
 function QuickValue() {
   return (
-    <section id="quick-value" className="relative text-[#1E1B4B] py-14 md:py-16 overflow-hidden bg-[#FFF7FB]" data-testid="slide-quick-value">
+    <section id="quick-value" className="relative text-[#1E1B4B] py-14 md:py-16 overflow-hidden bg-[#F7F8FC]" data-testid="slide-quick-value">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="hairline-b pb-5 mb-10 flex flex-wrap items-end justify-between gap-4">
@@ -473,7 +473,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-how-it-works">
+    <section id="how-it-works" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-how-it-works">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10 flex items-end justify-between">
@@ -590,7 +590,7 @@ function SocialProof() {
   ];
 
   return (
-    <section id="social-proof" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-social-proof">
+    <section id="social-proof" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-social-proof">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="pb-6 mb-10 border-b border-white/10">
@@ -742,7 +742,7 @@ function FeaturedGrid() {
   ];
 
   return (
-    <section id="portfolio" className="relative text-[#1E1B4B] py-8 md:py-10 pb-6 bg-[#FFF7FB]" data-testid="slide-portfolio">
+    <section id="portfolio" className="relative text-[#1E1B4B] py-8 md:py-10 pb-6 bg-[#F7F8FC]" data-testid="slide-portfolio">
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
@@ -769,7 +769,7 @@ function FeaturedGrid() {
                     alt={f.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
                   />
-                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#FFF7FB]/90 px-2 py-0.5 text-[#1E1B4B] border border-white/10 font-bold">
+                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F7F8FC]/90 px-2 py-0.5 text-[#1E1B4B] border border-white/10 font-bold">
                     {f.label}
                   </div>
                 </div>
@@ -810,7 +810,7 @@ function FeaturedGrid() {
    ========================================================================= */
 function PricingSection() {
   return (
-    <section id="pricing" className="relative text-[#1E1B4B] py-6 md:py-8 bg-[#FFF7FB]" data-testid="slide-pricing">
+    <section id="pricing" className="relative text-[#1E1B4B] py-6 md:py-8 bg-[#F7F8FC]" data-testid="slide-pricing">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 space-y-6">
         <FadeUp>
           <div className="pb-4 mb-4 border-b border-white/10">
@@ -938,7 +938,7 @@ const EXPANDED_FAQS = [
 
 function FAQ() {
   return (
-    <section id="faq" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#FFF7FB]" data-testid="slide-faq">
+    <section id="faq" className="relative text-[#1E1B4B] py-14 md:py-16 bg-[#F7F8FC]" data-testid="slide-faq">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10">
         <FadeUp>
           <div className="flex items-baseline justify-between pb-6 mb-10 border-b border-white/10">
@@ -979,7 +979,7 @@ function FAQ() {
    ========================================================================= */
 function FinalCTA() {
   return (
-    <section id="final-cta" className="bg-[#FFF7FB] text-[#1E1B4B] py-20 md:py-28" data-testid="slide-final-cta">
+    <section id="final-cta" className="bg-[#F7F8FC] text-[#1E1B4B] py-20 md:py-28" data-testid="slide-final-cta">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 text-center space-y-6">
         <FadeUp>
           <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
@@ -1088,7 +1088,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (user) return undefined;
-    document.body.style.background = "#FFF7FB";
+    document.body.style.background = "#F7F8FC";
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
         pauseAutoThenResume();
@@ -1124,9 +1124,9 @@ export default function Landing() {
   if (user) return null;
 
   return (
-    <div className="App bg-[#FFF7FB] text-[#1E1B4B] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
+    <div className="App bg-[#F7F8FC] text-[#1E1B4B] min-h-screen relative overflow-x-hidden flex flex-col justify-between" data-testid="landing-page">
       {/* Simple Solid Obsidian Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[#FFF7FB]" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[#F7F8FC]" />
 
       <div className="relative z-50">
         <Nav />

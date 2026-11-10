@@ -92,7 +92,7 @@ export default function CreatorDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF7FB] flex items-center justify-center text-[#1E1B4B]">
+      <div className="min-h-screen bg-[#F7F8FC] flex items-center justify-center text-[#1E1B4B]">
         <div className="animate-pulse font-mono tracking-widest text-sm">Loading…</div>
       </div>
     );

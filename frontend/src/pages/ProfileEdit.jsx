@@ -902,11 +902,11 @@ export default function ProfileEdit() {
                   />
                 </F>
                 <F label="Gender *">
-                  <select required className="inp bg-[#FFF7FB] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                    <option value="" className="bg-[#FFF7FB]">Select gender…</option>
-                    <option value="male" className="bg-[#FFF7FB]">Male</option>
-                    <option value="female" className="bg-[#FFF7FB]">Female</option>
-                    <option value="other" className="bg-[#FFF7FB]">Others</option>
+                  <select required className="inp bg-[#F7F8FC] cursor-pointer" value={f.gender || ""} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                    <option value="" className="bg-[#F7F8FC]">Select gender…</option>
+                    <option value="male" className="bg-[#F7F8FC]">Male</option>
+                    <option value="female" className="bg-[#F7F8FC]">Female</option>
+                    <option value="other" className="bg-[#F7F8FC]">Others</option>
                   </select>
                 </F>
                 <label className="flex items-center justify-between py-2 border border-white/10 px-3 rounded-xs cursor-pointer min-h-[48px]">
@@ -964,9 +964,9 @@ export default function ProfileEdit() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <F label="Brand Industry Category *">
-                      <select required className="inp bg-[#FFF7FB] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
-                        <option value="" className="bg-[#FFF7FB]">Select Industry Category...</option>
-                        {INDUSTRIES.map(ind => <option key={ind} value={ind} className="bg-[#FFF7FB]">{ind}</option>)}
+                      <select required className="inp bg-[#F7F8FC] cursor-pointer" value={f.industry || ""} onChange={e=>setF({...f, industry: e.target.value})}>
+                        <option value="" className="bg-[#F7F8FC]">Select Industry Category...</option>
+                        {INDUSTRIES.map(ind => <option key={ind} value={ind} className="bg-[#F7F8FC]">{ind}</option>)}
                       </select>
                     </F>
                     <F label="Official Website URL *">
@@ -976,9 +976,9 @@ export default function ProfileEdit() {
                       <input type="text" inputMode="url" className="inp font-sans text-sm" placeholder="https://linkedin.com/company/…" value={f.linkedin || ""} onChange={e=>setF({...f, linkedin: e.target.value})} />
                     </F>
                     <F label="Size · Employees">
-                      <select className="inp bg-[#FFF7FB] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
-                        <option value="" className="bg-[#FFF7FB]">Select company size…</option>
-                        {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => <option key={s} value={s} className="bg-[#FFF7FB]">{s}</option>)}
+                      <select className="inp bg-[#F7F8FC] cursor-pointer" value={f.company_size || ""} onChange={e=>setF({...f, company_size: e.target.value})}>
+                        <option value="" className="bg-[#F7F8FC]">Select company size…</option>
+                        {["1–10 employees", "11–50 employees", "51–200 employees", "201–500 employees", "500+ employees"].map((s) => <option key={s} value={s} className="bg-[#F7F8FC]">{s}</option>)}
                       </select>
                     </F>
                   </div>
@@ -1210,15 +1210,15 @@ export default function ProfileEdit() {
 
                     <F label="Years of Experience *">
                         <select required className="inp" value={f.experience} onChange={e=>setF({...f,experience:e.target.value})}>
-                            <option value="" className="bg-[#FFF7FB]">Select Experience...</option>
-                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#FFF7FB]">{ex}</option>)}
+                            <option value="" className="bg-[#F7F8FC]">Select Experience...</option>
+                            {EXPERIENCES.map(ex => <option key={ex} value={ex} className="bg-[#F7F8FC]">{ex}</option>)}
                         </select>
                     </F>
 
                     <F label="Response Time *">
                         <select required className="inp" value={f.response_time} onChange={e=>setF({...f,response_time:e.target.value})}>
-                            <option value="" className="bg-[#FFF7FB]">Select Response Time...</option>
-                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#FFF7FB]">{r}</option>)}
+                            <option value="" className="bg-[#F7F8FC]">Select Response Time...</option>
+                            {RESPONSE_TIMES.map(r => <option key={r} value={r} className="bg-[#F7F8FC]">{r}</option>)}
                         </select>
                     </F>
 
@@ -1297,13 +1297,13 @@ export default function ProfileEdit() {
                     <F label="Images and Videos">
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {f.portfolio.map((p, i) => (
-                          <div key={i} className="relative group aspect-square bg-[#FFF7FB] border border-white/10 rounded-3xl overflow-hidden">
+                          <div key={i} className="relative group aspect-square bg-[#F7F8FC] border border-white/10 rounded-3xl overflow-hidden">
                             {p && (p.match(/\.(mp4|webm|ogg)$/i) ? (
                                 <video src={p} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                             ) : (
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                             ))}
-                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#FFF7FB]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onClick={()=>removePortfolio(i)} className="absolute top-1.5 right-1.5 p-1 bg-[#F7F8FC]/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <X className="w-3 h-3 text-white" />
                             </button>
                           </div>

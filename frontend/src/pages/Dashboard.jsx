@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#FFF7FB] text-[#1E1B4B] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex items-center justify-center">
         <div className="font-sans text-[11px] tracking-[0.3em] uppercase text-[#FF2D55] animate-pulse">Opening the studio…</div>
       </div>
     );
@@ -649,7 +649,7 @@ function AgentPanel() {
 
   return (
     <div className="w-full space-y-3 pb-8">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#FFF7FB]/95 backdrop-blur-sm z-10 pt-1">
+      <div className="flex items-center justify-between border-b border-white/10 pb-2 flex-wrap gap-2 sticky top-0 bg-[#F7F8FC]/95 backdrop-blur-sm z-10 pt-1">
         <div>
           <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#FF2D55] font-bold">
             § Talent Representative Console

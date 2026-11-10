@@ -18,7 +18,7 @@ export class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#FFF7FB] flex flex-col items-center justify-center text-[#1E1B4B] p-6">
+        <div className="min-h-screen bg-[#F7F8FC] flex flex-col items-center justify-center text-[#1E1B4B] p-6">
           <h1 className="text-3xl font-bold text-[#FF2D55] mb-4">Something went wrong.</h1>
           <p className="mb-4 text-white/70">The page crashed during rendering.</p>
           <div className="bg-black/50 p-4 rounded-3xl border border-white/10 w-full max-w-2xl overflow-auto text-left">
