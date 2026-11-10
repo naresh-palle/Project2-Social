@@ -446,15 +446,15 @@ function CampaignCard({ campaign: c, index: idx }) {
       transition={{ duration: 0.4, delay: idx * 0.05 }}
       className="border border-[#1E1B4B]/10 bg-[#FFFFFF] rounded-2xl overflow-hidden flex flex-col group hover:border-[#FF2D55]/40 transition-colors"
     >
-      <div className="theme-keep-dark relative h-36 overflow-hidden">
+      <div className="relative h-36 overflow-hidden bg-[#EEF2FF]">
         <img src={c.cover} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#FFFFFF] via-transparent to-transparent" />
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-2">
-          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-[#1E1B4B]/55 border border-[#FF2D55]/40 text-[#FF2D55] font-bold rounded-xs flex items-center gap-1">
+          <span className="font-sans text-[9px] tracking-[0.14em] uppercase px-2 py-0.5 bg-white/95 border border-[#FF2D55]/40 text-[#FF2D55] font-bold rounded-xs flex items-center gap-1 shadow-sm">
             <Zap className="w-3 h-3" /> {c.aiMatch || "Match"}
           </span>
           {c.escrowLocked && (
-            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#14B8A6] bg-[#1E1B4B]/55 px-2 py-0.5 border border-[#14B8A6]/35 rounded-xs flex items-center gap-1 font-bold">
+            <span className="font-sans text-[8px] tracking-[0.14em] uppercase text-[#0F766E] bg-white/95 px-2 py-0.5 border border-[#14B8A6]/40 rounded-xs flex items-center gap-1 font-bold shadow-sm">
               <Lock className="w-3 h-3" /> Escrow
             </span>
           )}

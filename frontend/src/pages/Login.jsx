@@ -210,7 +210,7 @@ export default function Login() {
           <div className="h-1 w-full bg-gradient-to-r from-[#FF2D55] via-purple-500 to-[#14B8A6] absolute top-0 left-0" />
 
           <BrandLogo variant="wordmark" height={34} className="mb-2" />
-          <p className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 font-semibold">
+          <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#475569] font-semibold">
             Sign In
           </p>
           <h1 className="font-sans text-xl md:text-2xl font-bold tracking-tight mt-0.5 leading-[1.15]">
@@ -250,7 +250,7 @@ export default function Login() {
       <ThemeToaster />
               <form onSubmit={submitPassword} className="mt-3 space-y-2.5" data-testid="login-form" id="login-form">
               <div>
-                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">
                   Email or Username
                 </label>
                 <input
@@ -266,7 +266,7 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">
                   Password
                 </label>
                 <div className="relative">
@@ -355,7 +355,7 @@ export default function Login() {
           ) : (
             <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-3 space-y-2.5">
               <div>
-                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">
+                <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">
                   Mobile Number (+91 India)
                 </label>
                 <div className="flex gap-2 mt-0.5">
@@ -444,8 +444,8 @@ export default function Login() {
             </form>
           )}
 
-          <div className="mt-2 pt-2 border-t border-[#1E1B4B]/08 flex justify-between items-center font-sans text-[10px] opacity-60">
-            <Link to="/register" className="hover:text-[#1E1B4B]">Need an account? Register here →</Link>
+          <div className="mt-2 pt-2 border-t border-[#1E1B4B]/08 flex justify-between items-center font-sans text-[10px] text-[#475569]">
+            <Link to="/register" className="hover:text-[#FF2D55] font-semibold">Need an account? Register here →</Link>
           </div>
         </motion.div>
       </div>

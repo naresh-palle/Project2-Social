@@ -60,7 +60,7 @@ export function AiIcon({
   name,
   alt = "",
   className = "w-4 h-4",
-  tone = "white",
+  tone = "ink",
   title,
   ...rest
 }) {

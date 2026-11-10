@@ -148,7 +148,7 @@ export function MultiSelectDropdown({
   return (
     <div className={`relative ${className}`} ref={ref}>
       {label && (
-        <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block mb-1">
+        <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block mb-1">
           {label}
         </label>
       )}

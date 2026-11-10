@@ -551,7 +551,7 @@ function InfluencerPanel() {
                     <Lock className="w-3 h-3" /> Escrow
                   </span>
                 </div>
-                <p className="font-sans text-[9px] tracking-[0.22em] uppercase opacity-60 mb-0.5">{c.brand}</p>
+                <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#475569] mb-0.5">{c.brand}</p>
                 <h3 className="font-sans text-sm font-semibold leading-snug group-hover:text-[#FF2D55] transition-colors">
                   {c.title}
                 </h3>
@@ -769,7 +769,7 @@ function CampaignRow({ c }) {
         <p className="text-xs font-sans opacity-70 mt-1.5 line-clamp-2 leading-relaxed">{c.description}</p>
       </div>
       <div className="mt-3 flex items-baseline justify-between border-t border-[#1E1B4B]/08 pt-2">
-        <div className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60">
+        <div className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#475569]">
           Budget:
         </div>
         <div className="font-sans text-sm text-[#1E1B4B] font-semibold">₹{c.budget}</div>

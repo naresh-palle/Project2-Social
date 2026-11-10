@@ -245,7 +245,7 @@ function StatCard({ title, value, sub, icon, trend, pos }) {
     return (
         <div className="p-4 xl:p-5 relative overflow-hidden group min-w-0 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] shadow-none">
             <div className="flex justify-between items-start gap-2">
-                <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium leading-snug">{title}</div>
+                <div className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold leading-snug">{title}</div>
                 <div className="p-2 bg-[#F7F8FC] rounded-3xl shrink-0">{icon}</div>
             </div>
             <div className="font-sans font-bold text-2xl xl:text-3xl mt-3 mb-1 tracking-tight tabular-nums text-[#1E1B4B] truncate">{value}</div>
@@ -883,7 +883,7 @@ export function AdminPanel() {
 
                 <section className="p-6 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF]">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                      <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium flex items-center gap-2 mb-0">
+                      <h3 className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold flex items-center gap-2 mb-0">
                         <Bell className="w-3 h-3 text-[#FF2D55]" /> System Alerts
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
@@ -1984,22 +1984,22 @@ function EscrowTreasuryDesk({ escrows = DEFAULT_ESCROWS, setEscrows }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 glass-panel">
-          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Total Escrow Volume</div>
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold">Total Escrow Volume</div>
           <div className="font-sans text-3xl text-[#1E1B4B] font-bold mt-3 tracking-tight tabular-nums">₹{totalVolume.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#14B8A6] uppercase tracking-wider mt-2">100% Escrow Protected</div>
         </div>
         <div className="p-5 glass-panel">
-          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Escrow Fees</div>
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold">Escrow Fees</div>
           <div className="font-sans text-3xl text-[#FF2D55] font-bold mt-3 tracking-tight tabular-nums">₹{totalFees.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#64748B] uppercase tracking-wider mt-2">Platform fees</div>
         </div>
         <div className="p-5 glass-panel">
-          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Completed Payouts</div>
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold">Completed Payouts</div>
           <div className="font-sans text-3xl text-[#14B8A6] font-bold mt-3 tracking-tight tabular-nums">₹{released.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-[#14B8A6] uppercase tracking-wider mt-2">Direct Wallet Transfer</div>
         </div>
         <div className="p-5 glass-panel">
-          <div className="font-sans text-[10px] tracking-[0.16em] uppercase opacity-60 font-medium">Disputed Claims</div>
+          <div className="font-sans text-[10px] tracking-[0.16em] uppercase text-[#475569] font-semibold">Disputed Claims</div>
           <div className="font-sans text-3xl text-orange-400 font-bold mt-3 tracking-tight tabular-nums">₹{disputed.toLocaleString("en-IN")}</div>
           <div className="font-sans text-[9px] text-orange-400 uppercase tracking-wider mt-2">Under review</div>
         </div>

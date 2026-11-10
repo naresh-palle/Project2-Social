@@ -481,7 +481,7 @@ const toggleCategory = (c) => {
         <div className="space-y-12">
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Content Category *</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase text-[#475569] mb-2">Content Category *</h4>
             <MultiSelectDropdown
                options={categoriesList.map(c => typeof c === 'string' ? c : c.name)}
                selected={currentCats}
@@ -491,7 +491,7 @@ const toggleCategory = (c) => {
           </div>
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Languages You Speak *</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase text-[#475569] mb-2">Languages You Speak *</h4>
             <MultiSelectDropdown
                options={LANGUAGES}
                selected={f.languages}
@@ -502,7 +502,7 @@ const toggleCategory = (c) => {
 
 
           <div>
-              <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Current Availability *</h4>
+              <h4 className="font-mono text-[10px] tracking-widest uppercase text-[#475569] mb-2">Current Availability *</h4>
               <MultiSelectDropdown
                  options={AVAILABILITIES}
                  selected={f.availability ? [f.availability] : []}
@@ -513,7 +513,7 @@ const toggleCategory = (c) => {
           </div>
 
           <div>
-            <h4 className="font-mono text-[10px] tracking-widest uppercase opacity-60 mb-2">Connect your audience.</h4>
+            <h4 className="font-mono text-[10px] tracking-widest uppercase text-[#475569] mb-2">Connect your audience.</h4>
             <p className="text-sm opacity-60 mb-6">Securely connect your social accounts via official OAuth.</p>
             <div className="flex flex-wrap gap-4 mb-4">
                {PLATFORMS.map(plat => {
@@ -694,7 +694,7 @@ function Layout({ step, title, subtitle, children }) {
           key={step}
           className="w-full max-w-3xl"
         >
-          <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4 text-[#FF2D55]">
+          <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#475569] mb-4 text-[#FF2D55]">
             {subtitle}
           </div>
           <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight mb-12 leading-[1.15] italic">

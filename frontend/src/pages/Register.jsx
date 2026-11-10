@@ -486,7 +486,7 @@ export default function Register() {
                 Apply for access
               </p>
             </div>
-            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-60 hover:opacity-100 hover:text-[#FF2D55] transition-colors font-semibold shrink-0">
+            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#475569] hover:opacity-100 hover:text-[#FF2D55] transition-colors font-semibold shrink-0">
               ← Change Door
             </Link>
           </div>
@@ -551,7 +551,7 @@ export default function Register() {
                     }`}
                   >
                     <div className="font-sans text-xs text-[#1E1B4B]">Company Agent</div>
-                    <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
+                    <div className="font-sans text-[9px] uppercase text-[#64748B] mt-0.5 leading-tight">
                       Brand clients &amp; campaign briefs
                     </div>
                   </button>
@@ -566,7 +566,7 @@ export default function Register() {
                     }`}
                   >
                     <div className="font-sans text-xs text-[#1E1B4B]">Influencer Agent</div>
-                    <div className="font-sans text-[9px] uppercase opacity-60 mt-0.5 leading-tight">
+                    <div className="font-sans text-[9px] uppercase text-[#64748B] mt-0.5 leading-tight">
                       Influencer roster &amp; talent
                     </div>
                   </button>
@@ -612,7 +612,7 @@ export default function Register() {
 
             {/* City / State from pincode — plain values, no autofill badges */}
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
                 City
               </label>
               <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
@@ -621,7 +621,7 @@ export default function Register() {
             </div>
 
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
                 State
               </label>
               <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
@@ -725,7 +725,7 @@ export default function Register() {
               </button>
 
               <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
-              <p className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mb-8 leading-relaxed">
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#475569] mb-8 leading-relaxed">
                 We sent a 6-digit SMS code to +91 {form.mobile}. Enter it below to finish registration.
               </p>
 
@@ -756,7 +756,7 @@ export default function Register() {
                     type="button"
                     disabled={resendCooldown > 0}
                     onClick={handleResendOtp}
-                    className="font-mono text-[10px] tracking-widest uppercase opacity-60 hover:opacity-100 hover:text-[#FF2D55] disabled:opacity-30 disabled:hover:text-current transition-colors"
+                    className="font-mono text-[10px] tracking-widest uppercase text-[#475569] hover:opacity-100 hover:text-[#FF2D55] disabled:opacity-30 disabled:hover:text-current transition-colors"
                   >
                     {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
                   </button>
@@ -773,7 +773,7 @@ export default function Register() {
 function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) {
   return (
     <div className="space-y-0">
-      <label className="font-sans text-[10px] tracking-[0.12em] uppercase opacity-60 font-medium leading-none block">
+      <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
         {label} {props.required && <span className="text-[#FF2D55] ml-0.5">*</span>}
       </label>
       <div className={`mt-0.5 flex items-center w-full rounded-xl px-3 transition-colors ${disabled ? "opacity-50 pointer-events-none select-none bg-[#F1F5F9] border border-[#1E1B4B]/08" : error ? "bg-[#FFF1F2] border border-[#FF2D55] text-[#FF2D55]" : "bg-[#F7F8FC] border border-[#1E1B4B]/12 focus-within:border-[#FF2D55]"}`}>

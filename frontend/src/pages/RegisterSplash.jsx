@@ -98,7 +98,7 @@ export default function RegisterSplash() {
             ))}
           </div>
 
-          <p className="mt-14 font-mono text-[11px] tracking-[0.2em] uppercase opacity-60 text-center">
+          <p className="mt-14 font-mono text-[11px] tracking-[0.2em] uppercase text-[#475569] text-center">
             Already inside the studio?{" "}
             <Link to="/login" className="underline text-[#FF2D55] font-bold hover:text-[#1E1B4B] transition-colors">
               Sign in ↗

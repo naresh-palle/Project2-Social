@@ -210,14 +210,7 @@ function EditorialMarquee() {
     "✓ AI Content Audited", "✦", "✓ Direct Relationships", "✦"
   ];
   return (
-    <div
-      className="theme-keep-dark w-full overflow-hidden border-t border-b"
-      style={{
-        background: "#F7F8FC",
-        borderColor: "rgba(225,29,72,0.28)",
-        padding: "14px 0",
-      }}
-    >
+    <div className="w-full overflow-hidden border-y border-[#FF2D55]/30 bg-[#FFF1F3] py-3.5">
       <Marquee gradient={false} speed={50}>
         {[...items, ...items].map((item, i) => (
           <span
@@ -225,7 +218,7 @@ function EditorialMarquee() {
             className={`font-mono tracking-[0.28em] uppercase px-6 ${
               item === "✦"
                 ? "text-[#FF2D55] text-xs"
-                : "text-[#1E1B4B]/85 text-[11px] font-bold"
+                : "text-[#1E1B4B] text-[11px] font-bold"
             }`}
           >
             {item}
@@ -1141,7 +1134,7 @@ export default function Landing() {
         }}
         aria-label="Previous Slide"
         data-testid="deck-prev-btn"
-        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed left-3 md:left-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white border border-[#1E1B4B]/15 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:-translate-x-0.5 transition-transform" />
       </button>
@@ -1155,7 +1148,7 @@ export default function Landing() {
         }}
         aria-label="Next Slide"
         data-testid="deck-next-btn"
-        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white/90 border border-black/10 hover:border-[#FF2D55] hover:bg-[#E11D48] text-[#1E1B4B] hover:text-[#1E1B4B] rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
+        className="fixed right-3 md:right-4 top-1/2 -translate-y-1/2 z-50 w-7 h-7 md:w-8 md:h-8 bg-white border border-[#1E1B4B]/15 hover:border-[#FF2D55] hover:bg-[#FF2D55] text-[#1E1B4B] hover:text-white rounded-full shadow-lg transition-all duration-300 cursor-pointer flex items-center justify-center group active:scale-95"
       >
         <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-0.5 transition-transform" />
       </button>

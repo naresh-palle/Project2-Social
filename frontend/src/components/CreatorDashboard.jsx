@@ -90,29 +90,29 @@ export function CreatorDashboard({
       {/* Brand offers hidden for now — keep campaigns discoverable via Marketplace */}
 
       {/* 2) Earnings + Pitches / Campaigns in the banner */}
-      <section className="theme-keep-dark relative overflow-hidden rounded-3xl p-5 sm:p-6 text-white bg-gradient-to-br from-[#7C3AED] via-[#5C6FE8] to-[#14213D] shadow-[0_18px_40px_-18px_rgba(92,111,232,0.48)]">
-        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-[#64748B]">This month’s earnings</p>
+      <section className="relative overflow-hidden rounded-3xl p-5 sm:p-6 text-[#1E1B4B] bg-gradient-to-br from-[#F3EEFF] via-[#EEF2FF] to-[#ECFDF8] border border-[#7C3AED]/20 shadow-[0_18px_40px_-18px_rgba(124,58,237,0.28)]">
+        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-[#475569] font-semibold">This month’s earnings</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight">{formatMoney(earned)}</p>
-            <p className="mt-1 text-[12px] text-[#64748B]">
+            <p className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-[#1E1B4B]">{formatMoney(earned)}</p>
+            <p className="mt-1 text-[12px] text-[#475569]">
               {pendingCollabs} collab{pendingCollabs === 1 ? "" : "s"} pending · {activeCampaigns} active
             </p>
           </div>
           <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
-            <div className="rounded-2xl bg-[#F7F8FC] border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
-              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Pitches</p>
-              <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{pitches}</p>
+            <div className="rounded-2xl bg-white border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-pitches">
+              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#475569] font-semibold">Pitches</p>
+              <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5 text-[#1E1B4B]">{pitches}</p>
               <p className="text-[10px] text-[#64748B] mt-0.5">applications</p>
             </div>
-            <div className="rounded-2xl bg-[#F7F8FC] border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
-              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#64748B]">Campaigns</p>
-              <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5">{openBriefs || activeCampaigns}</p>
+            <div className="rounded-2xl bg-white border border-[#1E1B4B]/10 px-3.5 py-2.5 flex-1 min-w-[6.5rem] sm:min-w-[7.5rem] sm:flex-none" data-testid="earnings-campaigns">
+              <p className="font-sans text-[9px] uppercase tracking-[0.16em] text-[#475569] font-semibold">Campaigns</p>
+              <p className="font-sans text-xl font-bold tabular-nums leading-tight mt-0.5 text-[#1E1B4B]">{openBriefs || activeCampaigns}</p>
               <p className="text-[10px] text-[#64748B] mt-0.5">{openBriefs ? "open briefs" : "accepted"}</p>
             </div>
             <Link
               to="/wallet"
-              className="inline-flex items-center justify-center gap-1.5 self-stretch sm:self-center bg-white text-[#1E1B4B] font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 self-stretch sm:self-center bg-[#7C3AED] text-white font-sans text-[12px] font-semibold px-4 py-2.5 rounded-full shrink-0 w-full sm:w-auto"
             >
               <Wallet className="w-4 h-4" /> Withdraw
             </Link>

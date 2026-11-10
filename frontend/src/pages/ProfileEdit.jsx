@@ -933,19 +933,19 @@ export default function ProfileEdit() {
               <p className="font-sans text-[10px] tracking-wider uppercase opacity-50">From signup pincode · used by AI bio</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="select-none pointer-events-none opacity-90">
-                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">Pincode</label>
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">Pincode</label>
                     <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center">
                       {f.pincode || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
-                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">City</label>
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">City</label>
                     <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center" data-testid="edit-city">
                       {f.city || "—"}
                     </div>
                   </div>
                   <div className="select-none pointer-events-none opacity-90">
-                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-none block">State</label>
+                    <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-none block">State</label>
                     <div className="mt-0.5 py-2 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 min-h-[36px] flex items-center" data-testid="edit-state">
                       {f.state || "—"}
                     </div>
@@ -1422,7 +1422,7 @@ export default function ProfileEdit() {
 function F({ label, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-60 font-medium leading-normal block mb-0">{label}</label>
+      <label className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#475569] font-semibold leading-normal block mb-0">{label}</label>
       {children}
     </div>
   );
