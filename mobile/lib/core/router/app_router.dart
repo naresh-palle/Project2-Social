@@ -194,7 +194,7 @@ class _AuthSplashPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            BrandLogo(variant: BrandLogoVariant.wordmark, height: 56),
+            BrandLogo(variant: BrandLogoVariant.stacked, height: 120),
             SizedBox(height: 28),
             SizedBox(
               width: 28,
@@ -246,7 +246,6 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                   interval: const Interval(0.15, 0.55, curve: Curves.easeOutCubic),
                   child: Row(
                     children: [
-                      const BrandLogo(variant: BrandLogoVariant.wordmark, height: 32),
                       const Spacer(),
                       Text(
                         'MOBILE',
@@ -258,27 +257,12 @@ class _LandingPageState extends ConsumerState<_LandingPage> with SingleTickerPro
                     ],
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 FadeSlideIn(
                   animation: _intro,
-                  interval: const Interval(0.25, 0.75, curve: Curves.easeOutCubic),
-                  child: Text(
-                    'FLUGR',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontSize: 64,
-                          height: 0.95,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 4,
-                          color: Cr8Colors.accent,
-                        ),
-                  ),
-                ),
-                FadeSlideIn(
-                  animation: _intro,
-                  interval: const Interval(0.32, 0.8, curve: Curves.easeOutCubic),
-                  child: Text(
-                    'Creator marketplace',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 4, color: Cr8Colors.muted),
+                  interval: const Interval(0.22, 0.75, curve: Curves.easeOutCubic),
+                  child: const Center(
+                    child: BrandLogo(variant: BrandLogoVariant.stacked, height: 168),
                   ),
                 ),
                 const Spacer(),

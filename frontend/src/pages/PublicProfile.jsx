@@ -185,7 +185,7 @@ export default function PublicProfile() {
               >
                 <div className="w-full h-full flex items-center justify-center opacity-20">
                   <img
-                    src={`${process.env.PUBLIC_URL}/brand/flugr-logo-paper.png?v=v6`}
+                    src={`${process.env.PUBLIC_URL}/brand/flugr-logo-paper.png?v=v7-p6`}
                     alt=""
                     className="h-16 md:h-24 w-auto object-contain select-none"
                   />

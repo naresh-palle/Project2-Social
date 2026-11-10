@@ -243,9 +243,9 @@ async function loadBrandLogoRgb(size = 72) {
     const candidates = [];
     try {
       const pub = (typeof process !== "undefined" && process.env && process.env.PUBLIC_URL) || "";
-      if (pub) candidates.push(`${String(pub).replace(/\/$/, "")}/brand/flugr-avatar.png?v=v3`);
+      if (pub) candidates.push(`${String(pub).replace(/\/$/, "")}/brand/flugr-avatar.png?v=v7-p6`);
     } catch { /* ignore */ }
-    candidates.push("/brand/flugr-avatar.png?v=v3", "./brand/flugr-avatar.png?v=v3");
+    candidates.push("/brand/flugr-avatar.png?v=v7-p6", "./brand/flugr-avatar.png?v=v7-p6");
     if (typeof window !== "undefined") {
       candidates.push(`${window.location.origin}/brand/flugr-avatar.png`);
       const base = String(window.location.pathname || "").replace(/\/[^/]*$/, "");

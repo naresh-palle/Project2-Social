@@ -1,11 +1,11 @@
 /**
- * flugr brand system: supplied wordmark, paper-plane mark, and hero lockup.
- * - mark: violet/blue paper plane for compact headers
- * - wordmark: ink logo for light UI (default); ivory when surface="dark"
- * - hero: wordmark plus "Create • Collaborate • Grow" (ivory for dark stages)
- * - surface="paper": ink wordmark for light surfaces (default)
+ * flugr brand system (P6 stacked identity)
+ * - mark: gradient paper-plane app mark
+ * - wordmark: horizontal mark + "flugr" for nav/headers
+ * - stacked / hero: full stacked lockup with tagline (landing/splash)
+ * - surface="paper"|"light": light UI assets (default)
  */
-export const LOGO_CACHE = "v6";
+export const LOGO_CACHE = "v7-p6";
 
 export function brandAsset(path) {
   const base = `${process.env.PUBLIC_URL || ""}/${String(path).replace(/^\//, "")}`;
@@ -19,30 +19,31 @@ export function BrandLogo({
   alt = "flugr",
   height = 36,
 }) {
-  const ink = surface === "paper" || surface === "light";
+  const stacked = variant === "stacked" || variant === "hero";
   const src =
     variant === "mark"
       ? brandAsset("brand/flugr-mark.png")
-      : variant === "hero"
-        ? ink
-          ? brandAsset("brand/flugr-logo-paper.png")
-          : brandAsset("brand/flugr-logo-hero.png")
-      : ink
-        ? brandAsset("brand/flugr-logo-paper.png")
-        : brandAsset("flugr-logo.png");
+      : stacked
+        ? brandAsset("brand/flugr-logo-stacked.png")
+        : brandAsset("brand/flugr-logo-paper.png");
+
+  const maxW = variant === "mark"
+    ? Math.round(height * 1.15)
+    : stacked
+      ? Math.round(height * 0.72)
+      : Math.round(height * 3.6);
 
   return (
     <img
       src={src}
       alt={alt}
       height={height}
-      className={`w-auto object-contain object-left border-0 select-none ${className}`}
+      className={`w-auto object-contain border-0 select-none ${
+        stacked ? "object-center" : "object-left"
+      } ${className}`}
       style={{
         height,
-        maxWidth:
-          variant === "mark"
-            ? Math.round(height * 1.2)
-            : Math.round(height * 4.2),
+        maxWidth: maxW,
       }}
       draggable={false}
     />

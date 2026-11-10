@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// flugr brand assets — speed-F mark and F+FLUGR wordmark.
+/// flugr brand assets — P6 stacked identity.
+enum BrandLogoVariant { mark, wordmark, stacked }
+
 class BrandLogo extends StatelessWidget {
   const BrandLogo({
     super.key,
@@ -13,9 +15,11 @@ class BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final asset = variant == BrandLogoVariant.mark
-        ? 'assets/images/flugr-mark.png'
-        : 'assets/images/flugr-logo.png';
+    final asset = switch (variant) {
+      BrandLogoVariant.mark => 'assets/images/flugr-mark.png',
+      BrandLogoVariant.stacked => 'assets/images/flugr-logo-stacked.png',
+      BrandLogoVariant.wordmark => 'assets/images/flugr-logo.png',
+    };
     return Image.asset(
       asset,
       height: height,
@@ -25,13 +29,11 @@ class BrandLogo extends StatelessWidget {
         'flugr',
         style: TextStyle(
           color: const Color(0xFFFF2D55),
-          fontSize: height * 0.7,
-          fontStyle: FontStyle.italic,
+          fontSize: height * 0.55,
           fontWeight: FontWeight.w700,
+          letterSpacing: -0.5,
         ),
       ),
     );
   }
 }
-
-enum BrandLogoVariant { mark, wordmark }
