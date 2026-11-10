@@ -78,7 +78,7 @@
     "predeploy": "craco build",
     "deploy": "npm run deploy:render && npm run deploy:gh-pages",
     "deploy:render": "bash ../scripts/sync-web-to-backend.sh",
-    "deploy:gh-pages": "cross-env PUBLIC_URL=/Project2-Social craco build && gh-pages -d build"
+    "deploy:gh-pages": "cross-env PUBLIC_URL=/ craco build && gh-pages -d build"
   },
   "browserslist": {
     "production": [
