@@ -172,7 +172,7 @@ export default function SupportCenter() {
                     className="w-full flex items-center justify-between p-4 text-left hover:bg-[#F1F5F9] gap-4"
                   >
                     <span className="font-sans text-sm font-semibold">{faq.question}</span>
-                    <ChevronDown className={`w-4 h-4 text-[#94A3B8] transition-transform ${activeFaq === idx ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 text-[#1E1B4B] transition-transform ${activeFaq === idx ? "rotate-180" : ""}`} strokeWidth={2.35} />
                   </button>
                   <AnimatePresence>
                     {activeFaq === idx && (

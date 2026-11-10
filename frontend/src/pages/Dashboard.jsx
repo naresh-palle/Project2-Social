@@ -9,7 +9,6 @@ import {
   Filter, ArrowRight, Lock, CheckCircle2, TrendingUp, Clock,
   ExternalLink, MessageSquare, Briefcase, Award, Zap, FileText, Newspaper, Compass, Search
 } from "lucide-react";
-import { AiIcon } from "@/components/AiIcon";
 import { Nav } from "@/components/Nav";
 
 import { IconTip } from "@/components/IconTip";

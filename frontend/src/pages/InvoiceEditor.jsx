@@ -208,12 +208,12 @@ export default function InvoiceEditor() {
           </button>
           {!locked ? (
             <button type="button" onClick={finalize} className="btn-solid text-[10px] !py-2 !px-3" disabled={busy}>
-              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="generate" className="w-3.5 h-3.5" />}
+              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <AiIcon name="generate" className="w-3.5 h-3.5" tone="white" />}
               Generate / Finalize
             </button>
           ) : (
             <button type="button" onClick={send} className="btn-solid text-[10px] !py-2 !px-3" disabled={busy}>
-              <AiIcon name="send" className="w-3.5 h-3.5" /> Send
+              <AiIcon name="send" className="w-3.5 h-3.5" tone="white" /> Send
             </button>
           )}
         </div>

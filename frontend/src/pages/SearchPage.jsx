@@ -101,7 +101,7 @@ export default function SearchPage() {
           onSubmit={(e) => { e.preventDefault(); runSearch(); }}
           className="mt-8 flex gap-2 border border-[#1E1B4B]/10 bg-[#FFFFFF] p-2 rounded-xs"
         >
-          <Search className="w-5 h-5 opacity-50 ml-2 shrink-0 self-center" />
+          <Search className="w-5 h-5 text-[#1E1B4B] ml-2 shrink-0 self-center" strokeWidth={2.35} />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}

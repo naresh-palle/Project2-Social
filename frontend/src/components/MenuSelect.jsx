@@ -112,7 +112,8 @@ export function MenuSelect({
           {display}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 shrink-0 text-[#64748B] transition-transform duration-200 ${open ? "rotate-180 text-[#FF2D55]" : ""}`}
+          className={`w-3.5 h-3.5 shrink-0 text-[#1E1B4B] transition-transform duration-200 ${open ? "rotate-180 text-[#FF2D55]" : ""}`}
+          strokeWidth={2.35}
         />
       </button>
 

@@ -317,8 +317,8 @@ export default function Feed() {
             <button type="button" onClick={refresh} disabled={refreshing} className="p-2.5 border border-[#1E1B4B]/12 hover:border-[#FF2D55] rounded-full">
               <AiIcon name="refresh" className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
-            <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF2D55] font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
-              <AiIcon name="create" className="w-4 h-4" /> Create
+            <button type="button" onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-[#FF2D55] text-white font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-full">
+              <AiIcon name="create" className="w-4 h-4" tone="white" /> Create
             </button>
           </div>
         </div>

@@ -37,7 +37,7 @@ export function MobileBottomNav() {
                 goHome(nav);
               }}
               className={`flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-w-0 ${
-                active ? "text-[#FF2D55]" : "text-[#64748B]"
+                active ? "text-[#FF2D55]" : "text-[#1E1B4B]"
               }`}
             >
               <span className={`flex items-center justify-center w-8 h-8 rounded-full ${active ? "bg-[#FF2D55] text-white" : ""}`}>

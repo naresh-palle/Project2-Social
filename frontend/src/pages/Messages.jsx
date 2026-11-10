@@ -365,8 +365,8 @@ export default function Messages({ miniWidget = false, onClose, dmUserId = null 
             placeholder="Search people or messages…"
             className="flex-1 bg-transparent border border-[#1E1B4B]/12 px-3 py-1.5 font-sans text-sm rounded-3xl"
           />
-          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-[#1E1B4B]/12 rounded-3xl">
-            <Search className="w-4 h-4" />
+          <button type="button" onClick={searchMessages} className="px-2.5 py-1.5 border border-[#1E1B4B]/12 rounded-3xl text-[#1E1B4B]">
+            <Search className="w-4 h-4" strokeWidth={2.35} />
           </button>
         </div>
         {(userHits.length > 0 || searchResults.length > 0) && (

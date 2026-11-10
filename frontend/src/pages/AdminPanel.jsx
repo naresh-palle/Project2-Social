@@ -949,7 +949,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
                 <div className="relative z-30 flex flex-col gap-3 mb-6 p-4 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] overflow-visible">
                     <div className="flex items-center gap-2 w-full max-w-md border border-[#1E1B4B]/08 rounded-full px-3 py-2 bg-[#F8FAFC]">
-                        <Search className="w-4 h-4 opacity-50 shrink-0" />
+                        <Search className="w-4 h-4 text-[#1E1B4B] shrink-0" strokeWidth={2.35} />
                         <input type="text" placeholder="Search username, email, mobile…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none outline-none text-sm placeholder:opacity-50 font-sans" />
                     </div>
                     <div className="relative z-30 flex flex-wrap items-end gap-3 font-sans text-[10px] uppercase tracking-wider">
@@ -1339,7 +1339,7 @@ export function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8 space-y-4">
                 <div className="relative z-30 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 p-4 rounded-3xl border border-[#1E1B4B]/08 bg-[#FFFFFF] overflow-visible">
                     <div className="flex items-center gap-2 flex-1 min-w-[200px] max-w-md border border-[#1E1B4B]/08 rounded-full px-3 py-2 bg-[#F8FAFC]">
-                        <Search className="w-4 h-4 opacity-50 shrink-0" />
+                        <Search className="w-4 h-4 text-[#1E1B4B] shrink-0" strokeWidth={2.35} />
                         <input
                           type="text"
                           placeholder="Search user, action, details…"

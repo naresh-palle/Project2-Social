@@ -490,7 +490,7 @@ export default function CampaignDiscoveryMap() {
       {/* Top bar — fixed within page, does not push map */}
       <div className="cdm-top">
         <div className="cdm-search">
-          <Search className="w-4 h-4 opacity-50 shrink-0" />
+          <Search className="w-4 h-4 text-[#1E1B4B] shrink-0" strokeWidth={2.35} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

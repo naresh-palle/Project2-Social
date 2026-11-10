@@ -75,7 +75,7 @@ export default function ResetPassword() {
               <div>
                 <label className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">New Password</label>
                 <div className="relative">
-                  <KeyRound className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40 mt-1" />
+                  <KeyRound className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E1B4B] mt-1" strokeWidth={2.35} />
                   <input
                     type={show ? "text" : "password"}
                     required
@@ -83,8 +83,8 @@ export default function ResetPassword() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-[#F7F8FC] border border-[#1E1B4B]/12 rounded-xl py-3 pl-7 pr-10 focus:outline-none focus:border-[#FF2D55] mt-2 text-[#1E1B4B]"
                   />
-                  <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#64748B]">
-                    {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  <button type="button" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#1E1B4B] hover:text-[#FF2D55]">
+                    {show ? <EyeOff className="w-4 h-4" strokeWidth={2.35} /> : <Eye className="w-4 h-4" strokeWidth={2.35} />}
                   </button>
                 </div>
               </div>

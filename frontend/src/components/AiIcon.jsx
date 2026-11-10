@@ -1,61 +1,103 @@
 /**
- * Shared AI-generated icon glyphs (transparent PNGs in public/icons).
+ * Shared solid icon glyphs — Lucide strokes (opaque dark ink on light paper).
+ * Replaces soft white PNGs that washed out / looked transparent.
  */
-const ICON_FILES = {
-  dashboard: "nav-dashboard.png",
-  feed: "nav-feed.png",
-  directory: "nav-directory.png",
-  leaderboard: "nav-leaderboard.png",
-  referrals: "nav-referrals.png",
-  users: "nav-referrals.png",
-  staff: "nav-referrals.png",
-  invitations: "nav-invitations.png",
-  wallet: "nav-wallet.png",
-  billing: "nav-billing.png",
-  profile: "nav-profile.png",
-  settings: "nav-settings.png",
-  tickets: "nav-tickets.png",
-  knowledge: "nav-knowledge.png",
-  ai: "nav-ai.png",
-  analytics: "nav-analytics.png",
-  audit: "nav-audit.png",
-  search: "action-search.png",
-  logout: "action-logout.png",
-  bell: "action-bell.png",
-  notifications: "action-bell.png",
-  support: "action-support.png",
-  sparkles: "action-sparkles.png",
-  create: "action-create.png",
-  refresh: "action-refresh.png",
-  "view-public": "view-public.png",
-  edit: "action-edit.png",
-  "edit-profile": "edit-profile.png",
-  view: "action-view.png",
-  copy: "action-copy.png",
-  download: "action-download.png",
-  send: "action-send.png",
-  cancel: "action-cancel.png",
-  trash: "action-trash.png",
-  save: "action-save.png",
-  demo: "action-demo.png",
-  review: "action-review.png",
-  generate: "action-generate.png",
+import {
+  LayoutDashboard,
+  Newspaper,
+  Users,
+  Trophy,
+  Gift,
+  UserCog,
+  Mail,
+  Wallet,
+  Receipt,
+  User,
+  Settings,
+  Ticket,
+  BookOpen,
+  Bot,
+  BarChart3,
+  ClipboardList,
+  Search,
+  LogOut,
+  Bell,
+  LifeBuoy,
+  Sparkles,
+  Plus,
+  RefreshCw,
+  ExternalLink,
+  Pencil,
+  Eye,
+  Copy,
+  Download,
+  Send,
+  Ban,
+  Trash2,
+  Save,
+  FlaskConical,
+  FileSearch,
+  Wand2,
+} from "lucide-react";
+
+const ICONS = {
+  dashboard: LayoutDashboard,
+  feed: Newspaper,
+  directory: Users,
+  leaderboard: Trophy,
+  referrals: Gift,
+  users: Users,
+  staff: UserCog,
+  invitations: Mail,
+  wallet: Wallet,
+  billing: Receipt,
+  profile: User,
+  settings: Settings,
+  tickets: Ticket,
+  knowledge: BookOpen,
+  ai: Bot,
+  analytics: BarChart3,
+  audit: ClipboardList,
+  search: Search,
+  logout: LogOut,
+  bell: Bell,
+  notifications: Bell,
+  support: LifeBuoy,
+  sparkles: Sparkles,
+  create: Plus,
+  refresh: RefreshCw,
+  "view-public": ExternalLink,
+  edit: Pencil,
+  "edit-profile": Pencil,
+  view: Eye,
+  copy: Copy,
+  download: Download,
+  send: Send,
+  cancel: Ban,
+  trash: Trash2,
+  save: Save,
+  demo: FlaskConical,
+  review: FileSearch,
+  generate: Wand2,
 };
 
-const TONES = {
+const TONE_CLASS = {
+  // Solid studio ink — matches logout button
+  ink: "text-[#1E1B4B]",
+  muted: "text-[#64748B]",
+  brand: "text-[#FF2D55]",
+  soft: "text-[#1E1B4B]",
   // White glyphs on coral/violet/teal fills only
-  white: "ai-icon--on-brand",
-  // Default: solid dark ink on light paper
-  ink: "ai-icon--ink",
-  muted: "ai-icon--ink ai-icon--muted",
-  brand: "ai-icon--brand",
-  soft: "ai-icon--ink",
+  white: "text-white",
 };
 
 export function aiIconSrc(name) {
-  const file = ICON_FILES[name] || ICON_FILES.sparkles;
+  // Legacy helper kept for any callers; Lucide replaces PNG assets.
+  const file = {
+    sparkles: "action-sparkles.png",
+  }[name] || "action-sparkles.png";
   const base = process.env.PUBLIC_URL || "";
-  return `${base}/icons/${file}?v=5`;
+  return `${base}/icons/${file}?v=6`;
 }
 
 export function AiIcon({
@@ -64,16 +106,18 @@ export function AiIcon({
   className = "w-4 h-4",
   tone = "ink",
   title,
+  strokeWidth = 2.35,
   ...rest
 }) {
-  const toneClass = TONES[tone] || TONES.ink;
+  const Icon = ICONS[name] || Sparkles;
+  const toneClass = TONE_CLASS[tone] || TONE_CLASS.ink;
   return (
-    <img
-      src={aiIconSrc(name)}
-      alt={alt}
+    <Icon
+      aria-hidden={alt ? undefined : true}
+      aria-label={alt || undefined}
       title={title}
-      draggable={false}
-      className={`ai-icon inline-block shrink-0 object-contain ${toneClass} ${className}`}
+      strokeWidth={strokeWidth}
+      className={`ai-icon inline-block shrink-0 ${toneClass} ${className}`}
       {...rest}
     />
   );

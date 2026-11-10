@@ -110,7 +110,7 @@ export default function Billing() {
             Demo data
           </button>
           <Link to="/billing/new" className="btn-solid text-[10px] !py-2 !px-3 inline-flex items-center gap-1.5">
-            <AiIcon name="create" className="w-3.5 h-3.5" />
+            <AiIcon name="create" className="w-3.5 h-3.5" tone="white" />
             Create invoice
           </Link>
         </div>

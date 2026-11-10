@@ -202,7 +202,7 @@ export function MultiSelectDropdown({
             ))
           )}
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 opacity-50 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-[#1E1B4B] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} strokeWidth={2.35} />
       </button>
       {menu}
     </div>

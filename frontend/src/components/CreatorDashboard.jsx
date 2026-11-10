@@ -180,7 +180,7 @@ function Kpi({ icon: Icon, label, value, hint, good, warn, title }) {
     <div className="rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] p-3 sm:p-3.5 min-w-0" title={title}>
       <div className="flex items-center justify-between gap-2 mb-2">
         <span className="text-[10px] uppercase tracking-wider text-[#475569] font-semibold truncate">{label}</span>
-        <Icon className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
+        <Icon className="w-3.5 h-3.5 text-[#1E1B4B] shrink-0" strokeWidth={2.35} />
       </div>
       <p className="font-sans text-lg sm:text-xl font-bold tabular-nums tracking-tight truncate text-[#1E1B4B]">{value}</p>
       <p className={`text-[11px] mt-0.5 font-medium ${good ? "text-[#0F766E]" : warn ? "text-[#B45309]" : "text-[#475569]"}`}>
@@ -197,7 +197,7 @@ function Action({ to, icon: Icon, label, hint }) {
       className="flex items-center gap-3 rounded-2xl border border-[#1E1B4B]/08 bg-[#F8FAFC] px-3 py-2.5 hover:border-[#1E1B4B]/12 transition-colors min-w-0"
     >
       <span className="w-8 h-8 rounded-full bg-[#F7F8FC] border border-[#1E1B4B]/08 flex items-center justify-center shrink-0">
-        <Icon className="w-4 h-4 text-[#475569]" />
+        <Icon className="w-4 h-4 text-[#1E1B4B]" strokeWidth={2.35} />
       </span>
       <span className="min-w-0">
         <span className="block font-sans text-sm font-semibold truncate text-[#1E1B4B]">{label}</span>

@@ -762,7 +762,7 @@ export default function SupportDashboard() {
                 ) : null}
               </div>
               <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#1E1B4B]" strokeWidth={2.35} />
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tickets, users, numbers…" className={`${FILTER_INPUT} pl-9`} />
               </div>
             </div>

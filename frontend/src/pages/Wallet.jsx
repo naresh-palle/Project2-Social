@@ -202,7 +202,7 @@ export default function Wallet() {
           <h2 className="font-sans text-sm font-semibold">Transactions ({filteredTx.length})</h2>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 opacity-40" />
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#1E1B4B]" strokeWidth={2.35} />
               <input
                 type="text"
                 placeholder="Search"

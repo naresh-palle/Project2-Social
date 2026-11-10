@@ -83,7 +83,7 @@ export function Nav({ variant = "paper" }) {
               }}
               className="relative hidden md:flex items-center mr-1"
             >
-              <Search className="w-3.5 h-3.5 absolute left-3 text-[#94A3B8]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 text-[#1E1B4B]" strokeWidth={2.35} />
               <input
                 name="search"
                 type="text"
@@ -99,18 +99,18 @@ export function Nav({ variant = "paper" }) {
                 <>
                   <Link
                     to="/support"
-                    className="text-[#64748B] hover:text-[#1E1B4B] transition-colors flex items-center gap-1.5 px-2"
+                    className="text-[#1E1B4B] hover:text-[#FF2D55] transition-colors flex items-center gap-1.5 px-2"
                     title="Support"
                   >
-                    <LifeBuoy className="w-4 h-4" />
+                    <LifeBuoy className="w-4 h-4" strokeWidth={2.35} />
                     <span className="font-sans text-[11px] font-semibold hidden md:inline">Support</span>
                   </Link>
                   <Link
                     to="/messages"
-                    className="text-[#64748B] hover:text-[#1E1B4B] transition-colors flex items-center gap-1.5 px-2 border-r border-[#1E1B4B]/10 pr-3 mr-1"
+                    className="text-[#1E1B4B] hover:text-[#FF2D55] transition-colors flex items-center gap-1.5 px-2 border-r border-[#1E1B4B]/10 pr-3 mr-1"
                     title="Messages"
                   >
-                    <MessageSquare className="w-4 h-4" />
+                    <MessageSquare className="w-4 h-4" strokeWidth={2.35} />
                     <span className="font-sans text-[11px] font-semibold hidden md:inline">Messages</span>
                   </Link>
                 </>

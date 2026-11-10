@@ -284,9 +284,9 @@ export default function Login() {
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#64748B] hover:text-[#1E1B4B]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#1E1B4B] hover:text-[#FF2D55]"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" strokeWidth={2.35} /> : <Eye className="w-4 h-4" strokeWidth={2.35} />}
                   </button>
                 </div>
                 <div className="flex items-center justify-between mt-1.5">
