@@ -5,7 +5,7 @@
  * - stacked / hero: full stacked lockup with tagline (landing/splash)
  * - surface="paper"|"light": light UI assets (default)
  */
-export const LOGO_CACHE = "v7-p6";
+export const LOGO_CACHE = "v8-palram";
 
 export function brandAsset(path) {
   const base = `${process.env.PUBLIC_URL || ""}/${String(path).replace(/^\//, "")}`;

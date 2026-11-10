@@ -82,12 +82,12 @@ const ICONS = {
 };
 
 const TONE_CLASS = {
-  // Solid studio ink — matches logout button
+  // Solid studio ink — PALRAM AI ink (#1A1020), remapped via CSS tokens
   ink: "text-[#1E1B4B]",
-  muted: "text-[#64748B]",
+  muted: "text-[#5C4D6D]",
   brand: "text-[#FF2D55]",
   soft: "text-[#1E1B4B]",
-  // White glyphs on coral/violet/teal fills only
+  // White glyphs on brand fills only
   white: "text-white",
 };
 
