@@ -76,13 +76,21 @@ export default function Onboarding() {
   const [manualAuthPlatform, setManualAuthPlatform] = useState(null);
   const [manualAuthHandle, setManualAuthHandle] = useState("");
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="py-24 text-center font-mono text-xs uppercase tracking-widest text-[#A9824A]">
+        Loading onboarding…
+      </div>
+    );
+  }
 
   // AGENT ONBOARDING & APPROVAL WORKFLOW
   if (user.role === "agent") {
-    const isPending = user.onboarding_status === "pending_approval" || (user.onboarding_status === "completed" && !user.agent_approved && user.onboarding_status !== "declined");
+    const isPending =
+      user.onboarding_status === "pending_approval" ||
+      (user.onboarding_status === "completed" && user.agent_approved === false);
     const isDeclined = user.onboarding_status === "declined";
-    const isApproved = user.agent_approved;
+    const isApproved = user.agent_approved === true;
 
     const submitAgentApplication = async (e) => {
       e?.preventDefault();

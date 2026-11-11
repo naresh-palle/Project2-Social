@@ -37,7 +37,8 @@ export default function Dashboard() {
           nav("/support/ops");
           return;
         }
-        if (user.role === "agent" && !user.agent_approved) nav("/onboarding/agent");
+        // Only an explicit false blocks access; null/undefined should not soft-lock completed demo agents.
+        if (user.role === "agent" && user.agent_approved === false) nav("/onboarding/agent");
         else if (user.role !== "admin" && user.onboarding_status !== "completed") nav(`/onboarding/${user.role}`);
     }
   }, [user, loading, nav]);

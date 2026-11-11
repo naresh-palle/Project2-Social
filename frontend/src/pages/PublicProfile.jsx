@@ -119,8 +119,9 @@ export default function PublicProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FC] text-[#1E1B4B] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin" />
+      <div className="min-h-[50vh] bg-[#F6F0E6] text-[#2A201A] flex flex-col items-center justify-center gap-3 py-16">
+        <Loader2 className="w-6 h-6 animate-spin text-[#A9824A]" />
+        <p className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#A9824A]">Loading public profile…</p>
       </div>
     );
   }

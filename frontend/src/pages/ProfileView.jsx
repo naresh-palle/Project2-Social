@@ -112,7 +112,29 @@ export default function ProfileView() {
   const connectedPlatforms = SOCIAL_PLATFORMS.filter((key) => hasPlatformHandle(rawPlatforms[key] || {}));
   const avgEngagement = socialOverview.engagementRate;
   const displayName = displayAccountName(profile, "Profile");
-  const roleLabel = profile.role === "owner" ? "Brand" : profile.role === "agent" ? "Agency" : "Influencer";
+  const roleLabel = (() => {
+    switch (profile.role) {
+      case "owner":
+        return "Brand";
+      case "agent":
+        return "Agency";
+      case "admin":
+        return "Admin";
+      case "production":
+        return "Hire / Production";
+      case "support":
+      case "support_agent":
+        return "Support Agent";
+      case "support_lead":
+        return "Support Lead";
+      case "support_admin":
+        return "Support Admin";
+      case "influencer":
+        return "Influencer";
+      default:
+        return profile.role ? String(profile.role).replace(/_/g, " ") : "Member";
+    }
+  })();
   const locationLabel = formatUserLocation(profile) || "—";
 
   return (

@@ -51,7 +51,13 @@ export default function Wallet() {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="py-24 text-center font-mono text-xs uppercase tracking-widest text-[#A9824A]">
+        Loading wallet…
+      </div>
+    );
+  }
   const isOwner = user.role === "owner";
   const isBrandWallet = user.role === "owner" || user.role === "agent";
 

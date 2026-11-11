@@ -51,9 +51,20 @@ export default function BrandDetail() {
   };
 
   if (loading) {
-    return <div className="py-24 text-center font-mono text-xs uppercase tracking-widest opacity-50">Loading…</div>;
+    return <div className="py-24 text-center font-mono text-xs uppercase tracking-widest text-[#A9824A]">Loading brand profile…</div>;
   }
-  if (!brand) return null;
+  if (!brand) {
+    return (
+      <div className="py-16 text-[#2A201A]">
+        <p className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#A9824A] font-bold mb-2">Marketplace</p>
+        <h1 className="font-editorial text-3xl mb-2">Brand not found</h1>
+        <p className="font-sans text-sm text-[#6B5D50] mb-5">This brand profile is unavailable.</p>
+        <Link to="/marketplace?tab=brands" className="inline-flex px-4 py-2 rounded-full bg-[#2A201A] text-[#F6F0E6] font-mono text-[10px] uppercase tracking-widest font-bold">
+          Browse brands
+        </Link>
+      </div>
+    );
+  }
 
   const name = brand.company || brand.name || "Brand";
 

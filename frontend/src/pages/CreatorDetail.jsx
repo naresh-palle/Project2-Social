@@ -39,45 +39,46 @@ export default function CreatorDetail() {
   const isBrand = user?.role === "owner" || user?.role === "agent" || user?.role === "admin";
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
+      setLoading(true);
+      setCreator(null);
       try {
+        // Paint the profile shell as soon as the primary record arrives.
         const { data } = await api.get(`/creators/${id}`);
+        if (cancelled) return;
         setCreator(withDirectoryMedia(data));
-        try {
-          const intelRes = await api.get(`/creators/${id}/intelligence`);
-          setIntel(intelRes.data);
-        } catch {
-          setIntel(null);
-        }
-        try {
-          const pastRes = await api.get(`/marketplace/creators/${id}/past-campaigns`);
-          setPast(pastRes.data || { campaigns: [], summary: {} });
-        } catch {
-          setPast({ campaigns: [], summary: {} });
-        }
-        try {
-          const roiRes = await api.get(`/marketplace/creators/${id}/roi-profile`);
-          setRoi(roiRes.data);
-          setWishlisted(!!roiRes.data?.wishlisted);
-        } catch {
-          setRoi(null);
-        }
-        if (isBrand) {
-          try {
-            const sim = await api.post("/marketplace/creators/similar", { creator_id: id, limit: 8 });
-            setSimilar(sim.data.creators || []);
-          } catch {
-            setSimilar([]);
-          }
-        }
-      } catch {
-        toast.error("Failed to load influencer");
-        nav("/marketplace");
-      } finally {
         setLoading(false);
+
+        const secondary = [
+          api.get(`/creators/${id}/intelligence`).then((r) => setIntel(r.data)).catch(() => setIntel(null)),
+          api.get(`/marketplace/creators/${id}/past-campaigns`).then((r) => setPast(r.data || { campaigns: [], summary: {} })).catch(() => setPast({ campaigns: [], summary: {} })),
+          api.get(`/marketplace/creators/${id}/roi-profile`).then((r) => {
+            setRoi(r.data);
+            setWishlisted(!!r.data?.wishlisted);
+          }).catch(() => setRoi(null)),
+        ];
+        if (isBrand) {
+          secondary.push(
+            api.post("/marketplace/creators/similar", { creator_id: id, limit: 8 })
+              .then((r) => setSimilar(r.data.creators || []))
+              .catch(() => setSimilar([]))
+          );
+        }
+        await Promise.allSettled(secondary);
+      } catch {
+        if (!cancelled) {
+          toast.error("Failed to load influencer");
+          setCreator(null);
+          setLoading(false);
+          nav("/marketplace");
+        }
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [id, nav, isBrand]);
 
   const toggleWishlist = async () => {
@@ -92,12 +93,23 @@ export default function CreatorDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FC] flex items-center justify-center text-[#1E1B4B]">
-        <div className="animate-pulse font-mono tracking-widest text-sm">Loading…</div>
+      <div className="flex items-center justify-center py-24 text-[#2A201A]">
+        <div className="animate-pulse font-mono tracking-widest text-xs uppercase text-[#A9824A]">Loading influencer profile…</div>
       </div>
     );
   }
-  if (!creator) return null;
+  if (!creator) {
+    return (
+      <div className="flex flex-col items-start gap-4 py-16 text-[#2A201A]">
+        <p className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#A9824A] font-bold">Directory</p>
+        <h1 className="font-editorial text-3xl">Influencer not found</h1>
+        <p className="font-sans text-sm text-[#6B5D50]">This profile may have been removed or is unavailable.</p>
+        <Link to="/marketplace" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2A201A] text-[#F6F0E6] font-mono text-[10px] uppercase tracking-widest font-bold">
+          Back to marketplace
+        </Link>
+      </div>
+    );
+  }
 
   const chartData = creator.monthly_analytics?.slice(-chartRange) || [];
   const bestPlatform = Object.entries(creator.platform_metrics || {}).reduce((max, [k, v]) => {

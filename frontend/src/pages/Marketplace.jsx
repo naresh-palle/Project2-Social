@@ -131,8 +131,7 @@ function CreatorDirectoryCard({ creator, index, selected, onSelect, onWishlist }
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: Math.min(index, 12) * 0.04 }}
       data-testid={`creator-${c.id}`}
       className="relative flex flex-col h-full"
@@ -1076,7 +1075,7 @@ export default function Marketplace() {
         ) : (
         <div className="space-y-2">
           {campaigns.map((c, i) => (
-            <motion.div key={c.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: Math.min(i, 10) * 0.03 }} data-testid={`campaign-row-${c.id}`}>
+            <motion.div key={c.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: Math.min(i, 10) * 0.03 }} data-testid={`campaign-row-${c.id}`}>
               <Link to={`/campaigns/${c.id}`} className="group block border border-[#1E1B4B]/08 hover:border-[#FF2D55]/40 rounded-2xl px-4 py-4 md:px-5 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
                 <div className="grid grid-cols-12 gap-3 md:gap-4 items-center">
                   <div className="col-span-12 md:col-span-1 font-mono text-[10px] tracking-[0.25em] uppercase opacity-50">{String(i + 1).padStart(2, "0")}</div>

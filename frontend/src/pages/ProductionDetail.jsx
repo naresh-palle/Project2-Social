@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Heart, MapPin } from "lucide-react";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -70,9 +70,20 @@ export default function ProductionDetail() {
   };
 
   if (loading) {
-    return <div className="py-24 text-center font-mono text-xs uppercase tracking-widest opacity-50">Loading…</div>;
+    return <div className="py-24 text-center font-mono text-xs uppercase tracking-widest text-[#A9824A]">Loading production profile…</div>;
   }
-  if (!member) return null;
+  if (!member) {
+    return (
+      <div className="py-16 text-[#2A201A]">
+        <p className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#A9824A] font-bold mb-2">Hire / Production</p>
+        <h1 className="font-editorial text-3xl mb-2">Team member not found</h1>
+        <p className="font-sans text-sm text-[#6B5D50] mb-5">This production profile is unavailable.</p>
+        <Link to="/marketplace?tab=hire" className="inline-flex px-4 py-2 rounded-full bg-[#2A201A] text-[#F6F0E6] font-mono text-[10px] uppercase tracking-widest font-bold">
+          Browse hire talent
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full pb-10 text-[#1E1B4B]">

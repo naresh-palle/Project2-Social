@@ -97,7 +97,7 @@ function App() {
               <Route path="/campaigns/map" element={<RequireAuth roles={["influencer", "admin"]}><Navigate to="/marketplace?tab=campaigns&view=map" replace /></RequireAuth>} />
               <Route path="/campaigns/:id" element={<RequireAuth><CampaignDetail /></RequireAuth>} />
               <Route path="/creators/:id" element={<RequireAuth><CreatorDetail /></RequireAuth>} />
-              <Route path="/social-audit" element={<RequireAuth roles={["influencer", "owner", "agent"]}><SocialMediaAudit /></RequireAuth>} />
+              <Route path="/social-audit" element={<RequireAuth roles={["influencer", "owner", "agent", "production"]}><SocialMediaAudit /></RequireAuth>} />
               <Route path="/support" element={<RequireAuth><SupportCenter /></RequireAuth>} />
               <Route path="/support/ops" element={<RequireAuth roles={["support", "support_agent", "support_lead", "support_admin"]}><SupportDashboard /></RequireAuth>} />
               <Route path="/help" element={<RequireAuth><HelpChat /></RequireAuth>} />

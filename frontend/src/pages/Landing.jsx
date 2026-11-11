@@ -32,12 +32,13 @@ function MaskLine({ children, delay = 0, className = "" }) {
 }
 
 function FadeUp({ children, delay = 0, y = 30, className = "" }) {
+  // Deck slides remount inside AnimatePresence — use mount `animate`, not whileInView,
+  // so content never stays stuck at opacity 0 when IntersectionObserver races the transition.
   return (
     <motion.div
       initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 1, ease: [0.2, 0.8, 0.2, 1], delay }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1], delay }}
       className={className}
     >
       {children}
