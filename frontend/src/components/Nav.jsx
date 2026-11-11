@@ -55,7 +55,7 @@ export function Nav({ variant = "paper" }) {
                 key={it.to}
                 to={it.to}
                 data-testid={`menu-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
-                className="font-sans text-[12px] font-semibold tracking-wide text-[#64748B] hover:text-[#1E1B4B] hover:bg-[#EEF2FF] px-3 py-2 rounded-full transition-colors whitespace-nowrap"
+                className="font-sans text-[12px] font-semibold tracking-wide text-[#6B5D50] hover:text-[#2A201A] hover:bg-[#E7DAC4] px-3 py-2 rounded-full transition-colors whitespace-nowrap"
               >
                 {it.label}
               </Link>
@@ -83,12 +83,12 @@ export function Nav({ variant = "paper" }) {
               }}
               className="relative hidden md:flex items-center mr-1"
             >
-              <Search className="w-3.5 h-3.5 absolute left-3 text-[#1E1B4B]" strokeWidth={2.35} />
+              <Search className="w-3.5 h-3.5 absolute left-3 text-[#2A201A]" strokeWidth={2.35} />
               <input
                 name="search"
                 type="text"
                 placeholder="Search / Jump…"
-                className="bg-[#F7F8FC] border border-[#1E1B4B]/10 rounded-full pl-9 pr-4 py-1.5 text-[11px] font-sans text-[#1E1B4B] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#7C3AED]/40 focus:bg-white transition-all w-44 focus:w-60"
+                className="bg-[#F6F0E6] border border-[#D9CBB3] rounded-full pl-9 pr-4 py-1.5 text-[11px] font-sans text-[#2A201A] placeholder:text-[#6B5D50] focus:outline-none focus:border-[#A9824A] focus:bg-[#FBF7F0] transition-all w-44 focus:w-60"
               />
             </form>
           )}
@@ -99,7 +99,7 @@ export function Nav({ variant = "paper" }) {
                 <>
                   <Link
                     to="/support"
-                    className="text-[#1E1B4B] hover:text-[#FF2D55] transition-colors flex items-center gap-1.5 px-2"
+                    className="text-[#2A201A] hover:text-[#A9824A] transition-colors flex items-center gap-1.5 px-2"
                     title="Support"
                   >
                     <LifeBuoy className="w-4 h-4" strokeWidth={2.35} />
@@ -107,7 +107,7 @@ export function Nav({ variant = "paper" }) {
                   </Link>
                   <Link
                     to="/messages"
-                    className="text-[#1E1B4B] hover:text-[#FF2D55] transition-colors flex items-center gap-1.5 px-2 border-r border-[#1E1B4B]/10 pr-3 mr-1"
+                    className="text-[#2A201A] hover:text-[#A9824A] transition-colors flex items-center gap-1.5 px-2 border-r border-[#D9CBB3] pr-3 mr-1"
                     title="Messages"
                   >
                     <MessageSquare className="w-4 h-4" strokeWidth={2.35} />
@@ -116,15 +116,13 @@ export function Nav({ variant = "paper" }) {
                 </>
               )}
               <NotificationBell />
-              <div className="flex items-center gap-2.5 pl-2 border-l border-[#1E1B4B]/10">
+              <div className="flex items-center gap-2.5 pl-2 border-l border-[#D9CBB3]">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-[#1E1B4B]/10" />
+                  <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-[#D9CBB3]" />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-[#1E1B4B] border border-[#1E1B4B]/10"
-                    style={{
-                      backgroundColor: `hsl(${((displayAccountName(user) || "flugr").charCodeAt(0) * 47) % 360}, 65%, 42%)`,
-                    }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-sans font-bold text-sm text-[#F6F0E6] border border-[#D9CBB3]"
+                    style={{ backgroundColor: "#2A201A" }}
                   >
                     {(displayAccountName(user) || "C")[0]?.toUpperCase()}
                   </div>
@@ -135,7 +133,7 @@ export function Nav({ variant = "paper" }) {
                     nav("/");
                   }}
                   data-testid="nav-logout"
-                  className="font-sans text-[11px] font-bold tracking-wide uppercase text-[#FF2D55] hover:text-[#E11D48] transition-colors"
+                  className="font-sans text-[11px] font-bold tracking-wide uppercase text-[#A9824A] hover:text-[#2A201A] transition-colors"
                 >
                   Sign Out
                 </button>
@@ -146,7 +144,7 @@ export function Nav({ variant = "paper" }) {
               <Link
                 to="/login"
                 data-testid="nav-login"
-                className="hidden sm:inline-flex items-center font-sans text-[14px] font-semibold text-[#1E1B4B] hover:text-[#FF2D55] transition-colors px-3 py-2"
+                className="hidden sm:inline-flex items-center font-sans text-[14px] font-semibold text-[#2A201A] hover:text-[#A9824A] transition-colors px-3 py-2"
               >
                 Sign In
               </Link>

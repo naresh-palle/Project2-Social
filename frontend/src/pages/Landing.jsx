@@ -59,16 +59,16 @@ function Hero() {
       className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#F6F0E6] flex flex-col"
       data-testid="slide-hero"
     >
-      {/* Curtain reveal */}
+      {/* Curtain reveal — cream */}
       <motion.div
         className="absolute inset-0 z-50 pointer-events-none origin-top"
-        style={{ background: "#F7F8FC" }}
+        style={{ background: "#F6F0E6" }}
         initial={{ scaleY: 1 }}
         animate={{ scaleY: 0 }}
         transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
       />
 
-      {/* Vibrant light atmosphere — coral / violet / teal social wash */}
+      {/* Warm cream / sand / bronze atmosphere (brand palette) */}
       <motion.div
         style={{ y: yImg }}
         className="absolute inset-0 z-0"
@@ -80,54 +80,67 @@ function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(169,130,74,0.18) 0%, transparent 58%), radial-gradient(ellipse 55% 45% at 88% 72%, rgba(90,107,78,0.16) 0%, transparent 55%), radial-gradient(ellipse 48% 42% at 8% 78%, rgba(42,32,26,0.16) 0%, transparent 50%), linear-gradient(180deg, #FFFFFF 0%, #FFF7FB 42%, #F3EEFF 100%)",
+              "radial-gradient(ellipse 75% 55% at 50% -5%, rgba(169,130,74,0.16) 0%, transparent 60%), radial-gradient(ellipse 55% 48% at 92% 78%, rgba(231,218,196,0.55) 0%, transparent 58%), radial-gradient(ellipse 48% 42% at 6% 82%, rgba(42,32,26,0.10) 0%, transparent 52%), linear-gradient(180deg, #FBF7F0 0%, #F6F0E6 48%, #E7DAC4 100%)",
           }}
         />
         <img
-          src={`${process.env.PUBLIC_URL}/flugr-home-light-aurora-hero.jpg`}
+          src={`${process.env.PUBLIC_URL}/flugr-home-light-aurora-hero.jpg?v=cream-v2`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-multiply"
         />
       </motion.div>
 
       <motion.div
         className="absolute pointer-events-none rounded-full z-[1]"
         style={{
-          left: "6%",
-          top: "18%",
-          width: 260,
-          height: 260,
+          left: "4%",
+          top: "16%",
+          width: 280,
+          height: 280,
           background: "#E7DAC4",
-          filter: "blur(100px)",
-        }}
-        animate={{ opacity: [0.35, 0.55, 0.4] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.0 }}
-      />
-      <motion.div
-        className="absolute pointer-events-none rounded-full z-[1]"
-        style={{
-          right: "8%",
-          top: "22%",
-          width: 300,
-          height: 300,
-          background: "#A9824A",
           filter: "blur(110px)",
         }}
-        animate={{ opacity: [0.08, 0.16, 0.1] }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.3 }}
+        animate={{ opacity: [0.4, 0.7, 0.45], scale: [1, 1.08, 1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.0 }}
       />
       <motion.div
         className="absolute pointer-events-none rounded-full z-[1]"
         style={{
-          right: "18%",
-          bottom: "8%",
-          width: 240,
-          height: 240,
+          right: "6%",
+          top: "20%",
+          width: 320,
+          height: 320,
+          background: "#A9824A",
+          filter: "blur(120px)",
+        }}
+        animate={{ opacity: [0.1, 0.22, 0.12], scale: [1, 1.05, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1.3 }}
+      />
+      <motion.div
+        className="absolute pointer-events-none rounded-full z-[1]"
+        style={{
+          right: "20%",
+          bottom: "6%",
+          width: 260,
+          height: 260,
           background: "#D9CBB3",
+          filter: "blur(110px)",
+        }}
+        animate={{ opacity: [0.3, 0.55, 0.35], x: [0, 18, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      />
+      <motion.div
+        className="absolute pointer-events-none rounded-full z-[1]"
+        style={{
+          left: "35%",
+          bottom: "12%",
+          width: 200,
+          height: 200,
+          background: "#2A201A",
           filter: "blur(100px)",
         }}
-        animate={{ opacity: [0.25, 0.4, 0.28] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+        animate={{ opacity: [0.04, 0.1, 0.05] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
       />
 
       <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
@@ -1081,7 +1094,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (user) return undefined;
-    document.body.style.background = "#F7F8FC";
+    document.body.style.background = "#F6F0E6";
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
         pauseAutoThenResume();
