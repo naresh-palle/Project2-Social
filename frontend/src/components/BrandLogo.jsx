@@ -1,59 +1,35 @@
 /**
- * flugr brand mark — rounded square + bronze corner dot + Fraunces wordmark.
- * Geometry: 40-unit grid, stroke 2.5, rounded corners; dot on top-right.
+ * flugr brand — sample mark (rounded square + bronze corner dot) + Fraunces wordmark.
+ * Mark art: public/brand/flugr-mark.png (from brand sample).
  */
-export const LOGO_CACHE = "v10-mark";
+export const LOGO_CACHE = "v11-sample";
 
 const ESPRESSO = "#2A201A";
 const CREAM = "#F6F0E6";
-const BRONZE = "#A9824A";
-const BRONZE_LIGHT = "#C9A26B";
+
+function brandSrc(file) {
+  const base = `${process.env.PUBLIC_URL || ""}/brand/${file}`;
+  return `${base}${base.includes("?") ? "&" : "?"}v=${LOGO_CACHE}`;
+}
 
 function FlugrMark({ size = 40, dark = false, className = "" }) {
-  const stroke = dark ? CREAM : ESPRESSO;
-  const dot = dark ? BRONZE_LIGHT : BRONZE;
-  // 40-unit grid; stroke 2.5; bronze dot ≈ 1.7× stroke (not oversized)
-  const sw = 2.5;
-  const pad = sw / 2;
-  const side = 40 - sw;
-  const radius = 8.5;
-  // Dot centered on outer top-right corner of the stroke path
-  const cx = 40 - pad;
-  const cy = pad;
-  const r = 2.15; // diameter ~4.3 on 40 grid (~11% of mark)
+  const src = dark ? brandSrc("flugr-mark-dark.png") : brandSrc("flugr-mark.png");
   return (
-    <svg
+    <img
+      src={src}
+      alt=""
       width={size}
       height={size}
-      viewBox="-1.5 -1.5 43 43"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      draggable={false}
+      className={`shrink-0 object-contain select-none ${className}`}
+      style={{ width: size, height: size }}
       aria-hidden="true"
-      overflow="visible"
-    >
-      <rect
-        x={pad}
-        y={pad}
-        width={side}
-        height={side}
-        rx={radius}
-        ry={radius}
-        stroke={stroke}
-        strokeWidth={sw}
-      />
-      <circle cx={cx} cy={cy} r={r} fill={dot} />
-    </svg>
+    />
   );
 }
 
-function FlugrWord({
-  height = 28,
-  dark = false,
-  className = "",
-}) {
+function FlugrWord({ height = 28, dark = false, className = "" }) {
   const color = dark ? CREAM : ESPRESSO;
-  // Fraunces SemiBold, -4% tracking ≈ letterSpacing -0.04em
   const fontSize = Math.round(height * 0.92);
   return (
     <span
@@ -71,15 +47,15 @@ function FlugrWord({
   );
 }
 
-/**
- * @param {"mark"|"wordmark"|"stacked"|"hero"} variant
- * @param {"paper"|"light"|"dark"} surface — dark → cream ink on espresso
- */
 export function brandAsset(path) {
   const base = `${process.env.PUBLIC_URL || ""}/${String(path).replace(/^\//, "")}`;
   return `${base}${base.includes("?") ? "&" : "?"}v=${LOGO_CACHE}`;
 }
 
+/**
+ * @param {"mark"|"wordmark"|"stacked"|"hero"} variant
+ * @param {"paper"|"light"|"dark"} surface
+ */
 export function BrandLogo({
   variant = "wordmark",
   surface = "paper",
@@ -103,18 +79,17 @@ export function BrandLogo({
   if (stacked) {
     return (
       <span
-        className={`inline-flex flex-col items-center gap-2 ${className}`}
+        className={`inline-flex flex-col items-center gap-2.5 ${className}`}
         role="img"
         aria-label={alt}
-        style={{ maxWidth: Math.round(height * 2.4) }}
+        style={{ maxWidth: Math.round(height * 2.6) }}
       >
-        <FlugrMark size={Math.round(height * 0.72)} dark={dark} />
-        <FlugrWord height={Math.round(height * 0.55)} dark={dark} />
+        <FlugrMark size={Math.round(height * 0.62)} dark={dark} />
+        <FlugrWord height={Math.round(height * 0.42)} dark={dark} />
       </span>
     );
   }
 
-  // wordmark: mark + flugr horizontal
   return (
     <span
       className={`inline-flex items-center gap-2.5 ${className}`}
