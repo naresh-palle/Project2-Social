@@ -4,14 +4,14 @@
   "description": "Connect brands with creators. Collaborate, negotiate, and grow on flugr.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFF7FB",
-  "theme_color": "#FF5C5C",
+  "background_color": "#F6F0E6",
+  "theme_color": "#2A201A",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     },
     {
       "src": "icons/icon-192.png",
