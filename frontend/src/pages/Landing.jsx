@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase,
   ChevronLeft, ChevronRight, DollarSign, Lock, Zap, Award, CheckCircle2,
-  Target, BarChart3, Headphones, UserCheck, Star, Clock, Check, HelpCircle, Mail, Play
+  Target, BarChart3, Headphones, UserCheck, Star, Clock, Check, HelpCircle, Mail
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -46,367 +46,270 @@ function FadeUp({ children, delay = 0, y = 30, className = "" }) {
 }
 
 /* =========================================================================
-   SLIDE 01: HERO (Premium + Conversion)
+   SLIDE 01: HERO — Pattern I hex honeycomb (production full-page)
    ========================================================================= */
-function Hero() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yImg = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
-
-  return (
-    <section
-      ref={ref}
-      className="relative min-h-[100dvh] h-auto md:h-screen overflow-hidden bg-[#F6F0E6] flex flex-col"
-      data-testid="slide-hero"
-    >
-      {/* Curtain reveal — cream */}
-      <motion.div
-        className="absolute inset-0 z-50 pointer-events-none origin-top"
-        style={{ background: "#F6F0E6" }}
-        initial={{ scaleY: 1 }}
-        animate={{ scaleY: 0 }}
-        transition={{ duration: 1.3, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
-      />
-
-      {/* Warm cream / sand / bronze atmosphere (brand palette) */}
-      <motion.div
-        style={{ y: yImg }}
-        className="absolute inset-0 z-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 75% 55% at 50% -5%, rgba(169,130,74,0.16) 0%, transparent 60%), radial-gradient(ellipse 55% 48% at 92% 78%, rgba(231,218,196,0.55) 0%, transparent 58%), radial-gradient(ellipse 48% 42% at 6% 82%, rgba(42,32,26,0.10) 0%, transparent 52%), linear-gradient(180deg, #FBF7F0 0%, #F6F0E6 48%, #E7DAC4 100%)",
-          }}
-        />
-        <img
-          src={`${process.env.PUBLIC_URL}/flugr-home-light-aurora-hero.jpg?v=cream-v2`}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-multiply"
-        />
-      </motion.div>
-
-      <motion.div
-        className="absolute pointer-events-none rounded-full z-[1]"
-        style={{
-          left: "4%",
-          top: "16%",
-          width: 280,
-          height: 280,
-          background: "#E7DAC4",
-          filter: "blur(110px)",
-        }}
-        animate={{ opacity: [0.4, 0.7, 0.45], scale: [1, 1.08, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.0 }}
-      />
-      <motion.div
-        className="absolute pointer-events-none rounded-full z-[1]"
-        style={{
-          right: "6%",
-          top: "20%",
-          width: 320,
-          height: 320,
-          background: "#A9824A",
-          filter: "blur(120px)",
-        }}
-        animate={{ opacity: [0.1, 0.22, 0.12], scale: [1, 1.05, 1] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1.3 }}
-      />
-      <motion.div
-        className="absolute pointer-events-none rounded-full z-[1]"
-        style={{
-          right: "20%",
-          bottom: "6%",
-          width: 260,
-          height: 260,
-          background: "#D9CBB3",
-          filter: "blur(110px)",
-        }}
-        animate={{ opacity: [0.3, 0.55, 0.35], x: [0, 18, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-      />
-      <motion.div
-        className="absolute pointer-events-none rounded-full z-[1]"
-        style={{
-          left: "35%",
-          bottom: "12%",
-          width: 200,
-          height: 200,
-          background: "#2A201A",
-          filter: "blur(100px)",
-        }}
-        animate={{ opacity: [0.04, 0.1, 0.05] }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
-      />
-
-      <div className="relative z-10 flex flex-1 flex-col w-full max-w-[920px] mx-auto px-5 sm:px-8 md:px-10 pt-[88px] pb-10 min-w-0">
-        <div className="flex flex-1 flex-col items-center justify-center text-center gap-1 my-auto py-8">
-          <motion.div
-            data-testid="hero-brand-logo"
-            className="mb-5 sm:mb-6 flex justify-center select-none"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.9 }}
-          >
-            <BrandLogo variant="stacked" surface="paper" height={168} className="mx-auto object-center" />
-          </motion.div>
-          {[
-            { text: "The Bridge", className: "text-[#2A201A] font-medium" },
-            { text: "Between", className: "text-[#2A201A] font-medium" },
-            { text: "Brands & Influence.", className: "italic text-[#A9824A] font-normal" },
-          ].map((line, i) => (
-            <MaskLine key={line.text} delay={1.05 + i * 0.12}>
-              <span
-                className={`block font-editorial leading-[1.12] tracking-tighter pb-1 ${line.className}`}
-                style={{ fontSize: "clamp(34px, 6.2vw, 72px)" }}
-              >
-                {line.text}
-              </span>
-            </MaskLine>
-          ))}
-
-          <motion.p
-            className="mt-5 text-[#6B5D50] text-[14px] sm:text-[15px] leading-[1.7] max-w-[520px]"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.45 }}
-          >
-            Connect with influencers who move audiences.{" "}
-            <span className="text-[#2A201A] font-semibold">Escrow-protected. AI-audited. Results-driven.</span>
-          </motion.p>
-
-          <motion.div
-            className="flex flex-wrap items-center justify-center gap-3 mt-7"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.65 }}
-          >
-            <Link
-              to="/register/owner"
-              data-testid="hero-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(42,32,26,0.18)] rounded-xs font-bold"
-            >
-              I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <Link
-              to="/register/influencer"
-              data-testid="hero-cta-creator"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(42,32,26,0.18)] rounded-xs font-bold"
-            >
-              I&apos;m an Influencer <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </motion.div>
-
-          <motion.p
-            className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] mt-4 flex items-center justify-center gap-1.5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.85 }}
-          >
-            <Clock className="w-3 h-3 text-[#A9824A]" /> Takes 2 minutes. No credit card required.
-          </motion.p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* =========================================================================
-   CREATOR VIDEO RAIL — UpstageX-inspired sliding reels, cream/espresso look
-   ========================================================================= */
-const REEL_VIDEOS = [
-  `${process.env.PUBLIC_URL}/reels/reel-01.mp4`,
-  `${process.env.PUBLIC_URL}/reels/reel-02.mp4`,
-];
-
-const CREATOR_REELS = [
+const HERO_HEX_CREATORS = [
   {
     name: "Kai Monroe",
-    handle: "@kai.monroe",
     niche: "Editorial",
-    metric: "200K · 4.2% ER",
-    poster: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[0],
-    tag: "Campaign reel",
+    metric: "200K",
+    img: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Arjun Sharma",
-    handle: "@arjun.creates",
     niche: "Fashion",
-    metric: "150K · ₹2.5L / mo",
-    poster: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[1],
-    tag: "Feature 07",
+    metric: "150K",
+    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Priya Glow",
-    handle: "@priya.glow",
     niche: "Beauty",
-    metric: "60K · 6.1% ER",
-    poster: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[0],
-    tag: "Product demo",
+    metric: "60K",
+    img: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Nova Reyes",
-    handle: "@novareyes",
     niche: "Fragrance",
-    metric: "180K · 3.2% ER",
-    poster: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[1],
-    tag: "Launch cut",
+    metric: "180K",
+    img: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Sneha Veda",
-    handle: "@sneha.veda",
-    niche: "Organic beauty",
-    metric: "110K · 4.8% ER",
-    poster: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[0],
-    tag: "UGC reel",
+    niche: "Organic",
+    metric: "110K",
+    img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Rahul Urban",
-    handle: "@rahul.urban",
     niche: "Streetwear",
-    metric: "95K · 5.4% ER",
-    poster: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[1],
-    tag: "Lookbook",
+    metric: "95K",
+    img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Emma Lux",
-    handle: "@emmalux",
     niche: "Luxury",
-    metric: "80K · 5.8% ER",
-    poster: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[0],
-    tag: "Sold out drop",
+    metric: "80K",
+    img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=600",
   },
   {
     name: "Sofia Ritual",
-    handle: "@sofiaritual",
     niche: "Skincare",
-    metric: "120K · 4.9% ER",
-    poster: "https://images.unsplash.com/photo-1739950839930-ef45c078f316?auto=format&fit=crop&q=80&w=800",
-    video: REEL_VIDEOS[1],
-    tag: "Long-form cut",
+    metric: "120K",
+    img: "https://images.unsplash.com/photo-1739950839930-ef45c078f316?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    name: "Zara India",
+    niche: "Campaign",
+    metric: "6.8M",
+    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
   },
 ];
 
-function CreatorReelCard({ reel }) {
-  const ref = useRef(null);
-  const [ready, setReady] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || failed) return undefined;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) {
-          el.pause();
-          return;
-        }
-        el.play().catch(() => {});
-      },
-      { threshold: 0.35 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [failed]);
-
+function HexCell({ creator }) {
   return (
-    <article className="relative w-[210px] sm:w-[240px] shrink-0 mx-2.5 group">
-      <div className="relative aspect-[9/16] overflow-hidden rounded-3xl border border-[#D9CBB3] bg-[#2A201A] shadow-[0_18px_40px_-20px_rgba(42,32,26,0.35)]">
-        <img
-          src={reel.poster}
-          alt=""
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready && !failed ? "opacity-0" : "opacity-100"}`}
-        />
-        {!failed ? (
-          <video
-            ref={ref}
-            className="absolute inset-0 h-full w-full object-cover"
-            src={reel.video}
-            poster={reel.poster}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            onLoadedData={() => setReady(true)}
-            onError={() => setFailed(true)}
-          />
-        ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2A201A]/85 via-[#2A201A]/15 to-transparent" />
-        <div className="absolute top-3 left-3 font-mono text-[9px] tracking-[0.18em] uppercase bg-[#F6F0E6]/95 text-[#2A201A] px-2 py-1 rounded-full font-bold border border-[#D9CBB3]">
-          {reel.tag}
-        </div>
-        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#F6F0E6]/90 text-[#2A201A] flex items-center justify-center border border-[#D9CBB3] group-hover:bg-[#A9824A] group-hover:text-[#F6F0E6] transition-colors">
-          <Play className="w-3.5 h-3.5 fill-current" />
-        </div>
-        <div className="absolute bottom-0 inset-x-0 p-3.5 text-[#F6F0E6]">
-          <p className="font-editorial text-[17px] leading-tight tracking-tight">{reel.name}</p>
-          <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#E7DAC4] mt-1">{reel.handle} · {reel.niche}</p>
-          <p className="font-mono text-[10px] text-[#C9A26B] mt-2 font-semibold">{reel.metric}</p>
+    <article className="hex-cell" aria-label={`${creator.name}, ${creator.niche}`}>
+      <div className="hex-cell__shape">
+        <img src={creator.img} alt="" loading="lazy" decoding="async" />
+        <div className="hex-cell__veil" />
+        <div className="hex-cell__meta">
+          <p className="font-editorial text-[13px] leading-tight tracking-tight truncate">{creator.name}</p>
+          <p className="font-mono text-[8px] tracking-[0.14em] uppercase text-[#E7DAC4] mt-0.5 truncate">
+            {creator.niche} · {creator.metric}
+          </p>
         </div>
       </div>
     </article>
   );
 }
 
-function CreatorVideoRail({
-  title = "Creators in motion",
-  eyebrow = "Live reels",
-  subtitle = "Horizontal creator stories — discover fit before you brief.",
-  reels = CREATOR_REELS,
-  dual = false,
-  speed = 28,
-  compact = false,
-  ctaLabel = "Browse creators",
-  ctaTo = "/marketplace",
-  testId = "creator-video-rail",
-}) {
-  const rail = [...reels, ...reels];
-  const reverseRail = [...reels].reverse();
-  const reverseLoop = [...reverseRail, ...reverseRail];
+function HexHoneycombRail() {
+  const colA = HERO_HEX_CREATORS.filter((_, i) => i % 3 === 0);
+  const colB = HERO_HEX_CREATORS.filter((_, i) => i % 3 === 1);
+  const colC = HERO_HEX_CREATORS.filter((_, i) => i % 3 === 2);
+  const loop = (items) => {
+    const base = items.length ? items : HERO_HEX_CREATORS;
+    return [...base, ...base, ...base, ...base];
+  };
+
+  return (
+    <div
+      className="hex-honeycomb relative h-full w-full overflow-hidden"
+      data-testid="hero-hex-honeycomb"
+      aria-hidden="true"
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 55% at 55% 40%, rgba(169,130,74,0.14) 0%, transparent 65%), radial-gradient(ellipse 50% 45% at 80% 80%, rgba(42,32,26,0.08) 0%, transparent 60%)",
+        }}
+      />
+
+      <div
+        className="absolute inset-0 flex items-start justify-center gap-[10px] md:gap-[12px] px-2 md:px-4"
+        style={{ "--hex-size": "clamp(104px, 12.5vw, 152px)" }}
+      >
+        <div className="hex-column hex-column--up pt-2" style={{ "--hex-duration": "32s" }}>
+          {loop(colA).map((c, i) => (
+            <HexCell key={`a-${c.name}-${i}`} creator={c} />
+          ))}
+        </div>
+        <div className="hex-column hex-column--down mt-[calc(var(--hex-size)*0.58)]" style={{ "--hex-duration": "38s" }}>
+          {loop(colB).map((c, i) => (
+            <HexCell key={`b-${c.name}-${i}`} creator={c} />
+          ))}
+        </div>
+        <div className="hex-column hex-column--up hidden sm:flex pt-6" style={{ "--hex-duration": "44s" }}>
+          {loop(colC).map((c, i) => (
+            <HexCell key={`c-${c.name}-${i}`} creator={c} />
+          ))}
+        </div>
+      </div>
+
+      {/* Edge fades — keep honeycomb inside the composition */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#F6F0E6] via-[#F6F0E6]/80 to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#F6F0E6] via-[#F6F0E6]/85 to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#F6F0E6] to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-8 md:w-12 bg-gradient-to-l from-[#F6F0E6] to-transparent z-10" />
+    </div>
+  );
+}
+
+function Hero() {
   return (
     <section
-      className={`relative overflow-hidden bg-[#F6F0E6] ${compact ? "py-8 md:py-10" : "py-10 md:py-14"}`}
-      data-testid={testId}
+      className="relative h-auto lg:h-[calc(100dvh-64px)] min-h-[calc(100dvh-64px)] overflow-hidden bg-[#F6F0E6] flex flex-col"
+      data-testid="slide-hero"
     >
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-        <div>
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">{eyebrow}</p>
-          <h2 className="font-editorial text-3xl md:text-4xl text-[#2A201A] mt-1">{title}</h2>
-          <p className="font-sans text-sm text-[#6B5D50] mt-2 max-w-xl">{subtitle}</p>
-        </div>
-        <Link
-          to={ctaTo}
-          className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.2em] uppercase text-[#2A201A] border border-[#D9CBB3] bg-[#FBF7F0] hover:border-[#A9824A] hover:bg-[#E7DAC4] px-3 py-2 rounded-full font-bold transition-colors"
-        >
-          {ctaLabel} <ArrowUpRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
-      <div className="relative space-y-4">
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#F6F0E6] to-transparent z-10" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#F6F0E6] to-transparent z-10" />
-        <Marquee gradient={false} speed={speed} pauseOnHover>
-          {rail.map((reel, i) => (
-            <CreatorReelCard key={`${reel.handle}-a-${i}`} reel={reel} />
-          ))}
-        </Marquee>
-        {dual ? (
-          <Marquee gradient={false} speed={speed + 4} pauseOnHover direction="right">
-            {reverseLoop.map((reel, i) => (
-              <CreatorReelCard key={`${reel.handle}-b-${i}`} reel={reel} />
+      <motion.div
+        className="absolute inset-0 z-50 pointer-events-none origin-top"
+        style={{ background: "#F6F0E6" }}
+        initial={{ scaleY: 1 }}
+        animate={{ scaleY: 0 }}
+        transition={{ duration: 1.15, ease: [0.76, 0, 0.24, 1], delay: 0.08 }}
+      />
+
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 18% 30%, rgba(169,130,74,0.12) 0%, transparent 58%), radial-gradient(ellipse 55% 48% at 88% 70%, rgba(231,218,196,0.5) 0%, transparent 60%), linear-gradient(165deg, #FBF7F0 0%, #F6F0E6 46%, #EFE6D8 100%)",
+        }}
+      />
+
+      <div className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 pt-4 pb-5 lg:pt-2 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-stretch min-h-0">
+        {/* LEFT — message / conversion */}
+        <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center min-w-0 py-3 lg:py-6 order-1">
+          <motion.p
+            className="font-mono text-[10px] sm:text-[11px] tracking-[0.28em] uppercase text-[#A9824A] font-bold mb-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.55 }}
+          >
+            Influencer marketplace · India
+          </motion.p>
+
+          <motion.div
+            data-testid="hero-brand-logo"
+            className="mb-5 select-none"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.65 }}
+          >
+            <BrandLogo variant="wordmark" surface="paper" height={36} />
+          </motion.div>
+
+          <div className="space-y-1">
+            {[
+              { text: "The bridge between", className: "text-[#2A201A] font-medium" },
+              { text: "brands & influence.", className: "italic text-[#A9824A] font-normal" },
+            ].map((line, i) => (
+              <MaskLine key={line.text} delay={0.78 + i * 0.1}>
+                <span
+                  className={`block font-editorial leading-[1.08] tracking-tight ${line.className}`}
+                  style={{ fontSize: "clamp(34px, 4.6vw, 58px)" }}
+                >
+                  {line.text}
+                </span>
+              </MaskLine>
             ))}
-          </Marquee>
-        ) : null}
+          </div>
+
+          <motion.p
+            className="mt-5 text-[#6B5D50] text-[14px] sm:text-[15px] leading-[1.7] max-w-[440px]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+          >
+            Discover creators who fit the brief. Run deals with escrow, contracts, and AI-checked deliverables —
+            without the agency chaos.
+          </motion.p>
+
+          <motion.div
+            className="flex flex-wrap items-center gap-3 mt-7"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.15 }}
+          >
+            <Link
+              to="/register/owner"
+              data-testid="hero-cta-brand"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.2em] uppercase text-[#F6F0E6] bg-[#2A201A] hover:bg-[#3A2E26] transition-colors duration-300 shadow-[0_14px_32px_rgba(42,32,26,0.18)] rounded-full font-bold"
+            >
+              I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/register/influencer"
+              data-testid="hero-cta-creator"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.2em] uppercase text-[#2A201A] bg-transparent border border-[#D9CBB3] hover:border-[#A9824A] hover:bg-[#FBF7F0] transition-colors duration-300 rounded-full font-bold"
+            >
+              I&apos;m an Influencer
+            </Link>
+          </motion.div>
+
+          <motion.div
+            className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[10px] tracking-[0.16em] uppercase text-[#6B5D50]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.3 }}
+          >
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-[#A9824A]" /> Escrow protected</span>
+            <span className="inline-flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#A9824A]" /> AI audited</span>
+            <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#A9824A]" /> 2 min signup</span>
+          </motion.div>
+
+          <motion.div
+            className="mt-8 pt-5 border-t border-[#D9CBB3]/80 grid grid-cols-3 gap-3 max-w-[420px]"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+          >
+            {[
+              { k: "50K+", v: "Creators" },
+              { k: "500+", v: "Brands" },
+              { k: "₹2Cr+", v: "Paid out" },
+            ].map((s) => (
+              <div key={s.v}>
+                <div className="font-editorial text-xl sm:text-2xl text-[#2A201A] tracking-tight">{s.k}</div>
+                <div className="font-mono text-[9px] tracking-[0.18em] uppercase text-[#6B5D50] mt-0.5">{s.v}</div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* RIGHT — Pattern I honeycomb */}
+        <motion.div
+          className="lg:col-span-7 xl:col-span-7 relative h-[42vh] min-h-[260px] max-h-[420px] lg:h-auto lg:min-h-0 lg:max-h-none order-2"
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.85, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="absolute top-2 right-2 z-20 hidden md:inline-flex items-center gap-2 rounded-full border border-[#D9CBB3] bg-[#FBF7F0]/90 backdrop-blur-sm px-3 py-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A9824A] animate-pulse" />
+            <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#2A201A] font-bold">Live creators</span>
+          </div>
+          <HexHoneycombRail />
+        </motion.div>
       </div>
     </section>
   );
@@ -756,25 +659,6 @@ function HowItWorks() {
    SLIDE 05: SOCIAL PROOF & TESTIMONIALS (NEW - Critical for Conversion)
    ========================================================================= */
 function SocialProof() {
-  const proofReels = [
-    CREATOR_REELS[1], // Arjun — Feature 07 energy
-    CREATOR_REELS[0],
-    CREATOR_REELS[2],
-    CREATOR_REELS[6],
-    {
-      name: "Zara Fashion India",
-      handle: "@zara.india",
-      niche: "Brand campaign",
-      metric: "₹25L · 6.8M reach",
-      poster: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
-      video: REEL_VIDEOS[0],
-      tag: "Feature 08",
-    },
-    CREATOR_REELS[4],
-    CREATOR_REELS[5],
-    CREATOR_REELS[7],
-  ];
-
   const testimonials = [
     {
       role: "Influencer",
@@ -809,20 +693,19 @@ function SocialProof() {
   ];
 
   return (
-    <section id="social-proof" className="relative text-[#2A201A] bg-[#F6F0E6]" data-testid="slide-social-proof">
-      <CreatorVideoRail
-        eyebrow="§ Slide 05 · Credibility in motion"
-        title="Profiles that slide. Proof that sticks."
-        subtitle="Feature 07–08 creators and brand cuts — same stories as our portfolio deck, now in a live horizontal reel."
-        reels={proofReels}
-        speed={26}
-        compact
-        ctaLabel="See social proof"
-        ctaTo="/marketplace"
-        testId="social-proof-reel-rail"
-      />
+    <section id="social-proof" className="relative text-[#2A201A] bg-[#F6F0E6] py-14 md:py-16" data-testid="slide-social-proof">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
+        <FadeUp>
+          <div className="pb-6 mb-8 border-b border-[#D9CBB3]">
+            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">
+              Credibility
+            </span>
+            <h2 className="font-editorial text-3xl md:text-5xl mt-1 tracking-tight">
+              Trusted by creators &amp; brands who <span className="italic text-[#A9824A]">move metrics</span>
+            </h2>
+          </div>
+        </FadeUp>
 
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-14 md:pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 border border-[#D9CBB3] bg-[#FBF7F0] p-6 rounded-2xl text-center shadow-[0_12px_30px_-22px_rgba(42,32,26,0.35)]">
           <div>
             <div className="font-editorial text-4xl text-[#2A201A] font-bold">50,000+</div>
@@ -964,42 +847,17 @@ function FeaturedGrid() {
     { k: "Signal-to-noise ratio", v: "94%", tail: "Influencers matched successfully / Invites sent" },
   ];
 
-  const portfolioReels = FEATURED.map((f, i) => {
-    const matched = CREATOR_REELS[i % CREATOR_REELS.length];
-    return {
-      name: f.title.split("×")[0].trim().split(" ").slice(0, 2).join(" "),
-      handle: matched.handle,
-      niche: f.meta.split("·")[0].trim(),
-      metric: f.meta.split("·").slice(1).join("·").trim() || matched.metric,
-      poster: f.img,
-      video: matched.video,
-      tag: f.label,
-    };
-  });
-
   return (
-    <section id="portfolio" className="relative text-[#2A201A] bg-[#F6F0E6]" data-testid="slide-portfolio">
-      <CreatorVideoRail
-        eyebrow="§ Slide 06 · Portfolio & signal"
-        title="Selected work, sliding."
-        subtitle="Campaign cuts from Features 01–10 — including Arjun Menswear and Zara Summer Drop — in an Upstage-style reel, cream flugr finish."
-        reels={portfolioReels}
-        speed={24}
-        compact
-        ctaLabel="Open portfolio"
-        ctaTo="/marketplace"
-        testId="portfolio-reel-rail"
-      />
-
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8 pb-8 md:pb-10">
+    <section id="portfolio" className="relative text-[#2A201A] bg-[#F6F0E6] py-10 md:py-12" data-testid="slide-portfolio">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
             <div>
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">
-                Still frames · grid view
+                Portfolio &amp; signal
               </span>
-              <h2 className="font-editorial text-2xl md:text-3xl mt-1 text-[#2A201A]">
-                Campaign board <span className="italic text-[#A9824A]">at a glance</span>
+              <h2 className="font-editorial text-2xl md:text-4xl mt-1 text-[#2A201A]">
+                Selected work <span className="italic text-[#A9824A]">showcase</span>
               </h2>
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
@@ -1300,33 +1158,15 @@ export default function Landing() {
   const resumeTimerRef = useRef(null);
 
   const slides = [
-    {
-      id: "hero",
-      component: (
-        <>
-          <Hero />
-          <EditorialMarquee />
-          <CreatorVideoRail
-            eyebrow="Discover in motion"
-            title="Creators who slide into the brief."
-            subtitle="Vertical reels — profiles, niches, and performance — in a cream flugr take on the sliding creator rail."
-            dual
-            speed={30}
-            ctaLabel="Find creators"
-            testId="hero-creator-video-rail"
-          />
-          <Footer />
-        </>
-      ),
-    },
-    { id: "quick-value", component: <><QuickValue /></> },
+    { id: "hero", component: <Hero /> },
+    { id: "quick-value", component: <><QuickValue /><EditorialMarquee /></> },
     { id: "manifesto", component: <><Manifesto /></> },
     { id: "how-it-works", component: <><HowItWorks /></> },
     { id: "social-proof", component: <><SocialProof /></> },
     { id: "portfolio", component: <><FeaturedGrid /></> },
     { id: "pricing", component: <><PricingSection /></> },
     { id: "faq", component: <><FAQ /></> },
-    { id: "final-cta", component: <><FinalCTA /></> },
+    { id: "final-cta", component: <><FinalCTA /><Footer /></> },
   ];
 
   const goToDeck = useCallback((updater) => {

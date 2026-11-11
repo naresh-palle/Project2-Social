@@ -313,6 +313,80 @@ html.theme-dark .grain {
     to { transform: translateX(-50%); }
 }
 
+/* Pattern I — hex honeycomb rise */
+.hex-cell {
+    position: relative;
+    width: var(--hex-size, 148px);
+    height: calc(var(--hex-size, 148px) * 1.1547);
+    flex-shrink: 0;
+}
+.hex-cell__shape {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: #2A201A;
+    overflow: hidden;
+    box-shadow: 0 18px 36px -22px rgba(42, 32, 26, 0.55);
+}
+.hex-cell__shape img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.08);
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hex-cell:hover .hex-cell__shape img {
+    transform: scale(1.16);
+}
+.hex-cell__veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 42%, rgba(42, 32, 26, 0.78) 100%);
+    pointer-events: none;
+}
+.hex-cell__meta {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 18%;
+    z-index: 1;
+    text-align: center;
+    color: #F6F0E6;
+    pointer-events: none;
+}
+.hex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    will-change: transform;
+}
+.hex-column--up {
+    animation: hexRiseUp var(--hex-duration, 28s) linear infinite;
+}
+.hex-column--down {
+    animation: hexRiseDown var(--hex-duration, 34s) linear infinite;
+}
+.hex-honeycomb:hover .hex-column--up,
+.hex-honeycomb:hover .hex-column--down {
+    animation-play-state: paused;
+}
+@keyframes hexRiseUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+}
+@keyframes hexRiseDown {
+    from { transform: translateY(-50%); }
+    to { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hex-column--up,
+    .hex-column--down {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
 /* Numeric column tick */
 .tick { color: var(--vermilion); }
 
