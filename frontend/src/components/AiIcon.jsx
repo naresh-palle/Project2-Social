@@ -82,13 +82,13 @@ const ICONS = {
 };
 
 const TONE_CLASS = {
-  // Solid studio ink — PALRAM AI ink (#1A1020), remapped via CSS tokens
-  ink: "text-[#1E1B4B]",
-  muted: "text-[#5C4D6D]",
-  brand: "text-[#FF2D55]",
-  soft: "text-[#1E1B4B]",
-  // White glyphs on brand fills only
-  white: "text-white",
+  // Espresso ink on cream paper
+  ink: "text-[#2A201A]",
+  muted: "text-[#6B5D50]",
+  brand: "text-[#A9824A]",
+  soft: "text-[#2A201A]",
+  // Cream glyphs on espresso fills
+  white: "text-[#F6F0E6]",
 };
 
 export function aiIconSrc(name) {
