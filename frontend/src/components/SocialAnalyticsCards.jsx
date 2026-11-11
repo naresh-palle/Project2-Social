@@ -56,7 +56,7 @@ export function SocialAnalyticsCards({ connections = [], onSync, isSyncing }) {
                   <div className="min-w-0">
                     <div className="font-sans text-base sm:text-lg font-bold tracking-tight truncate text-[#1E1B4B]">
                       {c.handle || c.account_name ? (
-                        <span className="text-[#FF2D55]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
+                        <span className="text-[#A9824A]">@{String(c.handle || c.account_name).replace(/^@/, "")}</span>
                       ) : (
                         <span className="text-[#64748B]">Not connected</span>
                       )}

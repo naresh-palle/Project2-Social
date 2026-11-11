@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowUpRight, ArrowRight, Sparkles, ShieldCheck, Building2, Briefcase,
   ChevronLeft, ChevronRight, DollarSign, Lock, Zap, Award, CheckCircle2,
-  Target, BarChart3, Headphones, UserCheck, Star, Clock, Check, HelpCircle, Mail
+  Target, BarChart3, Headphones, UserCheck, Star, Clock, Check, HelpCircle, Mail, Play
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -210,6 +210,203 @@ function Hero() {
             <Clock className="w-3 h-3 text-[#A9824A]" /> Takes 2 minutes. No credit card required.
           </motion.p>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   CREATOR VIDEO RAIL — UpstageX-inspired sliding reels, cream/espresso look
+   ========================================================================= */
+const REEL_VIDEOS = [
+  `${process.env.PUBLIC_URL}/reels/reel-01.mp4`,
+  `${process.env.PUBLIC_URL}/reels/reel-02.mp4`,
+];
+
+const CREATOR_REELS = [
+  {
+    name: "Kai Monroe",
+    handle: "@kai.monroe",
+    niche: "Editorial",
+    metric: "200K · 4.2% ER",
+    poster: "https://images.unsplash.com/photo-1700748910941-44f7577b0ba2?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[0],
+    tag: "Campaign reel",
+  },
+  {
+    name: "Arjun Sharma",
+    handle: "@arjun.creates",
+    niche: "Fashion",
+    metric: "150K · ₹2.5L / mo",
+    poster: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[1],
+    tag: "Feature 07",
+  },
+  {
+    name: "Priya Glow",
+    handle: "@priya.glow",
+    niche: "Beauty",
+    metric: "60K · 6.1% ER",
+    poster: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[0],
+    tag: "Product demo",
+  },
+  {
+    name: "Nova Reyes",
+    handle: "@novareyes",
+    niche: "Fragrance",
+    metric: "180K · 3.2% ER",
+    poster: "https://images.unsplash.com/photo-1700748909753-3d4f58eb8273?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[1],
+    tag: "Launch cut",
+  },
+  {
+    name: "Sneha Veda",
+    handle: "@sneha.veda",
+    niche: "Organic beauty",
+    metric: "110K · 4.8% ER",
+    poster: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[0],
+    tag: "UGC reel",
+  },
+  {
+    name: "Rahul Urban",
+    handle: "@rahul.urban",
+    niche: "Streetwear",
+    metric: "95K · 5.4% ER",
+    poster: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[1],
+    tag: "Lookbook",
+  },
+  {
+    name: "Emma Lux",
+    handle: "@emmalux",
+    niche: "Luxury",
+    metric: "80K · 5.8% ER",
+    poster: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[0],
+    tag: "Sold out drop",
+  },
+  {
+    name: "Sofia Ritual",
+    handle: "@sofiaritual",
+    niche: "Skincare",
+    metric: "120K · 4.9% ER",
+    poster: "https://images.unsplash.com/photo-1739950839930-ef45c078f316?auto=format&fit=crop&q=80&w=800",
+    video: REEL_VIDEOS[1],
+    tag: "Long-form cut",
+  },
+];
+
+function CreatorReelCard({ reel }) {
+  const ref = useRef(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || failed) return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          el.pause();
+          return;
+        }
+        el.play().catch(() => {});
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [failed]);
+
+  return (
+    <article className="relative w-[210px] sm:w-[240px] shrink-0 mx-2.5 group">
+      <div className="relative aspect-[9/16] overflow-hidden rounded-3xl border border-[#D9CBB3] bg-[#2A201A] shadow-[0_18px_40px_-20px_rgba(42,32,26,0.35)]">
+        <img
+          src={reel.poster}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready && !failed ? "opacity-0" : "opacity-100"}`}
+        />
+        {!failed ? (
+          <video
+            ref={ref}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={reel.video}
+            poster={reel.poster}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onLoadedData={() => setReady(true)}
+            onError={() => setFailed(true)}
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2A201A]/85 via-[#2A201A]/15 to-transparent" />
+        <div className="absolute top-3 left-3 font-mono text-[9px] tracking-[0.18em] uppercase bg-[#F6F0E6]/95 text-[#2A201A] px-2 py-1 rounded-full font-bold border border-[#D9CBB3]">
+          {reel.tag}
+        </div>
+        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#F6F0E6]/90 text-[#2A201A] flex items-center justify-center border border-[#D9CBB3] group-hover:bg-[#A9824A] group-hover:text-[#F6F0E6] transition-colors">
+          <Play className="w-3.5 h-3.5 fill-current" />
+        </div>
+        <div className="absolute bottom-0 inset-x-0 p-3.5 text-[#F6F0E6]">
+          <p className="font-editorial text-[17px] leading-tight tracking-tight">{reel.name}</p>
+          <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#E7DAC4] mt-1">{reel.handle} · {reel.niche}</p>
+          <p className="font-mono text-[10px] text-[#C9A26B] mt-2 font-semibold">{reel.metric}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CreatorVideoRail({
+  title = "Creators in motion",
+  eyebrow = "Live reels",
+  subtitle = "Horizontal creator stories — discover fit before you brief.",
+  reels = CREATOR_REELS,
+  dual = false,
+  speed = 28,
+  compact = false,
+  ctaLabel = "Browse creators",
+  ctaTo = "/marketplace",
+  testId = "creator-video-rail",
+}) {
+  const rail = [...reels, ...reels];
+  const reverseRail = [...reels].reverse();
+  const reverseLoop = [...reverseRail, ...reverseRail];
+  return (
+    <section
+      className={`relative overflow-hidden bg-[#F6F0E6] ${compact ? "py-8 md:py-10" : "py-10 md:py-14"}`}
+      data-testid={testId}
+    >
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+        <div>
+          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">{eyebrow}</p>
+          <h2 className="font-editorial text-3xl md:text-4xl text-[#2A201A] mt-1">{title}</h2>
+          <p className="font-sans text-sm text-[#6B5D50] mt-2 max-w-xl">{subtitle}</p>
+        </div>
+        <Link
+          to={ctaTo}
+          className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.2em] uppercase text-[#2A201A] border border-[#D9CBB3] bg-[#FBF7F0] hover:border-[#A9824A] hover:bg-[#E7DAC4] px-3 py-2 rounded-full font-bold transition-colors"
+        >
+          {ctaLabel} <ArrowUpRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+      <div className="relative space-y-4">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#F6F0E6] to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#F6F0E6] to-transparent z-10" />
+        <Marquee gradient={false} speed={speed} pauseOnHover>
+          {rail.map((reel, i) => (
+            <CreatorReelCard key={`${reel.handle}-a-${i}`} reel={reel} />
+          ))}
+        </Marquee>
+        {dual ? (
+          <Marquee gradient={false} speed={speed + 4} pauseOnHover direction="right">
+            {reverseLoop.map((reel, i) => (
+              <CreatorReelCard key={`${reel.handle}-b-${i}`} reel={reel} />
+            ))}
+          </Marquee>
+        ) : null}
       </div>
     </section>
   );
@@ -559,98 +756,118 @@ function HowItWorks() {
    SLIDE 05: SOCIAL PROOF & TESTIMONIALS (NEW - Critical for Conversion)
    ========================================================================= */
 function SocialProof() {
+  const proofReels = [
+    CREATOR_REELS[1], // Arjun — Feature 07 energy
+    CREATOR_REELS[0],
+    CREATOR_REELS[2],
+    CREATOR_REELS[6],
+    {
+      name: "Zara Fashion India",
+      handle: "@zara.india",
+      niche: "Brand campaign",
+      metric: "₹25L · 6.8M reach",
+      poster: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
+      video: REEL_VIDEOS[0],
+      tag: "Feature 08",
+    },
+    CREATOR_REELS[4],
+    CREATOR_REELS[5],
+    CREATOR_REELS[7],
+  ];
+
   const testimonials = [
     {
       role: "Influencer",
       name: "Arjun Sharma",
       handle: "arjun.creates",
       niche: "Fashion & Style",
-      followers: "150K followers",
       photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
       quote: "Joined flugr 3 months ago. Got 5 brand deals in first week. Now I do 2-3 campaigns per month. Direct relationships with brands = way better rates than agencies.",
-      rating: "⭐⭐⭐⭐⭐ (5/5)",
-      highlight: "Earnings this month: ₹2,50,000"
+      rating: "5.0",
+      highlight: "₹2,50,000 this month",
     },
     {
       role: "Brand Owner",
       name: "Zara Fashion India",
       handle: "Fashion Brand",
       niche: "Mumbai, India",
-      followers: "Verified Brand",
       photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
       quote: "Used to work with traditional agencies. Now we use flugr. Direct access to influencers. Better content. Faster turnaround. 40% cost savings on agency overhead.",
-      rating: "⭐⭐⭐⭐⭐ (5/5)",
-      highlight: "12 successful campaigns this quarter"
+      rating: "5.0",
+      highlight: "12 campaigns this quarter",
     },
     {
       role: "Brand Owner",
       name: "TechTribe India",
       handle: "Tech Brand",
       niche: "Bangalore, India",
-      followers: "Verified Enterprise",
       photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
       quote: "flugr replaced our entire influencer team. Better influencers. Better prices. Zero management overhead. This is the future of digital campaigns.",
-      rating: "⭐⭐⭐⭐⭐ (5/5)",
-      highlight: "50+ influencers on monthly retainer"
-    }
+      rating: "5.0",
+      highlight: "50+ monthly retainers",
+    },
   ];
 
   return (
-    <section id="social-proof" className="relative text-[#2A201A] py-14 md:py-16 bg-[#F6F0E6]" data-testid="slide-social-proof">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10">
-        <FadeUp>
-          <div className="pb-6 mb-10 border-b border-[#D9CBB3]/08">
-            <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">
-              § Slide 05 · Credibility &amp; Proof
-            </span>
-            <h2 className="font-editorial text-3xl md:text-5xl mt-1">
-              “Trusted by influencers &amp; brands who <span className="italic text-[#A9824A]">actually move metrics</span>”
-            </h2>
-          </div>
-        </FadeUp>
+    <section id="social-proof" className="relative text-[#2A201A] bg-[#F6F0E6]" data-testid="slide-social-proof">
+      <CreatorVideoRail
+        eyebrow="§ Slide 05 · Credibility in motion"
+        title="Profiles that slide. Proof that sticks."
+        subtitle="Feature 07–08 creators and brand cuts — same stories as our portfolio deck, now in a live horizontal reel."
+        reels={proofReels}
+        speed={26}
+        compact
+        ctaLabel="See social proof"
+        ctaTo="/marketplace"
+        testId="social-proof-reel-rail"
+      />
 
-        {/* Metrics Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-[#F6F0E6] border border-[#D9CBB3]/08 p-6 rounded-xs text-center">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-14 md:pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 border border-[#D9CBB3] bg-[#FBF7F0] p-6 rounded-2xl text-center shadow-[0_12px_30px_-22px_rgba(42,32,26,0.35)]">
           <div>
             <div className="font-editorial text-4xl text-[#2A201A] font-bold">50,000+</div>
-            <div className="font-mono text-xs text-[#A9824A] uppercase tracking-widest font-bold mt-1">INFLUENCERS</div>
-            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Verified ✓</div>
+            <div className="font-mono text-xs text-[#A9824A] uppercase tracking-widest font-bold mt-1">Influencers</div>
+            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Verified</div>
           </div>
-          <div className="border-t md:border-t-0 md:border-l border-[#D9CBB3]/08 pt-4 md:pt-0">
+          <div className="border-t md:border-t-0 md:border-l border-[#D9CBB3] pt-4 md:pt-0">
             <div className="font-editorial text-4xl text-[#2A201A] font-bold">500+</div>
-            <div className="font-mono text-xs text-[#A9824A] uppercase tracking-widest font-bold mt-1">BRANDS</div>
-            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Vetting ✓</div>
+            <div className="font-mono text-xs text-[#A9824A] uppercase tracking-widest font-bold mt-1">Brands</div>
+            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Vetted</div>
           </div>
-          <div className="border-t md:border-t-0 md:border-l border-[#D9CBB3]/08 pt-4 md:pt-0">
-            <div className="font-editorial text-4xl text-[#2A201A] font-bold">₹2 Crore+</div>
-            <div className="font-mono text-xs text-[#5A6B4E] uppercase tracking-widest font-bold mt-1">VALUE DELIVERED</div>
-            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Escrow Released ✓</div>
+          <div className="border-t md:border-t-0 md:border-l border-[#D9CBB3] pt-4 md:pt-0">
+            <div className="font-editorial text-4xl text-[#2A201A] font-bold">₹2 Cr+</div>
+            <div className="font-mono text-xs text-[#5A6B4E] uppercase tracking-widest font-bold mt-1">Value delivered</div>
+            <div className="font-mono text-[10px] text-[#6B5D50] uppercase mt-0.5">Escrow released</div>
           </div>
         </div>
 
-        {/* Testimonials Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <div key={i} className="p-6 bg-[#FBF7F0] border border-[#D9CBB3]/10 rounded-xs flex flex-col justify-between hover:border-[#A9824A]/40 transition-all">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {testimonials.map((t) => (
+            <article
+              key={t.name}
+              className="p-6 bg-[#FBF7F0] border border-[#D9CBB3] rounded-2xl flex flex-col justify-between hover:border-[#A9824A] transition-colors shadow-[0_10px_28px_-22px_rgba(42,32,26,0.3)]"
+            >
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-[#D9CBB3]/12" />
+                  <img src={t.photo} alt={t.name} className="w-12 h-12 rounded-full object-cover border border-[#D9CBB3]" />
                   <div>
-                    <h4 className="font-editorial text-lg text-[#2A201A] font-bold">{t.name}</h4>
+                    <h4 className="font-editorial text-lg text-[#2A201A] font-bold leading-tight">{t.name}</h4>
                     <p className="font-mono text-[10px] text-[#6B5D50] uppercase tracking-wider">{t.handle} · {t.niche}</p>
                   </div>
                 </div>
-
-                <p className="font-mono text-xs text-[#6B5D50] leading-relaxed italic border-l-2 border-[#A9824A] pl-3 py-1">
+                <p className="font-sans text-sm text-[#6B5D50] leading-relaxed border-l-2 border-[#A9824A] pl-3">
                   &ldquo;{t.quote}&rdquo;
                 </p>
               </div>
-
-              <div className="mt-6 pt-4 border-t border-[#D9CBB3]/08 flex items-center justify-between">
-                <span className="font-mono text-[10px] text-[#A9824A] font-bold">{t.rating}</span>
-                <span className="font-mono text-[10px] text-[#5A6B4E] bg-[#5A6B4E]/10 px-2 py-0.5 border border-[#5A6B4E]/30 rounded-xs font-bold">{t.highlight}</span>
+              <div className="mt-6 pt-4 border-t border-[#D9CBB3] flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-[#A9824A] font-bold uppercase tracking-wider">
+                  <Star className="w-3 h-3 fill-current" /> {t.rating}
+                </span>
+                <span className="font-mono text-[10px] text-[#5A6B4E] bg-[#5A6B4E]/10 px-2 py-1 border border-[#5A6B4E]/25 rounded-full font-bold">
+                  {t.highlight}
+                </span>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
@@ -747,53 +964,90 @@ function FeaturedGrid() {
     { k: "Signal-to-noise ratio", v: "94%", tail: "Influencers matched successfully / Invites sent" },
   ];
 
+  const portfolioReels = FEATURED.map((f, i) => {
+    const matched = CREATOR_REELS[i % CREATOR_REELS.length];
+    return {
+      name: f.title.split("×")[0].trim().split(" ").slice(0, 2).join(" "),
+      handle: matched.handle,
+      niche: f.meta.split("·")[0].trim(),
+      metric: f.meta.split("·").slice(1).join("·").trim() || matched.metric,
+      poster: f.img,
+      video: matched.video,
+      tag: f.label,
+    };
+  });
+
   return (
-    <section id="portfolio" className="relative text-[#2A201A] py-8 md:py-10 pb-6 bg-[#F6F0E6]" data-testid="slide-portfolio">
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8">
+    <section id="portfolio" className="relative text-[#2A201A] bg-[#F6F0E6]" data-testid="slide-portfolio">
+      <CreatorVideoRail
+        eyebrow="§ Slide 06 · Portfolio & signal"
+        title="Selected work, sliding."
+        subtitle="Campaign cuts from Features 01–10 — including Arjun Menswear and Zara Summer Drop — in an Upstage-style reel, cream flugr finish."
+        reels={portfolioReels}
+        speed={24}
+        compact
+        ctaLabel="Open portfolio"
+        ctaTo="/marketplace"
+        testId="portfolio-reel-rail"
+      />
+
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 space-y-8 pb-8 md:pb-10">
         <FadeUp>
           <div className="hairline-b pb-4 flex items-baseline justify-between">
             <div>
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">
-                § Slide 06 · Portfolio &amp; Signal
+                Still frames · grid view
               </span>
-              <h2 className="font-editorial text-2xl md:text-4xl mt-1">
-                SELECTED WORK <span className="italic text-[#A9824A]">SHOWCASE</span>
+              <h2 className="font-editorial text-2xl md:text-3xl mt-1 text-[#2A201A]">
+                Campaign board <span className="italic text-[#A9824A]">at a glance</span>
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">Real Campaigns from flugr Influencers (Auto-Expanding Grid)</span>
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase opacity-50 hidden md:block">
+              Real campaigns · Features 07 &amp; 08 highlighted
+            </span>
           </div>
         </FadeUp>
 
-        {/* 5-In-A-Row Auto-Expanding Vibrant Color Campaign Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {FEATURED.map((f, i) => (
-            <div key={i} className="group cursor-pointer border border-[#D9CBB3]/08 hover:border-[#A9824A]/60 transition-all bg-[#FBF7F0] p-3 rounded-xs flex flex-col justify-between">
-              <div>
-                <div className="relative overflow-hidden rounded-xs" style={{ aspectRatio: '16/10' }}>
-                  <img
-                    src={f.img}
-                    alt={f.title}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
-                  />
-                  <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F6F0E6]/90 px-2 py-0.5 text-[#2A201A] border border-[#D9CBB3]/08 font-bold">
-                    {f.label}
+          {FEATURED.map((f, i) => {
+            const spotlight = i === 6 || i === 7;
+            return (
+              <div
+                key={f.label}
+                className={`group cursor-pointer border transition-all bg-[#FBF7F0] p-3 rounded-2xl flex flex-col justify-between ${
+                  spotlight
+                    ? "border-[#A9824A] shadow-[0_14px_32px_-20px_rgba(169,130,74,0.55)]"
+                    : "border-[#D9CBB3] hover:border-[#A9824A]"
+                }`}
+              >
+                <div>
+                  <div className="relative overflow-hidden rounded-xl" style={{ aspectRatio: "16/10" }}>
+                    <img
+                      src={f.img}
+                      alt={f.title}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-all duration-700"
+                    />
+                    <div className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase bg-[#F6F0E6]/95 px-2 py-0.5 text-[#2A201A] border border-[#D9CBB3] font-bold rounded-full">
+                      {f.label}
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-1">
+                    <h3 className="font-editorial text-base group-hover:text-[#A9824A] transition-colors leading-snug font-bold text-[#2A201A]">
+                      {f.title}
+                    </h3>
+                    <p className="font-mono text-[9px] text-[#A9824A] uppercase tracking-wider font-bold">{f.meta}</p>
                   </div>
                 </div>
-                <div className="mt-3 space-y-1">
-                  <h3 className="font-editorial text-base group-hover:text-[#A9824A] transition-colors leading-snug font-bold text-[#2A201A]">{f.title}</h3>
-                  <p className="font-mono text-[9px] text-[#A9824A] uppercase tracking-wider font-bold">{f.meta}</p>
+                <div className="mt-3 pt-2 border-t border-[#D9CBB3] font-mono text-[9px] text-[#6B5D50] uppercase tracking-wider">
+                  {f.creator}
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-[#D9CBB3]/06 font-mono text-[9px] text-[#6B5D50] uppercase tracking-wider">
-                {f.creator}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
-        <div className="bg-[#FBF7F0] text-[#2A201A] border border-[#D9CBB3]/10 rounded-xs overflow-hidden shadow-2xl">
-          <div className="px-6 py-4 border-b border-[#D9CBB3]/08 flex items-center justify-between bg-[#F6F0E6]">
+        <div className="bg-[#FBF7F0] text-[#2A201A] border border-[#D9CBB3] rounded-2xl overflow-hidden shadow-[0_18px_40px_-24px_rgba(42,32,26,0.35)]">
+          <div className="px-6 py-4 border-b border-[#D9CBB3] flex items-center justify-between bg-[#F6F0E6]">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">§ FLUGR SIGNAL (Metrics)</span>
             <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#5A6B4E] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
@@ -1046,7 +1300,25 @@ export default function Landing() {
   const resumeTimerRef = useRef(null);
 
   const slides = [
-    { id: "hero", component: <><Hero /><EditorialMarquee /><Footer /></> },
+    {
+      id: "hero",
+      component: (
+        <>
+          <Hero />
+          <EditorialMarquee />
+          <CreatorVideoRail
+            eyebrow="Discover in motion"
+            title="Creators who slide into the brief."
+            subtitle="Vertical reels — profiles, niches, and performance — in a cream flugr take on the sliding creator rail."
+            dual
+            speed={30}
+            ctaLabel="Find creators"
+            testId="hero-creator-video-rail"
+          />
+          <Footer />
+        </>
+      ),
+    },
     { id: "quick-value", component: <><QuickValue /></> },
     { id: "manifesto", component: <><Manifesto /></> },
     { id: "how-it-works", component: <><HowItWorks /></> },
