@@ -80,7 +80,7 @@ function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 58%), radial-gradient(ellipse 55% 45% at 88% 72%, rgba(20,184,166,0.16) 0%, transparent 55%), radial-gradient(ellipse 48% 42% at 8% 78%, rgba(255,45,85,0.16) 0%, transparent 50%), linear-gradient(180deg, #FFFFFF 0%, #FFF7FB 42%, #F3EEFF 100%)",
+              "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(169,130,74,0.18) 0%, transparent 58%), radial-gradient(ellipse 55% 45% at 88% 72%, rgba(90,107,78,0.16) 0%, transparent 55%), radial-gradient(ellipse 48% 42% at 8% 78%, rgba(42,32,26,0.16) 0%, transparent 50%), linear-gradient(180deg, #FFFFFF 0%, #FFF7FB 42%, #F3EEFF 100%)",
           }}
         />
         <img
@@ -97,10 +97,10 @@ function Hero() {
           top: "18%",
           width: 260,
           height: 260,
-          background: "#FF2D55",
+          background: "#E7DAC4",
           filter: "blur(100px)",
         }}
-        animate={{ opacity: [0.12, 0.22, 0.14] }}
+        animate={{ opacity: [0.35, 0.55, 0.4] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.0 }}
       />
       <motion.div
@@ -110,10 +110,10 @@ function Hero() {
           top: "22%",
           width: 300,
           height: 300,
-          background: "#7C3AED",
+          background: "#A9824A",
           filter: "blur(110px)",
         }}
-        animate={{ opacity: [0.10, 0.20, 0.12] }}
+        animate={{ opacity: [0.08, 0.16, 0.1] }}
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.3 }}
       />
       <motion.div
@@ -123,10 +123,10 @@ function Hero() {
           bottom: "8%",
           width: 240,
           height: 240,
-          background: "#14B8A6",
+          background: "#D9CBB3",
           filter: "blur(100px)",
         }}
-        animate={{ opacity: [0.08, 0.18, 0.10] }}
+        animate={{ opacity: [0.25, 0.4, 0.28] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       />
 
@@ -175,14 +175,14 @@ function Hero() {
             <Link
               to="/register/owner"
               data-testid="hero-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(255,45,85,0.35)] rounded-xs font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(42,32,26,0.18)] rounded-xs font-bold"
             >
               I&apos;m a Brand <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
               to="/register/influencer"
               data-testid="hero-cta-creator"
-              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(124,58,237,0.35)] rounded-xs font-bold"
+              className="inline-flex items-center justify-center gap-2 px-6 h-[48px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all duration-300 shadow-[0_14px_32px_rgba(42,32,26,0.18)] rounded-xs font-bold"
             >
               I&apos;m an Influencer <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -210,7 +210,7 @@ function EditorialMarquee() {
     "✓ AI Content Audited", "✦", "✓ Direct Relationships", "✦"
   ];
   return (
-    <div className="w-full overflow-hidden border-y border-[#A9824A]/30 bg-[#FFF1F3] py-3.5">
+    <div className="w-full overflow-hidden border-y border-[#A9824A]/30 bg-[#E7DAC4]/40 py-3.5">
       <Marquee gradient={false} speed={50}>
         {[...items, ...items].map((item, i) => (
           <span
@@ -265,7 +265,7 @@ function QuickValue() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   💰 Higher Payouts
                 </div>
@@ -273,7 +273,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">Direct brand relationships with zero agency cuts. Influencers earn ₹87K/month average.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#5A6B4E] font-bold mb-1">
                   🔒 Secure &amp; Safe
                 </div>
@@ -281,16 +281,16 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">Campaign budget is locked before you post. Payout releases immediately upon milestone approval.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   ⚡ Fast &amp; Easy
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-[#2A201A]">Get opportunities within hours</h4>
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">Receive direct campaign invites and pitch active briefs matched specifically to your niche within 2 hours.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#AF52DE] font-bold mb-1">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   🌟 Grow Your Brand
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-[#2A201A]">Build portfolio, get recurring clients</h4>
@@ -311,7 +311,7 @@ function QuickValue() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   ✓ Verified Influencers
                 </div>
@@ -319,7 +319,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">Strict credential checks, bot detection, and verified follower authenticity before any influencer joins your brief.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   🎯 Perfect Matches
                 </div>
@@ -327,7 +327,7 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">AI analyzes audience alignment, aesthetic style, and niche intent — not just vanity follower numbers.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#5A6B4E] font-bold mb-1">
                   📊 Results-Driven
                 </div>
@@ -335,8 +335,8 @@ function QuickValue() {
                 <p className="font-mono text-xs text-[#6B5D50] mt-1">Real-time conversion tracking, click-through metrics, reach audits, and detailed sales performance reports.</p>
               </div>
 
-              <div className="p-4 bg-[#F8FAFC] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
-                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#D97706] font-bold mb-1">
+              <div className="p-4 bg-[#F6F0E6] border border-[#D9CBB3]/08 hover:border-[#A9824A]/50 transition-all rounded-xs">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#A9824A] font-bold mb-1">
                   💼 Support &amp; Setup
                 </div>
                 <h4 className="font-editorial text-xl font-bold text-[#2A201A]">Handholding from start to finish</h4>
@@ -597,7 +597,7 @@ function SocialProof() {
         </FadeUp>
 
         {/* Metrics Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-[#F8FAFC] border border-[#D9CBB3]/08 p-6 rounded-xs text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-[#F6F0E6] border border-[#D9CBB3]/08 p-6 rounded-xs text-center">
           <div>
             <div className="font-editorial text-4xl text-[#2A201A] font-bold">50,000+</div>
             <div className="font-mono text-xs text-[#A9824A] uppercase tracking-widest font-bold mt-1">INFLUENCERS</div>
@@ -634,7 +634,7 @@ function SocialProof() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-[#D9CBB3]/08 flex items-center justify-between">
-                <span className="font-mono text-[10px] text-[#D97706] font-bold">{t.rating}</span>
+                <span className="font-mono text-[10px] text-[#A9824A] font-bold">{t.rating}</span>
                 <span className="font-mono text-[10px] text-[#5A6B4E] bg-[#5A6B4E]/10 px-2 py-0.5 border border-[#5A6B4E]/30 rounded-xs font-bold">{t.highlight}</span>
               </div>
             </div>
@@ -780,7 +780,7 @@ function FeaturedGrid() {
 
         {/* Studio Signal Metrics Table (Matched with Dark Obsidian Aesthetic) */}
         <div className="bg-[#FBF7F0] text-[#2A201A] border border-[#D9CBB3]/10 rounded-xs overflow-hidden shadow-2xl">
-          <div className="px-6 py-4 border-b border-[#D9CBB3]/08 flex items-center justify-between bg-[#F8FAFC]">
+          <div className="px-6 py-4 border-b border-[#D9CBB3]/08 flex items-center justify-between bg-[#F6F0E6]">
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#A9824A] font-bold">§ FLUGR SIGNAL (Metrics)</span>
             <Link to="/marketplace" className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#5A6B4E] font-bold hover:underline">Browse all completed campaigns →</Link>
           </div>
@@ -839,7 +839,7 @@ function PricingSection() {
               </div>
             </div>
 
-            <div className="p-3 bg-[#F8FAFC] border border-[#D9CBB3]/08 rounded-xs font-mono text-xs space-y-1">
+            <div className="p-3 bg-[#F6F0E6] border border-[#D9CBB3]/08 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#A9824A] font-bold text-[9px] uppercase tracking-wider">Example Payout:</div>
               <div>You earn <span className="text-[#2A201A] font-bold">₹1,00,000</span> from a campaign</div>
               <div>Platform Fee: <span className="text-[#5A6B4E]">₹0 (100% Free)</span></div>
@@ -877,7 +877,7 @@ function PricingSection() {
               </div>
             </div>
 
-            <div className="p-3 bg-[#F8FAFC] border border-[#D9CBB3]/08 rounded-xs font-mono text-xs space-y-1">
+            <div className="p-3 bg-[#F6F0E6] border border-[#D9CBB3]/08 rounded-xs font-mono text-xs space-y-1">
               <div className="text-[#A9824A] font-bold text-[9px] uppercase tracking-wider">Example Campaign:</div>
               <div>Campaign budget: <span className="text-[#2A201A] font-bold">₹1,00,000</span> for 5 influencers</div>
               <div>Platform Fee: <span className="text-[#5A6B4E]">₹0 (100% Free)</span></div>
@@ -988,14 +988,14 @@ function FinalCTA() {
             <Link
               to="/register/owner"
               data-testid="final-cta-brand"
-              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(255,45,85,0.45)]"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(42,32,26,0.45)]"
             >
               I&apos;m a Brand — Post brief now (3 min setup) <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/register/influencer"
               data-testid="final-cta-creator"
-              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(124,58,237,0.45)]"
+              className="inline-flex items-center justify-center gap-2 px-8 h-[52px] font-mono text-[11px] tracking-[0.22em] uppercase text-white bg-[#2A201A] hover:bg-[#3A2E26] transition-all rounded-xs font-bold shadow-[0_0_28px_rgba(169,130,74,0.45)]"
             >
               I&apos;m an Influencer — Build profile now (2 min setup) <ArrowRight className="w-4 h-4" />
             </Link>

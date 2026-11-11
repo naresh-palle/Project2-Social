@@ -2,7 +2,7 @@
  * flugr brand mark — rounded square + bronze corner dot + Fraunces wordmark.
  * Geometry: 40-unit grid, stroke 2.5, rounded corners; dot on top-right.
  */
-export const LOGO_CACHE = "v9-espresso";
+export const LOGO_CACHE = "v10-mark";
 
 const ESPRESSO = "#2A201A";
 const CREAM = "#F6F0E6";
@@ -12,24 +12,25 @@ const BRONZE_LIGHT = "#C9A26B";
 function FlugrMark({ size = 40, dark = false, className = "" }) {
   const stroke = dark ? CREAM : ESPRESSO;
   const dot = dark ? BRONZE_LIGHT : BRONZE;
-  // 40-unit grid → viewBox 0 0 40 40; stroke 2.5; rounded rect inset by half stroke
+  // 40-unit grid; stroke 2.5; bronze dot ≈ 1.7× stroke (not oversized)
   const sw = 2.5;
   const pad = sw / 2;
   const side = 40 - sw;
-  const radius = 9;
-  // Dot centered on outer top-right corner of the stroke
+  const radius = 8.5;
+  // Dot centered on outer top-right corner of the stroke path
   const cx = 40 - pad;
   const cy = pad;
-  const r = 3.6;
+  const r = 2.15; // diameter ~4.3 on 40 grid (~11% of mark)
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 40 40"
+      viewBox="-1.5 -1.5 43 43"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden="true"
+      overflow="visible"
     >
       <rect
         x={pad}
