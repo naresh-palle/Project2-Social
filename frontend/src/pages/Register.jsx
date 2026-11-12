@@ -465,7 +465,13 @@ export default function Register() {
     form.password.trim() !== "";
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#F7F8FC] text-[#1E1B4B] relative">
+    <div
+      className="h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#F6F0E6] text-[#2A201A] relative"
+      style={{
+        background:
+          "radial-gradient(ellipse 70% 50% at 20% 10%, rgba(169,130,74,0.12) 0%, transparent 55%), #F6F0E6",
+      }}
+    >
       <Nav />
       <ThemeToaster />
 
@@ -474,25 +480,24 @@ export default function Register() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FFFFFF]/95 backdrop-blur-2xl border border-[#1E1B4B]/10 px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-2xl relative overflow-hidden"
+          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FBF7F0] border border-[#D9CBB3] px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-[0_24px_50px_-28px_rgba(42,32,26,0.4)] relative overflow-hidden"
         >
-          {/* Same top gradient bar as Sign In */}
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF2D55] via-purple-500 to-[#14B8A6] absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#A9824A] via-[#C9A26B] to-[#2A201A] absolute top-0 left-0" />
 
           <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <BrandLogo variant="mark" height={28} alt="flugr" className="shrink-0" />
-              <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#FF2D55]/90 font-semibold truncate">
+              <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#A9824A] font-bold truncate">
                 Apply for access
               </p>
             </div>
-            <Link to="/register" className="font-sans text-[10px] tracking-[0.2em] uppercase text-[#475569] hover:opacity-100 hover:text-[#FF2D55] transition-colors font-semibold shrink-0">
+            <Link to="/register" className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B5D50] hover:text-[#A9824A] transition-colors font-semibold shrink-0">
               ← Change Door
             </Link>
           </div>
 
-          <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0">
-            Register as <span className="italic text-[#FF2D55]">{roleLabel}</span>
+          <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0 text-[#2A201A]">
+            Register as <span className="italic text-[#A9824A]">{roleLabel}</span>
           </h1>
 
           <div className="mt-1.5 w-full shrink-0">
@@ -506,9 +511,9 @@ export default function Register() {
           </div>
 
           <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#1E1B4B]/12 flex-1"></div>
+            <div className="h-px bg-[#2A201A]/12 flex-1"></div>
             <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#1E1B4B]/12 flex-1"></div>
+            <div className="h-px bg-[#2A201A]/12 flex-1"></div>
           </div>
 
           <form
@@ -546,12 +551,12 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "company_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "company_agent"
-                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
+                        ? "border-[#A9824A] bg-[#A9824A]/15 text-[#2A201A] font-bold"
+                        : "border-[#2A201A]/08 bg-[#F6F0E6] text-[#6B5D50] hover:bg-[#E7DAC4]"
                     }`}
                   >
-                    <div className="font-sans text-xs text-[#1E1B4B]">Company Agent</div>
-                    <div className="font-sans text-[9px] uppercase text-[#64748B] mt-0.5 leading-tight">
+                    <div className="font-sans text-xs text-[#2A201A]">Company Agent</div>
+                    <div className="font-sans text-[9px] uppercase text-[#6B5D50] mt-0.5 leading-tight">
                       Brand clients &amp; campaign briefs
                     </div>
                   </button>
@@ -561,12 +566,12 @@ export default function Register() {
                     onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
                     className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
                       form.agent_type === "influencer_agent"
-                        ? "border-[#FF2D55] bg-[#FF2D55]/10 text-white font-bold"
-                        : "border-[#1E1B4B]/08 bg-[#F7F8FC] text-[#64748B] hover:bg-[#EEF2FF]"
+                        ? "border-[#A9824A] bg-[#A9824A]/15 text-[#2A201A] font-bold"
+                        : "border-[#2A201A]/08 bg-[#F6F0E6] text-[#6B5D50] hover:bg-[#E7DAC4]"
                     }`}
                   >
-                    <div className="font-sans text-xs text-[#1E1B4B]">Influencer Agent</div>
-                    <div className="font-sans text-[9px] uppercase text-[#64748B] mt-0.5 leading-tight">
+                    <div className="font-sans text-xs text-[#2A201A]">Influencer Agent</div>
+                    <div className="font-sans text-[9px] uppercase text-[#6B5D50] mt-0.5 leading-tight">
                       Influencer roster &amp; talent
                     </div>
                   </button>
@@ -576,10 +581,10 @@ export default function Register() {
             <div className="relative col-span-2 md:col-span-1">
               <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
               {usernameStatus === "checking" && (
-                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-[#64748B]">Checking…</span>
+                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-[#6B5D50]">Checking…</span>
               )}
               {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF2D55]" />}
+              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
               {usernameStatus === "taken" && usernameSuggestions.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {usernameSuggestions.map((s) => (
@@ -587,7 +592,7 @@ export default function Register() {
                       key={s}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, username: s }))}
-                      className="font-sans text-[10px] px-2 py-0.5 border border-[#1E1B4B]/10 bg-[#F7F8FC] hover:border-[#FF2D55] hover:text-[#FF2D55] transition-colors"
+                      className="font-sans text-[10px] px-2 py-0.5 border border-[#2A201A]/10 bg-[#F6F0E6] hover:border-[#A9824A] hover:text-[#A9824A] transition-colors"
                     >
                       {s}
                     </button>
@@ -599,32 +604,32 @@ export default function Register() {
             <div className="relative">
               <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
               {emailStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF2D55]" />}
+              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
             </div>
 
             <div className="relative">
               <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
               {mobileStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#FF2D55]" />}
+              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
             </div>
 
             <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
 
             {/* City / State from pincode — plain values, no autofill badges */}
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
                 City
               </label>
-              <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-[#2A201A]/08 font-sans text-sm text-[#2A201A]/90 bg-[#F6F0E6] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-city">{form.city || ""}</span>
               </div>
             </div>
 
             <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
+              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
                 State
               </label>
-              <div className="mt-0.5 py-1 border-b border-[#1E1B4B]/08 font-sans text-sm text-[#1E1B4B]/90 bg-[#F8FAFC] px-1 flex items-center min-h-[26px]">
+              <div className="mt-0.5 py-1 border-b border-[#2A201A]/08 font-sans text-sm text-[#2A201A]/90 bg-[#F6F0E6] px-1 flex items-center min-h-[26px]">
                 <span data-testid="reg-state">{form.state || ""}</span>
               </div>
             </div>
@@ -633,25 +638,25 @@ export default function Register() {
           </div>
 
           {(emailStatus === "taken" || mobileStatus === "taken") && (
-            <div className="mt-1.5 p-1.5 bg-[#FF2D55]/10 border border-[#FF2D55]/30 font-sans text-[10px] space-y-1 shrink-0">
-              <p className="text-[#FF2D55] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
+            <div className="mt-1.5 p-1.5 bg-[#A9824A]/10 border border-[#A9824A]/30 font-sans text-[10px] space-y-1 shrink-0">
+              <p className="text-[#A9824A] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
                 <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
               </p>
-              <p className="text-[#475569] leading-snug">
+              <p className="text-[#6B5D50] leading-snug">
                 An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered. Choose how to sign in:
               </p>
               <div className="flex flex-wrap gap-2 pt-0.5">
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { identifier: form.email || form.mobile, mode: "password" } })}
-                  className="text-[10px] py-1.5 px-3 rounded-full bg-[#EEF2FF] border border-[#1E1B4B]/10 text-[#1E1B4B] hover:bg-[#E11D48] hover:text-white font-sans font-bold uppercase tracking-wider"
+                  className="text-[10px] py-1.5 px-3 rounded-full bg-[#E7DAC4] border border-[#2A201A]/10 text-[#2A201A] hover:bg-[#96743F] hover:text-white font-sans font-bold uppercase tracking-wider"
                 >
                   Sign In with Password
                 </button>
                 <button
                   type="button"
                   onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
-                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#FF2D55] text-white"
+                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#A9824A] text-white"
                 >
                   Sign In via Mobile OTP
                 </button>
@@ -660,13 +665,13 @@ export default function Register() {
           )}
 
           {err && (
-            <p data-testid="register-error" className="mt-1 text-[#FF2D55] font-sans text-[10px] tracking-wider uppercase shrink-0">
+            <p data-testid="register-error" className="mt-1 text-[#A9824A] font-sans text-[10px] tracking-wider uppercase shrink-0">
               {err}
             </p>
           )}
 
           {/* Prominent Terms & Conditions Checkbox Container */}
-          <div className="mt-1.5 p-1.5 bg-[#F8FAFC] border border-[#1E1B4B]/10 flex items-center gap-2 shrink-0">
+          <div className="mt-1.5 p-1.5 bg-[#F6F0E6] border border-[#2A201A]/10 flex items-center gap-2 shrink-0">
             <input
               type="checkbox"
               id="terms-check"
@@ -675,10 +680,10 @@ export default function Register() {
               disabled={!allFieldsFilled}
               onChange={(e) => setTermsAgreed(e.target.checked)}
               tabIndex={0}
-              className="accent-[#FF2D55] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="accent-[#A9824A] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <label htmlFor="terms-check" className="font-sans text-[11px] text-[#1E1B4B]/90 cursor-pointer select-none leading-snug">
-              I agree to <span className="text-[#FF2D55] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#FF2D55] font-bold underline hover:opacity-80">Privacy Policy</span>.
+            <label htmlFor="terms-check" className="font-sans text-[11px] text-[#2A201A]/90 cursor-pointer select-none leading-snug">
+              I agree to <span className="text-[#A9824A] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#A9824A] font-bold underline hover:opacity-80">Privacy Policy</span>.
             </label>
           </div>
 
@@ -686,14 +691,14 @@ export default function Register() {
             type="submit"
             data-testid="register-submit"
             disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed || !allFieldsFilled}
-            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#FF2D55] text-white font-bold text-sm hover:bg-[#E11D48] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
+            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#A9824A] text-white font-bold text-sm hover:bg-[#96743F] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
           >
             {loading ? "Sending Code…" : "Signup"}
           </button>
 
           <p className="mt-1.5 font-sans text-[10px] tracking-wider opacity-70 text-center shrink-0">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#FF2D55] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
+            <Link to="/login" className="text-[#A9824A] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
               Login
             </Link>
           </p>
@@ -708,13 +713,13 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B4B]/40 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A201A]/40 backdrop-blur-sm p-3 sm:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#FFFFFF] border border-[#1E1B4B]/12 shadow-2xl p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative rounded-3xl text-[#1E1B4B]"
+              className="bg-[#FBF7F0] border border-[#2A201A]/12 shadow-2xl p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative rounded-3xl text-[#2A201A]"
             >
               <button
                 type="button"
@@ -725,7 +730,7 @@ export default function Register() {
               </button>
 
               <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
-              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#475569] mb-8 leading-relaxed">
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] mb-8 leading-relaxed">
                 We sent a 6-digit SMS code to +91 {form.mobile}. Enter it below to finish registration.
               </p>
 
@@ -756,7 +761,7 @@ export default function Register() {
                     type="button"
                     disabled={resendCooldown > 0}
                     onClick={handleResendOtp}
-                    className="font-mono text-[10px] tracking-widest uppercase text-[#475569] hover:opacity-100 hover:text-[#FF2D55] disabled:opacity-30 disabled:hover:text-current transition-colors"
+                    className="font-mono text-[10px] tracking-widest uppercase text-[#6B5D50] hover:opacity-100 hover:text-[#A9824A] disabled:opacity-30 disabled:hover:text-current transition-colors"
                   >
                     {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
                   </button>
@@ -773,20 +778,20 @@ export default function Register() {
 function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) {
   return (
     <div className="space-y-0">
-      <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#475569] font-semibold leading-none block">
-        {label} {props.required && <span className="text-[#FF2D55] ml-0.5">*</span>}
+      <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
+        {label} {props.required && <span className="text-[#A9824A] ml-0.5">*</span>}
       </label>
-      <div className={`mt-0.5 flex items-center w-full rounded-xl px-3 transition-colors ${disabled ? "opacity-50 pointer-events-none select-none bg-[#F1F5F9] border border-[#1E1B4B]/08" : error ? "bg-[#FFF1F2] border border-[#FF2D55] text-[#FF2D55]" : "bg-[#F7F8FC] border border-[#1E1B4B]/12 focus-within:border-[#FF2D55]"}`}>
+      <div className={`mt-0.5 flex items-center w-full rounded-xl px-3 transition-colors ${disabled ? "opacity-50 pointer-events-none select-none bg-[#E7DAC4] border border-[#2A201A]/08" : error ? "bg-[#FFF1F2] border border-[#A9824A] text-[#A9824A]" : "bg-[#F6F0E6] border border-[#2A201A]/12 focus-within:border-[#A9824A]"}`}>
         {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
         <input
           data-testid={testid}
           disabled={disabled}
           autoFocus={autoFocus}
           {...props}
-          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-[#64748B]" : ""} ${props.className || ''}`}
+          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-[#6B5D50]" : ""} ${props.className || ''}`}
         />
       </div>
-      {error && <p className="text-[#FF2D55] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
+      {error && <p className="text-[#A9824A] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }
