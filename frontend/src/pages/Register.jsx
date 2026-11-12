@@ -17,12 +17,15 @@ export default function Register() {
   const location = useLocation();
   const { role: urlRole } = useParams();
 
-  // Public self-serve roles only — Hire / Production is admin-created
-  const role = ["owner", "influencer", "agent"].includes(urlRole) ? urlRole : "influencer";
+  // Public self-serve roles only — Hire / Production is admin-created; Agent hidden until enabled
+  const role = ["owner", "influencer"].includes(urlRole) ? urlRole : "influencer";
 
   useEffect(() => {
     if (urlRole === "production") {
       toast.error("Hire / Production teams can only be created by Admin");
+      nav("/register", { replace: true });
+    } else if (urlRole === "agent") {
+      toast.error("Agent registration is not open yet");
       nav("/register", { replace: true });
     }
   }, [urlRole, nav]);

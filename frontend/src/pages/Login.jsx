@@ -14,7 +14,7 @@ import { postAuthPath } from "@/lib/supportOps";
 import { postLoginDestination } from "@/lib/onboarding";
 
 export default function Login() {
-  const { login, googleLogin, mobileOtpLogin } = useAuth();
+  const { login, googleLogin, mobileOtpLogin, user } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
 
@@ -30,32 +30,27 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const { user } = useAuth();
+  const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    if (user) {
-      nav(postAuthPath(user), { replace: true });
-    }
+    if (user) nav(postLoginDestination(user) || postAuthPath(user), { replace: true });
   }, [user, nav]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return undefined;
+    const t = setInterval(() => setResendTimer((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendTimer]);
 
   const submitPassword = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
-      const tag = document.activeElement.getAttribute("data-testid");
-      if (tag === "google-signin-button") {
-        document.activeElement.blur();
-      }
-    }
     setErr("");
     setLoading(true);
     const r = await login(identifier, password, { remember_me: rememberMe, totp_code: totpCode || undefined });
     setLoading(false);
     if (r.ok) {
-      // postAuthPath uses latest auth user after login; fall back via /auth/me role in token flow
-      const next = postAuthPath(r.user) || "/dashboard";
-      nav(next);
+      nav(postLoginDestination(r.user) || postAuthPath(r.user) || "/dashboard");
     } else if (r.requires_2fa) {
       setRequires2fa(true);
       setErr("");
@@ -109,8 +104,6 @@ export default function Login() {
     }
   };
 
-  const [resendTimer, setResendTimer] = useState(0);
-
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     setErr("");
@@ -119,35 +112,14 @@ export default function Login() {
       setErr("Please enter a valid 10-digit Indian mobile number (starts with 6-9)");
       return;
     }
-
     setLoading(true);
     try {
-      const check = await api.post("/auth/check", { mobile: cleanMobile });
-      if (check.data?.available) {
-        setErr("No account found for this mobile number. Please register first.");
-        setLoading(false);
-        return;
-      }
-
-      const { data } = await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
+      await api.post("/auth/mobile/send-otp", { mobile: cleanMobile });
       setOtpSent(true);
       setResendTimer(60);
-      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}.`);
-
-      const interval = setInterval(() => {
-        setResendTimer((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err) {
-      const msg = friendlyAuthError(
-        err.response?.data?.detail || err.message,
-        "We couldn’t send a verification code. Please try again."
-      );
+      toast.success("OTP sent");
+    } catch (ex) {
+      const msg = friendlyAuthError(ex.response?.data?.detail || ex.message);
       setErr(msg);
       toast.error(msg);
     } finally {
@@ -155,49 +127,24 @@ export default function Login() {
     }
   };
 
-  const handleResendOtp = () => {
+  const handleResendOtp = async () => {
     if (resendTimer > 0) return;
-    setOtp("");
-    handleSendOtp();
+    await handleSendOtp();
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setErr("");
-    if (!otp || otp.length !== 6 || /\D/.test(otp)) {
-      setErr("Please enter a valid 6-digit OTP code");
-      return;
-    }
-
     setLoading(true);
-    try {
-      const cleanMobile = (mobile || "").replace(/\D/g, "");
-      const r = await mobileOtpLogin(cleanMobile, otp, { remember_me: rememberMe });
-      if (r.ok) {
-        toast.success("Mobile OTP verified. Welcome back.");
-        nav(postAuthPath(r.user));
-      } else if (r.notRegistered) {
-        setErr("No account found for this mobile number. Please register first.");
-        toast.error("No account found for this mobile number. Please register first.");
-      } else {
-        const msg = friendlyAuthError(
-          r.error,
-          "Login unsuccessful. Please check the verification code and try again."
-        );
-        setErr(msg);
-        toast.error(msg);
-        setOtp("");
-      }
-    } catch (err) {
-      const msg = friendlyAuthError(
-        err.response?.data?.detail || err.message,
-        "Login unsuccessful. Please check the verification code and try again."
-      );
+    const r = await mobileOtpLogin(mobile, otp, { remember_me: rememberMe });
+    setLoading(false);
+    if (r.ok) {
+      toast.success("Signed in");
+      nav(postLoginDestination(r.user) || postAuthPath(r.user));
+    } else {
+      const msg = friendlyAuthError(r.error);
       setErr(msg);
       toast.error(msg);
-      setOtp("");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -235,10 +182,40 @@ export default function Login() {
             Return to <span className="italic text-[#A9824A]">the studio</span>
           </h1>
           <p className="mt-1.5 font-sans text-[13px] text-[#6B5D50] leading-relaxed">
-            Escrow-ready deals, creator discovery, and campaign ops in one place.
+            Continue with Instagram, Facebook, or Google — or use mobile / email.
           </p>
 
-          <div className="flex bg-[#F6F0E6] border border-[#D9CBB3] p-1 rounded-full mt-4 font-mono text-[10px] tracking-[0.14em] uppercase">
+          {err && (
+            <div className="mt-3 p-2.5 bg-[#A9824A]/10 border border-[#A9824A]/35 text-[#2A201A] font-sans text-[12px] rounded-xl flex items-start gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[#A9824A] mt-0.5" /> {err}
+            </div>
+          )}
+
+          {/* Social first — matches Create Account pattern */}
+          <div className={`mt-5 ${loading ? "pointer-events-none opacity-50" : ""}`}>
+            <SocialAuthButtons
+              mode="signin"
+              loading={loading}
+              onGoogleCredential={handleGoogleCredential}
+              onGoogleError={(reason) => {
+                const msg =
+                  reason ||
+                  "Google sign-in failed. If this keeps happening, the site origin may not be authorized in Google Cloud Console.";
+                setErr(msg);
+                toast.error(msg);
+              }}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 my-5 opacity-70">
+            <div className="h-px bg-[#D9CBB3] flex-1" />
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] font-semibold">
+              Or continue with mobile / email
+            </span>
+            <div className="h-px bg-[#D9CBB3] flex-1" />
+          </div>
+
+          <div className="flex bg-[#F6F0E6] border border-[#D9CBB3] p-1 rounded-full font-mono text-[10px] tracking-[0.14em] uppercase">
             <button
               type="button"
               onClick={() => { setMode("password"); setErr(""); }}
@@ -263,118 +240,90 @@ export default function Login() {
             </button>
           </div>
 
-          {err && (
-            <div className="mt-3 p-2.5 bg-[#A9824A]/10 border border-[#A9824A]/35 text-[#2A201A] font-sans text-[12px] rounded-xl flex items-start gap-2">
-              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[#A9824A] mt-0.5" /> {err}
-            </div>
-          )}
-
           {mode === "password" ? (
-            <>
-              <form onSubmit={submitPassword} className="mt-4 space-y-3.5" data-testid="login-form" id="login-form">
-                <div>
-                  <label className={labelClass}>Email or Username</label>
-                  <input
-                    data-testid="login-email"
-                    type="text"
-                    required
-                    autoComplete="username"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    className={fieldClass}
-                    placeholder="you@brand.com"
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClass}>Password</label>
-                  <div className="relative">
-                    <input
-                      data-testid="login-password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={`${fieldClass} pr-11`}
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#6B5D50] hover:text-[#A9824A] transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" strokeWidth={2.35} /> : <Eye className="w-4 h-4" strokeWidth={2.35} />}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between mt-2 gap-2">
-                    <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] cursor-pointer font-semibold text-[#6B5D50]">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="accent-[#A9824A] w-3.5 h-3.5"
-                      />
-                      Remember me
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#A9824A] hover:underline font-bold"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                </div>
-
-                {requires2fa && (
-                  <div>
-                    <label className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#A9824A] font-bold leading-none block">
-                      2FA authentication code
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={6}
-                      value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
-                      className="mt-1 w-full bg-[#F6F0E6] border-2 border-[#A9824A] p-3 font-mono text-center text-[22px] tracking-[0.4em] text-[#2A201A] focus:outline-none rounded-xl"
-                      placeholder="000000"
-                    />
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  data-testid="login-submit"
-                  className="w-full bg-[#2A201A] hover:bg-[#3A2E26] text-[#F6F0E6] py-3 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] font-bold transition-colors shadow-[0_12px_28px_-16px_rgba(42,32,26,0.55)] flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {loading ? "Authenticating…" : "Sign in to flugr"} <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              <div className={`mt-4 space-y-2.5 ${loading ? "pointer-events-none opacity-50" : ""}`}>
-                <div className="flex items-center gap-3">
-                  <div className="h-px bg-[#D9CBB3] flex-1" />
-                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] font-semibold">Social</span>
-                  <div className="h-px bg-[#D9CBB3] flex-1" />
-                </div>
-                <SocialAuthButtons
-                  mode="signin"
-                  loading={loading}
-                  onGoogleCredential={handleGoogleCredential}
-                  onGoogleError={(reason) => {
-                    const msg =
-                      reason ||
-                      "Google sign-in failed. If this keeps happening, the site origin may not be authorized in Google Cloud Console.";
-                    setErr(msg);
-                    toast.error(msg);
-                  }}
+            <form onSubmit={submitPassword} className="mt-4 space-y-3.5" data-testid="login-form" id="login-form">
+              <div>
+                <label className={labelClass}>Email or Username</label>
+                <input
+                  data-testid="login-email"
+                  type="text"
+                  required
+                  autoComplete="username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  className={fieldClass}
+                  placeholder="you@brand.com"
                 />
               </div>
-            </>
+
+              <div>
+                <label className={labelClass}>Password</label>
+                <div className="relative">
+                  <input
+                    data-testid="login-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${fieldClass} pr-11`}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#6B5D50] hover:text-[#A9824A] transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" strokeWidth={2.35} /> : <Eye className="w-4 h-4" strokeWidth={2.35} />}
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-2 gap-2">
+                  <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] cursor-pointer font-semibold text-[#6B5D50]">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="accent-[#A9824A] w-3.5 h-3.5"
+                    />
+                    Remember me
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#A9824A] hover:underline font-bold"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+              </div>
+
+              {requires2fa && (
+                <div>
+                  <label className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#A9824A] font-bold leading-none block">
+                    2FA authentication code
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                    className="mt-1 w-full bg-[#F6F0E6] border-2 border-[#A9824A] p-3 font-mono text-center text-[22px] tracking-[0.4em] text-[#2A201A] focus:outline-none rounded-xl"
+                    placeholder="000000"
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                data-testid="login-submit"
+                className="w-full bg-[#2A201A] hover:bg-[#3A2E26] text-[#F6F0E6] py-3 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] font-bold transition-colors shadow-[0_12px_28px_-16px_rgba(42,32,26,0.55)] flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {loading ? "Authenticating…" : "Sign in to flugr"} <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
           ) : (
             <form onSubmit={!otpSent ? handleSendOtp : handleVerifyOtp} className="mt-4 space-y-3.5">
               <div>

@@ -7,6 +7,7 @@ import { Nav } from "@/components/Nav";
 import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { postLoginDestination } from "@/lib/onboarding";
+import { PUBLIC_AGENT_ENABLED } from "@/lib/features";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -112,14 +113,14 @@ export default function RegisterSplash() {
                   sub: "Post briefs • Access credentialed talent • Escrow security",
                   badge: "Company",
                 },
-                {
+                PUBLIC_AGENT_ENABLED && {
                   k: "agent",
                   num: "03",
                   label: "I'm an Agent",
                   sub: "Represent talent • Manage roster • Close brand deals",
                   badge: "Agent",
                 },
-              ].map((r) => (
+              ].filter(Boolean).map((r) => (
                 <Link
                   key={r.k}
                   to={`/register/${r.k}`}

@@ -7,6 +7,7 @@ import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { BrandLogo } from "@/components/BrandLogo";
 import { verificationLabel, isProfileComplete, postLoginDestination } from "@/lib/onboarding";
+import { PUBLIC_AGENT_ENABLED } from "@/lib/features";
 
 const STEPS = [
   { id: 1, label: "Basics" },
@@ -395,8 +396,8 @@ export default function ProfileCompletion() {
                   {[
                     { id: "influencer", title: "Influencer", sub: "Creators & talent" },
                     { id: "owner", title: "Company", sub: "Brand / business desk" },
-                    { id: "agent", title: "Agent", sub: "Agency / talent manager" },
-                  ].map((r) => (
+                    PUBLIC_AGENT_ENABLED && { id: "agent", title: "Agent", sub: "Agency / talent manager" },
+                  ].filter(Boolean).map((r) => (
                     <button
                       key={r.id}
                       type="button"

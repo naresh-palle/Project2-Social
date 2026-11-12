@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { Instagram, Facebook } from "lucide-react";
 import { startSocialOAuth } from "@/lib/onboarding";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 /**
  * Social registration / login row: Instagram, Facebook, Google.
@@ -15,11 +18,42 @@ export function SocialAuthButtons({
   role,
   showMeta = true,
 }) {
+  const [providers, setProviders] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get("/oauth/providers")
+      .then(({ data }) => {
+        if (cancelled) return;
+        const map = {};
+        (data?.providers || []).forEach((p) => {
+          map[p.provider] = p;
+        });
+        setProviders(map);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const fail = (reason) => {
     onGoogleError?.(reason || "Google sign-in failed");
   };
 
   const metaMode = mode === "signup" ? "signup" : "login";
+
+  const startMeta = (provider) => {
+    const info = providers[provider];
+    if (info && info.auth_code_ready === false) {
+      toast.error(
+        `${provider === "instagram" ? "Instagram" : "Facebook"} is not configured yet. Add App ID/Secret on the API, then try again.`
+      );
+      return;
+    }
+    startSocialOAuth(provider, { mode: metaMode, role });
+  };
 
   return (
     <div className={`w-full space-y-3 ${loading ? "opacity-60 pointer-events-none" : ""}`} data-testid="social-auth-row">
@@ -32,7 +66,7 @@ export function SocialAuthButtons({
           <button
             type="button"
             data-testid="social-instagram"
-            onClick={() => startSocialOAuth("instagram", { mode: metaMode, role })}
+            onClick={() => startMeta("instagram")}
             className="flex items-center justify-center gap-2 rounded-full border border-[#D9CBB3] bg-[#FBF7F0] hover:border-[#A9824A] hover:bg-[#F6F0E6] px-4 py-2.5 text-[13px] font-semibold text-[#2A201A] transition-colors"
           >
             <Instagram className="w-4 h-4 text-[#A9824A]" strokeWidth={2.2} />
@@ -41,7 +75,7 @@ export function SocialAuthButtons({
           <button
             type="button"
             data-testid="social-facebook"
-            onClick={() => startSocialOAuth("facebook", { mode: metaMode, role })}
+            onClick={() => startMeta("facebook")}
             className="flex items-center justify-center gap-2 rounded-full border border-[#D9CBB3] bg-[#FBF7F0] hover:border-[#A9824A] hover:bg-[#F6F0E6] px-4 py-2.5 text-[13px] font-semibold text-[#2A201A] transition-colors"
           >
             <Facebook className="w-4 h-4 text-[#A9824A]" strokeWidth={2.2} />
