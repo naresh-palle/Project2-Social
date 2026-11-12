@@ -6,7 +6,8 @@ import { META_SOCIAL_BUTTONS_ENABLED } from "@/lib/features";
 /**
  * Social auth row.
  * - Google always available.
- * - Instagram / Facebook when META_SOCIAL_BUTTONS_ENABLED or forceMeta (category register).
+ * - Instagram / Facebook on Sign In + category register (forceMeta / META_SOCIAL_BUTTONS_ENABLED).
+ * - Splash stays categories-only (no this component).
  */
 export function SocialAuthButtons({
   onGoogleCredential,

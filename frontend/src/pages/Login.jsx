@@ -195,6 +195,7 @@ export default function Login() {
           <div className={`mt-5 ${loading ? "pointer-events-none opacity-50" : ""}`}>
             <SocialAuthButtons
               mode="signin"
+              forceMeta
               loading={loading}
               onGoogleCredential={handleGoogleCredential}
               onGoogleError={(reason) => {
