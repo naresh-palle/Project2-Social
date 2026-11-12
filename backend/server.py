@@ -5382,8 +5382,9 @@ async def set_meta_oauth_mode_endpoint(inp: MetaModeInput):
             oauth_social.provider_configured("instagram"),
         ],
         "meta_console": (
-            "Switch FLUGR app Development → Live in Meta Developers so every Facebook user can finish login. "
-            "Instagram Login still needs a Professional IG account."
+            "trial/Development (free): only Meta App roles (Admin/Developer/Tester) can finish login — add Testers for other people. "
+            "Live (still free for basic Facebook email/public_profile): any Facebook user. "
+            "Instagram Login needs a Professional IG account. See docs/meta-free-development-login.md."
         ),
     }
 

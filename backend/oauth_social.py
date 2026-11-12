@@ -37,27 +37,28 @@ _RUNTIME_META_MODE: str = ""
 
 def meta_oauth_mode() -> str:
     """
-    business — public Facebook/Instagram sign-in (Meta app must be Live).
-    trial    — Development mode / app roles only (Admin/Developer/Tester).
+    trial    — Meta Development (free): Admin/Developer/Tester only.
+    business — Meta Live (basic FB login still free): any Facebook user.
+    Default trial until product intentionally goes public/Live.
     """
     raw = (
         os.environ.get("META_OAUTH_MODE")
         or _RUNTIME_META_MODE
         or _RUNTIME_META.get("mode")
-        or "business"
+        or "trial"
     ).strip().lower()
-    if raw in ("dev", "development", "test", "trial"):
-        return "trial"
-    return "business"
+    if raw in ("live", "prod", "production", "business", "public"):
+        return "business"
+    return "trial"
 
 
 def set_meta_oauth_mode(mode: Optional[str], *, force_environ: bool = False) -> str:
     global _RUNTIME_META_MODE
-    m = (mode or "business").strip().lower()
-    if m in ("dev", "development", "test", "trial"):
-        m = "trial"
-    else:
+    m = (mode or "trial").strip().lower()
+    if m in ("live", "prod", "production", "business", "public"):
         m = "business"
+    else:
+        m = "trial"
     _RUNTIME_META_MODE = m
     _RUNTIME_META["mode"] = m
     if force_environ or not (os.environ.get("META_OAUTH_MODE") or "").strip():
