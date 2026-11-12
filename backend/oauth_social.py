@@ -71,9 +71,22 @@ def facebook_login_config_id() -> str:
     return (
         os.environ.get("FACEBOOK_LOGIN_CONFIG_ID")
         or os.environ.get("META_LOGIN_CONFIG_ID")
+        or os.environ.get("FACEBOOK_CONFIG_ID")
+        or os.environ.get("FB_LOGIN_CONFIG_ID")
+        or os.environ.get("FACEBOOK_LOGIN_CONFIGURATION_ID")
         or _RUNTIME_META.get("facebook_login_config_id")
         or ""
     ).strip()
+
+
+def meta_related_env_key_names() -> list:
+    """Key names only (no values) — helps catch Render typos."""
+    out = []
+    for k in os.environ:
+        ku = k.upper()
+        if any(s in ku for s in ("FACEBOOK", "META", "INSTAGRAM", "WHATSAPP")):
+            out.append(k)
+    return sorted(out)
 
 
 def set_runtime_meta_credentials(
@@ -99,7 +112,12 @@ def set_runtime_meta_credentials(
         "facebook_app_secret": ("FACEBOOK_APP_SECRET", "META_APP_SECRET"),
         "instagram_app_id": ("INSTAGRAM_APP_ID",),
         "instagram_app_secret": ("INSTAGRAM_APP_SECRET",),
-        "facebook_login_config_id": ("FACEBOOK_LOGIN_CONFIG_ID", "META_LOGIN_CONFIG_ID"),
+        "facebook_login_config_id": (
+            "FACEBOOK_LOGIN_CONFIG_ID",
+            "META_LOGIN_CONFIG_ID",
+            "FACEBOOK_CONFIG_ID",
+            "FB_LOGIN_CONFIG_ID",
+        ),
     }
     for key, value in mapping.items():
         if value is not None and str(value).strip():

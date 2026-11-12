@@ -1449,14 +1449,18 @@ class UsernameMobileRegisterInput(BaseModel):
 
 
 class MetaConfigInput(BaseModel):
-    app_id: str
-    app_secret: str
+    app_id: Optional[str] = None
+    app_secret: Optional[str] = None
     instagram_app_id: Optional[str] = None
     instagram_app_secret: Optional[str] = None
     # From Meta → Facebook Login for Business → Configurations (fixes "supported permission")
     facebook_login_config_id: Optional[str] = None
     # trial (default) = Meta Development / testers only; business = Live + App Review later
     mode: Optional[str] = "trial"
+
+
+class MetaLoginConfigInput(BaseModel):
+    facebook_login_config_id: str
 
 
 from google.oauth2 import id_token
@@ -5301,6 +5305,7 @@ async def oauth_providers_status():
             "instagram_app_id": bool((os.environ.get("INSTAGRAM_APP_ID") or "").strip()),
             "instagram_app_secret": bool((os.environ.get("INSTAGRAM_APP_SECRET") or "").strip()),
             "meta_oauth_mode": (os.environ.get("META_OAUTH_MODE") or "").strip() or None,
+            "meta_related_env_keys": oauth_social.meta_related_env_key_names(),
         },
         "google_origins_required": [
             "https://flugr.in",
@@ -5352,6 +5357,66 @@ async def _validate_meta_app_credentials(app_id: str, app_secret: str) -> dict:
             params={"fields": "id,name", "access_token": access},
         )
         return meta.json() if meta.status_code < 400 else {"id": app_id}
+
+
+@api_router.post("/integrations/meta/login-config")
+async def set_facebook_login_config(inp: MetaLoginConfigInput):
+    """
+    Apply FACEBOOK_LOGIN_CONFIG_ID when Render env is set but the running process
+    has not picked it up yet, or when pasting the Configuration ID from Meta.
+    Merges into existing Mongo meta_oauth credentials.
+    """
+    config_id = (inp.facebook_login_config_id or "").strip()
+    if not config_id or len(config_id) < 5:
+        raise HTTPException(status_code=400, detail="facebook_login_config_id is required")
+
+    existing = await db.app_config.find_one({"key": "meta_oauth"}) or {}
+    app_id = (
+        existing.get("facebook_app_id")
+        or os.environ.get("FACEBOOK_APP_ID")
+        or os.environ.get("META_APP_ID")
+        or oauth_social.facebook_app_id()
+    )
+    app_secret = (
+        existing.get("facebook_app_secret")
+        or os.environ.get("FACEBOOK_APP_SECRET")
+        or os.environ.get("META_APP_SECRET")
+        or oauth_social.facebook_app_secret()
+    )
+    if not app_id or not app_secret:
+        raise HTTPException(
+            status_code=400,
+            detail="Meta App ID/Secret not loaded yet. Call /api/integrations/meta/bootstrap first or set FACEBOOK_APP_* on Render.",
+        )
+
+    doc = {
+        **{k: v for k, v in existing.items() if k != "_id"},
+        "key": "meta_oauth",
+        "facebook_app_id": app_id,
+        "facebook_app_secret": app_secret,
+        "instagram_app_id": existing.get("instagram_app_id") or app_id,
+        "instagram_app_secret": existing.get("instagram_app_secret") or app_secret,
+        "facebook_login_config_id": config_id,
+        "updated_at": now_iso(),
+        "source": "login_config",
+    }
+    await db.app_config.update_one({"key": "meta_oauth"}, {"$set": doc}, upsert=True)
+    oauth_social.set_runtime_meta_credentials(
+        facebook_app_id=doc["facebook_app_id"],
+        facebook_app_secret=doc["facebook_app_secret"],
+        instagram_app_id=doc["instagram_app_id"],
+        instagram_app_secret=doc["instagram_app_secret"],
+        facebook_login_config_id=config_id,
+        mode=doc.get("mode") or "trial",
+        inject_environ=True,
+    )
+    # Force into process env even if a blank placeholder existed
+    os.environ["FACEBOOK_LOGIN_CONFIG_ID"] = config_id
+    return {
+        "ok": True,
+        "facebook_login_config_id_set": True,
+        "providers": [oauth_social.provider_configured("facebook")],
+    }
 
 
 @api_router.post("/admin/integrations/meta")
