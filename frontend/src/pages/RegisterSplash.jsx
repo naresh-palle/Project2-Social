@@ -70,7 +70,7 @@ export default function RegisterSplash() {
             <p className="font-mono text-[11px] text-[#6B5D50] uppercase tracking-[0.18em] mt-3 max-w-md mx-auto font-semibold">
               {googleState
                 ? "Finish role selection to continue Google signup"
-                : "Social login or mobile / email — then complete mandatory profile details"}
+                : "Continue with Google or mobile / email — then complete mandatory profile details"}
             </p>
             {googleState?.email && (
               <p className="mt-4 font-mono text-[11px] text-[#A9824A] tracking-wide font-semibold">

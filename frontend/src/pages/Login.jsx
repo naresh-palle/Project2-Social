@@ -182,7 +182,7 @@ export default function Login() {
             Return to <span className="italic text-[#A9824A]">the studio</span>
           </h1>
           <p className="mt-1.5 font-sans text-[13px] text-[#6B5D50] leading-relaxed">
-            Continue with Instagram, Facebook, or Google — or use mobile / email.
+            Continue with Google — or use mobile / email.
           </p>
 
           {err && (

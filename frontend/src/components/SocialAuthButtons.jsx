@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { Instagram, Facebook } from "lucide-react";
 import { startSocialOAuth } from "@/lib/onboarding";
-import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { META_SOCIAL_BUTTONS_ENABLED } from "@/lib/features";
 
 /**
- * Social registration / login row: Instagram, Facebook, Google.
- * Google uses GIS ID-token (no client secret in browser).
- * Instagram / Facebook use official backend OAuth redirect (+ PKCE / state).
+ * Social auth row.
+ * Google (GIS) is always shown.
+ * Instagram / Facebook stay hidden until META_SOCIAL_BUTTONS_ENABLED is flipped on
+ * (backend OAuth routes remain available).
  */
 export function SocialAuthButtons({
   onGoogleCredential,
@@ -16,28 +16,8 @@ export function SocialAuthButtons({
   loading = false,
   mode = "signin",
   role,
-  showMeta = true,
+  showMeta = META_SOCIAL_BUTTONS_ENABLED,
 }) {
-  const [providers, setProviders] = useState({});
-
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .get("/oauth/providers")
-      .then(({ data }) => {
-        if (cancelled) return;
-        const map = {};
-        (data?.providers || []).forEach((p) => {
-          map[p.provider] = p;
-        });
-        setProviders(map);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const fail = (reason) => {
     onGoogleError?.(reason || "Google sign-in failed");
   };
@@ -45,11 +25,8 @@ export function SocialAuthButtons({
   const metaMode = mode === "signup" ? "signup" : "login";
 
   const startMeta = (provider) => {
-    const info = providers[provider];
-    if (info && info.auth_code_ready === false) {
-      toast.error(
-        `${provider === "instagram" ? "Instagram" : "Facebook"} is not configured yet. Add App ID/Secret on the API, then try again.`
-      );
+    if (!META_SOCIAL_BUTTONS_ENABLED) {
+      toast.error("This sign-in method is not available yet.");
       return;
     }
     startSocialOAuth(provider, { mode: metaMode, role });
@@ -61,7 +38,7 @@ export function SocialAuthButtons({
         Continue with
       </p>
 
-      {showMeta && (
+      {showMeta && META_SOCIAL_BUTTONS_ENABLED && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button
             type="button"

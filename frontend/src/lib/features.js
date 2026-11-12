@@ -1,8 +1,11 @@
 /**
  * Product feature flags (frontend).
- * Flip these when product asks — do not remove agent role from the backend.
+ * Flip these when product asks — do not remove agent role / Meta OAuth from the backend.
  */
 export const PUBLIC_AGENT_ENABLED = false;
+
+/** Instagram + Facebook buttons on Sign In / Register (Google stays on). */
+export const META_SOCIAL_BUTTONS_ENABLED = false;
 
 /** Roles offered on public registration / profile-category pickers. */
 export function publicRegisterRoles() {
