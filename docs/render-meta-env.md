@@ -1,39 +1,64 @@
 # Render env vars for Meta (FLUGR app)
 
-Set these on Render → project2-social → Environment (do **not** commit secrets to git):
+## Mode: trial now → business later
+
+| Mode | Meta console | Our flag | Who can sign in with IG/FB |
+|---|---|---|---|
+| **trial** (current) | App stays in **Development** | `META_OAUTH_MODE=trial` | App roles only (Admin / Developer / Tester) + Professional IG for Instagram |
+| **business** (later) | Switch app **Live** + App Review / Advanced Access as Meta requires | `META_OAUTH_MODE=business` | Public users |
+
+Do **not** submit App Review or Business verification until trial signup/onboarding is solid.
+
+## Paste on Render (recommended)
+
+Render → **project2-social** → **Environment** → add/update (do **not** commit secrets to git):
 
 ```text
-FACEBOOK_APP_ID=1662702218853274
-FACEBOOK_APP_SECRET=<from Meta App settings → Basic → Show>
-META_APP_ID=1662702218853274
-META_APP_SECRET=<same as Facebook secret unless Instagram shows a separate one>
-INSTAGRAM_APP_ID=1662702218853274
+FACEBOOK_APP_ID=<from Meta App settings → Basic>
+FACEBOOK_APP_SECRET=<Show>
+META_APP_ID=<same as Facebook App ID unless separate>
+META_APP_SECRET=<same as Facebook App Secret unless separate>
+INSTAGRAM_APP_ID=<same unless Instagram product shows a different App ID>
 INSTAGRAM_APP_SECRET=<same unless Instagram App Secret differs>
+META_OAUTH_MODE=trial
 FRONTEND_URL=https://flugr.in
 API_PUBLIC_URL=https://project2-social.onrender.com
 ```
 
-## Runtime bootstrap (when Render env is still empty)
+Save → **Manual Deploy** / restart so all instances reload env.
 
-Until Render env is set, the API can load Meta credentials from Mongo:
+### Optional API push
 
-- `POST /api/integrations/meta/bootstrap` with `{ "app_id", "app_secret" }` (Graph-validated)
-- or admin `POST /api/admin/integrations/meta` (Bearer admin JWT)
+If you have a Render API key:
 
-Credentials are applied in-process and reloaded on API startup from `app_config`.
-Prefer Render env for multi-instance durability.
+```bash
+RENDER_API_KEY=rnd_… RENDER_SERVICE_ID=srv-… bash scripts/push-render-meta-env.sh
+```
 
-Meta console redirect URIs:
+## Runtime / Mongo bootstrap (already live)
+
+Until Render env is pasted, the API loads Meta credentials from Mongo `app_config` on startup and injects empty `os.environ` slots:
+
+- `POST /api/integrations/meta/bootstrap` `{ "app_id", "app_secret", "mode": "trial" }`
+- Admin: `POST /api/admin/integrations/meta`
+
+Shared Mongo = durable across API instances on the same database. Render env is still preferred as the source of truth.
+
+## Meta console redirect URIs
 
 - Facebook: `https://project2-social.onrender.com/api/oauth/facebook/callback`
 - Instagram: `https://project2-social.onrender.com/api/oauth/instagram/callback`
 
-Validated Graph check (client credentials) for app `1662702218853274` returns name **FLUGR**.
+Validated Graph check for app `1662702218853274` returns name **FLUGR**.
 
-Mock user bootstrap (until full OAuth redirects are live):
+## Trial checklist
 
-`POST /api/auth/mock-social-login`
+1. Meta app **Development** mode (not Live)
+2. Add yourself + testers under **App roles**
+3. Instagram testers use a **Professional** IG account
+4. Keep `DISABLE_MOCK_SOCIAL` unset so mock login remains available
+5. When ready for public: Live mode + App Review → set `META_OAUTH_MODE=business`
 
-Disable later with `DISABLE_MOCK_SOCIAL=1`.
+## Status
 
-UI: category register (`/#/register/influencer` or `/#/register/owner`) shows Instagram + Facebook + Google via `forceMeta`. Sign-in keeps Meta hidden until `META_SOCIAL_BUTTONS_ENABLED` is flipped.
+`GET /api/oauth/providers` → `meta_oauth_mode`, `runtime_meta`, `env_meta` (booleans only, no secrets).

@@ -51,7 +51,7 @@ When you have the values, send them (or set on Render). The code already calls t
 **Meta console**
 - Add **Instagram API with Instagram Login** product
 - Redirect URI: `https://project2-social.onrender.com/api/oauth/instagram/callback`
-- Professional IG accounts; Advanced Access / App Review often required for public users
+- Professional IG accounts; **trial/dev** = app-role testers only. Advanced Access / App Review only when moving to **business/live**
 
 ## 4. Shared
 

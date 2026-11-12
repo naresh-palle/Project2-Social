@@ -7,25 +7,23 @@
 | T3 | COMPLETED | Hide public Agent signup | `PUBLIC_AGENT_ENABLED=false` |
 | T4 | COMPLETED | Hide Instagram/Facebook on splash + login | `META_SOCIAL_BUTTONS_ENABLED=false`; splash categories-only |
 | T5 | COMPLETED | Signup splash = categories only | RegisterSplash doors only |
-| T6 | COMPLETED | Meta App ID/Secret validate + mock user | Graph FLUGR ok; user `mock.fb.flugr001@gmail.com` |
-| T7 | COMPLETED | Facebook/Instagram OAuth server config | Runtime bootstrap → `/api/oauth/providers` facebook+instagram `configured:true` |
+| T6 | COMPLETED | Meta App ID/Secret validate + mock user | Graph FLUGR ok |
+| T7 | COMPLETED | Facebook/Instagram OAuth server config | Runtime + Mongo bootstrap; FB/IG configured |
 | T8 | COMPLETED | Task-queue + dev/test skills | `.agents/skills/*` added |
-| T9 | COMPLETED | Category register = IG/FB/Google + username + mobile only | Live bundle `main.961e0f41.js`; `/auth/username-mobile-register` 422 on empty body |
-| T10 | COMPLETED | WhatsApp webhook stub | `GET/POST /api/webhooks/whatsapp` (verify 403 without token) |
-| T11 | BLOCKED | Render dashboard env paste (human) | Runtime Meta covers current instance; paste `FACEBOOK_APP_*` on Render for multi-instance |
-| T12 | BLOCKED | WhatsApp Cloud tokens on Render | Webhook code live; needs `WHATSAPP_VERIFY_TOKEN` + access token / phone id |
+| T9 | COMPLETED | Category register = IG/FB/Google + username + mobile only | Live |
+| T10 | COMPLETED | WhatsApp webhook stub | `GET/POST /api/webhooks/whatsapp` |
+| T11 | IN_PROGRESS | Render dashboard Meta env paste | No Render API key in agent; Mongo inject + `scripts/push-render-meta-env.sh` ready; human paste or `RENDER_API_KEY`+`RENDER_SERVICE_ID` |
+| T12 | BLOCKED | WhatsApp Cloud tokens on Render | Needs verify/access/phone env |
+| T13 | COMPLETED | Meta stays **trial** (defer business/App Review) | `META_OAUTH_MODE=trial`; docs updated |
 
 ## Overview
 
 ### Completed
-- Splash stays categories-only (no social)
-- Category register restores Instagram, Facebook, Google + username + mobile only
-- Backend `POST /api/auth/username-mobile-register`
-- Meta credentials bootstrapped on API (`runtime_meta: true`)
-- WhatsApp webhook verify/receive stub + docs
+- Trial mode locked in (`META_OAUTH_MODE=trial`) — no App Review / business Live yet
+- Meta creds durable via Mongo `app_config` + startup `os.environ` inject (shared DB)
+- Push script for Render when API key available
 
 ### Not completed / blocked
-- Human: paste Meta secrets into Render Environment (durability across restarts/instances — Mongo runtime reload helps on startup)
-- Human: set WhatsApp verify/access/phone env vars in Meta + Render
-- Meta App Review / Advanced Access for production Instagram Business Login traffic
-- WhatsApp outbound messaging / OTP via WhatsApp
+- Human: paste Meta env on Render **or** provide `RENDER_API_KEY` + `RENDER_SERVICE_ID` and re-run `scripts/push-render-meta-env.sh`
+- WhatsApp Cloud tokens
+- Later: Meta Live + App Review → `META_OAUTH_MODE=business`

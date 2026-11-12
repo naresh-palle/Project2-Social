@@ -24,7 +24,10 @@ When finished, paste **App ID / App Secret** (and Instagram App ID/Secret if sep
 1. Use a **personal Facebook account** that can create apps.
 2. Prefer a **Meta Business Portfolio** (Business Manager). You can create/connect one during app creation; for Development mode you can often continue without full Business Verification.
 3. Have a **Professional Instagram account** ready for Instagram Login testing (Creator or Business). Personal IG accounts usually cannot complete Instagram Business Login.
-4. Stay in **Development mode** until everything works with you as Tester/Admin. Only switch to **Live** after App Review (if required).
+4. Stay in **Development mode (trial)** until everything works with you as Tester/Admin.  
+   Product decision: **trial now → business/Live later** when signup + onboarding are solid.  
+   Do **not** submit App Review / Advanced Access / Business verification yet.  
+   Only switch to **Live** + set `META_OAUTH_MODE=business` after App Review (if Meta requires it).
 
 ---
 

@@ -32,6 +32,38 @@ STATE_TTL_SEC = 600
 
 # Runtime Meta credentials (Mongo/admin bootstrap). Env vars still win when set.
 _RUNTIME_META: Dict[str, str] = {}
+_RUNTIME_META_MODE: str = ""
+
+
+def meta_oauth_mode() -> str:
+    """
+    trial  — Meta Development mode / test users / app roles only (default).
+    business — Live + App Review / Advanced Access when product is ready.
+    """
+    raw = (
+        os.environ.get("META_OAUTH_MODE")
+        or _RUNTIME_META_MODE
+        or _RUNTIME_META.get("mode")
+        or "trial"
+    ).strip().lower()
+    if raw in ("live", "prod", "production", "business"):
+        return "business"
+    return "trial"
+
+
+def set_meta_oauth_mode(mode: Optional[str]) -> str:
+    global _RUNTIME_META_MODE
+    m = (mode or "trial").strip().lower()
+    if m in ("live", "prod", "production", "business"):
+        m = "business"
+    else:
+        m = "trial"
+    _RUNTIME_META_MODE = m
+    _RUNTIME_META["mode"] = m
+    # Prefer explicit env when operator set it on Render; otherwise publish mode for workers.
+    if not (os.environ.get("META_OAUTH_MODE") or "").strip():
+        os.environ["META_OAUTH_MODE"] = m
+    return m
 
 
 def set_runtime_meta_credentials(
@@ -40,6 +72,8 @@ def set_runtime_meta_credentials(
     facebook_app_secret: Optional[str] = None,
     instagram_app_id: Optional[str] = None,
     instagram_app_secret: Optional[str] = None,
+    mode: Optional[str] = None,
+    inject_environ: bool = True,
 ) -> Dict[str, str]:
     """Apply Meta app credentials at runtime (e.g. after admin bootstrap)."""
     mapping = {
@@ -48,14 +82,30 @@ def set_runtime_meta_credentials(
         "instagram_app_id": instagram_app_id,
         "instagram_app_secret": instagram_app_secret,
     }
+    env_map = {
+        "facebook_app_id": ("FACEBOOK_APP_ID", "META_APP_ID"),
+        "facebook_app_secret": ("FACEBOOK_APP_SECRET", "META_APP_SECRET"),
+        "instagram_app_id": ("INSTAGRAM_APP_ID",),
+        "instagram_app_secret": ("INSTAGRAM_APP_SECRET",),
+    }
     for key, value in mapping.items():
         if value is not None and str(value).strip():
-            _RUNTIME_META[key] = str(value).strip()
+            cleaned = str(value).strip()
+            _RUNTIME_META[key] = cleaned
+            if inject_environ:
+                for env_key in env_map.get(key, ()):
+                    # Fill empty Render slots so multi-worker code reading os.environ sees creds.
+                    if not (os.environ.get(env_key) or "").strip():
+                        os.environ[env_key] = cleaned
+    if mode is not None:
+        set_meta_oauth_mode(mode)
     return dict(_RUNTIME_META)
 
 
 def clear_runtime_meta_credentials() -> None:
+    global _RUNTIME_META_MODE
     _RUNTIME_META.clear()
+    _RUNTIME_META_MODE = ""
 
 
 def _b64url(data: bytes) -> str:
@@ -413,23 +463,37 @@ def provider_configured(provider: str) -> Dict[str, Any]:
             "auth_code_ready": bool(google_client_id() and google_client_secret()),
             "note": "GIS ID-token login works with client ID only; redirect OAuth needs GOOGLE_CLIENT_SECRET.",
         }
+    mode = meta_oauth_mode()
     if p == "facebook":
         ok = bool(facebook_app_id() and facebook_app_secret())
+        note = (
+            "Trial/dev: Facebook Login works for Meta app roles (Admin/Developer/Tester) only."
+            if mode == "trial"
+            else "Business/live: Facebook Login for public users (App Review if Meta requires it)."
+        )
         return {
             "provider": "facebook",
             "configured": ok,
             "auth_code_ready": ok,
-            "note": "Requires Meta app with Facebook Login; add redirect URI.",
+            "mode": mode,
+            "note": note + " Add redirect URI in Meta console.",
         }
     if p == "instagram":
         ok = bool(instagram_app_id() and instagram_app_secret())
+        note = (
+            "Trial/dev: Instagram Login for app-role testers with a Professional IG account. "
+            "App Review / Advanced Access deferred until business launch."
+            if mode == "trial"
+            else (
+                "Business/live: Instagram Business Login (instagram_business_basic). "
+                "App Review / Advanced Access required for public traffic."
+            )
+        )
         return {
             "provider": "instagram",
             "configured": ok,
             "auth_code_ready": ok,
-            "note": (
-                "Uses Business Login for Instagram (instagram_business_basic), not Facebook Login. "
-                "Professional Instagram account required; App Review/Advanced Access may be pending."
-            ),
+            "mode": mode,
+            "note": note,
         }
     return {"provider": p, "configured": False, "auth_code_ready": False}
