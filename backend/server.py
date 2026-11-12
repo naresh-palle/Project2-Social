@@ -1463,6 +1463,11 @@ class MetaLoginConfigInput(BaseModel):
     facebook_login_config_id: str
 
 
+class MetaModeInput(BaseModel):
+    # business = public users (Meta app Live); trial = app roles only
+    mode: str = "business"
+
+
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -5357,6 +5362,30 @@ async def _validate_meta_app_credentials(app_id: str, app_secret: str) -> dict:
             params={"fields": "id,name", "access_token": access},
         )
         return meta.json() if meta.status_code < 400 else {"id": app_id}
+
+
+@api_router.post("/integrations/meta/mode")
+async def set_meta_oauth_mode_endpoint(inp: MetaModeInput):
+    """Flip API Meta mode. Public Facebook/Instagram users need mode=business AND Meta app Live."""
+    mode = oauth_social.set_meta_oauth_mode(inp.mode or "business", force_environ=True)
+    existing = await db.app_config.find_one({"key": "meta_oauth"}) or {}
+    await db.app_config.update_one(
+        {"key": "meta_oauth"},
+        {"$set": {**{k: v for k, v in existing.items() if k != "_id"}, "key": "meta_oauth", "mode": mode, "updated_at": now_iso()}},
+        upsert=True,
+    )
+    return {
+        "ok": True,
+        "meta_oauth_mode": mode,
+        "providers": [
+            oauth_social.provider_configured("facebook"),
+            oauth_social.provider_configured("instagram"),
+        ],
+        "meta_console": (
+            "Switch FLUGR app Development → Live in Meta Developers so every Facebook user can finish login. "
+            "Instagram Login still needs a Professional IG account."
+        ),
+    }
 
 
 @api_router.post("/integrations/meta/login-config")

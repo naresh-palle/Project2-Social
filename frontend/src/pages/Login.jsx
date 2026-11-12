@@ -31,28 +31,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-  const [metaTrial, setMetaTrial] = useState(true);
 
   useEffect(() => {
     if (user) nav(postLoginDestination(user) || postAuthPath(user), { replace: true });
   }, [user, nav]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await api.get("/oauth/providers");
-        if (cancelled) return;
-        const mode = String(data?.meta_oauth_mode || "trial").toLowerCase();
-        setMetaTrial(mode !== "business");
-      } catch {
-        if (!cancelled) setMetaTrial(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (resendTimer <= 0) return undefined;
@@ -206,18 +188,6 @@ export default function Login() {
           {err && (
             <div className="mt-3 p-2.5 bg-[#A9824A]/10 border border-[#A9824A]/35 text-[#2A201A] font-sans text-[12px] rounded-xl flex items-start gap-2">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[#A9824A] mt-0.5" /> {err}
-            </div>
-          )}
-
-          {metaTrial && (
-            <div
-              className="mt-3 p-2.5 bg-[#F6F0E6] border border-[#D9CBB3] text-[#6B5D50] font-sans text-[11px] leading-relaxed rounded-xl"
-              data-testid="meta-trial-notice"
-            >
-              <span className="font-semibold text-[#2A201A]">Facebook / Instagram are in trial.</span>{" "}
-              Meta only allows FLUGR <span className="font-semibold">Admin / Developer / Tester</span> accounts
-              right now — not every Facebook user. Add testers under Meta → App roles, or switch the Meta app to{" "}
-              <span className="font-semibold">Live</span> when you want public sign-in.
             </div>
           )}
 

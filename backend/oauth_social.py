@@ -37,31 +37,30 @@ _RUNTIME_META_MODE: str = ""
 
 def meta_oauth_mode() -> str:
     """
-    trial  — Meta Development mode / test users / app roles only (default).
-    business — Live + App Review / Advanced Access when product is ready.
+    business — public Facebook/Instagram sign-in (Meta app must be Live).
+    trial    — Development mode / app roles only (Admin/Developer/Tester).
     """
     raw = (
         os.environ.get("META_OAUTH_MODE")
         or _RUNTIME_META_MODE
         or _RUNTIME_META.get("mode")
-        or "trial"
+        or "business"
     ).strip().lower()
-    if raw in ("live", "prod", "production", "business"):
-        return "business"
-    return "trial"
+    if raw in ("dev", "development", "test", "trial"):
+        return "trial"
+    return "business"
 
 
-def set_meta_oauth_mode(mode: Optional[str]) -> str:
+def set_meta_oauth_mode(mode: Optional[str], *, force_environ: bool = False) -> str:
     global _RUNTIME_META_MODE
-    m = (mode or "trial").strip().lower()
-    if m in ("live", "prod", "production", "business"):
-        m = "business"
-    else:
+    m = (mode or "business").strip().lower()
+    if m in ("dev", "development", "test", "trial"):
         m = "trial"
+    else:
+        m = "business"
     _RUNTIME_META_MODE = m
     _RUNTIME_META["mode"] = m
-    # Prefer explicit env when operator set it on Render; otherwise publish mode for workers.
-    if not (os.environ.get("META_OAUTH_MODE") or "").strip():
+    if force_environ or not (os.environ.get("META_OAUTH_MODE") or "").strip():
         os.environ["META_OAUTH_MODE"] = m
     return m
 

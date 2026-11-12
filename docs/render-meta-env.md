@@ -1,13 +1,13 @@
 # Render env vars for Meta (FLUGR app)
 
-## Mode: trial now → business later
+## Mode: public login (business)
 
 | Mode | Meta console | Our flag | Who can sign in with IG/FB |
 |---|---|---|---|
-| **trial** (current) | App stays in **Development** | `META_OAUTH_MODE=trial` | App roles only (Admin / Developer / Tester) + Professional IG for Instagram |
-| **business** (later) | Switch app **Live** + App Review / Advanced Access as Meta requires | `META_OAUTH_MODE=business` | Public users |
+| **business** (current) | App must be **Live** | `META_OAUTH_MODE=business` | Any Facebook user; Instagram Professional accounts |
+| **trial** | App in **Development** | `META_OAUTH_MODE=trial` | App roles only (Admin / Developer / Tester) |
 
-Do **not** submit App Review or Business verification until trial signup/onboarding is solid.
+See `docs/meta-public-login.md` — toggle Meta **Development → Live** so regular users are not blocked.
 
 ## Paste on Render (recommended)
 
