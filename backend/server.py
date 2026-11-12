@@ -613,6 +613,17 @@ class SocialUnlinkInput(BaseModel):
     provider: Literal["google", "facebook", "instagram"]
 
 
+class MockSocialLoginInput(BaseModel):
+    """Dev/bootstrap: create a social-style incomplete user after validating Meta app credentials."""
+    provider: Literal["facebook", "instagram"] = "facebook"
+    app_id: Optional[str] = None
+    app_secret: Optional[str] = None
+    name: str = "Mock Facebook User"
+    email: Optional[EmailStr] = None
+    role: Optional[PublicRegisterRole] = "influencer"
+    provider_user_id: Optional[str] = None
+
+
 class OnboardingCompleteInput(BaseModel):
     """Final wizard submit — validates mandatory fields + verifies server-side."""
     name: Optional[str] = None
@@ -2073,6 +2084,115 @@ async def _issue_session_for_user(user: dict, method: str) -> dict:
         meta={"method": method, "email": user.get("email")},
     )
     return {"token": token, "user": clean(dict(user)), "created": False}
+
+
+@api_router.post("/auth/mock-social-login")
+async def mock_social_login(inp: MockSocialLoginInput):
+    """
+    Validate Meta App ID/Secret via Graph API, then create/login a mock social user.
+    Used to verify onboarding gates before full OAuth redirect URIs are live.
+    Disable in production by setting DISABLE_MOCK_SOCIAL=1 on Render.
+    """
+    if str(os.environ.get("DISABLE_MOCK_SOCIAL") or "").strip().lower() in ("1", "true", "yes"):
+        raise HTTPException(status_code=403, detail="Mock social login is disabled")
+
+    provider = inp.provider
+    app_id = (inp.app_id or os.environ.get("FACEBOOK_APP_ID") or os.environ.get("META_APP_ID") or "").strip()
+    app_secret = (inp.app_secret or os.environ.get("FACEBOOK_APP_SECRET") or os.environ.get("META_APP_SECRET") or "").strip()
+    if not app_id or not app_secret:
+        raise HTTPException(status_code=400, detail="app_id and app_secret are required (body or server env)")
+
+    # Live-validate credentials with Meta (proves the secret is real)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            tok = await client.get(
+                "https://graph.facebook.com/oauth/access_token",
+                params={
+                    "client_id": app_id,
+                    "client_secret": app_secret,
+                    "grant_type": "client_credentials",
+                },
+            )
+            if tok.status_code >= 400:
+                raise HTTPException(status_code=401, detail=f"Meta credential validation failed: {tok.text[:200]}")
+            access = (tok.json() or {}).get("access_token")
+            if not access:
+                raise HTTPException(status_code=401, detail="Meta did not return an app access token")
+            meta = await client.get(
+                f"https://graph.facebook.com/v21.0/{app_id}",
+                params={"fields": "id,name", "access_token": access},
+            )
+            app_meta = meta.json() if meta.status_code < 400 else {"id": app_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach Meta Graph API: {e}")
+
+    email = (str(inp.email or "").lower().strip() or f"mock.{provider}.{app_id[-6:]}@users.flugr.local")
+    provider_user_id = (inp.provider_user_id or f"mock_{provider}_{app_id[-8:]}").strip()
+    profile = {
+        "provider": provider,
+        "provider_user_id": provider_user_id,
+        "email": None if email.endswith("@users.flugr.local") else email,
+        "email_verified": bool(email and not email.endswith("@users.flugr.local")),
+        "name": inp.name or "Mock Social User",
+        "given_name": (inp.name or "Mock").split(" ")[0],
+        "family_name": " ".join((inp.name or "User").split(" ")[1:]) or "User",
+        "avatar": None,
+        "username": f"mock_{provider}" if provider == "instagram" else None,
+        "access_token": None,
+    }
+    # Keep placeholder email path for Instagram-like missing email; for facebook mock use real-looking email
+    if provider == "facebook" and email.endswith("@users.flugr.local"):
+        email = f"mock.facebook.{provider_user_id[-8:]}@flugr.test"
+        profile["email"] = email
+        profile["email_verified"] = True
+
+    user = await _find_user_by_provider(provider, provider_user_id, profile.get("email"))
+    created = False
+    if not user:
+        # Force email onto create path
+        if profile.get("email"):
+            pass
+        user = await _create_social_user(profile, role=inp.role or "influencer")
+        created = True
+        # Ensure facebook mock has verified email flag from "social"
+        if provider == "facebook":
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$set": {
+                    "email": profile["email"],
+                    "email_verified": True,
+                    "needs_email": False,
+                    "registration_method": "FACEBOOK",
+                    "updated_at": now_iso(),
+                }},
+            )
+            user["email"] = profile["email"]
+            user["email_verified"] = True
+            user["needs_email"] = False
+            user["registration_method"] = "FACEBOOK"
+            user = await sync_onboarding_fields(user)
+    else:
+        user = await _link_provider_to_user(user.get("id") or str(user.get("_id")), profile)
+
+    result = await _issue_session_for_user(user, f"mock-{provider}")
+    result["created"] = created
+    result["meta_app"] = {"id": app_meta.get("id"), "name": app_meta.get("name")}
+    result["message"] = (
+        "Mock social account ready. Complete mobile verification + profile to unlock dashboard."
+        if not is_onboarding_complete(result["user"])
+        else "Mock social account is fully onboarded."
+    )
+    result["validation"] = {
+        "meta_credentials": "ok",
+        "onboarding_completed": bool(result["user"].get("onboarding_completed")),
+        "restricted_mode": bool(result["user"].get("restricted_mode")),
+        "missing_mandatory_fields": result["user"].get("missing_mandatory_fields") or [],
+        "profile_completion_status": result["user"].get("profile_completion_status"),
+        "campaigns_path": result["user"].get("campaigns_path"),
+    }
+    return result
 
 
 @api_router.post("/auth/google-login")
