@@ -1,7 +1,17 @@
 import { isSupportOpsRole, supportHomePath, supportRoleLabel } from "@/lib/supportOps";
+import { isRestrictedMode, campaignsPathForUser, onboardingPathForUser } from "@/lib/onboarding";
 
 export function getSidebarItems(user) {
   const isSupportOps = isSupportOpsRole(user?.role);
+
+  // Incomplete profiles: Campaigns + Complete Profile only
+  if (!isSupportOps && isRestrictedMode(user)) {
+    return [
+      { to: campaignsPathForUser(user), label: "Campaigns", icon: "sparkles" },
+      { to: onboardingPathForUser(user), label: "Complete Profile", icon: "profile" },
+    ];
+  }
+
   if (isSupportOps) {
     return [
       { to: "/support/ops?tab=dashboard", label: "Dashboard", icon: "dashboard", tab: "dashboard" },
@@ -102,6 +112,12 @@ export function getSidebarItems(user) {
 
 /** Five thumb-friendly destinations for phones and tablets. */
 export function getBottomNavItems(user) {
+  if (!isSupportOpsRole(user?.role) && isRestrictedMode(user)) {
+    return [
+      { to: campaignsPathForUser(user), label: "Campaigns", icon: "sparkles" },
+      { to: onboardingPathForUser(user), label: "Complete", icon: "profile" },
+    ];
+  }
   if (isSupportOpsRole(user?.role)) {
     return [
       { to: "/support/ops?tab=dashboard", label: "Home", icon: "dashboard", tab: "dashboard" },

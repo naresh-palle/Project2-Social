@@ -11,6 +11,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LogOut, Menu } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { isRestrictedMode, profileBannerMessage, onboardingPathForUser } from "@/lib/onboarding";
 
 export function AppLayout() {
   const { logout, user } = useAuth();
@@ -18,6 +19,8 @@ export function AppLayout() {
   const location = useLocation();
   const isSupport = isSupportOpsRole(user?.role);
   const [navOpen, setNavOpen] = useState(false);
+  const restricted = isRestrictedMode(user);
+  const banner = profileBannerMessage(user);
 
   useEffect(() => {
     setNavOpen(false);
@@ -44,7 +47,7 @@ export function AppLayout() {
 
       <main className="flex-1 ml-0 lg:ml-[16.5rem] relative z-10 flex flex-col h-[100dvh] min-h-0 min-w-0 overflow-hidden">
         <header className="shrink-0 h-14 flex items-center gap-2 px-3 sm:px-5 lg:px-8 relative z-[85] bg-[#FBF7F0] border-b border-[#D9CBB3] shadow-sm overflow-visible safe-px">
-          <Link to="/dashboard" className="lg:hidden shrink-0 max-w-[52vw] outline-none" aria-label="flugr home">
+          <Link to={restricted ? (user?.campaigns_path || "/marketplace?tab=campaigns") : "/dashboard"} className="lg:hidden shrink-0 max-w-[52vw] outline-none" aria-label="flugr home">
             <BrandLogo variant="wordmark" height={30} />
           </Link>
           <div className="ml-auto flex items-center gap-2 shrink-0 relative z-[86]">
@@ -80,6 +83,17 @@ export function AppLayout() {
           id="app-scroll"
           className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden no-scrollbar relative w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 pt-4 pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] lg:pb-12 safe-px"
         >
+          {restricted && banner && !location.pathname.startsWith("/onboarding") && !location.pathname.startsWith("/complete-profile") && (
+            <div className="mb-4 rounded-2xl border border-[#FEDF89] bg-[#FFFAEB] px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <p className="font-sans text-[13px] text-[#2A201A] flex-1">{banner}</p>
+              <Link
+                to={onboardingPathForUser(user)}
+                className="shrink-0 inline-flex items-center justify-center rounded-full bg-[#2A201A] text-[#F6F0E6] px-4 py-2 font-mono text-[10px] tracking-[0.16em] uppercase font-bold"
+              >
+                Complete Profile
+              </Link>
+            </div>
+          )}
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

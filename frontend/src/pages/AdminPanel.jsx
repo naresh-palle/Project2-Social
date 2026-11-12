@@ -19,7 +19,15 @@ import { ApifyLookupPanel } from "@/components/ApifyLookupPanel";
 import { AdminProduction } from "@/components/AdminProduction";
 
 const USER_ROLE_OPTIONS = ["Influencers", "Brands", "Agencies", "Hire / Production"];
-const USER_STATUS_OPTIONS = ["Active", "Pending"];
+const USER_STATUS_OPTIONS = [
+  "Active",
+  "Pending",
+  "Completed Profiles",
+  "Incomplete Profiles",
+  "Email Pending",
+  "Mobile Pending",
+  "Suspended",
+];
 const PRODUCTION_CATEGORY_OPTIONS = [
   "camera",
   "editing",
@@ -72,10 +80,18 @@ function roleLabel(role) {
 }
 
 function userStatusLabel(u) {
-  if (u?.banned === true || u?.status === "banned" || u?.is_banned === true) return "Banned";
+  if (u?.banned === true || u?.status === "banned" || u?.is_banned === true) return "Suspended";
+  if (u?.profile_completion_status === "SUSPENDED") return "Suspended";
   if (u?.onboarding_status === "declined") return "Declined";
+  if (u?.onboarding_completed === false || u?.profile_completion_status === "PROFILE_INCOMPLETE") return "Incomplete";
+  if (u?.profile_completion_status === "EMAIL_PENDING") return "Email Pending";
+  if (u?.profile_completion_status === "MOBILE_PENDING") return "Mobile Pending";
   if (u?.onboarding_status === "pending" || (u?.role === "agent" && u?.agent_approved === false)) return "Pending";
   return "Active";
+}
+
+function verifyBadge(ok) {
+  return ok ? "Verified" : "Pending";
 }
 
 const INTERNAL_EXPORT_ROLES = new Set([
@@ -451,7 +467,17 @@ export function AdminPanel() {
           const params = new URLSearchParams();
           if (roleFilter?.length === 1) params.append("role", ROLE_API_MAP[roleFilter[0]] || roleFilter[0]);
           if (categoryFilter?.length === 1) params.append("category", categoryFilter[0]);
-          if (statusFilter?.length === 1 && statusFilter[0] === "Pending") params.append("status", "pending");
+          if (statusFilter?.length === 1) {
+            const stMap = {
+              Pending: "pending",
+              "Completed Profiles": "completed",
+              "Incomplete Profiles": "incomplete",
+              "Email Pending": "email_pending",
+              "Mobile Pending": "mobile_pending",
+              Suspended: "suspended",
+            };
+            if (stMap[statusFilter[0]]) params.append("status", stMap[statusFilter[0]]);
+          }
           if (searchQuery) params.append("q", searchQuery);
           if (stateFilter) params.append("state", stateFilter);
           if (cityFilter) params.append("city", cityFilter);
@@ -487,8 +513,18 @@ export function AdminPanel() {
           if (statusFilter?.length) {
             const wantActive = statusFilter.includes("Active");
             const wantPending = statusFilter.includes("Pending");
+            const wantCompleted = statusFilter.includes("Completed Profiles");
+            const wantIncomplete = statusFilter.includes("Incomplete Profiles");
+            const wantEmail = statusFilter.includes("Email Pending");
+            const wantMobile = statusFilter.includes("Mobile Pending");
+            const wantSuspended = statusFilter.includes("Suspended");
             list = list.filter((u) => {
               const label = userStatusLabel(u);
+              if (wantCompleted && (u.onboarding_completed === true || u.profile_completion_status === "COMPLETED" || label === "Active")) return true;
+              if (wantIncomplete && (u.onboarding_completed === false || label === "Incomplete")) return true;
+              if (wantEmail && (u.email_verified === false || label === "Email Pending")) return true;
+              if (wantMobile && (u.mobile_verified === false || label === "Mobile Pending")) return true;
+              if (wantSuspended && label === "Suspended") return true;
               if (wantPending && label === "Pending") return true;
               if (wantActive && label === "Active") return true;
               return false;
@@ -1001,10 +1037,12 @@ export function AdminPanel() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-[#1E1B4B]/08 font-sans text-[9px] tracking-widest uppercase opacity-50">
-                                    <th className="p-4 font-normal">Username</th>
-                                    <th className="p-4 font-normal">Email</th>
-                                    <th className="p-4 font-normal">Mobile</th>
-                                    <th className="p-4 font-normal">Role / Category</th>
+                                    <th className="p-4 font-normal">User</th>
+                                    <th className="p-4 font-normal">Email / Mobile</th>
+                                    <th className="p-4 font-normal">Category</th>
+                                    <th className="p-4 font-normal">Registration</th>
+                                    <th className="p-4 font-normal">Verification</th>
+                                    <th className="p-4 font-normal">Profile</th>
                                     <th className="p-4 font-normal">Joined</th>
                                     <th className="p-4 font-normal">Status</th>
                                     <th className="p-4 font-normal text-right">Actions</th>
@@ -1012,27 +1050,28 @@ export function AdminPanel() {
                             </thead>
                             <tbody>
                                 {usersList.length === 0 ? (
-                                    <tr><td colSpan={7} className="p-12 text-center font-sans italic text-2xl opacity-40">No users found</td></tr>
+                                    <tr><td colSpan={9} className="p-12 text-center font-sans italic text-2xl opacity-40">No users found</td></tr>
                                 ) : (
                                     usersList.map((u) => (
                                         <tr key={u.id} className="border-b border-[#1E1B4B]/06 hover:bg-[#F8FAFC] transition-colors">
                                             <td className="p-4">
-                                              <div className="font-sans text-xl">
+                                              <div className="font-sans text-base font-semibold">{u.name || "—"}</div>
+                                              <div className="font-sans text-xs opacity-60">
                                                 {formatUsername(u.username, u.handle) || "—"}
                                               </div>
                                             </td>
-                                            <td className="p-4 font-sans text-sm break-all">
-                                              {u.email || "—"}
-                                            </td>
-                                            <td className="p-4 font-sans text-sm whitespace-nowrap">
+                                            <td className="p-4 font-sans text-sm">
+                                              <div className="break-all">{u.email || "—"}</div>
+                                              <div className="whitespace-nowrap opacity-70 mt-1">
                                               {u.mobile
                                                 ? (String(u.mobile).startsWith("+")
                                                     ? u.mobile
                                                     : `+91 ${String(u.mobile).replace(/\D/g, "").slice(-10)}`)
                                                 : "—"}
+                                              </div>
                                             </td>
                                             <td className="p-4">
-                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#FF2D55]">{roleLabel(u.role)}</div>
+                                              <div className="font-sans text-[10px] uppercase tracking-widest text-[#A9824A]">{roleLabel(u.role)}</div>
                                               <div className="text-xs opacity-60 mt-1">{userCategoryText(u) || "—"}</div>
                                               {u.role === 'influencer' && (
                                                 <select
@@ -1046,14 +1085,24 @@ export function AdminPanel() {
                                                 </select>
                                               )}
                                             </td>
-                                            <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">{new Date(u.created_at).toLocaleDateString()}</td>
+                                            <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-70">
+                                              {u.registration_method || "EMAIL"}
+                                            </td>
+                                            <td className="p-4 font-sans text-[10px] uppercase tracking-widest">
+                                              <div>Email: {verifyBadge(u.email_verified)}</div>
+                                              <div className="mt-1">Mobile: {verifyBadge(u.mobile_verified)}</div>
+                                            </td>
+                                            <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-70">
+                                              {u.profile_completion_status || (u.onboarding_completed ? "COMPLETED" : "INCOMPLETE")}
+                                            </td>
+                                            <td className="p-4 font-sans text-[10px] uppercase tracking-widest opacity-60">{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</td>
                                             <td className="p-4">
                                                 {(() => {
                                                   const st = userStatusLabel(u);
                                                   const cls =
                                                     st === "Active" ? "bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]/20" :
-                                                    st === "Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
-                                                    st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
+                                                    st === "Pending" || st === "Incomplete" || st === "Email Pending" || st === "Mobile Pending" ? "bg-orange-500/10 text-orange-400 border-orange-500/20" :
+                                                    st === "Suspended" || st === "Banned" ? "bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/20" :
                                                     "bg-[#F7F8FC] text-[#64748B] border-[#1E1B4B]/10";
                                                   return (
                                                     <span className={`px-2 py-1 text-[9px] uppercase tracking-widest font-sans border rounded-3xl ${cls}`}>{st}</span>

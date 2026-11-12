@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
 import { api, friendlyAuthError } from "@/lib/api";
 import { postAuthPath } from "@/lib/supportOps";
+import { postLoginDestination } from "@/lib/onboarding";
 
 export default function Login() {
   const { login, googleLogin, mobileOtpLogin } = useAuth();
@@ -76,11 +77,15 @@ export default function Login() {
         return;
       }
       const decoded = jwtDecode(credential);
-      const r = await googleLogin(credential);
+      const r = await googleLogin(credential, { create_if_missing: true });
       setLoading(false);
       if (r.ok) {
-        toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
-        nav(postAuthPath(r.user));
+        if (r.created) {
+          toast.success("Your CR8 account has been created successfully. Complete your profile to access all features.");
+        } else {
+          toast.success(`Welcome back, ${decoded.name || decoded.email}!`);
+        }
+        nav(postLoginDestination(r.user) || postAuthPath(r.user));
       } else if (r.notRegistered) {
         toast.error("No account found for this Google email. Please register first.");
         nav("/register", {
@@ -353,7 +358,7 @@ export default function Login() {
               <div className={`mt-4 space-y-2.5 ${loading ? "pointer-events-none opacity-50" : ""}`}>
                 <div className="flex items-center gap-3">
                   <div className="h-px bg-[#D9CBB3] flex-1" />
-                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] font-semibold">Or continue with</span>
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] font-semibold">Social</span>
                   <div className="h-px bg-[#D9CBB3] flex-1" />
                 </div>
                 <SocialAuthButtons

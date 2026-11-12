@@ -201,11 +201,15 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const googleLogin = async (credential) => {
+  const googleLogin = async (credential, opts = {}) => {
     try {
-      const { data } = await api.post("/auth/google-login", { credential });
+      const { data } = await api.post("/auth/google-login", {
+        credential,
+        create_if_missing: opts.create_if_missing !== false,
+        role: opts.role || undefined,
+      });
       storeSession(data, false);
-      return { ok: true, user: data.user };
+      return { ok: true, user: data.user, created: !!data.created, message: data.message };
     } catch (e) {
       const detail = e.response?.data?.detail || e.message;
       const status = e.response?.status;

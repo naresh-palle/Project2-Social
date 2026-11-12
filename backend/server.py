@@ -24,6 +24,17 @@ from typing import List, Optional, Literal, Dict, Any
 
 from otp_utils import parse_otp_datetime, otp_expired
 from pincode_lookup import fetch_pincode_details
+from onboarding_gate import (
+    enrich_user_public,
+    is_onboarding_complete,
+    is_dashboard_accessible,
+    persistence_patch_from_user,
+    migration_defaults_for_existing,
+    compute_profile_completion_status,
+    email_is_verified,
+    mobile_is_verified,
+)
+import oauth_social
 
 import bcrypt
 import jwt
@@ -35,7 +46,7 @@ except ImportError:
     aiosmtplib = None
 from email.message import EmailMessage
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query, UploadFile, File
-from fastapi.responses import StreamingResponse, FileResponse, Response
+from fastapi.responses import StreamingResponse, FileResponse, Response, RedirectResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
@@ -417,7 +428,44 @@ def clean(doc: Optional[dict]) -> Optional[dict]:
     c = dict(doc)
     c.pop("_id", None)
     c.pop("password_hash", None)
+    # Never leak provider access tokens to clients
+    if isinstance(c.get("auth_providers"), list):
+        safe_providers = []
+        for p in c["auth_providers"]:
+            if not isinstance(p, dict):
+                continue
+            safe_providers.append({
+                k: v for k, v in p.items()
+                if k not in ("access_token", "refresh_token", "token", "raw")
+            })
+        c["auth_providers"] = safe_providers
+    try:
+        c = enrich_user_public(c)
+    except Exception:
+        pass
     return c
+
+
+async def sync_onboarding_fields(user: dict) -> dict:
+    """Persist computed onboarding flags; safe for existing users."""
+    if not user or not user.get("id"):
+        return user
+    try:
+        mig = migration_defaults_for_existing(user)
+        merged = {**user, **mig}
+        patch = persistence_patch_from_user(merged)
+        # Only write keys that actually change
+        writes = {}
+        for k, v in {**mig, **patch}.items():
+            if user.get(k) != v:
+                writes[k] = v
+        if writes:
+            writes["updated_at"] = now_iso()
+            await db.users.update_one({"id": user["id"]}, {"$set": writes})
+            user.update(writes)
+    except Exception as e:
+        logger.warning("sync_onboarding_fields failed for %s: %s", user.get("id"), e)
+    return user
 
 
 def normalize_mobile(raw: Optional[str]) -> str:
@@ -490,7 +538,23 @@ async def get_current_user(request: Request) -> dict:
 
     user["id"] = user.get("id") or str(user.get("_id", ""))
     user.pop("_id", None)
+    user = await sync_onboarding_fields(user)
     return user
+
+
+async def require_onboarding_complete(current: dict = Depends(get_current_user)) -> dict:
+    """Block restricted actions until mandatory profile + verifies are done."""
+    if is_onboarding_complete(current):
+        return current
+    raise HTTPException(
+        status_code=403,
+        detail={
+            "code": "ONBOARDING_INCOMPLETE",
+            "message": "Complete your CR8 profile and verify email/mobile to use this feature.",
+            "profile_completion_status": compute_profile_completion_status(current),
+            "missing": enrich_user_public(current).get("missing_mandatory_fields") or [],
+        },
+    )
 
 
 async def require_role(current: dict, roles: list) -> dict:
@@ -541,6 +605,35 @@ class LoginInput(BaseModel):
 
 class GoogleLoginInput(BaseModel):
     credential: str  # Google OAuth ID token from client; email alone is not accepted
+    create_if_missing: bool = True  # social registration creates incomplete CR8 accounts
+    role: Optional[PublicRegisterRole] = None
+
+
+class SocialUnlinkInput(BaseModel):
+    provider: Literal["google", "facebook", "instagram"]
+
+
+class OnboardingCompleteInput(BaseModel):
+    """Final wizard submit — validates mandatory fields + verifies server-side."""
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    mobile: Optional[str] = None
+    role: Optional[PublicRegisterRole] = None
+    avatar: Optional[str] = None
+    company: Optional[str] = None
+    industry: Optional[str] = None
+    company_size: Optional[str] = None
+    category: Optional[Any] = None
+    niches: Optional[List[str]] = None
+    handle: Optional[str] = None
+    platform: Optional[str] = None
+    platform_metrics: Optional[Dict[str, Any]] = None
+    agent_type: Optional[str] = None
+    website: Optional[str] = None
+    bio: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
 
 
 class ContentReviewInput(BaseModel):
@@ -575,6 +668,10 @@ class UserUpdate(BaseModel):
     linkedin: Optional[str] = None
     company_size: Optional[str] = None
     employees: Optional[str] = None
+    mobile: Optional[str] = None
+    pincode: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[PublicRegisterRole] = None
     # UI niches multi-select: production historically typed this as str; accept either.
     category: Optional[Any] = None
     followers: Optional[int] = None
@@ -591,6 +688,9 @@ class UserUpdate(BaseModel):
     oauth_connections: Optional[List[Dict[str, Any]]] = None
     languages: Optional[List[str]] = None
     platform_metrics: Optional[Dict[str, Any]] = None
+    registration_method: Optional[str] = None
+    profile_completion_status: Optional[str] = None
+    onboarding_completed: Optional[bool] = None
 
     @field_validator("category", mode="before")
     @classmethod
@@ -1200,7 +1300,14 @@ async def mobile_verify_otp(inp: OTPVerify):
 
     user = await find_user_by_mobile(mobile)
     if user:
-        user_id = user.get("id") or str(user["_id"])
+        user_id = user.get("id") or str(user.get("_id"))
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"mobile_verified": True, "mobile": mobile, "updated_at": now_iso()}},
+        )
+        user["mobile_verified"] = True
+        user["mobile"] = mobile
+        user = await sync_onboarding_fields(user)
         token = create_access_token(user_id, user["email"], user.get("role", "influencer"))
         return {"ok": True, "verified": True, "token": token, "user": clean(dict(user)), "message": "Mobile number verified successfully!"}
 
@@ -1586,14 +1693,21 @@ async def _create_registered_user(
         "mobile": clean_mobile, "pincode": pincode,
         "bio": None, "avatar": None, "niches": [], "followers": None, "platforms": platforms,
         "location": city_val, "city": city_val, "state": state_val, "industry": None, "website": None,
-        "portfolio": [], "rate_card": {}, "verified": verified, "email_verified": False, "wallet": 0,
+        "portfolio": [], "rate_card": {}, "verified": verified,
+        "email_verified": False, "mobile_verified": False, "wallet": 0,
         "onboarding_status": "pending", "agent_approved": False,
+        "registration_method": "EMAIL",
+        "profile_completion_status": "REGISTERED",
+        "onboarding_completed": False,
+        "auth_providers": [],
         "created_at": now_iso(),
+        "updated_at": now_iso(),
         "social_accounts": social_accounts,
         "platform_metrics": platform_metrics,
         "agent_type": agent_type,
     }
     await db.users.insert_one(doc)
+    doc = await sync_onboarding_fields(doc)
     token = create_access_token(user_id, email, role)
     role_label = ROLE_AUDIT_LABELS.get(role, (role or "user").title())
     await write_audit_log(
@@ -1639,9 +1753,20 @@ async def mobile_register(inp: MobileRegisterInput):
         verified=True,
     )
     await _clear_signup_otps(email, inp.mobile)
-    await db.users.update_one({"email": email}, {"$set": {"email_verified": True}})
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {
+            "email_verified": True,
+            "mobile_verified": True,
+            "registration_method": "MOBILE",
+            "updated_at": now_iso(),
+        }},
+    )
     if result.get("user"):
         result["user"]["email_verified"] = True
+        result["user"]["mobile_verified"] = True
+        result["user"]["registration_method"] = "MOBILE"
+        result["user"] = clean(result["user"])
     return result
 
 
@@ -1757,9 +1882,206 @@ GOOGLE_CLIENT_ID = os.environ.get(
     "858111971322-uf792cb63b4u97u1fu494kngaajuaibr.apps.googleusercontent.com",
 )
 
+async def _find_user_by_provider(provider: str, provider_user_id: str, email: Optional[str] = None) -> Optional[dict]:
+    provider = (provider or "").lower()
+    provider_user_id = str(provider_user_id or "").strip()
+    if provider_user_id:
+        user = await db.users.find_one({
+            "auth_providers": {
+                "$elemMatch": {"provider": provider, "provider_user_id": provider_user_id}
+            }
+        })
+        if user:
+            return user
+    if email:
+        return await db.users.find_one({"email": email.lower().strip()})
+    return None
+
+
+async def _link_provider_to_user(user_id: str, profile: dict, *, encrypted_token: Optional[str] = None) -> dict:
+    provider = profile["provider"]
+    provider_user_id = str(profile.get("provider_user_id") or "")
+    entry = {
+        "provider": provider,
+        "provider_user_id": provider_user_id,
+        "email": profile.get("email"),
+        "username": profile.get("username"),
+        "linked_at": now_iso(),
+    }
+    if encrypted_token:
+        entry["access_token"] = encrypted_token
+
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    providers = list(user.get("auth_providers") or [])
+    # Prevent linking a provider identity already owned by another account
+    other = await db.users.find_one({
+        "id": {"$ne": user_id},
+        "auth_providers": {"$elemMatch": {"provider": provider, "provider_user_id": provider_user_id}},
+    })
+    if other:
+        raise HTTPException(status_code=409, detail="This social account is already linked to another CR8 user")
+
+    providers = [p for p in providers if not (isinstance(p, dict) and p.get("provider") == provider and p.get("provider_user_id") == provider_user_id)]
+    # Replace same provider different id? keep multiple only if ids differ; replace same provider slot
+    providers = [p for p in providers if not (isinstance(p, dict) and p.get("provider") == provider)]
+    providers.append(entry)
+
+    patch = {"auth_providers": providers, "updated_at": now_iso()}
+    if profile.get("avatar") and not user.get("avatar"):
+        patch["avatar"] = profile["avatar"]
+    if provider == "instagram" and profile.get("username"):
+        pm = dict(user.get("platform_metrics") or {})
+        ig = dict(pm.get("instagram") or {})
+        if not ig.get("handle"):
+            ig["handle"] = profile["username"]
+            pm["instagram"] = ig
+            patch["platform_metrics"] = pm
+        if not user.get("handle"):
+            patch["handle"] = f"@{profile['username']}".replace("@@", "@")
+
+    await db.users.update_one({"id": user_id}, {"$set": patch})
+    user.update(patch)
+    return user
+
+
+async def _create_social_user(profile: dict, role: Optional[str] = None) -> dict:
+    """Create an incomplete CR8 account from a verified social profile."""
+    provider = profile["provider"]
+    email = (profile.get("email") or "").lower().strip() or None
+    name = (profile.get("name") or "").strip() or (profile.get("username") or "CR8 User")
+    role = role if role in ("owner", "influencer", "agent") else "influencer"
+
+    # Synthetic email for Instagram (no email from provider) — must complete real email in wizard
+    if not email:
+        pid = profile.get("provider_user_id") or secrets.token_hex(6)
+        email = f"{provider}_{pid}@users.flugr.local"
+
+    base_username = (
+        (profile.get("username") or email.split("@")[0] or "user")
+        .lower()
+        .replace(" ", "")
+    )
+    base_username = re.sub(r"[^a-z0-9_]", "", base_username)[:20] or "user"
+    username = base_username
+    n = 0
+    while await db.users.find_one({"username": username}):
+        n += 1
+        username = f"{base_username}{n}"
+
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="An account with this email already exists")
+
+    user_id = str(uuid.uuid4())
+    enc = None
+    if profile.get("access_token"):
+        try:
+            enc = encrypt_token(profile["access_token"])
+        except Exception:
+            enc = None
+
+    provider_entry = {
+        "provider": provider,
+        "provider_user_id": str(profile.get("provider_user_id") or ""),
+        "email": profile.get("email"),
+        "username": profile.get("username"),
+        "linked_at": now_iso(),
+    }
+    if enc:
+        provider_entry["access_token"] = enc
+
+    platform_metrics = {
+        "facebook": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "instagram": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "twitter": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+        "youtube": {"handle": "", "followers": 0, "engagement": 0, "views": 0, "posts": 0},
+    }
+    handle = None
+    if provider == "instagram" and profile.get("username"):
+        platform_metrics["instagram"]["handle"] = profile["username"]
+        handle = f"@{profile['username']}"
+
+    email_verified = bool(profile.get("email_verified") and profile.get("email") and not email.endswith("@users.flugr.local"))
+
+    doc = {
+        "id": user_id,
+        "email": email,
+        "username": username,
+        "password_hash": hash_password(secrets.token_urlsafe(24)),
+        "name": name,
+        "role": role,
+        "handle": handle,
+        "company": None,
+        "mobile": None,
+        "pincode": None,
+        "bio": None,
+        "avatar": profile.get("avatar"),
+        "niches": [],
+        "followers": None,
+        "platforms": ["instagram"] if provider == "instagram" else [],
+        "location": None,
+        "city": None,
+        "state": None,
+        "industry": None,
+        "website": None,
+        "portfolio": [],
+        "rate_card": {},
+        "verified": False,
+        "email_verified": email_verified,
+        "mobile_verified": False,
+        "wallet": 0,
+        "onboarding_status": "pending",
+        "agent_approved": False,
+        "registration_method": provider.upper(),
+        "profile_completion_status": "PROFILE_INCOMPLETE",
+        "onboarding_completed": False,
+        "auth_providers": [provider_entry],
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+        "social_accounts": [],
+        "platform_metrics": platform_metrics,
+        "needs_email": email.endswith("@users.flugr.local"),
+    }
+    await db.users.insert_one(doc)
+    doc = await sync_onboarding_fields(doc)
+    await write_audit_log(
+        action=f"{provider.title()} Signup",
+        user_id=user_id,
+        username=username,
+        details=f"Registered via {provider}",
+        status="Completed",
+        meta={"role": role, "email": email, "method": provider},
+    )
+    return doc
+
+
+async def _issue_session_for_user(user: dict, method: str) -> dict:
+    user_id = user.get("id") or str(user.get("_id"))
+    if not user.get("id"):
+        await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
+        user["id"] = user_id
+    user = await sync_onboarding_fields(user)
+    token = create_access_token(user_id, user.get("email"), user.get("role", "influencer"))
+    await write_audit_log(
+        action="User Login",
+        user_id=user_id,
+        username=user.get("username"),
+        details=f"Signed in with {method}",
+        status="Completed",
+        meta={"method": method, "email": user.get("email")},
+    )
+    return {"token": token, "user": clean(dict(user)), "created": False}
+
+
 @api_router.post("/auth/google-login")
 async def google_login(inp: GoogleLoginInput):
-    """Sign in only for already-registered users. Never creates accounts."""
+    """
+    Google Identity Services ID-token login.
+    Existing users are authenticated (even if profile incomplete).
+    Missing users are created as incomplete CR8 accounts when create_if_missing=True.
+    """
     try:
         idinfo = id_token.verify_oauth2_token(
             inp.credential,
@@ -1777,36 +2099,47 @@ async def google_login(inp: GoogleLoginInput):
     if not email or not idinfo.get("email_verified", False):
         raise HTTPException(status_code=400, detail="Google account email is missing or not verified")
 
-    user = await db.users.find_one({"email": email})
+    profile = {
+        "provider": "google",
+        "provider_user_id": str(idinfo.get("sub") or ""),
+        "email": email,
+        "email_verified": True,
+        "name": idinfo.get("name") or "",
+        "given_name": idinfo.get("given_name") or "",
+        "family_name": idinfo.get("family_name") or "",
+        "avatar": idinfo.get("picture"),
+        "username": None,
+        "access_token": None,
+    }
+
+    user = await _find_user_by_provider("google", profile["provider_user_id"], email)
+    created = False
     if not user:
-        # Do not auto-register — user must complete signup first
-        raise HTTPException(
-            status_code=404,
-            detail="Account not registered with this Google email. Please complete Registration first with your Mobile & Location details.",
+        if not inp.create_if_missing:
+            raise HTTPException(
+                status_code=404,
+                detail="Account not registered with this Google email. Please complete Registration first.",
+            )
+        user = await _create_social_user(profile, role=inp.role)
+        created = True
+    else:
+        user_id = user.get("id") or str(user["_id"])
+        user = await _link_provider_to_user(user_id, profile)
+        # Mark email verified from Google
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"email_verified": True, "updated_at": now_iso()}},
         )
+        user["email_verified"] = True
 
-    # Enforce mandatory registration details (mobile & pincode)
-    if not user.get("mobile") or not user.get("pincode"):
-        raise HTTPException(
-            status_code=400,
-            detail="Account registration incomplete. Please complete Registration with your Mobile Number & Location details.",
+    result = await _issue_session_for_user(user, "google")
+    result["created"] = created
+    if created:
+        result["message"] = (
+            "Your CR8 account has been created successfully. "
+            "Complete your profile to access all features."
         )
-
-    user_id = user.get("id") or str(user["_id"])
-    if not user.get("id"):
-        await db.users.update_one({"_id": user["_id"]}, {"$set": {"id": user_id}})
-        user["id"] = user_id
-
-    token = create_access_token(user_id, email, user.get("role", "influencer"))
-    await write_audit_log(
-        action="User Login",
-        user_id=user_id,
-        username=user.get("username"),
-        details="Signed in with Google",
-        status="Completed",
-        meta={"method": "google", "email": email},
-    )
-    return {"token": token, "user": clean(dict(user))}
+    return result
 
 
 @api_router.post("/auth/login")
@@ -1890,7 +2223,7 @@ async def login(inp: LoginInput, request: Request):
 
 @api_router.get("/auth/me")
 async def me(current: dict = Depends(get_current_user)):
-    return current
+    return clean(current)
 
 
 @api_router.patch("/auth/me")
@@ -1901,7 +2234,35 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
     updates = {k: v for k, v in data.items() if v is not None}
 
     if not updates:
-        return current
+        return clean(current)
+
+    # Role changes only while onboarding is incomplete (category step)
+    if "role" in updates:
+        if current.get("role") in ("admin", "production") or current.get("role", "").startswith("support"):
+            updates.pop("role", None)
+        elif is_onboarding_complete(current) and current.get("onboarding_status") == "completed":
+            updates.pop("role", None)
+
+    if "mobile" in updates:
+        new_mobile = normalize_mobile(updates["mobile"])
+        updates["mobile"] = new_mobile
+        if new_mobile != normalize_mobile(current.get("mobile")):
+            updates["mobile_verified"] = False
+
+    if "email" in updates:
+        # Allow email set only when social signup used a placeholder address
+        new_email = str(updates.get("email") or "").lower().strip()
+        if current.get("needs_email") or str(current.get("email") or "").endswith("@users.flugr.local"):
+            if new_email and "@" in new_email and not new_email.endswith("@users.flugr.local"):
+                if await db.users.find_one({"email": new_email, "id": {"$ne": current["id"]}}):
+                    raise HTTPException(status_code=400, detail="Email already registered")
+                updates["email"] = new_email
+                updates["email_verified"] = False
+                updates["needs_email"] = False
+            else:
+                updates.pop("email", None)
+        else:
+            updates.pop("email", None)
 
     # Keep location in sync when city is set during onboarding
     if "city" in updates and "location" not in updates:
@@ -1958,6 +2319,7 @@ async def update_me(inp: UserUpdate, current: dict = Depends(get_current_user)):
 
     user["id"] = user.get("id") or str(user.get("_id", ""))
     user.pop("_id", None)
+    user = await sync_onboarding_fields(user)
     await write_audit_log(
         action="Profile Update",
         user_id=user.get("id"),
@@ -2371,6 +2733,22 @@ async def admin_users(
         ]
     if status == "pending":
         filt["$or"] = [{"agent_approved": False}, {"onboarding_status": "pending_approval"}, {"onboarding_status": "pending"}]
+    elif status == "completed":
+        filt["$or"] = [
+            {"onboarding_completed": True},
+            {"profile_completion_status": "COMPLETED"},
+            {"onboarding_status": "completed"},
+        ]
+    elif status == "incomplete":
+        filt["onboarding_completed"] = {"$ne": True}
+        filt["profile_completion_status"] = {"$ne": "COMPLETED"}
+        filt["onboarding_status"] = {"$nin": ["completed", "approved"]}
+    elif status == "email_pending":
+        filt["email_verified"] = {"$ne": True}
+    elif status == "mobile_pending":
+        filt["mobile_verified"] = {"$ne": True}
+    elif status == "suspended":
+        filt["$or"] = [{"banned": True}, {"status": "banned"}]
     
     if state:
         filt["state"] = {"$regex": f"^{re.escape(state)}$", "$options": "i"}
@@ -2387,7 +2765,7 @@ async def admin_users(
         }]
         
     users = await db.users.find(filt, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
-    return users
+    return [clean(u) for u in users]
 
 
 @api_router.post("/admin/users/{user_id}/approve")
@@ -2791,7 +3169,7 @@ async def get_campaign(campaign_id: str):
 
 # ---------- Applications ----------
 @api_router.post("/campaigns/{campaign_id}/apply")
-async def apply(campaign_id: str, inp: ApplicationCreate, current: dict = Depends(get_current_user)):
+async def apply(campaign_id: str, inp: ApplicationCreate, current: dict = Depends(require_onboarding_complete)):
     await require_role(current, ["influencer"])
     if not await db.campaigns.find_one({"id": campaign_id}):
         raise HTTPException(status_code=404, detail="Campaign not found")
@@ -4688,11 +5066,267 @@ def decrypt_token(encrypted_token: str) -> str:
     if not cipher_suite: return encrypted_token
     return cipher_suite.decrypt(encrypted_token.encode()).decode()
 
-# In a real application, you would implement the official OAuth routes here
-# e.g., @api_router.get("/oauth/{platform}/login")
-# e.g., @api_router.get("/oauth/{platform}/callback")
+# ---------- Social OAuth (Google / Facebook / Instagram) ----------
+
+@api_router.get("/oauth/providers")
+async def oauth_providers_status():
+    return {
+        "providers": [
+            oauth_social.provider_configured("google"),
+            oauth_social.provider_configured("facebook"),
+            oauth_social.provider_configured("instagram"),
+        ],
+        "frontend_url": oauth_social.frontend_base(),
+        "callback_base": f"{oauth_social.api_public_base()}/api/oauth",
+    }
 
 
+from urllib.parse import urlencode  # noqa: E402
+
+
+@api_router.get("/oauth/{provider}/start")
+async def oauth_start(provider: str, request: Request, mode: str = "login", role: Optional[str] = None, redirect: Optional[str] = None):
+    provider = (provider or "").lower().strip()
+    if provider not in ("google", "facebook", "instagram"):
+        raise HTTPException(status_code=400, detail="Unsupported provider")
+
+    link_user_id = None
+    auth = request.headers.get("Authorization", "")
+    if mode == "link" and auth.startswith("Bearer "):
+        try:
+            cur = await get_current_user(request)
+            link_user_id = cur.get("id")
+        except HTTPException:
+            raise HTTPException(status_code=401, detail="Login required to link a social account")
+
+    try:
+        status = oauth_social.provider_configured(provider)
+        if provider != "google" and not status.get("auth_code_ready"):
+            raise HTTPException(
+                status_code=503,
+                detail=f"{provider.title()} OAuth is not configured on the server yet. {status.get('note') or ''}",
+            )
+        if provider == "google" and not oauth_social.google_client_secret():
+            # Prefer GIS ID-token on the client; redirect flow needs secret
+            raise HTTPException(
+                status_code=503,
+                detail="Google authorization-code flow requires GOOGLE_CLIENT_SECRET. Use the Google button (GIS) instead.",
+            )
+
+        state, verifier, challenge = oauth_social.create_oauth_state(
+            provider,
+            mode=mode,
+            role=role if role in ("owner", "influencer", "agent") else None,
+            link_user_id=link_user_id,
+            frontend_redirect=redirect,
+        )
+        url = oauth_social.build_authorize_url(
+            provider,
+            {"state": state, "code_challenge": challenge, "code_verifier": verifier},
+        )
+        return RedirectResponse(url, status_code=302)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@api_router.get("/oauth/{provider}/callback")
+async def oauth_callback(provider: str, request: Request, code: Optional[str] = None, state: Optional[str] = None, error: Optional[str] = None, error_description: Optional[str] = None):
+    provider = (provider or "").lower().strip()
+    fe = oauth_social.frontend_base()
+    # HashRouter SPA callback landing
+    fail_url = f"{fe}/#/oauth/callback"
+
+    if error:
+        q = urlencode({"error": error, "error_description": error_description or "Authorization cancelled", "provider": provider})
+        return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+
+    if not code or not state:
+        q = urlencode({"error": "missing_code", "error_description": "OAuth callback missing code or state", "provider": provider})
+        return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+
+    meta = oauth_social.pop_oauth_state(state)
+    if not meta or meta.get("provider") != provider:
+        q = urlencode({"error": "invalid_state", "error_description": "Invalid or expired OAuth state", "provider": provider})
+        return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+
+    try:
+        profile = await oauth_social.exchange_code(provider, code, meta.get("code_verifier"))
+    except ValueError as e:
+        q = urlencode({"error": "exchange_failed", "error_description": str(e), "provider": provider})
+        return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+
+    # Account linking
+    if meta.get("mode") == "link" and meta.get("link_user_id"):
+        try:
+            enc = encrypt_token(profile["access_token"]) if profile.get("access_token") else None
+            await _link_provider_to_user(meta["link_user_id"], profile, encrypted_token=enc)
+            q = urlencode({"ok": "1", "linked": provider})
+            return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+        except HTTPException as e:
+            q = urlencode({"error": "link_failed", "error_description": str(e.detail), "provider": provider})
+            return RedirectResponse(f"{fail_url}?{q}", status_code=302)
+
+    user = await _find_user_by_provider(provider, profile.get("provider_user_id"), profile.get("email"))
+    created = False
+    if not user:
+        user = await _create_social_user(profile, role=meta.get("role"))
+        created = True
+    else:
+        # Do not auto-merge solely on unverified email
+        if profile.get("email") and not profile.get("email_verified"):
+            # Only match via provider id in this case — already handled by _find
+            pass
+        user_id = user.get("id") or str(user["_id"])
+        enc = encrypt_token(profile["access_token"]) if profile.get("access_token") else None
+        user = await _link_provider_to_user(user_id, profile, encrypted_token=enc)
+        if profile.get("email") and profile.get("email_verified"):
+            await db.users.update_one({"id": user_id}, {"$set": {"email_verified": True}})
+            user["email_verified"] = True
+
+    session = await _issue_session_for_user(user, provider)
+    # Pass token to frontend via fragment-friendly query (HTTPS only in prod)
+    q = urlencode({
+        "ok": "1",
+        "provider": provider,
+        "token": session["token"],
+        "created": "1" if created else "0",
+    })
+    target = meta.get("frontend_redirect") or fail_url
+    if not target.startswith("http"):
+        target = fail_url
+    sep = "&" if "?" in target else "?"
+    return RedirectResponse(f"{target}{sep}{q}", status_code=302)
+
+
+@api_router.post("/auth/social/unlink")
+async def social_unlink(inp: SocialUnlinkInput, current: dict = Depends(get_current_user)):
+    providers = [p for p in (current.get("auth_providers") or []) if isinstance(p, dict)]
+    remaining = [p for p in providers if p.get("provider") != inp.provider]
+    has_password = bool(current.get("password_hash"))
+    # password_hash stripped from current — check DB
+    raw = await db.users.find_one({"id": current["id"]}, {"password_hash": 1, "auth_providers": 1, "registration_method": 1})
+    has_password = bool(raw and raw.get("password_hash"))
+    providers = [p for p in (raw.get("auth_providers") or []) if isinstance(p, dict)]
+    remaining = [p for p in providers if p.get("provider") != inp.provider]
+    if not remaining and not has_password:
+        raise HTTPException(status_code=400, detail="Cannot unlink the only remaining login method")
+    await db.users.update_one({"id": current["id"]}, {"$set": {"auth_providers": remaining, "updated_at": now_iso()}})
+    user = await db.users.find_one({"id": current["id"]}, {"password_hash": 0})
+    return {"ok": True, "user": clean(dict(user or {}))}
+
+
+@api_router.post("/auth/me/email/verify-otp")
+async def me_verify_email_otp(inp: OTPVerify, current: dict = Depends(get_current_user)):
+    email = (inp.email or current.get("email") or "").lower().strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    target_code = (inp.code or inp.otp or "").strip()
+    await consume_email_otp(email, target_code, consume=True)
+    patch = {"email_verified": True, "email": email, "updated_at": now_iso()}
+    if email.endswith("@users.flugr.local") is False:
+        patch["needs_email"] = False
+    await db.users.update_one({"id": current["id"]}, {"$set": patch})
+    user = await db.users.find_one({"id": current["id"]}, {"password_hash": 0})
+    user = await sync_onboarding_fields(user)
+    return {"ok": True, "verified": True, "user": clean(dict(user))}
+
+
+@api_router.post("/auth/me/mobile/verify-otp")
+async def me_verify_mobile_otp(inp: OTPVerify, current: dict = Depends(get_current_user)):
+    mobile = normalize_mobile(inp.mobile or current.get("mobile"))
+    if len(mobile) != 10:
+        raise HTTPException(status_code=400, detail="Valid 10-digit mobile required")
+    target_code = (inp.code or inp.otp or "").strip()
+    await consume_mobile_otp(mobile, target_code)
+    await db.users.update_one(
+        {"id": current["id"]},
+        {"$set": {"mobile": mobile, "mobile_verified": True, "updated_at": now_iso()}},
+    )
+    user = await db.users.find_one({"id": current["id"]}, {"password_hash": 0})
+    user = await sync_onboarding_fields(user)
+    return {"ok": True, "verified": True, "user": clean(dict(user))}
+
+
+@api_router.post("/auth/onboarding/complete")
+async def complete_onboarding(inp: OnboardingCompleteInput, current: dict = Depends(get_current_user)):
+    """Validate and finalize profile completion wizard."""
+    data = inp.model_dump(exclude_unset=True) if hasattr(inp, "model_dump") else inp.dict(exclude_unset=True)
+    updates = {k: v for k, v in data.items() if v is not None}
+
+    if "mobile" in updates:
+        updates["mobile"] = normalize_mobile(updates["mobile"])
+    if "role" in updates and updates["role"] not in ("owner", "influencer", "agent"):
+        raise HTTPException(status_code=400, detail="Invalid user category")
+    if "role" in updates and current.get("role") in ("admin", "production"):
+        updates.pop("role", None)  # never change internal roles via wizard
+
+    if "category" in updates and isinstance(updates["category"], list):
+        cat_list = [str(x).strip() for x in updates["category"] if x and str(x).strip()]
+        updates["category"] = ", ".join(cat_list) if cat_list else None
+        if "niches" not in updates:
+            updates["niches"] = cat_list
+
+    if "platform" in updates and "handle" in updates and updates.get("handle"):
+        plat = str(updates.pop("platform")).lower()
+        handle = str(updates["handle"]).strip()
+        pm = dict(current.get("platform_metrics") or {})
+        row = dict(pm.get(plat) or {})
+        row["handle"] = handle.lstrip("@")
+        pm[plat] = row
+        updates["platform_metrics"] = pm
+
+    if updates:
+        updates["updated_at"] = now_iso()
+        await db.users.update_one({"id": current["id"]}, {"$set": updates})
+
+    user = await db.users.find_one({"id": current["id"]}, {"password_hash": 0})
+    user = await sync_onboarding_fields(user)
+
+    if not is_onboarding_complete(user):
+        status = compute_profile_completion_status(user)
+        missing = enrich_user_public(user).get("missing_mandatory_fields") or []
+        detail_bits = []
+        if not email_is_verified(user):
+            detail_bits.append("email verification")
+        if not mobile_is_verified(user):
+            detail_bits.append("mobile verification")
+        if missing:
+            detail_bits.append("mandatory profile fields: " + ", ".join(missing))
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "ONBOARDING_INCOMPLETE",
+                "message": "Profile is not complete yet: " + "; ".join(detail_bits),
+                "profile_completion_status": status,
+                "missing": missing,
+                "email_verified": email_is_verified(user),
+                "mobile_verified": mobile_is_verified(user),
+                "user": clean(dict(user)),
+            },
+        )
+
+    # Mark legacy status complete; agents go to pending approval
+    if user.get("role") == "agent" and user.get("agent_approved") is not True:
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"onboarding_status": "pending_approval", "agent_approved": False, "updated_at": now_iso()}},
+        )
+        user["onboarding_status"] = "pending_approval"
+        user["agent_approved"] = False
+    else:
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"onboarding_status": "completed", "onboarding_completed": True, "profile_completion_status": "COMPLETED", "updated_at": now_iso()}},
+        )
+        user["onboarding_status"] = "completed"
+        user["onboarding_completed"] = True
+        user["profile_completion_status"] = "COMPLETED"
+
+    return {
+        "ok": True,
+        "message": "Congratulations! Your CR8 profile is complete. Welcome to your dashboard.",
+        "user": clean(dict(user)),
+    }
 
 
 # ---------- Startup ----------

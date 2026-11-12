@@ -29,6 +29,9 @@ import BillingSettings from "@/pages/BillingSettings";
 import { Navigate } from "react-router-dom";
 
 import Onboarding from "@/pages/Onboarding";
+import ProfileCompletion from "@/pages/ProfileCompletion";
+import OnboardingRouter from "@/pages/OnboardingRouter";
+import OAuthCallback from "@/pages/OAuthCallback";
 import { RequireAuth } from "@/components/RequireAuth";
 import SupportCenter from "@/pages/SupportCenter";
 import SupportDashboard from "@/pages/SupportDashboard";
@@ -61,10 +64,13 @@ function App() {
             <Route path="/privacy-policy" element={<Navigate to="/legal/privacy" replace />} />
             <Route path="/register" element={<RegisterSplash />} />
             <Route path="/register/:role" element={<Register />} />
+            <Route path="/oauth/callback" element={<OAuthCallback />} />
 
             {/* Authenticated Routes wrapped in AppLayout (Sidebar + Main Grid) */}
             <Route element={<AppLayout />}>
-              <Route path="/onboarding/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
+              <Route path="/complete-profile" element={<RequireAuth><ProfileCompletion /></RequireAuth>} />
+              <Route path="/onboarding/:role" element={<RequireAuth><OnboardingRouter /></RequireAuth>} />
+              <Route path="/onboarding-legacy/:role" element={<RequireAuth><Onboarding /></RequireAuth>} />
               <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
               <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
               <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />

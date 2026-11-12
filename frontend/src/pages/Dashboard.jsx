@@ -39,7 +39,11 @@ export default function Dashboard() {
         }
         // Only an explicit false blocks access; null/undefined should not soft-lock completed demo agents.
         if (user.role === "agent" && user.agent_approved === false) nav("/onboarding/agent");
-        else if (user.role !== "admin" && user.onboarding_status !== "completed") nav(`/onboarding/${user.role}`);
+        else if (user.restricted_mode || user.onboarding_completed === false) {
+          nav(user.campaigns_path || "/marketplace?tab=campaigns");
+        } else if (user.role !== "admin" && user.onboarding_status !== "completed" && user.profile_completion_status !== "COMPLETED") {
+          nav(user.campaigns_path || "/marketplace?tab=campaigns");
+        }
     }
   }, [user, loading, nav]);
 

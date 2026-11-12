@@ -22,5 +22,21 @@ export function supportRoleLabel(role) {
 export function postAuthPath(user) {
   if (!user) return "/login";
   if (isSupportOpsRole(user.role)) return supportHomePath();
+  // Incomplete profiles → campaigns (full rules live in lib/onboarding.js)
+  if (user?.restricted_mode === true) {
+    return user.campaigns_path || "/marketplace?tab=campaigns";
+  }
+  if (user?.onboarding_completed === false || user?.profile_completion_status === "PROFILE_INCOMPLETE") {
+    return user.campaigns_path || "/marketplace?tab=campaigns";
+  }
+  if (user?.role === "agent" && user?.agent_approved === false) {
+    return "/onboarding/agent";
+  }
+  if (user?.role && user.role !== "admin" && user?.onboarding_status && user.onboarding_status !== "completed" && user.onboarding_status !== "approved") {
+    if (user.onboarding_status === "pending_approval" || user.onboarding_status === "declined") {
+      return `/onboarding/${user.role}`;
+    }
+    return user.campaigns_path || "/marketplace?tab=campaigns";
+  }
   return "/dashboard";
 }
