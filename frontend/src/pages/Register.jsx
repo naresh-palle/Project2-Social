@@ -1,21 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
+import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { BrandLogo } from "@/components/BrandLogo";
+import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { ThemeToaster } from "@/components/ThemeToaster";
+import { postLoginDestination } from "@/lib/onboarding";
 
+/**
+ * Category registration (after splash door).
+ * Only: Instagram / Facebook / Google + username + mobile.
+ */
 export default function Register() {
-  const { mobileRegister } = useAuth();
+  const { googleLogin, usernameMobileRegister } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
   const { role: urlRole } = useParams();
 
-  // Public self-serve roles only — Hire / Production is admin-created; Agent hidden until enabled
   const role = ["owner", "influencer"].includes(urlRole) ? urlRole : "influencer";
 
   useEffect(() => {
@@ -28,411 +34,172 @@ export default function Register() {
     }
   }, [urlRole, nav]);
 
-  const socialPrefill = location.state?.fromGoogleLogin ? location.state : null;
-
-  const [form, setForm] = useState({
-    email: socialPrefill?.email || "",
-    username: socialPrefill?.email ? socialPrefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "",
-    password: "",
-    firstName: socialPrefill?.firstName || "",
-    lastName: socialPrefill?.lastName || "",
-    company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
-    agent_type: "company_agent"
-  });
-  const [err, setErr] = useState("");
+  const prefill = location.state?.fromGoogleLogin ? location.state : null;
+  const [username, setUsername] = useState(
+    prefill?.email ? prefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : ""
+  );
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState("typing");
+  const [mobileStatus, setMobileStatus] = useState("typing");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [termsAgreed, setTermsAgreed] = useState(false);
 
-  const [emailStatus, setEmailStatus] = useState("typing"); // typing, checking, available, taken
-  const [mobileStatus, setMobileStatus] = useState("typing");
-  const [usernameStatus, setUsernameStatus] = useState("typing");
-  const [googleImportTime, setGoogleImportTime] = useState(null);
-
-  // 5-Minute Google Pre-fill Cache Expiry
   useEffect(() => {
-    if (!googleImportTime) return;
-
-    const FIVE_MINUTES_MS = 5 * 60 * 1000;
-    const timer = setTimeout(() => {
-      setForm(prev => ({
-        ...prev,
-        firstName: "",
-        lastName: "",
-        email: "",
-        username: ""
-      }));
-      setGoogleImportTime(null);
-      toast.error("Imported registration details expired after 5 minutes. Please continue with Google again.");
-    }, FIVE_MINUTES_MS);
-
-    return () => clearTimeout(timer);
-  }, [googleImportTime]);
-
-  // Land focus on First name (not the terms checkbox)
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const el = document.querySelector('[data-testid="reg-firstname"]');
-      if (el && typeof el.focus === "function") el.focus();
-    }, 50);
-    return () => clearTimeout(t);
-  }, [role]);
-
-  // Prevent data leakage / "cache saving" when switching between categories
-  useEffect(() => {
-    const prefill = location.state?.fromGoogleLogin ? location.state : null;
-    const suggestedUsername = prefill?.email
-      ? prefill.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase()
-      : "";
-    setForm({
-      email: prefill?.email || "",
-      username: suggestedUsername,
-      password: "",
-      firstName: prefill?.firstName || "",
-      lastName: prefill?.lastName || "",
-      company: "", mobile: "", pincode: "", city: "", state: "", otp: "",
-      agent_type: "company_agent"
-    });
+    const p = location.state?.fromGoogleLogin ? location.state : null;
+    setUsername(p?.email ? p.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "");
+    setMobile("");
+    setOtp("");
     setFieldErrors({});
     setErr("");
-    setEmailStatus("typing");
-    setMobileStatus("typing");
-    setUsernameStatus("typing");
-    setGoogleImportTime(prefill ? Date.now() : null);
   }, [urlRole, location.state]);
 
-  // Resend OTP Cooldown Timer
   useEffect(() => {
     let timer;
-    if (resendCooldown > 0) {
-      timer = setInterval(() => setResendCooldown(c => c - 1), 1000);
-    }
+    if (resendCooldown > 0) timer = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // Format label based on role
-  const roleLabel = role === "owner" ? "a Brand" : role === "agent" ? "an Agent" : role === "production" ? "Hire / Production" : "an Influencer";
-
-  // Debounced Validation for Email
   useEffect(() => {
-    const checkEmail = async () => {
-      if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-        setEmailStatus("typing");
-        return;
-      }
-      setEmailStatus("checking");
-      try {
-        const res = await api.post("/auth/check", { email: form.email });
-        setEmailStatus(res.data.available ? "available" : "taken");
-        if (!res.data.available) setFieldErrors(e => ({ ...e, email: "Email already registered" }));
-        else setFieldErrors(e => ({ ...e, email: "" }));
-      } catch (e) {
-        setEmailStatus("typing");
-      }
-    };
-    const to = setTimeout(checkEmail, 600);
-    return () => clearTimeout(to);
-  }, [form.email]);
-
-  // Real-time & Debounced Validation for Indian Mobile Series with Backend Database Availability Check
-  useEffect(() => {
-    const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-    if (!form.mobile) {
-      setFieldErrors(e => ({ ...e, mobile: "" }));
-      setMobileStatus("typing");
-      return;
+    const u = username.trim().toLowerCase();
+    if (u.length < 3) {
+      setUsernameStatus("typing");
+      return undefined;
     }
-    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
-      setFieldErrors(e => ({ ...e, mobile: "Indian mobile numbers must start with 6, 7, 8, or 9 and have 10 digits" }));
-      setMobileStatus("typing");
-      return;
+    if (!/^[a-z0-9_]{3,30}$/.test(u)) {
+      setFieldErrors((e) => ({ ...e, username: "3–30 chars: letters, numbers, underscore" }));
+      setUsernameStatus("typing");
+      return undefined;
     }
-
-    const checkMobile = async () => {
-      try {
-        const res = await api.post("/auth/check", { mobile: cleanMobile });
-        setMobileStatus(res.data.available ? "available" : "taken");
-        if (!res.data.available) setFieldErrors(e => ({ ...e, mobile: "Mobile number already registered" }));
-        else setFieldErrors(e => ({ ...e, mobile: "" }));
-      } catch (e) {
-        setMobileStatus("available");
-      }
-    };
-    const to = setTimeout(checkMobile, 500);
-    return () => clearTimeout(to);
-  }, [form.mobile]);
-
-  const [usernameSuggestions, setUsernameSuggestions] = useState([]);
-
-  // Debounced Validation for Username with alphanumeric combination check & min 6 chars
-  useEffect(() => {
-    const TAKEN_USERNAMES = ["admin", "creator", "brand", "aarav", "priya", "rohan", "neha", "alex", "vikram", "xyxy"];
-    const checkUsername = async () => {
-      const u = (form.username || "").trim().toLowerCase();
-      if (!u) {
-        setUsernameStatus("typing");
-        setUsernameSuggestions([]);
-        setFieldErrors(e => ({ ...e, username: "" }));
-        return;
-      }
-      if (u.length < 6) {
-        setUsernameStatus("typing");
-        setUsernameSuggestions([]);
-        setFieldErrors(e => ({ ...e, username: "Username must be at least 6 characters long." }));
-        return;
-      }
-      if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9_]{6,}$/.test(u)) {
-        setUsernameStatus("typing");
-        setUsernameSuggestions([]);
-        setFieldErrors(e => ({ ...e, username: "Username must be a combination of letters and numbers (e.g. user123)." }));
-        return;
-      }
-
+    const t = setTimeout(async () => {
       setUsernameStatus("checking");
       try {
         const res = await api.post("/auth/check", { username: u });
-        const isTaken = !res.data.available || TAKEN_USERNAMES.includes(u);
-        if (isTaken) {
-          setUsernameStatus("taken");
-          const surg1 = `${u}_cr8`;
-          const surg2 = `${u}${Math.floor(10 + Math.random() * 89)}`;
-          setUsernameSuggestions([surg1, surg2]);
-          setFieldErrors(e => ({ ...e, username: "Username not available" }));
-        } else {
-          setUsernameStatus("available");
-          setUsernameSuggestions([]);
-          setFieldErrors(e => ({ ...e, username: "" }));
-        }
-      } catch (e) {
+        setUsernameStatus(res.data.available ? "available" : "taken");
+        setFieldErrors((e) => ({ ...e, username: res.data.available ? "" : "Username taken" }));
+      } catch {
         setUsernameStatus("typing");
-        setUsernameSuggestions([]);
-        setFieldErrors(e => ({ ...e, username: "Could not verify username. Try again." }));
       }
-    };
-    const t = setTimeout(checkUsername, 400);
+    }, 450);
     return () => clearTimeout(t);
-  }, [form.username]);
+  }, [username]);
 
-  // Real-time pincode lookup — prefer town/block (Siddipet) over legacy district (Medak)
   useEffect(() => {
-    if (!form.pincode) {
-      setFieldErrors(e => ({ ...e, pincode: "" }));
-      return;
+    const clean = (mobile || "").replace(/\D/g, "");
+    if (!mobile) {
+      setMobileStatus("typing");
+      setFieldErrors((e) => ({ ...e, mobile: "" }));
+      return undefined;
     }
-    if (form.pincode.length !== 6 || /\D/.test(form.pincode)) {
-      setFieldErrors(e => ({ ...e, pincode: "Enter correct pincode (6 digits)" }));
-      setForm(f => ({ ...f, city: "", state: "" }));
-      return;
+    if (!/^[6-9]\d{9}$/.test(clean)) {
+      setFieldErrors((e) => ({ ...e, mobile: "10-digit Indian mobile starting 6–9" }));
+      setMobileStatus("typing");
+      return undefined;
     }
-
-    let cancelled = false;
-    setFieldErrors(e => ({ ...e, pincode: "" }));
-
-    const applyResolved = (resolved) => {
-      if (cancelled || !resolved?.city) return false;
-      setForm(f => ({ ...f, city: resolved.city, state: resolved.state || f.state }));
-      setFieldErrors(e => ({ ...e, pincode: "" }));
-      return true;
-    };
-
-    const fail = () => {
-      if (cancelled) return;
-      setForm(f => ({ ...f, city: "", state: "" }));
-      setFieldErrors(e => ({ ...e, pincode: "Enter correct pincode" }));
-    };
-
-    (async () => {
+    const t = setTimeout(async () => {
       try {
-        // Backend has shared overrides + Block/HPO preference
-        const { data } = await api.get(`/location/pincode/${form.pincode}`);
-        if (cancelled) return;
-        if (data?.city && data.city !== "Unknown") {
-          applyResolved(data);
-          return;
-        }
+        const res = await api.post("/auth/check", { mobile: clean });
+        setMobileStatus(res.data.available ? "available" : "taken");
+        setFieldErrors((e) => ({ ...e, mobile: res.data.available ? "" : "Mobile already registered" }));
       } catch {
-        /* fall through to public postal APIs */
+        setMobileStatus("available");
       }
+    }, 450);
+    return () => clearTimeout(t);
+  }, [mobile]);
 
-      try {
-        const res = await fetch(`https://api.postalpincode.in/pincode/${form.pincode}`);
-        const payload = await res.json();
-        if (cancelled) return;
-        if (payload?.[0]?.Status === "Success" && payload[0].PostOffice?.length) {
-          const { resolveFromPostOffices } = await import("@/lib/pincode");
-          if (applyResolved(resolveFromPostOffices(payload[0].PostOffice, form.pincode))) return;
-        }
+  const roleLabel = role === "owner" ? "a Brand" : "an Influencer";
 
-        const zRes = await fetch(`https://api.zippopotam.us/in/${form.pincode}`);
-        if (!zRes.ok) throw new Error("fallback failed");
-        const zData = await zRes.json();
-        if (cancelled) return;
-        const { resolveFromZippopotam } = await import("@/lib/pincode");
-        if (!applyResolved(resolveFromZippopotam(zData, form.pincode))) fail();
-      } catch {
-        fail();
+  const handleGoogleCredential = async (credential) => {
+    try {
+      setLoading(true);
+      setErr("");
+      const decoded = jwtDecode(credential);
+      const r = await googleLogin(credential, { create_if_missing: true, role });
+      setLoading(false);
+      if (r.ok) {
+        toast.success(
+          r.created
+            ? "Account created. Complete your profile to unlock the dashboard."
+            : `Welcome, ${decoded.name || decoded.email}!`
+        );
+        nav(postLoginDestination(r.user));
+      } else {
+        setErr(r.error || "Google sign-up failed");
+        toast.error(r.error || "Google sign-up failed");
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [form.pincode]);
-
-  const change = (k) => (e) => {
-    if (k === "city" || k === "state") return;
-    setForm(f => ({ ...f, [k]: e.target.value }));
-    setFieldErrors(errs => ({ ...errs, [k]: "" }));
+    } catch (_) {
+      setLoading(false);
+      setErr("Google sign-up failed");
+    }
   };
 
-  const validateForm = () => {
-    let errs = {};
-    if (!form.firstName.trim() || /[^a-zA-Z\s]/.test(form.firstName)) errs.firstName = "Letters only";
-    if (!form.lastName.trim() || /[^a-zA-Z\s]/.test(form.lastName)) errs.lastName = "Letters only";
-
-    // 1. Username validation & suggestion check (Alphanumeric combination, min 6 chars)
-    if (!form.username.trim()) {
-      errs.username = "Username is required";
-    } else if (form.username.trim().length < 6) {
-      errs.username = "Username must be at least 6 characters long";
-    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9_]{6,}$/.test(form.username.trim())) {
-      errs.username = "Username must contain a combination of letters and numbers (e.g. user123)";
-    } else if (usernameStatus === "taken") {
-      errs.username = "Username not available";
-    }
-
-    // 2. Email format validation
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errs.email = "Please enter a valid email address (e.g. name@domain.com)";
-    } else if (emailStatus === "taken") {
-      errs.email = "Email already registered";
-    }
-
-    // 3. Indian Mobile series validation (starts with 6, 7, 8, or 9 and 10 digits)
-    const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
-      errs.mobile = "Indian mobile numbers must start with 6, 7, 8, or 9 and have 10 digits";
-    } else if (mobileStatus === "taken") {
-      errs.mobile = "Mobile number already registered";
-    }
-
-    // 4. Pincode verification (6 digits & valid post office)
-    if (!/^\d{6}$/.test(form.pincode)) {
-      errs.pincode = "Enter correct pincode (6 digits)";
-    } else if (form.pincode.length === 6 && !form.city) {
-      errs.pincode = "Enter correct pincode";
-    }
-
-    // 5. Password Policy validation (alphanumeric, min 8 chars)
-    if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(form.password)) {
-      errs.password = "Password must be at least 8 characters long and contain both letters and numbers.";
-    }
-
-    if ((role === "owner" || role === "agent") && !form.company.trim()) errs.company = "Company name required";
-    return errs;
-  };
-
-  const handleInitialSubmit = async (e) => {
+  const startSignup = async (e) => {
     e.preventDefault();
     setErr("");
-
-    const errs = validateForm();
-    if (Object.keys(errs).length > 0) {
-      setFieldErrors(errs);
+    const u = username.trim().toLowerCase();
+    const m = mobile.replace(/\D/g, "");
+    if (!/^[a-z0-9_]{3,30}$/.test(u)) {
+      setErr("Enter a valid username");
       return;
     }
-
+    if (!/^[6-9]\d{9}$/.test(m)) {
+      setErr("Enter a valid mobile number");
+      return;
+    }
+    if (usernameStatus === "taken" || mobileStatus === "taken") {
+      setErr("Username or mobile is already registered");
+      return;
+    }
     setLoading(true);
     try {
-      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const { data } = await api.post("/auth/register/send-otp", {
-        email: form.email.trim(),
-        mobile: cleanMobile,
-      });
+      await api.post("/auth/mobile/send-otp", { mobile: m });
       setShowOtpModal(true);
-      setResendCooldown(30);
-      toast.success(data?.message || `Verification code sent to +91 ${cleanMobile}`);
-    } catch (e) {
-      setErr(formatApiError(e.response?.data?.detail) || e.message || "Failed to send verification code");
+      setResendCooldown(60);
+      toast.success("OTP sent to your mobile");
+    } catch (ex) {
+      setErr(formatApiError(ex.response?.data?.detail) || ex.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendOtp = async () => {
-    if (resendCooldown > 0) return;
-    try {
-      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const { data } = await api.post("/auth/register/resend-otp", {
-        email: form.email.trim(),
-        mobile: cleanMobile,
-      });
-      setResendCooldown(30);
-      setOtpError("");
-      toast.success(data?.message || "Verification code resent by SMS");
-    } catch (e) {
-      setOtpError(formatApiError(e.response?.data?.detail) || e.message || "Failed to resend code");
-    }
-  };
-
   const verifyAndRegister = async (e) => {
     e.preventDefault();
-    setOtpError("");
-    if (!form.otp || form.otp.length !== 6) {
-      setOtpError("Must be 6 digits");
+    if (!otp || otp.length !== 6) {
+      setOtpError("Enter the 6-digit OTP");
       return;
     }
-
     setOtpLoading(true);
+    setOtpError("");
     try {
-      const cleanMobile = (form.mobile || "").replace(/\D/g, "");
-      const payload = {
-        ...form,
-        mobile: cleanMobile,
+      const r = await usernameMobileRegister({
+        username: username.trim().toLowerCase(),
+        mobile: mobile.replace(/\D/g, ""),
+        otp,
         role,
-        name: `${form.firstName.trim()} ${form.lastName.trim()}`,
-        otp: form.otp,
-      };
-      delete payload.firstName;
-      delete payload.lastName;
-      if (role === "influencer") delete payload.company;
-
-      const r = await mobileRegister(payload);
+        name: username.trim(),
+      });
       setOtpLoading(false);
-
       if (r.ok) {
-        if (cleanMobile) {
-          const storedMobiles = JSON.parse(localStorage.getItem("cr8_registered_mobiles") || "[]");
-          if (!storedMobiles.includes(cleanMobile)) {
-            storedMobiles.push(cleanMobile);
-            localStorage.setItem("cr8_registered_mobiles", JSON.stringify(storedMobiles));
-          }
-        }
-        toast.success("Account created successfully");
-        nav(role === "production" ? "/dashboard" : `/onboarding/${role}`);
+        toast.success("Account created. Complete your profile next.");
+        nav(postLoginDestination(r.user) || `/onboarding/${role}`);
       } else {
-        setOtpError(r.error);
+        setOtpError(r.error || "Registration failed");
       }
-    } catch (error) {
+    } catch (ex) {
       setOtpLoading(false);
-      setOtpError(error.message || "Invalid or expired OTP");
+      setOtpError(formatApiError(ex.response?.data?.detail) || ex.message);
     }
   };
 
-  const allFieldsFilled =
-    form.firstName.trim() !== "" &&
-    form.lastName.trim() !== "" &&
-    (role === "influencer" || role === "production" || form.company.trim() !== "") &&
-    form.username.trim() !== "" &&
-    form.email.trim() !== "" &&
-    form.mobile.trim() !== "" &&
-    form.pincode.trim() !== "" &&
-    form.password.trim() !== "";
+  const fieldClass =
+    "mt-1 w-full bg-[#F6F0E6] border border-[#D9CBB3] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A9824A] focus:bg-[#FBF7F0] font-sans text-[14px] text-[#2A201A] placeholder:text-[#6B5D50]/70";
 
   return (
     <div
@@ -445,307 +212,181 @@ export default function Register() {
       <Nav />
       <ThemeToaster />
 
-      <div className="h-full overflow-hidden flex items-center justify-center pt-14 pb-2 px-3 relative z-10">
+      <div className="h-full overflow-y-auto flex items-start sm:items-center justify-center pt-14 pb-4 px-3 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          className="w-full max-w-3xl max-h-[calc(100dvh-4rem)] flex flex-col bg-[#FBF7F0] border border-[#D9CBB3] px-3 py-2.5 md:px-5 md:py-3 rounded-3xl shadow-[0_24px_50px_-28px_rgba(42,32,26,0.4)] relative overflow-hidden"
+          className="w-full max-w-md bg-[#FBF7F0] border border-[#D9CBB3] px-5 py-5 md:px-6 md:py-6 rounded-3xl shadow-[0_24px_50px_-28px_rgba(42,32,26,0.4)] relative my-2"
         >
-          <div className="h-1 w-full bg-gradient-to-r from-[#A9824A] via-[#C9A26B] to-[#2A201A] absolute top-0 left-0" />
+          <div className="h-1 w-full bg-gradient-to-r from-[#A9824A] via-[#C9A26B] to-[#2A201A] absolute top-0 left-0 rounded-t-3xl" />
 
-          <div className="flex items-center justify-between mb-1 gap-3 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <BrandLogo variant="mark" height={28} alt="flugr" className="shrink-0" />
-              <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#A9824A] font-bold truncate">
-                Apply for access
-              </p>
-            </div>
-            <Link to="/register" className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B5D50] hover:text-[#A9824A] transition-colors font-semibold shrink-0">
-              ← Change Door
+          <div className="flex items-center justify-between mb-3 gap-3">
+            <BrandLogo variant="mark" height={28} alt="flugr" className="shrink-0" />
+            <Link
+              to="/register"
+              className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B5D50] hover:text-[#A9824A] font-semibold"
+            >
+              ← Change category
             </Link>
           </div>
 
-          <h1 className="font-editorial text-xl md:text-2xl leading-[1.15] shrink-0 text-[#2A201A]">
+          <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#A9824A] font-bold">Sign up</p>
+          <h1 className="font-editorial text-[26px] md:text-[30px] leading-tight text-[#2A201A] mt-1">
             Register as <span className="italic text-[#A9824A]">{roleLabel}</span>
           </h1>
 
-          <form
-            onSubmit={handleInitialSubmit}
-            className="mt-3 flex flex-col min-h-0 flex-1"
-            data-testid={`register-form-${role}`}
-            autoComplete="off"
-          >
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1 min-h-0 overflow-y-auto flex-1 pr-0.5">
-            <Field label="First name" testid="reg-firstname" value={form.firstName} onChange={change("firstName")} error={fieldErrors.firstName} required autoFocus />
-            <Field label="Last name" testid="reg-lastname" value={form.lastName} onChange={change("lastName")} error={fieldErrors.lastName} required />
+          <div className="mt-4">
+            <SocialAuthButtons
+              mode="signup"
+              role={role}
+              showMeta
+              forceMeta
+              loading={loading}
+              onGoogleCredential={handleGoogleCredential}
+              onGoogleError={(reason) => {
+                setErr(reason || "Google sign-up failed");
+                toast.error(reason || "Google sign-up failed");
+              }}
+            />
+          </div>
 
-            {(role === "owner" || role === "agent") && (
-              <div className="col-span-2">
-                <Field
-                  label={role === "owner" ? "Brand / Company" : "Agency Name"}
-                  testid="reg-company"
-                  value={form.company}
-                  onChange={change("company")}
-                  placeholder={role === "owner" ? "Company name" : "Agency name"}
-                  error={fieldErrors.company}
+          <div className="flex items-center gap-3 my-5 opacity-70">
+            <div className="h-px bg-[#D9CBB3] flex-1" />
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#6B5D50] font-semibold">
+              Or username + mobile
+            </span>
+            <div className="h-px bg-[#D9CBB3] flex-1" />
+          </div>
+
+          {err && (
+            <div className="mb-3 p-2.5 bg-[#A9824A]/10 border border-[#A9824A]/35 text-[12px] rounded-xl flex gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#A9824A] shrink-0 mt-0.5" /> {err}
+            </div>
+          )}
+
+          <form onSubmit={startSignup} className="space-y-3.5" data-testid={`register-form-${role}`}>
+            <div>
+              <label className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B5D50] font-bold">
+                Username
+              </label>
+              <input
+                data-testid="reg-username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.replace(/\s/g, "").toLowerCase())}
+                className={fieldClass}
+                placeholder="your_handle"
+                required
+                minLength={3}
+                maxLength={30}
+              />
+              {fieldErrors.username && (
+                <p className="text-[11px] text-[#B42318] mt-1">{fieldErrors.username}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#6B5D50] font-bold">
+                Mobile number
+              </label>
+              <div className="flex gap-2 mt-1">
+                <span className="bg-[#F6F0E6] border border-[#D9CBB3] px-3 py-2.5 font-mono text-[12px] rounded-xl text-[#6B5D50] font-semibold">
+                  +91
+                </span>
+                <input
+                  data-testid="reg-mobile"
+                  type="tel"
+                  maxLength={10}
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
+                  className={fieldClass + " mt-0"}
+                  placeholder="9876543210"
                   required
                 />
               </div>
-            )}
-
-            {role === "agent" && (
-              <div className="col-span-2 space-y-1 pt-0.5">
-                <label className="font-sans text-[10px] tracking-[0.14em] uppercase opacity-70 font-medium">
-                  Talent Agent Type *
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, agent_type: "company_agent" })}
-                    className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
-                      form.agent_type === "company_agent"
-                        ? "border-[#A9824A] bg-[#A9824A]/15 text-[#2A201A] font-bold"
-                        : "border-[#2A201A]/08 bg-[#F6F0E6] text-[#6B5D50] hover:bg-[#E7DAC4]"
-                    }`}
-                  >
-                    <div className="font-sans text-xs text-[#2A201A]">Company Agent</div>
-                    <div className="font-sans text-[9px] uppercase text-[#6B5D50] mt-0.5 leading-tight">
-                      Brand clients &amp; campaign briefs
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, agent_type: "influencer_agent" })}
-                    className={`px-2 py-1.5 border text-left rounded-3xl transition-all cursor-pointer ${
-                      form.agent_type === "influencer_agent"
-                        ? "border-[#A9824A] bg-[#A9824A]/15 text-[#2A201A] font-bold"
-                        : "border-[#2A201A]/08 bg-[#F6F0E6] text-[#6B5D50] hover:bg-[#E7DAC4]"
-                    }`}
-                  >
-                    <div className="font-sans text-xs text-[#2A201A]">Influencer Agent</div>
-                    <div className="font-sans text-[9px] uppercase text-[#6B5D50] mt-0.5 leading-tight">
-                      Influencer roster &amp; talent
-                    </div>
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className="relative col-span-2 md:col-span-1">
-              <Field label="Username" testid="reg-username" value={form.username} onChange={change("username")} error={fieldErrors.username} required />
-              {usernameStatus === "checking" && (
-                <span className="absolute right-2 top-6 font-sans text-[9px] uppercase tracking-wider text-[#6B5D50]">Checking…</span>
-              )}
-              {usernameStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {usernameStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
-              {usernameStatus === "taken" && usernameSuggestions.length > 0 && (
-                <div className="mt-1 flex flex-wrap gap-1.5">
-                  {usernameSuggestions.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, username: s }))}
-                      className="font-sans text-[10px] px-2 py-0.5 border border-[#2A201A]/10 bg-[#F6F0E6] hover:border-[#A9824A] hover:text-[#A9824A] transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+              {fieldErrors.mobile && (
+                <p className="text-[11px] text-[#B42318] mt-1">{fieldErrors.mobile}</p>
               )}
             </div>
 
-            <div className="relative">
-              <Field label="Email" testid="reg-email" value={form.email} onChange={change("email")} type="email" error={fieldErrors.email} required />
-              {emailStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {emailStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#2A201A] hover:bg-[#3A2E26] text-[#F6F0E6] py-3 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Continue with OTP <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
 
-            <div className="relative">
-              <Field label="Mobile Number" testid="reg-mobile" value={form.mobile} onChange={change("mobile")} prefix="🇮🇳 +91" error={fieldErrors.mobile} required maxLength="10" />
-              {mobileStatus === "available" && <CheckCircle2 className="absolute right-2 top-6 w-3.5 h-3.5 text-green-500" />}
-              {mobileStatus === "taken" && <XCircle className="absolute right-2 top-6 w-3.5 h-3.5 text-[#A9824A]" />}
-            </div>
-
-            <Field label="Pincode (India)" testid="reg-pincode" value={form.pincode} onChange={change("pincode")} error={fieldErrors.pincode} required />
-
-            {/* City / State from pincode — plain values, no autofill badges */}
-            <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
-                City
-              </label>
-              <div className="mt-0.5 py-1 border-b border-[#2A201A]/08 font-sans text-sm text-[#2A201A]/90 bg-[#F6F0E6] px-1 flex items-center min-h-[26px]">
-                <span data-testid="reg-city">{form.city || ""}</span>
-              </div>
-            </div>
-
-            <div className="select-none pointer-events-none opacity-80">
-              <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
-                State
-              </label>
-              <div className="mt-0.5 py-1 border-b border-[#2A201A]/08 font-sans text-sm text-[#2A201A]/90 bg-[#F6F0E6] px-1 flex items-center min-h-[26px]">
-                <span data-testid="reg-state">{form.state || ""}</span>
-              </div>
-            </div>
-
-            <Field label="Password" testid="reg-password" value={form.password} onChange={change("password")} type="password" error={fieldErrors.password} required />
-          </div>
-
-          {(emailStatus === "taken" || mobileStatus === "taken") && (
-            <div className="mt-1.5 p-1.5 bg-[#A9824A]/10 border border-[#A9824A]/30 font-sans text-[10px] space-y-1 shrink-0">
-              <p className="text-[#A9824A] font-bold uppercase tracking-wider flex items-center gap-1.5 text-[11px]">
-                <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Account Already Registered!
-              </p>
-              <p className="text-[#6B5D50] leading-snug">
-                An account with this {emailStatus === "taken" ? "Email" : "Mobile Number"} is already registered. Choose how to sign in:
-              </p>
-              <div className="flex flex-wrap gap-2 pt-0.5">
-                <button
-                  type="button"
-                  onClick={() => nav("/login", { state: { identifier: form.email || form.mobile, mode: "password" } })}
-                  className="text-[10px] py-1.5 px-3 rounded-full bg-[#E7DAC4] border border-[#2A201A]/10 text-[#2A201A] hover:bg-[#96743F] hover:text-white font-sans font-bold uppercase tracking-wider"
-                >
-                  Sign In with Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => nav("/login", { state: { mobile: form.mobile || form.email, mode: "otp" } })}
-                  className="btn-solid text-[10px] py-1.5 px-3 bg-[#A9824A] text-white"
-                >
-                  Sign In via Mobile OTP
-                </button>
-              </div>
-            </div>
-          )}
-
-          {err && (
-            <p data-testid="register-error" className="mt-1 text-[#A9824A] font-sans text-[10px] tracking-wider uppercase shrink-0">
-              {err}
-            </p>
-          )}
-
-          {/* Prominent Terms & Conditions Checkbox Container */}
-          <div className="mt-1.5 p-1.5 bg-[#F6F0E6] border border-[#2A201A]/10 flex items-center gap-2 shrink-0">
-            <input
-              type="checkbox"
-              id="terms-check"
-              required
-              checked={termsAgreed}
-              disabled={!allFieldsFilled}
-              onChange={(e) => setTermsAgreed(e.target.checked)}
-              tabIndex={0}
-              className="accent-[#A9824A] w-4 h-4 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <label htmlFor="terms-check" className="font-sans text-[11px] text-[#2A201A]/90 cursor-pointer select-none leading-snug">
-              I agree to <span className="text-[#A9824A] font-bold underline hover:opacity-80">Terms &amp; Conditions</span> &amp; <span className="text-[#A9824A] font-bold underline hover:opacity-80">Privacy Policy</span>.
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            data-testid="register-submit"
-            disabled={loading || emailStatus === "taken" || mobileStatus === "taken" || !termsAgreed || !allFieldsFilled}
-            className="btn-solid mt-1.5 w-full justify-center py-2 bg-[#A9824A] text-white font-bold text-sm hover:bg-[#96743F] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shrink-0"
-          >
-            {loading ? "Sending Code…" : "Signup"}
-          </button>
-
-          <p className="mt-1.5 font-sans text-[10px] tracking-wider opacity-70 text-center shrink-0">
+          <p className="mt-4 pt-3 border-t border-[#D9CBB3] font-sans text-[12px] text-[#6B5D50]">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#A9824A] font-bold underline hover:opacity-100 transition-opacity" data-testid="link-to-login">
-              Login
+            <Link to="/login" className="text-[#A9824A] font-bold hover:underline">
+              Sign in →
             </Link>
           </p>
-        </form>
         </motion.div>
       </div>
 
-      {/* OTP Verification Modal */}
       <AnimatePresence>
         {showOtpModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A201A]/40 backdrop-blur-sm p-3 sm:p-6"
+            className="fixed inset-0 z-[100] bg-[#2A201A]/45 backdrop-blur-sm flex items-center justify-center p-4"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+            <motion.form
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#FBF7F0] border border-[#2A201A]/12 shadow-2xl p-6 sm:p-8 md:p-12 max-w-md w-full max-h-[min(92dvh,40rem)] overflow-y-auto relative rounded-3xl text-[#2A201A]"
+              exit={{ scale: 0.96, opacity: 0 }}
+              onSubmit={verifyAndRegister}
+              className="w-full max-w-sm bg-[#FBF7F0] border border-[#D9CBB3] rounded-3xl p-6 shadow-xl"
             >
-              <button
-                type="button"
-                onClick={() => setShowOtpModal(false)}
-                className="absolute top-6 right-6 opacity-60 hover:opacity-100 transition-opacity"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
-
-              <h2 className="font-editorial text-4xl mb-2">Verify it's you.</h2>
-              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6B5D50] mb-8 leading-relaxed">
-                We sent a 6-digit SMS code to +91 {form.mobile}. Enter it below to finish registration.
+              <h2 className="font-editorial text-2xl text-[#2A201A]">Verify mobile</h2>
+              <p className="font-sans text-[13px] text-[#6B5D50] mt-1">
+                Enter the 6-digit code sent to +91 {mobile}
               </p>
-
-              <form onSubmit={verifyAndRegister}>
-                <Field
-                  label="Verification Code"
-                  testid="otp-input"
-                  value={form.otp}
-                  onChange={change("otp")}
-                  error={otpError}
-                  maxLength={6}
-                  required
-                  autoFocus
-                  className="w-full py-3 focus:outline-none text-2xl tracking-widest text-center bg-transparent"
-                />
-
+              {otpError && <p className="text-[12px] text-[#B42318] mt-2">{otpError}</p>}
+              <input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                maxLength={6}
+                className="mt-4 w-full bg-[#F6F0E6] border border-[#A9824A] rounded-xl py-3 font-mono text-center text-[22px] tracking-[0.4em]"
+                placeholder="000000"
+                autoFocus
+              />
+              <div className="mt-3 flex justify-between font-mono text-[10px] uppercase tracking-wider">
                 <button
-                  type="submit"
-                  disabled={otpLoading}
-                  data-testid="verify-submit"
-                  className="btn-solid mt-8 w-full justify-center"
+                  type="button"
+                  disabled={resendCooldown > 0}
+                  onClick={async () => {
+                    try {
+                      await api.post("/auth/mobile/resend-otp", { mobile: mobile.replace(/\D/g, "") });
+                      setResendCooldown(60);
+                      toast.success("OTP resent");
+                    } catch (ex) {
+                      setOtpError(formatApiError(ex.response?.data?.detail) || ex.message);
+                    }
+                  }}
+                  className={resendCooldown > 0 ? "text-[#6B5D50]/50" : "text-[#A9824A] font-bold"}
                 >
-                  {otpLoading ? "Entering…" : <>Complete Registration <ArrowRight className="w-4 h-4" /></>}
+                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend OTP"}
                 </button>
-
-                <div className="mt-6 text-center">
-                  <button
-                    type="button"
-                    disabled={resendCooldown > 0}
-                    onClick={handleResendOtp}
-                    className="font-mono text-[10px] tracking-widest uppercase text-[#6B5D50] hover:opacity-100 hover:text-[#A9824A] disabled:opacity-30 disabled:hover:text-current transition-colors"
-                  >
-                    {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Verification Code"}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+                <button type="button" onClick={() => setShowOtpModal(false)} className="text-[#6B5D50]">
+                  Cancel
+                </button>
+              </div>
+              <button
+                type="submit"
+                disabled={otpLoading}
+                className="mt-4 w-full bg-[#2A201A] text-[#F6F0E6] py-3 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] font-bold disabled:opacity-60"
+              >
+                {otpLoading ? "Creating account…" : "Verify & create account"}
+              </button>
+            </motion.form>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function Field({ label, testid, error, prefix, disabled, autoFocus, ...props }) {
-  return (
-    <div className="space-y-0">
-      <label className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#6B5D50] font-semibold leading-none block">
-        {label} {props.required && <span className="text-[#A9824A] ml-0.5">*</span>}
-      </label>
-      <div className={`mt-0.5 flex items-center w-full rounded-xl px-3 transition-colors ${disabled ? "opacity-50 pointer-events-none select-none bg-[#E7DAC4] border border-[#2A201A]/08" : error ? "bg-[#FFF1F2] border border-[#A9824A] text-[#A9824A]" : "bg-[#F6F0E6] border border-[#2A201A]/12 focus-within:border-[#A9824A]"}`}>
-        {prefix && <span className="font-sans text-sm opacity-60 mr-1.5 flex-shrink-0">{prefix}</span>}
-        <input
-          data-testid={testid}
-          disabled={disabled}
-          autoFocus={autoFocus}
-          {...props}
-          className={`w-full py-1 focus:outline-none font-sans text-sm bg-transparent ${disabled ? "cursor-not-allowed select-none text-[#6B5D50]" : ""} ${props.className || ''}`}
-        />
-      </div>
-      {error && <p className="text-[#A9824A] text-[10px] mt-0.5 uppercase tracking-wider font-sans font-medium">{error}</p>}
     </div>
   );
 }

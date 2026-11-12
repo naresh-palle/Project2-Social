@@ -4,7 +4,11 @@
  */
 export const PUBLIC_AGENT_ENABLED = false;
 
-/** Instagram + Facebook buttons on Sign In / Register (Google stays on). */
+/**
+ * Instagram + Facebook on Sign In (global).
+ * Category register always shows Meta via SocialAuthButtons forceMeta — keep this false
+ * so splash / login stay Google-only until product flips it.
+ */
 export const META_SOCIAL_BUTTONS_ENABLED = false;
 
 /** Roles offered on public registration / profile-category pickers. */

@@ -253,6 +253,17 @@ export function AuthProvider({ children }) {
     }
   };
 
+  /** Category register: username + mobile + OTP only (no email/password fields). */
+  const usernameMobileRegister = async (payload) => {
+    try {
+      const { data } = await api.post("/auth/username-mobile-register", payload);
+      storeSession(data, false);
+      return { ok: true, user: data.user };
+    } catch (e) {
+      return { ok: false, error: formatApiError(e.response?.data?.detail) || e.message };
+    }
+  };
+
   const mobileOtpLogin = async (mobile, code, opts = {}) => {
     const { remember_me = false } = opts;
     try {
@@ -306,6 +317,7 @@ export function AuthProvider({ children }) {
         register,
         firebaseRegister,
         mobileRegister,
+        usernameMobileRegister,
         mobileOtpLogin,
         logout,
         refresh,

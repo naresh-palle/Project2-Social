@@ -1,14 +1,12 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { Instagram, Facebook } from "lucide-react";
 import { startSocialOAuth } from "@/lib/onboarding";
-import { toast } from "sonner";
 import { META_SOCIAL_BUTTONS_ENABLED } from "@/lib/features";
 
 /**
  * Social auth row.
- * Google (GIS) is always shown.
- * Instagram / Facebook stay hidden until META_SOCIAL_BUTTONS_ENABLED is flipped on
- * (backend OAuth routes remain available).
+ * - Google always available.
+ * - Instagram / Facebook when META_SOCIAL_BUTTONS_ENABLED or forceMeta (category register).
  */
 export function SocialAuthButtons({
   onGoogleCredential,
@@ -17,7 +15,11 @@ export function SocialAuthButtons({
   mode = "signin",
   role,
   showMeta = META_SOCIAL_BUTTONS_ENABLED,
+  forceMeta = false,
 }) {
+  // forceMeta: category register restores IG/FB even while global flag stays off (login/splash).
+  const metaOn = Boolean(forceMeta || showMeta);
+
   const fail = (reason) => {
     onGoogleError?.(reason || "Google sign-in failed");
   };
@@ -25,10 +27,6 @@ export function SocialAuthButtons({
   const metaMode = mode === "signup" ? "signup" : "login";
 
   const startMeta = (provider) => {
-    if (!META_SOCIAL_BUTTONS_ENABLED) {
-      toast.error("This sign-in method is not available yet.");
-      return;
-    }
     startSocialOAuth(provider, { mode: metaMode, role });
   };
 
@@ -38,7 +36,7 @@ export function SocialAuthButtons({
         Continue with
       </p>
 
-      {showMeta && META_SOCIAL_BUTTONS_ENABLED && (
+      {metaOn && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button
             type="button"

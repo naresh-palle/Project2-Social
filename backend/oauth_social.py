@@ -30,6 +30,33 @@ logger = logging.getLogger("cr8.oauth")
 _OAUTH_STATES: Dict[str, dict] = {}
 STATE_TTL_SEC = 600
 
+# Runtime Meta credentials (Mongo/admin bootstrap). Env vars still win when set.
+_RUNTIME_META: Dict[str, str] = {}
+
+
+def set_runtime_meta_credentials(
+    *,
+    facebook_app_id: Optional[str] = None,
+    facebook_app_secret: Optional[str] = None,
+    instagram_app_id: Optional[str] = None,
+    instagram_app_secret: Optional[str] = None,
+) -> Dict[str, str]:
+    """Apply Meta app credentials at runtime (e.g. after admin bootstrap)."""
+    mapping = {
+        "facebook_app_id": facebook_app_id,
+        "facebook_app_secret": facebook_app_secret,
+        "instagram_app_id": instagram_app_id,
+        "instagram_app_secret": instagram_app_secret,
+    }
+    for key, value in mapping.items():
+        if value is not None and str(value).strip():
+            _RUNTIME_META[key] = str(value).strip()
+    return dict(_RUNTIME_META)
+
+
+def clear_runtime_meta_credentials() -> None:
+    _RUNTIME_META.clear()
+
 
 def _b64url(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
@@ -113,11 +140,21 @@ def google_client_secret() -> str:
 
 
 def facebook_app_id() -> str:
-    return (os.environ.get("FACEBOOK_APP_ID") or os.environ.get("META_APP_ID") or "").strip()
+    return (
+        os.environ.get("FACEBOOK_APP_ID")
+        or os.environ.get("META_APP_ID")
+        or _RUNTIME_META.get("facebook_app_id")
+        or ""
+    ).strip()
 
 
 def facebook_app_secret() -> str:
-    return (os.environ.get("FACEBOOK_APP_SECRET") or os.environ.get("META_APP_SECRET") or "").strip()
+    return (
+        os.environ.get("FACEBOOK_APP_SECRET")
+        or os.environ.get("META_APP_SECRET")
+        or _RUNTIME_META.get("facebook_app_secret")
+        or ""
+    ).strip()
 
 
 def instagram_app_id() -> str:
@@ -126,6 +163,8 @@ def instagram_app_id() -> str:
         os.environ.get("INSTAGRAM_APP_ID")
         or os.environ.get("FACEBOOK_APP_ID")
         or os.environ.get("META_APP_ID")
+        or _RUNTIME_META.get("instagram_app_id")
+        or _RUNTIME_META.get("facebook_app_id")
         or ""
     ).strip()
 
@@ -135,6 +174,8 @@ def instagram_app_secret() -> str:
         os.environ.get("INSTAGRAM_APP_SECRET")
         or os.environ.get("FACEBOOK_APP_SECRET")
         or os.environ.get("META_APP_SECRET")
+        or _RUNTIME_META.get("instagram_app_secret")
+        or _RUNTIME_META.get("facebook_app_secret")
         or ""
     ).strip()
 

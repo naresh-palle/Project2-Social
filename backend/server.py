@@ -1423,6 +1423,38 @@ class MobileRegisterInput(BaseModel):
         return "".join(ch for ch in str(v or "") if ch.isdigit())[-10:] if v else v
 
 
+class UsernameMobileRegisterInput(BaseModel):
+    """Category register: username + mobile + OTP only (synthetic email + temp password)."""
+    otp: str = Field(min_length=6, max_length=6)
+    username: str = Field(min_length=3, max_length=30)
+    mobile: str
+    role: str = "influencer"
+    name: Optional[str] = None
+
+    @field_validator("otp", mode="before")
+    @classmethod
+    def coerce_otp(cls, v):
+        digits = "".join(ch for ch in str(v or "") if ch.isdigit())
+        return digits
+
+    @field_validator("mobile", mode="before")
+    @classmethod
+    def coerce_mobile(cls, v):
+        return "".join(ch for ch in str(v or "") if ch.isdigit())[-10:] if v else v
+
+    @field_validator("username", mode="before")
+    @classmethod
+    def coerce_username(cls, v):
+        return str(v or "").strip().lower()
+
+
+class MetaConfigInput(BaseModel):
+    app_id: str
+    app_secret: str
+    instagram_app_id: Optional[str] = None
+    instagram_app_secret: Optional[str] = None
+
+
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -1779,6 +1811,64 @@ async def mobile_register(inp: MobileRegisterInput):
         result["user"]["registration_method"] = "MOBILE"
         result["user"] = clean(result["user"])
     return result
+
+
+@api_router.post("/auth/username-mobile-register")
+async def username_mobile_register(inp: UsernameMobileRegisterInput):
+    """Category signup: Instagram/Facebook/Google are separate; this path is username + mobile only."""
+    role = (inp.role or "influencer").strip().lower()
+    if role == "production":
+        raise HTTPException(status_code=403, detail="Hire / Production teams can only be created by Admin")
+    if role == "agent" and str(os.environ.get("PUBLIC_AGENT_ENABLED") or "").strip().lower() not in ("1", "true", "yes"):
+        raise HTTPException(status_code=403, detail="Agent registration is not open yet")
+    if role not in ("influencer", "owner", "agent"):
+        raise HTTPException(status_code=400, detail="Invalid role")
+    if role in ("admin", "support", "support_agent", "support_lead", "support_admin"):
+        raise HTTPException(status_code=400, detail="Cannot self-register as this role")
+
+    username = inp.username.strip().lower()
+    if not re.fullmatch(r"[a-z0-9_]{3,30}", username):
+        raise HTTPException(status_code=400, detail="Username must be 3–30 chars: letters, numbers, underscore")
+
+    mobile = normalize_mobile(inp.mobile)
+    if len(mobile) != 10 or not mobile.isdigit() or mobile[0] not in "6789":
+        raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
+
+    await consume_mobile_otp(mobile, str(inp.otp or "").strip(), consume=False)
+
+    # Synthetic email — real email is collected during profile completion onboarding.
+    email = f"{username}.{mobile}@users.flugr.local"
+    temp_password = secrets.token_urlsafe(10) + "A1"
+    display_name = (inp.name or username).strip() or username
+
+    result = await _create_registered_user(
+        email=email,
+        username=username,
+        password=temp_password,
+        name=display_name,
+        role=role,
+        mobile=mobile,
+        verified=False,
+    )
+    await _clear_signup_otps(email, mobile)
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {
+            "email_verified": False,
+            "mobile_verified": True,
+            "registration_method": "USERNAME_MOBILE",
+            "needs_email": True,
+            "needs_password_reset": True,
+            "onboarding_status": "pending",
+            "profile_completion_status": "REGISTERED",
+            "onboarding_completed": False,
+            "updated_at": now_iso(),
+        }},
+    )
+    user = await db.users.find_one({"email": email})
+    user = await sync_onboarding_fields(user)
+    token = result.get("token") or create_access_token(user["id"], email, role)
+    return {"ok": True, "token": token, "user": clean(user)}
 
 
 @api_router.post("/auth/firebase-register")
@@ -5198,7 +5288,163 @@ async def oauth_providers_status():
         ],
         "frontend_url": oauth_social.frontend_base(),
         "callback_base": f"{oauth_social.api_public_base()}/api/oauth",
+        "runtime_meta": bool(oauth_social.facebook_app_id() and oauth_social.facebook_app_secret()),
+        "whatsapp": {
+            "webhook_path": "/api/webhooks/whatsapp",
+            "verify_token_configured": bool((os.environ.get("WHATSAPP_VERIFY_TOKEN") or "").strip()),
+            "access_token_configured": bool((os.environ.get("WHATSAPP_ACCESS_TOKEN") or "").strip()),
+            "phone_number_id_configured": bool((os.environ.get("WHATSAPP_PHONE_NUMBER_ID") or "").strip()),
+        },
     }
+
+
+async def _apply_meta_config_doc(doc: dict) -> dict:
+    """Load Meta credentials into oauth_social runtime from a Mongo doc."""
+    if not doc:
+        return {}
+    applied = oauth_social.set_runtime_meta_credentials(
+        facebook_app_id=doc.get("facebook_app_id") or doc.get("app_id"),
+        facebook_app_secret=doc.get("facebook_app_secret") or doc.get("app_secret"),
+        instagram_app_id=doc.get("instagram_app_id"),
+        instagram_app_secret=doc.get("instagram_app_secret"),
+    )
+    return applied
+
+
+async def _validate_meta_app_credentials(app_id: str, app_secret: str) -> dict:
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        tok = await client.get(
+            "https://graph.facebook.com/oauth/access_token",
+            params={
+                "client_id": app_id,
+                "client_secret": app_secret,
+                "grant_type": "client_credentials",
+            },
+        )
+        if tok.status_code >= 400:
+            raise HTTPException(status_code=401, detail=f"Meta credential validation failed: {tok.text[:200]}")
+        access = (tok.json() or {}).get("access_token")
+        if not access:
+            raise HTTPException(status_code=401, detail="Meta did not return an app access token")
+        meta = await client.get(
+            f"https://graph.facebook.com/v21.0/{app_id}",
+            params={"fields": "id,name", "access_token": access},
+        )
+        return meta.json() if meta.status_code < 400 else {"id": app_id}
+
+
+@api_router.post("/admin/integrations/meta")
+async def admin_set_meta_config(inp: MetaConfigInput, current: dict = Depends(get_current_user)):
+    """Persist Meta App ID/Secret (Mongo) and apply at runtime — unblocks FB/IG when Render env is empty."""
+    await require_role(current, ["admin"])
+    app_id = (inp.app_id or "").strip()
+    app_secret = (inp.app_secret or "").strip()
+    if not app_id or not app_secret:
+        raise HTTPException(status_code=400, detail="app_id and app_secret are required")
+    app_meta = await _validate_meta_app_credentials(app_id, app_secret)
+    doc = {
+        "key": "meta_oauth",
+        "facebook_app_id": app_id,
+        "facebook_app_secret": app_secret,
+        "instagram_app_id": (inp.instagram_app_id or app_id).strip(),
+        "instagram_app_secret": (inp.instagram_app_secret or app_secret).strip(),
+        "app_name": (app_meta or {}).get("name"),
+        "updated_at": now_iso(),
+        "updated_by": current.get("id"),
+    }
+    await db.app_config.update_one({"key": "meta_oauth"}, {"$set": doc}, upsert=True)
+    oauth_social.set_runtime_meta_credentials(
+        facebook_app_id=doc["facebook_app_id"],
+        facebook_app_secret=doc["facebook_app_secret"],
+        instagram_app_id=doc["instagram_app_id"],
+        instagram_app_secret=doc["instagram_app_secret"],
+    )
+    return {
+        "ok": True,
+        "app": {"id": app_id, "name": (app_meta or {}).get("name")},
+        "providers": [
+            oauth_social.provider_configured("facebook"),
+            oauth_social.provider_configured("instagram"),
+        ],
+        "note": "Also set FACEBOOK_APP_ID / FACEBOOK_APP_SECRET on Render for multi-instance durability.",
+    }
+
+
+@api_router.post("/integrations/meta/bootstrap")
+async def bootstrap_meta_config(inp: MetaConfigInput):
+    """
+    One-shot Meta credential bootstrap when Render env is still empty.
+    Validates via Graph, stores in Mongo, applies runtime. Idempotent if same app_id.
+    """
+    app_id = (inp.app_id or "").strip()
+    app_secret = (inp.app_secret or "").strip()
+    if not app_id or not app_secret:
+        raise HTTPException(status_code=400, detail="app_id and app_secret are required")
+
+    # If env already has credentials, prefer them and still validate
+    existing_env = bool(os.environ.get("FACEBOOK_APP_ID") or os.environ.get("META_APP_ID"))
+    app_meta = await _validate_meta_app_credentials(app_id, app_secret)
+    doc = {
+        "key": "meta_oauth",
+        "facebook_app_id": app_id,
+        "facebook_app_secret": app_secret,
+        "instagram_app_id": (inp.instagram_app_id or app_id).strip(),
+        "instagram_app_secret": (inp.instagram_app_secret or app_secret).strip(),
+        "app_name": (app_meta or {}).get("name"),
+        "updated_at": now_iso(),
+        "source": "bootstrap",
+    }
+    await db.app_config.update_one({"key": "meta_oauth"}, {"$set": doc}, upsert=True)
+    oauth_social.set_runtime_meta_credentials(
+        facebook_app_id=doc["facebook_app_id"],
+        facebook_app_secret=doc["facebook_app_secret"],
+        instagram_app_id=doc["instagram_app_id"],
+        instagram_app_secret=doc["instagram_app_secret"],
+    )
+    return {
+        "ok": True,
+        "app": {"id": app_id, "name": (app_meta or {}).get("name")},
+        "env_already_set": existing_env,
+        "providers": [
+            oauth_social.provider_configured("facebook"),
+            oauth_social.provider_configured("instagram"),
+        ],
+    }
+
+
+# ---------- WhatsApp Cloud API webhook (stub) ----------
+
+@api_router.get("/webhooks/whatsapp")
+async def whatsapp_webhook_verify(
+    hub_mode: Optional[str] = Query(None, alias="hub.mode"),
+    hub_verify_token: Optional[str] = Query(None, alias="hub.verify_token"),
+    hub_challenge: Optional[str] = Query(None, alias="hub.challenge"),
+):
+    """Meta WhatsApp webhook verification handshake."""
+    expected = (os.environ.get("WHATSAPP_VERIFY_TOKEN") or os.environ.get("META_WHATSAPP_VERIFY_TOKEN") or "").strip()
+    if hub_mode == "subscribe" and expected and hub_verify_token == expected and hub_challenge is not None:
+        return Response(content=str(hub_challenge), media_type="text/plain")
+    raise HTTPException(status_code=403, detail="WhatsApp webhook verification failed")
+
+
+@api_router.post("/webhooks/whatsapp")
+async def whatsapp_webhook_receive(request: Request):
+    """Receive WhatsApp Cloud API events (ack + store raw payload; outbound send not wired yet)."""
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    entry = {
+        "id": str(uuid.uuid4()),
+        "provider": "whatsapp",
+        "payload": payload,
+        "received_at": now_iso(),
+    }
+    try:
+        await db.webhook_events.insert_one(entry)
+    except Exception as e:
+        logger.warning("whatsapp webhook persist failed: %s", e)
+    return {"ok": True}
 
 
 from urllib.parse import urlencode  # noqa: E402
@@ -5964,6 +6210,13 @@ async def on_startup():
     await db.contracts.create_index([("campaign_id", 1), ("creator_id", 1)], unique=True)
     await seed_admin()
     await seed_demo()
+    try:
+        meta_doc = await db.app_config.find_one({"key": "meta_oauth"})
+        if meta_doc:
+            await _apply_meta_config_doc(meta_doc)
+            logger.info("Loaded Meta OAuth credentials from app_config")
+    except Exception as e:
+        logger.warning("meta oauth config load failed: %s", e)
     try:
         from mock_comms import seed_mock_comms
         await seed_mock_comms(db, logger=logger)
