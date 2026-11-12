@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
 import { Nav } from "@/components/Nav";
 import { BrandLogo } from "@/components/BrandLogo";
-import { SocialAuthButtons } from "@/components/SocialAuthButtons";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
 import { toast } from "sonner";
@@ -107,37 +105,6 @@ export default function Register() {
     setUsernameStatus("typing");
     setGoogleImportTime(prefill ? Date.now() : null);
   }, [urlRole, location.state]);
-
-  const applySocialPrefill = (email, firstName, lastName, source = "Google") => {
-    const suggestedUsername = email ? email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "").toLowerCase() : "";
-    setForm((f) => ({
-      ...f,
-      firstName: firstName || f.firstName,
-      lastName: lastName || f.lastName,
-      email: email || f.email,
-      username: f.username || suggestedUsername,
-    }));
-    setErr("");
-    setFieldErrors((e) => ({ ...e, firstName: "", lastName: "", email: "" }));
-    setGoogleImportTime(Date.now());
-    toast.success(`${source} details imported! Complete mobile OTP to finish registration.`);
-  };
-
-  const handleGoogleCredential = (credential) => {
-    try {
-      if (!credential) {
-        setErr("Google Login Failed");
-        return;
-      }
-      const decoded = jwtDecode(credential);
-      const email = decoded.email || "";
-      const firstName = decoded.given_name || (decoded.name ? decoded.name.split(" ")[0] : "");
-      const lastName = decoded.family_name || (decoded.name ? decoded.name.split(" ").slice(1).join(" ") : "");
-      applySocialPrefill(email, firstName, lastName, "Google");
-    } catch (_) {
-      setErr("Failed to parse Google login");
-    }
-  };
 
   // Resend OTP Cooldown Timer
   useEffect(() => {
@@ -503,25 +470,9 @@ export default function Register() {
             Register as <span className="italic text-[#A9824A]">{roleLabel}</span>
           </h1>
 
-          <div className="mt-1.5 w-full shrink-0">
-            <SocialAuthButtons
-              mode="signup"
-              onGoogleCredential={handleGoogleCredential}
-              onGoogleError={(reason) =>
-                setErr(reason || "Google sign-in failed. This domain may not be authorized for Google OAuth.")
-              }
-            />
-          </div>
-
-          <div className="flex items-center gap-3 mt-1.5 opacity-60 shrink-0">
-            <div className="h-px bg-[#2A201A]/12 flex-1"></div>
-            <span className="font-sans text-[10px] tracking-[0.2em] uppercase font-medium">Or fill manually</span>
-            <div className="h-px bg-[#2A201A]/12 flex-1"></div>
-          </div>
-
           <form
             onSubmit={handleInitialSubmit}
-            className="mt-1.5 flex flex-col min-h-0 flex-1"
+            className="mt-3 flex flex-col min-h-0 flex-1"
             data-testid={`register-form-${role}`}
             autoComplete="off"
           >
