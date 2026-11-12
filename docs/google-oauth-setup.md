@@ -26,43 +26,44 @@ Default shared client ID (must match on both sides):
 Open [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials)
 → OAuth 2.0 Client ID (Web application) for the ID above.
 
-### Authorized JavaScript origins
+### Authorized JavaScript origins (CRITICAL)
 
 Add **exact** origins (no path, no trailing slash):
 
-- `http://localhost:3000`
-- `https://project2-social.onrender.com`
-- `https://naresh-palle.github.io`
+| Origin | Why |
+|---|---|
+| `https://flugr.in` | **Production site — missing this causes Error 400: origin_mismatch** |
+| `https://www.flugr.in` | If www redirects or is used |
+| `http://localhost:3000` | Local dev |
+| `https://project2-social.onrender.com` | API host if GIS is ever served there |
+| `https://naresh-palle.github.io` | Legacy Pages host |
 
 ### Authorized redirect URIs
 
-For GIS popup / credential button these are usually not required, but if you enable
-redirect UX also add:
+For GIS popup these are usually not required. For backend redirect OAuth also add:
 
+- `https://project2-social.onrender.com/api/oauth/google/callback`
 - `http://localhost:3000`
-- `https://project2-social.onrender.com`
-- `https://naresh-palle.github.io/Project2-Social`
 
 ## Symptom: Error 400 origin_mismatch
 
-Browser console:
-
 ```
-[GSI_LOGGER]: The given origin is not allowed for the given client ID.
-```
-
-or Google page:
-
-```
-Access blocked: Authorization Error — Error 400: origin_mismatch
+You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy.
+Error 400: origin_mismatch
 ```
 
-**Fix:** add the current site origin to Authorized JavaScript origins, wait 1–5 minutes, hard-refresh.
+**Cause:** you are on `https://flugr.in` but that origin is not listed on the OAuth Web client.
+
+**Fix (developer only — Google Console):**
+
+1. Open the Web client `858111971322-uf792cb63b4u97u1fu494kngaajuaibr…`
+2. Under **Authorized JavaScript origins** → **Add URI** → `https://flugr.in`
+3. Save
+4. Wait 1–5 minutes, hard-refresh https://flugr.in/#/login
+
+This agent cannot edit Google Cloud Console for you.
 
 ## Notes
 
-- Sign-in only works for emails already registered (backend returns 404 otherwise and the
-  app routes the user to registration with Google profile prefill).
+- Frontend and backend client IDs **must** be identical or token verification fails.
 - Support roles are unrelated; Google is for end-user accounts.
-- Frontend and backend client IDs **must** be identical or token verification fails with
-  `Invalid Google sign-in token`.

@@ -71,7 +71,7 @@ export function SocialAuthButtons({
           }}
           onError={() =>
             fail(
-              "Google sign-in failed. This domain may not be authorized for the Google client ID (origin_mismatch)."
+              "Google Error 400: origin_mismatch — add https://flugr.in to Authorized JavaScript origins in Google Cloud Console (OAuth Web client), save, wait 1–5 min, hard-refresh."
             )
           }
           theme="outline"

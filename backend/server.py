@@ -1453,6 +1453,8 @@ class MetaConfigInput(BaseModel):
     app_secret: str
     instagram_app_id: Optional[str] = None
     instagram_app_secret: Optional[str] = None
+    # From Meta → Facebook Login for Business → Configurations (fixes "supported permission")
+    facebook_login_config_id: Optional[str] = None
     # trial (default) = Meta Development / testers only; business = Live + App Review later
     mode: Optional[str] = "trial"
 
@@ -5295,10 +5297,16 @@ async def oauth_providers_status():
         "env_meta": {
             "facebook_app_id": bool((os.environ.get("FACEBOOK_APP_ID") or os.environ.get("META_APP_ID") or "").strip()),
             "facebook_app_secret": bool((os.environ.get("FACEBOOK_APP_SECRET") or os.environ.get("META_APP_SECRET") or "").strip()),
+            "facebook_login_config_id": bool(oauth_social.facebook_login_config_id()),
             "instagram_app_id": bool((os.environ.get("INSTAGRAM_APP_ID") or "").strip()),
             "instagram_app_secret": bool((os.environ.get("INSTAGRAM_APP_SECRET") or "").strip()),
             "meta_oauth_mode": (os.environ.get("META_OAUTH_MODE") or "").strip() or None,
         },
+        "google_origins_required": [
+            "https://flugr.in",
+            "https://www.flugr.in",
+            "http://localhost:3000",
+        ],
         "whatsapp": {
             "webhook_path": "/api/webhooks/whatsapp",
             "verify_token_configured": bool((os.environ.get("WHATSAPP_VERIFY_TOKEN") or "").strip()),
@@ -5317,6 +5325,7 @@ async def _apply_meta_config_doc(doc: dict) -> dict:
         facebook_app_secret=doc.get("facebook_app_secret") or doc.get("app_secret"),
         instagram_app_id=doc.get("instagram_app_id"),
         instagram_app_secret=doc.get("instagram_app_secret"),
+        facebook_login_config_id=doc.get("facebook_login_config_id"),
         mode=doc.get("mode") or "trial",
         inject_environ=True,
     )
@@ -5355,12 +5364,14 @@ async def admin_set_meta_config(inp: MetaConfigInput, current: dict = Depends(ge
         raise HTTPException(status_code=400, detail="app_id and app_secret are required")
     app_meta = await _validate_meta_app_credentials(app_id, app_secret)
     mode = oauth_social.set_meta_oauth_mode(inp.mode or "trial")
+    config_id = (inp.facebook_login_config_id or "").strip() or None
     doc = {
         "key": "meta_oauth",
         "facebook_app_id": app_id,
         "facebook_app_secret": app_secret,
         "instagram_app_id": (inp.instagram_app_id or app_id).strip(),
         "instagram_app_secret": (inp.instagram_app_secret or app_secret).strip(),
+        "facebook_login_config_id": config_id,
         "mode": mode,
         "app_name": (app_meta or {}).get("name"),
         "updated_at": now_iso(),
@@ -5372,6 +5383,7 @@ async def admin_set_meta_config(inp: MetaConfigInput, current: dict = Depends(ge
         facebook_app_secret=doc["facebook_app_secret"],
         instagram_app_id=doc["instagram_app_id"],
         instagram_app_secret=doc["instagram_app_secret"],
+        facebook_login_config_id=config_id,
         mode=mode,
         inject_environ=True,
     )
@@ -5379,6 +5391,7 @@ async def admin_set_meta_config(inp: MetaConfigInput, current: dict = Depends(ge
         "ok": True,
         "app": {"id": app_id, "name": (app_meta or {}).get("name")},
         "meta_oauth_mode": mode,
+        "facebook_login_config_id_set": bool(config_id),
         "providers": [
             oauth_social.provider_configured("facebook"),
             oauth_social.provider_configured("instagram"),
@@ -5402,12 +5415,14 @@ async def bootstrap_meta_config(inp: MetaConfigInput):
     existing_env = bool(os.environ.get("FACEBOOK_APP_ID") or os.environ.get("META_APP_ID"))
     app_meta = await _validate_meta_app_credentials(app_id, app_secret)
     mode = oauth_social.set_meta_oauth_mode(inp.mode or "trial")
+    config_id = (inp.facebook_login_config_id or "").strip() or None
     doc = {
         "key": "meta_oauth",
         "facebook_app_id": app_id,
         "facebook_app_secret": app_secret,
         "instagram_app_id": (inp.instagram_app_id or app_id).strip(),
         "instagram_app_secret": (inp.instagram_app_secret or app_secret).strip(),
+        "facebook_login_config_id": config_id,
         "mode": mode,
         "app_name": (app_meta or {}).get("name"),
         "updated_at": now_iso(),
@@ -5419,6 +5434,7 @@ async def bootstrap_meta_config(inp: MetaConfigInput):
         facebook_app_secret=doc["facebook_app_secret"],
         instagram_app_id=doc["instagram_app_id"],
         instagram_app_secret=doc["instagram_app_secret"],
+        facebook_login_config_id=config_id,
         mode=mode,
         inject_environ=True,
     )
@@ -5426,6 +5442,7 @@ async def bootstrap_meta_config(inp: MetaConfigInput):
         "ok": True,
         "app": {"id": app_id, "name": (app_meta or {}).get("name")},
         "meta_oauth_mode": mode,
+        "facebook_login_config_id_set": bool(config_id),
         "env_already_set": existing_env,
         "providers": [
             oauth_social.provider_configured("facebook"),

@@ -201,7 +201,7 @@ export default function Login() {
               onGoogleError={(reason) => {
                 const msg =
                   reason ||
-                  "Google sign-in failed. If this keeps happening, the site origin may not be authorized in Google Cloud Console.";
+                  "Google Error 400 origin_mismatch: add https://flugr.in under Authorized JavaScript origins for the OAuth Web client in Google Cloud Console, save, wait a few minutes, then hard-refresh.";
                 setErr(msg);
                 toast.error(msg);
               }}

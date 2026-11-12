@@ -66,12 +66,23 @@ def set_meta_oauth_mode(mode: Optional[str]) -> str:
     return m
 
 
+def facebook_login_config_id() -> str:
+    """Facebook Login for Business configuration id (required by many newer Meta apps)."""
+    return (
+        os.environ.get("FACEBOOK_LOGIN_CONFIG_ID")
+        or os.environ.get("META_LOGIN_CONFIG_ID")
+        or _RUNTIME_META.get("facebook_login_config_id")
+        or ""
+    ).strip()
+
+
 def set_runtime_meta_credentials(
     *,
     facebook_app_id: Optional[str] = None,
     facebook_app_secret: Optional[str] = None,
     instagram_app_id: Optional[str] = None,
     instagram_app_secret: Optional[str] = None,
+    facebook_login_config_id: Optional[str] = None,
     mode: Optional[str] = None,
     inject_environ: bool = True,
 ) -> Dict[str, str]:
@@ -81,12 +92,14 @@ def set_runtime_meta_credentials(
         "facebook_app_secret": facebook_app_secret,
         "instagram_app_id": instagram_app_id,
         "instagram_app_secret": instagram_app_secret,
+        "facebook_login_config_id": facebook_login_config_id,
     }
     env_map = {
         "facebook_app_id": ("FACEBOOK_APP_ID", "META_APP_ID"),
         "facebook_app_secret": ("FACEBOOK_APP_SECRET", "META_APP_SECRET"),
         "instagram_app_id": ("INSTAGRAM_APP_ID",),
         "instagram_app_secret": ("INSTAGRAM_APP_SECRET",),
+        "facebook_login_config_id": ("FACEBOOK_LOGIN_CONFIG_ID", "META_LOGIN_CONFIG_ID"),
     }
     for key, value in mapping.items():
         if value is not None and str(value).strip():
@@ -254,14 +267,27 @@ def build_authorize_url(provider: str, state_meta: dict) -> str:
         app_id = facebook_app_id()
         if not app_id:
             raise ValueError("FACEBOOK_APP_ID is not configured")
-        params = {
-            "client_id": app_id,
-            "redirect_uri": redirect_uri,
-            "state": state,
-            "response_type": "code",
-            # Minimal permissions for identity + email
-            "scope": "email,public_profile",
-        }
+        config_id = facebook_login_config_id()
+        # Newer Meta apps (Login for Business / use-case apps) require config_id.
+        # Without it, Meta shows: "This app needs at least one supported permission."
+        if config_id:
+            params = {
+                "client_id": app_id,
+                "redirect_uri": redirect_uri,
+                "state": state,
+                "config_id": config_id,
+                "response_type": "code",
+                "override_default_response_type": "true",
+            }
+        else:
+            params = {
+                "client_id": app_id,
+                "redirect_uri": redirect_uri,
+                "state": state,
+                "response_type": "code",
+                # Classic Facebook Login scopes (comma-separated)
+                "scope": "public_profile,email",
+            }
         return f"https://www.facebook.com/v21.0/dialog/oauth?{urlencode(params)}"
 
     if provider == "instagram":
@@ -466,17 +492,27 @@ def provider_configured(provider: str) -> Dict[str, Any]:
     mode = meta_oauth_mode()
     if p == "facebook":
         ok = bool(facebook_app_id() and facebook_app_secret())
+        has_config = bool(facebook_login_config_id())
         note = (
             "Trial/dev: Facebook Login works for Meta app roles (Admin/Developer/Tester) only."
             if mode == "trial"
             else "Business/live: Facebook Login for public users (App Review if Meta requires it)."
         )
+        if ok and not has_config:
+            note += (
+                " Missing FACEBOOK_LOGIN_CONFIG_ID — Meta often shows "
+                "'This app needs at least one supported permission'. "
+                "Create a Login configuration (email + public_profile) and set the config id."
+            )
+        else:
+            note += " Redirect URI + Login config required in Meta console."
         return {
             "provider": "facebook",
             "configured": ok,
             "auth_code_ready": ok,
+            "login_config_id_set": has_config,
             "mode": mode,
-            "note": note + " Add redirect URI in Meta console.",
+            "note": note,
         }
     if p == "instagram":
         ok = bool(instagram_app_id() and instagram_app_secret())

@@ -123,19 +123,30 @@ Set:
 
 Click **Save Changes**.
 
-### 3.3 Permissions for Facebook Login
+### 3.3 Permissions + Login configuration (CRITICAL)
 
 We only need:
 
 - `public_profile` (required)
-- `email` (add if optional)
+- `email` (required for flugr account email)
 
-Where to find:
+**If you see “This app needs at least one supported permission”:**
+
+Newer Meta apps need a **Login configuration**:
+
+1. **Facebook Login for Business → Configurations → Create**
+2. Add permissions `email` + `public_profile`
+3. Copy **Configuration ID**
+4. Set on API: `FACEBOOK_LOGIN_CONFIG_ID=<id>` (Render) or pass `facebook_login_config_id` to `/api/integrations/meta/bootstrap`
+
+Full steps: `docs/fix-facebook-supported-permission.md`
+
+Also:
 
 - **Use cases** → Facebook Login use case → customize → add `email`, **or**
 - **App Review** → **Permissions and features** → ensure `email` is available for testing
 
-In **Development mode**, Admin/Developer/Tester accounts can log in without full App Review.
+In **Development mode (trial)**, Admin/Developer/Tester accounts can log in without full App Review.
 
 ### 3.4 Add yourself as a tester (Development mode)
 
