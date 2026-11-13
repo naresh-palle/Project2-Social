@@ -33,7 +33,7 @@ Then open https://flugr.in/#/login → Facebook / Instagram.
 
 ## Free way to let other people sign in while staying in Development
 
-1. Meta → [FLUGR app](https://developers.facebook.com/apps/1662702218853274/) → **App roles** → **Roles**
+1. Meta → [FLUGR app](https://developers.facebook.com/apps/2872938923087073/) → **App roles** → **Roles**
 2. **Add Testers** (their Facebook email / name)
 3. They accept: https://developers.facebook.com/requests/
 4. They use **their** Facebook account (incognito if needed) on flugr Sign In

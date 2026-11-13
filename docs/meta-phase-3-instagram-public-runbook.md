@@ -43,7 +43,7 @@ Render should still have `INSTAGRAM_APP_ID` / `INSTAGRAM_APP_SECRET` (or same as
 
 ## Step 1 — Instagram product on FLUGR app
 
-Open: https://developers.facebook.com/apps/1662702218853274/
+Open: https://developers.facebook.com/apps/2340240193463979/
 
 1. **Add products** → **Instagram** → Set up  
 2. Prefer **Instagram API setup with Instagram Login**  

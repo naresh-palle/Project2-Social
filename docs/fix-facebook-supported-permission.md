@@ -13,7 +13,7 @@ Our API already supports this via `FACEBOOK_LOGIN_CONFIG_ID`.
 
 ## Fix in Meta Developers (5 minutes)
 
-1. Open https://developers.facebook.com/apps/1662702218853274/
+1. Open https://developers.facebook.com/apps/2872938923087073/
 2. Left menu → **Facebook Login** or **Facebook Login for Business** → **Configurations**
 3. **Create configuration** (or **Add configuration**)
    - Name: `flugr-web-login`
@@ -34,7 +34,7 @@ Paste the Configuration ID in chat, or call:
 curl -X POST https://project2-social.onrender.com/api/integrations/meta/bootstrap \
   -H 'Content-Type: application/json' \
   -d '{
-    "app_id": "1662702218853274",
+    "app_id": "2872938923087073",
     "app_secret": "<secret>",
     "facebook_login_config_id": "<CONFIG_ID>",
     "mode": "trial"

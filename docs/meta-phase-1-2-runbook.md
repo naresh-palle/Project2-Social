@@ -36,7 +36,7 @@ curl -s https://project2-social.onrender.com/api/integrations/meta/phase-status 
 
 ## Phase 1 — Meta console (Development testers) — ~5 min
 
-Open: https://developers.facebook.com/apps/1662702218853274/
+Open: https://developers.facebook.com/apps/2872938923087073/
 
 1. Confirm top toggle can stay **Development** while you add testers (or leave Live if you already flipped for Phase 2).  
 2. Left menu → **App roles** → **Roles** → **Add people** → role **Tester**.  
@@ -50,7 +50,7 @@ Open: https://developers.facebook.com/apps/1662702218853274/
 
 ## Phase 2 — Meta console (public Facebook) — ~10 min
 
-Same app: https://developers.facebook.com/apps/1662702218853274/
+Same app: https://developers.facebook.com/apps/2872938923087073/
 
 1. **App settings → Basic**  
    - Privacy Policy URL: `https://flugr.in/privacy-policy.html`  

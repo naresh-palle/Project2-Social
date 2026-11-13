@@ -49,7 +49,7 @@ Shared Mongo = durable across API instances on the same database. Render env is 
 - Facebook: `https://project2-social.onrender.com/api/oauth/facebook/callback`
 - Instagram: `https://project2-social.onrender.com/api/oauth/instagram/callback`
 
-Validated Graph check for app `1662702218853274` returns name **FLUGR**.
+Validated Graph check for app `2872938923087073` returns name **FLUGR**.
 
 ## Trial checklist
 
