@@ -83,5 +83,6 @@ Same app: https://developers.facebook.com/apps/1662702218853274/
 
 ## Not in Phase 1–2
 
-- Instagram public Advanced Access / App Review → Phase 3  
+- Instagram public Advanced Access / App Review → **Phase 3**  
+  See `docs/meta-phase-3-instagram-public-runbook.md`  
 - WhatsApp paid messaging → not required for login  

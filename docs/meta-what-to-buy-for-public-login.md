@@ -86,4 +86,7 @@ Meta **Live + Advanced Access** = your console clicks (same runbook).
 - Business Verification + App Review + Advanced Access for Instagram Login  
 - Users must use **Professional** IG accounts  
 
+**Status:** flugr/API **ready**. Meta Verification + App Review = your console work.  
+**Full steps:** `docs/meta-phase-3-instagram-public-runbook.md`
+
 Only later buy paid Meta products if you need **WhatsApp messaging at scale**, **ads**, or other commercial APIs — not for login itself.
