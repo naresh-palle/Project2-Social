@@ -44,10 +44,11 @@ Copy the new **App ID** from **App settings → Basic** (you will paste it into 
 | Field | Value |
 |---|---|
 | Display name | FLUGR |
+| App icon (1024 × 1024) | Upload `frontend/public/brand/meta-app-icon-1024.png` (or cream variant `meta-app-icon-1024-cream.png`) |
 | App domains | `flugr.in` |
 | Privacy Policy URL | `https://flugr.in/privacy-policy.html` |
-| User data deletion | `https://flugr.in/privacy-policy.html` |
-| Category | Business / Entertainment (any reasonable) |
+| User data deletion | `https://flugr.in/delete-account.html` |
+| Category | **Business and pages** (or **Entertainment** / **Shopping** if Business and pages is missing) |
 
 **Add platform → Website**
 
@@ -56,6 +57,13 @@ Copy the new **App ID** from **App settings → Basic** (you will paste it into 
 **Save Changes.**
 
 Click **Show** next to **App Secret** → copy App Secret (keep private).
+
+### Field notes (Meta form)
+
+- **App icon:** PNG or JPG, exactly **1024 × 1024**, under 5 MB, no transparency required (RGB is fine).  
+- **Privacy Policy URL:** must open in a browser without login.  
+- **User data deletion:** instructions page for how users delete their data/account (not the same as Privacy Policy).  
+- **Category:** pick the closest match; it does not block Login.
 
 ---
 
