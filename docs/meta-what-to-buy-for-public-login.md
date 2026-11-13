@@ -72,9 +72,15 @@ Until App Review is approved, Instagram Sign In stays tester-only even if Facebo
 - Add **Testers** for people who must try FB/IG  
 - Test in **Incognito** so you are not stuck on your own session  
 
+**Status:** flugr/API **ready**. Meta Testers = your console clicks.  
+Runbook: `docs/meta-phase-1-2-runbook.md` · Status API: `GET /api/integrations/meta/phase-status`
+
 ### Phase 2 — public Facebook (still free)
 - Live + Advanced Access on `email` / `public_profile` only  
 - Goal: **any Facebook user** can Sign In  
+
+**Status:** flugr/API **ready** (`META_OAUTH_MODE=business`, login config id, redirects, privacy URL).  
+Meta **Live + Advanced Access** = your console clicks (same runbook).
 
 ### Phase 3 — public Instagram (still free process, more paperwork)
 - Business Verification + App Review + Advanced Access for Instagram Login  

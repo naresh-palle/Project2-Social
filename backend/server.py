@@ -5364,6 +5364,63 @@ async def _validate_meta_app_credentials(app_id: str, app_secret: str) -> dict:
         return meta.json() if meta.status_code < 400 else {"id": app_id}
 
 
+@api_router.get("/integrations/meta/phase-status")
+async def meta_phase_status():
+    """
+    Phase 1–2 readiness from docs/meta-what-to-buy-for-public-login.md.
+    flugr/API checks only — Meta Live / Advanced Access / Testers require console clicks.
+    """
+    fb = oauth_social.provider_configured("facebook")
+    ig = oauth_social.provider_configured("instagram")
+    mode = oauth_social.meta_oauth_mode()
+    has_config = bool(oauth_social.facebook_login_config_id())
+    has_fb_creds = bool(oauth_social.facebook_app_id() and oauth_social.facebook_app_secret())
+    has_ig_creds = bool(oauth_social.instagram_app_id() and oauth_social.instagram_app_secret())
+    phase1_flugr = has_fb_creds and has_ig_creds and has_config and fb.get("auth_code_ready") and ig.get("auth_code_ready")
+    phase2_flugr = phase1_flugr and mode == "business"
+    return {
+        "ok": True,
+        "app": {"id": oauth_social.facebook_app_id() or None, "name": "FLUGR"},
+        "meta_oauth_mode": mode,
+        "privacy_policy_url_for_meta": "https://flugr.in/privacy-policy.html",
+        "privacy_policy_spa": "https://flugr.in/#/legal/privacy",
+        "redirects": {
+            "facebook": oauth_social.oauth_callback_url("facebook"),
+            "instagram": oauth_social.oauth_callback_url("instagram"),
+        },
+        "phase_1_development_testers": {
+            "flugr_ready": phase1_flugr,
+            "facebook_auth_ready": bool(fb.get("auth_code_ready")),
+            "instagram_auth_ready": bool(ig.get("auth_code_ready")),
+            "login_config_id_set": has_config,
+            "meta_console_remaining": [
+                "App roles → add Testers",
+                "Testers accept https://developers.facebook.com/requests/",
+                "Test Sign In in Incognito as the Tester",
+            ],
+            "runbook": "docs/meta-phase-1-2-runbook.md",
+        },
+        "phase_2_public_facebook": {
+            "flugr_ready": phase2_flugr,
+            "meta_oauth_mode_is_business": mode == "business",
+            "login_config_id_set": has_config,
+            "meta_console_remaining": [
+                "App settings → Basic → Privacy Policy URL = https://flugr.in/privacy-policy.html",
+                "Permissions: Advanced Access for email + public_profile only",
+                "Facebook Login → Valid OAuth Redirect URI set",
+                "Switch app Development → Live",
+                "Incognito test with a Facebook account that is NOT an app role",
+            ],
+            "runbook": "docs/meta-phase-1-2-runbook.md",
+        },
+        "phase_3_public_instagram": {
+            "flugr_ready": has_ig_creds and bool(ig.get("auth_code_ready")),
+            "note": "Later: Business Verification + App Review for Instagram Login Advanced Access. Professional IG accounts required.",
+        },
+        "providers": [fb, ig],
+    }
+
+
 @api_router.post("/integrations/meta/mode")
 async def set_meta_oauth_mode_endpoint(inp: MetaModeInput):
     """Flip API Meta mode. Public Facebook/Instagram users need mode=business AND Meta app Live."""
